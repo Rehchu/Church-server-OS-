@@ -376,3 +376,8 @@ Check it from your phone's hotspot with the Tailscale app on: if
   arise-automator -n 100`.
 - **Start the domain over** (only on a fresh box, this deletes every user):
   `sudo systemctl stop samba-ad-dc && sudo rm -rf /var/lib/samba/* /etc/samba/smb.conf && sudo bash /opt/arise/installer/install.sh`.
+
+
+---
+
+**Decision, Oct 27 2026:** the old PC (a Dell OptiPlex, specs to follow) is wiped; path A. Start with `docs/PRE-WIPE.md`.

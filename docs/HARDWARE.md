@@ -83,3 +83,11 @@ Get-Tpm | Select TpmPresent, TpmReady
 - A noisy fan. Blow the dust out before it goes in the closet.
 - A PC that is "too slow for Windows 11". Ubuntu Server with no desktop
   needs a fraction of that; the 4 GB row above is a 2013 machine.
+
+## Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped
+
+Bradly confirmed the old PC will be wiped (install path A). It is believed to be a
+Dell OptiPlex; model and specs to follow. The service tag on its sticker, put into
+dell.com/support, answers every line above at once. `docs/PRE-WIPE.md` is the
+checklist for the days before the wipe: specs, the two credential files if the
+automator runs there today, the USB stick, the F12/F2 boot steps.
