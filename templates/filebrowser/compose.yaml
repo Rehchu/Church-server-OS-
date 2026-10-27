@@ -1,0 +1,14 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:v2.32.0
+    container_name: arise-app-filebrowser
+    restart: unless-stopped
+    user: "1500:1500"            # the arise user; set by install.sh
+    ports:
+      - "8081:80"
+    volumes:
+      - /srv/arise/shares:/srv
+      - /srv/arise/apps/filebrowser:/database        # filebrowser.db lands here
+      - /srv/arise/apps/filebrowser/config:/config
+    environment:
+      - TZ=America/Chicago

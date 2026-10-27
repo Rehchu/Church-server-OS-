@@ -1,0 +1,11 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1.23.16
+    container_name: arise-app-uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "8082:3001"
+    volumes:
+      - /srv/arise/apps/uptime-kuma:/app/data
+    environment:
+      - TZ=America/Chicago

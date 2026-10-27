@@ -1,0 +1,94 @@
+# =============================================================================
+#  Arise Server — master configuration
+#  Lives at /etc/arise/arise.toml (Linux) or C:\Arise\config\arise.toml (Windows mode).
+#
+#  Written by the installer and by `arisectl`. The dashboard never writes this
+#  file; it writes only /var/lib/arise/state.json. Edit by hand with care and
+#  restart arise-web afterwards:  sudo systemctl restart arise-web
+#
+#  Secrets never go here. They live in /etc/arise/secrets/ (mode 0600):
+#    restic-password   the restic repository password
+#    synology.cred     username= / password= / domain=  for the SMB mount
+#    dsm.json          {"user": "...", "pass": "..."} for the optional DSM API
+# =============================================================================
+
+[system]
+hostname = "arise-server"
+timezone = "America/Chicago"
+# "server"  = the Linux install: directory, files, automator, backups, apps.
+# "windows" = Windows mode: dashboard, automator, backups only (no directory).
+profile = "server"
+data_root = "/srv/arise"
+
+[web]
+# 0.0.0.0 = reachable from the church LAN. The dashboard has its own login.
+bind = "0.0.0.0"
+port = 4147
+# bcrypt hash of the dashboard password, written by `arisectl admin set-password`.
+# Empty = nobody can log in until it is set.
+admin_user = "bradly"
+admin_password_hash = ""
+session_hours = 12
+
+[directory]
+# The Samba Active Directory Domain Controller. Provisioned by install.sh.
+enabled = true
+realm = "AD.ARISECENLA.CHURCH"
+netbios = "ARISE"
+# Where the DC sends lookups it does not own (everything that is not the realm).
+dns_forwarder = "1.1.1.1"
+# Where domain users' home folders live. Local disk at first; switch to
+# "/mnt/synology/homes" once the NAS is joined to the domain (docs/SYNOLOGY.md).
+homes_path = "/srv/arise/homes"
+
+[automator]
+# The nightly YouTube job. The checkout is a clone of Rehchu/arise-youtube-automation;
+# token.json and client_secret.json go in that folder by hand (never in git).
+enabled = true
+path = "/srv/arise/automator/ARISE_YouTube_Updater"
+python = "/opt/arise/venv/bin/python"
+# Local time, America/Chicago. 02:05 = five minutes after the YouTube quota resets.
+# The systemd timer carries the same time; change both or use `arisectl automator schedule`.
+schedule = "02:05"
+
+[backups]
+# restic repository. On the Synology once it is mounted; the first `arisectl backup run`
+# initialises it. The password file must exist first (install.sh prints how).
+restic_repo = "/mnt/synology/arise-backups/restic"
+password_file = "/etc/arise/secrets/restic-password"
+schedule = "03:00"
+# Retention: restic forget --keep-daily 14 --keep-weekly 8 --keep-monthly 12, then prune.
+keep_daily = 14
+keep_weekly = 8
+keep_monthly = 12
+jobs_file = "/etc/arise/backups.yaml"
+
+[nas]
+# The 4-bay Synology. Model and DSM version: not known yet — fill in docs/SYNOLOGY.md
+# once it is on the bench.
+enabled = true
+host = "synology.ad.arisecenla.church"
+mount = "/mnt/synology"
+# "smb" (works once the NAS is in the domain) or "nfs" (simplest if it is not).
+protocol = "smb"
+share = "arise"
+# Optional: the DSM web API for health, disk and Hyper Backup status in the dashboard.
+# Leave empty to skip. e.g. "https://synology.ad.arisecenla.church:5001"
+dsm_url = ""
+dsm_credentials_file = "/etc/arise/secrets/dsm.json"
+
+[apps]
+# Docker Compose templates from templates/. Off in Windows mode.
+docker = true
+root = "/srv/arise/apps"
+
+[github]
+# Bare mirrors of every Arise repo, refreshed at 04:00 and included in the backups.
+# Private repos need a token in /etc/arise/secrets/github-token (one line).
+mirror = true
+mirror_path = "/srv/arise/backups/github-mirror"
+repos = [
+  "Rehchu/Church-server-OS-", "Rehchu/arise-youtube-automation", "Rehchu/arisechurch",
+  "Rehchu/arisehub", "Rehchu/arise-church-backup", "Rehchu/arise-youtube",
+  "Rehchu/projectbackups", "Rehchu/ai-chat-backups"
+]

@@ -1,0 +1,19 @@
+name: syncthing
+title: Syncthing
+description: Mirrors a folder on the media Mac (thumbnails, graphics, Proclaim exports) to /srv/arise/shares/media without anyone copying files by hand. Both sides stay editable.
+category: files
+icon: refresh
+version: "1.28"
+ports:
+  - 8384:8384
+  - 22000:22000
+volumes:
+  - /srv/arise/apps/syncthing:/var/syncthing/config
+  - /srv/arise/shares/media:/var/syncthing/media
+env:
+  PUID: "1500"
+  PGID: "1500"
+notes: |
+  Install Syncthing on the Mac (syncthing.net), add this server's device ID from
+  http://arise-server:8384, share the Mac folder with it. Set a password on the
+  web UI on first open (Settings > GUI) - it ships without one.

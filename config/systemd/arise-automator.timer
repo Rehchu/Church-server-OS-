@@ -1,0 +1,12 @@
+# 02:05 Central every night. Persistent=true: if the PC was off at 02:05 the
+# run fires as soon as it is next up (the automator skips what is already done).
+[Unit]
+Description=Arise YouTube automator — 02:05 America/Chicago
+
+[Timer]
+OnCalendar=*-*-* 02:05:00 America/Chicago
+Persistent=true
+Unit=arise-automator.service
+
+[Install]
+WantedBy=timers.target

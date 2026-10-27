@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arise Server</title>
+<meta name="description" content="The Arise Church server dashboard: directory, files, backups, the YouTube automator, apps and the Synology, in one place.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div id="app" class="app">
+  <aside class="side" id="side">
+    <a class="brand" href="#overview">
+      <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="34" height="34"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg></span>
+      <span class="brand__t"><span class="brand__wm">Arise Server</span><span class="brand__tag">Church server OS</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Sections">
+      <a href="#overview" data-view="overview"><i class="ic ic-grid"></i>Overview</a>
+      <a href="#directory" data-view="directory"><i class="ic ic-users"></i>Directory</a>
+      <a href="#files" data-view="files"><i class="ic ic-folder"></i>Files</a>
+      <a href="#backups" data-view="backups"><i class="ic ic-shield"></i>Backups</a>
+      <a href="#automator" data-view="automator"><i class="ic ic-play"></i>Automator</a>
+      <a href="#apps" data-view="apps"><i class="ic ic-apps"></i>Apps</a>
+      <a href="#nas" data-view="nas"><i class="ic ic-disk"></i>NAS</a>
+      <a href="#services" data-view="services"><i class="ic ic-cog"></i>Services</a>
+      <a href="#logs" data-view="logs"><i class="ic ic-list"></i>Logs</a>
+      <a href="#settings" data-view="settings"><i class="ic ic-sliders"></i>Settings</a>
+    </nav>
+    <div class="side__foot">
+      <div class="live" id="sideLive"><span class="live__dot"></span><span id="sideLiveText">connecting…</span></div>
+      <div class="side__meta" id="sideMeta">Arise Church · Pineville, LA</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span></button>
+      <div class="top__title"><span class="kicker" id="topKicker">Arise Server</span><h1 id="topTitle">Overview</h1></div>
+      <div class="top__right">
+        <div class="mini" title="CPU"><span class="mini__l">CPU</span><span class="mini__v" id="miniCpu">–</span></div>
+        <div class="mini" title="Memory"><span class="mini__l">RAM</span><span class="mini__v" id="miniRam">–</span></div>
+        <div class="mini" title="Uptime"><span class="mini__l">UP</span><span class="mini__v" id="miniUp">–</span></div>
+        <span class="demo-badge" id="demoBadge" hidden>Sample data</span>
+        <button class="btn btn--ghost btn--sm" id="logoutBtn" hidden>Sign out</button>
+      </div>
+    </header>
+    <main class="view" id="view" aria-live="polite"></main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<dialog id="modal" class="modal"><div id="modalBody"></div></dialog>
+
+<script src="/assets/demo-data.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>

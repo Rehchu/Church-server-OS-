@@ -1,0 +1,18 @@
+# Arise Server — refresh the bare mirrors of every GitHub repo listed in
+# [github].repos of /etc/arise/arise.toml into /srv/arise/backups/github-mirror.
+# Fired by arise-mirror.timer at 04:00, after the backup, so the next backup
+# carries the fresh mirror.
+[Unit]
+Description=Arise GitHub mirror refresh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/arise
+ExecStart=/usr/local/bin/arisectl mirror run
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+TimeoutStartSec=1h
+StandardOutput=append:/var/log/arise/mirror.log
+StandardError=append:/var/log/arise/mirror.log

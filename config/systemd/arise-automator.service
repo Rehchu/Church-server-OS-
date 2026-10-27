@@ -1,0 +1,21 @@
+# Arise Server — the nightly YouTube automator (arise_daily.py).
+# Fired by arise-automator.timer at 02:05 America/Chicago, five minutes after
+# the YouTube quota resets. Run by hand:  systemctl start arise-automator
+# Its own report lands in automator/LATEST_REPORT.md whatever happens.
+[Unit]
+Description=Arise YouTube automator (nightly run)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/arise/automator/ARISE_YouTube_Updater/automator
+ExecStart=/opt/arise/venv/bin/python /srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
+Environment=PYTHONUTF8=1
+Environment=PYTHONIOENCODING=utf-8
+Environment=PYTHONUNBUFFERED=1
+Environment=TZ=America/Chicago
+TimeoutStartSec=3h
+StandardOutput=append:/var/log/arise/automator.log
+StandardError=append:/var/log/arise/automator.log

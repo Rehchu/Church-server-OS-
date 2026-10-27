@@ -1,0 +1,28 @@
+# secrets never go to GitHub
+token.json
+client_secret.json
+*.cred
+secrets/
+restic-password
+github-token
+dsm.json
+web-secret
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# state and logs
+/var/
+state/
+logs/
+*.log
+backup-history.json
+
+# editors
+.DS_Store
+.vscode/
+.idea/

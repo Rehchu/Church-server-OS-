@@ -1,0 +1,59 @@
+# =============================================================================
+#  Arise Server — backup jobs
+#  Lives at /etc/arise/backups.yaml. Read by `arisectl backup run` and the dashboard.
+#
+#  Every job is one `restic backup` with these paths, excludes and tags into the
+#  repository named in [backups] of arise.toml. Every run — done, failed or
+#  skipped — writes a row to /var/lib/arise/backup-history.json. Silence is
+#  not an outcome.
+#
+#  Add a job: copy a block, give it a new id. Remove one: delete the block.
+#  Paths that do not exist are reported as "skipped", not treated as success.
+# =============================================================================
+jobs:
+  - id: automator
+    name: YouTube automator
+    # The whole toolkit: scripts, song bank, transcripts, reports, token.json.
+    paths: ["/srv/arise/automator"]
+    exclude: ["**/__pycache__", "**/*.zip"]
+    tags: [automator]
+
+  - id: homes
+    name: Home folders
+    # Every domain user's home share. Caches and trash are noise.
+    paths: ["/srv/arise/homes"]
+    exclude: ["**/Library/Caches", "**/.Trash", "**/node_modules"]
+    tags: [homes]
+
+  - id: shares
+    name: Shared folders
+    paths: ["/srv/arise/shares"]
+    tags: [shares]
+
+  - id: github
+    name: GitHub mirror
+    # Bare mirrors refreshed by arise-mirror.timer at 04:00.
+    paths: ["/srv/arise/backups/github-mirror"]
+    tags: [github]
+
+  - id: config
+    name: Server config
+    # arise.toml, the backup jobs, the Samba AD database (the domain itself).
+    # Restoring /var/lib/samba/private brings the domain back with every user.
+    paths: ["/etc/arise", "/etc/samba", "/var/lib/samba/private"]
+    tags: [config]
+
+  - id: apps
+    name: App data
+    # Vaultwarden's vault, Uptime Kuma's history, Syncthing's config, File Browser's database.
+    paths: ["/srv/arise/apps"]
+    exclude: ["**/cache", "**/*.log"]
+    tags: [apps]
+
+  - id: media
+    name: Media on the Synology
+    # Proclaim graphics, loops, thumbnails, podcast art. Lives on the NAS; this
+    # job only runs when /mnt/synology is mounted, and says so when it is not.
+    paths: ["/mnt/synology/arise/media"]
+    exclude: ["**/.DS_Store", "**/@eaDir"]
+    tags: [media]

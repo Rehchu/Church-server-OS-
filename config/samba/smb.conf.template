@@ -1,0 +1,76 @@
+# =============================================================================
+#  Arise Server — Samba AD DC smb.conf, the Arise additions
+#
+#  `samba-tool domain provision` writes /etc/samba/smb.conf with its own
+#  [global], [netlogon] and [sysvol]. install.sh does not replace that file;
+#  it APPENDS everything below the ">>> arise-server shares" marker, and
+#  inserts the "vfs objects / fruit:" lines into [global]. See README.md here.
+#
+#  Shown in full so the whole file can be read in one place. The [global]
+#  block below is what the provision writes plus our Mac lines.
+# =============================================================================
+
+[global]
+        dns forwarder = 1.1.1.1
+        netbios name = ARISE-SERVER
+        realm = AD.ARISECENLA.CHURCH
+        server role = active directory domain controller
+        workgroup = ARISE
+        idmap_ldb:use rfc2307 = yes
+
+        # ---- macOS over SMB ------------------------------------------------
+        # Macs store resource forks, Finder tags and extended attributes on
+        # every file. Without `fruit` Samba drops or mangles them, Finder
+        # copies fail with -36 / -43 errors, and Time Machine refuses the share.
+        vfs objects = acl_xattr fruit streams_xattr
+        # Keep the Mac metadata inside NTFS-style alternate streams (the
+        # Windows-compatible way), not as ._AppleDouble sidecar files.
+        fruit:metadata = stream
+        # Advertise as a Mac server so macOS turns on its SMB fast paths.
+        fruit:model = MacSamba
+        # Rename a file even while a Mac holds it open (Finder does this constantly).
+        fruit:posix_rename = yes
+        # Do not hide ._ files that were made by older clients; leave them visible so they can be cleaned up.
+        fruit:veto_appledouble = no
+        # Remove the empty resource fork macOS leaves on every file it touches.
+        fruit:wipe_intentionally_left_blank_rfork = yes
+        # Delete the ._ sidecar when it holds nothing.
+        fruit:delete_empty_adfiles = yes
+
+[sysvol]
+        path = /var/lib/samba/sysvol
+        read only = No
+
+[netlogon]
+        path = /var/lib/samba/sysvol/ad.arisecenla.church/scripts
+        read only = No
+
+# >>> arise-server shares (appended by installer/install.sh; keep this marker)
+
+[homes]
+        # One folder per domain user: \\arise-server\homes\<user> appears to the
+        # user as \\arise-server\<user>. %U is the logged-in user, %S the share
+        # name they asked for — "valid users = %S" means only that person.
+        comment = Home folder
+        path = /srv/arise/homes/%U
+        valid users = %S
+        read only = no
+        browseable = no
+        # Files 0600, folders 0700: nothing in a home is readable by anyone else.
+        create mask = 0600
+        directory mask = 0700
+        # Make the folder the first time the user connects.
+        root preexec = /bin/sh -c 'mkdir -p "/srv/arise/homes/%U" && chown "%U" "/srv/arise/homes/%U" && chmod 0700 "/srv/arise/homes/%U"'
+
+[shares]
+        # The church's shared folders: media, graphics, documents. Anyone in the
+        # domain can read and write; subfolder permissions are set with
+        # `arisectl share` or from the dashboard.
+        comment = Arise Church shared folders
+        path = /srv/arise/shares
+        valid users = @"ARISE\Domain Users"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Domain Users"

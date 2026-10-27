@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arise Server</title>
+<meta name="description" content="Arise Server: the church server for Arise Church, Pineville LA. Active Directory for the Macs, home folders and shares, the nightly YouTube automator, backups to the Synology, apps, and one dashboard in the church's own look.">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Arise Server">
+<meta property="og:description" content="One box. One login. Nothing silent. The church server for Arise Church.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#top">Skip to content</a>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top">
+    <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg></span>
+    <span class="brand__t"><span class="brand__wm">Arise Server</span><span class="brand__tag">Church server OS</span></span>
+  </a>
+  <nav class="nav__links" aria-label="Site">
+    <a href="#why">Why</a><a href="#features">What it does</a><a href="#surfaces">Surfaces</a><a href="#profiles">Profiles</a><a href="#install">Install</a><a href="#cookbook">Cookbook</a><a href="#support">Support</a>
+  </nav>
+  <a class="btn btn--sm nav__cta" href="#install">Install</a>
+  <button class="burger" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="mobile"><span></span></button>
+</header>
+<div class="mobile" id="mobile" aria-hidden="true">
+  <a href="#why">Why</a><a href="#features">What it does</a><a href="#surfaces">Surfaces</a><a href="#profiles">Profiles</a><a href="#install">Install</a><a href="#cookbook">Cookbook</a><a href="#support">Support</a>
+  <a class="btn" href="#install">Install</a>
+</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="shell hero__grid">
+      <div class="hero__col reveal">
+        <div class="mark"><span class="kicker">Arise Church · Pineville, LA · v0.1.0 “Pineville”</span></div>
+        <h1>The church server<br><span class="red">built for the people</span><br>who run it on Sundays.</h1>
+        <p class="lede">Arise Server turns an old PC into the church's own server: a real <b>Active Directory</b> the Macs sign in to, <b>home folders and shares</b>, the <b>nightly YouTube automator</b> on a timer, <b>backups to the Synology</b> that say when they fail, a small <b>app store</b>, and one dashboard that looks like arisecenla.church. One box. One login. Nothing silent.</p>
+        <div class="hero__acts">
+          <a class="btn btn--lg" href="#install">Install it</a>
+          <a class="btn btn--ghost btn--lg" href="https://github.com/Rehchu/Church-server-OS-" rel="noopener">Source on GitHub</a>
+        </div>
+        <ul class="hero__meta">
+          <li><b>1</b> CLI, <code>arisectl</code></li>
+          <li><b>1</b> config file</li>
+          <li><b>10</b> dashboard sections</li>
+          <li><b>0</b> build steps</li>
+        </ul>
+      </div>
+      <div class="hero__term reveal">
+        <div class="term">
+          <div class="term__bar"><span></span><span></span><span></span><em>bradly@arise-server ~ · arisectl</em></div>
+          <pre class="term__body" id="term" aria-label="Terminal demo"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="Built on">
+    <div class="shell strip__row">
+      <div><b>Base</b> Ubuntu Server 24.04 LTS</div><div><b>Directory</b> Samba Active Directory</div><div><b>Backups</b> restic</div><div><b>Apps</b> Docker Compose</div><div><b>Code</b> Python 3.11+, plain HTML</div><div><b>Licence</b> MIT</div>
+    </div>
+  </section>
+
+  <section id="why" class="sect sect--bone">
+    <div class="shell">
+      <div class="mark reveal"><span class="kicker">Why Arise Server</span></div>
+      <h2 class="reveal">One box. One login. Nothing silent.</h2>
+      <p class="lede reveal">Windows Server does this for a licence fee and a bigger machine. A home-server OS does the apps but not the directory. Arise Server is the narrow thing the church actually needs, wired together from boot: the directory the Macs bind to, the shares, the automator, the backups, the Synology and the apps, all reporting to one page in the church's own look.</p>
+      <div class="path reveal">
+        <div class="path__i"><div class="path__n">01</div><h3>Sign in once</h3><p>Every Mac, the Windows PC and the Synology take the same account. New staff member: one command, one password.</p></div>
+        <div class="path__i"><div class="path__n">02</div><h3>Files on the server</h3><p>Home folders and shares live on the box and the NAS, not on whichever laptop someone took home.</p></div>
+        <div class="path__i"><div class="path__n">03</div><h3>Runs the automator</h3><p>The 2:05 AM YouTube job runs on the server, on a timer, with its report on the dashboard by breakfast.</p></div>
+        <div class="path__i"><div class="path__n">04</div><h3>Backed up, and says so</h3><p>Every job writes a row, done or failed. A missing NAS, an expired token, a full disk: the Overview says it in red.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="sect sect--ink">
+    <div class="shell">
+      <div class="mark mark--l reveal"><span class="kicker">What it does</span></div>
+      <h2 class="reveal">Everything the church asked for. Nothing it did not.</h2>
+      <div class="feat reveal">
+        <article class="feat__c"><h3>Active Directory for the Macs</h3><p>A Samba AD domain controller, realm <code>AD.ARISECENLA.CHURCH</code>. Macs bind with Apple's own Directory Utility, log in with mobile accounts, and keep Desktop and Documents on the server. Kerberos, LDAP and DNS included.</p></article>
+        <article class="feat__c"><h3>Home folders and shares</h3><p>One private folder per person, Mac-friendly (<code>vfs fruit</code>), plus shared folders by group. Moving an old Mac's data in is one script with a manifest, and nothing is ever deleted by it.</p></article>
+        <article class="feat__c"><h3>The automator, on a timer</h3><p><code>arise_daily.py</code> runs at 02:05 Central from systemd, five minutes after the quota resets. The hold list, the worklist, the quota ledger and every report are on the dashboard. Preview tonight with one click.</p></article>
+        <article class="feat__c"><h3>Backups that report</h3><p>restic snapshots to the Synology at 03:00: the automator, homes, shares, app data, the server config, and a mirror of every GitHub repo. Keep 14 daily, 8 weekly, 12 monthly. Every run writes a row.</p></article>
+        <article class="feat__c"><h3>The Synology, joined</h3><p>The NAS joins the domain, holds the bulk files on four drives, is the backup target, and ships an off-site copy with Hyper Backup. The dashboard shows mount state, free space and DSM health.</p></article>
+        <article class="feat__c"><h3>A small app store</h3><p>Docker Compose templates for what a church uses: File Browser, Uptime Kuma, Syncthing, Vaultwarden. Install, update, logs, remove, with the data folder always kept.</p></article>
+        <article class="feat__c"><h3>Three surfaces, one look</h3><p>The dashboard, <code>arisectl</code> and the installer share the same modules and the same Arise design: Anton and Oswald, ink and red, square corners, nothing invented.</p></article>
+        <article class="feat__c"><h3>Honest by design</h3><p>Deleting is your click: users, shares and apps need their name typed. Secrets never go to GitHub or the browser. A missing tool shows sample data and says so.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="surfaces" class="sect">
+    <div class="shell">
+      <div class="mark reveal"><span class="kicker">Three surfaces</span></div>
+      <h2 class="reveal">Same box, three ways to look at it.</h2>
+      <div class="tabs reveal" data-tabs>
+        <div class="tabs__bar" role="tablist">
+          <button class="active" role="tab" aria-selected="true" aria-controls="s-cli" id="t-cli">arisectl · CLI</button>
+          <button role="tab" aria-selected="false" aria-controls="s-web" id="t-web">Dashboard · Web</button>
+          <button role="tab" aria-selected="false" aria-controls="s-phone" id="t-phone">Phone</button>
+        </div>
+        <div class="tabs__p active" role="tabpanel" id="s-cli" aria-labelledby="t-cli">
+<pre class="code"><span class="c">$</span> sudo arisectl user add vanessa --display "Vanessa S" --groups Leadership
+  ✓ done
+<span class="c">$</span> arisectl backup status
+repository /mnt/synology/arise-backups/restic
+  ✓ 53 snapshots, 296.2 GB stored
+  JOB        LAST              RESULT  ADDED
+  automator  2026-10-27T03:00  ok      797.1 MB
+  homes      2026-10-27T03:04  ok      451.3 MB
+  config     2026-10-27T03:16  ok      739.5 MB
+<span class="c">$</span> arisectl automator preview
+  ## Preflight
+  - signed in as **Arise Church**
+  - quota: 9,999 of 10,000 units left today
+  - 8 videos on hold, 3 standing rules loaded</pre>
+        </div>
+        <div class="tabs__p" role="tabpanel" id="s-web" aria-labelledby="t-web" hidden>
+          <div class="webmock" role="img" aria-label="The Arise Server dashboard overview">
+            <div class="webmock__side"><div class="webmock__brand">Arise Server</div><div class="webmock__nav"><span class="on">Overview</span><span>Directory</span><span>Files</span><span>Backups</span><span>Automator</span><span>Apps</span><span>NAS</span><span>Services</span><span>Logs</span><span>Settings</span></div></div>
+            <div class="webmock__main">
+              <div class="webmock__top"><span>ARISE SERVER</span><b>OVERVIEW</b><em>CPU 7% · RAM 36% · UP 14d</em></div>
+              <div class="webmock__att">ALL CLEAR &nbsp;·&nbsp; every service up, last automator run clean, backups ok, Synology mounted</div>
+              <div class="webmock__cards"><div><i>CPU</i><b>7<small>%</small></b><svg viewBox="0 0 100 24" preserveAspectRatio="none"><polyline points="0,20 10,14 20,17 30,8 40,12 50,6 60,10 70,4 80,11 90,7 100,13"/></svg></div><div><i>Memory</i><b>5.8 GB</b><span>36% of 16 GB</span></div><div><i>Network</i><b>↓ 1.2 MB/s</b><span>↑ 310 KB/s</span></div><div><i>Uptime</i><b>14d 3h</b><span>Ubuntu 24.04 · 4 cores</span></div></div>
+              <div class="webmock__rows"><div><i>Directory</i><b>ONLINE</b><span>AD.ARISECENLA.CHURCH · 5 users · 4 computers</span></div><div><i>Automator</i><b>CLEAN</b><span>1,962 of 10,000 units · next 02:05</span></div><div><i>Backups</i><b>HEALTHY</b><span>Server config · 3:16 AM · ok</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabs__p" role="tabpanel" id="s-phone" aria-labelledby="t-phone" hidden>
+          <div class="phone" role="img" aria-label="The dashboard on a phone">
+            <div class="phone__top"><span>≡</span><b>OVERVIEW</b></div>
+            <div class="phone__att warn">NEEDS YOU<br><small>YouTube sign-in token expires in about 2 days. Publish the OAuth app.</small></div>
+            <div class="phone__card"><i>CPU</i><b>5<small>%</small></b><div class="phone__meter"><span style="width:5%"></span></div></div>
+            <div class="phone__card"><i>Backups</i><b>HEALTHY</b><small>Home folders · 3:04 AM · ok</small></div>
+            <div class="phone__card"><i>Synology</i><b>10.1 TB free</b><small>mounted · SHR · 4 drives</small></div>
+          </div>
+          <p class="note">The same page, folded for a phone on the church Wi‑Fi: the sidebar slides in, the cards stack, every button stays reachable with a thumb.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profiles" class="sect sect--bone">
+    <div class="shell">
+      <div class="mark reveal"><span class="kicker">Profiles</span></div>
+      <h2 class="reveal">Two ways to run it. One is the real thing.</h2>
+      <div class="prof reveal">
+        <article class="prof__c prof__c--rec">
+          <span class="strip"><span>Recommended</span></span>
+          <h3>server</h3><p class="prof__t">Ubuntu Server 24.04 LTS on the old PC.</p>
+          <ul><li>Active Directory domain controller</li><li>Home folders, shares, Mac binding</li><li>Automator, backups, GitHub mirror on timers</li><li>Docker apps, Synology mount</li><li>Dashboard + <code>arisectl</code></li></ul>
+          <p class="prof__n">Needs: 2 cores, 4 GB RAM (8 GB with apps), a 64 GB+ SSD, wired Ethernet, on 24/7. Wipes Windows.</p>
+          <a class="btn btn--sm" href="#install">Install path A</a>
+        </article>
+        <article class="prof__c">
+          <span class="strip strip--mute"><span>Keep Windows</span></span>
+          <h3>windows</h3><p class="prof__t">Windows 10/11 stays. Four scheduled tasks and the dashboard.</p>
+          <ul><li>Dashboard + <code>arisectl</code></li><li>Automator at 02:05, backups at 03:00, mirror at 04:00</li><li>Windows file sharing, local accounts</li><li class="no">No domain controller</li><li class="no">No Mac domain login</li></ul>
+          <p class="prof__n">A Windows 10/11 PC cannot be an Active Directory domain controller. That needs the server profile.</p>
+          <a class="btn btn--sm btn--dark" href="#install">Install path B</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="install" class="sect">
+    <div class="shell">
+      <div class="mark reveal"><span class="kicker">Install</span></div>
+      <h2 class="reveal">From an old PC to the church server.</h2>
+      <p class="lede reveal">Send the specs first (<code>docs/HARDWARE.md</code> has the checklist). Then pick a path. Every command below is real and in <code>INSTALL.md</code>.</p>
+      <div class="tabs reveal" data-tabs>
+        <div class="tabs__bar" role="tablist">
+          <button class="active" role="tab" aria-selected="true" aria-controls="i-a" id="t-a">A · Ubuntu (recommended)</button>
+          <button role="tab" aria-selected="false" aria-controls="i-b" id="t-b">B · Keep Windows</button>
+          <button role="tab" aria-selected="false" aria-controls="i-c" id="t-c">C · Hands-off USB</button>
+        </div>
+        <div class="tabs__p active" role="tabpanel" id="i-a" aria-labelledby="t-a">
+<pre class="code"><span class="c"># 1. Install Ubuntu Server 24.04 LTS from a USB stick (installer/MAKE-USB.md)</span>
+<span class="c"># 2. On the new system:</span>
+sudo apt install -y git
+git clone https://github.com/Rehchu/Church-server-OS-.git
+cd Church-server-OS-
+sudo bash installer/install.sh --admin-pass 'YourDomainAdminPassword'
+<span class="c"># 3. First boot, in this order:</span>
+sudo arisectl admin set-password          <span class="c"># the dashboard login</span>
+<span class="c"># copy token.json + client_secret.json into /srv/arise/automator/ARISE_YouTube_Updater/</span>
+sudo nano /etc/arise/secrets/restic-password   <span class="c"># and write it on paper</span>
+sudo arisectl nas mount
+sudo arisectl doctor</pre>
+        </div>
+        <div class="tabs__p" role="tabpanel" id="i-b" aria-labelledby="t-b" hidden>
+<pre class="code"><span class="c"># PowerShell, as Administrator</span>
+git clone https://github.com/Rehchu/Church-server-OS-.git C:\Arise\app
+Set-ExecutionPolicy -Scope Process Bypass
+C:\Arise\app\installer\install.ps1
+<span class="c"># Dashboard at http://localhost:4147 . Four scheduled tasks: Arise Web, Automator 02:05, Backup 03:00, Mirror 04:00.</span>
+<span class="c"># No domain controller on Windows - the Macs keep local accounts.</span></pre>
+        </div>
+        <div class="tabs__p" role="tabpanel" id="i-c" aria-labelledby="t-c" hidden>
+<pre class="code"><span class="c"># Put installer/autoinstall.yaml on the Ubuntu USB stick (installer/MAKE-USB.md),</span>
+<span class="c"># boot the PC from it, walk away. It installs Ubuntu, clones this repo and runs</span>
+<span class="c"># install.sh --no-start. Then log in and finish path A from step 3.</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cookbook" class="sect sect--ink">
+    <div class="shell">
+      <div class="mark mark--l reveal"><span class="kicker">Cookbook</span></div>
+      <h2 class="reveal">Look how short it is.</h2>
+      <div class="cook reveal">
+<pre class="code"><span class="c"># People</span>
+sudo arisectl user add jsmith --display "J Smith" --groups Staff
+sudo arisectl user passwd jsmith
+arisectl user list
+
+<span class="c"># A Mac joins the domain (run on the Mac)</span>
+sudo ./mac/bind-mac.sh --computer-name MEDIA-MAC
+sudo ./mac/migrate-mac-user.sh --from oldlocal --to jsmith
+
+<span class="c"># Files</span>
+sudo arisectl share add graphics /srv/arise/shares/graphics --group Media</pre>
+<pre class="code"><span class="c"># Backups</span>
+arisectl backup status
+sudo arisectl backup run homes
+sudo arisectl backup restore latest --tag homes \
+  --path /srv/arise/homes/jsmith/Documents --target /srv/arise/restore
+
+<span class="c"># The automator</span>
+arisectl automator status
+sudo arisectl automator preview
+
+<span class="c"># Apps and the NAS</span>
+sudo arisectl app deploy uptime-kuma
+arisectl nas status
+sudo arisectl doctor</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect stats">
+    <div class="shell stats__row reveal">
+      <div><b>02:05</b><span>automator, nightly</span></div><div><b>03:00</b><span>backups to the Synology</span></div><div><b>4147</b><span>the dashboard port, from @arisechurch4147</span></div><div><b>14 · 8 · 12</b><span>daily, weekly, monthly snapshots kept</span></div>
+    </div>
+  </section>
+
+  <section id="support" class="sect">
+    <div class="shell">
+      <div class="mark reveal"><span class="kicker">Support</span></div>
+      <h2 class="reveal">Stuck? Start with doctor.</h2>
+      <div class="sup reveal">
+        <article class="sup__c"><h3>arisectl doctor</h3><p>Checks the config, the password, Samba, DNS, the automator folder and its two credential files, restic and its password, the NAS mount, Docker, every timer and the clock, and prints what to fix in order.</p></article>
+        <article class="sup__c"><h3>The docs</h3><p><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md">INSTALL.md</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DIRECTORY.md">DIRECTORY</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/MAC-MIGRATION.md">MAC-MIGRATION</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/SYNOLOGY.md">SYNOLOGY</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/BACKUPS.md">BACKUPS</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/AUTOMATOR.md">AUTOMATOR</a> · <a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/HARDWARE.md">HARDWARE</a></p></article>
+        <article class="sup__c"><h3>Issues</h3><p>Something wrong in the code or the docs: <a href="https://github.com/Rehchu/Church-server-OS-/issues">open an issue</a> with the output of <code>arisectl doctor</code> and the journal lines that mention it.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="shell cta__in reveal">
+      <h2>Ready when the specs are.</h2>
+      <p>Send the PC's CPU, RAM, disk and network card, and the Synology model. The install path gets chosen from that.</p>
+      <div class="hero__acts"><a class="btn btn--lg btn--onRed" href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/HARDWARE.md">The spec checklist</a><a class="btn btn--lg btn--ghost" href="https://github.com/Rehchu/Church-server-OS-">GitHub</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="shell foot__g">
+    <div><div class="foot__lbl">Arise Server</div><p>The church server for Arise Church, Pineville LA. Built on the shape of Monolith OS and HomeDock OS, in the look of arisecenla.church.</p><span class="strip"><span>One box · one login · nothing silent</span></span></div>
+    <div><div class="foot__lbl">Project</div><a href="https://github.com/Rehchu/Church-server-OS-">Source</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/README.md">README</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/ARCHITECTURE.md">Architecture</a></div>
+    <div><div class="foot__lbl">Docs</div><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md">Install guide</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DASHBOARD.md">Dashboard</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/CLI.md">arisectl</a></div>
+    <div><div class="foot__lbl">Church</div><a href="https://arisecenla.church">arisecenla.church</a><a href="https://www.youtube.com/@arisechurch4147">YouTube</a><span class="foot__when"><b>Sundays</b> 10:30 AM · <b>Glory Night</b> Mondays 7 PM</span></div>
+  </div>
+  <div class="shell foot__btm"><span>© <span id="year">2026</span> Arise Church · MIT License</span><span>v0.1.0 “Pineville”</span></div>
+</footer>
+
+<a href="#top" class="totop" id="toTop" aria-label="Back to top">↑</a>
+<script src="app.js"></script>
+</body>
+</html>

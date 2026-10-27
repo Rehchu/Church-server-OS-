@@ -1,0 +1,470 @@
+#!/usr/bin/env python3
+"""arisectl - the Arise Server command line.
+
+    arisectl info                       what this box is and whether it is well
+    arisectl doctor                     check everything, say what to fix
+    arisectl admin set-password         set the dashboard password
+
+    arisectl service list|status|start|stop|restart <unit>
+    arisectl user list|add|remove|passwd|enable|disable|homefix <name>
+    arisectl group list|add <group>|addmember <group> <user>|removemember <group> <user>
+    arisectl computer list|remove <name>
+    arisectl share list|add <name> <path> [--group G] [--comment C]|remove <name>
+    arisectl backup status|jobs|run [job]|snapshots|restore <id|latest> [--tag T] [--at DATE] [--path P] --target DIR|verify|prune
+    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM
+    arisectl app list|templates|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
+    arisectl nas status|mount|unmount
+    arisectl mirror run
+
+Reads /etc/arise/arise.toml (or $ARISE_CONFIG). Talks to the same Python
+modules the dashboard uses, so the two never disagree.
+"""
+import argparse
+import getpass
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+# ---- find the server package and the right interpreter -----------------------
+HERE = Path(__file__).resolve()
+CANDIDATES = [os.environ.get("ARISE_HOME", ""), str(HERE.parent.parent), "/opt/arise", r"C:\Arise\app"]
+HOME = next((Path(c) for c in CANDIDATES if c and (Path(c) / "server" / "arise_server").is_dir()), None)
+if HOME is None:
+    sys.exit("arisectl: cannot find the server package. Set ARISE_HOME to the repo folder (the one with server/ and cli/).")
+VENV_PY = HOME / "venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+if VENV_PY.exists() and Path(sys.executable).resolve() != VENV_PY.resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
+    os.environ["ARISECTL_NO_REEXEC"] = "1"
+    os.execv(str(VENV_PY), [str(VENV_PY), str(HERE), *sys.argv[1:]])
+sys.path.insert(0, str(HOME / "server"))
+
+from arise_server import VERSION, CODENAME  # noqa: E402
+from arise_server.config import load  # noqa: E402
+from arise_server.util import human_bytes, run, which  # noqa: E402
+
+RED, GRN, YEL, DIM, BOLD, END = "\033[31m", "\033[32m", "\033[33m", "\033[2m", "\033[1m", "\033[0m"
+if not sys.stdout.isatty() or os.name == "nt" and not os.environ.get("WT_SESSION"):
+    RED = GRN = YEL = DIM = BOLD = END = ""
+
+
+def ok(s): print(f"  {GRN}✓{END} {s}")
+def warn(s): print(f"  {YEL}!{END} {s}")
+def bad(s): print(f"  {RED}✗{END} {s}")
+def head(s): print(f"\n{BOLD}{s}{END}")
+
+
+def table(rows, cols):
+    if not rows:
+        print("  (none)"); return
+    widths = [max(len(str(c)), *(len(str(r.get(c, ""))) for r in rows)) for c in cols]
+    print("  " + "  ".join(f"{DIM}{c.upper():<{w}}{END}" for c, w in zip(cols, widths)))
+    for r in rows:
+        print("  " + "  ".join(f"{str(r.get(c, '')):<{w}}" for c, w in zip(cols, widths)))
+
+
+def show(res):
+    """Print a {ok, out, err} result and exit non-zero on failure."""
+    if isinstance(res, dict):
+        if res.get("demo"):
+            warn("sample mode: nothing was changed (no config / tool not installed)")
+        if res.get("out"): print(res["out"].rstrip())
+        if res.get("ok") is False:
+            bad(res.get("err") or res.get("error") or "failed"); sys.exit(1)
+        elif res.get("err") and res.get("ok"):
+            print(res["err"].rstrip())
+    ok("done")
+
+
+def need_root():
+    if os.name != "nt" and hasattr(os, "geteuid") and os.geteuid() != 0:
+        sys.exit("arisectl: this needs root. Run it with sudo.")
+
+
+# ---- commands -----------------------------------------------------------------
+def cmd_info(a):
+    cfg = load()
+    from arise_server import metrics
+    st = metrics.static_info()
+    head(f"Arise Server v{VERSION} “{CODENAME}”")
+    print(f"  host      {st['hostname']}  ({st['os']}, {st['cpu_count']} cores, {st['ram_total_h']} RAM)")
+    print(f"  profile   {cfg.system.profile}   config {cfg.path} {'' if cfg.found else '(MISSING - defaults)'}")
+    print(f"  realm     {cfg.directory.realm} / {cfg.directory.netbios}   directory {'on' if cfg.directory.enabled else 'off'}")
+    print(f"  web       http://{cfg.system.hostname}:{cfg.web.port}   password {'set' if cfg.web.admin_password_hash else 'NOT SET'}")
+    print(f"  automator {cfg.automator.path}  at {cfg.automator.schedule}")
+    print(f"  backups   {cfg.backups.restic_repo}  at {cfg.backups.schedule}")
+    print(f"  nas       {cfg.nas.protocol}://{cfg.nas.host}/{cfg.nas.share} -> {cfg.nas.mount}")
+    if cfg.demo:
+        warn("sample mode: no config file found, every module answers with sample data")
+
+
+def cmd_doctor(a):
+    cfg = load()
+    head("arisectl doctor")
+    (ok if cfg.found else bad)(f"config {cfg.path}" + ("" if cfg.found else " is missing - copy config/arise.toml.example there"))
+    (ok if cfg.web.admin_password_hash else bad)("dashboard password " + ("set" if cfg.web.admin_password_hash else "not set - run: sudo arisectl admin set-password"))
+    for mod in ("fastapi", "uvicorn", "psutil", "yaml", "bcrypt"):
+        try:
+            __import__(mod); ok(f"python module {mod}")
+        except ImportError:
+            bad(f"python module {mod} missing - pip install -r server/requirements.txt")
+    if cfg.directory.enabled:
+        if which("samba-tool"):
+            r = run(["samba-tool", "domain", "info", "127.0.0.1"], timeout=15)
+            (ok if r["ok"] else bad)("Samba AD DC " + ("answers" if r["ok"] else f"not answering: {(r['err'] or r['out']).strip()[:120]}"))
+            d = run(["host", "-t", "SRV", f"_ldap._tcp.{cfg.directory.realm.lower()}"], timeout=10) if which("host") else {"ok": None}
+            if d["ok"] is not None:
+                (ok if d["ok"] else bad)(f"DNS SRV for {cfg.directory.realm.lower()} " + ("resolves" if d["ok"] else "does not resolve - resolv.conf must point at 127.0.0.1"))
+            h = Path(cfg.directory.homes_path)
+            (ok if h.is_dir() else warn)(f"homes folder {h}" + ("" if h.is_dir() else " missing"))
+        else:
+            bad("samba-tool not installed (directory is enabled) - apt install samba")
+    if cfg.automator.enabled:
+        p = Path(cfg.automator.path)
+        (ok if (p / "automator" / "arise_daily.py").exists() else bad)(f"automator at {p}" + ("" if (p / "automator" / "arise_daily.py").exists() else " - clone Rehchu/arise-youtube-automation there"))
+        (ok if (p / "token.json").exists() else bad)("token.json " + ("present" if (p / "token.json").exists() else "missing - run authorize.py as the channel owner and copy it in"))
+        (ok if (p / "client_secret.json").exists() else bad)("client_secret.json " + ("present" if (p / "client_secret.json").exists() else "missing - download from Google Cloud, project iconic-vine-505702-i5"))
+        for mod in ("googleapiclient", "google_auth_oauthlib", "PIL"):
+            try:
+                __import__(mod); ok(f"automator library {mod}")
+            except ImportError:
+                bad(f"automator library {mod} missing")
+    if which("restic"):
+        ok("restic installed")
+        pw = Path(cfg.backups.password_file)
+        (ok if pw.exists() else bad)(f"restic password file {pw}" + ("" if pw.exists() else " missing - write one and keep a paper copy"))
+        rp = Path(cfg.backups.restic_repo)
+        (ok if rp.exists() else warn)(f"repository {rp}" + ("" if rp.exists() else " not present (NAS not mounted, or not initialised: arisectl backup run initialises it)"))
+    else:
+        bad("restic not installed - apt install restic")
+    if cfg.nas.enabled:
+        (ok if os.path.ismount(cfg.nas.mount) else warn)(f"Synology {cfg.nas.mount} " + ("mounted" if os.path.ismount(cfg.nas.mount) else "not mounted - arisectl nas mount"))
+    if cfg.apps.docker:
+        d = run(["docker", "info"], timeout=10) if which("docker") else {"ok": False}
+        (ok if d["ok"] else warn)("docker " + ("running" if d["ok"] else "not running - apps cannot start"))
+    if which("systemctl"):
+        for u in ("arise-web.service", "arise-automator.timer", "arise-backup.timer", "arise-mirror.timer"):
+            r = run(["systemctl", "is-active", u], timeout=5)
+            (ok if r["ok"] else warn)(f"{u} {r['out'].strip() or 'inactive'}")
+    if which("timedatectl"):
+        r = run(["timedatectl", "show", "-p", "NTPSynchronized", "--value"], timeout=5)
+        (ok if r["out"].strip() == "yes" else warn)("clock " + ("synchronised" if r["out"].strip() == "yes" else "NOT synchronised - Kerberos breaks past 5 minutes of drift"))
+    print()
+
+
+def cmd_admin(a):
+    if a.sub != "set-password":
+        sys.exit("arisectl admin set-password")
+    need_root()
+    cfg = load()
+    from arise_server.auth import hash_password
+    p1 = getpass.getpass("New dashboard password: ")
+    p2 = getpass.getpass("Again: ")
+    if p1 != p2 or len(p1) < 8:
+        sys.exit("passwords differ or shorter than 8 characters; nothing changed")
+    h = hash_password(p1)
+    path = Path(cfg.path)
+    if not path.exists():
+        ex = HOME / "config" / "arise.toml.example"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(ex.read_text() if ex.exists() else '[web]\nadmin_user = "bradly"\nadmin_password_hash = ""\n')
+        warn(f"created {path} from the example")
+    text = path.read_text()
+    if re.search(r'^\s*admin_password_hash\s*=', text, re.M):
+        text = re.sub(r'^(\s*admin_password_hash\s*=\s*).*$', lambda m: f'{m.group(1)}"{h}"', text, count=1, flags=re.M)
+    elif re.search(r'^\[web\]', text, re.M):
+        text = re.sub(r'^\[web\]\s*$', f'[web]\nadmin_password_hash = "{h}"', text, count=1, flags=re.M)
+    else:
+        text += f'\n[web]\nadmin_password_hash = "{h}"\n'
+    path.write_text(text)
+    try:
+        os.chmod(path, 0o640)
+    except OSError:
+        pass
+    ok(f"password hash written to {path} for user '{cfg.web.admin_user}'")
+    if which("systemctl"):
+        run(["systemctl", "restart", "arise-web.service"], timeout=30)
+        ok("arise-web restarted")
+    else:
+        warn("restart the dashboard to pick it up")
+
+
+def cmd_service(a):
+    from arise_server import services
+    if a.sub == "list":
+        r = services.list_services()
+        table([{"unit": s["unit"], "name": s["name"], "state": f"{s['active']} {s['sub']}".strip()} for s in r["services"]], ["unit", "name", "state"])
+        if r.get("demo"): warn("sample data")
+    elif a.sub == "status":
+        print(run(["systemctl", "status", a.name, "--no-pager"], timeout=15)["out"])
+    else:
+        need_root(); show(services.act(a.name, a.sub))
+
+
+def cmd_user(a):
+    from arise_server import directory
+    if a.sub == "list":
+        r = directory.list_users()
+        table([{"user": u["name"], "name": u["display"], "enabled": "yes" if u["enabled"] else "NO", "groups": ", ".join(u["groups"]), "last login": u["last_logon"] or "never"} for u in r["users"]], ["user", "name", "enabled", "groups", "last login"])
+    elif a.sub == "add":
+        need_root()
+        pw = a.password or getpass.getpass(f"Password for {a.name}: ")
+        show(directory.add_user(a.name, pw, a.display or "", a.groups.split(",") if a.groups else []))
+    elif a.sub == "remove":
+        need_root()
+        if input(f"Type the user name to remove it from the domain (home folder is kept): ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        show(directory.delete_user(a.name, a.name))
+    elif a.sub == "passwd":
+        need_root(); show(directory.set_password(a.name, a.password or getpass.getpass(f"New password for {a.name}: ")))
+    elif a.sub in ("enable", "disable"):
+        need_root(); show(directory.enable_user(a.name, a.sub == "enable"))
+    elif a.sub == "homefix":
+        need_root()
+        cfg = load()
+        p = Path(cfg.directory.homes_path) / a.name
+        p.mkdir(parents=True, exist_ok=True)
+        r = run(["chown", "-R", f"{cfg.directory.netbios}\\{a.name}:Domain Users", str(p)], timeout=600)
+        if not r["ok"]:
+            r = run(["chown", "-R", f"{a.name}:", str(p)], timeout=600)
+        os.chmod(p, 0o700)
+        show(r)
+
+
+def cmd_group(a):
+    from arise_server import directory
+    if a.sub == "list":
+        table([{"group": g["name"], "members": ", ".join(g["members"]) or "-", "description": g.get("description", "")} for g in directory.list_groups()["groups"]], ["group", "members", "description"])
+    elif a.sub == "add":
+        need_root(); show(directory.add_group(a.name, a.description or ""))
+    elif a.sub == "addmember":
+        need_root(); show(directory.add_member(a.name, a.user))
+    elif a.sub == "removemember":
+        need_root(); show(directory.remove_member(a.name, a.user))
+
+
+def cmd_computer(a):
+    from arise_server import directory
+    if a.sub == "list":
+        table([{"computer": c["name"], "type": c["kind"], "os": c["os"], "last seen": c["last_seen"] or "-"} for c in directory.list_computers()["computers"]], ["computer", "type", "os", "last seen"])
+    elif a.sub == "remove":
+        need_root()
+        if input(f"Type the computer name to remove its account: ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        show(run(["samba-tool", "computer", "delete", a.name], timeout=30))
+
+
+def cmd_share(a):
+    from arise_server import shares
+    if a.sub == "list":
+        table([{"share": s["name"], "path": s["path"], "access": "rw" if s["writable"] else "ro", "used": human_bytes(s.get("used")), "comment": s.get("comment", "")} for s in shares.list_shares()["shares"]], ["share", "path", "access", "used", "comment"])
+    elif a.sub == "add":
+        need_root(); show(shares.add_share(a.name, a.path, a.comment or "", a.group or "Domain Users", True))
+    elif a.sub == "remove":
+        need_root()
+        if input("Type the share name to remove it (files stay on disk): ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        show(shares.remove_share(a.name, a.name))
+
+
+def cmd_backup(a):
+    from arise_server import backups
+    cfg = load()
+    if a.sub == "status":
+        repo = backups.repo()
+        head(f"repository {repo.get('repo')}")
+        (ok if repo.get("ok") else bad)(f"{repo.get('snapshots', 0)} snapshots, {human_bytes(repo.get('total_size'))} stored" + (f" - {repo['error']}" if repo.get("error") else ""))
+        hist = backups.history(limit=400)["rows"]
+        head("last run per job")
+        rows = []
+        for j in backups.jobs()["jobs"]:
+            last = next((r for r in hist if r["job"] == j["id"]), None)
+            rows.append({"job": j["id"], "last": last["started"][:16] if last else "never", "result": ("ok" if last["ok"] else "FAILED") if last else "-", "added": human_bytes(last["bytes_added"]) if last and last["ok"] else "-", "note": (last.get("error") or last.get("warning") or "")[:80] if last else ""})
+        table(rows, ["job", "last", "result", "added", "note"])
+        if hist and hist[0].get("demo") or backups.history(5).get("demo"):
+            warn("sample data")
+    elif a.sub == "jobs":
+        table([{"id": j["id"], "name": j.get("name", ""), "paths": " ".join(j.get("paths", [])), "tags": ",".join(j.get("tags", []))} for j in backups.jobs()["jobs"]], ["id", "name", "paths", "tags"])
+    elif a.sub == "run":
+        need_root()
+        if backups.available() and not Path(cfg.backups.restic_repo, "config").exists():
+            warn(f"repository not initialised; running restic init at {cfg.backups.restic_repo}")
+            r = backups._restic(["init"], 120)
+            if not r["ok"]:
+                bad((r["err"] or r["out"]).strip()); sys.exit(1)
+        ids = [a.job] if a.job else [j["id"] for j in backups.jobs()["jobs"]]
+        failed = 0
+        for jid in ids:
+            print(f"  … {jid}", flush=True)
+            r = backups.run_job(jid, blocking=True)
+            if r.get("ok"):
+                ok(f"{jid}: snapshot {r.get('snapshot_id')}, {human_bytes(r.get('bytes_added'))} added, {r.get('files_new')} new files")
+            else:
+                failed += 1; bad(f"{jid}: {r.get('err') or r.get('error')}")
+        if not a.job:
+            print("  … forget/prune", flush=True)
+            r = backups.forget_prune()
+            (ok if r.get("ok") else bad)("prune " + ("done" if r.get("ok") else (r.get("err") or "")[:200]))
+        sys.exit(1 if failed else 0)
+    elif a.sub == "snapshots":
+        s = backups.snapshots(limit=200)
+        table([{"id": x["id"], "time": str(x["time"])[:16], "tags": ",".join(x.get("tags", [])), "paths": " ".join(x.get("paths", []))} for x in s["snapshots"]], ["id", "time", "tags", "paths"])
+        if s.get("error"): bad(s["error"])
+    elif a.sub == "restore":
+        need_root()
+        if not a.target:
+            sys.exit("--target DIR is required; restores never land on top of live files")
+        args = ["restore", a.id, "--target", a.target]
+        if a.tag: args += ["--tag", a.tag]
+        if a.at: args += ["--time", a.at if " " in a.at else f"{a.at} 23:59:59"]
+        if a.path: args += ["--include", a.path]
+        print(f"  restic {' '.join(args)}")
+        r = backups._restic(args, 6 * 3600)
+        show(r)
+        ok(f"files are under {a.target}; copy back what you need")
+    elif a.sub == "verify":
+        need_root()
+        r = backups._restic(["check", "--read-data-subset=10%"], 6 * 3600) if backups.available() else {"ok": True, "demo": True}
+        if r.get("ok") and not r.get("demo"):
+            from arise_server.util import read_json, write_json, now_iso
+            sp = cfg.state_dir / "state.json"; st = read_json(sp, default={}); st["restic_last_check"] = now_iso(); st["restic_last_check_ok"] = True; write_json(sp, st)
+        show(r)
+    elif a.sub == "prune":
+        need_root(); show(backups.forget_prune())
+
+
+def cmd_automator(a):
+    from arise_server import automator
+    o = automator.overview()
+    if a.sub == "status":
+        head("automator")
+        print(f"  folder     {o['path']}")
+        print(f"  schedule   {o.get('schedule')} (next {o.get('next_run')})")
+        print(f"  last run   {o.get('last_run') or 'never'}  {o.get('last_summary') or ''}")
+        print(f"  quota      {o.get('quota_today') or 0} of {o.get('quota_daily')} units today")
+        print(f"  token      {'ok' if o.get('token_ok') else 'MISSING'}" + (f", ~{o['token_days_left']} days left" if o.get("token_days_left") is not None else ""))
+        if o.get("token_note"): warn(o["token_note"])
+        print(f"  holds      {o.get('holds')} videos, {o.get('rules')} rules; worklist {o.get('worklist_enabled')}/{o.get('worklist_total')} enabled")
+        if o.get("demo"): warn("sample data (automator folder not found)")
+    elif a.sub in ("preview", "run"):
+        if not automator.available():
+            sys.exit(f"automator not found at {o['path']}")
+        cfg = load()
+        p = Path(cfg.automator.path) / "automator"
+        cmd = [cfg.automator.python, str(p / "arise_daily.py")] + (["--dry-run"] if a.sub == "preview" else [])
+        env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
+        sys.exit(subprocess.call(cmd, cwd=str(p), env=env))
+    elif a.sub == "report":
+        if a.name:
+            print(automator.report(a.name)["text"])
+        else:
+            print(o["latest_report"])
+    elif a.sub == "holds":
+        h = automator.holds()
+        table([{"video": v.get("id"), "reason": v.get("reason", "")} for v in h["videos"]], ["video", "reason"])
+        for r in h["rules"]: print(f"  rule: {r}")
+    elif a.sub == "worklist":
+        table([{"#": j.get("priority", ""), "job": j.get("id"), "enabled": "yes" if j.get("enabled", True) else "NO", "note": j.get("note", j.get("why", ""))} for j in automator.worklist()["jobs"]], ["#", "job", "enabled", "note"])
+    elif a.sub == "schedule":
+        need_root()
+        if not re.match(r"^\d{2}:\d{2}$", a.time or ""):
+            sys.exit("give a time like 02:05")
+        cfg = load(); path = Path(cfg.path); text = path.read_text() if path.exists() else ""
+        if re.search(r'^\[automator\]', text, re.M):
+            sect = re.split(r'(?m)^\[automator\]\s*$', text, 1)
+            body, rest = re.split(r'(?m)^(?=\[)', sect[1], 1) if re.search(r'(?m)^\[', sect[1]) else (sect[1], "")
+            body = re.sub(r'^(\s*schedule\s*=\s*).*$', f'\\1"{a.time}"', body, count=1, flags=re.M) if re.search(r'^\s*schedule\s*=', body, re.M) else body.rstrip("\n") + f'\nschedule = "{a.time}"\n'
+            text = sect[0] + "[automator]" + body + rest
+            path.write_text(text)
+        else:
+            warn(f"no [automator] section in {path}; timer changed only")
+        d = Path("/etc/systemd/system/arise-automator.timer.d"); d.mkdir(parents=True, exist_ok=True)
+        (d / "override.conf").write_text(f"[Timer]\nOnCalendar=\nOnCalendar=*-*-* {a.time}:00 America/Chicago\n")
+        run(["systemctl", "daemon-reload"], timeout=30); run(["systemctl", "restart", "arise-automator.timer"], timeout=30)
+        ok(f"automator now runs at {a.time} America/Chicago (remember the quota resets at 02:00)")
+
+
+def cmd_app(a):
+    from arise_server import apps
+    if a.sub == "list":
+        r = apps.list_apps()
+        table([{"app": x["name"], "state": x["status"], "url": x.get("url", ""), "cpu": f"{x.get('cpu', 0)}%", "mem": human_bytes(x.get("mem"))} for x in r["apps"]], ["app", "state", "url", "cpu", "mem"])
+        if r.get("demo"): warn("sample data (docker not available)")
+    elif a.sub == "templates":
+        table([{"template": t["id"], "name": t["name"], "ports": ",".join(t.get("ports", [])), "what": t["description"][:70]} for t in apps.templates()["templates"]], ["template", "name", "ports", "what"])
+    elif a.sub == "deploy":
+        need_root(); show(apps.deploy(a.template, a.name))
+    elif a.sub == "logs":
+        print(apps.logs(a.name, 300)["text"])
+    else:
+        need_root()
+        if a.sub == "remove" and input("Type the app name to remove it (data folder is kept): ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        show(apps.act(a.name, a.sub, a.name if a.sub == "remove" else ""))
+
+
+def cmd_nas(a):
+    from arise_server import nas
+    if a.sub == "status":
+        n = nas.status()
+        head(f"{n['protocol']}://{n['host']}/{n.get('share', '')} -> {n['mount']}")
+        (ok if n.get("mounted") else bad)("mounted" if n.get("mounted") else "not mounted")
+        if n.get("total"): print(f"  {human_bytes(n['free'])} free of {human_bytes(n['total'])}")
+        d = n.get("dsm")
+        if d: (ok if d.get("ok") else warn)(f"DSM: {d.get('model') or ''} {d.get('version') or ''} volumes {d.get('volume_status') or ''}" if d.get("ok") else f"DSM not readable: {d.get('error')}")
+        if n.get("demo"): warn("sample data")
+    elif a.sub == "mount":
+        need_root(); show(nas.mount())
+    elif a.sub == "unmount":
+        need_root(); show(nas.unmount())
+
+
+def cmd_mirror(a):
+    from arise_server import backups
+    r = backups.mirror_github()
+    for x in r["repos"]:
+        (ok if x["ok"] else bad)(f"{x['repo']}" + ("" if x["ok"] else f": {x['error']}"))
+    sys.exit(0 if r["ok"] else 1)
+
+
+# ---- argument parsing ----------------------------------------------------------
+def build():
+    ap = argparse.ArgumentParser(prog="arisectl", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--version", action="version", version=f"arisectl {VERSION} ({CODENAME})")
+    sp = ap.add_subparsers(dest="cmd", required=True)
+    sp.add_parser("info").set_defaults(f=cmd_info)
+    sp.add_parser("doctor").set_defaults(f=cmd_doctor)
+    p = sp.add_parser("admin"); p.add_argument("sub", choices=["set-password"]); p.set_defaults(f=cmd_admin)
+    p = sp.add_parser("service"); p.add_argument("sub", choices=["list", "status", "start", "stop", "restart"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_service)
+    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
+    p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
+    p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)
+    p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune"]); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
+    p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
+    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule"]); p.add_argument("name", nargs="?", help="report file name, or HH:MM for schedule"); p.set_defaults(f=cmd_automator)
+    p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
+    p = sp.add_parser("nas"); p.add_argument("sub", choices=["status", "mount", "unmount"]); p.set_defaults(f=cmd_nas)
+    p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
+    return ap
+
+
+def main():
+    a = build().parse_args()
+    # argparse quirks: restore's id and schedule's time share the positional
+    if a.cmd == "backup": a.id = a.job
+    if a.cmd == "automator": a.time = a.name
+    if a.cmd == "app":
+        if a.sub == "deploy": a.template, a.name = a.name, (a.instance or a.name)
+    for needed in (("service", ("status", "start", "stop", "restart")), ("user", ("add", "remove", "passwd", "enable", "disable", "homefix")), ("group", ("add", "addmember", "removemember")), ("computer", ("remove",)), ("share", ("add", "remove")), ("app", ("deploy", "start", "stop", "restart", "update", "remove", "logs"))):
+        if a.cmd == needed[0] and a.sub in needed[1] and not a.name:
+            sys.exit(f"arisectl {a.cmd} {a.sub} needs a name")
+    try:
+        a.f(a)
+    except KeyboardInterrupt:
+        sys.exit(130)
+
+
+if __name__ == "__main__":
+    main()
