@@ -15,6 +15,10 @@
     arisectl app list|templates|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
     arisectl nas status|mount|unmount
     arisectl mirror run
+    arisectl sites
+    arisectl remote status|add-peer <name>
+    arisectl notify test|send
+    arisectl update [check|apply|apt]
 
 Reads /etc/arise/arise.toml (or $ARISE_CONFIG). Talks to the same Python
 modules the dashboard uses, so the two never disagree.
@@ -420,6 +424,71 @@ def cmd_nas(a):
         need_root(); show(nas.unmount())
 
 
+def cmd_sites(a):
+    from arise_server import directory, sites
+    r = sites.status(directory.list_computers()["computers"])
+    table([{"site": x["name"], "kind": x["kind"], "subnet": x["subnet"], "probe": x.get("probe") or "-", "reachable": {True: "yes", False: "NO", None: "no probe"}[x["probe_status"]["ok"]], "computers": ", ".join(x["computers"]) or "-"} for x in r["sites"]], ["site", "kind", "subnet", "probe", "reachable", "computers"])
+    if r.get("demo"): warn("sample data")
+
+
+def cmd_remote(a):
+    from arise_server import remote
+    if a.sub == "status":
+        o = remote.overview()
+        head("ssh")
+        (ok if o["ssh"]["active"] else bad)(f"sshd {'active' if o['ssh']['active'] else 'down'} on port {o['ssh']['port']}, password auth {'ON' if o['ssh']['password_auth'] else 'off'}, {o['ssh']['keys']} authorized keys")
+        ts = o.get("tailscale") or {}
+        head("tailscale")
+        if not ts.get("installed"): warn("not installed (docs/REMOTE-ACCESS.md)")
+        elif not ts.get("up"): bad(f"installed but not up: {ts.get('error', '')}")
+        else:
+            ok(f"{ts['self']['name']} {ts['self']['ip']} {ts['self'].get('dns', '')}; routes {', '.join(ts.get('subnet_routes') or []) or 'none'}")
+            table([{"peer": p["name"], "ip": p["ip"], "os": p["os"], "online": "yes" if p["online"] else "no", "last seen": p["last_seen"]} for p in ts.get("peers", [])], ["peer", "ip", "os", "online", "last seen"])
+        wg = o.get("wireguard") or {}
+        head("wireguard")
+        if not wg.get("installed"): warn("not installed")
+        elif not wg.get("up"): bad(f"{wg.get('interface')} not up: {wg.get('error', '')}")
+        else:
+            ok(f"{wg['interface']} up, endpoint {wg.get('endpoint') or '(set wg_endpoint)'}")
+            table([{"peer": p["name"], "ip": p["ip"], "handshake": p["handshake"], "online": "yes" if p["online"] else "no"} for p in wg.get("peers", [])], ["peer", "ip", "handshake", "online"])
+        g = o.get("guacamole") or {}
+        head("remote desktop (guacamole)")
+        (ok if g.get("running") else warn)(f"{'running' if g.get('running') else 'not running'} at {g.get('url')}")
+        if o.get("demo"): warn("sample data")
+    elif a.sub == "add-peer":
+        need_root()
+        if not a.name: sys.exit("arisectl remote add-peer <name>")
+        r = remote.add_wireguard_peer(a.name)
+        if not r.get("ok"): bad(r.get("err")); sys.exit(1)
+        ok(f"peer {r['name']} added" + (f" as {r.get('ip')}" if r.get("ip") else ""))
+        print("\n--- paste this into the WireGuard app on that computer ---\n" + r["config"])
+
+
+def cmd_notify(a):
+    from arise_server import system
+    if a.sub == "test":
+        show(system.send_webhook("Arise Server: test note from arisectl."))
+    elif a.sub == "send":
+        from arise_server.main import overview as _ov
+        o = _ov(None)
+        r = system.daily_report(o.get("attention", []), {"automator": o["automator"].get("last_summary") or "no run", "backup": (f"{o['backup']['last']['name']} {'ok' if o['backup']['last']['ok'] else 'FAILED'}" if o["backup"].get("last") else "none")})
+        print(r["text"])
+        (ok if r["sent"] else warn)("sent" if r["sent"] else f"not sent: {r.get('error') or 'nothing needs you, or no webhook'}")
+
+
+def cmd_update(a):
+    from arise_server import system
+    u = system.updates()
+    print(f"  apt packages upgradable: {u.get('apt_upgradable')} ({u.get('security')} security) · Arise Server commits behind: {u.get('arise_behind')}")
+    if a.sub == "apply":
+        need_root()
+        r = system.update_arise()
+        if r.get("log"): print(r["log"])
+        show(r)
+    elif a.sub == "apt":
+        need_root(); show(system.apt_upgrade())
+
+
 def cmd_mirror(a):
     from arise_server import backups
     r = backups.mirror_github()
@@ -447,6 +516,10 @@ def build():
     p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
     p = sp.add_parser("nas"); p.add_argument("sub", choices=["status", "mount", "unmount"]); p.set_defaults(f=cmd_nas)
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
+    sp.add_parser("sites").set_defaults(f=cmd_sites)
+    p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
+    p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
+    p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)
     return ap
 
 

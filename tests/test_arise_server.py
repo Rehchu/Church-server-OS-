@@ -156,3 +156,47 @@ class Units(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class V02(unittest.TestCase):
+    def test_sites_come_from_example_config(self):
+        from arise_server import sites
+        ids = [s["id"] for s in sites.sites()]
+        self.assertEqual(ids, ["pineville", "alexandria", "hub"])
+
+    def test_sites_place_computers_by_subnet(self):
+        from arise_server import sites
+        r = sites.status([{"name": "A", "ip": "192.168.2.20"}, {"name": "B", "ip": "192.168.1.5"}, {"name": "C", "ip": "10.9.9.9"}])
+        by = {s["id"]: s["computers"] for s in r["sites"]}
+        self.assertEqual(by["alexandria"], ["A"])
+        self.assertEqual(by["pineville"], ["B"])
+
+    def test_bible_rejects_garbage_and_answers_sample(self):
+        from arise_server import bible
+        self.assertFalse(bible.lookup("drop table")["ok"])
+        r = bible.lookup("John 3:16")
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["verses"][0]["verse"], 16)
+
+    def test_files_never_escape_the_root(self):
+        from arise_server import files
+        self.assertIsNone(files._resolve("/srv/arise", "../../etc/passwd"))
+        self.assertEqual(files._resolve("/srv/arise", "homes/x"), "/srv/arise/homes/x")
+        self.assertIn("error", files.listing("nope", "/"))
+
+    def test_wireguard_peer_name_validated(self):
+        from arise_server import remote
+        self.assertFalse(remote.add_wireguard_peer("bad name!")["ok"])
+        self.assertTrue(remote.add_wireguard_peer("hub-laptop")["ok"])
+
+    def test_power_needs_typed_confirmation(self):
+        from arise_server import system
+        self.assertFalse(system.power("reboot", "")["ok"])
+        self.assertFalse(system.power("explode", "explode")["ok"])
+        self.assertTrue(system.power("reboot", "reboot")["ok"])
+
+    def test_sermon_kind_from_title_and_duration(self):
+        from arise_server import sermons
+        self.assertEqual(sermons._kind("GLORY NIGHT | Oct 20", "1:30:00"), "Glory Night")
+        self.assertEqual(sermons._kind("Declare it", "0:48"), "Short")
+        self.assertEqual(sermons._kind("THE GOD KIND OF FAITH", "1:55:18"), "Sunday Service")

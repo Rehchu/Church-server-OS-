@@ -310,6 +310,41 @@ want help.
 
 ---
 
+## Remote access
+
+The PC goes in a locked closet; everything after the install happens from
+somewhere else. The full story, with the trade-offs, is
+[docs/REMOTE-ACCESS.md](docs/REMOTE-ACCESS.md); the three-site picture
+(Pineville, Alexandria, the Apostolic Hub) is
+[docs/MULTI-SITE.md](docs/MULTI-SITE.md). The short version:
+
+1. **Put your SSH key on it before the door closes.** From your Mac:
+   `ssh-keygen -t ed25519` (once), then `ssh-copy-id bradly@arise-server`.
+   The installer only turns password login off once a key is there; re-run it
+   after `ssh-copy-id` and it does.
+2. **The VPN.** Re-run the installer with a flag:
+   - `--with-tailscale` (recommended): installs Tailscale and prints the
+     `sudo tailscale up --ssh --advertise-routes=…` line, which needs a browser
+     login, so it is yours to run. Then install the Tailscale app on every
+     off-site Mac, PC and phone, approve the subnet route and set the split
+     DNS for `ad.arisecenla.church` in the admin console. No port forward.
+   - `--with-wireguard`: native WireGuard on UDP 51820. Forward that one port
+     on the Pineville router, set `[remote] wg_endpoint` in `arise.toml`, add
+     devices from Dashboard → Remote or `sudo arisectl remote add-peer <name>`.
+3. **Remote desktop.** `sudo arisectl app deploy guacamole`, do the one-time
+   database step in its template notes, open `http://arise-server:8084/guacamole`,
+   change `guacadmin`, add the Macs (VNC) and PCs (RDP).
+4. **HTTPS.** `--with-caddy` puts the dashboard, Vaultwarden and Guacamole
+   behind `https://…ad.arisecenla.church` with the server's own CA; trust the
+   root certificate once per device.
+5. **The firewall** is always set: incoming denied by default, SSH allowed,
+   the domain controller, dashboard and apps allowed from the LAN and the VPN
+   only. fail2ban watches SSH. Nothing is ever forwarded on the router except
+   UDP 51820 when WireGuard is chosen.
+
+Check it from your phone's hotspot with the Tailscale app on: if
+`http://arise-server:4147` opens, the closet can close.
+
 ## Where things are
 
 | | |

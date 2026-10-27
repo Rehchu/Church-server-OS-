@@ -16,7 +16,11 @@ or Dashboard → Apps → Templates → **Deploy**. Data for every app lives und
 | `uptime-kuma` | watches the website, the NAS, the server and the YouTube live page; sends a notification when one goes down | 8082 |
 | `syncthing` | keeps a folder on the media Mac and a folder on the server identical, without anyone dragging files | 8384, 22000 |
 | `vaultwarden` | the church's own password vault (Bitwarden-compatible apps on every phone and Mac) | 8083 |
+| `guacamole` | remote desktop (RDP, VNC, SSH) to any church computer from a browser tab, through the server; the door into the closet from Alexandria, the Hub and home | 8084 |
+| `wg-easy` | self-hosted WireGuard VPN with a web page and QR codes; the alternative to native WireGuard (`install.sh --with-wireguard`) and to Tailscale. Never both on 51820 | 51820/udp, 51821 |
 
 Image tags are pinned to versions that existed when this was written. Update
 them on purpose, not by accident: change the tag, `arisectl app deploy` again.
-Where a tag is `:latest` the comment in `compose.yaml` says why.
+Where a tag is `:latest` the comment in `compose.yaml` says why. Guacamole and
+wg-easy carry a "verify before first deploy" note because their tags were not
+pulled from this build.

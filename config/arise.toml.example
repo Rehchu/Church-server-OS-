@@ -92,3 +92,56 @@ repos = [
   "Rehchu/arisehub", "Rehchu/arise-church-backup", "Rehchu/arise-youtube",
   "Rehchu/projectbackups", "Rehchu/ai-chat-backups"
 ]
+
+# -----------------------------------------------------------------------------
+# Remote access (v0.2). See docs/REMOTE-ACCESS.md.
+# vpn: "tailscale" (recommended, no port-forward), "wireguard" (self-hosted,
+# UDP 51820 forwarded on the Pineville router), or "none".
+# -----------------------------------------------------------------------------
+[remote]
+ssh_port = 22
+vpn = "tailscale"
+wg_interface = "wg0"
+wg_endpoint = ""                   # e.g. "arise.duckdns.org:51820" once the router forwards it
+wg_subnet = "10.47.0.0/24"
+lan_subnet = "192.168.1.0/24"
+guacamole_url = "http://arise-server:8084"
+
+# The daily note (07:00): what needs you, to a Discord or Slack webhook.
+# Leave webhook_url empty and nothing is sent; the dashboard still shows it.
+[notify]
+webhook_url = ""
+hour = 7
+only_when_attention = true
+
+# The campuses. The server lives at the main site; the rest reach it over the
+# VPN. probe = a host at that site that is always on (its router, a Mac).
+[[sites]]
+id = "pineville"
+name = "Arise Church Pineville"
+kind = "main"
+address = "501 Ates Road, Pineville, LA"
+subnet = "192.168.1.0/24"
+probe = ""
+services = "Sunday 10:30 AM · Glory Night Monday 7 PM"
+note = "The server, the Synology and the domain live here."
+
+[[sites]]
+id = "alexandria"
+name = "Arise Church Alexandria"
+kind = "campus"
+address = ""
+subnet = "192.168.2.0/24"
+probe = ""
+services = "Sunday 10:00 AM"
+note = "Reaches the server over the VPN. Macs here bind to the domain through it."
+
+[[sites]]
+id = "hub"
+name = "The Apostolic Hub"
+kind = "office"
+address = ""
+subnet = "192.168.3.0/24"
+probe = ""
+services = ""
+note = "Office and leadership computers: VPN clients, no site router needed."

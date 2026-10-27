@@ -20,6 +20,9 @@
 #    --skip-domain       do not provision / touch the Samba AD DC
 #    --skip-docker       do not install Docker (no app templates)
 #    --no-start          install everything but do not start services/timers
+#    --with-tailscale    install Tailscale (prints the `tailscale up` line to run yourself)
+#    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
+#    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
 #    --dry-run           print every step, change nothing
 #    -h | --help
 #
@@ -45,12 +48,15 @@ DATA_ROOT="/srv/arise"
 WEB_PORT=4147
 
 ADMIN_PASS=""
+WITH_TAILSCALE=0
+WITH_WIREGUARD=0
+WITH_CADDY=0
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
 NO_START=0
 DRY_RUN=0
 
-usage() { sed -n '2,27p' "$0" | sed 's/^#  \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,30p' "$0" | sed 's/^#  \{0,1\}//'; exit "${1:-0}"; }
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -59,6 +65,9 @@ while [ $# -gt 0 ]; do
     --skip-domain) SKIP_DOMAIN=1; shift ;;
     --skip-docker) SKIP_DOCKER=1; shift ;;
     --no-start)    NO_START=1; shift ;;
+    --with-tailscale) WITH_TAILSCALE=1; shift ;;
+    --with-wireguard) WITH_WIREGUARD=1; shift ;;
+    --with-caddy)  WITH_CADDY=1; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     -h|--help)     usage 0 ;;
     *) echo "unknown flag: $1" >&2; usage 2 ;;
@@ -96,7 +105,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -449,6 +458,247 @@ if [ "$NO_START" = 0 ] && [ "$DRY_RUN" = 0 ]; then
 fi
 
 # ----------------------------------------------------------------------------
+# 6b. Remote access: firewall, fail2ban, sshd, notify timer, and the optional
+#     Tailscale / WireGuard / Caddy pieces. Every part is idempotent.
+#     The LAN subnet is read from [remote] lan_subnet in arise.toml, falling
+#     back to the primary interface's own network.
+# ----------------------------------------------------------------------------
+say "6b/7  Remote access and the firewall"
+
+ADMIN_USER="$(awk -F'"' '/^[[:space:]]*admin_user[[:space:]]*=/{print $2; exit}' "$CONF_DIR/arise.toml" 2>/dev/null || true)"
+ADMIN_USER="${ADMIN_USER:-bradly}"
+SSH_PORT="$(awk -F'=' '/^[[:space:]]*ssh_port[[:space:]]*=/{gsub(/[^0-9]/,"",$2); print $2; exit}' "$CONF_DIR/arise.toml" 2>/dev/null || true)"
+SSH_PORT="${SSH_PORT:-22}"
+LAN_SUBNET="$(awk -F'"' '/^[[:space:]]*lan_subnet[[:space:]]*=/{print $2; exit}' "$CONF_DIR/arise.toml" 2>/dev/null || true)"
+if [ -z "$LAN_SUBNET" ] && [ -n "${PRIMARY_IP:-}" ]; then
+  LAN_SUBNET="$(ip -o -4 route show 2>/dev/null | awk -v ip="$PRIMARY_IP" '$0 ~ ("src " ip) && $1 ~ /\// {print $1; exit}' || true)"
+fi
+LAN_SUBNET="${LAN_SUBNET:-192.168.1.0/24}"
+WG_SUBNET="10.47.0.0/24"
+note "admin user $ADMIN_USER · ssh port $SSH_PORT · LAN $LAN_SUBNET"
+
+# --- ufw --------------------------------------------------------------------
+if ! command -v ufw >/dev/null 2>&1; then
+  run apt-get install -y -q ufw
+fi
+run ufw --force default deny incoming
+run ufw --force default allow outgoing
+run ufw allow "$SSH_PORT/tcp" comment 'ssh'
+run ufw allow from "$LAN_SUBNET" to any port "$WEB_PORT" proto tcp comment 'arise dashboard'
+run ufw allow from "$WG_SUBNET" to any port "$WEB_PORT" proto tcp comment 'arise dashboard (vpn)'
+run ufw allow from 100.64.0.0/10 to any port "$WEB_PORT" proto tcp comment 'arise dashboard (tailscale)'
+# The domain controller's ports, LAN and VPN only. Nothing of the DC is ever
+# reachable from the internet.
+for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
+  run ufw allow from "$src" to any port 53 comment 'dns'
+  run ufw allow from "$src" to any port 88 comment 'kerberos'
+  run ufw allow from "$src" to any port 135 proto tcp comment 'rpc'
+  run ufw allow from "$src" to any port 137:139 comment 'netbios'
+  run ufw allow from "$src" to any port 389 comment 'ldap'
+  run ufw allow from "$src" to any port 445 proto tcp comment 'smb'
+  run ufw allow from "$src" to any port 464 comment 'kpasswd'
+  run ufw allow from "$src" to any port 636 proto tcp comment 'ldaps'
+  run ufw allow from "$src" to any port 3268:3269 proto tcp comment 'global catalog'
+  run ufw allow from "$src" to any port 49152:65535 proto tcp comment 'rpc dynamic'
+  run ufw allow from "$src" to any port 123 proto udp comment 'ntp'
+  run ufw allow from "$src" to any port 8081:8084 proto tcp comment 'arise apps'
+done
+if [ "$WITH_WIREGUARD" = 1 ]; then
+  run ufw allow 51820/udp comment 'wireguard'
+fi
+if [ "$WITH_CADDY" = 1 ]; then
+  for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
+    run ufw allow from "$src" to any port 443 proto tcp comment 'https (caddy)'
+  done
+fi
+run ufw --force enable
+note "ufw: deny incoming by default; ssh from anywhere (the VPN keeps 'anywhere' small); DC, dashboard and apps from LAN + VPN only"
+
+# --- fail2ban ---------------------------------------------------------------
+if ! command -v fail2ban-client >/dev/null 2>&1; then
+  run apt-get install -y -q fail2ban
+fi
+if [ "$DRY_RUN" = 1 ]; then
+  note "[dry-run] write /etc/fail2ban/jail.d/arise-sshd.local (sshd jail, port $SSH_PORT, 5 tries, 10 min ban)"
+else
+  mkdir -p /etc/fail2ban/jail.d
+  cat > /etc/fail2ban/jail.d/arise-sshd.local <<F2B
+# Arise Server: ban an address after 5 bad SSH logins for 10 minutes.
+[sshd]
+enabled = true
+port = $SSH_PORT
+maxretry = 5
+findtime = 10m
+bantime = 10m
+backend = systemd
+F2B
+fi
+run systemctl enable --now fail2ban >/dev/null 2>&1 || warn "fail2ban did not start — journalctl -u fail2ban"
+
+# --- sshd hardening ---------------------------------------------------------
+# Password login is switched off ONLY when the admin user already has a key on
+# this box. Otherwise a locked-closet server with no monitor would be
+# unreachable the moment this ran.
+ADMIN_HOME="$(getent passwd "$ADMIN_USER" | cut -d: -f6 || true)"
+KEYS_FILE="${ADMIN_HOME:-/nonexistent}/.ssh/authorized_keys"
+HAS_KEYS=0
+if [ -s "$KEYS_FILE" ] && grep -qvE '^\s*(#|$)' "$KEYS_FILE"; then HAS_KEYS=1; fi
+if [ "$DRY_RUN" = 1 ]; then
+  note "[dry-run] write /etc/ssh/sshd_config.d/arise.conf (PasswordAuthentication $([ "$HAS_KEYS" = 1 ] && echo no || echo 'yes — no key for '"$ADMIN_USER"' yet'))"
+else
+  mkdir -p /etc/ssh/sshd_config.d
+  {
+    echo "# Arise Server sshd hardening. Written by installer/install.sh; re-run it after ssh-copy-id."
+    echo "Port $SSH_PORT"
+    echo "PermitRootLogin no"
+    echo "PubkeyAuthentication yes"
+    echo "MaxAuthTries 4"
+    echo "X11Forwarding no"
+    echo "ClientAliveInterval 120"
+    echo "ClientAliveCountMax 3"
+    if [ "$HAS_KEYS" = 1 ]; then
+      echo "PasswordAuthentication no"
+      echo "KbdInteractiveAuthentication no"
+    else
+      echo "# PasswordAuthentication left ON: $KEYS_FILE has no key yet."
+      echo "# From your Mac:  ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   then re-run the installer."
+    fi
+  } > /etc/ssh/sshd_config.d/arise.conf
+  if sshd -t 2>/dev/null; then
+    systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
+  else
+    warn "sshd rejected the new config; removing it so SSH keeps working"
+    rm -f /etc/ssh/sshd_config.d/arise.conf
+  fi
+fi
+if [ "$HAS_KEYS" = 1 ]; then
+  note "sshd: key-only login for $ADMIN_USER (password login off)"
+else
+  warn "sshd: PASSWORD LOGIN IS STILL ON because $KEYS_FILE has no key."
+  warn "      From your Mac run:  ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   and then re-run this installer."
+fi
+
+# --- the daily notification timer (unit files come from config/systemd) ------
+if [ -f /etc/systemd/system/arise-notify.timer ] || [ -f "$UNIT_SRC/arise-notify.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-notify.timer || warn "arise-notify.timer failed to start"
+  else
+    run systemctl enable arise-notify.timer
+  fi
+  note "arise-notify.timer: the morning report goes to [notify] webhook_url in arise.toml once it is set"
+else
+  note "no arise-notify.timer in config/systemd; skipped"
+fi
+
+# --- Tailscale (optional) -----------------------------------------------------
+if [ "$WITH_TAILSCALE" = 1 ]; then
+  if command -v tailscale >/dev/null 2>&1; then
+    note "tailscale already installed ($(tailscale version 2>/dev/null | head -1 || echo '?'))"
+  else
+    if [ "$DRY_RUN" = 1 ]; then
+      note "[dry-run] curl -fsSL https://tailscale.com/install.sh | sh"
+    else
+      curl -fsSL https://tailscale.com/install.sh | sh || warn "tailscale install script failed — see https://tailscale.com/download/linux"
+    fi
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] sysctl net.ipv4.ip_forward=1 (so the subnet route works)"
+  else
+    printf 'net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.forwarding = 1\n' > /etc/sysctl.d/99-arise-forward.conf
+    sysctl -q --system >/dev/null 2>&1 || true
+  fi
+  warn "Tailscale needs a browser login, so this is yours to run:"
+  warn "    sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET"
+  warn "then approve the subnet route in the admin console and set split DNS for ad.arisecenla.church (docs/REMOTE-ACCESS.md)."
+fi
+
+# --- WireGuard (optional) -----------------------------------------------------
+if [ "$WITH_WIREGUARD" = 1 ]; then
+  if ! command -v wg >/dev/null 2>&1; then
+    run apt-get install -y -q wireguard
+  fi
+  WG_CONF=/etc/wireguard/wg0.conf
+  WAN_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
+  WAN_IF="${WAN_IF:-eth0}"
+  if [ -f "$WG_CONF" ]; then
+    note "$WG_CONF exists, left alone (peers are kept)"
+  elif [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] write $WG_CONF: fresh key, Address 10.47.0.1/24, ListenPort 51820, NAT via $WAN_IF"
+  else
+    mkdir -p /etc/wireguard/peers
+    chmod 0700 /etc/wireguard
+    WG_PRIV="$(wg genkey)"
+    cat > "$WG_CONF" <<WGC
+# Arise Server WireGuard. Written by installer/install.sh --with-wireguard.
+# Peers are appended by the dashboard's Remote app / arisectl remote add-peer.
+# Forward UDP 51820 on the Pineville router to this server, and set
+# [remote] wg_endpoint = "<public name>:51820" in /etc/arise/arise.toml.
+[Interface]
+Address = 10.47.0.1/24
+ListenPort = 51820
+PrivateKey = $WG_PRIV
+# NAT the tunnel onto the LAN so peers reach the Synology, printers, Macs.
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $WAN_IF -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $WAN_IF -j MASQUERADE
+WGC
+    chmod 0600 "$WG_CONF"
+    printf 'net.ipv4.ip_forward = 1\n' > /etc/sysctl.d/99-arise-forward.conf
+    sysctl -q --system >/dev/null 2>&1 || true
+    note "server public key: $(printf '%s' "$WG_PRIV" | wg pubkey)"
+  fi
+  # ufw must forward between the tunnel and the LAN
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] ufw: DEFAULT_FORWARD_POLICY=ACCEPT; route allow $WG_SUBNET -> $LAN_SUBNET"
+  else
+    sed -i 's/^DEFAULT_FORWARD_POLICY=.*/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw 2>/dev/null || true
+    ufw route allow from "$WG_SUBNET" to "$LAN_SUBNET" >/dev/null 2>&1 || true
+    ufw reload >/dev/null 2>&1 || true
+  fi
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now wg-quick@wg0 || warn "wg-quick@wg0 failed — journalctl -u wg-quick@wg0"
+  else
+    run systemctl enable wg-quick@wg0
+  fi
+  note "WireGuard on UDP 51820, tunnel $WG_SUBNET. Add devices: dashboard → Remote → Add peer, or: sudo arisectl remote add-peer <name>"
+  warn "Do not also deploy the wg-easy template: same port."
+fi
+
+# --- Caddy (optional) ---------------------------------------------------------
+if [ "$WITH_CADDY" = 1 ]; then
+  if ! command -v caddy >/dev/null 2>&1; then
+    if [ "$DRY_RUN" = 1 ]; then
+      note "[dry-run] add the official Caddy apt repo (cloudsmith) and apt-get install caddy"
+    else
+      apt-get install -y -q debian-keyring debian-archive-keyring apt-transport-https curl gnupg >/dev/null
+      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
+      apt-get update -q >/dev/null
+      apt-get install -y -q caddy
+    fi
+  else
+    note "caddy already installed"
+  fi
+  if [ -f "$SRC/config/caddy/Caddyfile" ]; then
+    if [ -f /etc/caddy/Caddyfile ] && ! grep -q 'Arise Server' /etc/caddy/Caddyfile 2>/dev/null; then
+      run cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-arise
+    fi
+    run install -m 0644 "$SRC/config/caddy/Caddyfile" /etc/caddy/Caddyfile
+  else
+    warn "config/caddy/Caddyfile missing from the repo; caddy left with its default config"
+  fi
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now caddy || warn "caddy failed to start — journalctl -u caddy"
+    if command -v caddy >/dev/null 2>&1 && [ "$DRY_RUN" = 0 ]; then
+      systemctl reload caddy >/dev/null 2>&1 || true
+    fi
+  else
+    run systemctl enable caddy
+  fi
+  note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church (internal CA). Trust the root once per device: docs/REMOTE-ACCESS.md (e)"
+  note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
+fi
+
+# ----------------------------------------------------------------------------
 # 7. Summary — what still needs a human
 # ----------------------------------------------------------------------------
 say "7/7  Done. What still needs you"
@@ -472,6 +722,12 @@ cat <<SUMMARY
     4. Synology credentials:      sudo nano $CONF_DIR/secrets/synology.cred   (username=… / password=… / domain=$NETBIOS)
                                   sudo chmod 0600 $CONF_DIR/secrets/synology.cred ; sudo arisectl nas mount
     5. Then:                      sudo arisectl doctor
+    6. Remote access (docs/REMOTE-ACCESS.md):
+       ssh key from your Mac:     ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   then re-run this installer (turns password login off)
+$( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET" || echo "       VPN not installed yet: re-run with --with-tailscale (recommended) or --with-wireguard" )
+$( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
+$( [ "$WITH_CADDY" = 1 ] && echo "       https: trust the Caddy root on each Mac; add the vault/remote DNS records (config/caddy/Caddyfile)" )
+       remote desktop:            sudo arisectl app deploy guacamole   (see templates/guacamole/template.yaml for the one-time initdb)
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )

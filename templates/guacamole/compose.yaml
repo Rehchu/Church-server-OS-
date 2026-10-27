@@ -1,0 +1,63 @@
+# Apache Guacamole - remote desktop (RDP, VNC, SSH) in a browser tab.
+# Three containers: guacd (the protocol engine), guacamole (the web app),
+# postgres (users and connections). Data lives under /srv/arise/apps/guacamole.
+#
+# ONE-TIME before the first `up`: the database schema.
+#   mkdir -p /srv/arise/apps/guacamole/initdb
+#   docker run --rm guacamole/guacamole:1.5.5 /opt/guacamole/bin/initdb.sh --postgresql \
+#       > /srv/arise/apps/guacamole/initdb/001-initdb.sql
+# postgres runs every .sql in that folder on its first start only.
+#
+# Set POSTGRES_PASSWORD in /srv/arise/apps/guacamole/.env (the dashboard's
+# deploy writes a placeholder; CHANGE-ME is not a password).
+services:
+  guacd:
+    image: guacamole/guacd:1.5.5
+    container_name: arise-app-guacamole-guacd
+    restart: unless-stopped
+    volumes:
+      - /srv/arise/apps/guacamole/drive:/drive            # file transfer folder
+      - /srv/arise/apps/guacamole/record:/record          # session recordings, if enabled per connection
+
+  db:
+    image: postgres:15
+    container_name: arise-app-guacamole-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=guacamole_db
+      - POSTGRES_USER=guacamole_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/guacamole/db:/var/lib/postgresql/data
+      - /srv/arise/apps/guacamole/initdb:/docker-entrypoint-initdb.d:ro
+
+  guacamole:
+    image: guacamole/guacamole:1.5.5
+    container_name: arise-app-guacamole
+    restart: unless-stopped
+    depends_on:
+      - guacd
+      - db
+    ports:
+      - "8084:8080"
+    environment:
+      - GUACD_HOSTNAME=guacd
+      - GUACD_PORT=4822
+      - POSTGRESQL_HOSTNAME=db
+      - POSTGRESQL_DATABASE=guacamole_db
+      - POSTGRESQL_USERNAME=guacamole_user
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-CHANGE-ME}
+      # Uncomment to authenticate against the AD domain (see docs/REMOTE-ACCESS.md (c)).
+      # The LDAP extension ships inside the image; these variables switch it on.
+      # - LDAP_HOSTNAME=arise-server.ad.arisecenla.church
+      # - LDAP_PORT=389
+      # - LDAP_ENCRYPTION_METHOD=none
+      # - LDAP_USER_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_USERNAME_ATTRIBUTE=sAMAccountName
+      # - LDAP_SEARCH_BIND_DN=CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_SEARCH_BIND_PASSWORD=CHANGE-ME
+      # - LDAP_GROUP_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_MEMBER_ATTRIBUTE=member
+      - TZ=America/Chicago
+    volumes:
+      - /srv/arise/apps/guacamole/home:/etc/guacamole      # guacamole.properties, extensions/, lib/ (optional)

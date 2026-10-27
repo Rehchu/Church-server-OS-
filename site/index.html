@@ -39,9 +39,9 @@
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="shell hero__grid">
       <div class="hero__col reveal">
-        <div class="mark"><span class="kicker">Arise Church · Pineville, LA · v0.1.0 “Pineville”</span></div>
+        <div class="mark"><span class="kicker">Arise Church · Pineville, LA · v0.2.0 “Pineville”</span></div>
         <h1>The church server<br><span class="red">built for the people</span><br>who run it on Sundays.</h1>
-        <p class="lede">Arise Server turns an old PC into the church's own server: a real <b>Active Directory</b> the Macs sign in to, <b>home folders and shares</b>, the <b>nightly YouTube automator</b> on a timer, <b>backups to the Synology</b> that say when they fail, a small <b>app store</b>, and one dashboard that looks like arisecenla.church. One box. One login. Nothing silent.</p>
+        <p class="lede">Arise Server turns an old PC into the church's own server: a real <b>Active Directory</b> the Macs sign in to, <b>home folders and shares</b>, the <b>nightly YouTube automator</b> on a timer, <b>backups to the Synology</b> that say when they fail, a small <b>app store</b>, <b>remote access</b> for a locked closet and three campuses, and a desktop in the browser that looks like arisecenla.church. One box. One login. Nothing silent.</p>
         <div class="hero__acts">
           <a class="btn btn--lg" href="#install">Install it</a>
           <a class="btn btn--ghost btn--lg" href="https://github.com/Rehchu/Church-server-OS-" rel="noopener">Source on GitHub</a>
@@ -49,7 +49,7 @@
         <ul class="hero__meta">
           <li><b>1</b> CLI, <code>arisectl</code></li>
           <li><b>1</b> config file</li>
-          <li><b>10</b> dashboard sections</li>
+          <li><b>15</b> desktop apps</li>
           <li><b>0</b> build steps</li>
         </ul>
       </div>
@@ -93,8 +93,8 @@
         <article class="feat__c"><h3>Backups that report</h3><p>restic snapshots to the Synology at 03:00: the automator, homes, shares, app data, the server config, and a mirror of every GitHub repo. Keep 14 daily, 8 weekly, 12 monthly. Every run writes a row.</p></article>
         <article class="feat__c"><h3>The Synology, joined</h3><p>The NAS joins the domain, holds the bulk files on four drives, is the backup target, and ships an off-site copy with Hyper Backup. The dashboard shows mount state, free space and DSM health.</p></article>
         <article class="feat__c"><h3>A small app store</h3><p>Docker Compose templates for what a church uses: File Browser, Uptime Kuma, Syncthing, Vaultwarden. Install, update, logs, remove, with the data folder always kept.</p></article>
-        <article class="feat__c"><h3>Three surfaces, one look</h3><p>The dashboard, <code>arisectl</code> and the installer share the same modules and the same Arise design: Anton and Oswald, ink and red, square corners, nothing invented.</p></article>
-        <article class="feat__c"><h3>Honest by design</h3><p>Deleting is your click: users, shares and apps need their name typed. Secrets never go to GitHub or the browser. A missing tool shows sample data and says so.</p></article>
+        <article class="feat__c"><h3>A desktop, not a dashboard</h3><p>A menu bar, windows you drag, a floating dock, a launchpad with fifteen apps: Overview, Directory, Files, Backups, Automator, Sermons, Bible, Apps, Remote, Campuses, Terminal, Synology, Services, Logs, Settings. Works on a phone.</p></article>
+        <article class="feat__c"><h3>Reach it from anywhere</h3><p>Built for a locked closet and three sites. Key-only SSH, a VPN (Tailscale, or self-hosted WireGuard), Guacamole remote desktop to any church computer from a browser tab, a Terminal app, HTTPS with the server's own CA. Pineville, Alexandria and the Apostolic Hub on one server.</p></article>
       </div>
     </div>
   </section>
@@ -283,7 +283,7 @@ sudo arisectl doctor</pre>
     <div><div class="foot__lbl">Docs</div><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md">Install guide</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DASHBOARD.md">Dashboard</a><a href="https://github.com/Rehchu/Church-server-OS-/blob/main/docs/CLI.md">arisectl</a></div>
     <div><div class="foot__lbl">Church</div><a href="https://arisecenla.church">arisecenla.church</a><a href="https://www.youtube.com/@arisechurch4147">YouTube</a><span class="foot__when"><b>Sundays</b> 10:30 AM · <b>Glory Night</b> Mondays 7 PM</span></div>
   </div>
-  <div class="shell foot__btm"><span>© <span id="year">2026</span> Arise Church · MIT License</span><span>v0.1.0 “Pineville”</span></div>
+  <div class="shell foot__btm"><span>© <span id="year">2026</span> Arise Church · MIT License</span><span>v0.2.0 “Pineville”</span></div>
 </footer>
 
 <a href="#top" class="totop" id="toTop" aria-label="Back to top">↑</a>

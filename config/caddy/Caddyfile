@@ -1,0 +1,44 @@
+# Arise Server - Caddy reverse proxy with the server's own certificate authority.
+# Installed by:  sudo bash installer/install.sh --with-caddy
+# Lives at:      /etc/caddy/Caddyfile      reload: sudo systemctl reload caddy
+#
+# `tls internal` = Caddy signs certificates with a CA it creates on this box.
+# Trust that CA once per Mac / PC / phone (docs/REMOTE-ACCESS.md (e)); the
+# root certificate is at
+#   /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+#
+# Every name below needs an A record in the domain's DNS pointing at this
+# server's LAN address (replace 192.168.1.10):
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault  A 192.168.1.10
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church remote A 192.168.1.10
+# (`arise-server` already has one from the domain provision.) Off-site, the
+# Tailscale split-DNS rule or the WireGuard DNS line sends these lookups to
+# the same DNS, so the names work through the tunnel too.
+#
+# Nothing here is reachable from the internet: Caddy listens on 443 on the LAN
+# and the VPN; the router forwards nothing to it.
+
+# The dashboard (and its Terminal app, which is a websocket - Caddy proxies
+# websockets without any extra directive).
+arise-server.ad.arisecenla.church, arise-server {
+	tls internal
+	reverse_proxy 127.0.0.1:4147
+}
+
+# Vaultwarden. The Bitwarden apps refuse plain HTTP; this is what makes them
+# work. Set DOMAIN=https://vault.ad.arisecenla.church in the vaultwarden .env.
+vault.ad.arisecenla.church {
+	tls internal
+	reverse_proxy 127.0.0.1:8083
+}
+
+# Guacamole. Its web app lives under /guacamole/; this strips the prefix so
+# https://remote.ad.arisecenla.church/ opens it directly. Guacamole's tunnel is
+# a websocket; Caddy's reverse_proxy passes the Upgrade headers through
+# unchanged, so no special handling is needed. Clipboard sync and file
+# transfer in the browser need this HTTPS origin.
+remote.ad.arisecenla.church {
+	tls internal
+	redir / /guacamole/ 302
+	reverse_proxy /guacamole/* 127.0.0.1:8084
+}

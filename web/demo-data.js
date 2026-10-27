@@ -2,7 +2,7 @@
 window.ARISE_DEMO_DATA = {
 "GET /overview": {
 "demo": true,
-"version": "0.1.0",
+"version": "0.2.0",
 "codename": "Pineville",
 "profile": "server",
 "hostname": "arise-server",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-27T02:03:20",
+"last_run": "2026-10-27T02:29:33",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-28T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:03:20"
+"since": "2026-10-13T20:29:33"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T22:03:20",
+"last_logon": "2026-10-27T22:29:33",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T23:03:20",
+"last_logon": "2026-10-26T23:29:33",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T20:03:20",
+"last_logon": "2026-10-25T20:29:33",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-21T23:03:20",
+"last_logon": "2026-10-21T23:29:33",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -256,28 +256,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-27T22:03:20",
+"last_seen": "2026-10-27T22:29:33",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-26T23:03:20",
+"last_seen": "2026-10-26T23:29:33",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-25T23:03:20",
+"last_seen": "2026-10-25T23:29:33",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-27T22:59:20",
+"last_seen": "2026-10-27T23:25:33",
 "ip": "192.168.1.20"
 }
 ]
@@ -1570,7 +1570,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-18T23:03:20",
+"last_check": "2026-10-18T23:29:33",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1579,7 +1579,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-27T02:03:20",
+"last_run": "2026-10-27T02:29:33",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-28T02:05:00",
@@ -1691,17 +1691,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T18:03:20",
+"when": "2026-10-27T18:29:33",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T18:03:20",
+"when": "2026-10-27T18:29:33",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T18:03:20",
+"when": "2026-10-27T18:29:33",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1736,7 +1736,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-24T23:03:20",
+"updated": "2026-10-24T23:29:33",
 "mem_h": "36.2 MB"
 },
 {
@@ -1749,7 +1749,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-24T23:03:20",
+"updated": "2026-10-24T23:29:33",
 "mem_h": "135.4 MB"
 },
 {
@@ -1762,7 +1762,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-26T23:03:20",
+"updated": "2026-10-26T23:29:33",
 "mem_h": "0 B"
 }
 ],
@@ -1782,6 +1782,18 @@ window.ARISE_DEMO_DATA = {
 "icon": "folder",
 "data": "/srv/arise/apps/filebrowser",
 "notes": "First login is admin / admin. Change it immediately (Settings > User Management).\nIt runs as the 'arise' user (uid 1500) so it can only touch what that user can.\n"
+},
+{
+"id": "guacamole",
+"name": "Guacamole remote desktop",
+"description": "Remote desktop to any church computer from a browser tab, through the server. RDP for the Windows PCs, VNC (Screen Sharing) for the Macs, SSH for the server itself. The way into the closet from Alexandria, the Hub, or home.",
+"category": "remote",
+"ports": [
+"8084:8080"
+],
+"icon": "screen",
+"data": "/srv/arise/apps/guacamole",
+"notes": "BEFORE THE FIRST START, make the database schema once:\n  mkdir -p /srv/arise/apps/guacamole/initdb\n  docker run --rm guacamole/guacamole:1.5.5 /opt/guacamole/bin/initdb.sh --postgresql \\\n      > /srv/arise/apps/guacamole/initdb/001-initdb.sql\nand set POSTGRES_PASSWORD in /srv/arise/apps/guacamole/.env.\nOpen http://arise-server:8084/guacamole. First login guacadmin / guacadmin:\nCHANGE IT AT ONCE (Settings > Preferences), then add connections\n(Settings > Connections). Domain logins: uncomment the LDAP_* lines in\ncompose.yaml after creating a plain `guac-ldap` domain user for the lookup;\ndocs/REMOTE-ACCESS.md (c) has the matching guacamole.properties lines.\nImage tags 1.5.5 / postgres:15 were current when written: verify before\nfirst deploy. Put it behind Caddy (remote.ad.arisecenla.church) for HTTPS;\nclipboard and file transfer need a secure context.\n"
 },
 {
 "id": "syncthing",
@@ -1819,6 +1831,19 @@ window.ARISE_DEMO_DATA = {
 "icon": "lock",
 "data": "/srv/arise/apps/vaultwarden",
 "notes": "BACK UP /srv/arise/apps/vaultwarden. It holds every password the church keeps\nhere, encrypted with each user's master password. The 'apps' restic job covers\nit nightly; also export the vault (Tools > Export) to the leadership share\nquarterly. Lose the data dir and nothing can recover it.\n\nBitwarden apps refuse plain HTTP except on localhost. Until HTTPS is set up\non the server (not in this release), use it from the server's own browser or\nthrough an SSH tunnel:  ssh -L 8083:127.0.0.1:8083 bradly@arise-server\nSet ADMIN_TOKEN before deploying; SIGNUPS_ALLOWED stays false - invite people\nfrom /admin.\n"
+},
+{
+"id": "wg-easy",
+"name": "WireGuard (wg-easy)",
+"description": "Self-hosted VPN with a web page for devices and QR codes for phones. The no-third-party way for off-site Macs and PCs to reach the church network. Alternative to the installer's native WireGuard, and to Tailscale.",
+"category": "remote",
+"ports": [
+"51820:51820/udp",
+"51821:51821"
+],
+"icon": "shield",
+"data": "/srv/arise/apps/wg-easy",
+"notes": "Set WG_HOST to the church's public DNS name (or static IP) and PASSWORD_HASH\nto a bcrypt hash of the web UI password, made with:\n  docker run --rm ghcr.io/wg-easy/wg-easy:14 wgpw 'your-password'\n(escape any $ in the hash as $$ in .env). Forward UDP 51820 on the Pineville\nrouter to this server. NEVER forward 51821: the UI is for the LAN and the\ntunnel only. Do not run this together with --with-wireguard: same port.\nWG_DEFAULT_DNS must be the server's LAN address so domain names resolve\nthrough the tunnel. Image tag :14 was current when written: verify before\nfirst deploy.\n"
 }
 ]
 },
@@ -1844,7 +1869,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-26T21:03:20",
+"last": "2026-10-26T21:29:33",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -1929,8 +1954,458 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /health": {
 "ok": true,
-"version": "0.1.0",
+"version": "0.2.0",
 "demo": true
+},
+"GET /sites": {
+"demo": true,
+"sites": [
+{
+"id": "pineville",
+"name": "Arise Church Pineville",
+"kind": "main",
+"address": "501 Ates Road, Pineville, LA",
+"subnet": "192.168.1.0/24",
+"probe": "",
+"services": "Sunday 10:30 AM · Glory Night Monday 7 PM",
+"note": "The server, the Synology and the domain live here.",
+"probe_status": {
+"ok": true,
+"ms": 1
+},
+"vpn": "local",
+"computers": [
+"MEDIA-MAC",
+"OFFICE-IMAC",
+"LOBBY-PC",
+"SYNOLOGY"
+]
+},
+{
+"id": "alexandria",
+"name": "Arise Church Alexandria",
+"kind": "campus",
+"address": "",
+"subnet": "192.168.2.0/24",
+"probe": "",
+"services": "Sunday 10:00 AM",
+"note": "Reaches the server over the VPN. Macs here bind to the domain through it.",
+"probe_status": {
+"ok": true,
+"ms": 34
+},
+"vpn": "site-to-site",
+"computers": []
+},
+{
+"id": "hub",
+"name": "The Apostolic Hub",
+"kind": "office",
+"address": "",
+"subnet": "192.168.3.0/24",
+"probe": "",
+"services": "",
+"note": "Office and leadership computers. VPN clients, no site router needed.",
+"probe_status": {
+"ok": null,
+"ms": null
+},
+"vpn": "clients",
+"computers": []
+}
+]
+},
+"GET /remote": {
+"demo": true,
+"vpn_mode": "tailscale",
+"ssh": {
+"active": true,
+"port": 22,
+"password_auth": false,
+"keys": 2,
+"last_logins": [
+{
+"user": "bradly",
+"from": "100.101.102.5 (tailscale)",
+"when": "2026-10-27T23:29"
+},
+{
+"user": "bradly",
+"from": "192.168.1.41",
+"when": "2026-10-26T21:14"
+}
+]
+},
+"guacamole": {
+"installed": true,
+"running": true,
+"url": "http://arise-server:8084",
+"connections": [
+{
+"name": "arise-server (SSH)",
+"protocol": "ssh"
+},
+{
+"name": "Media Mac (VNC)",
+"protocol": "vnc"
+},
+{
+"name": "Lobby PC (RDP)",
+"protocol": "rdp"
+},
+{
+"name": "Alexandria iMac (VNC)",
+"protocol": "vnc"
+}
+]
+},
+"dashboard_url": "http://arise-server:4147",
+"hostname": "arise-server",
+"tailscale": {
+"installed": true,
+"up": true,
+"self": {
+"name": "arise-server",
+"ip": "100.101.102.1",
+"dns": "arise-server.tailnet-xyz.ts.net"
+},
+"subnet_routes": [
+"192.168.1.0/24"
+],
+"peers": [
+{
+"name": "bradly-macbook",
+"ip": "100.101.102.5",
+"os": "macOS",
+"online": true,
+"last_seen": "now",
+"site": "roaming"
+},
+{
+"name": "alexandria-imac",
+"ip": "100.101.102.7",
+"os": "macOS",
+"online": true,
+"last_seen": "now",
+"site": "alexandria"
+},
+{
+"name": "hub-office-pc",
+"ip": "100.101.102.9",
+"os": "Windows",
+"online": false,
+"last_seen": "2026-10-26T18:40",
+"site": "hub"
+},
+{
+"name": "bradly-iphone",
+"ip": "100.101.102.12",
+"os": "iOS",
+"online": true,
+"last_seen": "now",
+"site": "roaming"
+}
+]
+},
+"wireguard": {
+"installed": true,
+"up": true,
+"interface": "wg0",
+"endpoint": "arise.dyndns.example:51820",
+"subnet": "10.47.0.0/24",
+"peers": [
+{
+"name": "alexandria-router",
+"ip": "10.47.0.2",
+"handshake": "28 s ago",
+"rx": 183000000,
+"tx": 912000000,
+"online": true
+},
+{
+"name": "hub-laptop",
+"ip": "10.47.0.5",
+"handshake": "2 days ago",
+"rx": 2100000,
+"tx": 4400000,
+"online": false
+}
+]
+}
+},
+"GET /sermons": {
+"demo": true,
+"channel": "UCGS9j7B_prcJkbTNgzlGrKg",
+"handle": "@arisechurch4147",
+"count": 1022,
+"playlists": [
+{
+"id": "PLa-Nxr2f-qHY",
+"title": "Apostle Bryant Sanders — Messages"
+},
+{
+"id": "PLeDfl1m-bAzo",
+"title": "Pastor Vanessa Sanders — Messages"
+},
+{
+"id": "PLYhdT3QigNmY",
+"title": "Glory Nights"
+},
+{
+"id": "PLWJRS0iEv_vk",
+"title": "Conferences & Special Events"
+},
+{
+"id": "PLAUiV-2ZIEuI",
+"title": "Guest Ministers"
+},
+{
+"id": "PLb-9QSfkRhnFuQ2axOL8I1Tz4pwZ1Th2n",
+"title": "Praise Team Songs"
+}
+],
+"videos": [
+{
+"id": "QwF6-Sdrxoo",
+"title": "WHOSE HAND IS IT IN? | Minister Herbert Perry",
+"published": "2026-10-26",
+"kind": "Sunday Service",
+"speaker": "Minister Herbert Perry",
+"views": 412,
+"duration": "1:48:12"
+},
+{
+"id": "rKjR2PYdJUg",
+"title": "GLORY NIGHT | October 20, 2026",
+"published": "2026-10-20",
+"kind": "Glory Night",
+"speaker": "Apostle Bryant Sanders",
+"views": 188,
+"duration": "1:31:04"
+},
+{
+"id": "vjgfF0hdoyY",
+"title": "EXERCISING OUR SPIRITUAL SENSES | Apostle Bryant Sanders",
+"published": "2026-10-04",
+"kind": "Sunday Service",
+"speaker": "Apostle Bryant Sanders",
+"views": 530,
+"duration": "2:01:40"
+},
+{
+"id": "dhy1VW5ZnpQ",
+"title": "GLORY NIGHT | October 5, 2026",
+"published": "2026-10-05",
+"kind": "Glory Night",
+"speaker": "Pastor Vanessa Sanders",
+"views": 164,
+"duration": "1:26:55"
+},
+{
+"id": "GfTvURWWlLg",
+"title": "THE GOD KIND OF FAITH | Apostle Bryant Sanders",
+"published": "2026-09-27",
+"kind": "Sunday Service",
+"speaker": "Apostle Bryant Sanders",
+"views": 601,
+"duration": "1:55:18"
+},
+{
+"id": "MnXmccLS2p8",
+"title": "GLORY NIGHT | September 28, 2026",
+"published": "2026-09-28",
+"kind": "Glory Night",
+"speaker": "Apostle Bryant Sanders",
+"views": 142,
+"duration": "1:22:09"
+},
+{
+"id": "m_bDPBzAGUE",
+"title": "Declare: Last Year Was the Last Year I Lived Paycheck to Paycheck",
+"published": "2026-09-12",
+"kind": "Short",
+"speaker": "",
+"views": 2210,
+"duration": "0:48"
+},
+{
+"id": "BNCJUUBlRis",
+"title": "Don't Pick Battles God Didn't Give You",
+"published": "2026-09-11",
+"kind": "Short",
+"speaker": "",
+"views": 1740,
+"duration": "0:52"
+}
+],
+"source": "sample"
+},
+"GET /files/roots": {
+"roots": [
+{
+"id": "data",
+"name": "Server",
+"path": "/srv/arise"
+},
+{
+"id": "nas",
+"name": "Synology",
+"path": "/mnt/synology"
+}
+]
+},
+"GET /bible/translations": {
+"translations": [
+{
+"id": "web",
+"name": "World English Bible"
+},
+{
+"id": "kjv",
+"name": "King James Version"
+},
+{
+"id": "asv",
+"name": "American Standard Version"
+},
+{
+"id": "bbe",
+"name": "Bible in Basic English"
+},
+{
+"id": "darby",
+"name": "Darby Translation"
+},
+{
+"id": "ylt",
+"name": "Young's Literal Translation"
+}
+]
+},
+"GET /system/updates": {
+"demo": true,
+"apt_upgradable": 3,
+"arise_behind": 0,
+"last_check": "2026-10-27T23:29:33+00:00",
+"security": 1
+},
+"GET /notify": {
+"configured": false,
+"hour": 7,
+"only_when_attention": true,
+"last": null
+},
+"GET /bible?ref=John 3:16": {
+"ok": true,
+"demo": true,
+"reference": "John 3:16",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 16,
+"text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."
+}
+],
+"copyright": "Public domain."
+},
+"GET /bible?ref=Psalm 23": {
+"ok": true,
+"demo": true,
+"reference": "Psalm 23",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 1,
+"text": "The LORD is my shepherd; I shall not want."
+},
+{
+"verse": 2,
+"text": "He maketh me to lie down in green pastures: he leadeth me beside the still waters."
+},
+{
+"verse": 3,
+"text": "He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake."
+},
+{
+"verse": 4,
+"text": "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me."
+},
+{
+"verse": 5,
+"text": "Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over."
+},
+{
+"verse": 6,
+"text": "Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever."
+}
+],
+"copyright": "Public domain."
+},
+"GET /bible?ref=Romans 8:28": {
+"ok": true,
+"demo": true,
+"reference": "Romans 8:28",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 28,
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose."
+}
+],
+"copyright": "Public domain."
+},
+"GET /bible?ref=Isaiah 40:31": {
+"ok": true,
+"demo": true,
+"reference": "Isaiah 40:31",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 31,
+"text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint."
+}
+],
+"copyright": "Public domain."
+},
+"GET /bible?ref=Philippians 4:6-7": {
+"ok": true,
+"demo": true,
+"reference": "Philippians 4:6-7",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 6,
+"text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."
+},
+{
+"verse": 7,
+"text": "And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."
+}
+],
+"copyright": "Public domain."
+},
+"GET /bible?ref=Exodus 19:5-6": {
+"ok": true,
+"demo": true,
+"reference": "Exodus 19:5-6",
+"translation": "kjv",
+"translation_name": "King James Version",
+"verses": [
+{
+"verse": 5,
+"text": "Now therefore, if ye will obey my voice indeed, and keep my covenant, then ye shall be a peculiar treasure unto me above all people: for all the earth is mine:"
+},
+{
+"verse": 6,
+"text": "And ye shall be unto me a kingdom of priests, and an holy nation. These are the words which thou shalt speak unto the children of Israel."
+}
+],
+"copyright": "Public domain."
 },
 "GET /logs/arise-web.service": {
 "demo": true,
@@ -2041,5 +2516,384 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "name": "syncthing",
 "text": "(demo) syncthing | server listening on :80\n(demo) syncthing | GET / 200"
+},
+"GET /files/list?root=data&path=/": {
+"demo": true,
+"root": "data",
+"path": "/",
+"entries": [
+{
+"name": "homes",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "shares",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "automator",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "apps",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "backups",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes": {
+"demo": true,
+"root": "data",
+"path": "/homes",
+"entries": [
+{
+"name": "bradly",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "media-mac",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "office",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "kids-checkin",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes/bradly": {
+"demo": true,
+"root": "data",
+"path": "/homes/bradly",
+"entries": [
+{
+"name": "Desktop",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Documents",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Pictures",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes/bradly/Documents": {
+"demo": true,
+"root": "data",
+"path": "/homes/bradly/Documents",
+"entries": [
+{
+"name": "Sunday setlist 2026-10-26.pdf",
+"dir": false,
+"size": 182000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Proclaim backgrounds",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "THUMB_2026-10-26_whose_hand.jpg",
+"dir": false,
+"size": 412000,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares": {
+"demo": true,
+"root": "data",
+"path": "/shares",
+"entries": [
+{
+"name": "media",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "staff",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "leadership",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "kids",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "graphics",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/graphics": {
+"demo": true,
+"root": "data",
+"path": "/shares/graphics",
+"entries": [
+{
+"name": "lower-thirds",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "loops",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "ARISE_BRAND_KIT.md",
+"dir": false,
+"size": 14000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "flame-logo.png",
+"dir": false,
+"size": 88000,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/automator": {
+"demo": true,
+"root": "data",
+"path": "/automator",
+"entries": [
+{
+"name": "ARISE_YouTube_Updater",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/automator/ARISE_YouTube_Updater": {
+"demo": true,
+"root": "data",
+"path": "/automator/ARISE_YouTube_Updater",
+"entries": [
+{
+"name": "automator",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "transcripts",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "thumbnails",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "song_bank.json",
+"dir": false,
+"size": 240000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "speakers.json",
+"dir": false,
+"size": 2100,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "youtube_updater.py",
+"dir": false,
+"size": 61000,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/automator/ARISE_YouTube_Updater/automator": {
+"demo": true,
+"root": "data",
+"path": "/automator/ARISE_YouTube_Updater/automator",
+"entries": [
+{
+"name": "reports",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "arise_daily.py",
+"dir": false,
+"size": 23000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "holds.json",
+"dir": false,
+"size": 1800,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "worklist.json",
+"dir": false,
+"size": 3400,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "LATEST_REPORT.md",
+"dir": false,
+"size": 2900,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "quota_ledger.json",
+"dir": false,
+"size": 9200,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/apps": {
+"demo": true,
+"root": "data",
+"path": "/apps",
+"entries": [
+{
+"name": "filebrowser",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "uptime-kuma",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "syncthing",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/backups": {
+"demo": true,
+"root": "data",
+"path": "/backups",
+"entries": [
+{
+"name": "github-mirror",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/backups/github-mirror": {
+"demo": true,
+"root": "data",
+"path": "/backups/github-mirror",
+"entries": [
+{
+"name": "Church-server-OS-.git",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "arise-youtube-automation.git",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "arisechurch.git",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "arisehub.git",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=nas&path=/": {
+"demo": true,
+"root": "nas",
+"path": "/",
+"entries": [
+{
+"name": "arise",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T03:00"
+},
+{
+"name": "homes",
+"dir": true,
+"size": null,
+"mtime": "2026-10-25T18:12"
+},
+{
+"name": "media",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
 }
 };

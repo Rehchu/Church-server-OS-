@@ -10,12 +10,15 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+import asyncio
+import os
+
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, directory, metrics, nas, services, shares
+from . import VERSION, CODENAME, apps, automator, backups, bible, directory, files, metrics, nas, remote, sermons, services, shares, sites, system
 from .auth import COOKIE, current_user, login
 from .config import load
 from .util import human_bytes
@@ -398,6 +401,190 @@ def api_settings(_=auth):
 @app.get("/api/health")
 def api_health():
     return {"ok": True, "version": VERSION, "demo": load().demo}
+
+
+
+# ----- v0.2: campuses, remote access, bible, sermons, files, system, terminal ----
+@app.get("/api/sites")
+def api_sites(_=auth):
+    return sites.status(directory.list_computers()["computers"])
+
+
+@app.get("/api/remote")
+def api_remote(_=auth):
+    return remote.overview()
+
+
+class PeerName(BaseModel):
+    name: str
+
+
+@app.post("/api/remote/wireguard/peers")
+def api_remote_peer(body: PeerName, _=auth):
+    return remote.add_wireguard_peer(body.name)
+
+
+@app.get("/api/bible")
+def api_bible(ref: str = "", translation: str = "web", _=auth):
+    return bible.lookup(ref, translation)
+
+
+@app.get("/api/bible/translations")
+def api_bible_translations(_=auth):
+    return {"translations": [{"id": i, "name": n} for i, n in bible.TRANSLATIONS]}
+
+
+@app.get("/api/sermons")
+def api_sermons(limit: int = 60, _=auth):
+    return sermons.videos(limit)
+
+
+@app.get("/api/files/roots")
+def api_files_roots(_=auth):
+    return {"roots": files.roots()}
+
+
+@app.get("/api/files/list")
+def api_files_list(root: str = "data", path: str = "/", _=auth):
+    return files.listing(root, path)
+
+
+@app.get("/api/files/download")
+def api_files_download(root: str, path: str, _=auth):
+    p = files.file_path(root, path)
+    if not p:
+        raise HTTPException(404, {"message": "no such file"})
+    return FileResponse(p, filename=os.path.basename(p))
+
+
+@app.post("/api/files/upload")
+async def api_files_upload(root: str = Form("data"), path: str = Form("/"), file: UploadFile = File(...), _=auth):
+    data = await file.read()
+    if len(data) > 2 * 1024 ** 3:
+        return {"ok": False, "err": "2 GB limit here; use the share for bigger files"}
+    return files.save_upload(root, path, file.filename or "", data)
+
+
+@app.get("/api/system/updates")
+def api_updates(_=auth):
+    return system.updates()
+
+
+@app.post("/api/system/update")
+def api_update(_=auth):
+    return system.update_arise()
+
+
+@app.post("/api/system/apt-upgrade")
+def api_apt_upgrade(_=auth):
+    return system.apt_upgrade()
+
+
+class Power(BaseModel):
+    action: str
+    confirm: str = ""
+
+
+@app.post("/api/system/power")
+def api_power(body: Power, _=auth):
+    return system.power(body.action, body.confirm)
+
+
+@app.post("/api/notify/test")
+def api_notify_test(_=auth):
+    c = load()
+    if c.demo:
+        return {"ok": True, "demo": True}
+    return system.send_webhook("Arise Server: test note from the dashboard. If you can read this, the daily 07:00 note will arrive here.")
+
+
+@app.get("/api/notify")
+def api_notify(_=auth):
+    from .util import read_json
+    n = system.notify_config()
+    st = read_json(load().state_dir / "state.json", default={}) or {}
+    return {"configured": bool(n["webhook_url"]), "hour": n["hour"], "only_when_attention": n["only_when_attention"], "last": st.get("last_notify")}
+
+
+@app.websocket("/api/terminal")
+async def api_terminal(ws: WebSocket):
+    """A pty over a websocket. Text frames in = keystrokes; JSON {"resize":[cols,rows]} resizes."""
+    try:
+        current_user(ws)  # same cookie check as every other route
+    except HTTPException:
+        await ws.close(code=4401)
+        return
+    await ws.accept()
+    c = load()
+    if c.demo or os.name == "nt":
+        await ws.send_text(system.DEMO_BANNER + "\x1b[31marise-server\x1b[0m:~# ")
+        buf = ""
+        try:
+            while True:
+                msg = await ws.receive_text()
+                if msg.startswith("{"):
+                    continue
+                for ch in msg:
+                    if ch in ("\r", "\n"):
+                        cmd = buf.strip(); buf = ""
+                        out = "" if not cmd else ("\x1b[2J\x1b[H" if cmd == "clear" else system.DEMO_COMMANDS.get(cmd, f"bash: {cmd}: not in the preview (type help)"))
+                        await ws.send_text("\r\n" + (out + "\r\n" if out and cmd != "clear" else out) + "\x1b[31marise-server\x1b[0m:~# ")
+                    elif ch == "\x7f":
+                        if buf:
+                            buf = buf[:-1]; await ws.send_text("\b \b")
+                    elif ch == "\x03":
+                        buf = ""; await ws.send_text("^C\r\n\x1b[31marise-server\x1b[0m:~# ")
+                    elif ch >= " ":
+                        buf += ch; await ws.send_text(ch)
+        except WebSocketDisconnect:
+            return
+    pid, fd = system.spawn_shell()
+    loop = asyncio.get_event_loop()
+
+    async def pump():
+        try:
+            while True:
+                data = await loop.run_in_executor(None, _read_fd, fd)
+                if not data:
+                    break
+                await ws.send_text(data.decode("utf-8", "replace"))
+        except Exception:
+            pass
+        try:
+            await ws.close()
+        except Exception:
+            pass
+
+    task = asyncio.create_task(pump())
+    try:
+        while True:
+            msg = await ws.receive_text()
+            if msg.startswith("{"):
+                try:
+                    import json as _json
+                    j = _json.loads(msg)
+                    if "resize" in j:
+                        system.resize(fd, int(j["resize"][0]), int(j["resize"][1]))
+                except Exception:
+                    pass
+                continue
+            os.write(fd, msg.encode())
+    except WebSocketDisconnect:
+        pass
+    finally:
+        task.cancel()
+        system.kill(pid)
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+
+def _read_fd(fd):
+    try:
+        return os.read(fd, 65536)
+    except OSError:
+        return b""
 
 
 # ----- the dashboard -----------------------------------------------------------

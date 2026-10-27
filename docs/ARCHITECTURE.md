@@ -34,6 +34,13 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
    one click each, like HomeDock's store but only what the church uses.
 6. **Feel great.** A dashboard that loads instantly, streams live CPU, RAM,
    disk, network and service health, and looks like the church's own site.
+7. **Reachable from a locked closet.** Key-only SSH, a VPN (Tailscale or
+   WireGuard), Guacamole remote desktop in the browser, HTTPS through Caddy,
+   and a Terminal app in the dashboard. Nothing is forwarded on the router
+   except UDP 51820 when WireGuard is chosen. docs/REMOTE-ACCESS.md.
+8. **Three sites.** Pineville (the server, the DC, the NAS), Arise Church
+   Alexandria and the Apostolic Hub, over the VPN, with a Campuses app that
+   watches each. docs/MULTI-SITE.md.
 
 ## Names, paths, ports — fixed
 
@@ -51,7 +58,10 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | Data root | `/srv/arise/` — `homes/`, `shares/`, `automator/`, `apps/`, `backups/` |
 | Automator checkout | `/srv/arise/automator/ARISE_YouTube_Updater` (clone of `Rehchu/arise-youtube-automation`) |
 | Synology mount | `/mnt/synology` (SMB or NFS), subfolders `arise-backups/`, `homes/` |
-| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 |
+| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-notify.timer` 07:00 |
+| VPN | Tailscale (100.64.0.0/10) or WireGuard `wg0` on UDP 51820, tunnel `10.47.0.0/24` |
+| Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.church` behind Caddy) |
+| HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile` |
 | Logs | `journalctl -u arise-*`, plus `/var/log/arise/` |
 | Windows mode root | `C:\Arise\` with the same subfolders (`config\`, `data\`, `automator\`) |
 
@@ -66,13 +76,13 @@ domain controller**. Directory features need the Linux install.
 README.md                landing-style overview (Monolith README shape)
 INSTALL.md               both install paths, step by step
 docs/                    ARCHITECTURE (this), DIRECTORY, MAC-MIGRATION, SYNOLOGY,
-                         BACKUPS, AUTOMATOR, HARDWARE, DASHBOARD, CLI
+                         BACKUPS, AUTOMATOR, HARDWARE, DASHBOARD, CLI, REMOTE-ACCESS, MULTI-SITE
 site/                    the landing page (static, Arise design)
 server/arise_server/     FastAPI backend — the JSON API and static host
 web/                     the dashboard SPA (vanilla JS, Arise design)
 cli/arisectl             the CLI (Python, stdlib only)
-installer/               install.sh (Ubuntu), install.ps1 (Windows), autoinstall.yaml
-config/                  arise.toml.example, backups.yaml.example, systemd units, smb.conf.template
+installer/               install.sh (Ubuntu; --with-tailscale --with-wireguard --with-caddy), install.ps1 (Windows), autoinstall.yaml
+config/                  arise.toml.example, backups.yaml.example, systemd units, smb.conf.template, caddy/Caddyfile
 templates/<app>/         compose.yaml + template.yaml per app
 mac/                     bind-mac.sh, migrate-mac-user.sh, mount-home.sh, CHECKLIST.md
 tests/                   pure-function tests, `python -m unittest discover tests`
@@ -129,6 +139,50 @@ dsm_credentials_file = "/etc/arise/secrets/dsm.json"
 [apps]
 docker = true
 root = "/srv/arise/apps"
+
+[remote]
+ssh_port = 22
+vpn = "tailscale"                   # tailscale | wireguard | none
+wg_interface = "wg0"
+wg_endpoint = ""                    # "arise.duckdns.org:51820" once the router forwards it
+wg_subnet = "10.47.0.0/24"
+guacamole_url = "http://arise-server:8084"
+lan_subnet = "192.168.1.0/24"
+
+[notify]
+webhook_url = ""                    # Discord or Slack incoming webhook
+hour = 7                            # local time of the morning report
+only_when_attention = true          # quiet when there is nothing to say
+
+[[sites]]
+id = "pineville"
+name = "Arise Church Pineville"
+kind = "main"                       # main | campus | office
+address = "501 Ates Road, Pineville, LA"
+subnet = "192.168.1.0/24"
+probe = ""                          # a host at the site that is always on (router, a Mac)
+services = "Sunday 10:30 AM · Glory Night Monday 7 PM"
+note = "The server, the Synology and the domain live here."
+
+[[sites]]
+id = "alexandria"
+name = "Arise Church Alexandria"
+kind = "campus"
+address = ""
+subnet = "192.168.2.0/24"
+probe = ""
+services = "Sunday 10:00 AM"
+note = "Reaches the server over the VPN. Macs here bind to the domain through it."
+
+[[sites]]
+id = "hub"
+name = "The Apostolic Hub"
+kind = "office"
+address = ""
+subnet = "192.168.3.0/24"
+probe = ""
+services = ""
+note = "Office and leadership computers. VPN clients, no site router needed."
 
 [github]
 mirror = true
@@ -208,11 +262,29 @@ and previewed anywhere, including the published preview page.
 | `GET /api/nas` | mount status, free space, DSM health if configured, last Hyper Backup |
 | `GET /api/logs/{unit}` | last N journal lines |
 | `GET /api/settings` | the non-secret parts of arise.toml |
+| `GET /api/sites` | the `[[sites]]` blocks with each probe's reply and the computers in each subnet |
+| `GET /api/remote` | sshd state (port, key-only, last logins), Tailscale and WireGuard state and peers, Guacamole state |
+| `POST /api/remote/wireguard/peers` `{name}` | adds a peer to `wg0`, returns the client config text |
+| `GET /api/bible?ref=&translation=` | a passage from bible-api.com (public-domain texts), the Bible app |
+| `GET /api/sermons` | the channel from the automator's `channel_inventory.csv`, zero quota |
+| `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `POST /api/files/upload` | the Files app, inside `/srv/arise` and the NAS mount; no delete |
+| `GET /api/system/updates` · `POST /api/system/update` · `POST /api/system/apt-upgrade` | apt and Arise Server updates |
+| `POST /api/system/power` `{action: reboot|poweroff, confirm}` | the closet has no power button you can reach |
+| `POST /api/notify/test` | sends a test line to the webhook |
+| `WS /api/terminal` | a pty on the box for the Terminal app (root on the Linux install) |
 
 ## The dashboard (web/)
 
-Sections, in the sidebar, in this order:
-**Overview · Directory · Files · Backups · Automator · Apps · NAS · Services · Logs · Settings**.
+Laid out like a desktop, the way HomeDock does it: a **menu bar** across the
+top (the flame, the open app's name, live CPU/RAM pills, the clock, the
+signed-in admin), a wallpaper in the church's ink and red, **windows** that
+open, move, resize, minimise and stack, a floating **dock** along the bottom
+with one icon per app and a dot under the ones that are open, and a
+**launchpad** grid for the rest. On a phone every window is full-screen and
+the dock becomes a bottom bar.
+
+The apps, in dock order:
+**Overview · Directory · Files · Backups · Automator · Sermons · Bible · Apps · Remote · Campuses · Terminal · NAS · Services · Logs · Settings**.
 
 Design tokens (from the Wix site, do not drift):
 
@@ -246,6 +318,10 @@ arisectl automator status|preview|run|report|holds|worklist
 arisectl app list|templates|deploy <template> --name <n>|start|stop|logs <n>
 arisectl nas status|mount|unmount
 arisectl mirror run               # refresh the GitHub mirror
+arisectl remote status|add-peer <name>   # VPN, SSH, Guacamole state; a new WireGuard device
+arisectl sites                    # Pineville · Alexandria · the Hub, with probe replies
+arisectl notify test|send         # the morning report to the webhook
+arisectl update                   # git pull + pip + restart arise-web
 arisectl admin set-password       # writes the bcrypt hash into arise.toml
 arisectl doctor                   # checks everything and prints what to fix
 ```

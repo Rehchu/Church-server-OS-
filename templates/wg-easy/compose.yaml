@@ -1,0 +1,32 @@
+# wg-easy - WireGuard with a web page for adding devices and QR codes for phones.
+# The ALTERNATIVE to the native WireGuard the installer sets up with
+# --with-wireguard. Both listen on UDP 51820: run one or the other, never both.
+# Web UI on :51821 (LAN/VPN only - never forward it). Forward UDP 51820 on the
+# Pineville router to this server, and set WG_HOST to the church's public name.
+services:
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:14
+    container_name: arise-app-wg-easy
+    restart: unless-stopped
+    environment:
+      - LANG=en
+      - WG_HOST=${WG_HOST:-CHANGE-ME.duckdns.org}     # the public DNS name or static IP clients connect to
+      - PASSWORD_HASH=${PASSWORD_HASH:-}              # bcrypt hash for the web UI; see template notes
+      - WG_DEFAULT_ADDRESS=10.47.0.x
+      - WG_DEFAULT_DNS=192.168.1.10                   # the domain controller, so ad.arisecenla.church resolves
+      - WG_ALLOWED_IPS=10.47.0.0/24, 192.168.1.0/24   # tunnel + the Pineville LAN only (split tunnel)
+      - WG_PERSISTENT_KEEPALIVE=25
+      - UI_TRAFFIC_STATS=true
+      - TZ=America/Chicago
+    volumes:
+      - /srv/arise/apps/wg-easy:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
