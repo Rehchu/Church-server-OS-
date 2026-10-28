@@ -351,8 +351,22 @@ means below.
 | 103 | Immich's library? | Watch Media/Photos and every staff member's Photos folder | external, read-only; deleting in Immich never deletes a file |
 | 104 | Department accounts? | "Staff can be assigned individual accounts, but they're also assigned to a department or multiple departments. when they log in with their individual login, they get access to the department account stuff as well!" | everyone has their own account; departments are groups with their own share folder; membership grants the department's files and mail; a shared department login is not needed |
 | 105 | A rehearsal at home? | Yes, rehearse the install and the reinstall at home first | REINSTALL.md gets the rehearsal checklist |
+| 106 | (unprompted) Two Windows PCs at the church | "we have 2 Windows PCs at the Church, so technically, One could be at Arise Church Alexandria, while the other is at Pineville, or i Run One from my house that is linked to the Pineville location so i can do EVERYTHING from the server at my house, and it sync to the main server at the Pineville location." | the two PCs become the two ariseOS nodes (107 to 115) |
+| 107 | What becomes of the two PCs? | "One at the Pineville Location, and One at my house with the FULL OS installed on it (the one that i can actually push updates and stuff through and maintenance the other one so i don't have to travel to the church)" | both wiped; Arise-Pineville is the church's server, Arise-Home is Bradly's control node and replica |
+| 108 | The home node, exactly? | "THE FULL OS installed on the 2nd windows PC wiping Windows Completely!" | a full ariseOS install, node mode "home" |
+| 109 | Which machine is the Pineville server? | The strongest machine, whichever it is | decided from Friday's specs |
+| 110 | Node names? | "the two will be Arise-Pineville and Arise-Home. when i get a third one it will be Arise-Alexandria." | hostnames arise-pineville, arise-home, arise-alexandria (lower-case on the wire, shown as he wrote them); this replaces the fixed name arise-server in the contract: docs/NODES.md |
+| 111 | The Dell? | "I only have 2 windows pcs right now, one is an optiplex, the other is an Unknown. I will get you the makes and models of both of them friday so you'll have EXACT information to work with." | the OptiPlex is one of the two; roles assigned on Friday |
+| 112 | What Arise-Home carries? | The domain, all shares and homes mirrored, backups; apps live at Pineville (then see 115) | second domain controller; Syncthing both ways for shares and homes; a full restic copy at home (the off-site backup, free) |
+| 113 | Takeover when Pineville dies? | Automatic takeover after an hour down | Home promotes itself after an hour unreachable, with a fence so the nightly job and the timers never run on both: the primary role is a record both nodes read; a returning Pineville sees Home holds it and stays standby until Bradly hands it back |
+| 114 | A Nodes page to push updates from home? | Yes, a Nodes page on both; updates still take a snapshot first | health, doctor, Update now, Open dashboard, Run a command, over Tailscale SSH with keys; refused during a service |
+| 115 | Arise-Home on the home network, and its apps? | Invisible to the home network except through Tailscale; "whatever pineville's server is doing, my home server should be doing. it should be FULLY SYNCED back and forth." | node mode home: DNS and the domain on the Tailscale interface only. Apps: Home runs the same apps; their data is copied from the primary to the standby every night (app folders, databases dumped) so Home can take over with yesterday's state. Two-way live sync of app databases is not safe and is not built; files and the domain are the two-way parts. Said plainly in NODES.md |
 
 ## Still needed
+
+- Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
+- The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (97).
+- The four Discord webhook URLs into /etc/arise/secrets/discord.toml (101).
 
 - Sunday: questions 1 to 7.
 - Where the Synology is plugged in: on Netgear A's network it mounts directly; elsewhere it gets the Tailscale package. No cable moves either way.
