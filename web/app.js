@@ -682,7 +682,7 @@ V.devices.after = root => {
 
 V.assist = async () => {
   const c = await api('/church'); S.church = c;
-  const tiles = (c.assistants || []).map(a => `<button class="assist__t" data-url="${esc(a.url)}"><i>${a.id === 'claude' ? 'Anthropic' : a.id === 'chatgpt' ? 'OpenAI' : a.id === 'grok' ? 'xAI' : 'Google'}</i><b>${esc(a.name)}</b><span>${esc(a.what)}</span></button>`).join('');
+  const tiles = (c.assistants || []).map(a => `<button class="assist__t" data-url="${esc(a.url)}"><i>${a.id === 'claude' ? 'Anthropic' : a.id === 'chatgpt' ? 'OpenAI' : a.id === 'grok' ? 'xAI' : a.id === 'studio' ? 'Google' : 'Streaming'}</i><b>${esc(a.name)}</b><span>${esc(a.what)}</span></button>`).join('');
   return `<div class="fade"><div class="kicker">Your assistants, your accounts</div><p class="note" style="margin:6px 0 14px">${S.kiosk ? 'On the monitor each one opens in its own window on top of the desktop; close that window to come back.' : 'Each opens in a new tab, signed in as you. Nothing is stored on the server.'} No API keys anywhere.</p>
     <div class="assist">${tiles}<button class="assist__t" data-claude-code><i>On this box</i><b>Claude Code</b><span>The <code>claude</code> command in the Terminal: ask it about this server, let it read the logs, fix a config. Signed in with the church's claude.ai account via <code>/login</code>.</span></button></div></div>`;
 };
