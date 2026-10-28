@@ -3,7 +3,7 @@ title: Icecast
 description: "Live audio to phones on the church Wi-Fi: translation, the nursery feed, assisted listening. One laptop sends; anyone with the address listens in a browser."
 category: streaming
 icon: pulse
-version: "latest"
+version: "2.4.4"
 ports:
   - 8000:8000
 volumes: []

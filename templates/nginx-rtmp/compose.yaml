@@ -5,7 +5,7 @@
 # :latest because the image publishes no stable tags; pin after the first pull.
 services:
   nginx-rtmp:
-    image: tiangolo/nginx-rtmp:latest
+    image: tiangolo/nginx-rtmp:latest-2026-10-12
     container_name: arise-app-nginx-rtmp
     restart: unless-stopped
     ports:

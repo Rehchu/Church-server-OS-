@@ -3,7 +3,7 @@ title: phpList
 description: Newsletters to the families with lists, templates and bounce handling. Only with an SMTP relay (Google Workspace for Nonprofits or a sender's free tier); mail straight from a church IP lands in spam.
 category: communication
 icon: folder
-version: "latest"
+version: "3.6.17"
 ports:
   - 8093:80
 volumes:

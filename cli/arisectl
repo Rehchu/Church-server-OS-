@@ -34,7 +34,6 @@
     arisectl mail status|contacts|import <wix.csv>|test <to> <subject>       the church family list (Resend)
     arisectl remote status|add-peer <name>
     arisectl notify test|send
-    arisectl update [check|apply|apt]
     arisectl security                   the Security app's rows: encryption, scan, certificate, two-step, rescue
     arisectl twofa list|reset <user>    who has two-step sign-in on; reset = turn it off for someone who lost the phone
     arisectl rescue status|rotate|card  the break-glass admin arise-rescue (console and SSH only)
@@ -42,6 +41,7 @@
     arisectl snapshot create "<note>"|list|restore <name>|prune   system snapshots (Timeshift), 5 kept, never during a service
     arisectl scan status|run|restore <file>   the weekly ClamAV scan of the shares; restore puts a quarantined file back
     arisectl reinstall <restic-repo>    rebuild this box from the Synology's backup (docs/REINSTALL.md)
+    arisectl service-now [--quiet]      exit 0 = no service on, 1 = a service is on (the timers' ExecCondition)
     arisectl update [check|refresh|queue|apply|apt]   Software Update: what waits, what Bradly queued, the Saturday 03:30 apply
     arisectl update apply [--now] [--no-snapshot] [--quiet]   install the queue (refuses during a service; snapshot first)
 
@@ -167,7 +167,7 @@ def cmd_doctor(a):
     if cfg.directory.enabled:
         if which("samba-tool"):
             r = run(["samba-tool", "domain", "info", "127.0.0.1"], timeout=15)
-            (ok if r["ok"] else bad)("Samba AD DC " + ("answers" if r["ok"] else f"not answering: {(r['err'] or r['out']).strip()[:120]}"))
+            (ok if r["ok"] else bad)("Samba AD DC " + ("answers" if r["ok"] else f"not answering: {((r['err'] or r['out']).strip().splitlines() or [''])[-1][:160]}"))
             d = run(["host", "-t", "SRV", f"_ldap._tcp.{cfg.directory.realm.lower()}"], timeout=10) if which("host") else {"ok": None}
             if d["ok"] is not None:
                 (ok if d["ok"] else bad)(f"DNS SRV for {cfg.directory.realm.lower()} " + ("resolves" if d["ok"] else "does not resolve - resolv.conf must point at 127.0.0.1"))
@@ -296,7 +296,10 @@ def cmd_user(a):
         table([{"user": u["name"], "name": u["display"], "enabled": "yes" if u["enabled"] else "NO", "groups": ", ".join(u["groups"]), "last login": u["last_logon"] or "never"} for u in r["users"]], ["user", "name", "enabled", "groups", "last login"])
     elif a.sub == "add":
         need_root()
-        pw = a.password or getpass.getpass(f"Password for {a.name}: ")
+        if getattr(a, "password_stdin", False):
+            pw = sys.stdin.readline().rstrip("\n")
+        else:
+            pw = a.password or getpass.getpass(f"Password for {a.name}: ")
         show(directory.add_user(a.name, pw, a.display or "", a.groups.split(",") if a.groups else []))
     elif a.sub == "remove":
         need_root()
@@ -491,6 +494,10 @@ def cmd_automator(a):
         if not automator.available():
             sys.exit(f"automator not found at {o['path']}: sudo arisectl automator setup")
         need_root()
+        from arise_server import church
+        svc = church.in_service_now()
+        if svc:
+            sys.exit(f"refused: {svc['name']} is on until {svc['ends_at']}; the automator never runs during a service")
         if a.sub == "run":
             why = automator.run_refusal()   # CLAUDE.md rule 3 and the handoff's rule 6: no apply run by hand
             if why:
@@ -645,6 +652,8 @@ def cmd_mail(a):
         if c.get("err"): bad(c["err"])
     elif a.sub == "import":
         if not a.arg1: sys.exit("arisectl mail import <wix.csv>")
+        need_root()
+        if not Path(a.arg1).is_file(): sys.exit(f"no such file: {a.arg1} (the Wix contacts export, a .csv)")
         r = mail.parse_contacts(open(a.arg1, encoding="utf-8", errors="replace").read())
         if r.get("err"): sys.exit(r["err"])
         print(f"{len(r['contacts'])} addresses, {r['skipped']} skipped; columns {r['columns']}")
@@ -652,6 +661,7 @@ def cmd_mail(a):
         show(mail.import_contacts(r["contacts"]))
     elif a.sub == "test":
         if not a.arg1 or not a.arg2: sys.exit("arisectl mail test <to> <subject>  (body from stdin)")
+        need_root()
         show(mail.send_test(a.arg1, a.arg2, sys.stdin.read()))
     else:
         sys.exit("arisectl mail status|contacts|import <csv>|test <to> <subject>")
@@ -711,8 +721,9 @@ def cmd_link(a):
         for l in rows:
             print(f"{l['token']:14} {'expired' if l['expired'] else 'until ' + l['expires']:24} {l['user']:12} {l['downloads']:>3}x  {l['name']}  ({l['root']}{l['path']})")
     elif a.sub == "revoke":
-        show(links.revoke(a.token, who))
+        need_root(); show(links.revoke(a.token, who))
     elif a.sub == "sweep":
+        need_root()
         print(f"removed {links.sweep()} expired links")
     else:
         sys.exit("arisectl link list|revoke <token>|sweep")
@@ -751,6 +762,11 @@ def cmd_browser(a):
         if r.returncode != 0:
             bad("policy not written: " + (r.stderr.strip() or r.stdout.strip())); sys.exit(1)
         ok(f"policy written: {pol}")
+        ca = Path("/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt")
+        if ca.exists():
+            Path("/etc/arise/ca").mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ca, "/etc/arise/ca/arise-root.crt"); os.chmod("/etc/arise/ca/arise-root.crt", 0o644)
+            ok("church certificate copied where the monitor's browser can read it")
         src = HOME / "config" / "firefox"
         if prof.exists():
             (prof / "chrome").mkdir(exist_ok=True)
@@ -880,6 +896,7 @@ def cmd_remote(a):
 
 
 def cmd_notify(a):
+    need_root()
     from arise_server import system
     if a.sub == "test":
         show(system.send_webhook("Arise Server: test note from arisectl."))
@@ -1143,11 +1160,39 @@ def cmd_monitor(a):
 
 
 def cmd_mirror(a):
+    need_root()
     from arise_server import backups
     r = backups.mirror_github()
     for x in r["repos"]:
         (ok if x["ok"] else bad)(f"{x['repo']}" + ("" if x["ok"] else f": {x['error']}"))
     sys.exit(0 if r["ok"] else 1)
+
+
+def cmd_service_now(a):
+    """The scheduled jobs' gate (ExecCondition=): nothing runs during a service.
+
+    Bradly's rule: nothing is scheduled during a service (Sundays 10:30, Mondays
+    19:00; the times come from [church] in arise.toml). A timer that fires inside
+    that window, or a Persistent= catch-up after a power cut during one, is
+    skipped quietly: systemd treats ExecCondition exit 1 as "condition failed",
+    not as a failure. Exit 0 = go, 1 = a service is on.
+    """
+    from arise_server import church
+    try:
+        svc = church.in_service_now()
+    except Exception as e:  # a broken config must not stop the backups: go, and say why
+        if not a.quiet:
+            warn(f"could not read the service times ({e}); not gating")
+        sys.exit(0)
+    if svc:
+        if not a.quiet:
+            print(f"{svc['name']} is on until {svc['ends_at']}: skipped")
+        else:
+            print(f"skipped: {svc['name']} until {svc['ends_at']}")
+        sys.exit(1)
+    if not a.quiet:
+        ok("no service on now")
+    sys.exit(0)
 
 
 # ---- argument parsing ----------------------------------------------------------
@@ -1159,7 +1204,7 @@ def build():
     sp.add_parser("doctor").set_defaults(f=cmd_doctor)
     p = sp.add_parser("admin"); p.add_argument("sub", choices=["set-password"]); p.set_defaults(f=cmd_admin)
     p = sp.add_parser("service"); p.add_argument("sub", choices=["list", "status", "start", "stop", "restart"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_service)
-    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
     p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)
@@ -1191,6 +1236,7 @@ def build():
     p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm"]); p.set_defaults(f=cmd_encrypt)
     p = sp.add_parser("snapshot"); p.add_argument("sub", choices=["create", "list", "restore", "prune"]); p.add_argument("name", nargs="?", help="a note for create, the snapshot name for restore"); p.set_defaults(f=cmd_snapshot)
     p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
+    p = sp.add_parser("service-now"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_service_now)
     p = sp.add_parser("reinstall"); p.add_argument("name", nargs="?", help="the restic repository, e.g. /mnt/synology/arise-backups/restic"); p.set_defaults(f=cmd_reinstall)
     return ap
 
@@ -1209,6 +1255,9 @@ def main():
         a.f(a)
     except KeyboardInterrupt:
         sys.exit(130)
+    except EOFError:
+        # input() with no terminal (a script, a pipe, systemd): nothing was typed, so nothing changes
+        sys.exit("arisectl: no answer typed (no terminal?); nothing was changed")
 
 
 if __name__ == "__main__":

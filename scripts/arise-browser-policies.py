@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 DASHBOARD = "http://127.0.0.1:4147"
-CADDY_ROOT = "/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt"
+CADDY_ROOT = "/etc/arise/ca/arise-root.crt"   # a world-readable copy of Caddy's root (the kiosk user cannot read /var/lib/caddy)
 
 # The sites the monitor may open as a page or a frame (Firefox's site filter only
 # judges documents and frames, so scripts and images from CDNs load as usual).

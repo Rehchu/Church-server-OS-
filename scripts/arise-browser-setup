@@ -113,7 +113,17 @@ fi
 # 6. Firefox updates ride with the security updates
 UU=/etc/apt/apt.conf.d/52arise-firefox
 if [ -f "$UU" ]; then say "unattended-upgrades already takes Firefox"; else
-  run sh -c "printf 'Unattended-Upgrade::Origins-Pattern { \"origin=packages.mozilla.org\"; };\n' > $UU"
+  # site= matches the repository's host; origin= would match the Release file's Origin field instead.
+  run sh -c "printf 'Unattended-Upgrade::Origins-Pattern { \"site=packages.mozilla.org\"; };\n' > $UU"
+fi
+
+# 6b. The church certificate where the kiosk user can read it (Caddy keeps its CA under /var/lib/caddy)
+CA_SRC=/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+run install -d -m 0755 /etc/arise/ca
+if [ "$DRY_RUN" = 1 ] || [ -f "$CA_SRC" ]; then
+  run install -m 0644 "$CA_SRC" /etc/arise/ca/arise-root.crt
+else
+  warn "Caddy has not made its certificate yet; 'sudo arisectl browser apply' copies it once it has"
 fi
 
 # 7. The launcher

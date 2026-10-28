@@ -7,7 +7,7 @@
 # pull with `docker image inspect` if you want it frozen.
 services:
   netalertx:
-    image: ghcr.io/jokob-sk/netalertx:latest
+    image: ghcr.io/jokob-sk/netalertx:26.10.0
     container_name: arise-app-netalertx
     restart: unless-stopped
     network_mode: host

@@ -18,7 +18,7 @@ services:
       - /srv/arise/apps/phplist/db:/var/lib/mysql
 
   phplist:
-    image: phplist/phplist:latest
+    image: phplist/phplist:3.6.17
     container_name: arise-app-phplist
     restart: unless-stopped
     depends_on:

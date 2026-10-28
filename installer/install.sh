@@ -156,6 +156,10 @@ say()  { printf '\n\033[1;31m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 note() { printf '    %s\n' "$*"; }
 warn() { printf '    \033[1;33m! %s\033[0m\n' "$*"; }
 die()  { printf '\n\033[1;31mFAILED:\033[0m %s\n' "$*" >&2; exit 1; }
+# A random password, letters and digits. Not `tr </dev/urandom | head`: under
+# pipefail tr dies of SIGPIPE when head closes, the pipeline returns 141 and the
+# ERR trap ends the install (found by the install rehearsal).
+rand_pw() { python3 -c 'import secrets, string, sys; a = string.ascii_letters + string.digits; print("".join(secrets.choice(a) for _ in range(int(sys.argv[1]))))' "${1:-24}"; }
 
 # run — execute a command, or print it in --dry-run.
 run() {
@@ -171,7 +175,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY tpm=$WITH_TPM safety=$WITH_SAFETY restore=${RESTORE_REPO:-no} cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY tpm=$WITH_TPM safety=$WITH_SAFETY restore=${RESTORE_REPO:-no} cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps=[$APPS] console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -290,10 +294,12 @@ if [ "$DRY_RUN" = 0 ]; then
 fi
 
 PKGS=(
-  samba winbind krb5-user krb5-config libnss-winbind libpam-winbind
+  samba samba-ad-dc samba-ad-provision samba-dsdb-modules samba-vfs-modules
+  winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
-  restic rsync git curl jq arp-scan nmap ffmpeg
+  restic rsync git curl jq arp-scan nmap ffmpeg bind9-host
+  openssh-server
   ca-certificates gnupg
   python3 python3-venv python3-pip
   chrony
@@ -561,7 +567,7 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
         awk '/^# >>> arise-server shares/{p=1} p' "$TEMPLATE" >> /etc/samba/smb.conf
         # The Mac (vfs fruit) lines belong in [global]; insert them once.
         if ! grep -q 'fruit:model' /etc/samba/smb.conf; then
-          sed -i '/^\[global\]/a\        # arise-server: macOS over SMB (see config/samba/smb.conf.template)\n        vfs objects = acl_xattr fruit streams_xattr\n        fruit:metadata = stream\n        fruit:model = MacSamba\n        fruit:posix_rename = yes\n        fruit:veto_appledouble = no\n        fruit:wipe_intentionally_left_blank_rfork = yes\n        fruit:delete_empty_adfiles = yes' /etc/samba/smb.conf
+          sed -i '/^\[global\]/a\        # arise-server: macOS over SMB (see config/samba/smb.conf.template)\n        vfs objects = dfs_samba4 acl_xattr fruit streams_xattr\n        fruit:metadata = stream\n        fruit:model = MacSamba\n        fruit:posix_rename = yes\n        fruit:veto_appledouble = no\n        fruit:wipe_intentionally_left_blank_rfork = yes\n        fruit:delete_empty_adfiles = yes' /etc/samba/smb.conf
         fi
         testparm -s >/dev/null 2>&1 || die "smb.conf failed testparm after the merge; restore /etc/samba/smb.conf.bak.* and look at the template"
         note "merged the Arise share block into /etc/samba/smb.conf"
@@ -593,26 +599,38 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
     fi
   fi
 
-  # DNS: the DC is its own resolver. systemd-resolved must stop listening on
-  # :53 and the box must look at 127.0.0.1 with the realm as search domain.
+  # DNS, in two moves (the rehearsal found the old order broke every later
+  # download: the box was pointed at 127.0.0.1 before the DC answered, so with
+  # --no-start, or a DC that failed to start, apt could resolve nothing).
+  #  1. Free :53 for Samba (resolved's stub listener off) but keep the box
+  #     resolving through the upstream servers it already had.
+  #  2. Start the DC; only when it answers BOTH the domain's SRV record and an
+  #     outside name (through its forwarder) does the box switch to 127.0.0.1.
   if [ "$DRY_RUN" = 1 ]; then
-    note "[dry-run] point DNS at 127.0.0.1, search ${REALM,,}; disable systemd-resolved's stub listener"
+    note "[dry-run] resolved: stub listener off, upstream DNS kept; switch to 127.0.0.1 (search ${REALM,,}) only once the DC answers"
   else
     mkdir -p /etc/systemd/resolved.conf.d
     cat > /etc/systemd/resolved.conf.d/arise-ad-dc.conf <<RESOLVED
 # Written by Arise Server install.sh. The Samba AD DC serves DNS on :53;
 # resolved's stub listener on 127.0.0.53 must get out of the way.
 [Resolve]
-DNS=127.0.0.1
-Domains=${REALM,,}
 DNSStubListener=no
 RESOLVED
-    systemctl restart systemd-resolved || true
-    # /etc/resolv.conf: a plain file Samba, Kerberos and the Macs' expectations agree with.
+    systemctl restart systemd-resolved >/dev/null 2>&1 || true
+    # Until the DC answers, resolve through the upstream servers directly.
+    if [ -f /run/systemd/resolve/resolv.conf ] && grep -q '^nameserver' /run/systemd/resolve/resolv.conf; then
+      if [ -L /etc/resolv.conf ] || ! grep -q '^nameserver 127\.0\.0\.1' /etc/resolv.conf 2>/dev/null; then
+        ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+      fi
+    fi
+  fi
+  dns_switch_to_dc() {
     if [ -L /etc/resolv.conf ]; then rm -f /etc/resolv.conf; fi
     printf 'nameserver 127.0.0.1\nsearch %s\n' "${REALM,,}" > /etc/resolv.conf
-    note "DNS now 127.0.0.1, search ${REALM,,}"
-  fi
+    printf '[Resolve]\nDNS=127.0.0.1\nDomains=%s\nDNSStubListener=no\n' "${REALM,,}" > /etc/systemd/resolved.conf.d/arise-ad-dc.conf
+    systemctl restart systemd-resolved >/dev/null 2>&1 || true
+    note "DNS now 127.0.0.1 (the DC), search ${REALM,,}"
+  }
 
   # The local user that the dashboard runs samba-tool as is root (the service
   # runs as root); nothing extra. Start the DC.
@@ -620,22 +638,30 @@ RESOLVED
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now samba-ad-dc
     if [ "$DRY_RUN" = 0 ]; then
-      sleep 3
+      DC_OK=0
+      for _ in 1 2 3 4 5 6 7 8 9 10; do
+        if host -W 2 -t SRV "_ldap._tcp.${REALM,,}" 127.0.0.1 >/dev/null 2>&1; then DC_OK=1; break; fi
+        sleep 2
+      done
       if samba-tool domain info 127.0.0.1 >/dev/null 2>&1; then
         note "DC answering: $(samba-tool domain info 127.0.0.1 | tr '\n' ' ' | sed 's/  */ /g')"
       else
         warn "samba-ad-dc started but 'samba-tool domain info 127.0.0.1' failed — journalctl -u samba-ad-dc"
       fi
-      # The DC's own DNS record. If this fails the Macs cannot find the domain.
-      if host -t SRV "_ldap._tcp.${REALM,,}" 127.0.0.1 >/dev/null 2>&1; then
+      if [ "$DC_OK" = 1 ]; then
         note "SRV record _ldap._tcp.${REALM,,} resolves"
+        if host -W 3 archive.ubuntu.com 127.0.0.1 >/dev/null 2>&1; then
+          dns_switch_to_dc
+        else
+          warn "the DC answers for ${REALM,,} but not for outside names (dns forwarder $DNS_FORWARDER?); the box keeps its upstream DNS so the install can go on. Fix the forwarder, then: sudo arisectl doctor"
+        fi
       else
-        warn "SRV lookup for _ldap._tcp.${REALM,,} failed — the Macs will not find the domain until DNS works"
+        warn "SRV lookup for _ldap._tcp.${REALM,,} failed — the Macs will not find the domain until DNS works; the box keeps its upstream DNS for now (journalctl -u samba-ad-dc)"
       fi
     fi
   else
     run systemctl enable samba-ad-dc
-    note "--no-start: samba-ad-dc enabled, not started"
+    note "--no-start: samba-ad-dc enabled, not started; the box keeps its upstream DNS. After 'systemctl start samba-ad-dc', re-run the installer to switch DNS to the DC"
   fi
 fi
 
@@ -667,6 +693,17 @@ if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
   done
   # Leadership also reads the staff share: nest it. Media reads graphics and worship (in smb.conf).
   if [ "$DRY_RUN" = 0 ]; then samba-tool group addmembers Staff Leadership >/dev/null 2>&1 || true; fi
+  # The OUs the Macs and PCs bind into (docs/DIRECTORY.md). bind-mac.sh's default is
+  # OU=Macs,OU=Computers and windows/join-arise.ps1 uses OU=PCs,OU=Computers: without
+  # these, every bind fails with "OU does not exist". OU=Computers sits beside the
+  # built-in CN=Computers container; they are different objects.
+  BASE_DN="DC=$(echo "${REALM,,}" | sed 's/\./,DC=/g')"
+  for ou in "OU=Computers" "OU=Macs,OU=Computers" "OU=PCs,OU=Computers"; do
+    if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool ou add '$ou,$BASE_DN'"; continue; fi
+    if samba-tool ou list 2>/dev/null | grep -qix "$ou"; then note "$ou exists"; else
+      samba-tool ou add "$ou,$BASE_DN" >/dev/null 2>&1 && note "$ou created" || warn "could not create $ou (is the DC up?): sudo samba-tool ou add '$ou,$BASE_DN'"
+    fi
+  done
 fi
 for sh in staff leadership media graphics kids childrens-department inedge worship; do
   run mkdir -p "$DATA_ROOT/shares/$sh"
@@ -900,8 +937,8 @@ fi
 if [ "$WITH_COCKPIT" = 1 ]; then
   # Cockpit is apt, not Docker: it is the door that still opens when Docker
   # or the dashboard is what broke. Logs in with the box's own accounts.
-  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit
-  if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket; else run systemctl enable cockpit.socket; fi
+  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit || warn "cockpit did not install (the mirror?); the dashboard does not need it; re-run later"
+  if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket || warn "cockpit.socket did not start"; else run systemctl enable cockpit.socket || warn "cockpit.socket not enabled (not installed?)"; fi
   for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
     run ufw allow from "$src" to any port 9090 proto tcp comment 'cockpit'
   done
@@ -946,9 +983,10 @@ fi
 HAS_KEYS=0
 if [ -s "$KEYS_FILE" ] && grep -qvE '^\s*(#|$)' "$KEYS_FILE"; then HAS_KEYS=1; fi
 if [ "$DRY_RUN" = 1 ]; then
-  note "[dry-run] write /etc/ssh/sshd_config.d/arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
+  note "[dry-run] write /etc/ssh/sshd_config.d/00-arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
 else
   mkdir -p /etc/ssh/sshd_config.d
+  rm -f /etc/ssh/sshd_config.d/arise.conf   # the old name (sorted after 50-cloud-init.conf, so it lost)
   {
     echo "# Arise Server sshd: keys only (Bradly, Oct 28). Written by installer/install.sh."
     echo "# Add a key: install.sh --ssh-key '...' or ssh-copy-id from the closet monitor's session."
@@ -963,12 +1001,16 @@ else
     echo "ClientAliveCountMax 3"
     echo "# The break-glass admin signs in at the closet monitor only (round 3, 21)."
     echo "DenyUsers arise-rescue"
-  } > /etc/ssh/sshd_config.d/arise.conf
+  } > /etc/ssh/sshd_config.d/00-arise.conf
+  # Ubuntu 24.04 starts sshd by socket activation, so /run/sshd only exists once
+  # sshd has run; without it 'sshd -t' fails and the keys-only file was removed as
+  # "rejected" (found by the rehearsal). ssh.service makes it the same way.
+  mkdir -p /run/sshd && chmod 0755 /run/sshd
   if sshd -t 2>/dev/null; then
     systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
   else
     warn "sshd rejected the new config; removing it so SSH keeps working"
-    rm -f /etc/ssh/sshd_config.d/arise.conf
+    rm -f /etc/ssh/sshd_config.d/00-arise.conf
   fi
 fi
 if [ "$HAS_KEYS" = 1 ]; then
@@ -1064,7 +1106,7 @@ fi
 # --- WireGuard (optional) -----------------------------------------------------
 if [ "$WITH_WIREGUARD" = 1 ]; then
   if ! command -v wg >/dev/null 2>&1; then
-    run apt-get install -y -q wireguard
+    run apt-get install -y -q wireguard || warn "wireguard did not install; Tailscale covers remote access; re-run later"
   fi
   WG_CONF=/etc/wireguard/wg0.conf
   WAN_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
@@ -1118,16 +1160,33 @@ if [ "$WITH_CADDY" = 1 ]; then
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] add the official Caddy apt repo (cloudsmith) and apt-get install caddy"
     else
-      apt-get install -y -q debian-keyring debian-archive-keyring apt-transport-https curl gnupg >/dev/null
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
-      apt-get update -q >/dev/null
-      apt-get install -y -q caddy
+      # Caddy's own repository first (current releases); if it cannot be reached (the
+      # church internet is down, Cloudsmith is down) fall back to Ubuntu's caddy, which
+      # does everything the Caddyfile asks (tls internal, default_bind). An unreachable
+      # repository used to kill the whole install here (found by the install rehearsal).
+      CADDY_KEY=/usr/share/keyrings/caddy-stable-archive-keyring.gpg
+      CADDY_LIST=/etc/apt/sources.list.d/caddy-stable.list
+      apt-get install -y -q debian-keyring debian-archive-keyring apt-transport-https curl gnupg >/dev/null 2>&1 || true
+      if curl -1sLf -m 30 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' -o /tmp/caddy-key.asc \
+         && gpg --dearmor --yes -o "$CADDY_KEY" /tmp/caddy-key.asc \
+         && curl -1sLf -m 30 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' -o "$CADDY_LIST.tmp" \
+         && grep -q '^deb ' "$CADDY_LIST.tmp"; then
+        mv "$CADDY_LIST.tmp" "$CADDY_LIST"
+        note "Caddy's apt repository added"
+      else
+        rm -f "$CADDY_LIST.tmp" "$CADDY_KEY"
+        warn "Caddy's repository (dl.cloudsmith.io) did not answer; using Ubuntu's caddy package instead"
+      fi
+      rm -f /tmp/caddy-key.asc
+      apt-get update -q >/dev/null 2>&1 || true
+      apt-get install -y -q caddy || warn "caddy did not install; the dashboard stays on http://$HOSTNAME_WANTED:4147 until it does (re-run the installer)"
     fi
   else
     note "caddy already installed"
   fi
-  if [ -f "$SRC/config/caddy/Caddyfile" ]; then
+  if ! command -v caddy >/dev/null 2>&1 && [ "$DRY_RUN" = 0 ]; then
+    warn "no caddy on this box: HTTPS and the church certificate are skipped for now"
+  elif [ -f "$SRC/config/caddy/Caddyfile" ]; then
     if [ -f /etc/caddy/Caddyfile ] && ! grep -q 'Arise Server' /etc/caddy/Caddyfile 2>/dev/null; then
       run cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-arise
     fi
@@ -1147,7 +1206,7 @@ if [ "$WITH_CADDY" = 1 ]; then
       systemctl reload caddy >/dev/null 2>&1 || true
     fi
   else
-    run systemctl enable caddy
+    run systemctl enable caddy || warn "caddy not enabled (not installed?)"
   fi
   note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
   note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
@@ -1189,7 +1248,7 @@ if [ "$WITH_KIOSK" = 1 ]; then
   # cage (a Wayland kiosk compositor) is a plain apt package: no X, no desktop
   # environment. Firefox comes next from packages.mozilla.org (not the snap);
   # Epiphany (GTK WebKit) is the small fallback browser.
-  run apt-get install -y -q cage epiphany-browser
+  run apt-get install -y -q cage epiphany-browser || warn "cage/epiphany did not install; the monitor shows the text console until they do (re-run with --kiosk)"
   if id -u arise-kiosk >/dev/null 2>&1; then
     note "user arise-kiosk exists"
   else
@@ -1272,16 +1331,16 @@ if [ "$WITH_CLAUDE" = 1 ]; then
   # which Claude Code has already moved past; NodeSource tracks the 20 LTS line
   # and updates with apt like everything else. The setup script only adds a
   # signed apt source; the package itself comes through apt.
-  if command -v node >/dev/null 2>&1 && [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -ge 20 ] 2>/dev/null; then
+  if command -v node >/dev/null 2>&1 && [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -ge 22 ] 2>/dev/null; then
     note "node $(node -v) already present"
   elif [ "$DRY_RUN" = 1 ]; then
-    note "[dry-run] curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; apt-get install -y nodejs"
+    note "[dry-run] curl -fsSL https://deb.nodesource.com/setup_22.x | bash -; apt-get install -y nodejs"
   else
-    if curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >>"$LOG_FILE" 2>&1 && apt-get install -y -q nodejs >>"$LOG_FILE" 2>&1; then
+    if curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >>"$LOG_FILE" 2>&1 && apt-get install -y -q nodejs >>"$LOG_FILE" 2>&1; then
       note "node $(node -v) installed from NodeSource"
     else
       warn "NodeSource failed (no internet, or the proxy); trying Ubuntu's nodejs"
-      apt-get install -y -q nodejs npm >>"$LOG_FILE" 2>&1 || warn "no Node at all; Claude Code skipped. Later: install Node 20 and 'npm install -g @anthropic-ai/claude-code'"
+      apt-get install -y -q nodejs npm >>"$LOG_FILE" 2>&1 || warn "no Node at all; Claude Code skipped. Later: install Node 22 and 'npm install -g @anthropic-ai/claude-code'"
     fi
   fi
   if command -v npm >/dev/null 2>&1; then
@@ -1308,7 +1367,7 @@ fi
 # ----------------------------------------------------------------------------
 if [ "$WITH_HARDENING" = 1 ]; then
   say "6f/7  Care: security updates, a year of logs, disk health"
-  run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate
+  run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate || warn "some care packages did not install (the mirror?); re-run later"
   if [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] unattended-upgrades: security origin only, Automatic-Reboot false, daily timer on"
     note "[dry-run] journald SystemMaxUse=4G MaxRetentionSec=1year; smartd enabled; needrestart list mode; fstrim.timer on; logrotate for $LOG_DIR/*.log weekly keep 52"
@@ -1401,7 +1460,7 @@ if [ "$WITH_UPS" = 1 ]; then
   else
     apt-get install -y -q --no-install-recommends nut >/dev/null 2>&1 || warn "nut did not install"
     if [ -d /etc/nut ]; then
-      UPS_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20 || echo change-me)"
+      UPS_PW="$(rand_pw 20)"
       [ -f /etc/nut/ups.conf ] && grep -q '^# arise' /etc/nut/ups.conf || cat > /etc/nut/ups.conf <<UPS
 # arise: the Pineville UPS. The model is not known yet (docs/ANSWERS.md 8), so
 # the stanza is commented. Most USB UPSes (APC, CyberPower, Eaton, Tripp Lite)
@@ -1434,23 +1493,33 @@ fi
 # ----------------------------------------------------------------------------
 if [ "$WITH_SAFETY" = 1 ]; then
   say "6j/7  Safety: arise-rescue, virus scan, system snapshots, encryption"
-  run apt-get install -y -q --no-install-recommends clamav clamav-freshclam timeshift
+  run apt-get install -y -q --no-install-recommends clamav clamav-freshclam timeshift || warn "clamav/timeshift did not install (the mirror?); the scan and the snapshots wait until a re-run"
   # --- the break-glass admin (round 3, 21) ---
   # A LOCAL account that signs in on the console or over SSH when the domain
   # itself is down. Never the dashboard: the dashboard checks the domain only.
   # Its password lives in /etc/arise/secrets/rescue-password (root) and on the
   # SAFE card (/etc/arise/SAFE-CARD.txt, printed by `arisectl rescue card`),
   # which goes in the safe, never on the closet door. Every sign-in is pushed.
-  if id arise-rescue >/dev/null 2>&1; then
-    note "arise-rescue exists"
-  elif [ "$DRY_RUN" = 1 ]; then
-    note "[dry-run] useradd -m -s /bin/bash -G sudo -c 'ariseOS break-glass admin' arise-rescue; a 24-character password into $CONF_DIR/secrets/rescue-password (0600)"
-  else
-    useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin (round 3, 21): console only" arise-rescue
-    RESCUE_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
+  set_rescue_pw() {
+    RESCUE_PW="$(rand_pw 24)"
     echo "arise-rescue:$RESCUE_PW" | chpasswd
     mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
     printf '%s\n' "$RESCUE_PW" > "$CONF_DIR/secrets/rescue-password"; chmod 600 "$CONF_DIR/secrets/rescue-password"; unset RESCUE_PW
+  }
+  if id arise-rescue >/dev/null 2>&1; then
+    if [ "$DRY_RUN" = 0 ] && [ ! -s "$CONF_DIR/secrets/rescue-password" ]; then
+      # An earlier run made the account but stopped before its password was set: finish it.
+      set_rescue_pw
+      note "arise-rescue existed without a recorded password; a new one is in $CONF_DIR/secrets/rescue-password"
+    else
+      note "arise-rescue exists"
+    fi
+  elif [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] useradd -m -s /bin/bash -G sudo -c 'ariseOS break-glass admin' arise-rescue; a 24-character password into $CONF_DIR/secrets/rescue-password (0600)"
+  else
+    # No ':' in a comment: it is /etc/passwd's field separator and useradd refuses it (found by the rehearsal).
+    useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin - console only" arise-rescue
+    set_rescue_pw
     note "arise-rescue created; password in $CONF_DIR/secrets/rescue-password (root only) and on the safe card"
   fi
   # --- the weekly virus scan (round 3, 28): Sunday 23:30, quarantine, a report ---
@@ -1513,7 +1582,7 @@ TS
   elif [ ! -e /dev/tpmrm0 ] && [ ! -e /dev/tpm0 ] && [ "$DRY_RUN" = 0 ]; then
     warn "LUKS on $LUKS_DEV but no TPM 2.0 found: enable it in the Dell's BIOS (Security > TPM 2.0 / PTT), then: sudo arisectl encrypt tpm. Until then the passphrase is typed at every boot."
   else
-    run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools
+    run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools || warn "clevis did not install; the disk still asks for its passphrase at boot until a re-run"
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] clevis luks bind -d $LUKS_DEV tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}' (asks the disk passphrase once); update-initramfs -u"
     elif clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2; then
@@ -1636,11 +1705,12 @@ $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo aris
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
-       Apps page in the dashboard: start, stop, logs, update, remove. More templates: arisectl app templates
+       Trilium (Notes) :8090   Immich (Photos) :2283
+       The other templates are deployed and stopped (memory): the Store starts them. arisectl app list
     8. The closet card: print $DATA_ROOT/shares/staff/CLOSET-CARD.html and tape it to the door; write the phone numbers on it by hand
     9. The UPS: when the model is known, uncomment [arise] in /etc/nut/ups.conf, MODE=standalone in nut.conf, restart nut-server nut-monitor; sudo arisectl ups
    10. The restore drill runs monthly by itself (arise-drill.timer); try it once now: sudo arisectl backup drill
-$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "    8. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
+$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "   11. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )

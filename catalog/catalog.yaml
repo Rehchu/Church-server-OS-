@@ -110,13 +110,13 @@ apps:
     description: "A shared bookmark shelf for the media team: sermon illustration sources, graphics sites, YouTube tools, tagged and searchable."
     category: office
     image: sissbruecker/linkding:1.36.0
-    ports: ["9090:9090"]
+    ports: ["8099:9090"]
     volumes: ["/srv/arise/apps/linkding/data:/etc/linkding/data"]
     env: {LD_SUPERUSER_NAME: "admin", LD_SUPERUSER_PASSWORD: "CHANGE-ME"}
     ram_mb: 100
     limits: {mem_mb: 384, cpus: 0.5}
     homepage: https://github.com/sissbruecker/linkding
-    notes: Port 9090 clashes with Cockpit if Cockpit is on; change the first number in ports before installing if so.
+    notes: On 8099 (9090 inside the container); 9090 on the box is Cockpit's.
 
   - name: vikunja
     title: Vikunja
@@ -134,7 +134,7 @@ apps:
     title: Excalidraw
     description: A whiteboard in the browser for stage layouts, cable runs and the network drawing. Hand-drawn look, exports to PNG and SVG.
     category: office
-    image: excalidraw/excalidraw:latest
+    image: excalidraw/excalidraw:latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
     ports: ["8013:80"]
     volumes: []
     env: {}
@@ -160,13 +160,13 @@ apps:
     description: The church library's e-books and study PDFs as a browsable shelf with sending to Kindle and reading in the browser.
     category: media
     image: lscr.io/linuxserver/calibre-web:0.6.23
-    ports: ["8083:8083"]
+    ports: ["8098:8083"]
     volumes: ["/srv/arise/apps/calibre-web/config:/config", "/srv/arise/shares/staff/Library:/books"]
     env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
     ram_mb: 150
     limits: {mem_mb: 512, cpus: 0.5}
     homepage: https://github.com/janeczku/calibre-web
-    notes: Port 8083 is Vaultwarden's in the templates; change the first number before installing.
+    notes: On 8098 (8083 inside the container); 8083 on the box is Vaultwarden's.
 
   - name: memos
     title: Memos
@@ -307,7 +307,7 @@ apps:
     title: SearXNG
     description: A private search page that asks the big engines for you and keeps nothing. For the office browser's search box.
     category: office
-    image: searxng/searxng:2024.10.26-5f1f6c7
+    image: searxng/searxng:2026.10.13-22c64b8d3
     ports: ["8020:8080"]
     volumes: ["/srv/arise/apps/searxng/config:/etc/searxng"]
     env: {BASE_URL: "http://arise-server:8020/", INSTANCE_NAME: "Arise search"}
@@ -407,7 +407,7 @@ apps:
     description: "Video editing in a browser tab, on the server's CPU: trims and Shorts from the recordings without moving a 6 GB file. Slow on an OptiPlex, but it works while you make coffee. Stops itself after an hour idle."
     category: desktop
     kind: desktop
-    image: lscr.io/linuxserver/kdenlive:24.08.2
+    image: lscr.io/linuxserver/kdenlive:26.08.2-3-ls229
     ports: ["3013:3000"]
     volumes: ["/srv/arise/apps/kdenlive/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes", "/mnt/synology/arise/recordings:/recordings"]
     env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
@@ -439,7 +439,7 @@ apps:
     description: Writer, Calc and Impress in a browser tab, opening the office documents on the shares from any device, even a phone. Stops itself after an hour idle.
     category: desktop
     kind: desktop
-    image: lscr.io/linuxserver/libreoffice:24.8.2
+    image: lscr.io/linuxserver/libreoffice:25.8.1.1-r5-ls196
     ports: ["3015:3000"]
     volumes: ["/srv/arise/apps/libreoffice/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes"]
     env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}

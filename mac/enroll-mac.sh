@@ -64,8 +64,12 @@ REPORT=()   # lines for the end
 TODO=()     # things a human still has to do
 PASSWORDS=() # "name  password"
 
-gen_pw() { # 14 chars, letters and digits, no look-alikes; meets the domain policy (10+, mixed)
+gen_pw() { # 15 chars, no look-alikes; always an upper, a lower and a digit (the domain wants 12+ and three kinds)
+  LC_ALL=C tr -dc 'A-HJ-NP-Z' < /dev/urandom | head -c 1
   LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9' < /dev/urandom | head -c 11; printf '%s' "$(( RANDOM % 90 + 10 ))x"
+}
+json_str() { # a JSON string literal: backslash and double quote escaped (passwords may carry either)
+  printf '"%s"' "$(printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')"
 }
 
 in_list() { # in_list needle "a,b,c"
@@ -133,7 +137,7 @@ else
   if [ $DRY -eq 0 ]; then
     printf '  dashboard admin user: '; read -r ADMIN_USER
     printf '  dashboard password: '; read -rs ADMIN_PW; echo
-    code=$(curl -s -o /dev/null -w '%{http_code}' -c "$COOKIE_JAR" -H 'Content-Type: application/json' -d "{\"user\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PW\"}" "$DASH/api/auth/login")
+    code=$(curl -s -o /dev/null -w '%{http_code}' -c "$COOKIE_JAR" -H 'Content-Type: application/json' -d "{\"user\":$(json_str "$ADMIN_USER"),\"password\":$(json_str "$ADMIN_PW")}" "$DASH/api/auth/login")
     [ "$code" = "200" ] || die "dashboard login failed ($code) at $DASH/api/auth/login"
     existing=$(curl -s -b "$COOKIE_JAR" "$DASH/api/directory/users" | tr ',' '\n' | awk -F'"' '/"name"/{print $4}' | tr '\n' ',')
   fi
@@ -145,15 +149,17 @@ for p in "${PEOPLE[@]}"; do
   if in_list "$dname" "$existing"; then say "$dname: already in the directory"; REPORT+=("user $dname: existed"); continue; fi
   pw=$(gen_pw)
   if [ "$VIA" = "ssh" ]; then
-    # the password goes over the SSH session, not the command line of this Mac
-    if run ssh "$SSH_USER@$SERVER" "sudo arisectl user add '$dname' --display '$full' --password '$pw' --groups Staff"; then
+    # The password goes down the SSH session on stdin: on a command line, sudo would write it to the
+    # server's /var/log/auth.log (kept a year). arisectl user add --password-stdin reads one line.
+    if [ $DRY -eq 1 ]; then say "would create $dname over ssh"; REPORT+=("user $dname: would create"); continue; fi
+    if printf '%s\n' "$pw" | ssh "$SSH_USER@$SERVER" "sudo arisectl user add '$dname' --display '$full' --password-stdin --groups Staff"; then
       say "$dname: created (groups: Staff)"; REPORT+=("user $dname: created"); PASSWORDS+=("$dname  $pw")
     else
       say "$dname: arisectl user add FAILED (see above)"; REPORT+=("user $dname: FAILED to create"); TODO+=("create $dname by hand: sudo arisectl user add $dname --display \"$full\"")
     fi
   else
     if [ $DRY -eq 1 ]; then say "would POST $DASH/api/directory/users for $dname"; REPORT+=("user $dname: would create"); continue; fi
-    body=$(printf '{"name":"%s","password":"%s","display":"%s","groups":["Staff"]}' "$dname" "$pw" "$full")
+    body=$(printf '{"name":%s,"password":%s,"display":%s,"groups":["Staff"]}' "$(json_str "$dname")" "$(json_str "$pw")" "$(json_str "$full")")
     code=$(curl -s -o /tmp/arise-enrol.out -w '%{http_code}' -b "$COOKIE_JAR" -H 'Content-Type: application/json' -d "$body" "$DASH/api/directory/users")
     if [ "$code" = "200" ] && ! grep -q '"ok": *false' /tmp/arise-enrol.out; then
       say "$dname: created (groups: Staff)"; REPORT+=("user $dname: created"); PASSWORDS+=("$dname  $pw")
