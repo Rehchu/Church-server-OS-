@@ -4,17 +4,17 @@ The top section is what the About window and the morning report show after an
 update: ten lines at most, in plain words. Older sections stay for the record.
 Releases are named after books of the Bible from v0.7 on (round 2, 20).
 
-## v0.8 "Exodus" (in progress): the everyday OS and the safety basics
+## v0.8.0 "Exodus" (Oct 28 2026): the everyday OS and the safety basics
 
-- A church Calendar everyone can subscribe to, with a Weather widget for Pineville
-- Trash and Previous Versions in Finder, plus a text editor, Compress, Get Info, Recents
-- System Settings in one window, Software Update, the Store with the 24 apps preinstalled
-- Activity Monitor, Logs, Automations and Storage for the administrators
-- Help inside the dashboard, Calculator and Clock, snap windows, accessibility switches
-- Two-step sign-in is optional; Microsoft Authenticator when you turn it on
-- A break-glass admin, disk encryption unlocked by the TPM, a snapshot before every update
-- A weekly virus scan of the shares and the church certificate on every Mac
-- Restart and Shut Down in the flame menu, never during a service
+- Twelve new apps: Calendar with a feed every Mac and phone subscribes to, Calculator, Clock, Help, Activity Monitor, Automations, Storage, Software Update, Notes, Photos, Monitor, Security
+- Store, Logs and System Settings rebuilt; every template preinstalled within the memory budget, 35 more free apps in a catalogue, a cap on every app
+- Finder: Trash, Previous Versions, Get Info, Recents, a text editor, Compress, Open on my Mac, the Everyone views, uploads to 10 GB
+- Weather for Pineville, snap windows, accessibility switches, a Dock that hides, a greeting, the next service on the lock screen
+- Two-step sign-in, optional, with Microsoft Authenticator; dangerous clicks ask your password again
+- The break-glass admin arise-rescue, the disk unlocked by the TPM, a snapshot before every update, reinstall from the Synology
+- The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only, no lockout
+- Restart and Shut Down in the flame menu, never during a service; the closet panel sleeps at 23:00
+- MIT licence; 115 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up
 
 ## v0.7 "Genesis": the feel
 
