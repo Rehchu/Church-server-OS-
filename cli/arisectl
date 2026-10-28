@@ -293,7 +293,10 @@ def cmd_user(a):
         table([{"user": u["name"], "name": u["display"], "enabled": "yes" if u["enabled"] else "NO", "groups": ", ".join(u["groups"]), "last login": u["last_logon"] or "never"} for u in r["users"]], ["user", "name", "enabled", "groups", "last login"])
     elif a.sub == "add":
         need_root()
-        pw = a.password or getpass.getpass(f"Password for {a.name}: ")
+        if getattr(a, "password_stdin", False):
+            pw = sys.stdin.readline().rstrip("\n")
+        else:
+            pw = a.password or getpass.getpass(f"Password for {a.name}: ")
         show(directory.add_user(a.name, pw, a.display or "", a.groups.split(",") if a.groups else []))
     elif a.sub == "remove":
         need_root()
@@ -1073,7 +1076,7 @@ def build():
     sp.add_parser("doctor").set_defaults(f=cmd_doctor)
     p = sp.add_parser("admin"); p.add_argument("sub", choices=["set-password"]); p.set_defaults(f=cmd_admin)
     p = sp.add_parser("service"); p.add_argument("sub", choices=["list", "status", "start", "stop", "restart"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_service)
-    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
     p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)

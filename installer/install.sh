@@ -668,6 +668,17 @@ if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
   done
   # Leadership also reads the staff share: nest it. Media reads graphics and worship (in smb.conf).
   if [ "$DRY_RUN" = 0 ]; then samba-tool group addmembers Staff Leadership >/dev/null 2>&1 || true; fi
+  # The OUs the Macs and PCs bind into (docs/DIRECTORY.md). bind-mac.sh's default is
+  # OU=Macs,OU=Computers and windows/join-arise.ps1 uses OU=PCs,OU=Computers: without
+  # these, every bind fails with "OU does not exist". OU=Computers sits beside the
+  # built-in CN=Computers container; they are different objects.
+  BASE_DN="DC=$(echo "${REALM,,}" | sed 's/\./,DC=/g')"
+  for ou in "OU=Computers" "OU=Macs,OU=Computers" "OU=PCs,OU=Computers"; do
+    if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool ou add '$ou,$BASE_DN'"; continue; fi
+    if samba-tool ou list 2>/dev/null | grep -qix "$ou"; then note "$ou exists"; else
+      samba-tool ou add "$ou,$BASE_DN" >/dev/null 2>&1 && note "$ou created" || warn "could not create $ou (is the DC up?): sudo samba-tool ou add '$ou,$BASE_DN'"
+    fi
+  done
 fi
 for sh in staff leadership media graphics kids childrens-department inedge worship; do
   run mkdir -p "$DATA_ROOT/shares/$sh"
