@@ -1,0 +1,24 @@
+#!/bin/sh
+# ariseOS: open Claude Desktop on the closet monitor, on top of the desktop, as the
+# kiosk user on cage's Wayland display. The dashboard runs this (Bradly only) and
+# closes it again when the screen locks. Its own dbus session holds a keyring that
+# is never unlocked, so the sign-in is not kept between opens (a shared screen).
+#   arise-claude-desktop open | close | status
+RUNTIME=/run/user/1501
+case "${1:-open}" in
+  open)
+    [ -d "$RUNTIME" ] || { echo "the monitor's session is not running (no $RUNTIME)" >&2; exit 1; }
+    command -v claude-desktop >/dev/null 2>&1 || { echo "claude-desktop is not installed: sudo bash /opt/arise/scripts/arise-claude-desktop-setup" >&2; exit 1; }
+    if pgrep -u arise-kiosk -f '/claude-desktop|claude-desktop ' >/dev/null 2>&1; then echo "already open"; exit 0; fi
+    WL=$(ls "$RUNTIME" 2>/dev/null | grep -E '^wayland-[0-9]+$' | head -n1)
+    exec sudo -u arise-kiosk env XDG_RUNTIME_DIR="$RUNTIME" WAYLAND_DISPLAY="${WL:-wayland-0}" XDG_SESSION_TYPE=wayland \
+      ELECTRON_OZONE_PLATFORM_HINT=wayland HOME=/var/lib/arise/kiosk-home \
+      setsid dbus-run-session -- sh -c 'gnome-keyring-daemon --start --components=secrets >/dev/null 2>&1; exec claude-desktop --ozone-platform=wayland' \
+      >/dev/null 2>&1 &
+    ;;
+  close)
+    pkill -u arise-kiosk -f 'claude-desktop' 2>/dev/null; exit 0 ;;
+  status)
+    if pgrep -u arise-kiosk -f 'claude-desktop' >/dev/null 2>&1; then echo open; else echo closed; fi ;;
+  *) echo "arise-claude-desktop open|close|status" >&2; exit 2 ;;
+esac

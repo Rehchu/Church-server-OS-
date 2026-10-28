@@ -223,3 +223,35 @@ def signage() -> dict:
         vids = []
     return {"name": i["name"], "city": i["city"], "tagline": i["tagline"], "services": i["services"], "next": next_service(), "verse": verse_of_day(), "latest": vids,
             "now": datetime.now().isoformat(timespec="minutes")}
+
+
+def claude_users(cfg=None) -> set[str]:
+    """Who may open Claude on the box: Bradly (round 4, 44), as the dashboard's admin user and
+    as his domain account, plus anyone listed in [claude] users (empty by default)."""
+    cfg = cfg or load()
+    raw = cfg.raw.get("claude", {}) if isinstance(cfg.raw, dict) else {}
+    return {cfg.web.admin_user, "bradly.dyer", *[str(u) for u in (raw.get("users") or [])]}
+
+
+def claude_desktop(action: str, who: str) -> dict:
+    """Open, close or ask about Claude Desktop on the closet monitor (scripts/arise-claude-desktop).
+    Opening is Bradly's only; closing is anyone's (the screen lock does it)."""
+    import subprocess
+    if action not in ("open", "close", "status"):
+        return {"ok": False, "err": "action is open, close or status"}
+    if action == "open" and who not in claude_users():
+        return {"ok": False, "err": "Claude on this box is Bradly's (round 4, 44)"}
+    cfg = load()
+    if cfg.demo:
+        return {"ok": True, "demo": True, "action": action, "state": "open" if action == "open" else "closed"}
+    tool = "/usr/local/bin/arise-claude-desktop"
+    if not os.path.exists(tool):
+        return {"ok": False, "err": "Claude Desktop is not set up on this box: sudo bash /opt/arise/scripts/arise-claude-desktop-setup"}
+    try:
+        r = subprocess.run([tool, action], capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return {"ok": False, "err": str(e)}
+    out = (r.stdout or r.stderr).strip()
+    return {"ok": r.returncode == 0, "action": action, "state": out if action == "status" else ("open" if action == "open" else "closed"),
+            **({} if r.returncode == 0 else {"err": out or f"exit {r.returncode}"})}
+

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# ariseOS: Claude Desktop (Linux beta) on the closet monitor, for Bradly only.
+#
+#   sudo bash scripts/arise-claude-desktop-setup [--dry-run] [--src DIR]
+#
+# Follows Anthropic's page, code.claude.com/docs/en/desktop-linux (fetched Oct 28 2026):
+# the apt repository at downloads.claude.ai, its signing key checked against the
+# published fingerprint 31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE, then
+# `apt install claude-desktop`. Updates arrive with apt (the app does not update itself).
+#
+# Choices for this box (docs/CLAUDE-ON-THE-BOX.md):
+# - no Cowork: it needs a QEMU/KVM virtual machine, so recommended packages are skipped;
+# - gnome-keyring is installed, but the monitor's keyring is never unlocked, so a
+#   sign-in is not saved: Bradly signs in each time he opens it, and nobody else at
+#   the shared closet screen inherits it;
+# - it opens only from the dashboard, for Bradly, and closes when the screen locks.
+set -uo pipefail
+
+DRY_RUN=0
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift ;;
+    --src) SRC="$2"; shift 2 ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
+  esac
+done
+KEY=/usr/share/keyrings/claude-desktop-archive-keyring.asc
+LIST=/etc/apt/sources.list.d/claude-desktop.list
+FPR=31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE
+FAILED=0
+say()  { printf '  %s\n' "$*"; }
+warn() { printf '  ! %s\n' "$*" >&2; }
+run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; fi; }
+
+if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
+echo "== Claude Desktop (Linux beta), for Bradly on the closet monitor"
+case "$(dpkg --print-architecture 2>/dev/null)" in amd64|arm64) ;; *) warn "Claude Desktop publishes amd64 and arm64 only; skipped"; exit 0 ;; esac
+
+if [ -f "$LIST" ] && [ -f "$KEY" ]; then say "Anthropic's repository already configured"; else
+  run apt-get install -y -q curl gnupg >/dev/null
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] curl -fsSLo $KEY https://downloads.claude.ai/claude-desktop/key.asc and check the fingerprint is $FPR"
+  else
+    curl -fsSLo "$KEY" https://downloads.claude.ai/claude-desktop/key.asc || { warn "could not fetch Anthropic's key"; FAILED=1; }
+    got=$(gpg --show-keys --with-colons "$KEY" 2>/dev/null | awk -F: '/^fpr:/{print $10; exit}')
+    if [ "$got" != "$FPR" ]; then warn "the key's fingerprint is '$got', not Anthropic's published one; not adding the repository"; rm -f "$KEY"; FAILED=1; fi
+  fi
+  if [ "$DRY_RUN" = 1 ] || [ -f "$KEY" ]; then
+    run sh -c "echo 'deb [arch=amd64,arm64 signed-by=$KEY] https://downloads.claude.ai/claude-desktop/apt/stable stable main' > $LIST"
+  fi
+fi
+if [ "$FAILED" = 0 ]; then
+  run apt-get update -q || { warn "apt-get update failed"; FAILED=1; }
+  run env DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends claude-desktop gnome-keyring dbus-user-session \
+    || { warn "apt-get install claude-desktop failed"; FAILED=1; }
+fi
+run install -m 0755 "$SRC/scripts/arise-claude-desktop" /usr/local/bin/arise-claude-desktop
+
+if [ "$FAILED" = 1 ]; then echo "  Claude Desktop is not installed (above). Claude stays available in Firefox (Assistants) and as the claude command."; exit 1; fi
+echo "  ready: Assistants -> Claude Desktop on the monitor (Bradly only)"

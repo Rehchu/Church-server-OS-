@@ -77,7 +77,11 @@ arisectl trash list                        what sits in the shares' Trash
     restart a stuck service, re-run a failed backup, clear a full log, put
     a timer back. Anything bigger (a user, a share, an app's data, the
     network, the domain) waits for his word.
-11. You talk to Bradly only (round 4, 44). Members get the Help app, not
+11. Never teleport into, branch in or edit the automator job's checkout
+    (`/srv/arise/automator/ARISE_YouTube_Updater`): it is the 02:05 job's,
+    `main` only. Work on the automator from a separate clone in Bradly's
+    home (docs/CLAUDE-ON-THE-BOX.md).
+11b. You talk to Bradly only (round 4, 44). Members get the Help app, not
     you. This file is yours to edit (45); keep it short and true.
 12. Never during a service: Sundays 10:30, Mondays 19:00. The verbs refuse;
     so do you. A delete in Finder is a move to the Trash; emptying it is his.

@@ -453,6 +453,26 @@ class SshdAndEnv(unittest.TestCase):
         self.assertTrue(remote.sshd_password_auth("", ["# nothing\n"]))
         self.assertTrue(remote.sshd_password_auth("PasswordAuthentication no\n", [], {"ok": True, "out": "port 22\npasswordauthentication yes\n"}))
 
+
+class ClaudeDesktop(unittest.TestCase):
+    def test_only_bradly_opens_it_and_anyone_closes_it(self):
+        os.environ["ARISE_DEMO"] = "1"
+        from arise_server import church
+        self.assertFalse(church.claude_desktop("open", "office.staff")["ok"])
+        self.assertTrue(church.claude_desktop("open", "bradly.dyer")["ok"])
+        self.assertTrue(church.claude_desktop("close", "office.staff")["ok"])
+        self.assertFalse(church.claude_desktop("rm -rf", "bradly.dyer")["ok"])
+
+    def test_setup_follows_anthropics_page(self):
+        root = Path(__file__).resolve().parents[1]
+        s = (root / "scripts" / "arise-claude-desktop-setup").read_text()
+        self.assertIn("31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE", s)      # Anthropic's published key fingerprint
+        self.assertIn("https://downloads.claude.ai/claude-desktop/apt/stable stable main", s)
+        self.assertIn("--no-install-recommends claude-desktop gnome-keyring", s)   # no Cowork VM on the closet box
+        launcher = (root / "scripts" / "arise-claude-desktop").read_text()
+        self.assertIn("sudo -u arise-kiosk", launcher)     # never as root: the app refuses root without --no-sandbox
+        self.assertNotIn("--no-sandbox", launcher)
+
 if __name__ == "__main__":
     unittest.main()
 

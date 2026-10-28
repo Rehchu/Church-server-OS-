@@ -1131,6 +1131,16 @@ class OpenUrl(BaseModel):
     url: str
 
 
+class DesktopAction(BaseModel):
+    action: str = "open"
+
+
+@app.post("/api/kiosk/claude-desktop")
+def api_kiosk_claude_desktop(body: DesktopAction, who=auth):
+    """Claude Desktop on the closet monitor: Bradly opens it; the screen lock closes it."""
+    return church.claude_desktop(body.action, who["user"])
+
+
 @app.post("/api/kiosk/open")
 def api_kiosk_open(body: OpenUrl, request: Request, who=auth):
     """Only the kiosk itself (localhost) may ask the monitor to open a site."""

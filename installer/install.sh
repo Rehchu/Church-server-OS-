@@ -1264,6 +1264,14 @@ if [ "$WITH_KIOSK" = 1 ]; then
   else
     bash "$SRC/scripts/arise-browser-setup" --src "$SRC" || warn "Firefox setup did not finish (above); the monitor uses Epiphany until it does: sudo bash $SRC/scripts/arise-browser-setup"
   fi
+  # Claude Desktop (Linux beta), opened from the dashboard by Bradly only (docs/CLAUDE-ON-THE-BOX.md).
+  if [ "$WITH_CLAUDE" = 1 ]; then
+    if [ "$DRY_RUN" = 1 ]; then
+      bash "$SRC/scripts/arise-claude-desktop-setup" --dry-run --src "$SRC" || true
+    else
+      bash "$SRC/scripts/arise-claude-desktop-setup" --src "$SRC" || warn "Claude Desktop did not install (above); Claude is still in Firefox and the claude command"
+    fi
+  fi
   if [ -f "$SRC/config/systemd/arise-kiosk.service" ]; then
     run install -m 0644 "$SRC/config/systemd/arise-kiosk.service" /etc/systemd/system/arise-kiosk.service
     run systemctl daemon-reload
