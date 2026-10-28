@@ -407,7 +407,7 @@ run mkdir -p "$INSTALL_ROOT"
 if [ "$DRY_RUN" = 0 ]; then
   if [ "$REPO_DIR" != "$INSTALL_ROOT" ]; then
     rsync -a --delete \
-      --exclude '.git' --exclude 'venv' --exclude '__pycache__' --exclude '*.pyc' \
+      --exclude '.git' --exclude 'venv' --exclude '__pycache__' --exclude '*.pyc' --exclude '/.mcp.json' \
       "$REPO_DIR/" "$INSTALL_ROOT/"
     note "synced repo → $INSTALL_ROOT"
   else
@@ -465,7 +465,7 @@ else
 fi
 run mkdir -p "$CONF_DIR" "$STATE_DIR" "$LOG_DIR"
 run mkdir -p "$CONF_DIR/secrets"
-run chmod 0700 "$CONF_DIR/secrets"
+run chmod 0711 "$CONF_DIR/secrets"   # 0711: no listing, but arise-yt and arise-kb can reach their own subfolders
 for d in homes shares automator apps backups backups/github-mirror; do
   run mkdir -p "$DATA_ROOT/$d"
 done
@@ -772,7 +772,14 @@ else
   bash "$SRC/scripts/arise-repos-setup" --src "$SRC" || warn "repos setup did not finish (above): sudo arisectl repos setup"
 fi
 
-ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer arise-repos.timer)
+# The searchable archive of the automator repo and ProjectBackups, for Claude on the box (docs/ARCHIVE.md).
+if [ "$DRY_RUN" = 1 ]; then
+  bash "$SRC/scripts/arise-archive-setup" --dry-run --src "$SRC" || warn "archive setup (dry run) reported a problem"
+else
+  bash "$SRC/scripts/arise-archive-setup" --src "$SRC" || warn "archive setup incomplete (docs/ARCHIVE.md)"
+fi
+
+ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer arise-repos.timer arise-archive.timer arise-archive-rebuild.timer)
 for u in "${ENABLE_UNITS[@]}"; do
   if [ -f "/etc/systemd/system/$u" ] || [ -f "$UNIT_SRC/$u" ]; then
     if [ "$NO_START" = 0 ]; then

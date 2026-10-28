@@ -57,7 +57,7 @@ if id -u "$U" >/dev/null 2>&1; then say "user $U exists"; else
 fi
 getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-yt   # may read arise.toml (no secrets in it)
 run install -d -m 0750 -o "$U" -g "$U" "$STATE" "$STATE/reports"
-run install -d -m 0700 -o root -g root /etc/arise/secrets
+run install -d -m 0711 -o root -g root /etc/arise/secrets   # traverse only: arise-yt reaches youtube/, nothing is listed
 run install -d -m 0700 -o "$U" -g "$U" "$SECRETS"
 run install -d -m 0755 -o "$U" -g "$U" "$PARENT"
 run install -d -m 0755 /etc/arise/automator
