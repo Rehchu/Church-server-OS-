@@ -89,6 +89,17 @@ else
   fi
 fi
 
+# ---- 1b. the church certificate (round 3, 29): padlock on the dashboard ----------
+step "1b   The church certificate"
+CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
+if [ $DRY -eq 1 ]; then say "would fetch $DASH/ca.crt and trust it in the System keychain"
+elif security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then say "already trusted"; REPORT+=("certificate: already trusted")
+elif curl -fsS -m 8 -o "$CA_TMP" "$DASH/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
+  if security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then say "trusted: this Mac shows the padlock on https://${SERVER}.ad.arisecenla.church"; REPORT+=("certificate: trusted")
+  else say "could not add it (security add-trusted-cert failed)"; TODO+=("trust the church certificate by hand: docs/SECURITY.md"); fi
+else say "no certificate at $DASH/ca.crt yet (Caddy not running on the server); skipped"; TODO+=("run enroll-mac.sh again once Caddy runs, for the padlock"); fi
+rm -f "$CA_TMP"
+
 # ---- 2. local accounts --------------------------------------------------------
 step "2/6  Local accounts on this Mac"
 PEOPLE=()

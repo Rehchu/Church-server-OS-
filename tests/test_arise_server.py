@@ -398,3 +398,153 @@ class Feel(unittest.TestCase):
         for ic in m["icons"]:
             self.assertTrue((ROOT / "web" / ic["src"].replace("/assets/", "")).exists(), ic["src"])
         self.assertTrue((ROOT / "web" / "sw.js").exists())
+
+
+class Safety(unittest.TestCase):
+    """Round 3: two-step sign-in, the break-glass admin, encryption, snapshots, the scan, the certificate."""
+
+    def test_totp_verifies_within_one_step_and_rejects_junk(self):
+        from arise_server import twofa
+        secret = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
+        t = 1_800_000_000.0
+        code = twofa.code_at(secret, t)
+        self.assertTrue(twofa.verify_code(secret, code, at=t))
+        self.assertTrue(twofa.verify_code(secret, code, at=t + 29))     # the same step
+        self.assertTrue(twofa.verify_code(secret, code, at=t + 45))     # one step later: still inside the window
+        self.assertFalse(twofa.verify_code(secret, code, at=t + 120))   # four steps later: gone
+        self.assertFalse(twofa.verify_code(secret, "12345", at=t))      # five digits
+        self.assertFalse(twofa.verify_code(secret, "", at=t))
+        self.assertFalse(twofa.verify_code("", code, at=t))
+        uri = twofa.provisioning_uri(secret, "bradly.dyer")
+        self.assertTrue(uri.startswith("otpauth://totp/ariseOS:bradly.dyer?") and "issuer=ariseOS" in uri)
+        svg = twofa.qr_svg(uri)
+        self.assertTrue(svg.startswith("<svg") and secret not in svg)  # the QR is a picture, the secret is not in its text
+
+    def test_pending_login_three_strikes_and_expiry(self):
+        from arise_server import twofa
+        wrong, dead = {}, set()
+        self.assertEqual(twofa.pending_attempt("n1", False, wrong, dead)["left"], 2)
+        self.assertEqual(twofa.pending_attempt("n1", False, wrong, dead)["left"], 1)
+        a = twofa.pending_attempt("n1", False, wrong, dead)
+        self.assertTrue(a["dead"]); self.assertEqual(a["left"], 0)
+        self.assertTrue(twofa.pending_attempt("n1", True, wrong, dead)["dead"])   # dead stays dead, even with the right code
+        self.assertTrue(twofa.pending_attempt("n2", True, wrong, dead)["ok"])     # another login is unaffected
+        tok = twofa.pending_token("session-token", "bradly")
+        import time as _t
+        _t.sleep(1.2)
+        r = twofa.finish(tok, "000000", max_age=0)
+        self.assertFalse(r["ok"]); self.assertTrue(r["expired"])                  # a token older than max_age is dead
+        self.assertFalse(twofa.finish("not-a-token", "000000")["ok"])
+        # demo: bradly has it on, nobody else; no secret ever in the status
+        self.assertEqual(twofa.who_has(), ["bradly"])
+        self.assertNotIn("secret", twofa.status("bradly"))
+
+    def test_member_paths_cover_two_step_and_the_public_certificate(self):
+        from arise_server.auth import member_ok
+        for p in ("/api/me/2fa", "/api/me/2fa/setup", "/api/me/2fa/enable", "/api/me/2fa/disable", "/api/auth/login/code", "/api/public/ca.crt"):
+            self.assertTrue(member_ok(p, "member"), p)
+        for p in ("/api/security", "/api/security/scan/run", "/api/directory/2fa"):
+            self.assertFalse(member_ok(p, "member"), p)
+
+    def test_rescue_journal_lines(self):
+        from arise_server import security
+        self.assertEqual(security.parse_rescue_line("Oct 28 21:02:11 arise-server sshd[4412]: Accepted password for arise-rescue from 10.0.0.5 port 50112 ssh2"), {"via": "ssh", "from": "10.0.0.5"})
+        self.assertEqual(security.parse_rescue_line("Oct 28 21:02:11 arise-server login[812]: pam_unix(login:session): session opened for user arise-rescue(uid=1001) by LOGIN(uid=0)"), {"via": "console", "from": "the closet monitor"})
+        self.assertIsNone(security.parse_rescue_line("Oct 28 21:02:11 arise-server sshd[4412]: Accepted publickey for bradly from 10.0.0.5 port 50113 ssh2"))
+        self.assertIsNone(security.parse_rescue_line("session opened for user arise-rescuer(uid=1002) by (uid=0)"))
+
+    def test_lsblk_parse_finds_luks_and_the_encrypted_root(self):
+        from arise_server import security
+        doc = {"blockdevices": [{"name": "sda", "type": "disk", "fstype": None, "mountpoint": None, "children": [
+            {"name": "sda1", "type": "part", "fstype": "vfat", "mountpoint": "/boot/efi"},
+            {"name": "sda3", "type": "part", "fstype": "crypto_LUKS", "mountpoint": None, "children": [
+                {"name": "dm_crypt-0", "type": "crypt", "fstype": "LVM2_member", "mountpoint": None, "children": [
+                    {"name": "ubuntu--vg-ubuntu--lv", "type": "lvm", "fstype": "ext4", "mountpoint": "/"}]}]}]}]}
+        st = security.parse_lsblk(doc)
+        self.assertEqual(st["luks"], ["/dev/sda3"])
+        self.assertTrue(st["root_encrypted"])
+        plain = security.parse_lsblk({"blockdevices": [{"name": "sda", "type": "disk", "children": [{"name": "sda2", "type": "part", "fstype": "ext4", "mountpoint": "/"}]}]})
+        self.assertEqual(plain["luks"], []); self.assertFalse(plain["root_encrypted"])
+        self.assertEqual(security.parse_lsblk("not json")["luks"], [])
+
+    def test_timeshift_list_parse(self):
+        from arise_server import security
+        out = """Device : /dev/dm-0
+UUID   : 1234
+Path   : /run/timeshift/backup
+Mode   : RSYNC
+Status : OK
+3 snapshots, 180.2 GB free
+
+Num     Name                 Tags  Description
+------------------------------------------------------------------------------
+0    >  2026-10-25_03-30-02  O     before update
+1    >  2026-10-28_03-30-01  O     before update
+2    >  2026-10-28_12-00-00  O
+"""
+        rows = security.parse_timeshift_list(out)
+        self.assertEqual([r["name"] for r in rows], ["2026-10-25_03-30-02", "2026-10-28_03-30-01", "2026-10-28_12-00-00"])
+        self.assertEqual(rows[0]["note"], "before update"); self.assertEqual(rows[2]["note"], "")
+        self.assertEqual(security.snapshot_list()["keep"], 5)
+
+    def test_clamscan_parse_and_the_skip_list(self):
+        from arise_server import security
+        out = "/srv/arise/shares/staff/invoice.exe: Win.Trojan.Agent-123 FOUND\n/srv/arise/homes/bradly/ok.pdf: OK\n\n----------- SCAN SUMMARY -----------\nScanned files: 1842\nInfected files: 1\nTime: 912.400 sec (15 m 12 s)\n"
+        rep = security.parse_clamscan(out)
+        self.assertEqual(rep["scanned"], 1842); self.assertEqual(rep["infected"], 1)
+        self.assertEqual(rep["found"], [{"file": "/srv/arise/shares/staff/invoice.exe", "sig": "Win.Trojan.Agent-123"}])
+        self.assertEqual(rep["seconds"], 912.4)
+        args = security.scan_args(["/srv/arise/shares"], "/srv/arise/.quarantine/2026-10-26")
+        self.assertEqual(args[0], "clamscan"); self.assertIn("--move=/srv/arise/.quarantine/2026-10-26", args)
+        self.assertTrue(any(a.startswith("--exclude=") and "mp4" in a and "mp3" in a for a in args))
+        self.assertTrue(any(a.startswith("--exclude-dir=") and "Trash" in a for a in args))
+        self.assertEqual(args[-1], "/srv/arise/shares")
+        self.assertIn("mp4", security.SCAN_SKIP_EXT); self.assertIn(".Trash", security.SCAN_SKIP_DIRS)
+
+    def test_in_service_window_and_refusal(self):
+        from datetime import datetime
+        from arise_server import security
+        services = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30", "site": "Pineville"}, {"name": "Glory Night", "day": "Monday", "time": "19:00", "site": "Pineville"}]
+        sun = datetime(2026, 11, 1, 11, 15)   # a Sunday
+        self.assertEqual(security.in_service(sun, services)["name"], "Sunday Service")
+        self.assertIsNone(security.in_service(datetime(2026, 11, 1, 13, 30), services))  # 2.5 h later: over
+        self.assertEqual(security.in_service(datetime(2026, 11, 2, 20, 0), services)["name"], "Glory Night")
+        self.assertIsNone(security.in_service(datetime(2026, 11, 3, 3, 30), services))   # Tuesday 03:30: free
+
+    def test_certificate_path_and_the_security_rows(self):
+        from arise_server import security
+        self.assertEqual(security.CADDY_ROOT, "/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt")
+        rows = security.rows(security.facts())   # demo facts
+        ids = [r["id"] for r in rows]
+        for want in ("encrypt", "scan", "ca", "twofa", "rescue", "firewall", "tailscale", "updates", "snapshot", "lockout", "logs"):
+            self.assertIn(want, ids)
+        for r in rows:
+            self.assertIn(r["level"], ("ok", "warn", "bad")); self.assertTrue(r["text"])
+        bad = security.rows({"encrypt": {"luks": []}, "scan": {"installed": True, "last": {"when": "2026-10-26T23:31", "found": [{"file": "x", "sig": "y"}]}}, "ca": {"present": False}, "twofa": [], "rescue": {"exists": False}, "firewall": False, "tailscale": "down", "updates": None, "snapshot": None})
+        by = {r["id"]: r for r in bad}
+        self.assertEqual(by["scan"]["level"], "bad"); self.assertEqual(by["firewall"]["level"], "bad")
+        self.assertEqual(by["encrypt"]["level"], "warn"); self.assertTrue(by["rescue"]["fix"])
+        self.assertIn(security.overview()["worst"], ("ok", "warn", "bad"))
+
+    def test_sessions_last_a_year_and_the_system_job_backs_up_the_domain_offline(self):
+        import yaml
+        cfg = config.load(force=True)
+        self.assertEqual(int(cfg.web.session_hours), 8760)
+        jobs = yaml.safe_load((ROOT / "config" / "backups.yaml.example").read_text())["jobs"]
+        sysjob = next(j for j in jobs if j["id"] == "config")
+        self.assertTrue(sysjob.get("samba_offline"))
+        for p in ("/etc/arise", "/etc/samba", "/var/lib/arise/samba-backup", "/etc/netplan/60-arise-pinned.yaml"):
+            self.assertIn(p, sysjob["paths"])
+        self.assertIn("system", sysjob["tags"])
+        self.assertTrue((ROOT / "LICENSE").read_text().startswith("MIT License"))
+        self.assertIn("Bradly Dyer", (ROOT / "LICENSE").read_text())
+        unit = (ROOT / "config" / "systemd" / "arise-clamscan.timer").read_text()
+        self.assertIn("Sun *-*-* 23:30:00 America/Chicago", unit)
+
+    def test_reauth_stamp_lasts_five_minutes(self):
+        from arise_server import auth
+        self.assertTrue(auth.recent_auth_ok({"u": "bradly", "ra": 1000}, 1200))
+        self.assertFalse(auth.recent_auth_ok({"u": "bradly", "ra": 1000}, 1301))
+        self.assertFalse(auth.recent_auth_ok({"u": "bradly"}, 1200))
+        self.assertFalse(auth.recent_auth_ok({"u": "bradly", "ra": 2000}, 1200))  # a stamp from the future is not a stamp
+        self.assertEqual(auth.REAUTH_SECONDS, 300)

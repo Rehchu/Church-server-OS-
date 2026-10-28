@@ -1,11 +1,18 @@
 # Arise Server - Caddy reverse proxy with the server's own certificate authority.
-# Installed by:  sudo bash installer/install.sh --with-caddy
+# Installed by:  sudo bash installer/install.sh   (on by default since v0.8; --no-caddy skips it)
 # Lives at:      /etc/caddy/Caddyfile      reload: sudo systemctl reload caddy
 #
-# `tls internal` = Caddy signs certificates with a CA it creates on this box.
-# Trust that CA once per Mac / PC / phone (docs/REMOTE-ACCESS.md (e)); the
-# root certificate is at
+# `tls internal` = Caddy signs certificates with a CA it creates on this box:
+# the church certificate (round 3, 29). enroll-mac.sh and bind-mac.sh --dns
+# fetch the root from http://arise-server:4147/ca.crt and trust it, so every
+# enrolled Mac shows the padlock. Phones on Tailscale use Tailscale's own
+# certificate. The root certificate is at
 #   /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+# and is served, read-only, at /ca.crt by the dashboard (a root cert is public).
+#
+# Staging (install.sh --staging): the installer prepends
+#   { default_bind 127.0.0.1 }
+# so Caddy answers on this box only, like the domain.
 #
 # Every name below needs an A record in the domain's DNS pointing at this
 # server's LAN address (replace 192.168.1.10):

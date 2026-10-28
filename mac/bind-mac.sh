@@ -54,6 +54,22 @@ if [ -n "$DNS_IP" ]; then
   printf 'nameserver %s\nsearch_order 1\ntimeout 2\n' "$DNS_IP" > "/etc/resolver/${REALM_LC}"
   say "wrote /etc/resolver/${REALM_LC} -> $DNS_IP (only *.${REALM_LC} is asked of the server)"
   dscacheutil -flushcache; killall -HUP mDNSResponder 2>/dev/null || true
+  # The church certificate (round 3, 29): Caddy's root, served by the dashboard.
+  # Trusting it once gives this Mac the padlock on https://arise-server.ad.arisecenla.church.
+  step "The church certificate (padlock on the dashboard)"
+  CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
+  if curl -fsS -m 8 -o "$CA_TMP" "http://$DNS_IP:4147/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
+    if security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then
+      say "already trusted (Caddy Local Authority is in the System keychain)"
+    elif security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then
+      say "trusted: the church root certificate is in the System keychain"
+    else
+      say "could not add the certificate (security add-trusted-cert failed); https will warn until it is trusted by hand"
+    fi
+  else
+    say "no certificate yet at http://$DNS_IP:4147/ca.crt (Caddy has not run on the server, or the dashboard is down); skipped, run again later"
+  fi
+  rm -f "$CA_TMP"
 fi
 
 step "DNS — does this Mac use the domain controller?"

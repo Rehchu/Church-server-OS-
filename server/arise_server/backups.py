@@ -5,6 +5,7 @@ Every run writes a history row, success or failure - never silent.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import os
 import subprocess
 import threading
@@ -151,6 +152,10 @@ def _execute(job: dict) -> dict:
                 args += ["--tag", t]
             for e in job.get("exclude", []):
                 args += ["--exclude", e]
+            if job.get("samba_offline"):
+                pre = samba_offline_backup()
+                if not pre.get("ok"):
+                    row["warning"] = "samba offline backup skipped: " + str(pre.get("err", ""))[:200]
             existing = [p for p in job.get("paths", []) if os.path.exists(p)]
             missing = [p for p in job.get("paths", []) if not os.path.exists(p)]
             if not existing:
@@ -180,6 +185,32 @@ def _execute(job: dict) -> dict:
     with _lock:
         _running.pop(job["id"], None)
     return {"ok": row["ok"], **row}
+
+
+SAMBA_BACKUP_DIR = "/var/lib/arise/samba-backup"
+
+
+def samba_offline_backup(keep: int = 2) -> dict:
+    """`samba-tool domain backup offline`: a consistent copy of the domain's database
+    (sam.ldb and friends) that `samba-tool domain backup restore` can rebuild a DC
+    from. Copying /var/lib/samba/private while Samba is writing can give a torn
+    ldb; the offline backup locks each database first. Runs before the system
+    job's restic backup (backups.yaml: samba_offline: true); the last two kept."""
+    if not which("samba-tool"):
+        return {"ok": False, "err": "samba-tool not installed"}
+    d = Path(SAMBA_BACKUP_DIR)
+    d.mkdir(parents=True, exist_ok=True)
+    os.chmod(d, 0o700)
+    r = run(["samba-tool", "domain", "backup", "offline", f"--targetdir={d}"], timeout=1800)
+    if not r["ok"]:
+        return {"ok": False, "err": (r["err"] or r["out"]).strip()[-300:]}
+    tars = sorted(d.glob("samba-backup-*.tar.bz2"), key=lambda x: x.stat().st_mtime)
+    for old in tars[:-keep] if len(tars) > keep else []:
+        try:
+            old.unlink()
+        except OSError:
+            pass
+    return {"ok": True, "file": str(tars[-1]) if tars else ""}
 
 
 def forget_prune() -> dict:
@@ -289,6 +320,7 @@ def drill(quiet: bool = False) -> dict:
             return _drill_done(hist_p, row)
         got = hashlib.sha256(restored.read_bytes()).hexdigest()
         row["ok"] = True
+        row["system_job"] = _drill_system_check()
         live = pick["path"]
         if os.path.isfile(live):
             same = hashlib.sha256(open(live, "rb").read()).hexdigest() == got
@@ -302,6 +334,24 @@ def drill(quiet: bool = False) -> dict:
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
     return _drill_done(hist_p, row)
+
+
+def _drill_system_check() -> dict:
+    """Round 3, 24: the reinstall path depends on the system job. Does its newest
+    snapshot hold /etc/arise/arise.toml and a samba offline backup?"""
+    try:
+        r = _restic(["snapshots", "--json", "--latest", "1", "--tag", "system"], 60)
+        latest = json.loads(r["out"] or "[]") if r["ok"] else []
+        if not latest:
+            return {"ok": False, "note": "no snapshot tagged 'system' yet (backups.yaml: the system job)"}
+        snap = latest[-1].get("short_id") or latest[-1]["id"][:8]
+        ls = _restic(["ls", snap, "/etc/arise/arise.toml", SAMBA_BACKUP_DIR], 300)
+        has_toml = "/etc/arise/arise.toml" in ls["out"]
+        has_samba = "samba-backup-" in ls["out"]
+        return {"ok": has_toml, "snapshot": snap, "arise_toml": has_toml, "samba_backup": has_samba,
+                "note": "arise.toml " + ("present" if has_toml else "MISSING") + "; samba offline backup " + ("present" if has_samba else "missing")}
+    except Exception as e:
+        return {"ok": False, "note": f"could not check: {e}"[:160]}
 
 
 def _drill_done(hist_p, row: dict) -> dict:
