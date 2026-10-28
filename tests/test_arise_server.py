@@ -548,3 +548,100 @@ Num     Name                 Tags  Description
         self.assertFalse(auth.recent_auth_ok({"u": "bradly"}, 1200))
         self.assertFalse(auth.recent_auth_ok({"u": "bradly", "ra": 2000}, 1200))  # a stamp from the future is not a stamp
         self.assertEqual(auth.REAUTH_SECONDS, 300)
+class Everyday(unittest.TestCase):
+    """v0.8 Exodus, Fork A: the calendar feed, the service-hour guard, the weather words, help rendering, what's new, password rules."""
+
+    def test_in_service_now_window(self):
+        from datetime import datetime
+        from arise_server import church
+        svcs = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30", "site": "Pineville"}, {"name": "Glory Night", "day": "Monday", "time": "19:00", "site": "Pineville"}]
+        sun = datetime(2026, 11, 1, 11, 0)   # a Sunday, mid-service
+        self.assertEqual(church.in_service_now(sun, svcs)["name"], "Sunday Service")
+        self.assertEqual(church.in_service_now(sun, svcs)["ends_at"], "12:30 PM")
+        self.assertIsNone(church.in_service_now(datetime(2026, 11, 1, 12, 31), svcs))   # two hours after the start: over
+        self.assertIsNone(church.in_service_now(datetime(2026, 11, 1, 10, 29), svcs))   # a minute before: not yet
+        self.assertEqual(church.in_service_now(datetime(2026, 11, 2, 19, 0), svcs)["name"], "Glory Night")
+        self.assertIsNone(church.in_service_now(datetime(2026, 11, 3, 19, 0), svcs))     # a Tuesday
+
+    def test_service_occurrences_and_month(self):
+        from datetime import date
+        from arise_server import calendar as cal
+        svcs = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30", "site": "Pineville"}, {"name": "Glory Night", "day": "Monday", "time": "19:00", "site": "Pineville"}]
+        occ = cal.service_occurrences(date(2026, 11, 1), date(2026, 11, 30), svcs)
+        self.assertEqual(len(occ), 5 + 5)   # five Sundays and five Mondays in November 2026
+        self.assertEqual(occ[0]["start"], "2026-11-01T10:30")
+        self.assertTrue(all(o["service"] for o in occ))
+        m = cal.month(2026, 11)
+        self.assertEqual(m["month"], 11)
+        self.assertTrue(m["demo"])
+
+    def test_ics_feed_shape(self):
+        from datetime import date
+        from arise_server import calendar as cal
+        svcs = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30", "site": "Pineville"}]
+        evs = [{"id": "abc", "title": "Volunteer lunch, with a comma; and a semicolon", "start": "2026-11-14T12:00", "end": "2026-11-14T13:30", "where": "The hall", "note": "line one\nline two"}]
+        text = cal.ics("arise-server", svcs, evs, anchor=date(2026, 1, 4))
+        self.assertTrue(text.startswith("BEGIN:VCALENDAR\r\n"))
+        self.assertIn("TZID:America/Chicago", text)
+        self.assertIn("RRULE:FREQ=WEEKLY;BYDAY=SU", text)
+        self.assertIn("DTSTART;TZID=America/Chicago:20260104T103000", text)
+        self.assertIn("SUMMARY:Volunteer lunch\\, with a comma\\; and a semicolon", text)
+        self.assertIn("DESCRIPTION:line one\\nline two", text)
+        self.assertIn("UID:abc@arise-server", text)
+        self.assertTrue(text.endswith("END:VCALENDAR\r\n"))
+        for line in text.split("\r\n"):
+            self.assertLessEqual(len(line.encode("utf-8")), 76, line)   # folded at 75 octets (+ the fold space)
+
+    def test_event_cleaning(self):
+        from arise_server import calendar as cal
+        self.assertIsNone(cal._clean({"title": "", "start": "2026-11-05T18:30"}))
+        self.assertIsNone(cal._clean({"title": "x", "start": "not a date"}))
+        c = cal._clean({"title": " Meeting ", "start": "2026-11-05T18:30", "end": "2026-11-05T17:00", "where": "x"})
+        self.assertEqual(c["title"], "Meeting")
+        self.assertEqual(c["end"], "")   # an end before the start is dropped, not kept
+
+    def test_weather_words_and_shape(self):
+        from arise_server import weather
+        self.assertEqual(weather.words(0), "Clear")
+        self.assertEqual(weather.words(95), "Thunderstorm")
+        self.assertEqual(weather.words("x"), "—")
+        d = weather.fetch()   # demo: the sample
+        self.assertTrue(d["ok"] and d["demo"])
+        self.assertEqual(len(d["days"]), 6)
+        self.assertTrue(weather.summary(d).startswith("Pineville, LA:"))
+        self.assertEqual(weather.summary({"ok": False}), "")
+
+    def test_help_escapes_raw_html_and_lists_member_docs(self):
+        from arise_server import help as h
+        html = h.render_markdown("# Title\n\n<script>alert(1)</script>\n\nA **bold** word.\n")
+        self.assertNotIn("<script>", html)
+        self.assertIn("&lt;script", html)
+        self.assertIn("<strong>bold</strong>", html)
+        self.assertEqual(h.title_of("intro\n# The portal guide\n", "x"), "The portal guide")
+        member = h.docs("member")["docs"]
+        self.assertEqual([d["name"] for d in member], ["PORTAL-GUIDE"])
+        self.assertFalse(h.doc("INSTALL", "member")["ok"])
+        self.assertTrue(h.doc("PORTAL-GUIDE", "member")["ok"])
+        self.assertFalse(h.doc("../etc/passwd", "admin")["ok"])
+
+    def test_whatsnew_takes_the_top_section_only(self):
+        from arise_server.main import whatsnew_lines
+        text = "# What's new\n\nintro\n\n## v0.8\n\n- one\n- two\n\n## v0.7\n\n- old\n"
+        self.assertEqual(whatsnew_lines(text), ["one", "two"])
+        self.assertEqual(len(whatsnew_lines("## v\n" + "\n".join(f"- {i}" for i in range(30)))), 10)
+
+    def test_password_rules_in_words(self):
+        r = directory.rules_from_show("Minimum password length: 12\nPassword complexity: on\nPassword history length: 24\nMaximum password age (days): 0\n")
+        self.assertEqual(r["min_length"], 12)
+        self.assertIn("At least 12 characters", r["words"])
+        self.assertIn("Never expires", r["words"])
+        self.assertIn("Not one of your last 24 passwords", r["words"])
+        r2 = directory.rules_from_show("")   # nothing reported: nothing claimed
+        self.assertEqual(r2["words"], [])
+        self.assertTrue(directory.password_rules()["demo"])
+
+    def test_member_routes_include_the_new_apps(self):
+        from arise_server import auth
+        for p in ("/api/calendar", "/api/calendar/subscribe", "/api/weather", "/api/help", "/api/help/PORTAL-GUIDE", "/api/about/whatsnew", "/api/me/password/rules"):
+            self.assertTrue(auth.member_ok(p, "member"), p)
+        self.assertFalse(auth.member_ok("/api/system/power", "member"))

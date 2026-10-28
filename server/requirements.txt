@@ -10,3 +10,4 @@ pywebpush>=2.0   # push to Bradly's phone (web push, VAPID)
 py-vapid>=1.9
 pyotp>=2.9      # optional two-step sign-in (TOTP; Microsoft Authenticator scans it)
 segno>=1.6      # the QR code for it, as SVG, pure Python
+markdown>=3.5   # the Help app renders the docs server-side

@@ -20,6 +20,9 @@ from pydantic import BaseModel
 
 from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
 from . import links
+from . import calendar as churchcal
+from . import help as helpdocs
+from . import weather
 from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
 from .config import load
 from .util import human_bytes
@@ -180,6 +183,10 @@ def api_2fa_disable(body: Code, who=auth):
 def api_dir_2fa(_=admin):
     """Who has two-step on. Names only."""
     return {"users": twofa.who_has(), "demo": load().demo}
+@app.get("/api/me/password/rules")
+def api_password_rules(_=auth):
+    """The domain's password rules in plain words, read from the domain itself (not invented)."""
+    return directory.password_rules()
 
 
 # ----- overview + stats --------------------------------------------------------
@@ -263,6 +270,10 @@ def api_services(_=auth):
 
 @app.post("/api/services/{unit}/{action}")
 def api_service_act(unit: str, action: str, _=auth):
+    if unit.startswith("samba-ad-dc") and action != "status":
+        svc = church.in_service_now()
+        if svc:
+            return {"ok": False, "err": f"Not during {svc['name']}: the domain stays up until about {svc['ends_at']}."}
     return services.act(unit, action)
 
 
@@ -756,6 +767,100 @@ def signage_page():
     return FileResponse(str(cfg.web_dir / "signage.html"))
 
 
+# ----- the church calendar, the weather, help, what's new (v0.8 Exodus) ------------
+class CalEvent(BaseModel):
+    title: str
+    start: str
+    end: str = ""
+    where: str = ""
+    note: str = ""
+
+
+@app.get("/api/calendar")
+def api_calendar(year: int = 0, month: int = 0, _=auth):
+    from datetime import datetime as _dt
+    now = _dt.now()
+    y, m = (year or now.year), (month or now.month)
+    if not 1 <= m <= 12 or not 2000 <= y <= 2100:
+        raise HTTPException(400, {"message": "year/month out of range"})
+    return {**churchcal.month(y, m), "upcoming": churchcal.upcoming(14), "services": church.info()["services"]}
+
+
+@app.get("/api/calendar/subscribe")
+def api_calendar_subscribe(request: Request, _=auth):
+    host = (load().web.public_url or "").replace("https://", "").replace("http://", "").rstrip("/") or request.headers.get("host", "arise-server")
+    return churchcal.subscribe_info(host)
+
+
+@app.post("/api/calendar")
+def api_calendar_add(body: CalEvent, who=admin):
+    return churchcal.add(body.model_dump(), who["user"])
+
+
+@app.put("/api/calendar/{ev_id}")
+def api_calendar_update(ev_id: str, body: CalEvent, who=admin):
+    return churchcal.update(ev_id, body.model_dump(), who["user"])
+
+
+@app.delete("/api/calendar/{ev_id}")
+def api_calendar_remove(ev_id: str, _=admin):
+    return churchcal.remove(ev_id)
+
+
+@app.get("/api/public/calendar.ics")
+@app.get("/calendar.ics", include_in_schema=False)
+def calendar_ics(request: Request):
+    """No login: the subscribable feed every Mac and phone reads (round 3, 10)."""
+    host = request.headers.get("host", "arise-server").split(":")[0]
+    return Response(churchcal.ics(host), media_type="text/calendar; charset=utf-8",
+                    headers={"Content-Disposition": 'inline; filename="arise-church.ics"', "Cache-Control": "max-age=600"})
+
+
+@app.get("/api/weather")
+def api_weather(_=auth):
+    return weather.fetch()
+
+
+@app.get("/api/help")
+def api_help(q: str = "", who=auth):
+    d = helpdocs.docs(who["role"])
+    if q:
+        d["search"] = helpdocs.search(q, who["role"])
+    return d
+
+
+@app.get("/api/help/{name}")
+def api_help_doc(name: str, who=auth):
+    r = helpdocs.doc(name, who["role"])
+    if not r.get("ok"):
+        raise HTTPException(404, {"message": r.get("err", "no such document")})
+    return r
+
+
+@app.get("/api/about/whatsnew")
+def api_whatsnew(_=auth):
+    """The top of CHANGELOG.md, ten lines at most (round 3, 34)."""
+    from .util import read_text
+    text = read_text(load().repo_root / "CHANGELOG.md", "")
+    return {"version": VERSION, "codename": CODENAME, "lines": whatsnew_lines(text)}
+
+
+def whatsnew_lines(text: str, limit: int = 10) -> list[str]:
+    """The first '## ' section of a changelog as plain lines. Pure."""
+    out, started = [], False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if started:
+                break
+            started = True
+            continue
+        if started and line.strip() and not line.startswith("#"):
+            out.append(line.strip().lstrip("-* ").strip())
+        if len(out) >= limit:
+            break
+    return out
+
+
 # ----- mail: the church family list, through Resend --------------------------------
 class MailDraft(BaseModel):
     subject: str
@@ -937,6 +1042,9 @@ class Power(BaseModel):
 
 @app.post("/api/system/power")
 def api_power(body: Power, _=recent):
+    svc = church.in_service_now()
+    if svc:
+        return {"ok": False, "err": f"Not during {svc['name']}: it ends about {svc['ends_at']}. Try again then."}
     return system.power(body.action, body.confirm)
 
 
