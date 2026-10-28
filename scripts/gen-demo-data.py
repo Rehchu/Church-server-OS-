@@ -25,7 +25,7 @@ GETS = [
     "/automator", "/automator/worklist", "/automator/holds", "/automator/quota", "/automator/reports",
     "/apps", "/apps/templates", "/nas", "/settings", "/auth/me", "/health",
     "/sites", "/remote", "/sermons", "/files/roots", "/links", "/devices", "/devices/behind", "/devices/cameras", "/church", "/sunday", "/public/signage", "/mail", "/mail/contacts", "/mail/broadcasts", "/bible/translations", "/system/updates", "/notify",
-    "/calendar", "/calendar/subscribe", "/weather", "/help", "/help/PORTAL-GUIDE", "/help/README", "/about/whatsnew", "/me/password/rules",
+    "/audit?limit=60", "/directory/leaving", "/calendar", "/calendar/subscribe", "/weather", "/help", "/help/PORTAL-GUIDE", "/help/README", "/about/whatsnew", "/me/password/rules",
     "/updates", "/activity", "/automations", "/storage", "/monitor", "/apps/catalog", "/apps/open/trilium", "/apps/open/immich", "/logs/sources",
     "/logs/file/updates.log", "/logs/file/install.log", "/logs/file/backup.log", "/apps/theme/jellyfin", "/apps/theme/homepage", "/apps/theme/nextcloud", "/apps/theme/immich", "/apps/theme/grafana", "/apps/theme/owncast", "/apps/theme/bookstack", "/apps/theme/uptime-kuma", "/apps/theme/onlyoffice",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",

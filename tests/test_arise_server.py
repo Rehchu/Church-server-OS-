@@ -154,6 +154,98 @@ class Units(unittest.TestCase):
         self.assertIn("-m arise_server", w)
 
 
+
+class AuditAndLeaving(unittest.TestCase):
+    """Round 2, 23 and 24; round 4, 79 and 82: the audit log (forever, read-only) and offboarding."""
+
+    def test_action_and_target_from_a_path(self):
+        from arise_server import audit
+        self.assertEqual(audit.action_of("POST", "/api/directory/users/bryant.sanders/disable"), "directory.users.disable")
+        self.assertEqual(audit.target_of("/api/directory/users/bryant.sanders/disable"), "bryant.sanders")
+        self.assertEqual(audit.action_of("DELETE", "/api/shares/staff"), "shares.delete"); self.assertEqual(audit.target_of("/api/shares/staff"), "staff")
+        self.assertEqual(audit.action_of("POST", "/api/sunday/3"), "sunday")
+        self.assertEqual(audit.target_of("/api/sunday/3"), "3")
+
+    def test_filter(self):
+        from arise_server import audit
+        ev = {"who": "bradly", "action": "directory.users.disable", "target": "guest-speaker", "ok": True}
+        self.assertTrue(audit.matches(ev, "disable guest"))
+        self.assertFalse(audit.matches(ev, "enable"))
+        self.assertFalse(audit.matches(ev, failed_only=True))
+        self.assertTrue(audit.matches({**ev, "ok": False}, failed_only=True))
+        self.assertFalse(audit.matches(ev, who="office"))
+
+    def test_records_survive_and_never_carry_a_body(self):
+        import os, tempfile, json
+        from unittest import mock
+        from arise_server import audit
+        with tempfile.TemporaryDirectory() as d:
+            from pathlib import Path
+            fake = mock.Mock(); fake.demo = False; fake.state_dir = Path(d)
+            with mock.patch.object(audit, "load", return_value=fake):
+                audit.record("bradly", "auth.login")
+                audit.record("x", "auth.login", ok=False, detail="wrong user or password")
+                lines = (Path(d) / "audit.jsonl").read_text().splitlines()
+                self.assertEqual(len(lines), 2)
+                self.assertNotIn("password\":", lines[1])
+                r = audit.recent(failed_only=True)
+                self.assertEqual([e["who"] for e in r["events"]], ["x"])
+                self.assertEqual(r["kept"], "forever")
+                self.assertEqual(oct(os.stat(Path(d) / "audit.jsonl").st_mode & 0o777), "0o640")
+
+    def test_leaving_plan_rules(self):
+        from datetime import datetime
+        from arise_server import offboard
+        now = datetime(2026, 10, 28, 12, 0)
+        p = offboard.plan("guest.speaker", "bradly.dyer", "bradly", now=now)
+        self.assertTrue(p["ok"]); self.assertEqual(p["entry"]["disable_on"], "2026-11-27")
+        self.assertFalse(offboard.plan("guest.speaker", "guest.speaker", "bradly", now=now)["ok"])
+        self.assertFalse(offboard.plan("guest.speaker", "", "bradly", now=now)["ok"])
+        self.assertFalse(offboard.plan("Bad Name", "bradly.dyer", "bradly", now=now)["ok"])
+        e = [p["entry"], {**p["entry"], "name": "a.b", "disable_on": "2026-10-01"}, {**p["entry"], "name": "c.d", "disable_on": "2026-10-01", "done": "x"}]
+        self.assertEqual([x["name"] for x in offboard.due(e, now)], ["a.b"])
+        self.assertTrue(offboard.dest_dir("/srv/arise/homes", "bradly.dyer", "guest.speaker", now).endswith("bradly.dyer/From guest.speaker (2026-10-28)"))
+
+    def test_sweep_moves_files_only_after_the_account_is_off(self):
+        import os, tempfile
+        from datetime import datetime
+        from pathlib import Path
+        from unittest import mock
+        from arise_server import offboard, audit
+        with tempfile.TemporaryDirectory() as d:
+            homes = Path(d) / "homes"; (homes / "a.b" / "Documents").mkdir(parents=True); (homes / "a.b" / "Documents" / "x.txt").write_text("x")
+            (homes / "c.d").mkdir()
+            fake = mock.Mock(); fake.demo = False; fake.state_dir = Path(d); fake.directory.homes_path = str(homes)
+            with mock.patch.object(offboard, "load", return_value=fake), mock.patch.object(audit, "load", return_value=fake):
+                offboard._write([{"name": "a.b", "move_to": "c.d", "by": "bradly", "since": "2026-09-01", "disable_on": "2026-10-01", "done": None}])
+                with mock.patch.object(offboard.directory, "enable_user", return_value={"ok": False, "err": "samba-tool: no such user"}):
+                    r = offboard.sweep(now=datetime(2026, 10, 28))
+                self.assertFalse(r["ok"]); self.assertTrue((homes / "a.b" / "Documents" / "x.txt").exists())   # refused: files stay
+                with mock.patch.object(offboard.directory, "enable_user", return_value={"ok": True}) as en:
+                    r = offboard.sweep(now=datetime(2026, 10, 28))
+                en.assert_called_once_with("a.b", False)
+                self.assertTrue(r["ok"])
+                self.assertTrue((homes / "c.d" / "From a.b (2026-10-28)" / "Documents" / "x.txt").exists())
+                self.assertEqual(offboard.due(offboard._read(), datetime(2026, 10, 29)), [])        # done once, never again
+
+    def test_routes_admin_only_and_the_flow_in_demo(self):
+        import os
+        os.environ["ARISE_DEMO"] = "1"
+        from fastapi.testclient import TestClient
+        from arise_server.main import app
+        from arise_server.auth import member_ok
+        for p in ("/api/audit", "/api/directory/leaving", "/api/directory/users/x.y/leaving"):
+            self.assertFalse(member_ok(p, "member"), p)
+        c = TestClient(app)
+        r = c.post("/api/directory/users/guest.speaker/leaving", json={"move_to": "bradly.dyer"}).json()
+        self.assertTrue(r["ok"], r)
+        self.assertIn("guest.speaker", [e["name"] for e in c.get("/api/directory/leaving").json()["entries"]])
+        ev = c.get("/api/audit?q=leaving").json()["events"]
+        self.assertTrue(any(e["action"].startswith("directory.leaving") for e in ev), ev)
+        self.assertTrue(c.delete("/api/directory/users/guest.speaker/leaving").json()["ok"])
+        self.assertFalse(c.delete("/api/directory/users/guest.speaker/leaving").json()["ok"])
+
+
 if __name__ == "__main__":
     unittest.main()
 

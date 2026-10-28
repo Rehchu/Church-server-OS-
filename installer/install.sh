@@ -987,6 +987,14 @@ if [ -f "$UNIT_SRC/arise-trash.timer" ]; then
   fi
   note "arise-trash.timer: 04:30 daily, removes what has sat in a share's Trash for 30 days (arisectl trash)"
 fi
+if [ -f "$UNIT_SRC/arise-offboard.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-offboard.timer || warn "arise-offboard.timer failed to start"
+  else
+    run systemctl enable arise-offboard.timer
+  fi
+  note "arise-offboard.timer: 05:15 daily, disables a leaver's login on their day and moves their files on (arisectl offboard)"
+fi
 if [ -f "$UNIT_SRC/arise-drill.timer" ]; then
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now arise-drill.timer || warn "arise-drill.timer failed to start"

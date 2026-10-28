@@ -26,6 +26,7 @@ from . import calendar as churchcal
 from . import help as helpdocs
 from . import weather
 from . import finder
+from . import audit, offboard
 from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
 from .config import load
 from .util import human_bytes
@@ -41,6 +42,32 @@ if not cfg.demo:
 auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
 admin = Depends(require_admin)    # the administrator only
 recent = Depends(require_recent_auth)  # typed the password again within five minutes (delete a user, empty a Trash, shut down)
+
+
+# ----- the audit log: every change, who and when, kept forever (round 2, 23; round 4, 79) -----
+def _who_from_cookie(request: Request) -> str:
+    tok = request.cookies.get(COOKIE)
+    if not tok:
+        return "demo" if load().demo else "?"
+    try:
+        return _auth._serializer().loads(tok, max_age=int(load().web.session_hours) * 3600).get("u", "?")
+    except Exception:  # noqa: BLE001 - an expired cookie is still worth a line
+        return "?"
+
+
+@app.middleware("http")
+async def _audit_mw(request: Request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    if (request.method in ("POST", "PUT", "DELETE", "PATCH") and path.startswith("/api/")
+            and not path.startswith(audit.QUIET) and not path.startswith("/api/auth/login") and not path.endswith("/leaving")):
+        try:
+            audit.record(_who_from_cookie(request), audit.action_of(request.method, path), audit.target_of(path),
+                         ok=response.status_code < 400, status=response.status_code,
+                         ip=request.client.host if request.client else "")
+        except Exception:  # noqa: BLE001 - logging must never break the request
+            pass
+    return response
 
 
 @app.exception_handler(HTTPException)
@@ -66,6 +93,7 @@ def api_login(body: Login, response: Response):
             got = (None, {"user": "demo", "role": "admin", "via": "demo"})
         else:
             time.sleep(0.8)  # slow down guessing
+            audit.record(body.user[:64], "auth.login", ok=False, detail="wrong user or password")
             raise HTTPException(401, {"message": "Wrong user or password"})
     tok, who = got
     if tok and not c.demo and twofa.enrolled(who["user"]):
@@ -73,6 +101,7 @@ def api_login(body: Login, response: Response):
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    audit.record(who["user"], "auth.login", detail=who.get("via", ""))
     if not c.demo and who.get("via") != "demo":
         files.ensure_home(who["user"])   # Documents, Photos, Videos, Music, Downloads from the first sign-in
     return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
@@ -92,6 +121,7 @@ def api_login_code(body: LoginCode, response: Response):
     r = twofa.finish(body.pending, body.code)
     if not r.get("ok"):
         time.sleep(0.5)
+        audit.record(r.get("user", "?"), "auth.login.code", ok=False, detail=r.get("err", "wrong code"))
         raise HTTPException(401, {"message": r.get("err", "wrong code"), "left": r.get("left", 0), "expired": r.get("expired", False)})
     response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
     return {"ok": True, "user": r["user"]}
@@ -1448,6 +1478,33 @@ def _read_fd(fd):
         return os.read(fd, 65536)
     except OSError:
         return b""
+
+# ----- audit log and offboarding (round 2, 23 and 24) ----------------------------
+@app.get("/api/audit")
+def api_audit(limit: int = 200, q: str = "", who: str = "", failed: bool = False, _=admin):
+    """Newest first; admins only; nothing here deletes or edits it."""
+    return audit.recent(limit=limit, q=q, who=who, failed_only=failed)
+
+
+class Leaving(BaseModel):
+    move_to: str
+    days: int = offboard.GRACE_DAYS
+
+
+@app.get("/api/directory/leaving")
+def api_leaving(_=admin):
+    return offboard.status()
+
+
+@app.post("/api/directory/users/{name}/leaving")
+def api_leaving_start(name: str, body: Leaving, who=admin):
+    return offboard.start(name, body.move_to, who["user"], days=body.days)
+
+
+@app.delete("/api/directory/users/{name}/leaving")
+def api_leaving_cancel(name: str, who=admin):
+    return offboard.cancel(name, who["user"])
+
 
 
 # ----- the dashboard -----------------------------------------------------------

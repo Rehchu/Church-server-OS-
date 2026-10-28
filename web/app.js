@@ -2064,5 +2064,52 @@ async function boot() {
 }
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
+/* ---------------- Offboarding in Directory, the audit log in Security (round 2, 23 and 24) ---------------- */
+// Added as wrappers so the Directory and Security views stay as they are and these parts stand on their own.
+{
+  const dirAfter = V.directory.after;
+  V.directory.after = root => { dirAfter(root); leavingWire(); };
+  async function leavingWire() {
+    let st; try { st = await api('/directory/leaving'); } catch { return; }
+    const open = new Map((st.entries || []).filter(e => !e.done).map(e => [e.name, e]));
+    const names = $$('#uTable tbody tr [data-tog]').map(b => b.dataset.tog);
+    $$('#uTable tbody tr').forEach(tr => {
+      const tog = $('[data-tog]', tr); if (!tog) return; const name = tog.dataset.tog; const acts = tog.parentElement; const e = open.get(name);
+      if (e) {
+        const cell = $('td b', tr); if (cell && !$('.pill.leave', tr)) cell.insertAdjacentHTML('afterend', ` <span class="pill warn leave" title="Files go to ${esc(e.move_to)}">leaving ${esc(e.disable_on)}</span>`);
+        const c = document.createElement('button'); c.className = 'btn btn--ghost btn--xs'; c.textContent = 'Not leaving'; c.onclick = async () => { const r = await act(c, () => api(`/directory/users/${encodeURIComponent(name)}/leaving`, { method: 'DELETE' }), `${name} is staying`); if (r && r.ok !== false) rerender('directory'); }; acts.prepend(c);
+      } else {
+        const b = document.createElement('button'); b.className = 'btn btn--ghost btn--xs'; b.textContent = 'Leaving…'; b.onclick = () => leavingModal(name, names.filter(n => n !== name), st.grace_days || 30); acts.prepend(b);
+      }
+    });
+  }
+  function leavingModal(name, others, days) {
+    const on = new Date(Date.now() + days * 864e5).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    modal(`<h2>${esc(name)} is leaving</h2>
+      <p class="note" style="margin-bottom:12px">Nothing changes for ${days} days, so they can still finish up. On <b>${esc(on)}</b> their sign-in is turned off and everything in their home folder moves to the person you pick, in a folder called “From ${esc(name)}”. The account itself stays until you delete it yourself.</p>
+      <div class="field"><label>Who takes their files</label><select id="lvTo">${others.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select></div>
+      <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="lvGo">Mark as leaving</button></div>`, m => {
+      $('#lvGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(name)}/leaving`, { method: 'POST', body: { move_to: $('#lvTo', m).value, days } }), `${name}: sign-in off on ${on}`); if (r && r.ok !== false) { m.close(); rerender('directory'); } };
+    });
+  }
+  const secView = V.security, secAfter = V.security.after;
+  V.security = async () => {
+    const html = await secView();
+    let a = { events: [] }; try { a = await api('/audit?limit=60'); } catch {}
+    return html.replace(/<\/div>\s*$/, '') + `<div class="panel panel--flat" style="margin-top:14px"><div class="panel__hd"><h3>Audit log</h3><span class="sub">who did what · kept forever · nothing here deletes it</span></div>
+      <div class="toolbar"><input class="search" id="auQ" placeholder="Find: a name, an action, a file"><label class="row" style="gap:6px;font-size:13px"><input type="checkbox" id="auFail"> failed only</label></div>
+      <div class="tbl-wrap"><table class="tbl" id="auT"><thead><tr><th>When</th><th>Who</th><th>What</th><th>On</th><th></th></tr></thead><tbody>${auditRows(a.events)}</tbody></table></div></div></div>`;
+  };
+  V.security.after = root => {
+    secAfter && secAfter(root);
+    const q = $('#auQ', root), f = $('#auFail', root); if (!q) return; let t;
+    const go = () => { clearTimeout(t); t = setTimeout(async () => { try { const a = await api(`/audit?limit=200&q=${encodeURIComponent(q.value)}&failed=${f.checked}`); $('#auT tbody', root).innerHTML = auditRows(a.events); } catch (e) { toast(e.message, 'bad'); } }, 250); };
+    q.oninput = go; f.onchange = go;
+  };
+  function auditRows(ev) {
+    return (ev || []).map(e => `<tr><td class="dim">${fmtT(e.t)}</td><td><b>${esc(e.who || '?')}</b></td><td class="mono" style="font-size:12px">${esc(e.action || '')}${e.detail ? `<br><span class="dim">${esc(e.detail)}</span>` : ''}</td><td class="mono dim" style="font-size:12px">${esc(e.target || '')}</td><td>${e.ok === false ? '<span class="pill bad">failed</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="5" class="dim">Nothing yet.</td></tr>';
+  }
+}
+
 window.arise = { updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();
