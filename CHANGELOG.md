@@ -14,6 +14,7 @@ Releases are named after books of the Bible from v0.7 on (round 2, 20).
 - The break-glass admin arise-rescue, the disk unlocked by the TPM, a snapshot before every update, reinstall from the Synology
 - The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only, no lockout
 - Restart and Shut Down in the flame menu, never during a service; the closet panel sleeps at 23:00
+- Firefox in the ariseOS colours as the browser; Claude Desktop on the monitor for Bradly; the Arise repos two-way with GitHub (Backups → Repos); the automator handoff and its searchable archive
 - MIT licence; 115 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up
 
 ## v0.7 "Genesis": the feel

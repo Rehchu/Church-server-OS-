@@ -465,6 +465,13 @@ class Flows(unittest.TestCase):
         self.assertTrue(c.delete(f"/api/links/{l['token']}").json()["ok"])
         self.assertNotIn(l["token"], [x["token"] for x in c.get("/api/links").json()["links"]])
 
+    def test_claude_flag_and_no_self_disable(self):
+        self.assertFalse(member_client().get("/api/auth/me").json()["claude"])    # Claude on the box is Bradly's (round 4, 44)
+        me = self.c.get("/api/auth/me").json()["user"]
+        for verb in ("disable",):
+            r = self.c.post(f"/api/directory/users/{me}/{verb}").json()
+            self.assertFalse(r["ok"]); self.assertIn("signed in with", r["err"])
+
     def test_member_files_stay_in_their_roots(self):
         m = member_client()
         self.assertTrue(m.post("/api/files/mkdir", json={"root": "home", "path": "/", "name": "Mine"}).json()["ok"])

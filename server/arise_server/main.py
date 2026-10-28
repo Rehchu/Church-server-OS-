@@ -192,6 +192,7 @@ def api_me(request: Request):
     who["groups"] = directory.user_groups(who["user"]) if who["user"] != "demo" else ["Domain Admins"]
     who["roots"] = files.roots(who)
     who["links_days"] = load().links.days
+    who["claude"] = who["user"] in church.claude_users()  # Claude on the box is Bradly's (round 4, 44)
     return who
 
 

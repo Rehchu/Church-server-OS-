@@ -33,7 +33,7 @@ const http = (status, message, extra = {}) => ({ __status: status, error: Object
 const NAME_RE = /^[A-Za-z][A-Za-z0-9._-]{1,63}$/;          // server/arise_server/directory.py
 const SHARE_RE = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,31}$/;       // server/arise_server/shares.py
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,}$/;
-const MEMBER_OK = ['/auth/', '/me', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
+const MEMBER_OK = ['/auth/', '/me', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
 const memberOk = p => MEMBER_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m));
 const SAMPLE_SECRET = SEED['POST /me/2fa/setup']?.secret || '';
 
@@ -73,6 +73,7 @@ const groups = () => get('GET /directory/groups').groups;
 const userOf = n => users().find(u => u.name.toLowerCase() === String(n || '').toLowerCase());
 const isAdminUser = u => !!u && (u.groups || []).includes('Domain Admins');
 const me = () => X.session;
+const claudeOk = () => ['bradly', 'bradly.dyer'].includes(String(me()?.user || '').toLowerCase());
 const isAdmin = () => me()?.role === 'admin';
 function groupsOf(name) { const u = userOf(name); return u ? (u.groups || []).slice() : (isAdmin() ? ['Domain Admins'] : []); }
 function shares() { return get('GET /shares').shares; }
@@ -94,7 +95,7 @@ function roots() {
 function authMe() {
   const s = me(); if (!s) return { error: { message: 'Sign in' } };
   const u = userOf(s.user);
-  return { user: s.user, role: s.role, demo: true, preview: true, display: u?.display || '', groups: groupsOf(s.user), roots: roots(), links_days: 0 };
+  return { user: s.user, role: s.role, demo: true, preview: true, display: u?.display || '', groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk() };
 }
 
 /* ---------- the file tree ---------- */
@@ -488,6 +489,25 @@ route('DELETE', /^\/links\/([^/]+)$/, (b, m) => { const L = get('GET /links'); c
 
 // ----- Sunday, the calendar, the monitor -----
 route('POST', /^\/sunday\/(\d+)$/, (b, m) => { const s = get('GET /sunday'); const it = (s.items || []).find(x => x.i === +m[1]); if (!it) return fail('no such item'); it.done = !it.done; it.by = it.done ? me().user : ''; it.at = it.done ? isoMin() : ''; touch('GET /sunday'); return ok({ sunday: s.sunday, items: s.items }); });
+// Leaving (round 2, 24): marked now, disabled after the grace period, files moved to who takes them.
+const auditAdd = (action, target, detail) => { const a = getOr('GET /audit?limit=60', { events: [] }); (a.events = a.events || []).unshift({ t: new Date().toISOString().slice(0, 19), who: me()?.user, action, target, ok: true, ...(detail ? { detail } : {}) }); touch('GET /audit?limit=60'); };
+route('POST', /^\/directory\/users\/([^/]+)\/leaving$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const name = decodeURIComponent(m[1]); const to = String(b.move_to || '');
+  if (!userOf(name)) return fail('no such user'); if (!to || !userOf(to)) return fail('pick who takes the files'); if (to.toLowerCase() === name.toLowerCase()) return fail('the files cannot move to the person who is leaving');
+  const days = b.days === undefined ? 30 : +b.days; if (!(days >= 0 && days <= 365)) return fail('the grace period is 0 to 365 days');
+  const L = getOr('GET /directory/leaving', { entries: [], grace_days: 30 }); const now = new Date(); const on = new Date(now.getTime() + days * 86400000);
+  const entry = { name, move_to: to, by: me().user, since: now.toISOString().slice(0, 19), disable_on: on.toISOString().slice(0, 10), done: null };
+  L.entries = L.entries.filter(e => e.name !== name || e.done).concat([entry]); touch('GET /directory/leaving'); auditAdd('directory.leaving', name, `files to ${to}; disabled on ${entry.disable_on}`);
+  return ok({ entry, demo: true });
+});
+route('DELETE', /^\/directory\/users\/([^/]+)\/leaving$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const name = decodeURIComponent(m[1]); const L = getOr('GET /directory/leaving', { entries: [], grace_days: 30 });
+  const keep = L.entries.filter(e => e.name !== name || e.done); if (keep.length === L.entries.length) return fail(`${name} is not marked as leaving`);
+  L.entries = keep; touch('GET /directory/leaving'); auditAdd('directory.leaving.cancel', name); return ok();
+});
+route('POST', /^\/repos\/sync$/, () => { if (!isAdmin()) return http(403, 'Administrator only'); const r = getOr('GET /repos', { repos: [] }); const t = new Date().toISOString(); r.last = t; (r.repos || []).forEach(x => { x.when = t; }); touch('GET /repos'); return ok({ demo: true, started: true }); });
+// Claude Desktop on the closet monitor: Bradly opens it (round 4, 44); anyone's lock closes it.
+route('POST', /^\/kiosk\/claude-desktop$/, b => { const a = b.action || 'open'; if (!['open', 'close', 'status'].includes(a)) return fail('action is open, close or status'); if (a === 'open' && !claudeOk()) return fail("Claude on this box is Bradly's (round 4, 44)"); return ok({ demo: true, action: a, state: a === 'open' ? 'open' : 'closed' }); });
 route('POST', /^\/kiosk\/open$/, b => ok({ demo: true, out: `Preview: the closet monitor would open ${b.url}` }));
 const calClean = b => { const title = String(b.title || '').trim().slice(0, 120), start = String(b.start || '').trim().slice(0, 16); if (!title || isNaN(new Date(start))) return null; let end = String(b.end || '').trim().slice(0, 16); if (end && (isNaN(new Date(end)) || new Date(end) < new Date(start))) end = ''; return { title, start, end, where: String(b.where || '').trim().slice(0, 120), note: String(b.note || '').trim().slice(0, 1000) }; };
 route('POST', /^\/calendar$/, b => { if (!isAdmin()) return http(403, 'Adding events is for the administrator'); const c = calClean(b); if (!c) return fail('a title and a start time are needed'); const ev = Object.assign({ id: hex(8) }, c, { who: me().user, added: isoMin() }); X.events.push(ev); save(); return ok({ event: ev }); });

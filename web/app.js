@@ -348,7 +348,8 @@ V.backups = async () => {
     <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>Jobs</h3><span class="sub">${esc(jobs.file || '')}</span></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Job</th><th>What</th><th>Last run</th><th>Result</th><th class="num">Added</th><th></th></tr></thead><tbody>
     ${(jobs.jobs || []).map(j => { const l = lastOf(j.id), run = running.find(r => r.job === j.id); return `<tr><td><b>${esc(j.name || j.id)}</b><br><span class="dim" style="font-size:11px">${(j.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</span></td><td class="mono dim" style="font-size:12px">${(j.paths || []).map(esc).join('<br>')}</td><td class="dim">${l ? fmtT(l.started) : 'never'}</td><td>${run ? '<span class="pill info">running</span>' : l ? `<span class="pill ${l.ok ? 'ok' : 'bad'}">${l.ok ? 'ok' : 'failed'}</span>` : '<span class="pill">—</span>'}</td><td class="num">${l?.ok ? fmtB(l.bytes_added) : '—'}</td><td class="acts"><button class="btn btn--ghost btn--xs" data-run="${esc(j.id)}" ${run ? 'disabled' : ''}>Run now</button></td></tr>`; }).join('')}
     </tbody></table></div></div>
-    <div class="tabs" id="bkTabs"><button class="active" data-t="hist">History</button><button data-t="snaps">Snapshots</button><button data-t="restore">Restore</button></div>
+    <div class="tabs" id="bkTabs"><button class="active" data-t="hist">History</button><button data-t="snaps">Snapshots</button><button data-t="restore">Restore</button>${S.role === 'admin' ? '<button data-t="repos">Repos</button>' : ''}</div>
+    ${S.role === 'admin' ? `<div data-tab="repos" hidden class="panel panel--flat" id="bkRepos"><div class="empty">Loading the repos…</div></div>` : ''}
     <div data-tab="hist" class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>When</th><th>Job</th><th>Result</th><th class="num">Added</th><th class="num">New files</th><th>Snapshot</th><th>Note</th></tr></thead><tbody>
     ${rows.map(r => `<tr><td class="dim">${fmtT(r.started)}</td><td>${esc(r.name || r.job)}</td><td><span class="pill ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'ok' : 'failed'}</span></td><td class="num">${r.ok ? fmtB(r.bytes_added) : '—'}</td><td class="num">${r.ok ? fmtN(r.files_new) : '—'}</td><td class="mono dim">${esc(r.snapshot_id || '')}</td><td style="font-size:12.5px;color:${r.error ? 'var(--redL)' : 'var(--muted)'}">${esc(r.error || r.warning || '')}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">No runs recorded yet. The first one happens at 03:00, or press Run now.</td></tr>'}
     </tbody></table></div>
@@ -364,7 +365,20 @@ V.backups.after = () => {
   $$('[data-run]').forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/backups/run/${encodeURIComponent(b.dataset.run)}`, { method: 'POST' }), `Started ${b.dataset.run}; the row appears when it finishes`); if (r) setTimeout(() => rerender('backups'), 2500); });
   $('#bkCheck').onclick = e => act(e.target, () => api('/backups/check', { method: 'POST' }), 'Check started; it can take a while on a big repo');
   $('#bkMirror').onclick = e => act(e.target, () => api('/backups/mirror', { method: 'POST' }), 'Mirror refreshed');
+  if ($('#bkRepos')) paintRepos();
 };
+// The Arise repos in /srv/arise/repos, two-way with GitHub every 15 minutes (docs/REPOS.md).
+const REPO_POLICY = { all: 'two-way', branches: 'two-way, main is pull-only', none: 'pull-only' };
+async function paintRepos() {
+  const el = $('#bkRepos'); if (!el) return;
+  const r = await api('/repos').catch(e => ({ err: e.message, repos: [] }));
+  el.innerHTML = `<div class="panel__hd"><h3>Repos</h3><span class="sub mono">${esc(r.root || '/srv/arise/repos')}</span><button class="btn btn--ghost btn--xs" id="repoSync" style="margin-left:auto">Sync now</button></div>
+    <p class="note" style="margin:0 0 10px">Every 15 minutes each repo pulls from GitHub and pushes what was committed here. A commit is checked for passwords and tokens before it leaves. Last sync: <b>${r.last ? ago(r.last) : 'not yet'}</b>.${r.token === false ? ' <span style="color:var(--redL)">No GitHub token is set: <code>sudo arisectl repos setup</code>.</span>' : ''}${r.err ? ` <span style="color:var(--redL)">${esc(r.err)}</span>` : ''}</p>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Repo</th><th>Direction</th><th>Branch</th><th class="num">Ahead</th><th class="num">Behind</th><th>Result</th></tr></thead><tbody>
+    ${(r.repos || []).map(x => `<tr><td><b>${esc(x.name)}</b><br><small class="muted mono">${esc(x.repo)}</small></td><td>${esc(REPO_POLICY[x.policy] || x.policy || '')}</td><td class="mono">${esc(x.branch || '—')}${x.dirty ? ' <span class="tag">uncommitted</span>' : ''}</td><td class="num">${x.ahead ?? '—'}</td><td class="num">${x.behind ?? '—'}</td><td><span class="pill ${x.ok ? 'ok' : 'bad'}">${x.ok ? 'ok' : 'needs you'}</span> <small class="muted">${esc(x.why || '')}</small></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No repos listed in arise.toml</td></tr>'}
+    </tbody></table></div>`;
+  $('#repoSync').onclick = async e => { const x = await act(e.target, () => api('/repos/sync', { method: 'POST' }), 'Sync started; the table updates when it finishes'); if (x && x.ok !== false) setTimeout(paintRepos, 4000); };
+}
 
 V.automator = async () => {
   const [a, wl, h] = await Promise.all([api('/automator'), api('/automator/worklist'), api('/automator/holds')]);
@@ -873,7 +887,7 @@ V.assist = async () => {
   const c = await api('/church'); S.church = c;
   const tiles = (c.assistants || []).map(a => `<button class="assist__t" data-url="${esc(a.url)}"><i>${a.id === 'claude' ? 'Anthropic' : a.id === 'chatgpt' ? 'OpenAI' : a.id === 'grok' ? 'xAI' : a.id === 'studio' ? 'Google' : 'Streaming'}</i><b>${esc(a.name)}</b><span>${esc(a.what)}</span></button>`).join('');
   return `<div class="fade"><div class="kicker">Your assistants, your accounts</div><p class="note" style="margin:6px 0 14px">${S.kiosk ? 'On the monitor each one opens in its own window on top of the desktop; close that window to come back.' : 'Each opens in a new tab, signed in as you. Nothing is stored on the server.'} No API keys anywhere.</p>
-    <div class="assist">${tiles}<button class="assist__t" data-claude-code><i>On this box</i><b>Claude Code</b><span>The <code>claude</code> command in the Terminal: ask it about this server, let it read the logs, fix a config. Signed in with the church's claude.ai account via <code>/login</code>.</span></button></div></div>`;
+    <div class="assist">${tiles}<button class="assist__t" data-claude-code><i>On this box</i><b>Claude Code</b><span>The <code>claude</code> command in the Terminal: ask it about this server, let it read the logs, fix a config. Signed in with the church's claude.ai account via <code>/login</code>.</span></button>${S.kiosk && S.me?.claude ? `<button class="assist__t" data-claude-desktop><i>On the monitor</i><b>Claude Desktop</b><span>The Claude app, full screen on the closet monitor. Bradly's only; locking the screen closes it.</span></button>` : ''}</div></div>`;
 };
 V.assist.after = root => {
   $$('[data-url]', root).forEach(b => b.onclick = async () => {
@@ -883,6 +897,7 @@ V.assist.after = root => {
       const r = await api('/kiosk/open', { method: 'POST', body: { url: b.dataset.url } }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) toast(r.err, 'bad'); else toast(r.demo ? 'Sample: would open on the monitor' : 'Opening on the monitor…'); }
     else window.open(b.dataset.url, '_blank', 'noopener');
   });
+  const cd = $('[data-claude-desktop]', root); if (cd) cd.onclick = async () => { const r = await api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'open' } }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) toast(r.err, 'bad'); else { S.claudeDesktop = true; toast(r.demo ? 'Sample: Claude Desktop would open on the monitor' : 'Opening Claude Desktop…'); } };
   const cc = $('[data-claude-code]', root); if (cc) cc.onclick = () => { openApp('terminal'); setTimeout(() => { const ws = S.termWs; if (ws && ws.readyState === 1) ws.send('claude\r'); else toast('Terminal is opening; type: claude'); }, 1500); };
 };
 V.sunday = async () => {
@@ -1991,7 +2006,7 @@ async function buildWidgets() {
 /* ---------------- lock, login, sign out ---------------- */
 function lockScreen(idle) {
   saver(false);
-  lockReset(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
+  lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
 function churchLine() { const c = S.church; const n = c?.next; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }
@@ -2180,5 +2195,5 @@ boot();
   }
 }
 
-window.arise = { updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
+window.arise = { api, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();
