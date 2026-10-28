@@ -922,8 +922,8 @@ fi
 if [ "$WITH_COCKPIT" = 1 ]; then
   # Cockpit is apt, not Docker: it is the door that still opens when Docker
   # or the dashboard is what broke. Logs in with the box's own accounts.
-  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit
-  if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket; else run systemctl enable cockpit.socket; fi
+  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit || warn "cockpit did not install (the mirror?); the dashboard does not need it; re-run later"
+  if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket || warn "cockpit.socket did not start"; else run systemctl enable cockpit.socket || warn "cockpit.socket not enabled (not installed?)"; fi
   for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
     run ufw allow from "$src" to any port 9090 proto tcp comment 'cockpit'
   done
@@ -1079,7 +1079,7 @@ fi
 # --- WireGuard (optional) -----------------------------------------------------
 if [ "$WITH_WIREGUARD" = 1 ]; then
   if ! command -v wg >/dev/null 2>&1; then
-    run apt-get install -y -q wireguard
+    run apt-get install -y -q wireguard || warn "wireguard did not install; Tailscale covers remote access; re-run later"
   fi
   WG_CONF=/etc/wireguard/wg0.conf
   WAN_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
@@ -1133,16 +1133,33 @@ if [ "$WITH_CADDY" = 1 ]; then
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] add the official Caddy apt repo (cloudsmith) and apt-get install caddy"
     else
-      apt-get install -y -q debian-keyring debian-archive-keyring apt-transport-https curl gnupg >/dev/null
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
-      apt-get update -q >/dev/null
-      apt-get install -y -q caddy
+      # Caddy's own repository first (current releases); if it cannot be reached (the
+      # church internet is down, Cloudsmith is down) fall back to Ubuntu's caddy, which
+      # does everything the Caddyfile asks (tls internal, default_bind). An unreachable
+      # repository used to kill the whole install here (found by the install rehearsal).
+      CADDY_KEY=/usr/share/keyrings/caddy-stable-archive-keyring.gpg
+      CADDY_LIST=/etc/apt/sources.list.d/caddy-stable.list
+      apt-get install -y -q debian-keyring debian-archive-keyring apt-transport-https curl gnupg >/dev/null 2>&1 || true
+      if curl -1sLf -m 30 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' -o /tmp/caddy-key.asc \
+         && gpg --dearmor --yes -o "$CADDY_KEY" /tmp/caddy-key.asc \
+         && curl -1sLf -m 30 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' -o "$CADDY_LIST.tmp" \
+         && grep -q '^deb ' "$CADDY_LIST.tmp"; then
+        mv "$CADDY_LIST.tmp" "$CADDY_LIST"
+        note "Caddy's apt repository added"
+      else
+        rm -f "$CADDY_LIST.tmp" "$CADDY_KEY"
+        warn "Caddy's repository (dl.cloudsmith.io) did not answer; using Ubuntu's caddy package instead"
+      fi
+      rm -f /tmp/caddy-key.asc
+      apt-get update -q >/dev/null 2>&1 || true
+      apt-get install -y -q caddy || warn "caddy did not install; the dashboard stays on http://$HOSTNAME_WANTED:4147 until it does (re-run the installer)"
     fi
   else
     note "caddy already installed"
   fi
-  if [ -f "$SRC/config/caddy/Caddyfile" ]; then
+  if ! command -v caddy >/dev/null 2>&1 && [ "$DRY_RUN" = 0 ]; then
+    warn "no caddy on this box: HTTPS and the church certificate are skipped for now"
+  elif [ -f "$SRC/config/caddy/Caddyfile" ]; then
     if [ -f /etc/caddy/Caddyfile ] && ! grep -q 'Arise Server' /etc/caddy/Caddyfile 2>/dev/null; then
       run cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-arise
     fi
@@ -1162,7 +1179,7 @@ if [ "$WITH_CADDY" = 1 ]; then
       systemctl reload caddy >/dev/null 2>&1 || true
     fi
   else
-    run systemctl enable caddy
+    run systemctl enable caddy || warn "caddy not enabled (not installed?)"
   fi
   note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
   note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
@@ -1203,7 +1220,7 @@ if [ "$WITH_KIOSK" = 1 ]; then
   say "6d/7  Kiosk: the Arise desktop on the closet monitor"
   # cage (a Wayland kiosk compositor) + Epiphany (GTK WebKit) are plain apt
   # packages: no snaps, no X, no desktop environment. ~250 MB.
-  run apt-get install -y -q cage epiphany-browser
+  run apt-get install -y -q cage epiphany-browser || warn "cage/epiphany did not install; the monitor shows the text console until they do (re-run with --kiosk)"
   if id -u arise-kiosk >/dev/null 2>&1; then
     note "user arise-kiosk exists"
   else
@@ -1314,7 +1331,7 @@ fi
 # ----------------------------------------------------------------------------
 if [ "$WITH_HARDENING" = 1 ]; then
   say "6f/7  Care: security updates, a year of logs, disk health"
-  run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate
+  run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate || warn "some care packages did not install (the mirror?); re-run later"
   if [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] unattended-upgrades: security origin only, Automatic-Reboot false, daily timer on"
     note "[dry-run] journald SystemMaxUse=4G MaxRetentionSec=1year; smartd enabled; needrestart list mode; fstrim.timer on; logrotate for $LOG_DIR/*.log weekly keep 52"
@@ -1440,7 +1457,7 @@ fi
 # ----------------------------------------------------------------------------
 if [ "$WITH_SAFETY" = 1 ]; then
   say "6j/7  Safety: arise-rescue, virus scan, system snapshots, encryption"
-  run apt-get install -y -q --no-install-recommends clamav clamav-freshclam timeshift
+  run apt-get install -y -q --no-install-recommends clamav clamav-freshclam timeshift || warn "clamav/timeshift did not install (the mirror?); the scan and the snapshots wait until a re-run"
   # --- the break-glass admin (round 3, 21) ---
   # A LOCAL account that signs in on the console or over SSH when the domain
   # itself is down. Never the dashboard: the dashboard checks the domain only.
@@ -1519,7 +1536,7 @@ TS
   elif [ ! -e /dev/tpmrm0 ] && [ ! -e /dev/tpm0 ] && [ "$DRY_RUN" = 0 ]; then
     warn "LUKS on $LUKS_DEV but no TPM 2.0 found: enable it in the Dell's BIOS (Security > TPM 2.0 / PTT), then: sudo arisectl encrypt tpm. Until then the passphrase is typed at every boot."
   else
-    run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools
+    run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools || warn "clevis did not install; the disk still asks for its passphrase at boot until a re-run"
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] clevis luks bind -d $LUKS_DEV tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}' (asks the disk passphrase once); update-initramfs -u"
     elif clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2; then
