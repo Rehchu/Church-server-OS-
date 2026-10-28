@@ -147,9 +147,8 @@ function startDemoStats() {
 }
 function onStat(s) {
   S.stats = s; S.hist.push({ t: s.t, cpu: s.cpu, ram: s.ram?.pct, net: s.net, disk_io: s.disk_io }); if (S.hist.length > 60) S.hist.shift();
-  $('#miniCpu').textContent = s.cpu != null ? s.cpu.toFixed(0) + '%' : '–';
-  $('#miniRam').textContent = s.ram ? s.ram.pct.toFixed(0) + '%' : '–';
-  $('#miniUp').textContent = fmtUp(s.uptime);
+  const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };  // the bar is gone on the login screen
+  set('#miniCpu', s.cpu != null ? s.cpu.toFixed(0) + '%' : '–'); set('#miniRam', s.ram ? s.ram.pct.toFixed(0) + '%' : '–'); set('#miniUp', fmtUp(s.uptime));
   if (S.wins.overview && !S.wins.overview.min) paintLive(s);
   paintWidgetLive(s);
 }
