@@ -26,3 +26,6 @@ backup-history.json
 .DS_Store
 .vscode/
 .idea/
+
+# Claude Code worker worktrees (local only)
+.claude/worktrees/
