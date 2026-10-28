@@ -72,17 +72,21 @@ That is the one network every other box can reach, because a device behind
 Netgear B or the Mesh can always talk *upstream* through its router's NAT.
 Everything the directory, the shares, the dashboard and the Mac agents do
 is started by the client, so it all works from the office and from the
-Mesh. Three settings make it work, one per box:
+Mesh. **Bradly's rule: no router, switch or Mesh setting changes, at all.**
+So every setting lives on the server or on the Mac, never on a router:
 
-| Box | Setting | Why |
-|---|---|---|
-| Netgear A | a **DHCP reservation** for the server (its MAC → one fixed address), and A's **LAN DNS** set to the server's address | the server never changes address; Netgear A's own clients (the cameras on the switch) find the domain |
-| Netgear B (office) | its **DNS server** for LAN clients set to the server's address on A's network | the office Mac resolves `ad.arisecenla.church` and joins the domain through the NAT |
-| Google Mesh | Google Home app → Wi-Fi → Network settings → Advanced → **DNS: Custom** = the server's address | the media Mac and anything on the Mesh find the domain the same way |
+| Instead of | On the server or the Mac |
+|---|---|
+| a DHCP reservation on Netgear A | a **static address in netplan on the server** (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Reading A's LAN page to see that range is looking, not changing |
+| the routers handing out the server as DNS | each church Mac gets a **per-domain resolver file**, `/etc/resolver/ad.arisecenla.church`, written by `mac/bind-mac.sh --dns <server ip>` (and by `enroll-mac.sh --dns`). Only names in the church domain are asked of the server; everything else keeps the router's DNS. Nothing on the Mesh or the Netgears knows the server exists |
+| any route or port forward | **Tailscale**, which works from behind any number of routers with nothing opened. The subnet route is approved in the Tailscale admin console, not on a router |
+| reaching the media Mac through the Mesh's NAT | the media Mac runs the **Tailscale app**; Guacamole and anything else use its Tailscale address |
+| moving the Synology onto the switch | if it is on Netgear A's network, nothing to do. If it is behind the Mesh or Netgear B, install the **Tailscale package on the Synology** (it is in DSM's Package Center) and the server mounts it by its Tailscale address. No cable moves |
 
-If a router cannot hand out a custom DNS, the Mac itself can be told the
-DNS server in System Settings → Network; it is one field, and
-`mac/bind-mac.sh` checks it.
+Second DNS option, for any Mac on Tailscale: the Tailscale admin console's
+split DNS rule (docs/REMOTE-ACCESS.md step 5) sends `ad.arisecenla.church`
+to the server for every device on the tailnet, wherever it is. The resolver
+file covers Macs without Tailscale; the two do not conflict.
 
 **What works across the stack and what does not:**
 
@@ -97,9 +101,10 @@ So two of Bradly's answers get a workaround, not a change of mind:
   Tailscale app. Guacamole then connects to the Mac's Tailscale address
   (`100.x.y.z`), which does not care about the NAT in between. Same for
   any other Mac you ever need to reach from the server's side.
-- **The Synology** must be plugged into the switch, on Netgear A's network,
-  or the server cannot mount it. If it is behind the Mesh or Netgear B
-  today, that one cable moves. Confirm with question 6 on Sunday.
+- **The Synology**: on Netgear A's network the server mounts it directly;
+  behind the Mesh or Netgear B it runs the Tailscale package and is mounted
+  by its Tailscale address. Either way no cable moves. Question 6 on Sunday
+  says which.
 
 **The livestream** (answer 50, and "leave it like it is set up"): the
 streaming Mac stays on the Mesh Wi-Fi, cameras stay split across the Mesh
@@ -116,10 +121,10 @@ LAN address, which is fine: nothing needs to reach them, they reach the
 server. Alexandria's Mac and the personal Macs reach the server over
 Tailscale regardless of where they are.
 
-**Still needed:** a photo of Netgear A's LAN page (its subnet and DHCP
-range, so the server's reservation and `[[sites]] subnet` are right), and
-the same for Netgear B and the Mesh so nothing clashes with the Hub's
-`192.168.30.0/24` later.
+**Still needed:** a look at Netgear A's LAN page (its subnet and DHCP
+range, so the server's static address lands outside the range and
+`[[sites]] subnet` is right), and the same for Netgear B and the Mesh so
+nothing clashes with the Hub's `192.168.30.0/24` later. Looking only.
 
 ## VLANs: later, not day 1
 

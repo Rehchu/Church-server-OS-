@@ -262,7 +262,7 @@ is owned by the domain user), so the files are the person's when they log in.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Bind: "Unable to add server. Node name wasn't found" | DNS is not the DC | fix DHCP DNS, or set the Mac's DNS to the server by hand, `dscacheutil -flushcache`, retry |
+| Bind: "Unable to add server. Node name wasn't found" | the Mac is not asking the DC for the church domain | run `bind-mac.sh --dns <server ip>` (writes `/etc/resolver/ad.arisecenla.church`; no router change), `dscacheutil -flushcache`, retry |
 | Bind: "Authentication server could not be contacted" | clock skew | turn automatic time on, wait a minute |
 | Login window spins, then "unable to log in" | Mac cannot reach the DC and no mobile account yet | plug in Ethernet for the *first* login of each person |
 | Share mounts but files are read-only | home folder ownership | on the server: `arisectl user homefix <name>` |

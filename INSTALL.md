@@ -89,7 +89,7 @@ changes nothing).
 
 ### 5. Fixed address
 
-If you did not set a DHCP reservation on the router, pin it on the server:
+Pin the address on the server (no router setting is changed, by Bradly's rule); pick one outside Netgear A's DHCP range:
 
 ```bash
 sudo nano /etc/netplan/50-cloud-init.yaml
@@ -286,10 +286,11 @@ Backups page.
 join itself is one script run on the Mac:
 
 ```bash
-sudo bash bind-mac.sh            # from the mac/ folder of this repo, copied to the Mac
+sudo bash bind-mac.sh --computer-name OFFICE-MAC-01 --dns 192.168.1.20   # from the mac/ folder, copied to the Mac; the IP is the server's
 ```
 
-It points the Mac's DNS at the server, binds it to `AD.ARISECENLA.CHURCH`
+`--dns` writes a per-domain resolver file on the Mac (no router is touched;
+Bradly's rule), binds it to `AD.ARISECENLA.CHURCH`
 with mobile accounts on, and checks that a domain user can be looked up.
 Create that user first, on the server or in the dashboard's Directory page:
 
@@ -364,8 +365,8 @@ Check it from your phone's hotspot with the Tailscale app on: if
   `sudo journalctl -u arise-web -n 50`.
 - **Macs cannot find the domain:** on the server, `host -t SRV
   _ldap._tcp.ad.arisecenla.church 127.0.0.1` must answer. If not,
-  `sudo systemctl status samba-ad-dc`. On the Mac, its DNS must be the
-  server's address (`scutil --dns | head`).
+  `sudo systemctl status samba-ad-dc`. On the Mac, `/etc/resolver/ad.arisecenla.church` must name the
+  server (`scutil --dns | grep -A3 arisecenla`); `bind-mac.sh --dns` writes it.
 - **Kerberos "clock skew":** the server and the Mac are more than 5 minutes
   apart. `chronyc tracking` on the server; the Mac syncs to Apple by default.
 - **Backup failed:** the dashboard's Backups page and `sudo arisectl backup

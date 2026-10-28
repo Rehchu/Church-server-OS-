@@ -99,19 +99,29 @@ the fact means rebuilding the domain.
 
 ## DNS on the church network — read this before anything else
 
-AD does not work unless every device asks the **domain controller** for DNS.
-Devices find the DC by looking up SRV records (`_ldap._tcp.ad.arisecenla.church`,
-`_kerberos._tcp...`) that only the DC's DNS holds.
+AD does not work unless every device asks the **domain controller** for the
+church domain's names. Devices find the DC by looking up SRV records
+(`_ldap._tcp.ad.arisecenla.church`, `_kerberos._tcp...`) that only the DC's
+DNS holds.
 
-On the church router (the one handing out DHCP):
+**Bradly's rule (Oct 28): no router, switch or Mesh setting changes, at
+all.** So the routers keep handing out whatever DNS they hand out today, and
+the church domain is wired in on each device instead:
 
-1. Set the **DNS server** that DHCP gives out to the server's static IP (for
-   example `192.168.1.10`). Only that one. Do not list `8.8.8.8` as a second
-   DNS: some devices round-robin between the two and then bind flakily.
-2. The server **forwards** everything that is not `ad.arisecenla.church` to
-   `1.1.1.1` (`dns_forwarder` in `arise.toml`), so the internet keeps working.
-3. Give the server a **static IP** (or a DHCP reservation) so that address
-   never changes.
+1. The server has a **static address** set in netplan on the server itself
+   (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Looking at that
+   range on the router page is allowed; changing anything there is not.
+2. Every church Mac gets a **per-domain resolver file**,
+   `/etc/resolver/ad.arisecenla.church`, holding `nameserver <server ip>`.
+   `mac/bind-mac.sh --dns <server ip>` writes it (and `enroll-mac.sh --dns`
+   passes it through). macOS then asks the server only for names ending in
+   `ad.arisecenla.church` and keeps the router's DNS for everything else, so
+   the internet keeps working even when the server is off.
+3. Any device on **Tailscale** gets the same thing from the tailnet's split
+   DNS rule (docs/REMOTE-ACCESS.md step 5), wherever it is. The two do not
+   conflict.
+4. The server still **forwards** anything it is asked that is not the church
+   domain to `1.1.1.1` (`dns_forwarder` in `arise.toml`), for its own sake.
 
 Check from any Mac on the network:
 
@@ -120,14 +130,14 @@ dig +short arise-server.ad.arisecenla.church
 dig +short _ldap._tcp.ad.arisecenla.church SRV
 ```
 
-Both must print an answer. Empty output means the Mac is not using the DC for
-DNS; nothing below will work until that is fixed.
+Both must print an answer. `dig` ignores `/etc/resolver`, so on a Mac that
+uses the resolver file test with `dscacheutil -q host -a name
+arise-server.ad.arisecenla.church` instead. Empty output means the Mac is not
+asking the DC; nothing below will work until that is fixed.
 
-If the server is ever off, devices lose DNS. That is the price of being the
-DC. The `install.sh` sets the DC to forward, and a second DNS entry in DHCP
-pointing at the router is acceptable **only** if the router itself forwards to
-the server for `ad.arisecenla.church` (most consumer routers cannot). Otherwise
-keep one DNS and keep the server on.
+If the server is ever off, the Macs lose only the church domain's names; the
+internet keeps working because the router's DNS is untouched. That is the
+one advantage of this layout over the usual "router hands out the DC" setup.
 
 ## Organisational units and groups — the proposal
 

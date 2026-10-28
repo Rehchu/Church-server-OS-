@@ -108,10 +108,11 @@ Cisco sticker and each router's LAN page still need a photo (answers 10 and
 12). Three decisions have to be made before the installer runs:
 
 - **where the server plugs in**: decided. Wired into the switch on Netgear
-  A's network (the router at the modem), with a DHCP reservation there; the
-  office Netgear and the Google Mesh each get the server's address as their
-  DNS. Bradly keeps the three-box network as it is. docs/NETWORK.md § The
-  Pineville network as it is; the Synology must be on that same switch;
+  A's network (the router at the modem). **No router, switch or Mesh
+  setting changes, ever**: the server takes a static address in netplan,
+  each Mac gets a per-domain resolver file from `bind-mac.sh --dns`, and
+  Tailscale covers everything the NATs block. docs/NETWORK.md § The
+  Pineville network as it is;
 - the server's **static IP** on that network (docs/NETWORK.md § The IP plan);
 - whether home folders live on the server's disk or on the Synology
   (docs/SYNOLOGY.md; the OptiPlex's disk size decides, question 2, Sunday).

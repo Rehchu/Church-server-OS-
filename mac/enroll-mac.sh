@@ -3,7 +3,7 @@
 #
 #   sudo ./enroll-mac.sh --computer-name MEDIA-MAC-01 [--server arise-server] [--ssh-user bradly]
 #                        [--only alice,bob] [--skip admin,guest] [--map alice=alice.smith,bob=bob.jones]
-#                        [--via ssh|api] [--dashboard http://arise-server:4147]
+#                        [--dns <server ip>] [--via ssh|api] [--dashboard http://arise-server:4147]
 #                        [--no-migrate] [--dry-run]
 #
 # What it does, in order, and says so as it goes:
@@ -26,7 +26,7 @@
 set -u
 
 HERE=$(cd "$(dirname "$0")" && pwd)
-SERVER="arise-server"; SSH_USER="bradly"; COMPUTER=""; ONLY=""; SKIP="admin,guest,administrator,arise,shared"; MAP=""
+SERVER="arise-server"; SSH_USER="bradly"; COMPUTER=""; ONLY=""; SKIP="admin,guest,administrator,arise,shared"; MAP=""; DNS_IP=""
 VIA="ssh"; DASH=""; MIGRATE=1; DRY=0
 NETBIOS="ARISE"
 
@@ -41,7 +41,8 @@ while [ $# -gt 0 ]; do
     --server)        SERVER="$2"; shift 2 ;;
     --ssh-user)      SSH_USER="$2"; shift 2 ;;
     --only)          ONLY="$2"; shift 2 ;;
-    --map)           MAP="$MAP,$2"; shift 2 ;;   # local=directory, e.g. bradly=bradly.dyer (usernames are first.last)
+    --map)           MAP="$MAP,$2"; shift 2 ;;
+    --dns)           DNS_IP="$2"; shift 2 ;;   # the server's IP: writes /etc/resolver on this Mac, no router change   # local=directory, e.g. bradly=bradly.dyer (usernames are first.last)
     --skip)          SKIP="$SKIP,$2"; shift 2 ;;
     --via)           VIA="$2"; shift 2 ;;
     --dashboard)     DASH="$2"; shift 2 ;;
@@ -83,7 +84,7 @@ else
   [ -n "$COMPUTER" ] || die "--computer-name is required for the bind (the name on the Mac's label)"
   if [ $DRY -eq 1 ]; then say "would run: bind-mac.sh --computer-name $COMPUTER"; REPORT+=("bind: would bind as $COMPUTER")
   else
-    bash "$HERE/bind-mac.sh" --computer-name "$COMPUTER" || die "the bind failed; fix what bind-mac.sh printed and run again"
+    bash "$HERE/bind-mac.sh" --computer-name "$COMPUTER" ${DNS_IP:+--dns "$DNS_IP"} || die "the bind failed; fix what bind-mac.sh printed and run again"
     REPORT+=("bind: bound as $COMPUTER")
   fi
 fi
