@@ -19,16 +19,37 @@ means it should not be promised for a date.
 | Push | web push to Bradly's phone for failures, stream down, a new device (10) | tap "allow" once on the phone | a day |
 | Walkthrough | five steps in the portal on each person's first sign-in (45) | nothing | a day |
 
-## v0.8 "Exodus": Safety
+## v0.8 "Exodus": the everyday OS and the safety basics
+
+Round 3 (Oct 28) asked what Windows 11 and macOS have that ariseOS does not,
+and what any OS needs underneath. docs/PARITY.md is the map. Everything in
+this block is built in v0.8 unless the row says otherwise.
 
 | Item | What it is | Needs from Bradly | Cost |
 |---|---|---|---|
-| 2FA | Optional, per person (Bradly, Oct 28): anyone may turn two-step on from the flame menu; when they do, Microsoft Authenticator scans the code (TOTP, no Microsoft account needed). Nobody is forced; an admin can see who has it on | scan a QR code once, if they want it | a day |
-| Audit log | who signed in, shared, changed a user, ticked the checklist; a year kept; admins read it; nothing deletable from the dashboard (23) | nothing | a day |
-| Offboarding | a "leaving" button in Directory: 30 days of grace, then disable; a "move files to" picker (24) | nothing | a day |
-| Restore drill | monthly, automatic: one random file restored from last night's backup to a scratch folder and compared (47) | nothing | small |
-| Closet card | a one-page PDF the installer writes to the shares: the commands, the Tailscale address, the backups, who to call (46) | who to call | small |
-| UPS | nut with the UPS, shutdown on the low-battery signal, not a timer (48) | the UPS model and a USB cable from it to the server | small once the model is known |
+| Trash | a Trash on every share: the Macs' deletes (Samba recycle) and the portal's land there; put back your own; emptied after 30 days (r3 1) | nothing | a day |
+| Previous Versions | right-click a file in Finder, see last night's and last week's copy from the backup, put one back beside the original (r3 2) | nothing | a day |
+| System Settings | one window: appearance, users, sharing, backups, updates, time, notifications, about (r3 3) | nothing | a day |
+| Software Update | security automatic as now; the rest listed with a badge, installed on his click in the Saturday 03:30 window, a snapshot first (r3 4, 23, 25) | a click | a day |
+| Store | the 24 templates preinstalled (heavy ones stopped, RAM shown), a catalogue of more free apps, start/stop/open (r3 5, 40) | nothing | a day |
+| Activity Monitor, Logs, Automations, Storage | the four admin tools every OS has (r3 6, 7, 8, 9) | nothing | two days |
+| Calendar | one church calendar on the server; an ICS feed every Mac and phone subscribes to (r3 10) | subscribe once per device | a day |
+| Notes, Photos | Trilium and Immich as the Notes and Photos icons (r3 11, 12) | nothing | small |
+| Weather, Calculator, Clock | the small apps (r3 13, 14) | nothing | small |
+| Finder extras | text editor, Compress, Get Info, Recents, Open on my Mac, Fonts (r3 15, 16, 18, 39) | nothing | a day |
+| Screen Sharing | the closet monitor through Guacamole, Bradly only (r3 17) | nothing | small |
+| Snap windows, accessibility | tiling, larger text, reduce motion, high contrast, keyboard (r3 19, 32) | nothing | small |
+| Power menu, monitor sleep | Restart and Shut Down in the flame menu; the panel off 23:00 to 06:00 (r3 30, 31) | nothing | small |
+| Help, What's New, password meter | the docs in the dashboard, the note after an update, the rules at a change (r3 34, 35, 36) | nothing | a day |
+| 2FA | optional, per person; Microsoft Authenticator when they opt in (r2 11, Oct 28) | scan a QR code, if they want it | a day |
+| Break-glass admin | `arise-rescue` for when the domain is down; console and SSH only; logged and pushed (r3 21) | keep the closet card in the safe | small |
+| Encryption | LUKS chosen at the Ubuntu install; `arisectl encrypt tpm` binds it to the TPM; the passphrase on the closet card (r3 22) | pick "encrypt" in the Ubuntu installer | small, a day to test |
+| Rollback, reinstall | a system snapshot before each update; `arisectl reinstall` from the Synology (r3 23, 24) | nothing | a day |
+| Virus scan | ClamAV Sunday night, quarantine, a report, a push (r3 28) | nothing | small |
+| Church CA | Caddy's internal CA in front of the dashboard; enroll-mac.sh trusts it (r3 29) | nothing | small |
+| Audit log | who signed in, shared, changed a user, ticked the checklist; a year kept; admins read it (r2 23) | nothing | a day |
+| Offboarding | a "leaving" button in Directory: 30 days of grace, then disable; a "move files to" picker (r2 24) | nothing | a day |
+| Decided, nothing built | no lockout (r3 27), manual theme (33), hot corners (20), browsers never sign out (38), logs kept a year (26), MIT (37) | | |
 
 ## v0.9 "Leviticus": Sunday
 
