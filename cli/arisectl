@@ -17,7 +17,7 @@
     arisectl mirror run
     arisectl sites
     arisectl link list|revoke <token>|sweep
-    arisectl devices list|scan|name <mac> <name>      everything on the switch
+    arisectl devices list|scan|behind|name <mac> <name>   everything on the switch, and behind the other routers
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
@@ -458,8 +458,18 @@ def cmd_devices(a):
         if not a.mac or not a.value:
             sys.exit("arisectl devices name <mac> <name>")
         show(devices.label(a.mac, name=a.value))
+    elif a.sub == "behind":
+        from arise_server import routers
+        r = routers.behind()
+        if not r["routers"]:
+            print("no [[routers]] configured in arise.toml"); return
+        for x in r["routers"]:
+            print(f"\n  {x['name']} ({x['host'] or x['kind']}): " + ("" if x["ok"] else f"NOT READ: {x['err']}"))
+            if x["ok"]:
+                table([{"device": d.get("hostname") or "unnamed", "ip": d["ip"], "mac": d["mac"], "link": d.get("kind_final", "")} for d in x["devices"]], ["device", "ip", "mac", "link"])
+        if r.get("demo"): warn("sample data")
     else:
-        sys.exit("arisectl devices list|scan|name <mac> <name>")
+        sys.exit("arisectl devices list|scan|behind|name <mac> <name>")
 
 
 def cmd_link(a):
@@ -573,7 +583,7 @@ def build():
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
-    p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_devices)
+    p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)

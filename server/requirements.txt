@@ -5,3 +5,4 @@ pyyaml>=6.0
 bcrypt>=4.0
 itsdangerous>=2.1
 python-multipart>=0.0.9
+pynetgear>=0.10   # read-only: attached devices behind a Netgear router (Network app)

@@ -150,6 +150,15 @@ def scan(quiet: bool = False) -> dict:
         r = run(["arp-scan", "--localnet", "--plain", "--interface", net["iface"], "--retry", "2"], timeout=90)
         found = parse_arp_scan(r["out"])
         tool = "arp-scan"
+    if not found and which("nmap"):
+        # nmap -sn is a ping/ARP sweep that prints MACs when run as root.
+        r = run(["nmap", "-sn", "-n", "--send-ip", net["subnet"]], timeout=120)
+        for block in r["out"].split("Nmap scan report for "):
+            m_ip = re.match(r"(\d+\.\d+\.\d+\.\d+)", block)
+            m_mac = re.search(r"MAC Address: ([0-9A-F:]{17}) \(([^)]*)\)", block)
+            if m_ip and m_mac:
+                found.append({"ip": m_ip.group(1), "mac": m_mac.group(1).lower(), "vendor": m_mac.group(2)})
+        tool = "nmap" if found else tool
     if not found:
         _sweep(net["subnet"], net["iface"])
         r = run(["ip", "-4", "neigh", "show", "dev", net["iface"]], timeout=10)

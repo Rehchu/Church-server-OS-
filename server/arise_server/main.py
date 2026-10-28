@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, devices, directory, files, metrics, nas, remote, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, devices, directory, files, metrics, nas, remote, routers, sermons, services, shares, sites, system
 from . import links
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
@@ -581,6 +581,12 @@ class DeviceLabel(BaseModel):
 @app.get("/api/devices")
 def api_devices(_=auth):
     return devices.list_devices()
+
+
+@app.get("/api/devices/behind")
+def api_devices_behind(_=auth):
+    """What the other routers report as attached, read from them (never written)."""
+    return routers.behind()
 
 
 @app.post("/api/devices/scan")

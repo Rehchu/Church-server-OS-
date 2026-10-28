@@ -271,6 +271,7 @@ and previewed anywhere, including the published preview page.
 | `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `GET /api/files/view?root=&path=` · `POST /api/files/upload` · `POST /api/files/mkdir` | the Finder, inside `/srv/arise` and the NAS mount; `view` is inline (Quick Look), `download` is an attachment; no delete, no move |
 | `GET /api/links` · `POST /api/links` {root,path,days,note} · `DELETE /api/links/{token}` · `GET /s/{token}` (no login) | share links: a time-limited public download of one file or a zipped folder |
 | `POST /api/me/password` {old,new} | a person changes their own directory password (Kerberos check of the old one first) |
+| `GET /api/devices/behind` | what the other routers report as attached, read over their own API with the admin password (`[[routers]]`, kind netgear); never written |
 | `GET /api/devices` · `POST /api/devices/scan` · `POST /api/devices/{mac}` {name,note,kind} · `DELETE /api/devices/{mac}` | everything on the switch: `arp-scan --localnet` (else a ping sweep and the neighbour table), merged into `/var/lib/arise/devices.json` by MAC |
 | `GET /api/search?q=` | Spotlight: file names on both roots (a bounded `os.walk` index, cached 120 s), users and computers from the directory |
 | `GET /api/system/updates` · `POST /api/system/update` · `POST /api/system/apt-upgrade` | apt and Arise Server updates |

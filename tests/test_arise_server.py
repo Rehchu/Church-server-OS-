@@ -284,3 +284,10 @@ class Devices(unittest.TestCase):
         self.assertTrue(r["demo"]); self.assertGreaterEqual(len(r["devices"]), 5)
         self.assertTrue(all(d["mac"].startswith("02:") for d in r["devices"]))  # sample MACs are never real ones
         self.assertEqual(devices.label("02:a1:00:00:00:01", kind="toaster").get("ok"), True)  # demo: nothing written
+
+    def test_router_attached_devices_normalize_and_sample(self):
+        from arise_server import routers
+        d = routers.normalize({"name": "OFFICE-MAC-01", "ip": "10.0.0.12", "mac": "02:B2:00:00:00:12", "type": "wired", "signal": None, "link_rate": 1000})
+        self.assertEqual(d["mac"], "02:b2:00:00:00:12"); self.assertEqual(d["kind_final"], "wired"); self.assertTrue(d["behind"])
+        self.assertEqual(routers.attached({"kind": "google"})["ok"], False)
+        b = routers.behind(); self.assertTrue(b["demo"]); self.assertTrue(any(not x["ok"] for x in b["routers"]))  # the Mesh says so honestly

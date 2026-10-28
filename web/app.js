@@ -648,9 +648,20 @@ V.devices = async () => {
       <p class="note" style="margin:6px 0 0">${esc(r.network?.subnet || '')} on ${esc(r.network?.iface || '')} · last scan ${m.last_scan ? ago(m.last_scan) : 'never'}${m.tool ? ' · ' + esc(m.tool) : ''}${r.demo ? ' · sample' : ''}. This is Netgear A's wire. The office Netgear and the Google Mesh show as one device each; what is behind them is their own network and cannot be seen from here.</p></div>
       <button class="btn" id="devScan">Scan now</button></div>
     <table class="tbl"><thead><tr><th>Device</th><th>Address</th><th>MAC</th><th>Maker</th><th>Kind</th><th>Seen</th><th></th></tr></thead><tbody>${devs.map(row).join('') || '<tr><td colspan="7" class="muted">Nothing yet. Scan now.</td></tr>'}</tbody></table>
-    <p class="note" style="margin-top:12px">A scan runs every hour by itself (arise-devices.timer). Give a device a name once and it keeps it, whatever address the router hands it next.</p></div>`;
+    <p class="note" style="margin-top:12px">A scan runs every hour by itself (arise-devices.timer). Give a device a name once and it keeps it, whatever address the router hands it next.</p>
+    <div id="devBehind" style="margin-top:22px"><div class="kicker">Behind the other routers</div><div class="skeleton"></div></div></div>`;
 };
+async function paintBehind(root) {
+  const box = $('#devBehind', root); if (!box) return;
+  let r; try { r = await api('/devices/behind'); } catch (e) { box.innerHTML = `<div class="kicker">Behind the other routers</div><p class="note">${esc(e.message)}</p>`; return; }
+  const rs = r.routers || [];
+  box.innerHTML = `<div class="kicker">Behind the other routers</div><p class="note" style="margin:6px 0 10px">Read from each router's own attached-devices list, with its admin password, never written to. Set them up as <code>[[routers]]</code> in arise.toml.${rs.length ? '' : ' None configured yet.'}</p>` +
+    rs.map(x => `<div class="card" style="margin-bottom:10px"><div class="row row--between"><b>${esc(x.name)}</b><span class="muted">${esc(x.host || '')}${x.ok ? ` · ${x.devices.length} attached` : ''}</span></div>` +
+      (x.ok ? `<table class="tbl" style="margin-top:8px"><thead><tr><th>Device</th><th>Address</th><th>MAC</th><th>Link</th></tr></thead><tbody>${x.devices.map(d => `<tr><td>${esc(d.hostname || d.name || 'unnamed')}</td><td class="mono">${esc(d.ip)}</td><td class="mono" style="font-size:11.5px">${esc(d.mac)}</td><td>${esc(d.kind_final)}${d.link_rate ? ' · ' + esc(String(d.link_rate)) + ' Mb/s' : ''}${d.signal != null ? ' · ' + esc(String(d.signal)) + '%' : ''}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">nothing attached</td></tr>'}</tbody></table>`
+        : `<p class="note" style="margin:8px 0 0">${esc(x.err || 'did not answer')}</p>`) + '</div>').join('');
+}
 V.devices.after = root => {
+  paintBehind(root);
   $('#devScan', root).onclick = async () => { const b = $('#devScan', root); b.disabled = true; b.textContent = 'Scanning…'; try { const r = await api('/devices/scan', { method: 'POST' }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample scan' : `Found ${r.found}, ${r.new} new`); rerender('devices'); } catch (e) { toast(e.message, 'bad'); b.disabled = false; b.textContent = 'Scan now'; } };
   $$('[data-edit]', root).forEach(btn => btn.onclick = () => { const d = (S.devCache?.devices || []).find(x => x.mac === btn.dataset.edit); if (!d) return;
     modal(`<h2>${esc(d.name || d.hostname || d.mac)}</h2><form id="devF" style="display:grid;gap:8px;margin-top:10px"><input id="devName" placeholder="Name (e.g. Office printer)" value="${esc(d.name || '')}"><input id="devNote" placeholder="Note" value="${esc(d.note || '')}"><select id="devKind">${['', 'server', 'nas', 'mac', 'pc', 'router', 'switch', 'network', 'printer', 'camera', 'iot', 'phone', 'unknown'].map(k => `<option value="${k}" ${(d.kind || '') === k ? 'selected' : ''}>${k || 'kind: as guessed (' + esc(d.guess || 'unknown') + ')'}</option>`).join('')}</select>

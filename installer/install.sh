@@ -177,7 +177,7 @@ PKGS=(
   samba winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
-  restic rsync git curl jq arp-scan
+  restic rsync git curl jq arp-scan nmap
   python3 python3-venv python3-pip
   chrony
 )

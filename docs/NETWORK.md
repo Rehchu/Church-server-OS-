@@ -102,6 +102,31 @@ their own networks on the far side of a NAT, invisible from this wire by
 design. Those devices are known to the server another way: they join the
 domain (Directory → Computers) or run Tailscale (Remote).
 
+**Why Router A's own page does not show them.** A consumer router's
+"attached devices" page lists what it handed an address to and still
+remembers. A device with a fixed address, one that got its address from
+Netgear B or the Mesh, or one the router has forgotten, is simply not on
+the page even though it is on the wire. The ARP scan asks the wire itself,
+so it finds everything that answers on Netgear A's network, whatever
+address it has and whoever gave it.
+
+**Seeing what the ARP scan cannot: the tools, all open source, all on the
+server, none of them changing a router.**
+
+| Tool | What it adds | Where |
+|---|---|---|
+| `arp-scan` | the hourly list of everything on Netgear A's wire | built into the Network app and `arisectl devices scan` |
+| `nmap` | the same sweep a different way, plus `nmap -sn` / `nmap -O <ip>` by hand to guess what an unknown device is | installed; the Network app falls back to it if arp-scan is missing |
+| the **Netgear attached-devices API** (`pynetgear`) | what the office Netgear *itself* says is attached, behind its NAT, read with its admin password. The office Mac and the printer at 10.0.0.x appear this way | `[[routers]]` in arise.toml; Network app § Behind the other routers; `arisectl devices behind` |
+| **NetAlertX** (Docker template) | a presence timeline per device and an alert the moment something new appears on the wire | Apps → Templates → netalertx, port 20211 |
+| **Uptime Kuma** (template) | "is it up" pings for the devices that matter: the Synology, the printer, the routers | already in the templates |
+| `snmpwalk` + **LibreNMS** | only if the switch turns out to be managed: SNMP shows which MAC is on which port, and LibreNMS graphs it. An unmanaged switch has no SNMP, so this waits for the sticker | not installed until the switch is known |
+
+**What no tool can do, said plainly:** list the Google Mesh's clients
+from the server. Google offers no local device-list API; the Mesh's
+clients are in the Google Home app on your phone, and that stays the way to
+see them. The Mesh shows on the wire as one device.
+
 **The cameras** sit on their own unmanaged switch, which plugs into the
 Mesh. So the NDI cameras and the streaming Mac are on the Mesh's network
 together, which is the one thing NDI needs (discovery works between them).

@@ -130,6 +130,20 @@ webhook_url = ""
 hour = 7
 only_when_attention = true
 
+# Routers the server may READ (never change): consumer Netgear routers answer
+# an "attached devices" question over their SOAP API with the admin password,
+# which is how the Network app lists what sits behind the office Netgear
+# (its own network, invisible to an ARP scan). Nothing is ever written to a
+# router. Google Mesh has no such API; its clients are in the Google Home app.
+# kind: netgear. password_file: a root-only file with the router's admin password.
+# [[routers]]
+# id = "netgear-b"
+# name = "Netgear B (office)"
+# kind = "netgear"
+# host = "10.0.0.1"
+# user = "admin"
+# password_file = "/etc/arise/secrets/router-netgear-b"
+
 # The campuses. The server lives at the main site; the rest reach it over the
 # VPN. probe = a host at that site that is always on (its router, a Mac).
 [[sites]]

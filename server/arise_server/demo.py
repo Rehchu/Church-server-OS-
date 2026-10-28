@@ -215,3 +215,12 @@ DEVICES = [
     {"mac": "02:a1:00:00:00:88", "ip": "192.168.1.88", "ips": ["192.168.1.88"], "vendor": "", "guess": "unknown", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-28T06:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "unknown"},
     {"mac": "02:a1:00:00:00:60", "ip": "192.168.1.60", "ips": ["192.168.1.60"], "vendor": "Apple", "guess": "mac", "kind": "", "hostname": "", "name": "Loaner MacBook", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-27T17:40", "joined": False, "online": False, "kind_final": "mac"},
 ]
+
+# Behind the other routers (sample): what Netgear B reports as attached, read from the router.
+ROUTERS_BEHIND = [
+    {"id": "netgear-b", "name": "Netgear B (office)", "host": "10.0.0.1", "kind": "netgear", "ok": True, "err": "", "devices": [
+        {"mac": "02:b2:00:00:00:12", "ip": "10.0.0.12", "hostname": "OFFICE-MAC-01", "name": "", "vendor": "", "kind_final": "wired", "signal": None, "link_rate": 1000, "online": True, "behind": True},
+        {"mac": "02:b2:00:00:00:08", "ip": "10.0.0.8", "hostname": "HP-office-printer", "name": "", "vendor": "", "kind_final": "wired", "signal": None, "link_rate": 100, "online": True, "behind": True},
+    ]},
+    {"id": "google-mesh", "name": "Google Mesh", "host": "", "kind": "google", "ok": False, "err": "Google Mesh has no local device-list API; its clients are in the Google Home app", "devices": []},
+]

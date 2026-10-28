@@ -1,0 +1,18 @@
+name: netalertx
+title: NetAlertX
+description: Open-source "who is on my network" with a timeline per device, presence history, and an alert (email, Discord, Telegram, webhook) the moment something new appears on the wire. The deeper version of the dashboard's Network app.
+category: network
+icon: pulse
+version: "latest"
+ports:
+  - 20211:20211
+volumes:
+  - /srv/arise/apps/netalertx/config:/app/config
+  - /srv/arise/apps/netalertx/db:/app/db
+env: {}
+notes: |
+  Runs on the host network (it has to, to ARP-scan). Open http://arise-server:20211.
+  First run: Settings > Scanners: ARPSCAN on, the subnet is read from the box.
+  It sees Netgear A's wire only; the office Netgear and the Mesh show as one
+  device each, the same as the Network app, and for the same reason (NAT).
+  Both the Network app and NetAlertX can run; they do not fight.

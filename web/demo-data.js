@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793154127
+"boot_time": 1793159904
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.CHURCH",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:50:44",
+"last_run": "2026-10-28T02:02:58",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:50:44"
+"since": "2026-10-14T01:02:58"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T02:50:44",
+"last_logon": "2026-10-28T03:02:58",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T03:50:44",
+"last_logon": "2026-10-27T04:02:58",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T00:50:44",
+"last_logon": "2026-10-26T01:02:58",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T03:50:44",
+"last_logon": "2026-10-22T04:02:58",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T03:50:44",
+"last_logon": "2026-10-25T04:02:58",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T03:50:44",
+"last_logon": "2026-10-19T04:02:58",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T02:50:44",
+"last_seen": "2026-10-28T03:02:58",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T03:50:44",
+"last_seen": "2026-10-27T04:02:58",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T03:50:44",
+"last_seen": "2026-10-26T04:02:58",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T03:46:44",
+"last_seen": "2026-10-28T03:58:58",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T03:50:44",
+"last_check": "2026-10-19T04:02:58",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:50:44",
+"last_run": "2026-10-28T02:02:58",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1873,17 +1873,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T22:50:44",
+"when": "2026-10-27T23:02:58",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T22:50:44",
+"when": "2026-10-27T23:02:58",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T22:50:44",
+"when": "2026-10-27T23:02:58",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1918,7 +1918,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T03:50:44",
+"updated": "2026-10-25T04:02:58",
 "mem_h": "36.2 MB"
 },
 {
@@ -1931,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T03:50:44",
+"updated": "2026-10-25T04:02:58",
 "mem_h": "135.4 MB"
 },
 {
@@ -1944,7 +1944,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T03:50:44",
+"updated": "2026-10-27T04:02:58",
 "mem_h": "0 B"
 }
 ],
@@ -1976,6 +1976,18 @@ window.ARISE_DEMO_DATA = {
 "icon": "screen",
 "data": "/srv/arise/apps/guacamole",
 "notes": "BEFORE THE FIRST START, make the database schema once:\n  mkdir -p /srv/arise/apps/guacamole/initdb\n  docker run --rm guacamole/guacamole:1.5.5 /opt/guacamole/bin/initdb.sh --postgresql \\\n      > /srv/arise/apps/guacamole/initdb/001-initdb.sql\nand set POSTGRES_PASSWORD in /srv/arise/apps/guacamole/.env.\nOpen http://arise-server:8084/guacamole. First login guacadmin / guacadmin:\nCHANGE IT AT ONCE (Settings > Preferences), then add connections\n(Settings > Connections). Domain logins: uncomment the LDAP_* lines in\ncompose.yaml after creating a plain `guac-ldap` domain user for the lookup;\ndocs/REMOTE-ACCESS.md (c) has the matching guacamole.properties lines.\nImage tags 1.5.5 / postgres:15 were current when written: verify before\nfirst deploy. Put it behind Caddy (remote.ad.arisecenla.church) for HTTPS;\nclipboard and file transfer need a secure context.\n"
+},
+{
+"id": "netalertx",
+"name": "NetAlertX",
+"description": "Open-source \"who is on my network\" with a timeline per device, presence history, and an alert (email, Discord, Telegram, webhook) the moment something new appears on the wire. The deeper version of the dashboard's Network app.",
+"category": "network",
+"ports": [
+"20211:20211"
+],
+"icon": "pulse",
+"data": "/srv/arise/apps/netalertx",
+"notes": "Runs on the host network (it has to, to ARP-scan). Open http://arise-server:20211.\nFirst run: Settings > Scanners: ARPSCAN on, the subnet is read from the box.\nIt sees Netgear A's wire only; the office Netgear and the Mesh show as one\ndevice each, the same as the Network app, and for the same reason (NAT).\nBoth the Network app and NetAlertX can run; they do not fight.\n"
 },
 {
 "id": "syncthing",
@@ -2051,7 +2063,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T01:50:44",
+"last": "2026-10-27T02:02:58",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -2234,7 +2246,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T03:50"
+"when": "2026-10-28T04:02"
 },
 {
 "user": "bradly",
@@ -2468,8 +2480,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T03:50",
-"expires": "2026-11-02T03:50",
+"created": "2026-10-26T04:02",
+"expires": "2026-11-02T04:02",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -2660,6 +2672,54 @@ window.ARISE_DEMO_DATA = {
 "ip": "192.168.1.57"
 }
 },
+"GET /devices/behind": {
+"demo": true,
+"routers": [
+{
+"id": "netgear-b",
+"name": "Netgear B (office)",
+"host": "10.0.0.1",
+"kind": "netgear",
+"ok": true,
+"err": "",
+"devices": [
+{
+"mac": "02:b2:00:00:00:12",
+"ip": "10.0.0.12",
+"hostname": "OFFICE-MAC-01",
+"name": "",
+"vendor": "",
+"kind_final": "wired",
+"signal": null,
+"link_rate": 1000,
+"online": true,
+"behind": true
+},
+{
+"mac": "02:b2:00:00:00:08",
+"ip": "10.0.0.8",
+"hostname": "HP-office-printer",
+"name": "",
+"vendor": "",
+"kind_final": "wired",
+"signal": null,
+"link_rate": 100,
+"online": true,
+"behind": true
+}
+]
+},
+{
+"id": "google-mesh",
+"name": "Google Mesh",
+"host": "",
+"kind": "google",
+"ok": false,
+"err": "Google Mesh has no local device-list API; its clients are in the Google Home app",
+"devices": []
+}
+]
+},
 "GET /bible/translations": {
 "translations": [
 {
@@ -2692,7 +2752,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T03:50:44+00:00",
+"last_check": "2026-10-28T04:02:58+00:00",
 "security": 1
 },
 "GET /notify": {

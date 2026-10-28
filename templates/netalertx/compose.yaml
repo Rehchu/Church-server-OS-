@@ -1,0 +1,22 @@
+# NetAlertX (was Pi.Alert): "who is on my network", with history and alerts.
+# network_mode: host is required: it must send ARP on the real wire, which a
+# bridged container cannot. It therefore sees exactly what the dashboard's
+# Network app sees (Netgear A's wire) and nothing behind the office Netgear
+# or the Mesh. :latest on purpose: the project releases by date (25.x.y) and
+# the tag that existed when this was written may be gone; pin after the first
+# pull with `docker image inspect` if you want it frozen.
+services:
+  netalertx:
+    image: ghcr.io/jokob-sk/netalertx:latest
+    container_name: arise-app-netalertx
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - /srv/arise/apps/netalertx/config:/app/config
+      - /srv/arise/apps/netalertx/db:/app/db
+    environment:
+      - TZ=America/Chicago
+      - PORT=20211
