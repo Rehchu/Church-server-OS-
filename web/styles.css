@@ -431,7 +431,7 @@ pre.log{background:var(--scrim);border:1px solid var(--line2);padding:14px 16px;
 .switcher .dock__icon{width:64px;height:64px;opacity:.6}.switcher .dock__icon.on{opacity:1;outline:2px solid #fff;outline-offset:3px}
 
 /* Notification Center */
-.nc{position:absolute;right:0;top:0;bottom:0;width:min(360px,100%);z-index:45;background:rgba(10,10,12,.86);backdrop-filter:blur(18px);border-left:1px solid var(--line);animation:slidein .22s var(--t);overflow:auto}
+.nc{position:absolute;right:0;top:34px;bottom:0;width:min(360px,100%);z-index:45;background:rgba(10,10,12,.86);backdrop-filter:blur(18px);border-left:1px solid var(--line);animation:slidein .22s var(--t);overflow:auto}
 @keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
 .nc__in{padding:14px 14px 100px;display:flex;flex-direction:column;gap:12px}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11.5px;text-align:center;margin-top:6px}
