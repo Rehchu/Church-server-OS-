@@ -230,7 +230,7 @@ Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-
 
 ## Docs
 
-**Start here:** [SETUP-GUIDE](docs/SETUP-GUIDE.md) · [QUESTIONS](docs/QUESTIONS.md) · [NETWORK](docs/NETWORK.md) · [MOVING-DAY](docs/MOVING-DAY.md) · [IDEAS](docs/IDEAS.md)
+**Start here:** [SETUP-GUIDE](docs/SETUP-GUIDE.md) · [STACK](docs/STACK.md) · [QUESTIONS](docs/QUESTIONS.md) · [NETWORK](docs/NETWORK.md) · [MOVING-DAY](docs/MOVING-DAY.md) · [IDEAS](docs/IDEAS.md)
 
 [INSTALL.md](INSTALL.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [DIRECTORY](docs/DIRECTORY.md) · [MAC-MIGRATION](docs/MAC-MIGRATION.md) · [SYNOLOGY](docs/SYNOLOGY.md) · [BACKUPS](docs/BACKUPS.md) · [AUTOMATOR](docs/AUTOMATOR.md) · [HARDWARE](docs/HARDWARE.md) · [DASHBOARD](docs/DASHBOARD.md) · [CONSOLE](docs/CONSOLE.md) · [CLI](docs/CLI.md) · [REMOTE-ACCESS](docs/REMOTE-ACCESS.md) · [MULTI-SITE](docs/MULTI-SITE.md) · [templates](templates/README.md) · [mac checklist](mac/CHECKLIST.md)
 

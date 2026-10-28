@@ -19,6 +19,11 @@ or Dashboard → Apps → Templates → **Deploy**. Data for every app lives und
 | `guacamole` | remote desktop (RDP, VNC, SSH) to any church computer from a browser tab, through the server; the door into the closet from Alexandria, the Hub and home | 8084 |
 | `netalertx` | open-source "who is on my network": every device on Netgear A's wire with a presence timeline and an alert when something new appears. The deeper version of the dashboard's Network app; runs on the host network so it can ARP | 20211 |
 | `frigate` | open-source NVR for the security cameras: records ONVIF/RTSP cameras to the Synology, live view in a browser, person detection. Needs the cameras on the server's network first (Network app → Find cameras) | 8971, 8554 |
+| `netdata` | per-second graphs of the box, every container, Samba and the network; alarms; local only | 19999 |
+| `jellyfin` | the sermon archive on the Synology as a streaming library for browsers, phones and TVs | 8096 |
+| `bookstack` | the church handbook as a wiki: runbooks, checklists, policies, who to call | 8085 |
+| `churchcrm` | members, families, groups, attendance, printable directory; only if nothing is paid for already | 8086 |
+| `portainer` | every container with logs and a console, for when the Apps page is not enough | 9443 |
 | `wg-easy` | self-hosted WireGuard VPN with a web page and QR codes; the alternative to native WireGuard (`install.sh --with-wireguard`) and to Tailscale. Never both on 51820 | 51820/udp, 51821 |
 
 Image tags are pinned to versions that existed when this was written. Update

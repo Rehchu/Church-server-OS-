@@ -1,0 +1,34 @@
+# ChurchCRM: members, families, groups, attendance, giving records, with a
+# directory you can print. Only if the church does not already pay for one
+# (Planning Center, Breeze, Tithe.ly): if it does, this duplicates it.
+# Two containers. DB password in /srv/arise/apps/churchcrm/.env as DB_PASSWORD=...
+# Giving records: Bradly said those stay off the server (docs/ANSWERS.md 40);
+# use the member and group parts and leave the giving module empty, or do not
+# deploy this at all.
+services:
+  churchcrm:
+    image: churchcrm/crm:5.9.0
+    container_name: arise-app-churchcrm
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8086:80"
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - /srv/arise/apps/churchcrm/config:/var/www/html/Images     # uploaded photos and the written config persist here
+      - /srv/arise/apps/churchcrm/data:/var/www/html/data
+
+  db:
+    image: mariadb:10.11
+    container_name: arise-app-churchcrm-db
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MYSQL_DATABASE=churchcrm
+      - MYSQL_USER=churchcrm
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/churchcrm/db:/var/lib/mysql

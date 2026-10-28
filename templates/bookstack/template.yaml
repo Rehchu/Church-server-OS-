@@ -1,0 +1,17 @@
+name: bookstack
+title: BookStack
+description: The church handbook as a wiki, organised in books and chapters - the Sunday runbook, the livestream checklist, safety policies, who to call. Search, page history, PDF export.
+category: knowledge
+icon: folder
+version: "24.10.1"
+ports:
+  - 8085:80
+volumes:
+  - /srv/arise/apps/bookstack/config:/config
+  - /srv/arise/apps/bookstack/db:/config
+env:
+  DB_PASSWORD: CHANGE-ME
+notes: |
+  First login admin@admin.com / password at http://arise-server:8085; change
+  both at once. Memory: around 300 to 400 MB for both containers (an
+  estimate). The docs/ folder of this repo is a good first book.

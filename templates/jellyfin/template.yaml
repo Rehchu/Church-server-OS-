@@ -1,0 +1,19 @@
+name: jellyfin
+title: Jellyfin
+description: The sermon and service archive as a streaming library, from the recordings share on the Synology, to any browser, phone or TV. Private, no account with anyone.
+category: media
+icon: screen
+version: "10.9.11"
+ports:
+  - 8096:8096
+volumes:
+  - /srv/arise/apps/jellyfin/config:/config
+  - /mnt/synology/arise/recordings:/media/recordings
+env: {}
+notes: |
+  First visit http://arise-server:8096: make the admin, add a library of
+  type "Movies" or "Home Videos" at /media/recordings. Name the files
+  "2026-10-26 Sunday Service.mp4" and the dates sort. Keep "Hardware
+  acceleration: VAAPI, /dev/dri/renderD128" if the OptiPlex has Intel
+  graphics; otherwise turn transcoding off and let clients play the MP4
+  as is. Over Tailscale the phone app works from anywhere.

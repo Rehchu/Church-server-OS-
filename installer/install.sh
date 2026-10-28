@@ -23,6 +23,8 @@
 #    --with-tailscale    install Tailscale (prints the `tailscale up` line to run yourself)
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
+#    --with-cockpit      Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
+#                        into the box when the dashboard is what is broken
 #    --console           show the arisetui text dashboard on the closet monitor (tty1)
 #    --kiosk             show the Arise desktop (Finder, dock, widgets) full screen on the closet monitor (tty1)
 #    --staging           installing somewhere that is NOT the church (Bradly's house): the domain listens
@@ -60,6 +62,7 @@ WITH_WIREGUARD=0
 WITH_CADDY=0
 WITH_CONSOLE=0
 WITH_KIOSK=0
+WITH_COCKPIT=0
 PIN_IP=1
 STAGING=0
 STAGING_MARK="/etc/arise/staging"
@@ -80,6 +83,7 @@ while [ $# -gt 0 ]; do
     --with-tailscale) WITH_TAILSCALE=1; shift ;;
     --with-wireguard) WITH_WIREGUARD=1; shift ;;
     --with-caddy)  WITH_CADDY=1; shift ;;
+    --with-cockpit) WITH_COCKPIT=1; shift ;;
     --console)     WITH_CONSOLE=1; shift ;;
     --kiosk)       WITH_KIOSK=1; shift ;;
     --no-pin-ip)   PIN_IP=0; shift ;;
@@ -121,7 +125,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -195,7 +199,7 @@ PKGS=(
   samba winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
-  restic rsync git curl jq arp-scan nmap
+  restic rsync git curl jq arp-scan nmap ffmpeg
   python3 python3-venv python3-pip
   chrony
 )
@@ -655,6 +659,16 @@ if [ "$WITH_CADDY" = 1 ]; then
   for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
     run ufw allow from "$src" to any port 443 proto tcp comment 'https (caddy)'
   done
+fi
+if [ "$WITH_COCKPIT" = 1 ]; then
+  # Cockpit is apt, not Docker: it is the door that still opens when Docker
+  # or the dashboard is what broke. Logs in with the box's own accounts.
+  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit
+  if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket; else run systemctl enable cockpit.socket; fi
+  for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
+    run ufw allow from "$src" to any port 9090 proto tcp comment 'cockpit'
+  done
+  note "Cockpit on https://arise-server:9090 (its own certificate; sign in as bradly)"
 fi
 run ufw --force enable
 note "ufw: deny incoming by default; ssh from anywhere (the VPN keeps 'anywhere' small); DC, dashboard and apps from LAN + VPN only"
