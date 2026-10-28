@@ -20,10 +20,11 @@
 #    --skip-domain       do not provision / touch the Samba AD DC
 #    --skip-docker       do not install Docker (no app templates)
 #    --no-start          install everything but do not start services/timers
-#    --with-tailscale    install Tailscale (prints the `tailscale up` line to run yourself)
+#    --with-tailscale    (default ON) install Tailscale; --no-tailscale to skip. `tailscale up` is still yours to run
+#    --apps "a,b"        the apps to deploy and start at install (default: the church set below); --no-apps for none
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
-#    --with-cockpit      Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
+#    --with-cockpit      (default ON; --no-cockpit to skip) Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
 #                        into the box when the dashboard is what is broken
 #    --console           show the arisetui text dashboard on the closet monitor (tty1)
 #    --kiosk             show the Arise desktop (Finder, dock, widgets) full screen on the closet monitor (tty1)
@@ -57,13 +58,17 @@ DATA_ROOT="/srv/arise"
 WEB_PORT=4147
 
 ADMIN_PASS=""
-WITH_TAILSCALE=0
+WITH_TAILSCALE=1
 WITH_WIREGUARD=0
 WITH_CADDY=0
 WITH_CONSOLE=0
 WITH_KIOSK=0
-WITH_COCKPIT=0
+WITH_COCKPIT=1
 PIN_IP=1
+# The church set: installed, started and ready after the OS install (Bradly).
+# Everything else in templates/ stays one `arisectl app deploy` away.
+DEFAULT_APPS="netdata uptime-kuma netalertx portainer bookstack jellyfin syncthing vaultwarden guacamole owncast icecast"
+APPS="$DEFAULT_APPS"
 STAGING=0
 STAGING_MARK="/etc/arise/staging"
 SKIP_DOMAIN=0
@@ -84,6 +89,10 @@ while [ $# -gt 0 ]; do
     --with-wireguard) WITH_WIREGUARD=1; shift ;;
     --with-caddy)  WITH_CADDY=1; shift ;;
     --with-cockpit) WITH_COCKPIT=1; shift ;;
+    --no-cockpit)  WITH_COCKPIT=0; shift ;;
+    --no-tailscale) WITH_TAILSCALE=0; shift ;;
+    --apps)        APPS="${2//,/ }"; shift 2 ;;
+    --no-apps)     APPS=""; shift ;;
     --console)     WITH_CONSOLE=1; shift ;;
     --kiosk)       WITH_KIOSK=1; shift ;;
     --no-pin-ip)   PIN_IP=0; shift ;;
@@ -125,7 +134,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -177,7 +186,14 @@ RELOCATING="${RELOCATING:-0}"
 # A domain controller must not be on Wi-Fi and must have a fixed address.
 PRIMARY_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
 PRIMARY_IP="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -1 || true)"
-note "primary interface: ${PRIMARY_IF:-unknown}  address: ${PRIMARY_IP:-unknown}"
+# The LAN subnet, read from the box itself (no router page needed): the
+# firewall and the Docker allow-list use it. Override with LAN_SUBNET=... in the environment.
+if [ -z "${LAN_SUBNET:-}" ] && [ -n "$PRIMARY_IF" ] && command -v python3 >/dev/null 2>&1; then
+  _CIDR="$(ip -o -4 addr show dev "$PRIMARY_IF" 2>/dev/null | awk '{print $4}' | head -1 || true)"
+  [ -n "$_CIDR" ] && LAN_SUBNET="$(python3 -c "import ipaddress,sys; print(ipaddress.ip_interface(sys.argv[1]).network)" "$_CIDR" 2>/dev/null || true)"
+fi
+LAN_SUBNET="${LAN_SUBNET:-192.168.1.0/24}"
+note "primary interface: ${PRIMARY_IF:-unknown}  address: ${PRIMARY_IP:-unknown}  subnet: $LAN_SUBNET"
 if [ -n "$PRIMARY_IF" ] && [ -d "/sys/class/net/$PRIMARY_IF/wireless" ]; then
   warn "primary interface $PRIMARY_IF is WIRELESS. A domain controller on Wi-Fi drops Macs off the domain. Plug in Ethernet before going live."
 fi
@@ -610,6 +626,79 @@ fi
 #     The LAN subnet is read from [remote] lan_subnet in arise.toml, falling
 #     back to the primary interface's own network.
 # ----------------------------------------------------------------------------
+# --- Docker's published ports bypass ufw. The DOCKER-USER chain does not. ---
+# A tiny unit rewrites that chain at boot and now: containers answer only the
+# sources in /etc/arise/docker-allow (the LAN, the VPN). Staging writes an
+# empty list, so at Bradly's house no container is reachable from the house.
+if [ "$SKIP_DOCKER" = 0 ]; then
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] write /etc/arise/docker-allow ($([ "$STAGING" = 1 ] && echo 'empty: staging' || echo "$LAN_SUBNET $WG_SUBNET 100.64.0.0/10")), /usr/local/sbin/arise-docker-firewall, arise-docker-firewall.service"
+  else
+    mkdir -p /etc/arise
+    if [ "$STAGING" = 1 ]; then : > /etc/arise/docker-allow; else printf '%s\n' "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10" > /etc/arise/docker-allow; fi
+    cat > /usr/local/sbin/arise-docker-firewall <<'DFW'
+#!/bin/sh
+# Arise Server: containers answer only the networks listed in /etc/arise/docker-allow.
+# Docker inserts its own ACCEPT rules ahead of ufw; DOCKER-USER runs before them.
+set -e
+iptables -N DOCKER-USER 2>/dev/null || true
+iptables -F DOCKER-USER
+iptables -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+iptables -A DOCKER-USER -i lo -j RETURN
+iptables -A DOCKER-USER -i docker0 -j RETURN
+iptables -A DOCKER-USER -i 'br-+' -j RETURN
+while read -r net; do
+  [ -n "$net" ] && iptables -A DOCKER-USER -s "$net" -j RETURN
+done < /etc/arise/docker-allow
+# traffic the containers start (image pulls, YouTube) leaves through the host and returns as ESTABLISHED
+iptables -A DOCKER-USER -m conntrack --ctstate NEW -j DROP
+iptables -A DOCKER-USER -j RETURN
+DFW
+    chmod 755 /usr/local/sbin/arise-docker-firewall
+    cat > /etc/systemd/system/arise-docker-firewall.service <<UNIT
+[Unit]
+Description=Arise Server: containers answer the LAN and the VPN only (DOCKER-USER chain)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/arise-docker-firewall
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+    systemctl daemon-reload
+    systemctl enable arise-docker-firewall.service >/dev/null 2>&1 || true
+    if [ "$NO_START" = 0 ]; then systemctl restart arise-docker-firewall.service || warn "docker firewall unit failed; containers may answer any source"; fi
+    note "containers answer: $([ "$STAGING" = 1 ] && echo 'nobody (staging)' || echo "$LAN_SUBNET, $WG_SUBNET, Tailscale")"
+  fi
+fi
+
+# ----------------------------------------------------------------------------
+# 6a. The apps: deployed, started, ready (DEFAULT_APPS, or --apps)
+# ----------------------------------------------------------------------------
+say "6a/7  Apps: $([ -n "$APPS" ] && echo "$APPS" || echo none)"
+if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
+  # The recordings/media mounts Jellyfin and Frigate bind must exist or Docker
+  # makes them as root-owned dirs on the mount point; create them explicitly.
+  for d in /mnt/synology/arise/recordings /mnt/synology/arise/media /mnt/synology/arise/cameras; do [ -d "$d" ] || run mkdir -p "$d"; done
+  APPS_OK=""; APPS_BAD=""
+  for a in $APPS; do
+    if [ "$DRY_RUN" = 1 ]; then note "[dry-run] arisectl app deploy $a"; continue; fi
+    if [ -d "$SRC/templates/$a" ]; then
+      if /usr/local/bin/arisectl app deploy "$a" >>"$LOG_FILE" 2>&1; then APPS_OK="$APPS_OK $a"; note "app $a: up"; else APPS_BAD="$APPS_BAD $a"; warn "app $a: deploy failed (see $LOG_FILE); arisectl app deploy $a to retry"; fi
+    else
+      warn "no template called $a"; APPS_BAD="$APPS_BAD $a"
+    fi
+  done
+  [ -z "$APPS_BAD" ] || note "apps that did not come up:$APPS_BAD"
+  note "generated passwords: /etc/arise/secrets/apps/<app>.env (root only)"
+elif [ -n "$APPS" ]; then
+  note "apps skipped ($([ "$SKIP_DOCKER" = 1 ] && echo --skip-docker || echo --no-start)); later: arisectl app deploy <name>"
+fi
+
 say "6b/7  Remote access and the firewall"
 
 ADMIN_USER="$(awk -F'"' '/^[[:space:]]*admin_user[[:space:]]*=/{print $2; exit}' "$CONF_DIR/arise.toml" 2>/dev/null || true)"
@@ -650,7 +739,18 @@ for src in "${DC_SRCS[@]}"; do
   run ufw allow from "$src" to any port 3268:3269 proto tcp comment 'global catalog'
   run ufw allow from "$src" to any port 49152:65535 proto tcp comment 'rpc dynamic'
   run ufw allow from "$src" to any port 123 proto udp comment 'ntp'
-  run ufw allow from "$src" to any port 8081:8084 proto tcp comment 'arise apps'
+  run ufw allow from "$src" to any port 8081:8096 proto tcp comment 'arise apps'
+  run ufw allow from "$src" to any port 8000 proto tcp comment 'icecast'
+  run ufw allow from "$src" to any port 8008 proto tcp comment 'synapse'
+  run ufw allow from "$src" to any port 8065 proto tcp comment 'mattermost'
+  run ufw allow from "$src" to any port 1935:1936 proto tcp comment 'rtmp'
+  run ufw allow from "$src" to any port 9443 proto tcp comment 'portainer'
+  run ufw allow from "$src" to any port 19999 proto tcp comment 'netdata'
+  run ufw allow from "$src" to any port 20211 proto tcp comment 'netalertx'
+  run ufw allow from "$src" to any port 8384 proto tcp comment 'syncthing ui'
+  run ufw allow from "$src" to any port 22000 comment 'syncthing'
+  run ufw allow from "$src" to any port 8554 proto tcp comment 'frigate rtsp'
+  run ufw allow from "$src" to any port 8971 proto tcp comment 'frigate'
 done
 if [ "$WITH_WIREGUARD" = 1 ]; then
   run ufw allow 51820/udp comment 'wireguard'
@@ -971,7 +1071,11 @@ cat <<SUMMARY
 $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET" || echo "       VPN not installed yet: re-run with --with-tailscale (recommended) or --with-wireguard" )
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
 $( [ "$WITH_CADDY" = 1 ] && echo "       https: trust the Caddy root on each Mac; add the vault/remote DNS records (config/caddy/Caddyfile)" )
-       remote desktop:            sudo arisectl app deploy guacamole   (see templates/guacamole/template.yaml for the one-time initdb)
+    7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
+       Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
+       NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
+       Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
+       Apps page in the dashboard: start, stop, logs, update, remove. More templates: arisectl app templates
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )

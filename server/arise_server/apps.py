@@ -110,6 +110,53 @@ def _url(ports: list[str]) -> str:
     return f"http://{cfg.system.hostname}:{ports[0].split(':')[0]}"
 
 
+def _template_env(template: str) -> dict:
+    cfg = load()
+    meta = cfg.templates_dir / template / "template.yaml"
+    try:
+        m = yaml.safe_load(meta.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
+    return {str(k): str(v) for k, v in (m.get("env") or {}).items()}
+
+
+def _read_env(path: str) -> dict:
+    out = {}
+    try:
+        for line in open(path, encoding="utf-8"):
+            if "=" in line and not line.startswith("#"):
+                k, _, v = line.rstrip("\n").partition("=")
+                out[k] = v
+    except OSError:
+        pass
+    return out
+
+
+def fill_secrets(defaults: dict, given: dict | None = None, existing: dict | None = None) -> tuple[dict, list[str]]:
+    """The env a deploy writes. A value that starts with CHANGE-ME becomes a random
+    secret, unless the person gave one or an earlier deploy already made one (so a
+    re-deploy never rotates a database password out from under the data).
+    Returns (env, names of secrets generated now)."""
+    import secrets as _s
+    given = given or {}
+    existing = existing or {}
+    out, made = {}, []
+    for k, v in defaults.items():
+        if k in given and given[k]:
+            out[k] = given[k]
+        elif str(v).startswith("CHANGE-ME"):
+            if existing.get(k) and not str(existing[k]).startswith("CHANGE-ME"):
+                out[k] = existing[k]
+            else:
+                out[k] = _s.token_urlsafe(24)
+                made.append(k)
+        else:
+            out[k] = v
+    for k, v in given.items():
+        out.setdefault(k, v)
+    return out, made
+
+
 def deploy(template: str, name: str | None = None, env: dict | None = None) -> dict:
     cfg = load()
     name = name or template
@@ -123,13 +170,63 @@ def deploy(template: str, name: str | None = None, env: dict | None = None) -> d
     dest = os.path.join(cfg.apps.root, name)
     os.makedirs(dest, exist_ok=True)
     shutil.copy(src / "compose.yaml", os.path.join(dest, "compose.yaml"))
+    values, made = fill_secrets(_template_env(template), env, _read_env(os.path.join(dest, ".env")))
     with open(os.path.join(dest, ".env"), "w", encoding="utf-8") as f:
         f.write(f"APP_NAME={name}\nDATA={dest}/data\nSHARES={cfg.system.data_root}/shares\n")
-        for k, v in (env or {}).items():
+        for k, v in values.items():
             if re.match(r"^[A-Z_][A-Z0-9_]*$", k):
                 f.write(f"{k}={v}\n")
+    os.chmod(os.path.join(dest, ".env"), 0o600)
+    if made:
+        # A copy of every generated secret, root-only, so a person can find it.
+        sec_dir = "/etc/arise/secrets/apps"
+        try:
+            os.makedirs(sec_dir, exist_ok=True)
+            with open(os.path.join(sec_dir, f"{name}.env"), "w", encoding="utf-8") as f:
+                f.write(f"# {name} ({template}): secrets the deploy generated. Same values are in {dest}/.env\n")
+                for k in made:
+                    f.write(f"{k}={values[k]}\n")
+            os.chmod(os.path.join(sec_dir, f"{name}.env"), 0o600)
+        except OSError:
+            pass
     os.makedirs(os.path.join(dest, "data"), exist_ok=True)
-    return run(["docker", "compose", "-p", name, "-f", os.path.join(dest, "compose.yaml"), "--env-file", os.path.join(dest, ".env"), "up", "-d"], timeout=900)
+    pre = _pre_deploy(template, dest, values)
+    if pre and not pre.get("ok", True):
+        return pre
+    r = run(["docker", "compose", "-p", name, "-f", os.path.join(dest, "compose.yaml"), "--env-file", os.path.join(dest, ".env"), "up", "-d"], timeout=1800)
+    r["secrets_generated"] = made
+    return r
+
+
+def _pre_deploy(template: str, dest: str, values: dict) -> dict | None:
+    """The one-time steps a template's notes describe, done by the machine."""
+    if template == "guacamole":
+        initdb = os.path.join(dest, "initdb")
+        os.makedirs(initdb, exist_ok=True)
+        if not os.listdir(initdb):
+            img = "guacamole/guacamole:1.5.5"
+            r = run(["docker", "run", "--rm", img, "/opt/guacamole/bin/initdb.sh", "--postgresql"], timeout=600)
+            if not r["ok"]:
+                return {"ok": False, "err": "guacamole initdb failed: " + (r["err"] or r["out"])[:300]}
+            with open(os.path.join(initdb, "001-initdb.sql"), "w", encoding="utf-8") as f:
+                f.write(r["out"])
+        for sub in ("drive", "record", "db"):
+            os.makedirs(os.path.join(dest, sub), exist_ok=True)
+    if template == "synapse":
+        data = os.path.join(dest, "data")
+        if not os.path.exists(os.path.join(data, "homeserver.yaml")):
+            r = run(["docker", "run", "--rm", "-v", f"{data}:/data", "-e", "SYNAPSE_SERVER_NAME=arise-server", "-e", "SYNAPSE_REPORT_STATS=no", "matrixdotorg/synapse:v1.113.0", "generate"], timeout=600)
+            if not r["ok"]:
+                return {"ok": False, "err": "synapse generate failed: " + (r["err"] or r["out"])[:300]}
+    if template == "nginx-rtmp":
+        conf = os.path.join(dest, "nginx.conf")
+        if not os.path.exists(conf):
+            with open(conf, "w", encoding="utf-8") as f:
+                f.write("worker_processes auto;\nevents { worker_connections 1024; }\n"
+                        "rtmp { server { listen 1935; chunk_size 4096; application live { live on; record off;\n"
+                        "  # push rtmp://a.rtmp.youtube.com/live2/YOUR-KEY;\n  # push rtmp://arise-server:1935/live/OWNCAST-KEY;\n} } }\n"
+                        "http { server { listen 80; location /stat { rtmp_stat all; } } }\n")
+    return None
 
 
 def act(name: str, action: str, confirm: str = "") -> dict:

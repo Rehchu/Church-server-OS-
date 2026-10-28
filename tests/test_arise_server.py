@@ -301,3 +301,20 @@ class Devices(unittest.TestCase):
         self.assertTrue(devices.scan(wide=True)["wide"])
         self.assertTrue(any(d.get("stray") for d in devices.list_devices()["devices"]))
         self.assertIn("192.168.0.0/24", devices.WIDE_RANGES)
+
+
+class AppSecrets(unittest.TestCase):
+    def test_change_me_becomes_a_secret_and_is_kept_on_redeploy(self):
+        env, made = apps.fill_secrets({"POSTGRES_PASSWORD": "CHANGE-ME-x", "TZ": "America/Chicago"})
+        self.assertEqual(made, ["POSTGRES_PASSWORD"]); self.assertGreater(len(env["POSTGRES_PASSWORD"]), 20); self.assertEqual(env["TZ"], "America/Chicago")
+        again, made2 = apps.fill_secrets({"POSTGRES_PASSWORD": "CHANGE-ME-x"}, existing=env)
+        self.assertEqual(again["POSTGRES_PASSWORD"], env["POSTGRES_PASSWORD"]); self.assertEqual(made2, [])
+        given, made3 = apps.fill_secrets({"POSTGRES_PASSWORD": "CHANGE-ME-x"}, given={"POSTGRES_PASSWORD": "mine"})
+        self.assertEqual(given["POSTGRES_PASSWORD"], "mine"); self.assertEqual(made3, [])
+
+    def test_every_template_secret_is_marked_change_me(self):
+        for t in apps.templates()["templates"]:
+            env = apps._template_env(t["id"])
+            for k, v in env.items():
+                if any(w in k for w in ("PASS", "TOKEN", "SECRET")) and "HASH" not in k:
+                    self.assertTrue(v.startswith("CHANGE-ME"), f"{t['id']}.{k} should be CHANGE-ME so the deploy generates it")

@@ -71,6 +71,6 @@ autoinstall:
     # Administrator password and check the wired address.
     - curtin in-target --target=/target -- git clone --depth 1 https://github.com/Rehchu/Church-server-OS-.git /opt/arise
     - curtin in-target --target=/target -- bash -c 'bash /opt/arise/installer/install.sh --no-start --skip-domain --skip-docker >/var/log/arise-autoinstall.log 2>&1 || echo "install.sh failed, see /var/log/arise-autoinstall.log" >> /etc/motd'
-    - curtin in-target --target=/target -- bash -c 'printf "\n  Arise Server: finish the install with\n      sudo bash /opt/arise/installer/install.sh\n  (asks for the domain Administrator password). See /opt/arise/INSTALL.md\n\n" >> /etc/motd'
+    - curtin in-target --target=/target -- bash -c 'printf "\n  Arise Server: finish the install with\n      sudo bash /opt/arise/installer/install.sh --kiosk            (at the church)\n      sudo bash /opt/arise/installer/install.sh --kiosk --staging  (at home first)\n  It provisions the domain, deploys and starts the apps, and puts the desktop on this monitor.\n  See /opt/arise/INSTALL.md\n\n" >> /etc/motd'
 
   shutdown: reboot

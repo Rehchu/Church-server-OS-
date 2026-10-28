@@ -44,6 +44,15 @@ question somebody at the church actually asks.
 | OpenLP headless | Proclaim runs the slides, on the media Mac | nothing to serve |
 | Nextcloud | the member portal: sign in from anywhere, own files, shares, upload, download, share links; Syncthing for folders that must mirror | for files, the portal and SMB already do it; Nextcloud is a template below for the calendar and documents side |
 
+### Installed and running after `install.sh` (the church set)
+
+`netdata`, `uptime-kuma`, `netalertx`, `portainer`, `bookstack`,
+`jellyfin`, `syncthing`, `vaultwarden`, `guacamole`, `owncast`, `icecast`,
+plus Cockpit and Tailscale (apt). Passwords are generated at deploy and
+kept in `/etc/arise/secrets/apps/`. About 2.5 GB of memory for the set
+(an estimate), 4 GB with the core: fits 8 GB with room, and the table in
+INSTALL.md § What is running lists every address and first login.
+
 ### Worth adding, and now templates (`arisectl app deploy <name>`)
 
 | Template | The question it answers | Memory (estimate) | Note |

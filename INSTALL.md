@@ -184,6 +184,40 @@ Docker, and starts everything. Then **First boot**.
 
 ---
 
+## What is running when the installer finishes
+
+Everything below is installed, started and waiting after one run of
+`install.sh` (Bradly: "all software should be on there ready to go"). Each
+app's generated passwords are in `/etc/arise/secrets/apps/<app>.env`,
+root-only; the same values sit in the app's own `.env`.
+
+| | Address | First login |
+|---|---|---|
+| The desktop / dashboard | the monitor, and `http://arise-server:4147` | your directory or admin password |
+| Cockpit (Linux console, a second door) | `https://arise-server:9090` | the box's own account (`bradly`) |
+| Netdata (per-second graphs) | `http://arise-server:19999` | none |
+| Uptime Kuma (is it up) | `http://arise-server:8082` | you make the admin on first visit |
+| NetAlertX (who is on the network) | `http://arise-server:20211` | none |
+| Portainer (containers) | `https://arise-server:9443` | make the admin within 5 minutes of first start |
+| BookStack (the handbook) | `http://arise-server:8085` | `admin@admin.com` / `password`, change both |
+| Jellyfin (the sermon archive) | `http://arise-server:8096` | you make the admin on first visit |
+| Syncthing (media Mac mirror) | `http://arise-server:8384` | set a UI password on first visit |
+| Vaultwarden (passwords) | `http://arise-server:8083` | admin token in the secrets file; signups off |
+| Guacamole (remote desktop) | `http://arise-server:8084/guacamole` | `guacadmin` / `guacadmin`, change at once |
+| Owncast (own live page) | `http://arise-server:8087` | `admin` / `abc123` at `/admin`, change at once |
+| Icecast (audio to phones) | `http://arise-server:8000` | source and admin passwords in the secrets file |
+
+Not deployed by default, one command away: `frigate` (needs the cameras
+reachable), `churchcrm`, `nextcloud`, `moodle`, `mattermost`, `synapse`,
+`kimai`, `trilium`, `phplist`, `nginx-rtmp`, `filebrowser`, `wg-easy`.
+`sudo arisectl app deploy <name>`; `--apps "a,b"` on the installer chooses a
+different set, `--no-apps` none.
+
+Every app answers the church LAN and the VPN only. Docker's published ports
+bypass the normal firewall, so a small unit (`arise-docker-firewall`)
+rewrites the chain Docker honours at every boot; in staging the allowed
+list is empty and nothing at home can reach a container.
+
 ## Installing at home first, then carrying it to the church
 
 Bradly's plan: install at home, check it, carry it in. The box must not
@@ -201,6 +235,7 @@ What staging changes, and nothing else:
 | the firewall opens only SSH and the dashboard; no DC port | the DC ports, LAN and VPN only, as documented |
 | no address is pinned (it would pin your home address) | the church address is pinned on the box |
 | the hourly network scan is off (it would list your house) | on |
+| the apps deploy and start, but the Docker firewall lets nobody at home reach them | the LAN and the VPN reach them |
 | timers enabled but idle: no automator token, no NAS, nothing to back up | the same timers, now with things to do |
 | the dashboard shows a STAGING line in Needs You; `arisectl doctor` says so too | the line goes away |
 
