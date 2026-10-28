@@ -35,6 +35,14 @@ function demoLookup(method, path) {
   const base = method + ' ' + path.split('?')[0];
   if (base in DEMO) return DEMO[base];
   if (method !== 'GET') return { ok: true, demo: true, out: '(preview) nothing was changed' };
+  if (path.startsWith('/search?q=')) {
+    // Spotlight in the preview: walk the sample folder listings and the sample directory.
+    const q = decodeURIComponent(path.slice(10)).trim().toLowerCase(); const hits = [];
+    for (const k of Object.keys(DEMO)) { const m = k.match(/^GET \/files\/list\?root=(\w+)&path=(.*)$/); if (!m) continue; for (const e of DEMO[k].entries || []) if (e.name.toLowerCase().includes(q)) hits.push({ root: m[1], path: (m[2] === '/' ? '' : m[2]) + '/' + e.name, name: e.name, dir: e.dir, size: e.size }); }
+    const users = (DEMO['GET /directory/users']?.users || []).filter(u => u.name.toLowerCase().includes(q) || (u.display || '').toLowerCase().includes(q)).slice(0, 8);
+    const computers = (DEMO['GET /directory/computers']?.computers || []).filter(c => c.name.toLowerCase().includes(q)).slice(0, 8);
+    return { demo: true, hits: hits.slice(0, 40), users, computers };
+  }
   return null;
 }
 async function api(path, opts = {}) {
@@ -433,28 +441,94 @@ const ICO = {
 const FICO = { d: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 5h8l2 2h10v13H2z'/%3E%3C/svg%3E\")", f: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 2h9l5 5v15H5z'/%3E%3C/svg%3E\")" };
 
 V.files = async () => {
-  S.fs = S.fs || { root: 'data', path: '/' };
-  const [roots, list] = await Promise.all([api('/files/roots'), api(`/files/list?root=${encodeURIComponent(S.fs.root)}&path=${encodeURIComponent(S.fs.path)}`)]);
-  const parts = S.fs.path.split('/').filter(Boolean);
-  const crumbs = [`<button data-cd="/">${esc((roots.roots || []).find(r => r.id === S.fs.root)?.name || S.fs.root)}</button>`].concat(parts.map((p, i) => `<span>/</span><button data-cd="/${parts.slice(0, i + 1).join('/')}">${esc(p)}</button>`)).join('');
-  const rows = (list.entries || []).map(e => `<tr><td class="fname"><i class="fico ${e.dir ? '' : 'f'}" style="--i:${e.dir ? FICO.d : FICO.f}"></i>${e.dir ? `<button data-cd="${esc((S.fs.path === '/' ? '' : S.fs.path) + '/' + e.name)}">${esc(e.name)}</button>` : `<span>${esc(e.name)}</span>`}</td><td class="num dim">${e.dir ? '' : fmtB(e.size)}</td><td class="dim">${fmtT(e.mtime)}</td><td class="acts">${e.dir ? '' : `<a class="btn btn--ghost btn--xs" href="/api/files/download?root=${encodeURIComponent(S.fs.root)}&path=${encodeURIComponent((S.fs.path === '/' ? '' : S.fs.path) + '/' + e.name)}" ${S.demoOnly ? 'onclick="return false"' : 'download'}>Download</a>`}</td></tr>`).join('');
-  return `<div class="fade">
-    <div class="tabs" id="fsTabs"><button class="active" data-t="browse">Browse</button><button data-t="shares">Shares</button></div>
-    <div data-tab="browse">
-      <div class="toolbar"><select class="search" id="fsRoot">${(roots.roots || []).map(r => `<option value="${esc(r.id)}" ${r.id === S.fs.root ? 'selected' : ''}>${esc(r.name)} · ${esc(r.path)}</option>`).join('')}</select><div class="crumbs">${crumbs}</div><span class="spacer"></span><label class="btn btn--ghost btn--sm" for="fsUp">Upload here</label><input id="fsUp" type="file" hidden></div>
-      ${list.error ? `<div class="empty">${esc(list.error)}</div>` : `<div class="panel panel--flat tbl-wrap" style="padding:0"><table class="tbl ftable"><thead><tr><th>Name</th><th class="num">Size</th><th>Modified</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="empty">Empty folder</td></tr>'}</tbody></table></div>`}
-      <p class="note" style="margin-top:12px">Browse and download only. Moving and deleting happen in Finder on a Mac over <b>smb://arise-server</b>, where the person doing it can see what they are doing.</p>
-    </div>
-    <div data-tab="shares" hidden id="fsShares"></div>
-  </div>`;
+  S.fs = S.fs || { root: 'data', path: '/', view: 'icon', hist: [], fwd: [], sel: null, q: '' };
+  const fs = S.fs;
+  const [roots, list] = await Promise.all([api('/files/roots'), api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
+  S.roots = roots.roots || []; S.fsDemo = !!list.demo;
+  const entries = (list.entries || []).filter(e => !fs.q || e.name.toLowerCase().includes(fs.q.toLowerCase()));
+  const parts = fs.path.split('/').filter(Boolean);
+  const rootName = S.roots.find(r => r.id === fs.root)?.name || fs.root;
+  const title = parts.length ? parts[parts.length - 1] : rootName;
+  const FAV = [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
+  const side = `<div class="finder__side"><h4>Favorites</h4>${FAV.map(f => `<button data-go="${f[1]}|${f[2]}" class="${fs.root === f[1] && fs.path === f[2] ? 'on' : ''}"><i style="--i:${ICONURL[f[3]]}"></i>${esc(f[0])}</button>`).join('')}
+    <h4>Locations</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
+    <h4>Tags</h4><button disabled style="opacity:.5"><i style="--i:${ICONURL.folder};background:var(--muted)"></i>none yet</button></div>`;
+  const tb = `<div class="finder__tb"><span class="nav"><button id="fBack" ${fs.hist.length ? '' : 'disabled'} title="Back">‹</button><button id="fFwd" ${fs.fwd.length ? '' : 'disabled'} title="Forward">›</button></span><span class="title">${esc(title)}</span>
+    <span class="views"><button id="fIcon" class="${fs.view === 'icon' ? 'on' : ''}" title="Icons">▦</button><button id="fList" class="${fs.view === 'list' ? 'on' : ''}" title="List">☰</button></span>
+    <input class="search" id="fQ" placeholder="Filter this folder" value="${esc(fs.q)}"><label class="btn btn--ghost btn--xs" for="fsUp">Upload</label><input id="fsUp" type="file" hidden><button class="btn btn--ghost btn--xs" id="fNew">New folder</button></div>`;
+  const icon = e => e.dir ? ICONURL.folder : fileIcon(e.name);
+  let main;
+  if (list.error) main = `<div class="finder__main empty">${esc(list.error)}</div>`;
+  else if (!entries.length) main = `<div class="finder__main empty">${fs.q ? 'Nothing matches' : 'Empty folder'}</div>`;
+  else if (fs.view === 'icon') main = `<div class="finder__main" id="fMain">${entries.map((e, i) => `<div class="fi ${fs.sel === e.name ? 'sel' : ''}" data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" tabindex="0"><i class="fico" style="--i:${icon(e)}"></i><span>${esc(e.name)}</span></div>`).join('')}</div>`;
+  else main = `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Date modified</th><th class="num">Size</th><th>Kind</th></tr></thead><tbody>${entries.map(e => `<tr class="${fs.sel === e.name ? 'sel' : ''}" data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" tabindex="0"><td class="fname"><i style="--i:${icon(e)}"></i>${esc(e.name)}</td><td class="dim">${fmtT(e.mtime)}</td><td class="num dim">${e.dir ? '—' : fmtB(e.size)}</td><td class="dim">${e.dir ? 'Folder' : kindOf(e.name)}</td></tr>`).join('')}</tbody></table></div>`;
+  const crumbs = [`<button data-go="${fs.root}|/">${esc(rootName)}</button>`].concat(parts.map((p, i) => `<span>›</span><button data-go="${fs.root}|/${parts.slice(0, i + 1).join('/')}">${esc(p)}</button>`)).join('');
+  const path = `<div class="finder__path">${crumbs}<span class="st">${entries.length} item${entries.length === 1 ? '' : 's'}${list.demo ? ' · sample' : ''}</span></div>`;
+  return `<div class="finder">${side}${tb}${main}${path}</div>`;
 };
-V.files.after = async root => {
-  tabs('#fsTabs');
-  $$('[data-cd]').forEach(b => b.onclick = () => { S.fs.path = b.dataset.cd.replace(/\/+/g, '/') || '/'; rerender('files'); });
-  $('#fsRoot').onchange = e => { S.fs = { root: e.target.value, path: '/' }; rerender('files'); };
-  $('#fsUp').onchange = async e => { const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append('root', S.fs.root); fd.append('path', S.fs.path); fd.append('file', f); const btn = $('label[for=fsUp]'); const r = await act(btn, () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
-  const sh = $('#fsShares'); sh.innerHTML = await V.shares(); V.shares.after();
+const ICONURL = {
+  folder: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M4 14h20l6 6h30v32H4z' fill='%23D6222D'/%3E%3Cpath d='M4 26h56v26H4z' fill='%23DB3F48'/%3E%3C/svg%3E\")",
+  file: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3C/svg%3E\")",
+  image: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3Cpath d='M20 50l10-14 8 9 5-6 7 11z' fill='%23D6222D'/%3E%3Ccircle cx='24' cy='30' r='4' fill='%23D6222D'/%3E%3C/svg%3E\")",
+  text: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3Cpath d='M20 30h24v3H20zm0 8h24v3H20zm0 8h16v3H20z' fill='%236A6A6E'/%3E%3C/svg%3E\")",
+  code: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%230A0A0C' stroke='%236A6A6E' stroke-width='2'/%3E%3Cpath d='M26 32l-6 6 6 6M38 32l6 6-6 6' fill='none' stroke='%23DB3F48' stroke-width='3'/%3E%3C/svg%3E\")",
+  video: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%230A0A0C' stroke='%236A6A6E' stroke-width='2'/%3E%3Cpath d='M26 30l16 9-16 9z' fill='%23D6222D'/%3E%3C/svg%3E\")",
+  zip: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M28 4h4v6h-4zm0 10h4v6h-4zm0 10h4v6h-4zm0 10h4v6h-4z' fill='%236A6A6E'/%3E%3C/svg%3E\")",
+  server: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='10' width='48' height='18' fill='%231C1C22' stroke='%236A6A6E' stroke-width='2'/%3E%3Crect x='8' y='36' width='48' height='18' fill='%231C1C22' stroke='%236A6A6E' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='3' fill='%233DBE7A'/%3E%3Ccircle cx='16' cy='45' r='3' fill='%233DBE7A'/%3E%3C/svg%3E\")",
+  nas: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='6' width='44' height='52' fill='%231C1C22' stroke='%236A6A6E' stroke-width='2'/%3E%3Crect x='16' y='12' width='32' height='8' fill='%23D6222D'/%3E%3Crect x='16' y='24' width='32' height='8' fill='%23DB3F48'/%3E%3Crect x='16' y='36' width='32' height='8' fill='%23DB3F48'/%3E%3Crect x='16' y='48' width='32' height='6' fill='%233a3a40'/%3E%3C/svg%3E\")",
+  users: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5zm8-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'/%3E%3C/svg%3E\")",
+  sermons: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 5h20v14H2zm8 3v8l6-4z'/%3E%3C/svg%3E\")",
+  automator: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3l15 9-15 9z'/%3E%3C/svg%3E\")",
+  apps: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 10h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 17h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5z'/%3E%3C/svg%3E\")",
+  backups: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z'/%3E%3C/svg%3E\")",
 };
+// Data URIs land inside double-quoted style="" attributes, so they must carry single quotes only.
+const _sq = u => u.replace(/'/g, '%27').replace(/"/g, "'");
+for (const k in ICONURL) ICONURL[k] = _sq(ICONURL[k]);
+for (const k in FICO) FICO[k] = _sq(FICO[k]);
+function kindOf(n) { const e = (n.split('.').pop() || '').toLowerCase(); return ({ jpg: 'JPEG image', jpeg: 'JPEG image', png: 'PNG image', gif: 'GIF image', webp: 'WebP image', svg: 'SVG image', md: 'Markdown', txt: 'Plain text', csv: 'CSV', json: 'JSON', yaml: 'YAML', yml: 'YAML', toml: 'TOML', py: 'Python', js: 'JavaScript', sh: 'Shell script', bat: 'Batch file', pdf: 'PDF', mp4: 'MPEG-4 movie', mov: 'QuickTime movie', mp3: 'MP3 audio', wav: 'WAV audio', zip: 'ZIP archive', gz: 'Gzip archive', xlsx: 'Excel workbook', docx: 'Word document', pptx: 'PowerPoint', git: 'Git repository' })[e] || (e ? e.toUpperCase() + ' file' : 'Document'); }
+function fileIcon(n) { const e = (n.split('.').pop() || '').toLowerCase(); if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'heic'].includes(e)) return ICONURL.image; if (['md', 'txt', 'csv', 'log', 'pdf', 'docx', 'xlsx', 'pptx'].includes(e)) return ICONURL.text; if (['py', 'js', 'sh', 'bat', 'json', 'yaml', 'yml', 'toml', 'html', 'css', 'ps1'].includes(e)) return ICONURL.code; if (['mp4', 'mov', 'mkv', 'webm', 'mp3', 'wav', 'm4a'].includes(e)) return ICONURL.video; if (['zip', 'gz', 'tgz', 'tar', '7z', 'dmg'].includes(e)) return ICONURL.zip; return ICONURL.file; }
+function fsNav(root, path, pushHist = true) { const fs = S.fs; if (pushHist) { fs.hist.push({ root: fs.root, path: fs.path }); fs.fwd = []; } fs.root = root; fs.path = (path || '/').replace(/\/+/g, '/') || '/'; fs.sel = null; fs.q = ''; rerender('files'); }
+V.files.after = root => {
+  const fs = S.fs;
+  $$('[data-go]', root).forEach(b => b.onclick = () => { const [r, p] = b.dataset.go.split('|'); fsNav(r, p); });
+  $('#fBack', root).onclick = () => { const h = fs.hist.pop(); if (!h) return; fs.fwd.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
+  $('#fFwd', root).onclick = () => { const h = fs.fwd.pop(); if (!h) return; fs.hist.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
+  $('#fIcon', root).onclick = () => { fs.view = 'icon'; rerender('files'); }; $('#fList', root).onclick = () => { fs.view = 'list'; rerender('files'); };
+  const q = $('#fQ', root); q.oninput = () => { fs.q = q.value; clearTimeout(S.fqT); S.fqT = setTimeout(() => rerender('files'), 250); };
+  $('#fsUp', root).onchange = async e => { const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append('root', fs.root); fd.append('path', fs.path); fd.append('file', f); const r = await act($('label[for=fsUp]', root), () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
+  $('#fNew', root).onclick = () => modal(`<h2>New folder</h2><div class="field"><label>Name</label><input id="nfName" placeholder="untitled folder"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nfGo">Create</button></div>`, m => { $('#nfGo', m).onclick = async e => { const r = await act(e.target, () => api('/files/mkdir', { method: 'POST', body: { root: fs.root, path: fs.path, name: $('#nfName', m).value.trim() } }), 'Folder created'); if (r && r.ok !== false) { m.close(); rerender('files'); } }; $('#nfName', m).focus(); });
+  const items = $$('[data-n]', root);
+  const open = el => { const n = el.dataset.n; if (el.dataset.dir === '1') fsNav(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + n); else quickLook(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + n, n); };
+  items.forEach(el => {
+    el.onclick = e => { items.forEach(x => x.classList.remove('sel')); el.classList.add('sel'); fs.sel = el.dataset.n; };
+    el.ondblclick = () => open(el);
+    el.onkeydown = e => { if (e.key === 'Enter') open(el); if (e.key === ' ' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); if (el.dataset.dir !== '1') quickLook(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n, el.dataset.n); } };
+    el.oncontextmenu = e => { e.preventDefault(); el.click(); const p = (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n; const dl = `/api/files/download?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(p)}`;
+      ctxMenu(e.clientX, e.clientY, [['Open', () => open(el)], el.dataset.dir === '1' ? null : ['Quick Look', () => quickLook(fs.root, p, el.dataset.n)], el.dataset.dir === '1' ? null : ['Download', () => { if (!S.demoOnly) location.href = dl; else toast('Preview: nothing to download'); }], ['Get Info', () => getInfo(el.dataset.n, el.dataset.dir === '1', p)], null, ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)], ['Copy smb:// address', () => copyText(`smb://arise-server/${fs.root === 'nas' ? 'synology' : p.split('/')[1] || ''}${p.split('/').slice(fs.root === 'nas' ? 1 : 2).map(x => '/' + x).join('')}`)]]); };
+  });
+  const main = $('#fMain', root); if (main) main.oncontextmenu = e => { if (e.target !== main) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New folder', () => $('#fNew', root).click()], ['Upload here', () => $('#fsUp', root).click()], null, ['Show as icons', () => { fs.view = 'icon'; rerender('files'); }], ['Show as list', () => { fs.view = 'list'; rerender('files'); }], null, ['Refresh', () => rerender('files')]]); };
+};
+function getInfo(name, dir, p) { modal(`<div class="about"><div class="flame" style="background:${dir ? ICONURL.folder : fileIcon(name)} center/70% no-repeat #000"></div><div><h2 style="font-size:20px">${esc(name)}</h2><dl class="kv"><dt>Kind</dt><dd>${dir ? 'Folder' : kindOf(name)}</dd><dt>Where</dt><dd class="mono" style="font-size:12px">${esc((S.roots.find(r => r.id === S.fs.root)?.path || '') + p)}</dd><dt>Share</dt><dd class="mono" style="font-size:12px">smb://arise-server${esc(p)}</dd></dl></div></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`); }
+async function quickLook(root, p, name) {
+  const ql = $('#ql'); $('#qlTitle').textContent = name; const url = `/api/files/view?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`;
+  $('#qlDl').href = `/api/files/download?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; $('#qlDl').onclick = e => { if (S.demoOnly || S.fsDemo) { e.preventDefault(); toast('Preview: nothing to download'); } };
+  const body = $('#qlBody'); ql.hidden = false;
+  const e = (name.split('.').pop() || '').toLowerCase();
+  if (S.demoOnly || S.fsDemo) { body.innerHTML = `<div class="none"><div class="fico" style="--i:${fileIcon(name)}"></div>${esc(kindOf(name))}<br><span style="font-size:12px">Quick Look shows the real file on the server: images, text, markdown, JSON, PDFs.</span></div>`; return; }
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(e)) body.innerHTML = `<img src="${url}" alt="">`;
+  else if (['md', 'txt', 'csv', 'log', 'json', 'yaml', 'yml', 'toml', 'py', 'js', 'sh', 'bat', 'ps1', 'html', 'css', 'conf', 'cfg', 'ini'].includes(e)) { body.innerHTML = '<pre>loading…</pre>'; try { const r = await fetch(url, { credentials: 'same-origin' }); const t = await r.text(); body.innerHTML = `<pre>${esc(t.slice(0, 200000))}</pre>`; } catch { body.innerHTML = '<pre>could not read</pre>'; } }
+  else if (e === 'pdf') body.innerHTML = `<object data="${url}" type="application/pdf" style="width:100%;height:100%"></object>`;
+  else if (['mp4', 'webm', 'mov'].includes(e)) body.innerHTML = `<video src="${url}" controls style="max-width:100%;max-height:100%"></video>`;
+  else if (['mp3', 'wav', 'm4a'].includes(e)) body.innerHTML = `<audio src="${url}" controls></audio>`;
+  else body.innerHTML = `<div class="none"><div class="fico" style="--i:${fileIcon(name)}"></div>${esc(kindOf(name))}<br><span style="font-size:12px">No preview for this kind; download it.</span></div>`;
+}
+function ctxMenu(x, y, items) {
+  const c = $('#ctx'); c.innerHTML = items.map(it => it ? `<button>${esc(it[0])}</button>` : '<hr>').join(''); c.hidden = false;
+  const fns = items.filter(Boolean); $$('button', c).forEach((b, i) => b.onclick = () => { c.hidden = true; fns[i][1](); });
+  c.style.left = Math.min(x, innerWidth - 220) + 'px'; c.style.top = Math.min(y, innerHeight - c.offsetHeight - 10) + 'px';
+  const close = ev => { if (!c.contains(ev.target)) { c.hidden = true; document.removeEventListener('pointerdown', close, true); } }; setTimeout(() => document.addEventListener('pointerdown', close, true), 0);
+}
 
 V.sermons = async () => {
   const r = await api('/sermons');
@@ -552,12 +626,12 @@ V.terminal.after = root => {
 function demoShell(term) {
   const P = '\x1b[31marise-server\x1b[0m:~# ';
   const CMD = { help: 'arisectl info · arisectl doctor · arisectl backup status · arisectl user list · uptime · df -h · clear',
-    'arisectl info': 'Arise Server v0.2.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
+    'arisectl info': 'Arise Server v0.3.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
     'arisectl doctor': '  \x1b[32m✓\x1b[0m config /etc/arise/arise.toml\r\n  \x1b[32m✓\x1b[0m Samba AD DC answers\r\n  \x1b[32m✓\x1b[0m DNS SRV for ad.arisecenla.church resolves\r\n  \x1b[32m✓\x1b[0m token.json present\r\n  \x1b[32m✓\x1b[0m restic installed\r\n  \x1b[32m✓\x1b[0m Synology /mnt/synology mounted\r\n  \x1b[33m!\x1b[0m 3 apt packages upgradable (1 security)\r\n  \x1b[32m✓\x1b[0m clock synchronised',
     'arisectl backup status': 'repository /mnt/synology/arise-backups/restic\r\n  \x1b[32m✓\x1b[0m 53 snapshots, 296.2 GB stored\r\n  JOB        LAST              RESULT  ADDED\r\n  automator  2026-10-27T03:00  ok      797.1 MB\r\n  homes      2026-10-27T03:04  ok      451.3 MB\r\n  config     2026-10-27T03:16  ok      739.5 MB',
     'arisectl user list': '  USER          NAME             ENABLED  GROUPS\r\n  bradly        Bradly Dyer      yes      Domain Admins, Media, Staff\r\n  media-mac     Media Booth Mac  yes      Media\r\n  office        Church Office    yes      Staff',
     uptime: ' 09:41:12 up 14 days,  3:07,  1 user,  load average: 0.42, 0.58, 0.61', 'df -h': 'Filesystem      Size  Used Avail Use% Mounted on\r\n/dev/sda2       224G   66G  147G  31% /\r\n/dev/sdb1       894G  242G  607G  29% /srv/arise\r\n//synology/arise  15T  4.5T   10T  31% /mnt/synology', whoami: 'root', hostname: 'arise-server' };
-  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.2.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
+  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.3.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
   let buf = '';
   term.onData(d => { for (const ch of d) {
     if (ch === '\r') { const c = buf.trim(); buf = ''; if (c === 'clear') { term.clear(); term.write('\r' + P); continue; } const out = c ? (CMD[c] ?? `bash: ${c}: not in the preview (type help)`) : ''; term.write('\r\n' + (out ? out + '\r\n' : '') + P); }
@@ -584,26 +658,36 @@ const I = {
   services: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 5l-2 .4a7 7 0 0 1-.8 2l1.2 1.7-1.4 1.4-1.7-1.2a7 7 0 0 1-2 .8L14 21h-4l-.4-2a7 7 0 0 1-2-.8l-1.7 1.2-1.4-1.4 1.2-1.7a7 7 0 0 1-.8-2L3 14v-4l2-.4a7 7 0 0 1 .8-2L4.6 5.9 6 4.5l1.7 1.2a7 7 0 0 1 2-.8L10 3h4l.4 2a7 7 0 0 1 2 .8l1.7-1.2 1.4 1.4-1.2 1.7a7 7 0 0 1 .8 2l2 .4z"/></svg>',
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
+  about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
 const APPS = [
-  { id: 'overview', n: '01', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true },
-  { id: 'directory', n: '02', name: 'Directory', what: 'Users, groups, joined computers', dock: true },
-  { id: 'files', n: '03', name: 'Files', what: 'Browse the server and the NAS; shares', dock: true },
+  { id: 'files', n: '01', name: 'Finder', what: 'The server, the Synology, the shares', tone: 'bone', dock: true, w: 900, h: 560 },
+  { id: 'overview', n: '02', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true },
+  { id: 'directory', n: '03', name: 'Directory', what: 'Users, groups, joined computers', dock: true },
   { id: 'backups', n: '04', name: 'Backups', what: 'restic jobs, history, snapshots', dock: true },
   { id: 'automator', n: '05', name: 'Automator', what: 'The 02:05 YouTube job', dock: true },
   { id: 'sermons', n: '06', name: 'Sermons', what: 'The channel, no quota spent', tone: 'bone', dock: true },
-  { id: 'bible', n: '07', name: 'Bible', what: 'Read a passage', tone: 'bone', dock: true },
+  { id: 'bible', n: '07', name: 'Bible', what: 'Read a passage', tone: 'bone', dock: true, w: 820, h: 560 },
   { id: 'apps', n: '08', name: 'Apps', what: 'Docker templates the church uses', dock: true },
   { id: 'remote', n: '09', name: 'Remote', what: 'VPN, SSH, remote desktop', dock: true },
-  { id: 'sites', n: '10', name: 'Campuses', what: 'Pineville, Alexandria, the Hub' },
-  { id: 'terminal', n: '11', name: 'Terminal', what: 'A shell on the box', dock: true, flush: true },
+  { id: 'sites', n: '10', name: 'Campuses', what: 'Pineville, Alexandria, the Hub', w: 760, h: 520 },
+  { id: 'terminal', n: '11', name: 'Terminal', what: 'A shell on the box', dock: true, flush: true, w: 860, h: 500 },
   { id: 'nas', n: '12', name: 'Synology', what: 'Mount, space, DSM health' },
   { id: 'services', n: '13', name: 'Services', what: 'The systemd units' },
   { id: 'logs', n: '14', name: 'Logs', what: 'journalctl, last 300 lines' },
-  { id: 'settings', n: '15', name: 'Settings', what: 'arise.toml, updates, power' },
+  { id: 'settings', n: '15', name: 'System Settings', what: 'arise.toml, updates, power' },
+  { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
 const appOf = id => APPS.find(a => a.id === id);
 const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span>`;
+
+V.about = async () => {
+  const o = S.overview || await api('/overview'); const m = o.machine || S.machine || {};
+  return `<div class="about"><div class="flame">${I.about.replace('<svg', '<svg width="72" height="72"')}</div><div><div class="kicker">Arise Server</div><h2>v${esc(o.version)} “${esc(o.codename)}”</h2>
+    <dl class="kv"><dt>Host</dt><dd>${esc(o.hostname)}</dd><dt>Domain</dt><dd>${esc(o.realm || '—')}</dd><dt>System</dt><dd>${esc(m.os || '')}</dd><dt>Processor</dt><dd>${esc(m.cpu_model || '')} · ${m.cpu_count || '?'} cores</dd><dt>Memory</dt><dd>${esc(m.ram_total_h || '')}</dd><dt>Uptime</dt><dd>${fmtUp(S.stats?.uptime)}</dd><dt>Profile</dt><dd>${esc(o.profile)}</dd></dl>
+    <div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div></div>`;
+};
+V.about.after = root => $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
 
 /* ---------------- window manager ---------------- */
 function tabs(sel) {
@@ -613,33 +697,37 @@ function tabs(sel) {
 let cascade = 0;
 function openApp(id, focusOnly) {
   const a = appOf(id); if (!a) return;
+  closeOverlays();
   let w = S.wins[id];
   if (w) { w.min = false; w.el.classList.remove('min'); focusWin(id); if (!focusOnly) rerender(id); return; }
   const el = document.createElement('section'); el.className = 'win' + (a.flush ? ' win--term' : ''); el.dataset.app = id;
-  el.innerHTML = `<div class="win__bar"><div class="win__dots"><button class="x" title="Close" aria-label="Close"></button><button class="m" title="Minimise" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
+  el.innerHTML = `<div class="win__bar"><div class="win__dots"><button class="x" title="Close ⌘W" aria-label="Close"></button><button class="m" title="Minimise ⌘M" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
   const stage = $('#stage');
-  if (!isPhone()) { const n = cascade++ % 6; el.style.left = (40 + n * 28 + Math.min(stage.clientWidth - 1000, 320)) + 'px'; el.style.top = (24 + n * 24) + 'px'; }
+  if (!isPhone()) { const n = cascade++ % 6; const W = Math.min(a.w || 980, stage.clientWidth - 36), H = Math.min(a.h || 680, stage.clientHeight - 110); el.style.width = W + 'px'; el.style.height = H + 'px'; el.style.left = Math.max(20, Math.min(stage.clientWidth - W - 20, 330 + n * 28)) + 'px'; el.style.top = (20 + n * 24) + 'px'; }
   stage.appendChild(el);
   w = S.wins[id] = { el, min: false, max: false };
   $('.x', el).onclick = () => closeApp(id); $('.m', el).onclick = () => minApp(id); $('.z', el).onclick = () => { w.max = !w.max; el.classList.toggle('max', w.max); };
   $('.win__bar', el).ondblclick = () => $('.z', el).click();
-  el.addEventListener('pointerdown', () => focusWin(id), true);
+  el.addEventListener('pointerdown', () => { if (!$('#stage').classList.contains('mc')) focusWin(id); }, true);
+  el.addEventListener('click', () => { if ($('#stage').classList.contains('mc')) { missionControl(false); focusWin(id); } }, true);
   drag(el, $('.win__bar', el));
-  focusWin(id); rerender(id); location.hash = '#' + id; $('#barApp').textContent = a.name;
+  focusWin(id); rerender(id); if (!a.hidden) location.hash = '#' + id;
+  const di = $(`#dock [data-app="${id}"]`); if (di) { di.classList.add('bounce'); setTimeout(() => di.classList.remove('bounce'), 1100); }
   updateDock(); $('#widgets').classList.toggle('dim', !isPhone() && Object.keys(S.wins).length > 0);
 }
 function closeApp(id) {
   const w = S.wins[id]; if (!w) return;
   if (id === 'terminal' && S.termDispose) { S.termDispose(); S.termDispose = null; }
   w.el.remove(); delete S.wins[id]; updateDock();
-  const rest = Object.keys(S.wins); if (rest.length) focusWin(rest[rest.length - 1]); else { $('#barApp').textContent = 'Arise Server'; history.replaceState(null, '', location.pathname); }
+  const rest = Object.keys(S.wins).filter(k => !S.wins[k].min); if (rest.length) focusWin(rest[rest.length - 1]); else { setAppMenus(null); history.replaceState(null, '', location.pathname); }
   $('#widgets').classList.toggle('dim', Object.keys(S.wins).length > 0 && !isPhone());
 }
-function minApp(id) { const w = S.wins[id]; if (!w) return; w.min = true; w.el.classList.add('min'); updateDock(); const rest = Object.keys(S.wins).filter(k => !S.wins[k].min); if (rest.length) focusWin(rest[rest.length - 1]); else $('#barApp').textContent = 'Arise Server'; }
-function focusWin(id) { const w = S.wins[id]; if (!w) return; $$('.win').forEach(e => e.classList.remove('focus')); w.el.classList.add('focus'); w.el.style.zIndex = ++S.z; $('#barApp').textContent = appOf(id).name; updateDock(); }
+function minApp(id) { const w = S.wins[id]; if (!w) return; w.min = true; w.el.classList.add('min'); updateDock(); const rest = Object.keys(S.wins).filter(k => !S.wins[k].min); if (rest.length) focusWin(rest[rest.length - 1]); else setAppMenus(null); }
+function focusWin(id) { const w = S.wins[id]; if (!w) return; $$('.win').forEach(e => e.classList.remove('focus')); w.el.classList.add('focus'); w.el.style.zIndex = ++S.z; S.focused = id; setAppMenus(id); updateDock(); }
+function focusedApp() { return S.focused && S.wins[S.focused] && !S.wins[S.focused].min ? S.focused : null; }
 function drag(el, handle) {
   let sx, sy, ox, oy, on = false;
-  handle.addEventListener('pointerdown', e => { if (isPhone() || e.target.closest('button') || el.classList.contains('max')) return; on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
+  handle.addEventListener('pointerdown', e => { if (isPhone() || e.target.closest('button') || el.classList.contains('max') || $('#stage').classList.contains('mc')) return; on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
   handle.addEventListener('pointermove', e => { if (!on) return; const st = $('#stage'); el.style.left = Math.max(-el.offsetWidth + 80, Math.min(st.clientWidth - 80, ox + e.clientX - sx)) + 'px'; el.style.top = Math.max(0, Math.min(st.clientHeight - 40, oy + e.clientY - sy)) + 'px'; });
   handle.addEventListener('pointerup', () => on = false); handle.addEventListener('pointercancel', () => on = false);
 }
@@ -648,7 +736,7 @@ async function rerender(id) {
   const w = S.wins[id]; const fn = V[id]; if (!w || !fn) return;
   S.lastView = id;
   const body = $('#wb-' + id); const seq = seqs[id] = (seqs[id] || 0) + 1;
-  if (id === 'terminal' && S.termDispose) return; // never re-create a live shell
+  if (id === 'terminal' && S.termDispose) return;
   body.innerHTML = '<div class="grid"><div class="c12 panel panel--flat"><div class="skeleton" style="width:40%"></div><div class="skeleton" style="width:70%;margin-top:10px"></div><div class="skeleton" style="width:55%;margin-top:10px"></div></div></div>';
   try {
     const html = await fn();
@@ -662,22 +750,140 @@ async function rerender(id) {
 }
 const render = () => rerender(S.lastView);
 
-/* ---------------- dock + launchpad ---------------- */
+/* ---------------- menu bar menus ---------------- */
+let menuOpen = null;
+function menuItems(id) {
+  const a = id ? appOf(id) : null;
+  const win = [['Minimise', () => id && minApp(id), '⌘M'], ['Zoom', () => id && $('.z', S.wins[id].el).click()], ['Close Window', () => id && closeApp(id), '⌘W'], null, ['Mission Control', () => missionControl(true), 'F3'], ['Launchpad', () => toggleLaunchpad(true)], null, { h: 'Open' }, ...Object.keys(S.wins).map(k => [appOf(k).name + (S.wins[k].min ? ' (minimised)' : ''), () => openApp(k, true)])];
+  const help = [['Dashboard guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DASHBOARD.md')], ['Remote access guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/REMOTE-ACCESS.md')], ['Install guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md')], null, ['About This Server', () => openApp('about')]];
+  const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }, '⌘I'], null, ['Close Window', () => closeApp('files'), '⌘W']],
+    backups: [['Run all jobs now', () => act($('#next') || document.body, () => api('/backups/run/automator', { method: 'POST' }), 'Started the automator job')], ['Refresh GitHub mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], null, ['Close Window', () => closeApp(id), '⌘W']],
+    automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
+    terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
+  }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
+  const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
+  return [[a ? a.name : 'Arise Server', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
+}
+const FLAME_MENU = () => [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
+function setAppMenus(id) {
+  const m = $('#menus'); const list = menuItems(id);
+  m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
+  $$('button', m).forEach(b => { b.onclick = e => { e.stopPropagation(); openMenu(b, list[+b.dataset.m][1]); }; b.onmouseenter = () => { if (menuOpen && menuOpen !== b) openMenu(b, list[+b.dataset.m][1]); }; });
+}
+function openMenu(btn, items) {
+  const d = $('#menuDrop');
+  if (menuOpen === btn) { closeMenu(); return; }
+  closeMenu(); menuOpen = btn; btn.classList.add('open');
+  d.innerHTML = items.map(it => it === null ? '<hr>' : it.h ? `<div class="h">${esc(it.h)}</div>` : `<button>${esc(it[0])}${it[2] ? `<kbd>${esc(it[2])}</kbd>` : ''}</button>`).join('');
+  const fns = items.filter(it => Array.isArray(it)); $$('button', d).forEach((b, i) => b.onclick = () => { closeMenu(); fns[i][1](); });
+  const r = btn.getBoundingClientRect(); d.style.left = Math.min(r.left, innerWidth - 240) + 'px'; d.style.top = r.bottom + 'px'; d.hidden = false;
+}
+function closeMenu() { if (menuOpen) menuOpen.classList.remove('open'); menuOpen = null; $('#menuDrop').hidden = true; $('#barLogo').classList.remove('open'); }
+document.addEventListener('pointerdown', e => { if (menuOpen && !e.target.closest('#menuDrop') && !e.target.closest('#menus') && !e.target.closest('#barLogo')) closeMenu(); if (!$('#cc').hidden && !e.target.closest('#cc') && !e.target.closest('#ccBtn')) toggleCC(false); }, true);
+
+/* ---------------- overlays: launchpad, spotlight, mission control, NC, CC, switcher ---------------- */
+function closeOverlays() { toggleLaunchpad(false); toggleSpot(false); toggleCC(false); closeMenu(); $('#ctx').hidden = true; }
+function toggleLaunchpad(force) { const lp = $('#launchpad'); const open = force !== undefined ? force : lp.hidden; lp.hidden = !open; if (open) { toggleSpot(false); toggleNC(false); $('#lpQ').value = ''; $$('.lp').forEach(b => b.hidden = false); $('#lpQ').focus(); } }
+function toggleNC(force) { const nc = $('#nc'); const open = force !== undefined ? force : nc.hidden; nc.hidden = !open; $('#barClock').classList.toggle('open', open); if (open) { toggleCC(false); buildNC(); } }
+function toggleCC(force) { const cc = $('#cc'); const open = force !== undefined ? force : cc.hidden; cc.hidden = !open; $('#ccBtn').classList.toggle('open', open); if (open) buildCC(); }
+function toggleSpot(force) { const sp = $('#spot'); const open = force !== undefined ? force : sp.hidden; sp.hidden = !open; if (open) { toggleLaunchpad(false); $('#spotQ').value = ''; $('#spotRes').innerHTML = spotResults(''); $('#spotQ').focus(); } }
+function missionControl(force) {
+  const st = $('#stage'); const on = force !== undefined ? force : !st.classList.contains('mc');
+  const wins = Object.values(S.wins).filter(w => !w.min).map(w => w.el);
+  if (!on) { st.classList.remove('mc'); wins.forEach(el => { el.style.transform = ''; }); return; }
+  if (!wins.length) { toast('No windows open', 'warn'); return; }
+  closeOverlays(); st.classList.add('mc');
+  const n = wins.length, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols), W = st.clientWidth, H = st.clientHeight - 90, pad = 24;
+  const cw = (W - pad * (cols + 1)) / cols, ch = (H - pad * (rows + 1)) / rows;
+  wins.forEach((el, i) => { const c = i % cols, r = Math.floor(i / cols); const sc = Math.min(cw / el.offsetWidth, ch / el.offsetHeight, 1); const x = pad + c * (cw + pad) + (cw - el.offsetWidth * sc) / 2, y = 40 + pad + r * (ch + pad) + (ch - el.offsetHeight * sc) / 2; el.style.transform = `translate(${x - el.offsetLeft}px, ${y - el.offsetTop}px) scale(${sc})`; el.style.transformOrigin = 'top left'; });
+}
+let swIdx = 0;
+function switcher(step) {
+  const ids = Object.keys(S.wins); if (!ids.length) return; const sw = $('#switcher');
+  if (sw.hidden) { swIdx = Math.max(0, ids.indexOf(S.focused)); sw.hidden = false; }
+  swIdx = (swIdx + step + ids.length) % ids.length;
+  sw.innerHTML = `<div>${ids.map((id, i) => `<span class="dock__icon ${appOf(id).tone || ''} ${i === swIdx ? 'on' : ''}">${I[id]}</span>`).join('')}</div>`;
+  clearTimeout(S.swT); S.swT = setTimeout(() => { sw.hidden = true; openApp(ids[swIdx], true); }, 900);
+}
+
+/* Spotlight */
+const ACTIONS = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about']];
+function spotResults(q, remote) {
+  q = q.trim(); const ql = q.toLowerCase(); let out = ''; const row = (icon, label, small, data) => `<button data-s='${esc(JSON.stringify(data))}'><span class="dock__icon">${icon}</span>${esc(label)}${small ? `<small>${esc(small)}</small>` : ''}</button>`;
+  const bible = q.match(/^([1-3]?\s?[a-z]{2,20})\s?(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/i);
+  if (bible) out += `<div class="h">Bible</div>` + row(I.bible, `Read ${q}`, 'Bible', { bible: q });
+  const apps = APPS.filter(a => !a.hidden && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
+  if (apps.length) out += `<div class="h">Apps</div>` + apps.slice(0, ql ? 6 : 8).map(a => row(I[a.id], a.name, a.what, { app: a.id })).join('');
+  const acts = ACTIONS.filter(a => ql && a[0].toLowerCase().includes(ql)); if (acts.length) out += `<div class="h">Actions</div>` + acts.map((a, i) => row(I[a[2]], a[0], 'Action', { act: ACTIONS.indexOf(a) })).join('');
+  if (remote) {
+    if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
+    if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
+    if (remote.hits?.length) out += `<div class="h">Files</div>` + remote.hits.slice(0, 10).map(h => row(I.files, h.name, h.path, { file: h })).join('');
+  }
+  if (!out) out = `<div class="h">Nothing for “${esc(q)}”</div>`;
+  return out;
+}
+function spotGo(data) {
+  toggleSpot(false);
+  if (data.app) openApp(data.app);
+  else if (data.bible) { S.bible = { ref: data.bible, tr: S.bible?.tr || 'web' }; openApp('bible'); }
+  else if (data.act != null) ACTIONS[data.act][1]();
+  else if (data.file) { const f = data.file; const dir = f.dir ? f.path : f.path.replace(/\/[^/]*$/, '') || '/'; S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: f.root, path: dir, sel: f.dir ? null : f.name, q: '' }); openApp('files'); }
+}
+
+/* Notification Center widgets */
+async function buildNC() {
+  const body = $('#ncBody'); body.innerHTML = $('#widgets').innerHTML + '<div class="widget" id="ncCal"></div><div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
+  $$('[data-open]', body).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); });
+  const d = new Date(), y = d.getFullYear(), m = d.getMonth(); const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+  let cal = `<div class="widget__kicker">${d.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div><div class="cal">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<b>${x}</b>`).join('')}`;
+  for (let i = 0; i < first; i++) cal += '<span class="dim"></span>';
+  for (let i = 1; i <= days; i++) { const wd = new Date(y, m, i).getDay(); cal += `<span class="${wd === 0 || wd === 1 ? 'svc' : ''} ${i === d.getDate() ? 'today' : ''}">${i}</span>`; }
+  cal += '</div><div class="widget__sub" style="margin-top:8px">● Sundays 10:30 Pineville · 10:00 Alexandria · Mondays 7 PM Glory Night</div>';
+  $('#ncCal').innerHTML = cal;
+  try { const s = await api('/sermons?limit=1'); const v = (s.videos || [])[0]; if (v) $('#ncSermon').innerHTML = `<div class="widget__kicker">Latest on the channel</div><div class="widget__title" style="font-size:15px">${esc(v.title)}</div><div class="widget__sub">${esc(v.kind)} · ${esc(v.published)}${v.views ? ' · ' + fmtN(v.views) + ' views' : ''}</div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--xs" data-open="sermons">Sermons</button></div>`; $$('[data-open]', $('#ncSermon')).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); }); } catch {}
+}
+/* Control Center */
+function buildCC() {
+  const o = S.overview || {}; const r = S.remoteCache || {};
+  const vpnOn = r.tailscale?.up || r.wireguard?.up;
+  $('#cc').innerHTML = `<button class="${vpnOn ? 'ok' : 'bad'}" data-open="remote"><b>VPN</b><span>${vpnOn ? (r.tailscale?.up ? 'Tailscale connected' : 'WireGuard up') : 'not connected'}</span></button>
+    <button class="${o.backup?.failed_recent ? 'bad' : 'ok'}" data-open="backups"><b>Backups</b><span>${o.backup?.last ? (o.backup.last.ok ? 'last ok · ' : 'FAILED · ') + ago(o.backup.last.started) : 'none yet'}</span></button>
+    <button data-act="backup"><b>Back up now</b><span>every job, then prune</span></button>
+    <button data-act="preview"><b>Preview tonight</b><span>automator dry run</span></button>
+    <button data-act="mc"><b>Mission Control</b><span>all windows</span></button>
+    <button data-act="lock"><b>Lock screen</b><span>⌃⌘Q</span></button>
+    <button class="wide" data-open="settings"><b>System Settings</b><span>updates · power · note</span></button>`;
+  $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
+  $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); ({ backup: runAllBackups, preview: () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), mc: () => missionControl(true), lock: lockScreen })[b.dataset.act](); });
+}
+async function runAllBackups() { const jobs = (await api('/backups/jobs')).jobs || []; for (const j of jobs) await api(`/backups/run/${encodeURIComponent(j.id)}`, { method: 'POST' }); toast(`Started ${jobs.length} backup jobs; rows appear in Backups as they finish`); }
+function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Everything stops for about a minute. Logged-in Macs keep working on cached accounts. The desktop comes back by itself.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await api('/system/power', { method: 'POST', body: { action, confirm: action } }); if (r.ok === false) throw new Error(r.err); toast(action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
+
+/* ---------------- dock + launchpad + desktop icons ---------------- */
 function buildDock() {
   const d = $('#dock');
   d.innerHTML = APPS.filter(a => a.dock).map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
     `<span class="dock__sep"></span><button class="dock__i" id="dockLp" aria-label="Launchpad"><span class="dock__icon">${I.apps}</span><span class="lbl">Launchpad</span></button>`;
   $$('[data-app]', d).forEach(b => b.onclick = () => { const id = b.dataset.app; const w = S.wins[id]; if (w && !w.min && w.el.classList.contains('focus') && !isPhone()) minApp(id); else openApp(id, true); });
-  $('#dockLp').onclick = toggleLaunchpad;
-  const lp = $('#lpGrid'); lp.innerHTML = APPS.map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(a.what)}</span></button>`).join('');
+  $('#dockLp').onclick = () => toggleLaunchpad();
+  // magnification
+  const items = $$('.dock__i', d);
+  d.addEventListener('mousemove', e => { if (isPhone() || matchMedia('(prefers-reduced-motion: reduce)').matches) return; items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
+  d.addEventListener('mouseleave', () => items.forEach(it => it.style.transform = ''));
+  const lp = $('#lpGrid'); lp.innerHTML = APPS.filter(a => !a.hidden).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(a.what)}</span></button>`).join('');
   $$('[data-lp]', lp).forEach(b => b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); });
   $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); };
-  $('#barLogo').onclick = () => toggleLaunchpad();
   $('#launchpad').onclick = e => { if (e.target.id === 'launchpad') toggleLaunchpad(false); };
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleLaunchpad(false); });
 }
-function toggleLaunchpad(force) { const lp = $('#launchpad'); const open = force !== undefined ? force : lp.hidden; lp.hidden = !open; if (open) { $('#lpQ').value = ''; $$('.lp').forEach(b => b.hidden = false); $('#lpQ').focus(); } }
 function updateDock() { $$('#dock [data-app]').forEach(b => { const w = S.wins[b.dataset.app]; b.classList.toggle('run', !!w); b.classList.toggle('active', !!w && w.el.classList.contains('focus') && !w.min); }); }
+async function buildIcons() {
+  let roots = []; try { roots = (await api('/files/roots')).roots || []; } catch {}
+  $('#icons').innerHTML = roots.map(r => `<button class="ico" data-root="${esc(r.id)}"><span class="dock__icon" style="background:${r.id === 'nas' ? ICONURL.nas : ICONURL.server} center/80% no-repeat #000"></span><span>${esc(r.name)}</span></button>`).join('');
+  $$('.ico').forEach(b => { b.onclick = () => { $$('.ico').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); }; b.ondblclick = () => { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: b.dataset.root, path: '/', sel: null }); openApp('files'); }; });
+  $('#stage').addEventListener('click', e => { if (e.target === $('#stage')) $$('.ico').forEach(x => x.classList.remove('sel')); });
+  $('#stage').oncontextmenu = e => { if (e.target !== $('#stage')) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New Finder window', () => openApp('files')], ['Show widgets', () => toggleNC(true)], null, ['Mission Control', () => missionControl(true)], ['Launchpad', () => toggleLaunchpad(true)], null, ['About This Server', () => openApp('about')]]); };
+}
 
 /* ---------------- desktop widgets ---------------- */
 async function buildWidgets() {
@@ -685,10 +891,11 @@ async function buildWidgets() {
   S.overview = o;
   const w = $('#widgets'); if (!o) { w.innerHTML = ''; return; }
   if (o.demo) { S.demo = true; $('#demoBadge').hidden = false; if (!S.demoOnly) $('#demoBadge').textContent = 'Sample data'; }
-  $('#barHost').textContent = `${o.hostname} · v${o.version} “${o.codename}”`;
   const att = o.attention || [], bad = att.some(x => x.level === 'bad');
   $('#barAtt').hidden = !att.length; $('#barAttN').textContent = att.length;
   const a = o.automator || {}, b = o.backup || {}, n = o.nas || {};
+  const bk = $('#stBk'); bk.className = 'bar__item ' + (b.failed_recent ? 'bad' : b.last ? 'ok' : ''); $('b', bk).textContent = b.last ? (b.last.ok ? 'ok' : 'failed') : '—';
+  try { const r = await api('/remote'); S.remoteCache = r; const on = r.tailscale?.up || r.wireguard?.up; const v = $('#stVpn'); v.className = 'bar__item ' + (on ? 'ok' : 'warn'); $('b', v).textContent = on ? (r.tailscale?.up ? `${(r.tailscale.peers || []).filter(p => p.online).length} online` : 'up') : 'off'; } catch {}
   const nowH = new Date().getHours();
   const next = nowH < 2 ? '02:05 automator' : nowH < 3 ? '03:00 backups' : nowH < 4 ? '04:00 GitHub mirror' : nowH < 7 ? '07:00 daily note' : '02:05 automator (tonight)';
   w.innerHTML = `
@@ -708,34 +915,78 @@ async function buildWidgets() {
   if (S.stats) paintWidgetLive(S.stats);
 }
 
-/* ---------------- login + boot ---------------- */
+/* ---------------- lock, login, sign out ---------------- */
+function lockScreen(idle) {
+  const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
+  if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
+}
+function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+$('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw').value; $('#lockPw').value = '';
+  if (S.demoOnly || S.demo) { $('#lock').hidden = true; return; }
+  try { await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } }); $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
+async function signOut() { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); }
 function showLogin(err) {
   document.body.innerHTML = `<div class="login"><div class="login__box">
-    <div class="mark"><span class="kicker">Arise Church · Pineville</span></div><h1>Arise Server</h1>
-    ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>` : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Sign in with the admin account from arise.toml.')}</p>
-    <form id="lf"><div class="field"><label>User</label><input id="lu" value="bradly" autocomplete="username"></div><div class="field"><label>Password</label><input id="lp" type="password" autocomplete="current-password"></div><button class="btn" style="width:100%;justify-content:center" type="submit">Sign in</button></form>`}
-  </div></div>`;
-  const f = $('#lf'); if (f) f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy'); try { await api('/auth/login', { method: 'POST', body: { user: $('#lu').value, password: $('#lp').value } }); location.reload(); } catch (er) { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = er.message; } finally { b.classList.remove('busy'); } };
+    <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>Arise Server</h1>
+    ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>` : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
+    <form id="lf" class="lock__form"><input id="lu" value="bradly" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
+    <div class="lock__hint">arise-server · AD.ARISECENLA.CHURCH</div></div></div>`;
+  const f = $('#lf'); if (f) { $('#lp').focus(); f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy'); try { await api('/auth/login', { method: 'POST', body: { user: $('#lu').value, password: $('#lp').value } }); location.reload(); } catch (er) { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = er.message; } finally { b.classList.remove('busy'); } }; }
 }
-function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
+
+/* ---------------- keyboard + kiosk + boot ---------------- */
+document.addEventListener('keydown', e => {
+  const cmd = e.metaKey || e.ctrlKey; const inField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.closest('.xterm');
+  if (e.key === 'Escape') { if (!$('#spot').hidden) { toggleSpot(false); return; } if (!$('#ql').hidden) { $('#ql').hidden = true; return; } if ($('#stage').classList.contains('mc')) { missionControl(false); return; } closeOverlays(); toggleNC(false); $('#switcher').hidden = true; return; }
+  if (cmd && e.code === 'Space') { e.preventDefault(); toggleSpot(); return; }
+  if (e.key === 'F3') { e.preventDefault(); missionControl(); return; }
+  if (cmd && e.key === 'Tab') { e.preventDefault(); switcher(e.shiftKey ? -1 : 1); return; }
+  if (inField) return;
+  if (e.key === 'F4') { e.preventDefault(); toggleLaunchpad(); return; }
+  const id = focusedApp();
+  if (cmd && (e.key === 'w' || e.key === 'q') && id) { e.preventDefault(); closeApp(id); }
+  else if (cmd && e.key === 'm' && id) { e.preventDefault(); minApp(id); }
+  else if (cmd && e.key === 'r' && id) { e.preventDefault(); rerender(id); }
+  else if (cmd && e.key === 'i' && id === 'files') { e.preventDefault(); const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }
+  else if (cmd && e.shiftKey && e.key.toLowerCase() === 'n' && id === 'files') { e.preventDefault(); $('#fNew')?.click(); }
+  else if (cmd && e.ctrlKey && e.key === 'q') { lockScreen(); }
+});
+$('#spotQ').addEventListener('input', () => { const q = $('#spotQ').value; $('#spotRes').innerHTML = spotResults(q); clearTimeout(S.spT); if (q.trim().length >= 2) S.spT = setTimeout(async () => { try { const r = await api(`/search?q=${encodeURIComponent(q.trim())}`); if ($('#spotQ').value === q) $('#spotRes').innerHTML = spotResults(q, r); bindSpot(); } catch {} }, 250); bindSpot(); });
+function bindSpot() { const bs = $$('#spotRes button'); bs.forEach((b, i) => { b.onclick = () => spotGo(JSON.parse(b.dataset.s)); }); if (bs[0]) bs[0].classList.add('on'); }
+$('#spotQ').addEventListener('keydown', e => { const bs = $$('#spotRes button'); let i = bs.findIndex(b => b.classList.contains('on')); if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); bs[i]?.classList.remove('on'); i = (i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length; bs[i]?.classList.add('on'); bs[i]?.scrollIntoView({ block: 'nearest' }); } if (e.key === 'Enter' && bs[i]) bs[i].click(); });
+$('#spot').onclick = e => { if (e.target.id === 'spot') toggleSpot(false); };
+$('#qlClose').onclick = () => $('#ql').hidden = true;
+$('#spotBtn').onclick = () => toggleSpot();
+$('#ccBtn').onclick = e => { e.stopPropagation(); toggleCC(); };
+$('#barClock').onclick = () => toggleNC();
+$('#barAtt').onclick = () => openApp('overview');
+$('#barLogo').onclick = e => { e.stopPropagation(); const b = $('#barLogo'); if (menuOpen === b) { closeMenu(); return; } openMenu(b, FLAME_MENU()); };
+function kioskSetup() {
+  if (!new URLSearchParams(location.search).has('kiosk')) return;
+  document.body.classList.add('kiosk'); S.kiosk = true;
+  let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); };
+  ['pointermove', 'keydown', 'pointerdown', 'wheel'].forEach(ev => document.addEventListener(ev, reset, { passive: true }));
+  setInterval(() => { idle += 5; if (idle >= 5) document.body.classList.add('idle'); if (idle >= 600 && $('#lock').hidden) lockScreen(true); }, 5000);
+}
 async function boot() {
   if (window.ARISE_FORCE_DEMO) setDemoOnly();
   clock(); setInterval(clock, 15000);
-  buildDock();
+  buildDock(); setAppMenus(null); kioskSetup();
   try {
     const me = await api('/auth/me');
     if (me.error) { if (me.error.setup) return showLogin({ setup: true }); return showLogin(me.error); }
-    S.authed = true; S.user = me.user; $('#userBtn').textContent = me.user || 'admin';
+    S.authed = true; S.user = me.user || 'bradly';
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
-  } catch (e) { if (!S.demoOnly) return showLogin(e); }
-  $('#userBtn').onclick = () => modal(`<h2>${esc(S.user || 'admin')}</h2><p class="note" style="margin-bottom:14px">Signed in to the Arise Server dashboard${S.demoOnly ? ' (preview)' : ''}.</p><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="lo">Sign out</button></div>`, m => { $('#lo', m).onclick = async () => { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); }; });
-  $('#barAtt').onclick = () => openApp('overview');
+  } catch (e) { if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
   startStats();
-  await buildWidgets();
+  await Promise.all([buildWidgets(), buildIcons()]);
   setInterval(buildWidgets, 60000);
   const first = (location.hash || '').replace('#', '').split('/')[0];
-  if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('overview');
+  if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('files');
   window.addEventListener('hashchange', () => { const id = (location.hash || '').replace('#', ''); if (appOf(id) && !S.wins[id]) openApp(id); });
 }
 boot();
+// A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
+window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, toast, S, APPS };
 })();

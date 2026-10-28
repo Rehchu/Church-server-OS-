@@ -23,7 +23,8 @@
 #    --with-tailscale    install Tailscale (prints the `tailscale up` line to run yourself)
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
-#    --console           show the arisetui dashboard on the closet monitor (tty1) instead of a login prompt
+#    --console           show the arisetui text dashboard on the closet monitor (tty1)
+#    --kiosk             show the Arise desktop (Finder, dock, widgets) full screen on the closet monitor (tty1)
 #    --dry-run           print every step, change nothing
 #    -h | --help
 #
@@ -53,6 +54,7 @@ WITH_TAILSCALE=0
 WITH_WIREGUARD=0
 WITH_CADDY=0
 WITH_CONSOLE=0
+WITH_KIOSK=0
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
 NO_START=0
@@ -71,6 +73,7 @@ while [ $# -gt 0 ]; do
     --with-wireguard) WITH_WIREGUARD=1; shift ;;
     --with-caddy)  WITH_CADDY=1; shift ;;
     --console)     WITH_CONSOLE=1; shift ;;
+    --kiosk)       WITH_KIOSK=1; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     -h|--help)     usage 0 ;;
     *) echo "unknown flag: $1" >&2; usage 2 ;;
@@ -108,7 +111,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -730,6 +733,37 @@ if [ "$WITH_CONSOLE" = 1 ]; then
     fi
   else
     warn "config/systemd/arise-console.service not in the repo; tty1 left as a login prompt"
+  fi
+fi
+
+if [ "$WITH_KIOSK" = 1 ]; then
+  say "6d/7  Kiosk: the Arise desktop on the closet monitor"
+  # cage (a Wayland kiosk compositor) + Epiphany (GTK WebKit) are plain apt
+  # packages: no snaps, no X, no desktop environment. ~250 MB.
+  run apt-get install -y -q cage epiphany-browser
+  if id -u arise-kiosk >/dev/null 2>&1; then
+    note "user arise-kiosk exists"
+  else
+    run useradd -u 1501 -m -d /var/lib/arise/kiosk-home -s /usr/sbin/nologin -G video,input,render arise-kiosk
+  fi
+  run mkdir -p /var/lib/arise/kiosk
+  run chown -R arise-kiosk: /var/lib/arise/kiosk /var/lib/arise/kiosk-home
+  if [ -f "$SRC/config/systemd/arise-kiosk.service" ]; then
+    run install -m 0644 "$SRC/config/systemd/arise-kiosk.service" /etc/systemd/system/arise-kiosk.service
+    run systemctl daemon-reload
+    if [ "$WITH_CONSOLE" = 1 ]; then
+      warn "--console and --kiosk both given: the desktop takes tty1; arisetui is still 'arisetui' in any terminal"
+      run systemctl disable --now arise-console.service || true
+    fi
+    if [ "$NO_START" = 0 ]; then
+      run systemctl enable --now arise-kiosk.service
+      note "tty1 now shows the Arise desktop. Alt+F2 is a normal login."
+    else
+      run systemctl enable arise-kiosk.service
+    fi
+  fi
+  if ! lspci 2>/dev/null | grep -qi 'vga\|display'; then
+    warn "no display adapter seen by lspci; the kiosk needs a GPU and a monitor plugged in at boot"
   fi
 fi
 

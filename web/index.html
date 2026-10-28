@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Arise Server</title>
-<meta name="description" content="The Arise Church server desktop: directory, files, backups, the YouTube automator, sermons, Bible, apps, remote access, the campuses and the Synology, in one place.">
+<meta name="description" content="The Arise Church server desktop: Finder, menu bar, dock, widgets, and the apps that run the church's server, in one place.">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,36 +15,47 @@
 </head>
 <body>
 <div class="desk" id="desk">
-  <div class="wall" aria-hidden="true"><div class="wall__glow"></div><div class="wall__grid"></div><div class="wall__foot"></div></div>
+  <div class="wall" aria-hidden="true"><div class="wall__glow"></div><div class="wall__grid"></div><div class="wall__flame"></div><div class="wall__foot"></div></div>
 
   <header class="bar" id="bar">
-    <button class="bar__logo" id="barLogo" aria-label="Launchpad" title="Launchpad"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg></button>
-    <span class="bar__app" id="barApp">Arise Server</span>
-    <span class="bar__host" id="barHost">arise-server</span>
+    <button class="bar__logo" id="barLogo" aria-label="Arise menu" aria-haspopup="menu"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg></button>
+    <nav class="menus" id="menus" aria-label="Menu bar"></nav>
     <span class="bar__spacer"></span>
     <span class="bar__pill" id="barAtt" hidden><i></i><b id="barAttN">0</b><span class="bar__pilltxt">needs you</span></span>
+    <span class="bar__item" id="stVpn" title="VPN"><svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/></svg><b>VPN</b></span>
+    <span class="bar__item" id="stBk" title="Backups"><svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M3 4h18v7H3zm0 9h18v7H3zm3 2h3v3H6zm0-9h3v3H6z"/></svg><b>—</b></span>
     <span class="bar__stat" title="CPU"><i>CPU</i><b id="miniCpu">–</b></span>
     <span class="bar__stat" title="Memory"><i>RAM</i><b id="miniRam">–</b></span>
     <span class="bar__stat bar__stat--wide" title="Uptime"><i>UP</i><b id="miniUp">–</b></span>
     <span class="bar__live" id="sideLive"><span class="live__dot"></span><span id="sideLiveText">…</span></span>
     <span class="demo-badge" id="demoBadge" hidden>Sample data</span>
-    <span class="bar__clock" id="barClock">—</span>
-    <button class="bar__user" id="userBtn" aria-label="Account">bradly</button>
+    <button class="bar__ico" id="spotBtn" aria-label="Spotlight search" title="Search  ⌘Space"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 2a8 8 0 1 1 4.9 14.3l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg></button>
+    <button class="bar__ico" id="ccBtn" aria-label="Control Center" title="Control Center"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg></button>
+    <button class="bar__clock" id="barClock" aria-label="Notification Center" title="Widgets">—</button>
   </header>
 
   <main class="stage" id="stage">
+    <div class="icons" id="icons" aria-label="Desktop"></div>
     <aside class="widgets" id="widgets" aria-label="Desktop widgets"></aside>
   </main>
 
-  <nav class="dock" id="dock" aria-label="Apps"></nav>
+  <nav class="dock" id="dock" aria-label="Dock"></nav>
 
   <div class="launchpad" id="launchpad" hidden>
     <div class="launchpad__in">
-      <div class="mark mark--l"><span class="kicker">Arise Server · every app</span></div>
-      <input class="launchpad__q" id="lpQ" placeholder="Type to find an app" autocomplete="off">
+      <input class="launchpad__q" id="lpQ" placeholder="Search" autocomplete="off">
       <div class="launchpad__grid" id="lpGrid"></div>
     </div>
   </div>
+
+  <div class="menu__drop" id="menuDrop" hidden role="menu"></div>
+  <div class="ctx" id="ctx" hidden role="menu"></div>
+  <aside class="nc" id="nc" hidden aria-label="Widgets"><div class="nc__in" id="ncBody"></div></aside>
+  <div class="cc" id="cc" hidden aria-label="Control Center"></div>
+  <div class="spot" id="spot" hidden><div class="spot__box"><div class="spot__row"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M10 2a8 8 0 1 1 4.9 14.3l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg><input id="spotQ" placeholder="Search apps, people, files, a verse…" autocomplete="off" spellcheck="false"></div><div class="spot__res" id="spotRes"></div></div></div>
+  <div class="switcher" id="switcher" hidden></div>
+  <div class="ql" id="ql" hidden><div class="ql__bar"><b id="qlTitle"></b><span class="spacer"></span><a class="btn btn--ghost btn--xs" id="qlDl" href="#" download>Download</a><button class="btn btn--ghost btn--xs" id="qlClose">Close</button></div><div class="ql__body" id="qlBody"></div></div>
+  <div class="lock" id="lock" hidden><div class="lock__in"><div class="lock__time" id="lockTime"></div><div class="lock__date" id="lockDate"></div><div class="lock__avatar"><svg viewBox="0 0 32 32" width="44" height="44"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#fff"/></svg></div><div class="lock__name" id="lockName">bradly</div><form class="lock__form" id="lockForm"><input id="lockPw" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Unlock">→</button></form><div class="lock__hint">Arise Server · click or press a key</div></div></div>
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>

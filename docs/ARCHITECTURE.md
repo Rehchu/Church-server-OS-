@@ -62,6 +62,7 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | VPN | Tailscale (100.64.0.0/10) or WireGuard `wg0` on UDP 51820, tunnel `10.47.0.0/24` |
 | Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.church` behind Caddy) |
 | HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile` |
+| Closet monitor | `arise-kiosk.service` on tty1: `cage` + Epiphany (app mode) showing `http://127.0.0.1:4147/?kiosk=1` as user `arise-kiosk` (uid 1501); or `arise-console.service` (`arisetui --kiosk`) for a text screen. They conflict; one at a time |
 | Logs | `journalctl -u arise-*`, plus `/var/log/arise/` |
 | Windows mode root | `C:\Arise\` with the same subfolders (`config\`, `data\`, `automator\`) |
 
@@ -267,7 +268,8 @@ and previewed anywhere, including the published preview page.
 | `POST /api/remote/wireguard/peers` `{name}` | adds a peer to `wg0`, returns the client config text |
 | `GET /api/bible?ref=&translation=` | a passage from bible-api.com (public-domain texts), the Bible app |
 | `GET /api/sermons` | the channel from the automator's `channel_inventory.csv`, zero quota |
-| `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `POST /api/files/upload` | the Files app, inside `/srv/arise` and the NAS mount; no delete |
+| `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `GET /api/files/view?root=&path=` · `POST /api/files/upload` · `POST /api/files/mkdir` | the Finder, inside `/srv/arise` and the NAS mount; `view` is inline (Quick Look), `download` is an attachment; no delete, no move |
+| `GET /api/search?q=` | Spotlight: file names on both roots (a bounded `os.walk` index, cached 120 s), users and computers from the directory |
 | `GET /api/system/updates` · `POST /api/system/update` · `POST /api/system/apt-upgrade` | apt and Arise Server updates |
 | `POST /api/system/power` `{action: reboot|poweroff, confirm}` | the closet has no power button you can reach |
 | `POST /api/notify/test` | sends a test line to the webhook |

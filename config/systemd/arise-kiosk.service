@@ -1,0 +1,31 @@
+[Unit]
+Description=Arise Server desktop on the closet monitor (cage + Epiphany kiosk on tty1)
+# The web desktop, full screen, on the box's own monitor: the same Finder,
+# menu bar, dock and widgets anyone sees in a browser. Enabled by
+# install.sh --kiosk. Alt+F2 is a normal login; arisetui lives on tty3.
+After=arise-web.service systemd-user-sessions.service
+Wants=arise-web.service
+Conflicts=getty@tty1.service arise-console.service
+
+[Service]
+User=arise-kiosk
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+StandardInput=tty-fail
+StandardOutput=journal
+StandardError=journal
+Environment=XDG_RUNTIME_DIR=/run/user/1501
+Environment=XDG_SESSION_TYPE=wayland
+Environment=GDK_BACKEND=wayland
+Environment=WEBKIT_DISABLE_DMABUF_RENDERER=1
+ExecStartPre=/bin/sh -c 'until curl -fsS http://127.0.0.1:4147/api/health >/dev/null; do sleep 2; done'
+ExecStart=/usr/bin/cage -s -- /usr/bin/epiphany --application-mode --profile=/var/lib/arise/kiosk http://127.0.0.1:4147/?kiosk=1
+Restart=always
+RestartSec=5
+UtmpIdentifier=tty1
+UtmpMode=user
+
+[Install]
+WantedBy=graphical.target multi-user.target

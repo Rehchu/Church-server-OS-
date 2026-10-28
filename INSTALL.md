@@ -380,6 +380,6 @@ Check it from your phone's hotspot with the Tailscale app on: if
 
 ---
 
-Add `--console` to `install.sh` to put the `arisetui` dashboard on the closet monitor (docs/CONSOLE.md).
+Add `--kiosk` to `install.sh` to put the Arise desktop itself (Finder, dock, widgets) full screen on the closet monitor, or `--console` for the text `arisetui` dashboard instead (docs/CONSOLE.md).
 
 **Decision, Oct 27 2026:** the old PC (a Dell OptiPlex, specs to follow) is wiped; path A. Start with `docs/PRE-WIPE.md`.

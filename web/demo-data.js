@@ -2,7 +2,7 @@
 window.ARISE_DEMO_DATA = {
 "GET /overview": {
 "demo": true,
-"version": "0.2.0",
+"version": "0.3.0",
 "codename": "Pineville",
 "profile": "server",
 "hostname": "arise-server",
@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793140390
+"boot_time": 1793154127
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.CHURCH",
@@ -32,10 +32,10 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-27T02:29:33",
+"last_run": "2026-10-28T02:51:54",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
-"next_run": "2026-10-28T02:05:00",
+"next_run": "2026-10-29T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
@@ -46,8 +46,8 @@ window.ARISE_DEMO_DATA = {
 "last": {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-27T03:16:00",
-"finished": "2026-10-27T03:22:00",
+"started": "2026-10-28T03:16:00",
+"finished": "2026-10-28T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T20:29:33"
+"since": "2026-10-13T23:51:54"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T22:29:33",
+"last_logon": "2026-10-28T01:51:54",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T23:29:33",
+"last_logon": "2026-10-27T02:51:54",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T20:29:33",
+"last_logon": "2026-10-25T23:51:54",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-21T23:29:33",
+"last_logon": "2026-10-22T02:51:54",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -256,28 +256,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-27T22:29:33",
+"last_seen": "2026-10-28T01:51:54",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-26T23:29:33",
+"last_seen": "2026-10-27T02:51:54",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-25T23:29:33",
+"last_seen": "2026-10-26T02:51:54",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-27T23:25:33",
+"last_seen": "2026-10-28T02:47:54",
 "ip": "192.168.1.20"
 }
 ]
@@ -391,8 +391,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-27T03:16:00",
-"finished": "2026-10-27T03:22:00",
+"started": "2026-10-28T03:16:00",
+"finished": "2026-10-28T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -402,8 +402,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-27T03:12:00",
-"finished": "2026-10-27T03:17:00",
+"started": "2026-10-28T03:12:00",
+"finished": "2026-10-28T03:17:00",
 "ok": true,
 "snapshot_id": "e832b869",
 "bytes_added": 732332902,
@@ -413,8 +413,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-27T03:08:00",
-"finished": "2026-10-27T03:12:00",
+"started": "2026-10-28T03:08:00",
+"finished": "2026-10-28T03:12:00",
 "ok": true,
 "snapshot_id": "c969abbb",
 "bytes_added": 645615127,
@@ -424,8 +424,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-27T03:04:00",
-"finished": "2026-10-27T03:07:00",
+"started": "2026-10-28T03:04:00",
+"finished": "2026-10-28T03:07:00",
 "ok": true,
 "snapshot_id": "259256a9",
 "bytes_added": 473260162,
@@ -435,8 +435,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-27T03:00:00",
-"finished": "2026-10-27T03:02:00",
+"started": "2026-10-28T03:00:00",
+"finished": "2026-10-28T03:02:00",
 "ok": true,
 "snapshot_id": "846050e1",
 "bytes_added": 835870251,
@@ -446,8 +446,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-26T03:16:00",
-"finished": "2026-10-26T03:22:00",
+"started": "2026-10-27T03:16:00",
+"finished": "2026-10-27T03:22:00",
 "ok": true,
 "snapshot_id": "abb77450",
 "bytes_added": 294756223,
@@ -457,8 +457,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-26T03:12:00",
-"finished": "2026-10-26T03:17:00",
+"started": "2026-10-27T03:12:00",
+"finished": "2026-10-27T03:17:00",
 "ok": true,
 "snapshot_id": "aa98bfa9",
 "bytes_added": 240482372,
@@ -468,8 +468,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-26T03:08:00",
-"finished": "2026-10-26T03:12:00",
+"started": "2026-10-27T03:08:00",
+"finished": "2026-10-27T03:12:00",
 "ok": true,
 "snapshot_id": "8ed937c6",
 "bytes_added": 77416523,
@@ -479,8 +479,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-26T03:04:00",
-"finished": "2026-10-26T03:07:00",
+"started": "2026-10-27T03:04:00",
+"finished": "2026-10-27T03:07:00",
 "ok": true,
 "snapshot_id": "630e3bd0",
 "bytes_added": 192267031,
@@ -490,8 +490,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-26T03:00:00",
-"finished": "2026-10-26T03:02:00",
+"started": "2026-10-27T03:00:00",
+"finished": "2026-10-27T03:02:00",
 "ok": true,
 "snapshot_id": "5a5ad5ba",
 "bytes_added": 698669116,
@@ -501,8 +501,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-25T03:16:00",
-"finished": "2026-10-25T03:22:00",
+"started": "2026-10-26T03:16:00",
+"finished": "2026-10-26T03:22:00",
 "ok": true,
 "snapshot_id": "5cdfd95f",
 "bytes_added": 672507744,
@@ -512,8 +512,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-25T03:12:00",
-"finished": "2026-10-25T03:17:00",
+"started": "2026-10-26T03:12:00",
+"finished": "2026-10-26T03:17:00",
 "ok": true,
 "snapshot_id": "a6f310ba",
 "bytes_added": 452946068,
@@ -523,8 +523,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-25T03:08:00",
-"finished": "2026-10-25T03:12:00",
+"started": "2026-10-26T03:08:00",
+"finished": "2026-10-26T03:12:00",
 "ok": true,
 "snapshot_id": "4ce9bd68",
 "bytes_added": 816562910,
@@ -534,8 +534,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-25T03:04:00",
-"finished": "2026-10-25T03:07:00",
+"started": "2026-10-26T03:04:00",
+"finished": "2026-10-26T03:07:00",
 "ok": true,
 "snapshot_id": "a499cae4",
 "bytes_added": 187818933,
@@ -545,8 +545,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-25T03:00:00",
-"finished": "2026-10-25T03:02:00",
+"started": "2026-10-26T03:00:00",
+"finished": "2026-10-26T03:02:00",
 "ok": true,
 "snapshot_id": "4ee5384f",
 "bytes_added": 427558721,
@@ -556,8 +556,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-24T03:16:00",
-"finished": "2026-10-24T03:22:00",
+"started": "2026-10-25T03:16:00",
+"finished": "2026-10-25T03:22:00",
 "ok": true,
 "snapshot_id": "7df339f5",
 "bytes_added": 532481488,
@@ -567,8 +567,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-24T03:12:00",
-"finished": "2026-10-24T03:17:00",
+"started": "2026-10-25T03:12:00",
+"finished": "2026-10-25T03:17:00",
 "ok": true,
 "snapshot_id": "c975f84e",
 "bytes_added": 13182860,
@@ -578,8 +578,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-24T03:08:00",
-"finished": "2026-10-24T03:12:00",
+"started": "2026-10-25T03:08:00",
+"finished": "2026-10-25T03:12:00",
 "ok": true,
 "snapshot_id": "02909230",
 "bytes_added": 783198899,
@@ -589,8 +589,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-24T03:04:00",
-"finished": "2026-10-24T03:07:00",
+"started": "2026-10-25T03:04:00",
+"finished": "2026-10-25T03:07:00",
 "ok": false,
 "snapshot_id": null,
 "bytes_added": 0,
@@ -600,8 +600,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-24T03:00:00",
-"finished": "2026-10-24T03:02:00",
+"started": "2026-10-25T03:00:00",
+"finished": "2026-10-25T03:02:00",
 "ok": true,
 "snapshot_id": "cc3addef",
 "bytes_added": 601380732,
@@ -611,8 +611,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-23T03:16:00",
-"finished": "2026-10-23T03:22:00",
+"started": "2026-10-24T03:16:00",
+"finished": "2026-10-24T03:22:00",
 "ok": true,
 "snapshot_id": "7e0b464c",
 "bytes_added": 40046327,
@@ -622,8 +622,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-23T03:12:00",
-"finished": "2026-10-23T03:17:00",
+"started": "2026-10-24T03:12:00",
+"finished": "2026-10-24T03:17:00",
 "ok": true,
 "snapshot_id": "3f2a32a2",
 "bytes_added": 876195599,
@@ -633,8 +633,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-23T03:08:00",
-"finished": "2026-10-23T03:12:00",
+"started": "2026-10-24T03:08:00",
+"finished": "2026-10-24T03:12:00",
 "ok": true,
 "snapshot_id": "d4290bd4",
 "bytes_added": 754687263,
@@ -644,8 +644,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-23T03:04:00",
-"finished": "2026-10-23T03:07:00",
+"started": "2026-10-24T03:04:00",
+"finished": "2026-10-24T03:07:00",
 "ok": true,
 "snapshot_id": "c5c5fa5d",
 "bytes_added": 48996687,
@@ -655,8 +655,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-23T03:00:00",
-"finished": "2026-10-23T03:02:00",
+"started": "2026-10-24T03:00:00",
+"finished": "2026-10-24T03:02:00",
 "ok": true,
 "snapshot_id": "fafad058",
 "bytes_added": 815794861,
@@ -666,8 +666,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-22T03:16:00",
-"finished": "2026-10-22T03:22:00",
+"started": "2026-10-23T03:16:00",
+"finished": "2026-10-23T03:22:00",
 "ok": true,
 "snapshot_id": "9c005919",
 "bytes_added": 639567995,
@@ -677,8 +677,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-22T03:12:00",
-"finished": "2026-10-22T03:17:00",
+"started": "2026-10-23T03:12:00",
+"finished": "2026-10-23T03:17:00",
 "ok": true,
 "snapshot_id": "4070e9eb",
 "bytes_added": 704605695,
@@ -688,8 +688,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-22T03:08:00",
-"finished": "2026-10-22T03:12:00",
+"started": "2026-10-23T03:08:00",
+"finished": "2026-10-23T03:12:00",
 "ok": true,
 "snapshot_id": "64050c6c",
 "bytes_added": 38233364,
@@ -699,8 +699,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-22T03:04:00",
-"finished": "2026-10-22T03:07:00",
+"started": "2026-10-23T03:04:00",
+"finished": "2026-10-23T03:07:00",
 "ok": true,
 "snapshot_id": "0b2c04a7",
 "bytes_added": 55465593,
@@ -710,8 +710,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-22T03:00:00",
-"finished": "2026-10-22T03:02:00",
+"started": "2026-10-23T03:00:00",
+"finished": "2026-10-23T03:02:00",
 "ok": true,
 "snapshot_id": "60b2ecc9",
 "bytes_added": 570044627,
@@ -721,8 +721,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-21T03:16:00",
-"finished": "2026-10-21T03:22:00",
+"started": "2026-10-22T03:16:00",
+"finished": "2026-10-22T03:22:00",
 "ok": true,
 "snapshot_id": "a12f4a66",
 "bytes_added": 781410437,
@@ -732,8 +732,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-21T03:12:00",
-"finished": "2026-10-21T03:17:00",
+"started": "2026-10-22T03:12:00",
+"finished": "2026-10-22T03:17:00",
 "ok": true,
 "snapshot_id": "bf8d7fc7",
 "bytes_added": 700137143,
@@ -743,8 +743,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-21T03:08:00",
-"finished": "2026-10-21T03:12:00",
+"started": "2026-10-22T03:08:00",
+"finished": "2026-10-22T03:12:00",
 "ok": true,
 "snapshot_id": "061ecf32",
 "bytes_added": 186301514,
@@ -754,8 +754,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-21T03:04:00",
-"finished": "2026-10-21T03:07:00",
+"started": "2026-10-22T03:04:00",
+"finished": "2026-10-22T03:07:00",
 "ok": true,
 "snapshot_id": "e3773c07",
 "bytes_added": 759328297,
@@ -765,8 +765,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-21T03:00:00",
-"finished": "2026-10-21T03:02:00",
+"started": "2026-10-22T03:00:00",
+"finished": "2026-10-22T03:02:00",
 "ok": true,
 "snapshot_id": "6cc02888",
 "bytes_added": 767912817,
@@ -776,8 +776,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-20T03:16:00",
-"finished": "2026-10-20T03:22:00",
+"started": "2026-10-21T03:16:00",
+"finished": "2026-10-21T03:22:00",
 "ok": true,
 "snapshot_id": "20612248",
 "bytes_added": 549206482,
@@ -787,8 +787,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-20T03:12:00",
-"finished": "2026-10-20T03:17:00",
+"started": "2026-10-21T03:12:00",
+"finished": "2026-10-21T03:17:00",
 "ok": true,
 "snapshot_id": "90a55165",
 "bytes_added": 109670720,
@@ -798,8 +798,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-20T03:08:00",
-"finished": "2026-10-20T03:12:00",
+"started": "2026-10-21T03:08:00",
+"finished": "2026-10-21T03:12:00",
 "ok": true,
 "snapshot_id": "a3f50b1f",
 "bytes_added": 554531196,
@@ -809,8 +809,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-20T03:04:00",
-"finished": "2026-10-20T03:07:00",
+"started": "2026-10-21T03:04:00",
+"finished": "2026-10-21T03:07:00",
 "ok": true,
 "snapshot_id": "27fd6a6c",
 "bytes_added": 48151243,
@@ -820,8 +820,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-20T03:00:00",
-"finished": "2026-10-20T03:02:00",
+"started": "2026-10-21T03:00:00",
+"finished": "2026-10-21T03:02:00",
 "ok": true,
 "snapshot_id": "fabca970",
 "bytes_added": 621893529,
@@ -831,8 +831,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-19T03:16:00",
-"finished": "2026-10-19T03:22:00",
+"started": "2026-10-20T03:16:00",
+"finished": "2026-10-20T03:22:00",
 "ok": true,
 "snapshot_id": "cc940bac",
 "bytes_added": 640055100,
@@ -842,8 +842,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-19T03:12:00",
-"finished": "2026-10-19T03:17:00",
+"started": "2026-10-20T03:12:00",
+"finished": "2026-10-20T03:17:00",
 "ok": true,
 "snapshot_id": "59a25568",
 "bytes_added": 4082891,
@@ -853,8 +853,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-19T03:08:00",
-"finished": "2026-10-19T03:12:00",
+"started": "2026-10-20T03:08:00",
+"finished": "2026-10-20T03:12:00",
 "ok": true,
 "snapshot_id": "35babc3e",
 "bytes_added": 743739814,
@@ -864,8 +864,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-19T03:04:00",
-"finished": "2026-10-19T03:07:00",
+"started": "2026-10-20T03:04:00",
+"finished": "2026-10-20T03:07:00",
 "ok": true,
 "snapshot_id": "36cbd4e0",
 "bytes_added": 20778927,
@@ -875,8 +875,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-19T03:00:00",
-"finished": "2026-10-19T03:02:00",
+"started": "2026-10-20T03:00:00",
+"finished": "2026-10-20T03:02:00",
 "ok": true,
 "snapshot_id": "395bb752",
 "bytes_added": 574232645,
@@ -886,8 +886,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-18T03:16:00",
-"finished": "2026-10-18T03:22:00",
+"started": "2026-10-19T03:16:00",
+"finished": "2026-10-19T03:22:00",
 "ok": true,
 "snapshot_id": "ad45ace2",
 "bytes_added": 708421267,
@@ -897,8 +897,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-18T03:12:00",
-"finished": "2026-10-18T03:17:00",
+"started": "2026-10-19T03:12:00",
+"finished": "2026-10-19T03:17:00",
 "ok": true,
 "snapshot_id": "54a66a66",
 "bytes_added": 375722925,
@@ -908,8 +908,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-18T03:08:00",
-"finished": "2026-10-18T03:12:00",
+"started": "2026-10-19T03:08:00",
+"finished": "2026-10-19T03:12:00",
 "ok": true,
 "snapshot_id": "7b1b19e3",
 "bytes_added": 595628494,
@@ -919,8 +919,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-18T03:04:00",
-"finished": "2026-10-18T03:07:00",
+"started": "2026-10-19T03:04:00",
+"finished": "2026-10-19T03:07:00",
 "ok": true,
 "snapshot_id": "eee6a312",
 "bytes_added": 369329751,
@@ -930,8 +930,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-18T03:00:00",
-"finished": "2026-10-18T03:02:00",
+"started": "2026-10-19T03:00:00",
+"finished": "2026-10-19T03:02:00",
 "ok": true,
 "snapshot_id": "4c7503e0",
 "bytes_added": 568788945,
@@ -941,8 +941,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-17T03:16:00",
-"finished": "2026-10-17T03:22:00",
+"started": "2026-10-18T03:16:00",
+"finished": "2026-10-18T03:22:00",
 "ok": true,
 "snapshot_id": "288fe0b4",
 "bytes_added": 652224545,
@@ -952,8 +952,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-17T03:12:00",
-"finished": "2026-10-17T03:17:00",
+"started": "2026-10-18T03:12:00",
+"finished": "2026-10-18T03:17:00",
 "ok": true,
 "snapshot_id": "2c32cdd1",
 "bytes_added": 232029092,
@@ -963,8 +963,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-17T03:08:00",
-"finished": "2026-10-17T03:12:00",
+"started": "2026-10-18T03:08:00",
+"finished": "2026-10-18T03:12:00",
 "ok": true,
 "snapshot_id": "171f5b24",
 "bytes_added": 492040617,
@@ -974,8 +974,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-17T03:04:00",
-"finished": "2026-10-17T03:07:00",
+"started": "2026-10-18T03:04:00",
+"finished": "2026-10-18T03:07:00",
 "ok": true,
 "snapshot_id": "0bb7a02a",
 "bytes_added": 103254805,
@@ -985,8 +985,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-17T03:00:00",
-"finished": "2026-10-17T03:02:00",
+"started": "2026-10-18T03:00:00",
+"finished": "2026-10-18T03:02:00",
 "ok": true,
 "snapshot_id": "fb7e3180",
 "bytes_added": 46457264,
@@ -1001,7 +1001,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": [
 {
 "id": "b56fb937",
-"time": "2026-10-27T03:16:00",
+"time": "2026-10-28T03:16:00",
 "tags": [
 "config"
 ],
@@ -1013,7 +1013,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e832b869",
-"time": "2026-10-27T03:12:00",
+"time": "2026-10-28T03:12:00",
 "tags": [
 "github"
 ],
@@ -1023,7 +1023,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c969abbb",
-"time": "2026-10-27T03:08:00",
+"time": "2026-10-28T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1033,7 +1033,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "259256a9",
-"time": "2026-10-27T03:04:00",
+"time": "2026-10-28T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1043,7 +1043,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "846050e1",
-"time": "2026-10-27T03:00:00",
+"time": "2026-10-28T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1053,7 +1053,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "abb77450",
-"time": "2026-10-26T03:16:00",
+"time": "2026-10-27T03:16:00",
 "tags": [
 "config"
 ],
@@ -1065,7 +1065,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "aa98bfa9",
-"time": "2026-10-26T03:12:00",
+"time": "2026-10-27T03:12:00",
 "tags": [
 "github"
 ],
@@ -1075,7 +1075,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "8ed937c6",
-"time": "2026-10-26T03:08:00",
+"time": "2026-10-27T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1085,7 +1085,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "630e3bd0",
-"time": "2026-10-26T03:04:00",
+"time": "2026-10-27T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1095,7 +1095,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5a5ad5ba",
-"time": "2026-10-26T03:00:00",
+"time": "2026-10-27T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1105,7 +1105,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5cdfd95f",
-"time": "2026-10-25T03:16:00",
+"time": "2026-10-26T03:16:00",
 "tags": [
 "config"
 ],
@@ -1117,7 +1117,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a6f310ba",
-"time": "2026-10-25T03:12:00",
+"time": "2026-10-26T03:12:00",
 "tags": [
 "github"
 ],
@@ -1127,7 +1127,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ce9bd68",
-"time": "2026-10-25T03:08:00",
+"time": "2026-10-26T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1137,7 +1137,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a499cae4",
-"time": "2026-10-25T03:04:00",
+"time": "2026-10-26T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1147,7 +1147,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ee5384f",
-"time": "2026-10-25T03:00:00",
+"time": "2026-10-26T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1157,7 +1157,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7df339f5",
-"time": "2026-10-24T03:16:00",
+"time": "2026-10-25T03:16:00",
 "tags": [
 "config"
 ],
@@ -1169,7 +1169,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c975f84e",
-"time": "2026-10-24T03:12:00",
+"time": "2026-10-25T03:12:00",
 "tags": [
 "github"
 ],
@@ -1179,7 +1179,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "02909230",
-"time": "2026-10-24T03:08:00",
+"time": "2026-10-25T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1189,7 +1189,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc3addef",
-"time": "2026-10-24T03:00:00",
+"time": "2026-10-25T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1199,7 +1199,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7e0b464c",
-"time": "2026-10-23T03:16:00",
+"time": "2026-10-24T03:16:00",
 "tags": [
 "config"
 ],
@@ -1211,7 +1211,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "3f2a32a2",
-"time": "2026-10-23T03:12:00",
+"time": "2026-10-24T03:12:00",
 "tags": [
 "github"
 ],
@@ -1221,7 +1221,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "d4290bd4",
-"time": "2026-10-23T03:08:00",
+"time": "2026-10-24T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1231,7 +1231,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c5c5fa5d",
-"time": "2026-10-23T03:04:00",
+"time": "2026-10-24T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1241,7 +1241,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fafad058",
-"time": "2026-10-23T03:00:00",
+"time": "2026-10-24T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1251,7 +1251,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "9c005919",
-"time": "2026-10-22T03:16:00",
+"time": "2026-10-23T03:16:00",
 "tags": [
 "config"
 ],
@@ -1263,7 +1263,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4070e9eb",
-"time": "2026-10-22T03:12:00",
+"time": "2026-10-23T03:12:00",
 "tags": [
 "github"
 ],
@@ -1273,7 +1273,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "64050c6c",
-"time": "2026-10-22T03:08:00",
+"time": "2026-10-23T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1283,7 +1283,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0b2c04a7",
-"time": "2026-10-22T03:04:00",
+"time": "2026-10-23T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1293,7 +1293,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "60b2ecc9",
-"time": "2026-10-22T03:00:00",
+"time": "2026-10-23T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1303,7 +1303,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a12f4a66",
-"time": "2026-10-21T03:16:00",
+"time": "2026-10-22T03:16:00",
 "tags": [
 "config"
 ],
@@ -1315,7 +1315,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "bf8d7fc7",
-"time": "2026-10-21T03:12:00",
+"time": "2026-10-22T03:12:00",
 "tags": [
 "github"
 ],
@@ -1325,7 +1325,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "061ecf32",
-"time": "2026-10-21T03:08:00",
+"time": "2026-10-22T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1335,7 +1335,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e3773c07",
-"time": "2026-10-21T03:04:00",
+"time": "2026-10-22T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1345,7 +1345,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "6cc02888",
-"time": "2026-10-21T03:00:00",
+"time": "2026-10-22T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1355,7 +1355,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "20612248",
-"time": "2026-10-20T03:16:00",
+"time": "2026-10-21T03:16:00",
 "tags": [
 "config"
 ],
@@ -1367,7 +1367,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "90a55165",
-"time": "2026-10-20T03:12:00",
+"time": "2026-10-21T03:12:00",
 "tags": [
 "github"
 ],
@@ -1377,7 +1377,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a3f50b1f",
-"time": "2026-10-20T03:08:00",
+"time": "2026-10-21T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1387,7 +1387,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "27fd6a6c",
-"time": "2026-10-20T03:04:00",
+"time": "2026-10-21T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1397,7 +1397,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fabca970",
-"time": "2026-10-20T03:00:00",
+"time": "2026-10-21T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1407,7 +1407,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc940bac",
-"time": "2026-10-19T03:16:00",
+"time": "2026-10-20T03:16:00",
 "tags": [
 "config"
 ],
@@ -1419,7 +1419,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "59a25568",
-"time": "2026-10-19T03:12:00",
+"time": "2026-10-20T03:12:00",
 "tags": [
 "github"
 ],
@@ -1429,7 +1429,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "35babc3e",
-"time": "2026-10-19T03:08:00",
+"time": "2026-10-20T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1439,7 +1439,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "36cbd4e0",
-"time": "2026-10-19T03:04:00",
+"time": "2026-10-20T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1449,7 +1449,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "395bb752",
-"time": "2026-10-19T03:00:00",
+"time": "2026-10-20T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1459,7 +1459,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "ad45ace2",
-"time": "2026-10-18T03:16:00",
+"time": "2026-10-19T03:16:00",
 "tags": [
 "config"
 ],
@@ -1471,7 +1471,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "54a66a66",
-"time": "2026-10-18T03:12:00",
+"time": "2026-10-19T03:12:00",
 "tags": [
 "github"
 ],
@@ -1481,7 +1481,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7b1b19e3",
-"time": "2026-10-18T03:08:00",
+"time": "2026-10-19T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1491,7 +1491,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "eee6a312",
-"time": "2026-10-18T03:04:00",
+"time": "2026-10-19T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1501,7 +1501,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4c7503e0",
-"time": "2026-10-18T03:00:00",
+"time": "2026-10-19T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1511,7 +1511,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "288fe0b4",
-"time": "2026-10-17T03:16:00",
+"time": "2026-10-18T03:16:00",
 "tags": [
 "config"
 ],
@@ -1523,7 +1523,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "2c32cdd1",
-"time": "2026-10-17T03:12:00",
+"time": "2026-10-18T03:12:00",
 "tags": [
 "github"
 ],
@@ -1533,7 +1533,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "171f5b24",
-"time": "2026-10-17T03:08:00",
+"time": "2026-10-18T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1543,7 +1543,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0bb7a02a",
-"time": "2026-10-17T03:04:00",
+"time": "2026-10-18T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1553,7 +1553,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fb7e3180",
-"time": "2026-10-17T03:00:00",
+"time": "2026-10-18T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1570,7 +1570,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-18T23:29:33",
+"last_check": "2026-10-19T02:51:54",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1579,10 +1579,10 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-27T02:29:33",
+"last_run": "2026-10-28T02:51:54",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
-"next_run": "2026-10-28T02:05:00",
+"next_run": "2026-10-29T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "quota_reset": "2:00 AM Central",
@@ -1691,17 +1691,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T18:29:33",
+"when": "2026-10-27T21:51:54",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T18:29:33",
+"when": "2026-10-27T21:51:54",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T18:29:33",
+"when": "2026-10-27T21:51:54",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1736,7 +1736,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-24T23:29:33",
+"updated": "2026-10-25T02:51:54",
 "mem_h": "36.2 MB"
 },
 {
@@ -1749,7 +1749,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-24T23:29:33",
+"updated": "2026-10-25T02:51:54",
 "mem_h": "135.4 MB"
 },
 {
@@ -1762,7 +1762,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-26T23:29:33",
+"updated": "2026-10-27T02:51:54",
 "mem_h": "0 B"
 }
 ],
@@ -1869,7 +1869,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-26T21:29:33",
+"last": "2026-10-27T00:51:54",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -1954,7 +1954,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /health": {
 "ok": true,
-"version": "0.2.0",
+"version": "0.3.0",
 "demo": true
 },
 "GET /sites": {
@@ -2027,7 +2027,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-27T23:29"
+"when": "2026-10-28T02:51"
 },
 {
 "user": "bradly",
@@ -2286,7 +2286,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-27T23:29:33+00:00",
+"last_check": "2026-10-28T02:51:54+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -2893,6 +2893,151 @@ window.ARISE_DEMO_DATA = {
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=nas&path=/arise": {
+"demo": true,
+"root": "nas",
+"path": "/arise",
+"entries": [
+{
+"name": "arise-backups",
+"dir": true,
+"size": null,
+"mtime": "2026-10-28T03:00"
+},
+{
+"name": "media",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "mirror",
+"dir": true,
+"size": null,
+"mtime": "2026-10-28T04:00"
+}
+]
+},
+"GET /files/list?root=nas&path=/arise/arise-backups": {
+"demo": true,
+"root": "nas",
+"path": "/arise/arise-backups",
+"entries": [
+{
+"name": "restic",
+"dir": true,
+"size": null,
+"mtime": "2026-10-28T03:00"
+}
+]
+},
+"GET /files/list?root=nas&path=/arise/media": {
+"demo": true,
+"root": "nas",
+"path": "/arise/media",
+"entries": [
+{
+"name": "sermons",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "shorts",
+"dir": true,
+"size": null,
+"mtime": "2026-10-25T20:40"
+},
+{
+"name": "thumbnails",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "worship",
+"dir": true,
+"size": null,
+"mtime": "2026-10-19T13:10"
+}
+]
+},
+"GET /files/list?root=nas&path=/arise/media/sermons": {
+"demo": true,
+"root": "nas",
+"path": "/arise/media/sermons",
+"entries": [
+{
+"name": "2026-10-26 Sunday Service.mp4",
+"dir": false,
+"size": 6420000000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "2026-10-20 Glory Night.mp4",
+"dir": false,
+"size": 5110000000,
+"mtime": "2026-10-20T21:30"
+},
+{
+"name": "2026-10-19 Sunday Service.mp4",
+"dir": false,
+"size": 6880000000,
+"mtime": "2026-10-19T14:10"
+}
+]
+},
+"GET /files/list?root=nas&path=/arise/media/thumbnails": {
+"demo": true,
+"root": "nas",
+"path": "/arise/media/thumbnails",
+"entries": [
+{
+"name": "2026-10-26_whose_hand.jpg",
+"dir": false,
+"size": 412000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "2026-10-20_glory_night.jpg",
+"dir": false,
+"size": 398000,
+"mtime": "2026-10-20T21:30"
+}
+]
+},
+"GET /files/list?root=nas&path=/homes": {
+"demo": true,
+"root": "nas",
+"path": "/homes",
+"entries": [
+{
+"name": "bradly",
+"dir": true,
+"size": null,
+"mtime": "2026-10-25T18:12"
+}
+]
+},
+"GET /files/list?root=nas&path=/media": {
+"demo": true,
+"root": "nas",
+"path": "/media",
+"entries": [
+{
+"name": "backgrounds",
+"dir": true,
+"size": null,
+"mtime": "2026-10-12T09:00"
+},
+{
+"name": "loops",
+"dir": true,
+"size": null,
+"mtime": "2026-09-30T11:20"
 }
 ]
 }

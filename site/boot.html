@@ -66,7 +66,7 @@ h1{font-size:clamp(28px,4vw,46px);color:#fff}
 <div class="wrap">
   <div class="mark"><span class="kicker">Arise Server · what the box itself shows</span></div>
   <h1>From power-on to the desktop.</h1>
-  <p class="lede">This is the OptiPlex's own screen in the closet, scene by scene, with sample data: the one-time boot menu, the unattended Ubuntu install, the Arise installer, the console banner, a login, the <code>arisetui</code> dashboard, and finally the desktop you open in a browser from any campus. Press <b>Enter</b> or the Next button to move through it; in the dashboard scene, keys 1 to 5 switch tabs.</p>
+  <p class="lede">This is the OptiPlex's own screen in the closet, scene by scene, with sample data: the one-time boot menu, the unattended Ubuntu install, the Arise installer, the console banner, a login, the <code>arisetui</code> dashboard, and finally the Arise desktop: full screen on the monitor itself with <code>--kiosk</code>, and the same thing in a browser from any campus. Press <b>Enter</b> or the Next button to move through it; in the dashboard scene, keys 1 to 5 switch tabs.</p>
 
   <div class="strap" id="strap"></div>
 
@@ -98,7 +98,7 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
     <div class="scene" data-n="4"><pre id="motd"></pre></div>
 
     <div class="scene" data-n="5"><pre><span class="r">      ▄▄      </span> <span class="w">ARISE SERVER</span>
-<span class="r">     ▟██▙     </span> <span class="d">v0.2.0 “Pineville”  ·  arise-server  ·  AD.ARISECENLA.CHURCH</span>
+<span class="r">     ▟██▙     </span> <span class="d">v0.3.0 “Pineville”  ·  arise-server  ·  AD.ARISECENLA.CHURCH</span>
 <span class="r">    ▟████▙    </span> <span id="tuiClock">Tue Oct 28  02:01:12 AM</span>
 <span class="r">   ▟██▛▜██▙   </span>
 <span class="r">  ▟██▛  ▜██▙  </span> <span class="d">up 14d 3h 7m   load 0.42 0.58 0.61   46°C</span>
@@ -108,8 +108,8 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
 <span class="tuitabs" id="tuitabs"><span class="on"> 1 OVERVIEW </span><span> 2 SERVICES </span><span> 3 BACKUPS </span><span> 4 AUTOMATOR </span><span> 5 DIRECTORY </span></span>                      <span class="d">q quit · keys 1-5</span>
 <span class="r">────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre><div id="tuibody"></div><div class="foot"></div></div>
 
-    <div class="scene" data-n="6"><div class="center"><div><pre class="d">The same box, from any campus, in a browser:</pre><br><pre><span class="w">http://arise-server:4147</span>          on the church network
-<span class="w">http://arise-server.tailnet.ts.net:4147</span>   over the VPN from Alexandria, the Hub, home</pre><br><br><a class="btn" href="https://claude.ai/artifact/WhHiMtc1ZshDUW49NthvRS" target="_blank" rel="noopener">Open the desktop preview</a><br><br><pre class="d">menu bar · windows · dock · launchpad · 15 apps</pre></div></div><div class="foot"></div></div>
+    <div class="scene" data-n="6"><div class="center"><div><pre class="d">The desktop. On the closet monitor itself (install.sh --kiosk), and from any campus in a browser:</pre><br><pre><span class="w">http://arise-server:4147</span>          on the church network
+<span class="w">http://arise-server.tailnet.ts.net:4147</span>   over the VPN from Alexandria, the Hub, home</pre><br><br><a class="btn" href="https://claude.ai/artifact/WhHiMtc1ZshDUW49NthvRS" target="_blank" rel="noopener">Open the desktop preview</a><br><br><pre class="d">Finder · menu bar · dock · widgets · Spotlight · Mission Control · 15 apps</pre></div></div><div class="foot"></div></div>
   </div></div>
 
   <div class="ctrl">
@@ -123,7 +123,7 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
   <div class="grid">
     <div class="card"><h3>What is real here</h3>Every screen is a thing in the repo: <code>installer/autoinstall.yaml</code>, <code>installer/install.sh</code>, <code>config/console/issue</code>, the login message, <code>cli/arisetui</code> and <code>arise-console.service</code>. The numbers are sample data.</div>
     <div class="card"><h3>What is not</h3>The boot menu is a stand-in for Dell's; the install log is condensed from minutes to seconds; nothing here touched a real domain or NAS yet.</div>
-    <div class="card"><h3>The closet monitor</h3>With <code>install.sh --console</code>, tty1 shows <code>arisetui</code> all day, read only, so a glance at the monitor says whether the box is well. Alt+F2 is a normal login.</div>
+    <div class="card"><h3>The closet monitor</h3>With <code>install.sh --kiosk</code>, tty1 shows the Arise desktop all day (<code>arise-kiosk.service</code>: cage + Epiphany, locks itself after ten idle minutes). <code>--console</code> gives the text <code>arisetui</code> instead. Alt+F2 is a normal login either way.</div>
   </div>
 </div>
 
@@ -138,7 +138,7 @@ const SCENES = [
   ['04', 'Console banner', '<code>/etc/issue</code>: what the monitor shows before anyone logs in. The flame, the name, the two addresses that matter. Type a user name and press Enter.'],
   ['05', 'Login', 'The login message: the flame, <code>arisectl info</code> for this box, and the three commands worth knowing. Then the prompt. Type <code>arisetui</code> or press Enter.'],
   ['06', 'arisetui', 'The console dashboard, like Monolith\'s <code>mntui</code>: live CPU and memory, disks, what needs you, tonight\'s jobs, then services, backups, the automator and the directory on keys <b>1 to 5</b>. With <code>--console</code> this is what tty1 shows all day.'],
-  ['07', 'The desktop', 'Same box, in a browser, from any campus: the window-and-dock desktop with the fifteen apps. That is the preview linked here.'],
+  ['07', 'The desktop', 'A macOS-style desktop themed for Arise: Finder, menu bar, dock, widgets, Spotlight, Mission Control, the fifteen apps. With <code>--kiosk</code> this is what the closet monitor shows all day; from any campus it is the same thing in a browser. That is the preview linked here.'],
 ];
 let cur = 0, timers = [];
 const strap = $('#strap');

@@ -457,6 +457,35 @@ def api_files_download(root: str, path: str, _=auth):
     return FileResponse(p, filename=os.path.basename(p))
 
 
+@app.get("/api/files/view")
+def api_files_view(root: str, path: str, _=auth):
+    """Inline (for Quick Look); download sets an attachment header, this does not."""
+    p = files.file_path(root, path)
+    if not p:
+        raise HTTPException(404, {"message": "no such file"})
+    return FileResponse(p)
+
+
+class NewFolder(BaseModel):
+    root: str = "data"
+    path: str = "/"
+    name: str
+
+
+@app.post("/api/files/mkdir")
+def api_files_mkdir(body: NewFolder, _=auth):
+    return files.make_folder(body.root, body.path, body.name)
+
+
+@app.get("/api/search")
+def api_search(q: str = "", _=auth):
+    out = files.search(q)
+    ql = q.strip().lower()
+    out["users"] = [u for u in directory.list_users()["users"] if ql and (ql in u["name"].lower() or ql in (u.get("display") or "").lower())][:8]
+    out["computers"] = [c for c in directory.list_computers()["computers"] if ql and ql in c["name"].lower()][:8]
+    return out
+
+
 @app.post("/api/files/upload")
 async def api_files_upload(root: str = Form("data"), path: str = Form("/"), file: UploadFile = File(...), _=auth):
     data = await file.read()

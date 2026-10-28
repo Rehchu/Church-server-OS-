@@ -1,7 +1,44 @@
 # The console — what the closet monitor shows
 
-The box has its own screen in the closet. Three things live on it, all
-installed by `install.sh`:
+The box has its own screen in the closet. With `install.sh --kiosk` that
+screen **is the Arise desktop**: the same macOS-style shell the dashboard
+shows a browser (Finder, menu bar, dock, widgets, Spotlight), full screen on
+tty1 from the moment the box has booted. Everything below the next section is
+the text fallback.
+
+## The desktop on the monitor (`--kiosk`)
+
+`arise-kiosk.service` starts `cage` (a one-window Wayland compositor, no
+desktop environment underneath) running Epiphany in application mode, pointed
+at `http://127.0.0.1:4147/?kiosk=1`, as the unprivileged user `arise-kiosk`
+(uid 1501, groups `video`, `input`, `render`). It waits for `arise-web` to
+answer `/api/health` before it draws anything, so the first thing on screen is
+the login window, never a browser error.
+
+In kiosk mode the page hides the pointer after a few idle seconds, locks
+itself after ten idle minutes (the lock screen: the clock, the flame, the
+password), and never shows a URL bar or a tab. The sign-in is the dashboard's
+own admin login; signing out brings the login window back.
+
+```bash
+sudo bash /opt/arise/installer/install.sh --kiosk     # add it to an existing install
+sudo systemctl status arise-kiosk                       # is it up
+sudo systemctl disable --now arise-kiosk; sudo systemctl start getty@tty1   # back to a text login
+```
+
+**Alt+F2** is a normal text login at any time; **Alt+F1** goes back to the
+desktop. `--kiosk` and `--console` conflict on tty1 (both units declare it);
+the installer enables whichever was asked for last, and `arisetui` still works
+from any login or over SSH.
+
+Needs a monitor that stays plugged in and a GPU the kernel can drive, which
+every OptiPlex has. If `cage` cannot start (no `/dev/dri`, a headless build)
+the unit fails and tty1 falls back to the banner; `journalctl -u arise-kiosk`
+says why.
+
+## The text console
+
+Three things live on it, all installed by `install.sh`:
 
 | What | File | When you see it |
 |---|---|---|

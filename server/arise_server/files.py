@@ -98,3 +98,63 @@ def save_upload(root_id: str, rel: str, filename: str, data: bytes) -> dict:
     with open(dest, "wb") as f:
         f.write(data)
     return {"ok": True, "path": dest, "bytes": len(data)}
+
+
+def make_folder(root_id: str, rel: str, name: str) -> dict:
+    cfg = load()
+    rs = {r["id"]: r for r in roots()}
+    if root_id not in rs or cfg.demo:
+        return {"ok": True, "demo": True}
+    name = os.path.basename(name or "").strip()
+    if not name or name.startswith(".") or "/" in name:
+        return {"ok": False, "err": "bad folder name"}
+    folder = _resolve(rs[root_id]["path"], rel)
+    if not folder or not os.path.isdir(folder):
+        return {"ok": False, "err": "folder not found"}
+    dest = os.path.join(folder, name)
+    if os.path.exists(dest):
+        return {"ok": False, "err": f"{name} already exists"}
+    os.makedirs(dest)
+    return {"ok": True, "path": dest}
+
+
+_search_cache: dict = {}
+
+
+def search(q: str, limit: int = 40) -> dict:
+    """Name search over the data root (and the NAS when mounted), bounded and cached."""
+    import time
+    q = (q or "").strip().lower()
+    if len(q) < 2:
+        return {"hits": []}
+    cfg = load()
+    if cfg.demo:
+        hits = []
+        for path, entries in DEMO_TREE.items():
+            for e in entries:
+                if q in e[0].lower():
+                    hits.append({"root": "data", "path": (path.rstrip("/") + "/" + e[0]), "name": e[0], "dir": e[1], "size": e[2] if len(e) > 2 else None})
+        return {"demo": True, "hits": hits[:limit]}
+    now = time.time()
+    if now - _search_cache.get("t", 0) > 120:
+        index = []
+        for r in roots():
+            base = r["path"]
+            if not os.path.isdir(base):
+                continue
+            n = 0
+            for dirpath, dirs, files in os.walk(base):
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "__pycache__", "@eaDir", "#recycle")]
+                rel = dirpath[len(base):] or "/"
+                for d in dirs:
+                    index.append((r["id"], rel.rstrip("/") + "/" + d, d, True, None))
+                for f in files:
+                    if not f.startswith("."):
+                        index.append((r["id"], rel.rstrip("/") + "/" + f, f, False, None))
+                n += len(dirs) + len(files)
+                if n > 60000 or time.time() - now > 8:
+                    break
+        _search_cache.update({"t": now, "index": index})
+    hits = [{"root": a, "path": b, "name": c, "dir": d, "size": e} for a, b, c, d, e in _search_cache.get("index", []) if q in c.lower()]
+    hits.sort(key=lambda h: (not h["name"].lower().startswith(q), h["dir"] is False, h["name"].lower()))
+    return {"demo": False, "hits": hits[:limit]}
