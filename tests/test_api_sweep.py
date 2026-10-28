@@ -26,6 +26,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "server"))
 os.environ["ARISE_DEMO"] = "1"
 os.environ["ARISE_CONFIG"] = str(ROOT / "config" / "arise.toml.example")
+_STAFF_WAS = None
+
+
+def setUpModule():
+    # The member portal stays a supported setting ([web] staff_access = "portal"); this file
+    # sweeps it. The default since round 5, "none", is pinned in tests/test_desktop_r5.py.
+    global _STAFF_WAS
+    _STAFF_WAS = os.environ.get("ARISE_STAFF_ACCESS")
+    os.environ["ARISE_STAFF_ACCESS"] = "portal"
+
+
+def tearDownModule():
+    os.environ.pop("ARISE_STAFF_ACCESS", None) if _STAFF_WAS is None else os.environ.__setitem__("ARISE_STAFF_ACCESS", _STAFF_WAS)
 
 from fastapi.routing import APIRoute  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -212,6 +225,23 @@ CALLS = {
     ("POST", "/api/system/power"): ("/api/system/power", {"action": "reboot", "confirm": "reboot"}, None),
     ("POST", "/api/notify/test"): ("/api/notify/test", None, None),
     ("GET", "/api/notify"): ("/api/notify", None, None),
+    # round 5 (R5-C): notifications, the Desktop folder, department checklists, the guided setup, monitor text size, faces
+    ("GET", "/api/notifications"): ("/api/notifications", None, None),
+    ("POST", "/api/notifications/read"): ("/api/notifications/read", {"ids": None}, None),
+    ("POST", "/api/notifications"): ("/api/notifications", {"user": "bradly", "kind": "system", "text": "Sweep note"}, None),
+    ("GET", "/api/desktop"): ("/api/desktop", None, None),
+    ("PUT", "/api/desktop/positions"): ("/api/desktop/positions", {"positions": {"Start here.md": [40, 40]}}, None),
+    ("POST", "/api/files/move"): ("/api/files/move", {"root": "data", "path": "homes/bradly/Desktop/stage-wide.jpg", "to": "homes/bradly"}, None),
+    ("GET", "/api/checklists"): ("/api/checklists", None, None),
+    ("POST", "/api/checklists/{dept}/tick"): ("/api/checklists/Media/tick", {"i": 0}, None),
+    ("PUT", "/api/checklists/{dept}"): ("/api/checklists/Inedge", {"items": ["Room set up"], "leader": "bradly"}, None),
+    ("GET", "/api/setup"): ("/api/setup", None, None),
+    ("POST", "/api/setup/dismiss"): ("/api/setup/dismiss", None, None),
+    ("POST", "/api/setup/reopen"): ("/api/setup/reopen", None, None),
+    ("POST", "/api/setup/{step}"): ("/api/setup/shares", {"status": "done"}, None),
+    ("GET", "/api/kiosk/scale"): ("/api/kiosk/scale", None, None),
+    ("POST", "/api/kiosk/scale"): ("/api/kiosk/scale", {"scale": 1.25}, None),
+    ("GET", "/api/public/faces"): ("/api/public/faces", None, None),
     ("GET", "/{path:path}"): ("/", None, None),
 }
 

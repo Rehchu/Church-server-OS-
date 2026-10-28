@@ -32,6 +32,10 @@ session_hours = 8760   # a year: a browser or phone stays signed in until they s
 # Everyone in the directory may sign in with their domain password. Members get
 # their own files, the shares their groups allow, share links, Sermons, Bible.
 member_login = true
+# What a staff member or volunteer gets when they sign in here (round 5, after 26).
+# "none": a short page saying their files are on their Mac; the dashboard is for
+# the administrators, in the closet. "portal": their own files, shares and links.
+staff_access = "none"
 # Members of this group get the administrator's desktop as well.
 admins_group = "Domain Admins"
 # The address share links are written with. Empty = whatever address the person
@@ -52,6 +56,10 @@ services = [
 # The Sunday app's checklist, one line per item; ticks reset each week.
 # Leave it out to get the default list (server/arise_server/church.py).
 # sunday_checklist = ["Streaming Mac on", "Cameras answering", "Slides updated"]
+# Departments with their own checklist in the Sunday app (round 5, 29-30): one
+# group each; its leader edits the list, members tick it, it resets before each
+# service. Each list's nudge time is set in the app.
+# departments = ["Media", "Childrens-Department", "Inedge", "Worship"]
 
 # Mass email to the church family, through Resend (resend.com). The API key is
 # a root-only file. from_email must be at a domain VERIFIED in Resend: not
@@ -167,6 +175,10 @@ guacamole_url = "http://arise-server:8084"
 webhook_url = ""
 hour = 7
 only_when_attention = true
+# Staff reminders (calendar 30 minutes ahead, shared with you, the checklists)
+# go to the notification feed and to push. On: also email each person's
+# personal address through Resend (round 5, 28).
+email_staff = false
 
 # Routers the server may READ (never change): consumer Netgear routers answer
 # an "attached devices" question over their SOAP API with the admin password,

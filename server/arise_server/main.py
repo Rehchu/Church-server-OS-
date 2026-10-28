@@ -28,7 +28,7 @@ from . import weather
 from . import finder
 from . import audit, offboard
 from . import repos as arise_repos
-from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
+from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth, staff_access
 from .config import load
 from .util import human_bytes
 from .util import run as system_run
@@ -40,6 +40,8 @@ _started = time.time()
 if not cfg.demo:
     push.watch(lambda: overview.__wrapped__() if hasattr(overview, "__wrapped__") else _attention_now())
     security.rescue_watch()  # a push the moment the break-glass account signs in
+    from . import notify as _notify
+    _notify.start_reminders()  # calendar 30 minutes ahead, the Sunday 9:30 nudge, department nudges (round 5, 28 to 30)
 
 from . import demo_state
 
@@ -193,6 +195,7 @@ def api_me(request: Request):
     who["roots"] = files.roots(who)
     who["links_days"] = load().links.days
     who["claude"] = who["user"] in church.claude_users()  # Claude on the box is Bradly's (round 4, 44)
+    who["staff_access"] = staff_access()   # "none": a staff or member sign-in gets the "your files are on your Mac" page
     return who
 
 
@@ -1264,6 +1267,7 @@ class CalEvent(BaseModel):
     end: str = ""
     where: str = ""
     note: str = ""
+    people: list[str] = []      # who is in it: users and @groups (round 5, 28: reminded 30 minutes before)
 
 
 @app.get("/api/calendar")
@@ -1675,6 +1679,174 @@ def api_leaving_start(name: str, body: Leaving, who=admin):
 def api_leaving_cancel(name: str, who=admin):
     return offboard.cancel(name, who["user"])
 
+
+
+# ----- round 5: the desktop, notifications, department checklists, the guided setup -----
+from . import checklists, desktop as arise_desktop, notify, setup_wizard  # noqa: E402
+
+
+@app.get("/api/notifications")
+def api_notifications(limit: int = 50, who=auth):
+    return notify.feed(who["user"], limit)
+
+
+class NotifyRead(BaseModel):
+    ids: list[str] | None = None
+
+
+@app.post("/api/notifications/read")
+def api_notifications_read(body: NotifyRead, who=auth):
+    return notify.mark_read(who["user"], body.ids)
+
+
+class NotifyAdd(BaseModel):
+    user: str
+    kind: str = "system"
+    text: str
+    link: str = ""
+
+
+@app.post("/api/notifications")
+def api_notifications_add(body: NotifyAdd, who=admin):
+    """For admins and the hooks (the internal mail server's delivery, arisectl notify add)."""
+    return notify.add(body.user, body.kind, body.text, body.link)
+
+
+@app.get("/api/desktop")
+def api_desktop(who=auth):
+    return {**arise_desktop.location(who), "positions": arise_desktop.positions(who["user"])}
+
+
+class DesktopPositions(BaseModel):
+    positions: dict
+
+
+@app.put("/api/desktop/positions")
+def api_desktop_positions(body: DesktopPositions, who=auth):
+    return arise_desktop.save_positions(who["user"], body.positions)
+
+
+class FileMove(BaseModel):
+    root: str
+    path: str
+    to: str
+
+
+@app.post("/api/files/move")
+def api_files_move(body: FileMove, who=auth):
+    """Same place only: Finder onto the Desktop, a desktop icon into a folder (round 5, 24)."""
+    return arise_desktop.move(body.root, body.path, body.to, who)
+
+
+@app.get("/api/checklists")
+def api_checklists(who=admin):
+    """Department checklists. Admins only while [web] staff_access is "none" (after round 5)."""
+    return checklists.all_lists(who)
+
+
+class ChecklistTick(BaseModel):
+    i: int
+
+
+@app.post("/api/checklists/{dept}/tick")
+def api_checklist_tick(dept: str, body: ChecklistTick, who=admin):
+    return checklists.tick(dept, body.i, who)
+
+
+class ChecklistEdit(BaseModel):
+    items: list[str] | None = None
+    leader: str | None = None
+    nudge: dict | None = None
+    services: list[str] | None = None
+
+
+@app.put("/api/checklists/{dept}")
+def api_checklist_edit(dept: str, body: ChecklistEdit, who=admin):
+    return checklists.edit(dept, who, body.items, body.leader, body.nudge, body.services)
+
+
+@app.get("/api/setup")
+def api_setup(who=admin):
+    return setup_wizard.state(who)
+
+
+class SetupMark(BaseModel):
+    status: str
+
+
+@app.post("/api/setup/dismiss")
+def api_setup_dismiss(who=admin):
+    return setup_wizard.dismiss(who, True)
+
+
+@app.post("/api/setup/reopen")
+def api_setup_reopen(who=admin):
+    return setup_wizard.dismiss(who, False)
+
+
+@app.post("/api/setup/{step}")
+def api_setup_mark(step: str, body: SetupMark, who=admin):
+    return setup_wizard.mark(step, body.status, who)
+
+
+KIOSK_SCALES = (1.0, 1.15, 1.25, 1.4, 1.5)
+
+
+def _kiosk_scale_file():
+    return load().state_dir / "kiosk-scale"
+
+
+@app.get("/api/kiosk/scale")
+def api_kiosk_scale(_=admin):
+    """The closet monitor's text size (round 5, 27). 1.25 until someone changes it."""
+    try:
+        v = float(_kiosk_scale_file().read_text().strip())
+    except (OSError, ValueError):
+        v = 1.25
+    return {"scale": v, "choices": list(KIOSK_SCALES), "demo": load().demo}
+
+
+class KioskScale(BaseModel):
+    scale: float
+
+
+@app.post("/api/kiosk/scale")
+def api_kiosk_scale_set(body: KioskScale, who=admin):
+    """Saves the size and restarts the monitor's browser (about five seconds), never during a service."""
+    if body.scale not in KIOSK_SCALES:
+        return {"ok": False, "err": "pick one of " + ", ".join(f"{int(s * 100)}%" for s in KIOSK_SCALES)}
+    svc = church.in_service_now()
+    if svc:
+        return {"ok": False, "err": f"not during {svc['name']}: the monitor stays as it is until {svc['ends_at']}"}
+    if load().demo:
+        return {"ok": True, "demo": True, "scale": body.scale}
+    p = _kiosk_scale_file()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(f"{body.scale}\n")
+    os.chmod(p, 0o644)
+    audit.record(who["user"], "kiosk.scale", f"{int(body.scale * 100)}%")
+    r = system_run(["systemctl", "restart", "--no-block", "arise-kiosk.service"], timeout=20)
+    return {"ok": True, "scale": body.scale, "restarted": r["ok"]}
+
+
+@app.get("/api/public/faces")
+def api_public_faces(request: Request):
+    """The sign-in faces on the closet monitor (round 4, 14 and 16; round 5, 31). Only to the monitor
+    itself (a request from this box): nobody on the network can list who has an account."""
+    host = (request.client.host if request.client else "") or ""
+    if not (load().demo or host in ("127.0.0.1", "::1", "localhost")):
+        return {"faces": [], "note": "faces are shown on the closet monitor only"}
+    try:
+        users = directory.list_users().get("users", [])
+    except Exception:  # noqa: BLE001
+        users = []
+    faces = []
+    for u in users:
+        if not u.get("enabled", True) or "Domain Admins" not in (u.get("groups") or []):
+            continue
+        name = u.get("display") or u["name"]
+        faces.append({"user": u["name"], "name": name, "initials": "".join(w[0] for w in name.split()[:2] if w).upper()})
+    return {"faces": faces}
 
 
 # ----- the dashboard -----------------------------------------------------------

@@ -35,6 +35,10 @@ const SHARE_RE = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,31}$/;       // server/arise_serv
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,}$/;
 const MEMBER_OK = ['/auth/', '/me', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
 const memberOk = p => MEMBER_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m));
+// After round 5: staff and members use their Macs; with staff access "none" they reach only the sign-in routes.
+const NONE_OK = ['/auth/', '/public/', '/health'];
+const staffAccess = () => (X && X.staffAccess) || 'none';
+const memberMay = p => staffAccess() === 'none' ? NONE_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m)) : memberOk(p);
 const SAMPLE_SECRET = SEED['POST /me/2fa/setup']?.secret || '';
 
 /* ---------- state ---------- */
@@ -95,7 +99,7 @@ function roots() {
 function authMe() {
   const s = me(); if (!s) return { error: { message: 'Sign in' } };
   const u = userOf(s.user);
-  return { user: s.user, role: s.role, demo: true, preview: true, display: u?.display || '', groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk() };
+  return { user: s.user, role: s.role, demo: true, preview: true, display: u?.display || '', groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk(), staff_access: staffAccess() };
 }
 
 /* ---------- the file tree ---------- */
@@ -153,6 +157,7 @@ function shareOf(root, path) {
   return { label: parts[0] || 'data', base: '/srv/arise/' + (parts[0] || ''), rel: parts.slice(1).join('/') };
 }
 const TEXT_RE = /\.(txt|md|csv|json|ya?ml|toml|log)$/i;
+const START_HERE = "# Start here\n\nWelcome to Arise Church's server. This folder is yours.\n\n- **Desktop**: what you are working on now.\n- **Documents**: everything you keep.\n- **Photos**, **Videos**, **Music**, **Downloads**.\n\nYour Mac keeps these folders in step with the server by itself. From home: Tailscale (Bradly sets it up with you).\n\n**Who to ask:** Bradly Dyer.\n";
 
 /* ---------- the calendar, computed like server/arise_server/calendar.py ---------- */
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -266,7 +271,8 @@ route('POST', /^\/directory\/users$/, b => {
   users().push({ name, display: String(b.display || '').trim(), groups: gnames, enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${name}` });
   for (const g of gnames) { const gr = groups().find(x => x.name === g); if (!gr.members.includes(name)) gr.members.push(name); }
   X.pw[name] = b.password;
-  for (const f of ['Documents', 'Photos', 'Videos', 'Music', 'Downloads']) mkdirp('data', `/homes/${name}/${f}`);
+  for (const f of ['Desktop', 'Documents', 'Photos', 'Videos', 'Music', 'Downloads']) mkdirp('data', `/homes/${name}/${f}`);
+  putFile('data', `/homes/${name}/Start here.md`, 1100, START_HERE);   // round 5, 32: a new home gets the one-page note
   touch('GET /directory/users', 'GET /directory/groups'); return ok({ out: `created ${name}` });
 });
 route('POST', /^\/directory\/users\/([^/]+)\/reset-password$/, (b, m) => { const u = userOf(m[1]); if (!u || String(b.password || '').length < 8) return fail('bad name or password shorter than 8'); X.pw[u.name] = b.password; save(); return ok(); });
@@ -508,6 +514,42 @@ route('DELETE', /^\/directory\/users\/([^/]+)\/leaving$/, (b, m) => {
 route('POST', /^\/repos\/sync$/, () => { if (!isAdmin()) return http(403, 'Administrator only'); const r = getOr('GET /repos', { repos: [] }); const t = new Date().toISOString(); r.last = t; (r.repos || []).forEach(x => { x.when = t; }); touch('GET /repos'); return ok({ demo: true, started: true }); });
 // Claude Desktop on the closet monitor: Bradly opens it (round 4, 44); anyone's lock closes it.
 route('POST', /^\/kiosk\/claude-desktop$/, b => { const a = b.action || 'open'; if (!['open', 'close', 'status'].includes(a)) return fail('action is open, close or status'); if (a === 'open' && !claudeOk()) return fail("Claude on this box is Bradly's (round 4, 44)"); return ok({ demo: true, action: a, state: a === 'open' ? 'open' : 'closed' }); });
+// Round 5: notifications, the Desktop folder, department checklists, the guided setup, the monitor's size.
+function notesOf(u) { X.notes = X.notes || {}; if (!X.notes[u]) X.notes[u] = clone(((get('GET /notifications') || {}).items || [])); return X.notes[u]; }
+route('POST', /^\/notifications\/read$/, b => { const f = notesOf(me()?.user); let n = 0; for (const x of f) if (!x.read && (!b.ids || b.ids.includes(x.id))) { x.read = true; n++; } save(); return ok({ marked: n, unread: 0 }); });
+route('POST', /^\/notifications$/, b => { if (!isAdmin()) return http(403, 'Administrator only'); const f = notesOf(b.user); const item = { id: token(6), kind: b.kind || 'system', text: String(b.text || ''), link: b.link || '', at: isoSec(), read: false }; f.unshift(item); save(); return ok({ item }); });
+route('PUT', /^\/desktop\/positions$/, b => { X.deskPos = X.deskPos || {}; const out = {}; for (const [k, v] of Object.entries(b.positions || {})) if (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && n >= 0 && n <= 10000)) out[k] = [Math.round(v[0]), Math.round(v[1])]; X.deskPos[me()?.user || 'bradly'] = out; save(); return ok({ count: Object.keys(out).length, demo: true }); });
+route('POST', /^\/files\/move$/, b => {
+  const from = place(b.root, b.path), dest = place(b.root, b.to); if (!from || !dest) return fail('not a place you can change');
+  const name = base(from.path); if (!name) return fail('bad name');
+  if (norm(dest.path) === parent(from.path)) return ok({ unchanged: true });
+  if (norm(dest.path) === norm(from.path) || norm(dest.path).startsWith(norm(from.path) + '/')) return fail('a folder cannot go inside itself');
+  const tgt = list(dest.root, dest.path); if (!tgt) return fail('folder not found'); if (tgt.find(e => e.name === name)) return fail(`${name} already exists there`);
+  const pack = takeOut(from.root, from.path); if (!pack) return fail('no such file'); putBack(dest.root, join(dest.path, name), pack); save(); return ok({ path: join(b.to, name), demo: true });
+});
+function deptAll() { if (!X.depts) X.depts = clone(((get('GET /checklists') || {}).lists || [])); return X.depts; }
+route('POST', /^\/checklists\/([^/]+)\/tick$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const l = deptAll().find(x => x.dept === decodeURIComponent(m[1])); if (!l) return fail('not one of the departments');
+  const it = l.items.find(x => x.i === +b.i); if (!it) return fail('no such item'); it.done = !it.done; it.by = it.done ? me().user : ''; it.at = it.done ? isoMin() : ''; l.done = l.items.filter(x => x.done).length; save(); return ok(clone(l));
+});
+route('PUT', /^\/checklists\/([^/]+)$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const l = deptAll().find(x => x.dept === decodeURIComponent(m[1])); if (!l) return fail('not one of the departments');
+  const svcStart = n => (services().filter(s => s.name === n).map(s => s.time).sort()[0]);
+  if (b.nudge) for (const [n, t] of Object.entries(b.nudge)) { if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(t)) return fail(`the nudge time for ${n} is HH:MM, 24-hour`); const st = svcStart(n); if (st && t >= st) return fail(`the nudge at ${t} would land at or after ${n} (${st}): pick an earlier time`); }
+  if (b.items) { const clean = b.items.map(x => String(x).trim()).filter(Boolean).slice(0, 40); if (JSON.stringify(clean) !== JSON.stringify(l.items.map(x => x.text))) l.items = clean.map((t, i) => ({ i, text: t, done: false, by: '', at: '' })); }
+  if (b.leader != null) l.leader = b.leader || null; if (b.services && b.services.length) l.services = b.services; if (b.nudge) l.nudge = Object.assign({}, l.nudge, b.nudge);
+  l.done = l.items.filter(x => x.done).length; save(); return ok(clone(l));
+});
+function setupView() {
+  const seed = get('GET /setup') || { steps: [] }; X.setup = X.setup || { steps: {}, dismissed: false };
+  const steps = seed.steps.map(st => Object.assign({}, st, X.setup.steps[st.id] || {}));
+  const left = steps.filter(x => x.status === 'todo').length;
+  return { steps, left, dismissed: X.setup.dismissed, show: isAdmin() && !X.setup.dismissed && left > 0, demo: true };
+}
+route('POST', /^\/setup\/dismiss$/, () => { setupView(); X.setup.dismissed = true; save(); return ok(setupView()); });
+route('POST', /^\/setup\/reopen$/, () => { setupView(); X.setup.dismissed = false; save(); return ok(setupView()); });
+route('POST', /^\/setup\/([a-z]+)$/, (b, m) => { if (!isAdmin()) return http(403, 'Administrator only'); setupView(); if (!['done', 'skipped', 'todo'].includes(b.status)) return fail('status is done, skipped or todo'); X.setup.steps[m[1]] = { status: b.status, by: me().user, at: isoMin() }; save(); return ok(setupView()); });
+route('POST', /^\/kiosk\/scale$/, b => { if (!isAdmin()) return http(403, 'Administrator only'); if (![1, 1.15, 1.25, 1.4, 1.5].includes(+b.scale)) return fail('pick one of the sizes'); const sv = inService(); if (sv) return fail(`not during ${sv.name}`); X.kioskScale = +b.scale; save(); return ok({ scale: X.kioskScale, demo: true }); });
 // Songs: the lyrics Bradly pastes or imports stay in this browser (the server keeps them in /srv/arise/songs).
 const normT = t => String(t || '').toLowerCase().replace(/[‘’]/g, "'").replace(/[^\w\s']/g, ' ').replace(/\s+/g, ' ').trim();
 function lyricsAll() { if (!X.lyrics) { X.lyrics = {}; for (const k of Object.keys(G)) { const m = k.match(/^GET \/songs\/(.+)$/); if (m && G[k] && G[k].lyrics) X.lyrics[m[1]] = clone(G[k].lyrics); } } return X.lyrics; }
@@ -593,6 +635,11 @@ route('POST', /^\/security\/scan\/restore$/, b => { if (b.confirm !== b.name) re
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
   const s = me();
+  if (p === '/notifications') { const f = notesOf(s?.user); return { items: f.slice(0, +(q.get('limit') || 50)), unread: f.filter(n => !n.read).length }; }
+  if (p === '/desktop') { const u = s?.user || 'bradly'; return isAdmin() ? { root: 'data', path: `/homes/${u}/Desktop`, positions: clone((X.deskPos || {})[u] || {}) } : { root: 'home', path: '/Desktop', positions: clone((X.deskPos || {})[u] || {}) }; }
+  if (p === '/checklists') return { lists: clone(deptAll()), demo: true };
+  if (p === '/setup') return setupView();
+  if (p === '/kiosk/scale') return { scale: X.kioskScale || 1.25, choices: [1, 1.15, 1.25, 1.4, 1.5], demo: true };
   if (p === '/songs') {
     const seed = get('GET /songs') || { songs: [] }; const L = lyricsAll(); const words = normT(q.get('q') || '').split(' ').filter(Boolean); const has = q.get('has') || '';
     const keys = new Set(seed.songs.map(x => x.key)); const all = seed.songs.map(x => Object.assign({}, x, { lyrics: !!L[x.key] }));
@@ -726,7 +773,7 @@ async function handle(method, fullPath, body) {
   const [p0, qs] = String(fullPath).split('?'); const p = p0.split('/').map(seg => { try { return decodeURIComponent(seg); } catch { return seg; } }).join('/'); const q = new URLSearchParams(qs || '');
   const s = me();
   if (!s && !/^\/(auth\/(login|me|logout)|auth\/login\/code|public\/|health)/.test(p)) return http(401, 'Sign in');
-  if (s && s.role !== 'admin' && !memberOk(p)) return http(403, 'That part of the dashboard is for the administrator');
+  if (s && s.role !== 'admin' && !memberMay(p)) return http(403, 'That part of the dashboard is for the administrator');
   if (method === 'GET') {
     const c = computedGet(p, q); if (c !== undefined) return clone(c);
     const key = 'GET ' + decodeURIComponent(fullPath); if (key in G) return clone(G[key]);
@@ -749,5 +796,5 @@ function viewAs(kind) {
   else { const u = users().find(isAdminUser); X.session = { user: u ? u.name : 'bradly', role: 'admin' }; }
   save();
 }
-window.AriseMock = { handle, fileFor, reset, viewAs, session: () => { init(); return clone(X.session); }, sampleNames: () => { init(); return users().filter(u => u.enabled).map(u => ({ name: u.name, role: isAdminUser(u) ? 'admin' : 'member' })); }, inService, flush: () => { init(); save(); } };
+window.AriseMock = { handle, fileFor, reset, viewAs, setStaffAccess: v => { init(); X.staffAccess = v === 'portal' ? 'portal' : 'none'; save(); }, session: () => { init(); return clone(X.session); }, sampleNames: () => { init(); return users().filter(u => u.enabled).map(u => ({ name: u.name, role: isAdminUser(u) ? 'admin' : 'member' })); }, inService, flush: () => { init(); save(); } };
 })();

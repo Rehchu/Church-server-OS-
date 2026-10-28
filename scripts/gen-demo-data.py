@@ -28,6 +28,7 @@ GETS = [
     "/audit?limit=60", "/directory/leaving", "/calendar", "/calendar/subscribe", "/weather", "/help", "/help/PORTAL-GUIDE", "/help/README", "/about/whatsnew", "/me/password/rules",
     "/updates", "/activity", "/automations", "/storage", "/monitor", "/apps/catalog", "/apps/open/trilium", "/apps/open/immich", "/logs/sources",
     "/logs/file/updates.log", "/logs/file/install.log", "/logs/file/backup.log", "/apps/theme/jellyfin", "/apps/theme/homepage", "/apps/theme/nextcloud", "/apps/theme/immich", "/apps/theme/grafana", "/apps/theme/owncast", "/apps/theme/bookstack", "/apps/theme/uptime-kuma", "/apps/theme/onlyoffice",
+    "/notifications", "/checklists", "/setup", "/kiosk/scale", "/public/faces", "/desktop",
     "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]

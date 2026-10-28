@@ -778,3 +778,38 @@ mark{background:rgba(214,34,45,.28);color:var(--text);padding:0 2px}
 .sgtext:focus{border-color:var(--red);outline:none}
 .sgres{max-height:50vh;overflow:auto;margin-bottom:12px} .sgres__r{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px}
 .sgres__r .pill{flex:0 0 74px;justify-content:center}
+
+/* ---- desktop (round 5) ---- */
+/* the reset's margin:0 pinned every dialog to the top-left corner; a modal dialog centres on margin:auto */
+.modal:modal{margin:auto}
+/* the Desktop folder on the wallpaper */
+.deskicons{position:absolute;inset:0;z-index:1;pointer-events:none}
+.deskicons .deskico{position:absolute;pointer-events:auto;width:88px;background:none;border:0;color:inherit;cursor:default}
+.deskicons .deskico span:last-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.deskicons .deskico:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+/* the unread count on the clock (notifications, 28) */
+#barClock.has-unread{position:relative}
+#barClock.has-unread::after{content:attr(data-unread);position:absolute;top:6px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;line-height:16px;text-align:center;font-weight:600}
+.ncnotes .widget__row.unread span{color:#fff;font-weight:500}
+.ncnotes .widget__row.unread::before{content:"";width:6px;height:6px;border-radius:3px;background:var(--red);flex:0 0 6px;margin-right:8px;align-self:center}
+/* department checklists in the Sunday app (29, 30) */
+.deptlists{grid-column:1/-1;margin-top:18px}
+.deptgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.dept .sun__item{padding:7px 0}
+/* the guided setup (33) */
+.modal:has(.wiz){width:min(900px,96vw)}
+.wiz__grid{display:grid;grid-template-columns:220px 1fr;gap:18px}
+.wiz__nav{display:flex;flex-direction:column;gap:4px}
+.wiz__nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:transparent;border:1px solid var(--line2);padding:9px 10px;color:var(--text);cursor:pointer;font-size:13px}
+.wiz__nav button.on{border-color:var(--red);background:rgba(214,34,45,.12)}
+.wiz__body h3{margin:0 0 6px} .wiz__body p{color:var(--text2);font-size:14px;line-height:1.5}
+.wiz__body textarea{width:100%;background:var(--scrim);border:1px solid var(--line);color:var(--text);padding:10px;font:inherit;font-size:13px}
+@media (max-width:760px){.wiz__grid{grid-template-columns:1fr}}
+/* the sign-in faces on the closet monitor (31) */
+.faces{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}
+.face{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;color:var(--text);cursor:pointer;padding:6px;width:110px}
+.face__i{width:68px;height:68px;border-radius:50%;background:var(--panel3);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:Oswald,var(--f2,sans-serif);font-size:24px;letter-spacing:.04em;color:#fff}
+.face.on .face__i,.face:hover .face__i{border-color:var(--red);background:rgba(214,34,45,.3)}
+.face__n{font-size:12.5px;line-height:1.25;text-align:center}
+/* staff and members: "your files are on your Mac" (after round 5) */
+.onmac p{max-width:420px;margin-left:auto;margin-right:auto;line-height:1.5}

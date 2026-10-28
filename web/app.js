@@ -951,7 +951,7 @@ async function versionsModal(root, p, name) {
 async function editText(root, p, name) {
   let r; try { r = await api(`/files/text?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`); } catch (e) { return toast(e.message, 'bad'); }
   if (r.ok === false) return toast(r.err, 'bad', 7000);
-  const md = /\.md$/i.test(name); const ro = S.roots.find(x => x.id === root)?.writable === false;
+  const md = /\.md$/i.test(name); const ro = (S.roots || []).find(x => x.id === root)?.writable === false;
   let dirty = false, mtime = r.mtime;
   const m = modal(`<div class="edit"><div class="edit__hd"><h2 style="margin:0;font-size:18px">${esc(name)}</h2>${md ? `<span class="tabs edit__tabs" id="edTabs"><button class="active" data-t="edit">Edit</button><button data-t="prev">Preview</button></span>` : ''}<span class="spacer"></span><small class="muted" id="edSt">${fmtB(r.bytes)}${ro ? ' · read only' : ''}${r.demo ? ' · sample' : ''}</small></div>
     <div data-tab="edit"><textarea id="edText" spellcheck="false" ${ro ? 'readonly' : ''}>${esc(r.text)}</textarea></div><div data-tab="prev" hidden><div class="md" id="edPrev"></div></div>
@@ -1457,8 +1457,9 @@ function eventModal(it, isNew) {
     <div class="row"><div class="field" style="flex:1"><label>Starts</label><input id="evS" type="datetime-local" value="${esc(toLocalInput(e.start))}" required></div><div class="field" style="flex:1"><label>Ends (optional)</label><input id="evE" type="datetime-local" value="${esc(toLocalInput(e.end))}"></div></div>
     <div class="field"><label>Where</label><input id="evW" value="${esc(e.where || '')}" maxlength="120" placeholder="Pineville, the fellowship hall…"></div>
     <div class="field"><label>Note</label><textarea id="evN" rows="3" maxlength="1000">${esc(e.note || '')}</textarea></div>
+    <div class="field"><label>Who's in it (optional)</label><input id="evP" value="${esc((e.people || []).join(', '))}" placeholder="kristina.robinson, @Media" autocomplete="off"><span class="hint">People and @groups get a reminder 30 minutes before.</span></div>
     <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">${editing ? 'Save' : 'Add'}</button></div></form>`, m => {
-    $('#evf', m).onsubmit = async ev => { ev.preventDefault(); const body = { title: $('#evT', m).value, start: $('#evS', m).value, end: $('#evE', m).value, where: $('#evW', m).value, note: $('#evN', m).value };
+    $('#evf', m).onsubmit = async ev => { ev.preventDefault(); const body = { title: $('#evT', m).value, start: $('#evS', m).value, end: $('#evE', m).value, where: $('#evW', m).value, note: $('#evN', m).value, people: $('#evP', m).value.split(/[,\s]+/).filter(Boolean) };
       const r = await api(editing ? `/calendar/${encodeURIComponent(it.id)}` : '/calendar', { method: editing ? 'PUT' : 'POST', body }).catch(er => ({ ok: false, err: er.message }));
       if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : editing ? 'Saved' : 'Added to the calendar'); tone('done'); m.close(); rerender('calendar'); };
     $('#evT', m).focus();
@@ -2299,7 +2300,8 @@ function every(fn, ms) { const id = setInterval(fn, ms); (S.timers = S.timers ||
 function stopDesktop() { for (const id of S.timers || []) clearInterval(id); S.timers = []; ['demoTimer', 'actT', 'clockT', 'saverT', 'saverA'].forEach(k => { clearInterval(S[k]); S[k] = null; }); if (S.sse) { S.sse.close(); S.sse = null; } }
 function showLogin(err) {
   stopDesktop();
-  const remembered = (() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })();
+  const remembered = '';   // round 5, 31: nobody is preselected; nothing shows who used it last
+  try { localStorage.removeItem('arise.user'); } catch {}
   const codeStep = !!(err && err.code);
   document.body.innerHTML = `<div class="login"><div class="login__box">
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
@@ -2321,9 +2323,9 @@ function showLogin(err) {
       finally { b.classList.remove('busy'); } };
     return;
   }
-  $('#lp').focus();
+  $('#lu').focus(); loginFaces();
   f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
-    try { const user = $('#lu').value; try { localStorage.setItem('arise.user', user); } catch {}
+    try { const user = $('#lu').value;
       const r = await api('/auth/login', { method: 'POST', body: { user, password: $('#lp').value } });
       if (r && r.need_code) { showLogin({ code: true, pending: r.pending, user: r.user || user }); return; }
       location.reload(); }
@@ -2401,13 +2403,15 @@ async function boot() {
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && !S.demoOnly) navigator.serviceWorker.register('/sw.js').catch(() => {});
     if (!S.kiosk && !me.demo) setTimeout(() => walkthrough(false), 1200);
     if (!S.kiosk) setTimeout(whatsNewToast, 2500);
-    try { if (!me.demo) localStorage.setItem('arise.user', S.user); } catch {}
+    // After round 5: the OS is for the admins in the closet; staff and volunteers use their Macs.
+    if (S.role !== 'admin' && (me.staff_access || 'none') === 'none') return onYourMac(me);
     if (isMember()) { document.body.classList.add('member'); buildDock(); setAppMenus(null); }
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
   } catch (e) { if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
   if (!isMember()) startStats();
   await loadChurch();
   await Promise.all([buildWidgets(), isMember() ? Promise.resolve() : buildIcons()]);
+  buildDeskIcons(); notifyStart(); setupMaybe();
   greet();
   every(loadChurch, 15 * 60000); every(() => loadWeather(true), 30 * 60000);
   every(buildWidgets, 60000);
@@ -2464,5 +2468,244 @@ boot();
   }
 }
 
-window.arise = { api, cleanDesc, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
+/* ---- desktop (round 5): the Desktop folder on the wallpaper, notifications, department checklists,
+   the guided setup, the monitor's text size, the sign-in faces, and staff access (docs/ANSWERS.md round 5) ---- */
+
+// Staff and volunteers use their Macs; the OS is the admins' (Bradly, after round 5). [web] staff_access = "none".
+function onYourMac(me) {
+  stopDesktop();
+  const name = me.display || me.user || 'there';
+  document.body.innerHTML = `<div class="login"><div class="login__box onmac">
+    <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>Hello, ${esc(name)}</h1>
+    <p>Your files are on your Mac. Everything you save there reaches the church's server by itself, and the nightly backup from there.</p>
+    <p class="muted">The server's own desktop is for the administrators, in the closet. Anything you need from it: ask Bradly.</p>
+    <div class="row" style="justify-content:center;margin-top:16px"><button class="btn" id="omOut">Sign out</button></div>
+    <div class="lock__hint" style="margin-top:18px">Arise Church · Pineville</div></div></div>`;
+  $('#omOut').onclick = () => signOut();
+}
+
+// The sign-in faces on the closet monitor only (round 4, 14 and 16), nobody preselected (round 5, 31).
+async function loginFaces() {
+  if (!S.kiosk) return;
+  const r = await api('/public/faces').catch(() => ({ faces: [] }));
+  const f = $('#lf'); if (!f || !(r.faces || []).length) return;
+  const row = document.createElement('div'); row.className = 'faces'; row.setAttribute('role', 'listbox'); row.setAttribute('aria-label', 'Who is signing in');
+  row.innerHTML = r.faces.map(x => `<button type="button" class="face" data-user="${esc(x.user)}" aria-label="${esc(x.name)}"><span class="face__i">${esc(x.initials)}</span><span class="face__n">${esc(x.name)}</span></button>`).join('');
+  f.before(row);
+  $$('.face', row).forEach(b => b.onclick = () => { $$('.face', row).forEach(x => x.classList.toggle('on', x === b)); $('#lu').value = b.dataset.user; $('#lp').value = ''; $('#lp').focus(); });
+}
+
+// ---- the Desktop folder on the wallpaper (round 5, 24) ----
+const DESK = { loc: null, pos: {}, entries: [] };
+const DESK_W = 96, DESK_H = 92;
+async function buildDeskIcons() {
+  let box = $('#deskIcons');
+  if (!box) { box = document.createElement('div'); box.id = 'deskIcons'; box.className = 'deskicons'; box.setAttribute('aria-label', 'Your Desktop folder'); $('#stage').prepend(box); deskDropTarget(); }
+  try {
+    const d = await api('/desktop'); DESK.loc = { root: d.root, path: d.path }; DESK.pos = d.positions || {};
+    const l = await api(`/files/list?root=${encodeURIComponent(d.root)}&path=${encodeURIComponent(d.path)}`);
+    DESK.entries = l.error ? [] : (l.entries || []);
+  } catch { DESK.entries = []; }
+  paintDesk();
+}
+function deskAuto(i) {
+  // Mac-like: from the top right, in columns, under the drive icons.
+  const st = $('#stage'); const W = st.clientWidth, H = Math.max(300, st.clientHeight - 120);
+  const top = 14 + ($$('#icons .ico').length * 102);
+  const perCol = Math.max(1, Math.floor((H - top) / DESK_H));
+  const col = Math.floor(i / perCol), row = i % perCol;
+  return [Math.max(0, W - 22 - DESK_W - col * DESK_W), top + row * DESK_H];
+}
+function paintDesk() {
+  const box = $('#deskIcons'); if (!box) return;
+  const p = DESK.loc ? DESK.loc.path : '';
+  let auto = 0;
+  box.innerHTML = DESK.entries.map(e => {
+    const pos = DESK.pos[e.name] || deskAuto(auto++);
+    const ico = e.dir ? ICONURL.folder : fileIcon(e.name);
+    return `<button class="ico deskico" draggable="true" data-dn="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" style="left:${pos[0]}px;top:${pos[1]}px" title="${esc(e.name)}"><span class="dock__icon" style="background:${ico} center/70% no-repeat #000"></span><span>${esc(e.name)}</span></button>`;
+  }).join('');
+  $$('.deskico', box).forEach(b => {
+    const name = b.dataset.dn, dir = b.dataset.dir === '1', path = (p === '/' ? '' : p) + '/' + name;
+    const open = () => { if (dir) { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: DESK.loc.root, path, sel: null }); openApp('files'); } else if (isText(name)) editText(DESK.loc.root, path, name); else quickLook(DESK.loc.root, path, name); };
+    b.onclick = e => { e.stopPropagation(); $$('.ico').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); };
+    b.ondblclick = open;
+    b.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); open(); } };
+    b.oncontextmenu = e => { e.preventDefault(); e.stopPropagation(); ctxMenu(e.clientX, e.clientY, [['Open', open], ['Get Info', () => getInfo(name, dir, path, DESK.loc.root)], null, ['Move to Trash…', () => deskTrash(path, name)]]); };
+    b.ondragstart = e => { const r = b.getBoundingClientRect(); e.dataTransfer.setData('application/x-arise-desk', JSON.stringify({ name, dx: e.clientX - r.left, dy: e.clientY - r.top })); e.dataTransfer.effectAllowed = 'move'; };
+  });
+}
+function deskTrash(path, name) {
+  confirmType(`Move “${name}” to the Trash`, name, 'It sits in the Trash for 30 days, where Put Back brings it home.', async () => {
+    const x = await api('/files/trash', { method: 'POST', body: { root: DESK.loc.root, path, confirm: name } });
+    if (x.ok === false) throw new Error(x.err);
+    toast(`${name} is in the Trash`); delete DESK.pos[name]; await api('/desktop/positions', { method: 'PUT', body: { positions: DESK.pos } }).catch(() => {}); buildDeskIcons();
+  });
+}
+function deskDropTarget() {
+  const st = $('#stage');
+  st.addEventListener('dragover', e => { const t = e.dataTransfer.types; if (t.includes('application/x-arise-desk') || t.includes('application/x-arise-file')) { if (e.target === st || e.target.closest('#deskIcons')) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } } });
+  st.addEventListener('drop', async e => {
+    const sr = st.getBoundingClientRect();
+    const own = e.dataTransfer.getData('application/x-arise-desk');
+    if (own) {   // an icon dragged on the wallpaper: remember where it was put
+      e.preventDefault(); const d = JSON.parse(own);
+      DESK.pos[d.name] = [Math.max(0, Math.round(e.clientX - sr.left - d.dx)), Math.max(0, Math.round(e.clientY - sr.top - d.dy))];
+      paintDesk(); api('/desktop/positions', { method: 'PUT', body: { positions: DESK.pos } }).catch(() => {}); return;
+    }
+    const f = e.dataTransfer.getData('application/x-arise-file');
+    if (f && DESK.loc) {   // a file dragged out of Finder: move it onto the Desktop
+      e.preventDefault(); const d = JSON.parse(f);
+      if (d.root !== DESK.loc.root) return toast('That file is in another place: copy it with Finder instead', 'warn');
+      const r = await api('/files/move', { method: 'POST', body: { root: d.root, path: d.path, to: DESK.loc.path } }).catch(er => ({ ok: false, err: er.message }));
+      if (r.ok === false) return toast(r.err, 'bad');
+      if (!r.unchanged) { DESK.pos[d.name] = [Math.max(0, Math.round(e.clientX - sr.left - 44)), Math.max(0, Math.round(e.clientY - sr.top - 30))]; await api('/desktop/positions', { method: 'PUT', body: { positions: DESK.pos } }).catch(() => {}); toast(`${d.name} is on your Desktop`); }
+      buildDeskIcons(); if (S.wins.files) rerender('files');
+    }
+  });
+}
+// Finder items can be dragged onto the wallpaper.
+{
+  const filesAfter = V.files.after;
+  V.files.after = root => {
+    filesAfter(root);
+    const fs = S.fs || {}; if (!fs.root || String(fs.root).startsWith('@')) return;
+    $$('#fMain [data-n]', root).forEach(el => {
+      el.draggable = true;
+      el.addEventListener('dragstart', e => { const n = el.dataset.n; e.dataTransfer.setData('application/x-arise-file', JSON.stringify({ root: fs.root, path: (fs.path === '/' ? '' : fs.path) + '/' + n, name: n })); e.dataTransfer.effectAllowed = 'move'; });
+    });
+    // Anything Finder changes in the Desktop folder shows on the wallpaper too.
+    if (DESK.loc && fs.root === DESK.loc.root && (fs.path === DESK.loc.path)) buildDeskIcons();
+  };
+}
+
+// ---- notifications (round 5, 28): the person's own feed in the notification centre ----
+const NOTE_ICON = { calendar: 'calendar', shared: 'files', mail: 'mail', sunday: 'sunday', checklist: 'sunday', system: 'about' };
+let notifySeen = 0;
+async function notifyStart() { await notifyBadge(true); every(() => notifyBadge(false), 60000); }
+async function notifyBadge(first) {
+  let r; try { r = await api('/notifications?limit=20'); } catch { return; }
+  S.notes = r; const clock = $('#barClock'); if (!clock) return;
+  clock.dataset.unread = r.unread ? String(r.unread) : ''; clock.classList.toggle('has-unread', !!r.unread);
+  const newest = (r.items || [])[0];
+  if (!first && newest && !newest.read && Date.parse(newest.at) > notifySeen) { toast(newest.text); tone('done'); }
+  if (newest) notifySeen = Math.max(notifySeen, Date.parse(newest.at) || 0);
+}
+{
+  const ncBuild = buildNC;
+  buildNC = async function () {
+    await ncBuild();
+    const body = $('#ncBody'); if (!body) return;
+    const r = S.notes || await api('/notifications?limit=20').catch(() => ({ items: [] }));
+    const items = (r.items || []).slice(0, 8);
+    const box = document.createElement('div'); box.className = 'widget ncnotes'; box.id = 'ncNotes';
+    box.innerHTML = `<div class="widget__kicker">Notifications${r.unread ? ` · ${r.unread} new` : ''}</div>${items.length ? `<div class="widget__rows">${items.map(n => `<button class="widget__row ${n.read ? '' : 'unread'}" data-nlink="${esc(n.link || '')}"><span>${esc(n.text)}</span><b>${esc(ago(n.at))}</b></button>`).join('')}</div>` : '<div class="widget__sub">Nothing new.</div>'}`;
+    body.prepend(box);
+    $$('[data-nlink]', box).forEach(b => b.onclick = () => { const l = b.dataset.nlink; toggleNC(false); const id = (l.split('#')[1] || '').split('/')[0]; if (id && appOf(id)) openApp(id); });
+    if (r.unread) api('/notifications/read', { method: 'POST', body: {} }).then(x => { S.notes = Object.assign({}, S.notes, { unread: 0 }); const c = $('#barClock'); if (c) { c.dataset.unread = ''; c.classList.remove('has-unread'); } }).catch(() => {});
+  };
+}
+
+// ---- department checklists in the Sunday app (round 5, 28 to 30) ----
+{
+  const sunView = V.sunday, sunAfter = V.sunday.after;
+  V.sunday = async () => {
+    const html = await sunView();
+    if (isMember()) return html;   // staff tick from their Macs once Bradly decides how (after round 5)
+    return html.replace(/<\/div>\s*$/, '') + `<div class="deptlists" id="deptLists"><div class="kicker">Department checklists</div><div class="empty">Loading…</div></div></div>`;
+  };
+  V.sunday.after = root => { sunAfter(root); deptLists(root); };
+}
+async function deptLists(root) {
+  const box = $('#deptLists', root); if (!box) return;
+  let r; try { r = await api('/checklists'); } catch (e) { box.innerHTML = `<div class="kicker">Department checklists</div><p class="note">${esc(e.message)}</p>`; return; }
+  const lists = r.lists || [];
+  box.innerHTML = `<div class="kicker">Department checklists</div><p class="note" style="margin:6px 0 12px">Each department's own list, ready before each service. A list moves on at 8 PM the night before; the finished round goes to its history.${r.demo ? ' Sample.' : ''}</p>
+    <div class="deptgrid">${lists.map(l => `<div class="card dept" data-dept="${esc(l.dept)}"><div class="row row--between"><div><b>${esc(l.dept.replace(/-/g, ' '))}</b><div class="muted" style="font-size:12px">${l.round ? `for ${esc(l.round.service)} · ${esc(fmtDay(l.round.at))}` : 'no service ahead'} · ${l.done} of ${l.items.length}</div></div>${l.can_edit ? `<button class="btn btn--ghost btn--xs" data-dedit="${esc(l.dept)}">Edit</button>` : ''}</div>
+      ${l.items.length ? l.items.map(i => `<label class="sun__item ${i.done ? 'done' : ''}"><input type="checkbox" data-dept-i="${i.i}" ${i.done ? 'checked' : ''} ${l.can_tick ? '' : 'disabled'}><div><span>${esc(i.text)}</span>${i.done ? `<small>${esc(i.by)} · ${esc(i.at.replace('T', ' '))}</small>` : ''}</div></label>`).join('') : `<p class="note">No items yet.${l.can_edit ? ' Edit to add them.' : ''}</p>`}
+      <div class="muted" style="font-size:12px;margin-top:8px">Leader: ${esc(l.leader || 'none yet')} · nudge ${Object.entries(l.nudge || {}).map(([s, t]) => `${esc(s)} ${esc(fmtSvc(t))}`).join(', ')}</div>
+      ${(l.history || []).length ? `<details style="margin-top:6px"><summary class="muted" style="font-size:12px">History</summary>${l.history.map(h => `<div class="widget__row"><span>${esc(h.round)}</span><b>${h.done} of ${h.total}</b></div>`).join('')}</details>` : ''}</div>`).join('')}</div>`;
+  $$('.dept', box).forEach(card => {
+    const dept = card.dataset.dept;
+    $$('input[data-dept-i]', card).forEach(cb => cb.onchange = async () => { const x = await api(`/checklists/${encodeURIComponent(dept)}/tick`, { method: 'POST', body: { i: +cb.dataset.deptI } }).catch(e => ({ ok: false, err: e.message })); if (x.ok === false) { toast(x.err, 'bad'); cb.checked = !cb.checked; return; } tone(x.done === x.items.length ? 'done' : 'click'); deptLists(root); });
+    const ed = $('[data-dedit]', card); if (ed) ed.onclick = () => deptEdit(lists.find(l => l.dept === dept), root);
+  });
+}
+function deptEdit(l, root) {
+  const svc = (S.church?.services || []).map(s => s.name).filter((v, i, a) => a.indexOf(v) === i);
+  const admin = S.role === 'admin';
+  modal(`<h2>${esc(l.dept.replace(/-/g, ' '))} checklist</h2><form id="deF" style="margin-top:12px">
+    <div class="field"><label>Items, one per line</label><textarea id="deItems" rows="7">${esc(l.items.map(i => i.text).join('\n'))}</textarea><span class="hint">Changing the items clears this round's ticks.</span></div>
+    ${admin ? `<div class="field"><label>Leader (edits the items)</label><input id="deLead" value="${esc(l.leader || '')}" placeholder="first.last" autocomplete="off"></div>
+    <div class="field"><label>For which services</label>${svc.map(s => `<label class="row" style="gap:6px;font-size:13px"><input type="checkbox" data-desvc="${esc(s)}" ${l.services.includes(s) ? 'checked' : ''}> ${esc(s)}</label>`).join('')}</div>
+    <div class="row">${svc.map(s => `<div class="field" style="flex:1"><label>Nudge before ${esc(s)}</label><input type="time" data-denudge="${esc(s)}" value="${esc((l.nudge || {})[s] || '')}"></div>`).join('')}</div>` : ''}
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">Save</button></div></form>`, m => {
+    $('#deF', m).onsubmit = async ev => { ev.preventDefault();
+      const body = { items: $('#deItems', m).value.split('\n').map(x => x.trim()).filter(Boolean) };
+      if (admin) { body.leader = $('#deLead', m).value.trim(); body.services = $$('[data-desvc]', m).filter(x => x.checked).map(x => x.dataset.desvc); body.nudge = Object.fromEntries($$('[data-denudge]', m).filter(x => x.value && body.services.includes(x.dataset.denudge)).map(x => [x.dataset.denudge, x.value])); }
+      const r = await api(`/checklists/${encodeURIComponent(l.dept)}`, { method: 'PUT', body }).catch(e => ({ ok: false, err: e.message }));
+      if (r.ok === false) return toast(r.err, 'bad'); toast('Checklist saved'); m.close(); deptLists(root); };
+  });
+}
+
+// ---- the guided setup (round 5, 33) ----
+async function setupMaybe() {
+  // The first admin sign-in after the install opens it by itself; in sample mode it waits in Settings.
+  if (S.role !== 'admin' || S.demo || S.demoOnly) return;
+  let s; try { s = await api('/setup'); } catch { return; }
+  if (s.show) setTimeout(() => setupWizard(s), 900);
+}
+async function setupWizard(s) {
+  s = s || await api('/setup');
+  const step = s.steps.find(x => x.status === 'todo') || s.steps[0];
+  const cur = S.setupStep && s.steps.find(x => x.id === S.setupStep) || step;
+  S.setupStep = cur.id;
+  const chip = st => st === 'done' ? '<span class="pill ok">done</span>' : st === 'skipped' ? '<span class="pill">skipped</span>' : '<span class="pill warn">to do</span>';
+  const doors = { people: 'directory', shares: 'directory', synology: 'nas', discord: 'settings', resend: 'mail', tailscale: 'remote' };
+  modal(`<div class="wiz"><h2>Set up ariseOS</h2><p class="muted" style="margin-bottom:12px">${s.left ? `${s.left} of ${s.steps.length} steps left.` : 'Every step is done.'} Skip anything; it carries on where you stopped, and Settings → The monitor & setup opens it again.</p>
+    <div class="wiz__grid"><nav class="wiz__nav">${s.steps.map((x, i) => `<button class="${x.id === cur.id ? 'on' : ''}" data-wstep="${x.id}"><b>${i + 1}. ${esc(x.title)}</b>${chip(x.status)}</button>`).join('')}</nav>
+    <div class="wiz__body"><h3>${esc(cur.title)}</h3><p>${esc(cur.what)}</p>${cur.looks_done ? '<p class="note">This already looks done on the box.</p>' : ''}
+      ${cur.id === 'people' ? `<div class="field" style="margin-top:10px"><label>The list (CSV: name, title, departments, personal email, mobile, birthday)</label><textarea id="wzCsv" rows="6" placeholder="first.last,Title,Media;Worship,someone@gmail.com,318-555-0100,03-14"></textarea>
+        <div class="row" style="gap:8px;margin-top:8px"><label class="btn btn--ghost btn--xs" for="wzFile">Upload a CSV</label><input type="file" id="wzFile" accept=".csv,.txt" hidden><button class="btn btn--ghost btn--xs" id="wzCheck">Check the list</button><button class="btn btn--xs" id="wzApply">Create the accounts</button></div><div id="wzOut" class="note" style="margin-top:8px" hidden></div></div>` : ''}
+      <div class="row" style="gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn btn--ghost btn--xs" data-wopen="${doors[cur.id]}">Open ${esc(appOf(doors[cur.id])?.name || 'it')}</button><button class="btn btn--xs" data-wmark="done">Mark done</button><button class="btn btn--ghost btn--xs" data-wmark="skipped">Skip</button>${cur.status !== 'todo' ? '<button class="btn btn--ghost btn--xs" data-wmark="todo">Back to to-do</button>' : ''}</div></div></div>
+    <div class="acts"><button class="btn btn--ghost" id="wzLater">Later</button><button class="btn" data-close>Close</button></div></div>`, m => {
+    $$('[data-wstep]', m).forEach(b => b.onclick = () => { S.setupStep = b.dataset.wstep; m.close(); setupWizard(s); });
+    $$('[data-wmark]', m).forEach(b => b.onclick = async () => { const r = await api(`/setup/${cur.id}`, { method: 'POST', body: { status: b.dataset.wmark } }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) return toast(r.err, 'bad'); const nxt = r.steps.find(x => x.status === 'todo'); S.setupStep = nxt ? nxt.id : cur.id; m.close(); if (r.left) setupWizard(r); else toast('Setup finished. Settings → The monitor & setup opens it again.'); });
+    const op = $('[data-wopen]', m); if (op) op.onclick = () => { m.close(); openApp(op.dataset.wopen); };
+    $('#wzLater', m).onclick = async () => { await api('/setup/dismiss', { method: 'POST' }).catch(() => {}); m.close(); toast('Later it is: Settings → The monitor & setup opens it again'); };
+    if (cur.id === 'people') {
+      const out = $('#wzOut', m);
+      const send = async apply => { const csv = $('#wzCsv', m).value; if (!csv.trim()) return toast('Paste or upload the list first', 'warn');
+        const r = await api('/directory/import', { method: 'POST', body: { csv, apply } }).catch(e => ({ ok: false, err: /no such route|404|Not Found/i.test(e.message) ? 'not available yet: the import arrives with the accounts update' : e.message }));
+        out.hidden = false; out.innerHTML = r.ok === false ? esc(r.err) : esc(r.summary || `${(r.rows || r.people || []).length} people ${apply ? 'created' : 'read; nothing created yet'}`); };
+      $('#wzCheck', m).onclick = () => send(false);
+      $('#wzApply', m).onclick = () => send(true);
+      $('#wzFile', m).onchange = async e => { const f = e.target.files[0]; if (f) $('#wzCsv', m).value = await f.text(); };
+    }
+  });
+}
+
+// ---- Settings: The monitor & setup (round 5, 27 and 33) ----
+{
+  SETTINGS_SECTIONS.splice(SETTINGS_SECTIONS.findIndex(x => x[0] === 'power'), 0, ['monitor', 'The monitor & setup']);
+  const setView = V.settings, setAfter = V.settings.after;
+  V.settings = async () => {
+    if (S.settingsSec !== 'monitor') return setView();
+    let k = { scale: 1.25, choices: [1, 1.15, 1.25, 1.4, 1.5] }, su = { steps: [], left: 0 };
+    try { k = await api('/kiosk/scale'); } catch {} try { su = await api('/setup'); } catch {}
+    const body = `<h2>The monitor &amp; setup</h2>
+      <h3 style="margin:6px 0 8px">Text size on the closet monitor</h3><p class="note" style="margin-bottom:10px">Read from the doorway. Only the monitor changes; Macs and phones keep their own size. Saving restarts the monitor's browser (about five seconds), never during a service.</p>
+      <div class="seg" id="stScale">${k.choices.map(c => `<button class="${Math.abs(c - k.scale) < 0.001 ? 'active' : ''}" data-scale="${c}">${Math.round(c * 100)}%</button>`).join('')}</div>
+      <h3 style="margin:18px 0 8px">The guided setup</h3><p class="note" style="margin-bottom:10px">${su.left ? `${su.left} of ${su.steps.length} steps left.` : 'Every step is done.'} People, shares, the Synology, Discord, Resend, Tailscale.</p>
+      <div class="row"><button class="btn btn--xs" id="stSetup">Open the guided setup</button></div>`;
+    return `<div class="settings"><nav class="settings__nav">${SETTINGS_SECTIONS.map(([id, name]) => `<button class="${S.settingsSec === id ? 'active' : ''}" data-sec="${id}">${esc(name)}</button>`).join('')}</nav><div class="settings__body fade">${body}</div></div>`;
+  };
+  V.settings.after = root => {
+    setAfter(root);
+    $$('[data-scale]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/kiosk/scale', { method: 'POST', body: { scale: +b.dataset.scale } }), `The monitor's text is now ${Math.round(+b.dataset.scale * 100)}%`); if (r && r.ok !== false) rerender('settings'); });
+    const so = $('#stSetup', root); if (so) so.onclick = async () => { await api('/setup/reopen', { method: 'POST' }).catch(() => {}); S.setupStep = null; setupWizard(); };
+  };
+}
+
+window.arise = { api, cleanDesc, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

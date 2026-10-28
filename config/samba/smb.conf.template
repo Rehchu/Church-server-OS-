@@ -61,8 +61,9 @@
         create mask = 0600
         directory mask = 0700
         # Make the folder the first time the user connects.
-        # ... with Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28).
-        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; mkdir -p "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chown "%U" "$h" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chmod 0700 "$h"'
+        # ... with Desktop, Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28),
+        # and a "Start here" note in a brand-new home only (round 5, 32).
+        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; n=0; [ -d "$h" ] || n=1; mkdir -p "$h/Desktop" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && if [ "$n" = 1 ] && [ -f "/opt/arise/config/home/Start here.md" ]; then cp "/opt/arise/config/home/Start here.md" "$h/" && chmod 0600 "$h/Start here.md"; fi; chown "%U" "$h" "$h/Desktop" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads"; [ -f "$h/Start here.md" ] && chown "%U" "$h/Start here.md"; chmod 0700 "$h"'
         # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
         # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
         # Put Back returns it and arise-trash.timer removes it after 30 days.

@@ -1,5 +1,12 @@
 # The portal guide
 
+> **Staff and volunteers use their Mac** (Bradly, after round 5). Everything
+> you save on a church Mac reaches the server by itself. The server's own
+> desktop is for the administrators in the closet; signing in here shows a
+> short page that says so. This guide applies only when Bradly turns the
+> portal on (`[web] staff_access = "portal"` in `/etc/arise/arise.toml`).
+> Reminders reach you by push or email instead.
+
 This is the page members see in the Help app. It is short on purpose: the
 portal is the server's desktop with only your own things in it.
 
