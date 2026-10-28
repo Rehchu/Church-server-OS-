@@ -101,7 +101,7 @@ form; a photo of a router page counts.
     Decides whether it joins the domain with a shared account or stays as it is on its own VLAN. I assume a Windows PC with a shared `checkin` login.
 
 29. **Is there a shared church Google account (for Tailscale, for the daily-note webhook, for the YouTube token), and who else knows its password?**
-    One church login on the free Tailscale plan is the cheapest setup; it should not be a personal account. I assume `arisenow.church@gmail.com` or similar exists.
+    One church login on the free Tailscale plan is the cheapest setup; it should not be a personal account. I assume one exists; I will not guess its address.
 
 ## Macs and PCs
 
