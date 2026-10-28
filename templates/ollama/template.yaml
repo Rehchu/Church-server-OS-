@@ -9,6 +9,11 @@ ports:
 volumes:
   - /srv/arise/apps/ollama/models:/root/.ollama
 env: {}
+autostart: false
+ram_mb: 2500
+limits:
+  mem_mb: 6144
+  cpus: 3.0
 notes: |
   After deploy:  docker exec arise-app-ollama ollama pull llama3.2:3b
   Memory: the model plus about 500 MB, so 3 GB for a 3b model while it answers

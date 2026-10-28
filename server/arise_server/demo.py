@@ -175,9 +175,16 @@ QUOTA = {"daily": 10000, "spent": 1962, "entries": [
 ]}
 
 APPS = [
-    {"name": "filebrowser", "template": "filebrowser", "status": "running", "ports": ["8081:80"], "cpu": 0.3, "mem": 38_000_000, "url": "http://arise-server:8081", "updated": _ago(days=3)},
-    {"name": "uptime-kuma", "template": "uptime-kuma", "status": "running", "ports": ["8082:3001"], "cpu": 1.1, "mem": 142_000_000, "url": "http://arise-server:8082", "updated": _ago(days=3)},
-    {"name": "syncthing", "template": "syncthing", "status": "exited", "ports": ["8384:8384"], "cpu": 0.0, "mem": 0, "url": "http://arise-server:8384", "updated": _ago(days=1)},
+    {"name": "netdata", "template": "netdata", "status": "running", "ports": ["19999:19999"], "cpu": 2.6, "mem": 210_000_000, "url": "http://arise-server:19999", "updated": _ago(days=3), "ram_mb": 250, "limit_mb": 512},
+    {"name": "uptime-kuma", "template": "uptime-kuma", "status": "running", "ports": ["8082:3001"], "cpu": 1.1, "mem": 142_000_000, "url": "http://arise-server:8082", "updated": _ago(days=3), "ram_mb": 150, "limit_mb": 384},
+    {"name": "guacamole", "template": "guacamole", "status": "running", "ports": ["8084:8080"], "cpu": 2.6, "mem": 778_000_000, "url": "http://arise-server:8084", "updated": _ago(days=3), "ram_mb": 900, "limit_mb": 1536},
+    {"name": "trilium", "template": "trilium", "status": "running", "ports": ["8090:8080"], "cpu": 0.2, "mem": 160_000_000, "url": "http://arise-server:8090", "updated": _ago(days=3), "ram_mb": 200, "limit_mb": 512},
+    {"name": "immich", "template": "immich", "status": "running", "ports": ["2283:2283"], "cpu": 3.4, "mem": 2_100_000_000, "url": "http://arise-server:2283", "updated": _ago(days=2), "ram_mb": 2500, "limit_mb": 4096},
+    {"name": "jellyfin", "template": "jellyfin", "status": "running", "ports": ["8096:8096"], "cpu": 0.8, "mem": 480_000_000, "url": "http://arise-server:8096", "updated": _ago(days=3), "ram_mb": 600, "limit_mb": 2048},
+    {"name": "vaultwarden", "template": "vaultwarden", "status": "running", "ports": ["8083:80"], "cpu": 0.1, "mem": 60_000_000, "url": "http://arise-server:8083", "updated": _ago(days=3), "ram_mb": 100, "limit_mb": 384},
+    {"name": "syncthing", "template": "syncthing", "status": "exited", "ports": ["8384:8384"], "cpu": 0.0, "mem": 0, "url": "http://arise-server:8384", "updated": _ago(days=1), "ram_mb": 150, "limit_mb": 512},
+    {"name": "nextcloud", "template": "nextcloud", "status": "exited", "ports": ["8091:80"], "cpu": 0.0, "mem": 0, "url": "http://arise-server:8091", "updated": _ago(days=3), "ram_mb": 1200, "limit_mb": 2048},
+    {"name": "ollama", "template": "ollama", "status": "exited", "ports": ["11434:11434"], "cpu": 0.0, "mem": 0, "url": "http://arise-server:11434", "updated": _ago(days=3), "ram_mb": 2500, "limit_mb": 6144},
 ]
 
 TEMPLATES = [

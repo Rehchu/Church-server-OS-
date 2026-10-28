@@ -9,6 +9,11 @@ ports:
 volumes:
   - /srv/arise/apps/portainer/data:/data
 env: {}
+autostart: true
+ram_mb: 120
+limits:
+  mem_mb: 384
+  cpus: 0.5
 notes: |
   https://arise-server:9443 (its own certificate; accept it once). Make the
   admin account within five minutes of the first start or it locks itself

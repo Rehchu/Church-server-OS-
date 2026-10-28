@@ -1,6 +1,6 @@
 name: icecast
 title: Icecast
-description: Live audio to phones on the church Wi-Fi: translation, the nursery feed, assisted listening. One laptop sends; anyone with the address listens in a browser.
+description: "Live audio to phones on the church Wi-Fi: translation, the nursery feed, assisted listening. One laptop sends; anyone with the address listens in a browser."
 category: streaming
 icon: pulse
 version: "latest"
@@ -10,6 +10,11 @@ volumes: []
 env:
   ICECAST_SOURCE_PASSWORD: CHANGE-ME
   ICECAST_ADMIN_PASSWORD: CHANGE-ME
+autostart: true
+ram_mb: 40
+limits:
+  mem_mb: 192
+  cpus: 0.5
 notes: |
   Under 50 MB (an estimate). Listeners on the Mesh or the office network reach
   it like they reach the dashboard. A few seconds of delay is normal for

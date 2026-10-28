@@ -19,7 +19,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, sermons, services, shares, sites, system
-from . import links
+from . import activity, automations, links, monitor, storage, updates
+from . import auth as _auth
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
 from .util import human_bytes
@@ -165,6 +166,12 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
         items.append({"level": "warn", "text": f"Synology not mounted at {n.get('mount')}. Backups will fail until it is: `arisectl nas mount`."})
     if d.get("enabled", True) and d.get("error"):
         items.append({"level": "bad", "text": f"Directory: {d['error'][:160]}"})
+    # Disks at 75 % say so (Bradly, Oct 28); the sample box has room, so the preview shows none.
+    if not c.demo:
+        try:
+            items.extend(storage.disk_alerts())
+        except Exception:  # noqa: BLE001
+            pass
     return items
 
 
@@ -189,9 +196,118 @@ def api_service_act(unit: str, action: str, _=auth):
     return services.act(unit, action)
 
 
+@app.get("/api/logs/sources")
+def api_log_sources(_=auth):
+    return services.log_sources()
+
+
+@app.get("/api/logs/file/{name}")
+def api_log_file(name: str, lines: int = 300, _=auth):
+    return services.log_file(name, lines)
+
+
 @app.get("/api/logs/{unit}")
 def api_logs(unit: str, lines: int = 200, _=auth):
     return services.journal(unit, lines)
+
+
+# ----- v0.8 Exodus: the system apps (Software Update, Activity Monitor, Automations, Storage, the monitor) ----
+class QueueBody(BaseModel):
+    packages: Optional[list[str]] = None
+    apps: Optional[list[str]] = None
+    reboot: Optional[bool] = None
+
+
+class ApplyBody(BaseModel):
+    confirm: str = ""
+    no_snapshot: bool = False
+
+
+@app.get("/api/updates")
+def api_updates_status(_=auth):
+    return updates.status()
+
+
+@app.post("/api/updates/refresh")
+def api_updates_refresh(_=auth):
+    r = updates.refresh()
+    r["status"] = updates.status()
+    return r
+
+
+@app.post("/api/updates/check-apps")
+def api_updates_check_apps(_=auth):
+    return updates.check_apps()
+
+
+@app.post("/api/updates/queue")
+def api_updates_queue(body: QueueBody, who=auth):
+    return updates.set_queue(body.packages, body.apps, body.reboot, who.get("user", ""))
+
+
+@app.post("/api/updates/apply")
+def api_updates_apply(body: ApplyBody, _=auth):
+    if body.confirm != "install":
+        return {"ok": False, "err": "type install to confirm"}
+    return updates.apply(no_snapshot=body.no_snapshot, log=lambda *_a: None)
+
+
+@app.get("/api/activity")
+def api_activity(_=auth):
+    return activity.snapshot()
+
+
+class KillBody(BaseModel):
+    pid: int
+    confirm: str = ""
+
+
+@app.post("/api/activity/kill")
+def api_activity_kill(body: KillBody, _=auth):
+    return activity.kill(body.pid, body.confirm)
+
+
+@app.get("/api/automations")
+def api_automations(_=auth):
+    return automations.list_automations()
+
+
+class TimerBody(BaseModel):
+    confirm: str = ""
+
+
+@app.post("/api/automations/{timer}/{action}")
+def api_automations_act(timer: str, action: str, body: TimerBody, _=auth):
+    if action not in ("pause", "resume"):
+        return {"ok": False, "err": "action must be pause or resume"}
+    return automations.pause(timer, action == "resume", body.confirm)
+
+
+@app.get("/api/storage")
+def api_storage(_=auth):
+    r = storage.status()
+    for m in r.get("mounts", []):
+        m["total_h"], m["used_h"], m["free_h"] = human_bytes(m.get("total")), human_bytes(m.get("used")), human_bytes(m.get("free"))
+    return r
+
+
+@app.post("/api/storage/scan")
+def api_storage_scan(_=auth):
+    return storage.scan()
+
+
+@app.get("/api/monitor")
+def api_monitor(_=auth):
+    return monitor.status()
+
+
+class MonitorBody(BaseModel):
+    on: bool = True
+
+
+@app.post("/api/monitor/power")
+def api_monitor_power(body: MonitorBody, _=auth):
+    return monitor.power(body.on)
 
 
 # ----- directory ---------------------------------------------------------------
@@ -403,9 +519,39 @@ def api_templates(_=auth):
     return apps.templates()
 
 
+@app.get("/api/apps/catalog")
+def api_catalog(_=auth):
+    return apps.catalog()
+
+
+@app.get("/api/apps/theme/{name}")
+def api_app_theme(name: str, _=auth):
+    return apps.theme_for(name)
+
+
+# Members may ask where Notes (Trilium) and Photos (Immich) answer; nothing else about apps.
+_auth.MEMBER_OK = tuple(_auth.MEMBER_OK) + ("/api/apps/open/",)
+
+
+@app.get("/api/apps/open/{name}")
+def api_app_open(name: str, _=auth):
+    if name not in ("trilium", "immich"):
+        return {"ok": False, "err": "only the Notes and Photos apps open this way"}
+    return apps.open_url(name)
+
+
 @app.post("/api/apps/deploy")
 def api_deploy(body: Deploy, _=auth):
     return apps.deploy(body.template, body.name, body.env)
+
+
+class AutostartBody(BaseModel):
+    on: bool = True
+
+
+@app.post("/api/apps/{name}/autostart")
+def api_app_autostart(name: str, body: AutostartBody, _=auth):
+    return apps.set_autostart(name, body.on)
 
 
 @app.post("/api/apps/{name}/{action}")

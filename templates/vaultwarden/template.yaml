@@ -12,6 +12,11 @@ env:
   SIGNUPS_ALLOWED: "false"
   ADMIN_TOKEN: "CHANGE-ME-run-openssl-rand-base64-48"
   DOMAIN: "https://vault.ad.arisecenla.church"
+autostart: true
+ram_mb: 100
+limits:
+  mem_mb: 384
+  cpus: 0.5
 notes: |
   BACK UP /srv/arise/apps/vaultwarden. It holds every password the church keeps
   here, encrypted with each user's master password. The 'apps' restic job covers

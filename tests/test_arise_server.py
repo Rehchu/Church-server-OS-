@@ -398,3 +398,125 @@ class Feel(unittest.TestCase):
         for ic in m["icons"]:
             self.assertTrue((ROOT / "web" / ic["src"].replace("/assets/", "")).exists(), ic["src"])
         self.assertTrue((ROOT / "web" / "sw.js").exists())
+
+
+class SystemApps(unittest.TestCase):
+    """v0.8 Exodus (round 3): Software Update, the Store's caps and budget, the catalogue,
+    Activity Monitor's refusals, Logs, Automations, the monitor, the theme pack, idle apps."""
+
+    def test_apt_upgradable_splits_security_from_the_rest(self):
+        from arise_server import updates
+        r = updates.parse_apt_upgradable("Listing... Done\nopenssl/noble-security 3.0.13-0ubuntu3.4 amd64 [upgradable from: 3.0.13-0ubuntu3.3]\n"
+                                         "samba/noble-updates 2:4.19.5+dfsg-4ubuntu9 amd64 [upgradable from: 2:4.19.5+dfsg-4ubuntu8]\nWARNING: apt does not have a stable CLI\n")
+        self.assertEqual([p["name"] for p in r["security"]], ["openssl"])
+        self.assertEqual([p["name"] for p in r["other"]], ["samba"])
+        self.assertEqual(r["other"][0]["from"], "2:4.19.5+dfsg-4ubuntu8")
+
+    def test_service_window_refuses_sunday_morning_and_allows_tuesday_night(self):
+        from datetime import datetime
+        from arise_server import updates
+        svcs = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30"}, {"name": "Glory Night", "day": "Monday", "time": "19:00"}]
+        self.assertIsNotNone(updates.in_service_window(datetime(2026, 11, 1, 10, 0), svcs))       # a Sunday, half an hour before
+        self.assertIsNotNone(updates.in_service_window(datetime(2026, 11, 2, 21, 30), svcs))      # Glory Night still on
+        self.assertIsNone(updates.in_service_window(datetime(2026, 11, 3, 3, 30), svcs))          # Tuesday 03:30
+        self.assertIsNone(updates.in_service_window(datetime(2026, 10, 31, 3, 30), svcs))         # the Saturday window
+        self.assertEqual(updates.set_queue(["samba", "bad name!"], ["uptime-kuma", "Bad"], True, "t")["queue"]["packages"], ["samba"])
+
+    def test_limits_are_injected_into_every_service_and_manifests_carry_them(self):
+        doc = apps.inject_limits({"services": {"a": {"image": "x"}, "b": {"image": "y", "mem_limit": "128m"}}}, {"mem_mb": 768, "cpus": 1.5})
+        self.assertEqual(doc["services"]["a"]["mem_limit"], "768m"); self.assertEqual(doc["services"]["a"]["cpus"], 1.5)
+        self.assertEqual(doc["services"]["b"]["mem_limit"], "128m")
+        t = apps.templates()["templates"]
+        self.assertGreaterEqual(len(t), 25)
+        for x in t:
+            self.assertNotEqual(x["category"], "broken", x["id"])
+            self.assertGreater(x["limits"]["mem_mb"], 0, x["id"]); self.assertGreater(x["ram_mb"], 0, x["id"])
+        self.assertFalse(next(x for x in t if x["id"] == "ollama")["autostart"])
+        self.assertTrue(next(x for x in t if x["id"] == "immich")["autostart"])
+
+    def test_autostart_plan_keeps_two_gigabytes_for_the_domain(self):
+        items = [{"id": "small", "autostart": True, "ram_mb": 100}, {"id": "big", "autostart": True, "ram_mb": 3000}, {"id": "heavy", "autostart": False, "ram_mb": 2500}]
+        p = apps.autostart_plan(items, ram_total_mb=4096)
+        self.assertEqual(p["budget_mb"], 2048); self.assertEqual(p["start"], ["small"])
+        self.assertEqual({s["id"] for s in p["stopped"]}, {"big", "heavy"})
+        self.assertIn("budget", next(s for s in p["stopped"] if s["id"] == "big")["why"])
+
+    def test_catalogue_entries_shape_a_compose_and_keep_secrets_change_me(self):
+        c = apps.catalog()
+        self.assertFalse(c.get("error"), c.get("error")); self.assertGreaterEqual(len(c["apps"]), 30)
+        ids = {x["id"] for x in c["apps"]}
+        for needed in ("gitea", "paperless", "gimp", "libreoffice", "onlyoffice", "game-night", "proclaim-wine"):
+            self.assertIn(needed, ids)
+        self.assertTrue(next(x for x in c["apps"] if x["id"] == "proclaim-wine")["experimental"])
+        self.assertEqual(next(x for x in c["apps"] if x["id"] == "gimp")["idle_stop_minutes"], 60)
+        for e in c["apps"]:
+            self.assertFalse(e["autostart"] and e["category"] in ("desktop", "experiment"), e["id"])
+        entry = apps.catalog_entry("umami")
+        doc = apps.compose_from_catalog(entry)
+        self.assertIn("umami-db", doc["services"]); self.assertEqual(doc["services"]["umami"]["depends_on"], ["umami-db"])
+        self.assertIn("APP_SECRET=${APP_SECRET}", doc["services"]["umami"]["environment"])
+        for e in c["apps"]:
+            for k, v in (apps.catalog_entry(e["id"]).get("env") or {}).items():
+                if any(w in k for w in ("PASS", "TOKEN", "SECRET")) and "HASH" not in k:
+                    self.assertTrue(str(v).startswith("CHANGE-ME"), f"{e['id']}.{k}")
+
+    def test_theme_plan_fills_house_values_and_none_keeps_its_own_look(self):
+        self.assertEqual(apps.theme_plan({"theme": "none"})["via"], "none")
+        self.assertEqual(apps.theme_plan({})["note"], "keeps its own look")
+        p = apps.theme_plan({"theme": {"via": "env", "accepts": ["dark", "name"], "env": {"X": "{{name}}", "Y": "{{red}}"}}})
+        self.assertEqual(p["env"], {"X": "Arise Church", "Y": "#D6222D"})
+        f = apps.theme_plan({"theme": {"via": "files", "accepts": ["css"], "files": {"custom.css": "{{css}}"}}})
+        self.assertIn("#D6222D", f["files"]["custom.css"]); self.assertIn("Anton", f["css"])
+        self.assertEqual(apps.theme_for("jellyfin")["via"], "css"); self.assertEqual(apps.theme_for("gimp")["via"], "none")
+
+    def test_idle_decision_stops_only_after_the_quiet_hour(self):
+        now = 10_000.0
+        self.assertEqual(apps.idle_decision(now, None, now - 7200, 0, 60), (True, now - 7200))
+        self.assertEqual(apps.idle_decision(now, now - 600, now - 7200, 0, 60), (False, now - 600))
+        self.assertEqual(apps.idle_decision(now, now - 7200, now - 7200, 2, 60)[0], False)
+        self.assertEqual(apps.idle_decision(now, now - 7200, None, 0, 0)[0], False)
+
+    def test_activity_refuses_the_processes_the_box_cannot_live_without(self):
+        from arise_server import activity
+        self.assertFalse(activity.may_kill(1, "systemd")[0])
+        self.assertFalse(activity.may_kill(500, "samba", "/usr/sbin/samba -D")[0])
+        self.assertFalse(activity.may_kill(501, "python3", "/opt/arise/venv/bin/python -m arise_server")[0])
+        self.assertFalse(activity.may_kill(502, "sshd")[0]); self.assertFalse(activity.may_kill(503, "dockerd")[0])
+        self.assertTrue(activity.may_kill(504, "gimp", "/usr/bin/gimp")[0])
+        self.assertFalse(activity.kill(1, "1")["ok"]); self.assertFalse(activity.kill(504, "wrong")["ok"])
+
+    def test_logs_last_error_and_readable_units(self):
+        from arise_server import services
+        self.assertEqual(services.last_error_index(["ok", "Error: x", "fine", "connection refused", "done"]), 3)
+        self.assertIsNone(services.last_error_index(["all", "good"]))
+        self.assertTrue(services.READABLE_RE.match("arise-update.service")); self.assertTrue(services.READABLE_RE.match("caddy.service"))
+        self.assertFalse(services.READABLE_RE.match("../etc/passwd")); self.assertFalse(services.READABLE_RE.match("getty@tty1.service"))
+        self.assertIn("not a log file", services.log_file("../secrets")["text"])
+
+    def test_timers_parse_and_only_arise_timers_pause(self):
+        from arise_server import automations
+        rows = automations.parse_timers_json('[{"next": 1798000000000000, "left": 1, "last": 1797900000000000, "passed": 2, "unit": "arise-backup.timer", "activates": "arise-backup.service"}, {"next": null, "unit": "snapd.refresh.timer", "activates": "snapd.refresh.service"}]')
+        self.assertEqual([r["timer"] for r in rows], ["arise-backup.timer"]); self.assertTrue(rows[0]["next"].startswith("2026"))
+        self.assertFalse(automations.pause("docker.service", False, "docker.service")["ok"])
+        self.assertFalse(automations.pause("arise-backup.timer", False, "wrong")["ok"])
+        self.assertEqual(automations.describe("arise-update.timer")[0], "Software updates")
+        t = (ROOT / "config" / "systemd" / "arise-update.timer").read_text(); self.assertIn("Sat *-*-* 03:30:00 America/Chicago", t)
+        self.assertIn("23:00:00 America/Chicago", (ROOT / "config" / "systemd" / "arise-monitor-off.timer").read_text())
+
+    def test_monitor_parses_outputs_and_guacamole_hash(self):
+        from arise_server import monitor
+        o = monitor.parse_wlr_randr('HDMI-A-1 "Dell E2216H"\n  Make: Dell\n  Enabled: yes\n  Modes:\n    1920x1080 px, 60.000 Hz (preferred, current)\nDP-1 "unknown"\n  Enabled: no\n')
+        self.assertEqual([(x["name"], x["enabled"]) for x in o], [("HDMI-A-1", True), ("DP-1", False)])
+        import hashlib
+        self.assertEqual(monitor.guac_password_hash("pw", "ab"), hashlib.sha256(b"pwAB").hexdigest())
+        sql = monitor.guac_sql("bradly.dyer", "pw", "Closet monitor", "172.18.0.1", 5900, "vnc'pw", salt_hex="00ff")
+        self.assertIn("'bradly.dyer'", sql); self.assertIn("vnc''pw", sql); self.assertIn("decode('00ff', 'hex')", sql)
+        with self.assertRaises(ValueError):
+            monitor.guac_sql("Bad User", "x", "c", "h", 1, "v")
+        self.assertIn("enable_auth=true", monitor.wayvnc_conf("172.18.0.1", 5900, "bradly.dyer", "s"))
+
+    def test_disk_alert_at_75_percent(self):
+        from arise_server import storage
+        items = storage.disk_alerts([{"mount": "/srv/arise", "pct": 76, "free": 1e9}, {"mount": "/", "pct": 40, "free": 1e11}, {"mount": "/mnt/synology", "pct": 92, "free": 1e10}])
+        self.assertEqual([(i["level"], i["text"].split()[0]) for i in items], [("warn", "/srv/arise"), ("bad", "/mnt/synology")])
+        self.assertEqual(storage.DISK_ALERT_PCT, 75)

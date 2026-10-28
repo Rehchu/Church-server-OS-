@@ -11,8 +11,23 @@ volumes:
   - /srv/arise/apps/nextcloud/db:/var/lib/mysql
 env:
   DB_PASSWORD: CHANGE-ME
+autostart: false
+ram_mb: 1200
+limits:
+  mem_mb: 2048
+  cpus: 2.0
 notes: |
   Memory about 1 GB for both (an estimate): the heaviest app here. Its users
   are its own; the "LDAP user and group backend" app connects it to the
   domain so people use their church password (bind DN and base DN from
   docs/DIRECTORY.md). Needs the Dell to have 16 GB to sit beside the rest.
+# The house look: Nextcloud's theming app takes a name, colour and logo
+# through occ; the deploy runs these once the app is up (best effort).
+theme:
+  accepts: [primary, logo, dark]
+  via: commands
+  commands:
+    - ["app", "php", "occ", "theming:config", "name", "{{name}}"]
+    - ["app", "php", "occ", "theming:config", "color", "{{red}}"]
+    - ["app", "php", "occ", "theming:config", "slogan", "Pineville, LA"]
+  note: "Name, colour and slogan set by occ after the first start; the logo is uploaded once in Administration → Theming (the flame from web/icons)."

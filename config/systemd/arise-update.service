@@ -1,0 +1,11 @@
+[Unit]
+Description=Arise Server software updates (installs the queue from Software Update after a system snapshot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Security patches are unattended-upgrades' job (step 6f). This installs only what
+# Bradly queued in the dashboard, after `arisectl snapshot create`, and reboots only
+# if the kernel asks and no service is on. Everything is written to /var/log/arise/updates.log.
+ExecStart=/usr/local/bin/arisectl update apply --quiet

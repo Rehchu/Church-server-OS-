@@ -1,0 +1,31 @@
+name: immich
+title: Immich
+description: "The church's photo library: event photos in one place, faces and search, albums, and the Immich phone app uploads over Tailscale. The Photos icon on the desktop opens it. Staff only."
+category: media
+icon: folder
+version: "v1.119.0"
+ports:
+  - 2283:2283
+volumes:
+  - /srv/arise/apps/immich/upload:/usr/src/app/upload
+  - /srv/arise/apps/immich/db:/var/lib/postgresql/data
+  - /srv/arise/apps/immich/model-cache:/cache
+env:
+  DB_PASSWORD: "CHANGE-ME-run-openssl-rand-base64-24"
+autostart: true
+ram_mb: 2500
+limits:
+  mem_mb: 4096
+  cpus: 2.0
+notes: |
+  First visit (http://arise-server:2283) makes the admin account: use the
+  media team's address, then invite staff by email from Administration.
+  The phone app is "Immich" on iOS and Android; server address is the same
+  URL over Tailscale. Machine learning (faces, smart search) is the heavy
+  container; stop it in the Store if the box is short on memory and the
+  library keeps working without it. Image tags were current when written:
+  verify before first deploy.
+theme:
+  accepts: [primary, dark, css]
+  via: css
+  note: "Administration → Settings → Theme Settings → Custom CSS: paste the house CSS from the Store. Dark mode is per user (top-right)."

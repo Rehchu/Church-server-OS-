@@ -21,7 +21,7 @@
 #    --skip-docker       do not install Docker (no app templates)
 #    --no-start          install everything but do not start services/timers
 #    --with-tailscale    (default ON) install Tailscale; --no-tailscale to skip. `tailscale up` is still yours to run
-#    --apps "a,b"        the apps to deploy and start at install (default: the church set below); --no-apps for none
+#    --apps "a,b"        only these apps at install (default: every template, started within the memory budget); --no-apps for none
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
 #    --with-cockpit      (default ON; --no-cockpit to skip) Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
@@ -75,9 +75,12 @@ WITH_HARDENING=1
 WITH_SPLASH=1
 WITH_UPS=1
 PIN_IP=1
-# The church set: installed, started and ready after the OS install (Bradly).
-# Everything else in templates/ stays one `arisectl app deploy` away.
-DEFAULT_APPS="netdata uptime-kuma netalertx portainer bookstack jellyfin syncthing vaultwarden guacamole owncast icecast"
+# Every template deployed after the OS install (Bradly, round 3, 5: "The 24 app
+# templates should already be preinstalled"). Started only within the memory
+# budget: each template.yaml says autostart and ram_mb; the heavy ones are
+# deployed and left stopped, one click in the Store away. `--apps "a b c"`
+# narrows it to a list; `--no-apps` skips the step.
+DEFAULT_APPS="all"
 APPS="$DEFAULT_APPS"
 STAGING=0
 STAGING_MARK="/etc/arise/staging"
@@ -702,6 +705,18 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
   # makes them as root-owned dirs on the mount point; create them explicitly.
   for d in /mnt/synology/arise/recordings /mnt/synology/arise/media /mnt/synology/arise/cameras; do [ -d "$d" ] || run mkdir -p "$d"; done
   APPS_OK=""; APPS_BAD=""
+  if [ "$APPS" = "all" ]; then
+    # Every template, capped (mem_limit/cpus from its manifest), started only while
+    # RAM minus 2 GB (the domain, the dashboard, the kiosk) allows; the rest wait, stopped.
+    if [ "$DRY_RUN" = 1 ]; then
+      note "[dry-run] arisectl app install-all   (every template deployed; autostart ones started within RAM - 2 GB; heavy ones left stopped)"
+    elif /usr/local/bin/arisectl app install-all >>"$LOG_FILE" 2>&1; then
+      note "apps: every template deployed; see 'arisectl app list' for what runs and what waits (the Store shows the same)"
+    else
+      warn "some apps did not deploy (see $LOG_FILE); arisectl app install-all to retry, or arisectl app deploy <name> one at a time"
+    fi
+    APPS=""
+  fi
   for a in $APPS; do
     if [ "$DRY_RUN" = 1 ]; then note "[dry-run] arisectl app deploy $a"; continue; fi
     if [ -d "$SRC/templates/$a" ]; then
@@ -871,6 +886,21 @@ if [ -f "$UNIT_SRC/arise-drill.timer" ]; then
     run systemctl enable arise-drill.timer
   fi
   note "arise-drill.timer: once a month one file comes back from last night's backup and is compared (arisectl backup drill)"
+fi
+# Software Update (round 3, 4 and 25): security patches stay unattended (6f);
+# everything Bradly queues in the dashboard installs Saturday 03:30 after a
+# system snapshot, and a reboot happens only if the kernel asks and no service is on.
+if [ -f "$UNIT_SRC/arise-update.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-update.timer || warn "arise-update.timer failed to start"
+  else
+    run systemctl enable arise-update.timer
+  fi
+  note "arise-update.timer: Saturday 03:30, installs only what is queued in Software Update (arisectl update)"
+fi
+# Desktop programs from the Store (GIMP, LibreOffice...) stop themselves after an hour with nobody connected.
+if [ -f "$UNIT_SRC/arise-idle-apps.timer" ]; then
+  if [ "$NO_START" = 0 ]; then run systemctl enable --now arise-idle-apps.timer || warn "arise-idle-apps.timer failed to start"; else run systemctl enable arise-idle-apps.timer; fi
 fi
 if [ -f /etc/systemd/system/arise-notify.timer ] || [ -f "$UNIT_SRC/arise-notify.timer" ]; then
   if [ "$NO_START" = 0 ]; then
@@ -1050,6 +1080,29 @@ if [ "$WITH_KIOSK" = 1 ]; then
   fi
   if ! lspci 2>/dev/null | grep -qi 'vga\|display'; then
     warn "no display adapter seen by lspci; the kiosk needs a GPU and a monitor plugged in at boot"
+  fi
+
+  # 6d-2. The panel's hours and Screen Sharing (round 3, 30 and 17).
+  # wlr-randr drives cage's output (off 23:00, on 06:00); wayvnc shares that
+  # display to Guacamole only, with a password and TLS, for Bradly alone.
+  say "6d-2/7  Closet monitor: off 23:00, on 06:00; Screen Sharing"
+  run apt-get install -y -q wlr-randr wayvnc || warn "wlr-randr/wayvnc not installed: the panel will not sleep on schedule and Screen Sharing is off (apt install wlr-randr wayvnc later)"
+  for t in arise-monitor-off.timer arise-monitor-on.timer; do
+    if [ -f "$UNIT_SRC/$t" ]; then
+      if [ "$NO_START" = 0 ]; then run systemctl enable --now "$t" || warn "$t failed to start"; else run systemctl enable "$t"; fi
+    fi
+  done
+  note "the panel sleeps at 23:00 and wakes at 06:00 (arisectl monitor on|off|status); after a scheduled off, a key does not wake it - the 06:00 timer does"
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] arisectl monitor share on   (wayvnc for Guacamole only; a 'Closet monitor' connection for $ADMIN_USER)"
+  elif [ "$NO_START" = 0 ] && [ -d "$DATA_ROOT/apps/guacamole" ]; then
+    if /usr/local/bin/arisectl monitor share on >>"$LOG_FILE" 2>&1; then
+      note "Screen Sharing on: Guacamole → 'Closet monitor', sign in as $ADMIN_USER (password in /etc/arise/secrets/guacamole-$ADMIN_USER, root only)"
+    else
+      warn "Screen Sharing not set up (see $LOG_FILE); later: sudo arisectl monitor share on"
+    fi
+  else
+    note "Screen Sharing waits for Guacamole: sudo arisectl monitor share on once it is deployed"
   fi
 fi
 

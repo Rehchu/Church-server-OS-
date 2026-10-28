@@ -13,7 +13,15 @@
     arisectl backup status|jobs|run [job]|snapshots|restore <id|latest> [--tag T] [--at DATE] [--path P] --target DIR|verify|prune|drill
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
     arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM
-    arisectl app list|templates|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
+    arisectl app list|templates|catalog|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
+    arisectl app install-all                 every template deployed, started within the memory budget (the installer's 6a)
+    arisectl app autostart <name> on|off     whether an app starts with the box
+    arisectl app theme <name>                the house look that app takes (env, files, or CSS to paste)
+    arisectl app idle-sweep                  stop desktop apps nobody has used for an hour (arise-idle-apps.timer)
+    arisectl automations list|pause <timer>|resume <timer>   every arise-* timer, next run, last result
+    arisectl storage status|scan             what is eating the disk (the scan runs in the background)
+    arisectl monitor on|off|status           the closet panel (off 23:00, on 06:00 by timer)
+    arisectl monitor share on|off            Screen Sharing of that panel through Guacamole, Bradly only
     arisectl nas status|mount|unmount
     arisectl mirror run
     arisectl sites
@@ -22,7 +30,8 @@
     arisectl mail status|contacts|import <wix.csv>|test <to> <subject>       the church family list (Resend)
     arisectl remote status|add-peer <name>
     arisectl notify test|send
-    arisectl update [check|apply|apt]
+    arisectl update [check|refresh|queue|apply|apt]   Software Update: what waits, what Bradly queued, the Saturday 03:30 apply
+    arisectl update apply [--now] [--no-snapshot] [--quiet]   install the queue (refuses during a service; snapshot first)
 
 Reads /etc/arise/arise.toml (or $ARISE_CONFIG). Talks to the same Python
 modules the dashboard uses, so the two never disagree.
@@ -178,9 +187,23 @@ def cmd_doctor(a):
         d = run(["docker", "info"], timeout=10) if which("docker") else {"ok": False}
         (ok if d["ok"] else warn)("docker " + ("running" if d["ok"] else "not running - apps cannot start"))
     if which("systemctl"):
-        for u in ("arise-web.service", "arise-automator.timer", "arise-backup.timer", "arise-mirror.timer"):
+        for u in ("arise-web.service", "arise-automator.timer", "arise-backup.timer", "arise-mirror.timer", "arise-update.timer"):
             r = run(["systemctl", "is-active", u], timeout=5)
             (ok if r["ok"] else warn)(f"{u} {r['out'].strip() or 'inactive'}")
+    # The apps' caps (round 3, 40): what autostarts must fit in RAM minus the reserve.
+    try:
+        from arise_server import apps as _apps
+        cc = _apps.caps_check()
+        (ok if cc["ok"] else warn)(f"app caps: {cc['count']} autostart apps capped at {cc['autostart_caps_mb']} MB total (about {cc['autostart_est_mb']} MB in use), budget {cc['budget_mb']} MB of {cc['ram_mb']} MB RAM" + ("" if cc["ok"] else " - over budget: set autostart off on the heaviest (arisectl app autostart <name> off)"))
+    except Exception as e:  # noqa: BLE001
+        warn(f"app caps not checked: {e}")
+    # The closet monitor (round 3, 17 and 30), only where the kiosk is installed.
+    if Path("/etc/systemd/system/arise-kiosk.service").exists():
+        for u in ("arise-monitor-off.timer", "arise-monitor-on.timer"):
+            r = run(["systemctl", "is-enabled", u], timeout=5)
+            (ok if r["ok"] else warn)(f"{u} {r['out'].strip() or 'absent'}" + ("" if r["ok"] else " - the panel will not sleep at 23:00; re-run install.sh --kiosk"))
+        wv = run(["systemctl", "is-active", "arise-wayvnc.service"], timeout=5)["out"].strip()
+        (ok if wv == "active" else warn)(f"screen sharing (wayvnc) {wv or 'off'}" + ("" if wv == "active" else " - arisectl monitor share on"))
     if which("timedatectl"):
         r = run(["timedatectl", "show", "-p", "NTPSynchronized", "--value"], timeout=5)
         (ok if r["out"].strip() == "yes" else warn)("clock " + ("synchronised" if r["out"].strip() == "yes" else "NOT synchronised - Kerberos breaks past 5 minutes of drift"))
@@ -472,10 +495,45 @@ def cmd_app(a):
     from arise_server import apps
     if a.sub == "list":
         r = apps.list_apps()
-        table([{"app": x["name"], "state": x["status"], "url": x.get("url", ""), "cpu": f"{x.get('cpu', 0)}%", "mem": human_bytes(x.get("mem"))} for x in r["apps"]], ["app", "state", "url", "cpu", "mem"])
+        table([{"app": x["name"], "state": x["status"], "autostart": "yes" if x.get("autostart", True) else "no", "cap": f"{x.get('limit_mb') or '-'} MB", "url": x.get("url", ""), "cpu": f"{x.get('cpu', 0)}%", "mem": human_bytes(x.get("mem"))} for x in r["apps"]], ["app", "state", "autostart", "cap", "url", "cpu", "mem"])
         if r.get("demo"): warn("sample data (docker not available)")
+        else:
+            running = sum(int(x.get("limit_mb") or 0) for x in r["apps"] if x["status"] == "running")
+            print(f"  caps of running apps: {running} MB of {r.get('ram_total_mb')} MB RAM ({apps.RESERVE_MB} MB kept for the domain and the dashboard)")
     elif a.sub == "templates":
-        table([{"template": t["id"], "name": t["name"], "ports": ",".join(t.get("ports", [])), "what": t["description"][:70]} for t in apps.templates()["templates"]], ["template", "name", "ports", "what"])
+        table([{"template": t["id"], "name": t["name"], "autostart": "yes" if t.get("autostart") else "no", "ram": f"~{t.get('ram_mb')} MB", "cap": f"{t['limits']['mem_mb']} MB", "ports": ",".join(t.get("ports", [])), "what": t["description"][:60]} for t in apps.templates()["templates"]], ["template", "name", "autostart", "ram", "cap", "ports", "what"])
+    elif a.sub == "catalog":
+        c = apps.catalog()
+        if c.get("error"): bad(c["error"]); sys.exit(1)
+        table([{"app": t["id"], "name": t["name"], "category": t["category"], "ram": f"~{t.get('ram_mb')} MB", "image": t.get("image", ""), "what": t["description"][:60]} for t in c["apps"]], ["app", "name", "category", "ram", "image", "what"])
+        warn("image tags were not pulled from this build: verify before first deploy. Install: arisectl app deploy <app>")
+    elif a.sub == "install-all":
+        need_root()
+        r = apps.install_all(log=lambda s: note_(s))
+        if r.get("demo"): warn(r["out"]); return
+        print(f"  started: {', '.join(r['started']) or '-'}")
+        print(f"  deployed, left stopped: {', '.join(r['stopped']) or '-'}")
+        for f in r["failed"]: bad(f"{f['id']}: {f['err']}")
+        sys.exit(0 if r["ok"] else 1)
+    elif a.sub == "idle-sweep":
+        need_root()
+        r = apps.idle_sweep(log=note_)
+        if r.get("demo"): warn(r["out"])
+        elif not r["stopped"]: note_("nothing idle long enough")
+    elif a.sub == "theme":
+        t = apps.theme_for(a.name)
+        if not t.get("ok"): bad(t.get("err")); sys.exit(1)
+        head(f"{a.name}: the house look, via {t['via']}" + (f" (takes: {', '.join(t['accepts'])})" if t["accepts"] else ""))
+        if t.get("note"): print(f"  {t['note']}")
+        for k, v in t.get("env", {}).items(): print(f"  env {k}={v}")
+        for f in t.get("files", []): print(f"  file {f}")
+        for c in t.get("commands", []): print(f"  run  {c}")
+        if t.get("css"): print("\n" + t["css"])
+    elif a.sub == "autostart":
+        need_root()
+        if a.instance not in ("on", "off") and (a.value or "") not in ("on", "off"):
+            sys.exit("arisectl app autostart <name> on|off")
+        show(apps.set_autostart(a.name, (a.value or a.instance) == "on"))
     elif a.sub == "deploy":
         need_root(); show(apps.deploy(a.template, a.name))
     elif a.sub == "logs":
@@ -642,17 +700,123 @@ def cmd_notify(a):
         (ok if r["sent"] else warn)("sent" if r["sent"] else f"not sent: {r.get('error') or 'nothing needs you, or no webhook'}")
 
 
+def note_(s):
+    print(f"  {s}")
+
+
 def cmd_update(a):
-    from arise_server import system
-    u = system.updates()
-    print(f"  apt packages upgradable: {u.get('apt_upgradable')} ({u.get('security')} security) · Arise Server commits behind: {u.get('arise_behind')}")
-    if a.sub == "apply":
+    from arise_server import system, updates
+    if a.sub == "apt":
+        need_root(); show(system.apt_upgrade()); return
+    if a.sub == "refresh":
+        need_root(); show(updates.refresh())
+    if a.sub == "self":
         need_root()
         r = system.update_arise()
         if r.get("log"): print(r["log"])
+        show(r); return
+    if a.sub == "queue":
+        need_root()
+        if not a.name:
+            sys.exit("arisectl update queue <package|app|reboot|all|clear> [more...]")
+        st = updates.status()
+        names = [a.name] + (a.rest or [])
+        q = st["queue"]
+        if names == ["clear"]:
+            show(updates.set_queue([], [], False, "arisectl")); return
+        if names == ["all"]:
+            show(updates.set_queue([p["name"] for p in st["other"]], [x["name"] for x in st["apps"].get("apps", []) if x.get("update")], st["reboot_required"], "arisectl")); return
+        pk = set(q["packages"]); ap = set(q["apps"]); rb = q["reboot"]
+        other = {p["name"] for p in st["other"]}; appn = {x["name"] for x in st["apps"].get("apps", [])}
+        for n in names:
+            if n == "reboot": rb = True
+            elif n in other: pk.add(n)
+            elif n in appn: ap.add(n)
+            else: warn(f"{n}: not a pending package or app; skipped")
+        show(updates.set_queue(sorted(pk), sorted(ap), rb, "arisectl")); return
+    if a.sub == "apply":
+        need_root()
+        r = updates.apply(no_snapshot=a.no_snapshot, log=(lambda s: None) if a.quiet else note_)
+        if not a.quiet:
+            for s in r.get("steps", []):
+                (ok if s["ok"] else bad)(s["step"])
+            print(f"  {r.get('summary', '')}")
+        sys.exit(0 if r.get("ok") else 1)
+    st = updates.status()
+    head(f"Software Update · window {st['window']}")
+    print(f"  security (unattended, installs itself): {len(st['security'])}   other (waits for you): {len(st['other'])}   reboot needed: {'yes' if st['reboot_required'] else 'no'}")
+    for p in st["other"]:
+        print(f"    {p['name']:<28} {p['from'] or '?':<24} -> {p['version']}")
+    ap = st.get("apps", {}).get("apps", [])
+    upd = [x["name"] for x in ap if x.get("update")]
+    print(f"  apps with a newer image: {', '.join(upd) or 'none'} (checked {st.get('apps', {}).get('checked_at') or 'never'}; dashboard → Software Update → Check apps)")
+    q = st["queue"]
+    print(f"  queued for {st['window']}: {len(q['packages'])} packages, {len(q['apps'])} apps{', reboot' if q['reboot'] else ''}")
+    if st.get("in_service"): warn(f"a service is on now ({st['in_service'].get('name')}): apply is refused until it is over")
+    if st.get("arise", {}).get("behind"): warn(f"Arise Server itself is {st['arise']['behind']} commits behind: arisectl update self")
+    if st.get("demo"): warn("sample data")
+
+
+def cmd_automations(a):
+    from arise_server import automations
+    if a.sub == "list":
+        r = automations.list_automations()
+        table([{"timer": t["timer"], "what": t["name"], "state": t["state"], "next": (t.get("next") or "-")[:16], "last": (t.get("last") or "-")[:16], "result": ("ok" if t.get("last_ok") else "FAILED" if t.get("last_ok") is False else "-")} for t in r["timers"]], ["timer", "what", "state", "next", "last", "result"])
+        print(f"  {r['never']}")
+        if r.get("demo"): warn("sample data")
+    else:
+        need_root()
+        if input(f"Type the timer name to {a.sub} it: ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        show(automations.pause(a.name, a.sub == "resume", a.name))
+
+
+def cmd_storage(a):
+    from arise_server import storage
+    if a.sub == "scan":
+        need_root(); print("  scanning (this walks every share and app folder; a minute or two)"); show(storage.scan(background=False)); return
+    s = storage.status()
+    head("Storage")
+    for m in s["mounts"]:
+        print(f"  {m['mount']:<16} {human_bytes(m['used']):>10} used of {human_bytes(m['total']):>10}  ({m['pct']}%)  {m['fs']}")
+    sc = s.get("scan")
+    if not sc:
+        warn("no scan yet: arisectl storage scan"); return
+    print(f"  as of {sc['as_of'][:16]}{' (partial: the scan hit its time cap)' if sc.get('truncated') else ''}")
+    for r in sorted(sc["roots"], key=lambda x: -(x.get("bytes") or 0)):
+        print(f"    {r['kind']:<6} {r['name']:<24} {human_bytes(r.get('bytes')):>10}  {r.get('files', 0):>7} files")
+    print("  biggest files:")
+    for f in sc["biggest"][:10]:
+        print(f"    {human_bytes(f['bytes']):>10}  {f['path']}")
+    print(f"  {s.get('note', '')}")
+    if s.get("demo"): warn("sample data")
+
+
+def cmd_monitor(a):
+    from arise_server import monitor
+    if a.sub == "status":
+        s = monitor.status()
+        head("The closet monitor")
+        (ok if s.get("kiosk") else warn)("kiosk " + ("running" if s.get("kiosk") else "not running (install.sh --kiosk, or no monitor at boot)"))
+        for o in s.get("outputs", []):
+            (ok if o.get("enabled") else warn)(f"output {o['name']} {o.get('description', '')}: {'on' if o.get('enabled') else 'off'}")
+        if s.get("error"): warn(s["error"])
+        print(f"  schedule: off {s['schedule']['off']}, on {s['schedule']['on']} (America/Chicago)")
+        for t, st in (s.get("timers") or {}).items():
+            (ok if st in ("enabled", "active") else warn)(f"{t}: {st}")
+        sh = s.get("share", {})
+        (ok if sh.get("on") else warn)(f"screen sharing {'on' if sh.get('on') else 'off'}" + (f" · wayvnc {sh.get('service', '')} on {sh.get('address')}:{sh.get('port')} · Guacamole connection '{sh.get('connection')}' for {sh.get('user')}" if sh.get("on") else " (arisectl monitor share on)"))
+        if s.get("demo"): warn("sample data")
+    elif a.sub in ("on", "off"):
+        need_root(); show(monitor.power(a.sub == "on"))
+    elif a.sub == "share":
+        need_root()
+        if a.name not in ("on", "off"):
+            sys.exit("arisectl monitor share on|off")
+        r = monitor.share(a.name == "on")
+        if r.get("guacamole_password"):
+            print(f"  Guacamole sign-in for {load().web.admin_user} (shown once; also in /etc/arise/secrets/, root only): {r['guacamole_password']}")
         show(r)
-    elif a.sub == "apt":
-        need_root(); show(system.apt_upgrade())
 
 
 def cmd_mirror(a):
@@ -679,7 +843,10 @@ def build():
     p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
     p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule"]); p.add_argument("name", nargs="?", help="report file name, or HH:MM for schedule"); p.set_defaults(f=cmd_automator)
-    p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
+    p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "catalog", "install-all", "autostart", "idle-sweep", "theme", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("value", nargs="?", help="autostart: on|off"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
+    p = sp.add_parser("automations"); p.add_argument("sub", choices=["list", "pause", "resume"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_automations)
+    p = sp.add_parser("storage"); p.add_argument("sub", nargs="?", default="status", choices=["status", "scan"]); p.set_defaults(f=cmd_storage)
+    p = sp.add_parser("monitor"); p.add_argument("sub", choices=["status", "on", "off", "share"]); p.add_argument("name", nargs="?", help="share: on|off"); p.set_defaults(f=cmd_monitor)
     p = sp.add_parser("nas"); p.add_argument("sub", choices=["status", "mount", "unmount"]); p.set_defaults(f=cmd_nas)
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
@@ -689,7 +856,8 @@ def build():
     p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "cameras", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.add_argument("--wide", action="store_true", help="also scan the common ranges a device may be parked on"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
-    p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)
+    p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "refresh", "queue", "apply", "apt", "self"]); p.add_argument("name", nargs="?", help="queue: a package, an app, 'reboot', 'all' or 'clear'"); p.add_argument("rest", nargs="*")
+    p.add_argument("--now", action="store_true", help="(apply) the same as the Saturday run, right now"); p.add_argument("--no-snapshot", action="store_true", help="(apply) go without the system snapshot"); p.add_argument("--quiet", action="store_true", help="(apply) for the timer: log only, exit 1 on failure"); p.set_defaults(f=cmd_update)
     return ap
 
 
@@ -700,7 +868,7 @@ def main():
     if a.cmd == "automator": a.time = a.name
     if a.cmd == "app":
         if a.sub == "deploy": a.template, a.name = a.name, (a.instance or a.name)
-    for needed in (("service", ("status", "start", "stop", "restart")), ("user", ("add", "remove", "passwd", "enable", "disable", "homefix")), ("group", ("add", "addmember", "removemember")), ("computer", ("remove",)), ("share", ("add", "remove")), ("app", ("deploy", "start", "stop", "restart", "update", "remove", "logs"))):
+    for needed in (("service", ("status", "start", "stop", "restart")), ("user", ("add", "remove", "passwd", "enable", "disable", "homefix")), ("group", ("add", "addmember", "removemember")), ("computer", ("remove",)), ("share", ("add", "remove")), ("app", ("deploy", "start", "stop", "restart", "update", "remove", "logs", "autostart", "theme")), ("automations", ("pause", "resume"))):
         if a.cmd == needed[0] and a.sub in needed[1] and not a.name:
             sys.exit(f"arisectl {a.cmd} {a.sub} needs a name")
     try:

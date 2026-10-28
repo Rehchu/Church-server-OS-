@@ -550,3 +550,24 @@ body.kiosk.bone{--ink:#0A0A0C}  /* the monitor never goes light; the class is ig
 .walk__k{display:inline-block;background:var(--panel3);padding:2px 7px;border:1px solid var(--line);font-family:ui-monospace,Menlo,monospace;font-size:12px}
 .about__week{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--text2)}
 .about__week b{color:var(--text)}
+
+/* ---- v0.8 Exodus: the system apps and the Store (round 3) ---- */
+.bar__pill--up{background:rgba(224,163,46,.16);border-color:rgba(224,163,46,.55)} .bar__pill--up i{background:var(--warn);animation:none}
+.settings{display:grid;grid-template-columns:190px 1fr;gap:0;min-height:100%;margin:calc(var(--gut) * -1)}
+.settings__nav{background:var(--scrim);border-right:1px solid var(--line2);padding:10px 0;display:flex;flex-direction:column}
+.settings__nav button{text-align:left;padding:9px 18px;font-size:12.5px;letter-spacing:.08em;color:var(--text2);border-left:3px solid transparent}
+.settings__nav button:hover{color:var(--text);background:rgba(255,255,255,.03)} .settings__nav button.active{color:#fff;border-left-color:var(--red);background:rgba(214,34,45,.12)}
+.settings__body{padding:var(--gut);min-width:0} .settings__body h2{margin:0 0 12px} .settings__body h3{margin:0}
+body.bone .settings__nav{background:#F7F5F2} body.bone .settings__nav button.active,body.bone .settings__body h2{color:#0A0A0C}
+@media(max-width:700px){.settings{grid-template-columns:1fr}.settings__nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line2)}.settings__nav button{white-space:nowrap;border-left:0;border-bottom:3px solid transparent}.settings__nav button.active{border-bottom-color:var(--red)}}
+.up__list{display:flex;flex-direction:column;gap:2px} .up__row{display:grid;grid-template-columns:22px 1fr auto;gap:4px 10px;align-items:center;padding:7px 8px;border-bottom:1px solid var(--line2);font-size:13.5px;cursor:pointer}
+.up__row b{font-weight:500} .up__row small{grid-column:2/4;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase} .up__row input{width:16px;height:16px;accent-color:var(--red)}
+.store__card{position:relative} .store__card--exp{border-color:rgba(224,163,46,.45)} .store__meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--muted)}
+.store__auto{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);display:inline-flex;gap:6px;align-items:center;white-space:nowrap} .store__auto input{accent-color:var(--red)}
+.tbl--tight td{padding:6px 10px;font-size:13px} .tbl th.on{color:#fff}
+.log--lines{counter-reset:l;max-height:none;height:calc(100% - 70px)} .log--lines span{display:block} .log--lines span.err{background:rgba(214,34,45,.18);border-left:3px solid var(--red);margin-left:-16px;padding-left:13px;color:#fff}
+.log--lines mark{background:rgba(224,163,46,.45);color:#fff}
+body.bone .log--lines mark,body.bone .log--lines span.err{color:#0A0A0C}
+.st__row{padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px} .st__row .meter{margin-top:6px;height:5px}
+.appframe{display:flex;flex-direction:column;height:100%;margin:calc(var(--gut) * -1)} .appframe__bar{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--line2);background:var(--scrim)} .appframe__bar .spacer{flex:1}
+.appframe iframe{flex:1 1 auto;border:0;width:100%;background:#fff} .appframe__note{font-size:11px;padding:6px 14px;margin:0}

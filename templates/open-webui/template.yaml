@@ -9,6 +9,11 @@ ports:
 volumes:
   - /srv/arise/apps/open-webui/data:/app/backend/data
 env: {}
+autostart: false
+ram_mb: 700
+limits:
+  mem_mb: 1536
+  cpus: 1.0
 notes: |
   First visit http://arise-server:8094 makes the admin; signups are off after
   that (the admin adds people). Needs the ollama app running with a model

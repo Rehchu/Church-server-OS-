@@ -11,6 +11,11 @@ volumes:
   - /srv/arise/apps/synapse/db:/var/lib/postgresql/data
 env:
   DB_PASSWORD: CHANGE-ME
+autostart: false
+ram_mb: 800
+limits:
+  mem_mb: 1536
+  cpus: 1.0
 notes: |
   Run the one-time generate command in compose.yaml first. Make users with
   register_new_matrix_user inside the container. Federation stays off (no

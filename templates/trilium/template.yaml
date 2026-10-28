@@ -9,6 +9,11 @@ ports:
 volumes:
   - /srv/arise/apps/trilium/data:/home/node/trilium-data
 env: {}
+autostart: true
+ram_mb: 200
+limits:
+  mem_mb: 512
+  cpus: 0.5
 notes: |
   First visit sets the password. For a second person's private notebook,
   deploy again with another --name (each gets its own folder and port in
