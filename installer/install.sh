@@ -156,6 +156,10 @@ say()  { printf '\n\033[1;31m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 note() { printf '    %s\n' "$*"; }
 warn() { printf '    \033[1;33m! %s\033[0m\n' "$*"; }
 die()  { printf '\n\033[1;31mFAILED:\033[0m %s\n' "$*" >&2; exit 1; }
+# A random password, letters and digits. Not `tr </dev/urandom | head`: under
+# pipefail tr dies of SIGPIPE when head closes, the pipeline returns 141 and the
+# ERR trap ends the install (found by the install rehearsal).
+rand_pw() { python3 -c 'import secrets, string, sys; a = string.ascii_letters + string.digits; print("".join(secrets.choice(a) for _ in range(int(sys.argv[1]))))' "${1:-24}"; }
 
 # run — execute a command, or print it in --dry-run.
 run() {
@@ -1424,7 +1428,7 @@ if [ "$WITH_UPS" = 1 ]; then
   else
     apt-get install -y -q --no-install-recommends nut >/dev/null 2>&1 || warn "nut did not install"
     if [ -d /etc/nut ]; then
-      UPS_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20 || echo change-me)"
+      UPS_PW="$(rand_pw 20)"
       [ -f /etc/nut/ups.conf ] && grep -q '^# arise' /etc/nut/ups.conf || cat > /etc/nut/ups.conf <<UPS
 # arise: the Pineville UPS. The model is not known yet (docs/ANSWERS.md 8), so
 # the stanza is commented. Most USB UPSes (APC, CyberPower, Eaton, Tripp Lite)
@@ -1464,17 +1468,26 @@ if [ "$WITH_SAFETY" = 1 ]; then
   # Its password lives in /etc/arise/secrets/rescue-password (root) and on the
   # SAFE card (/etc/arise/SAFE-CARD.txt, printed by `arisectl rescue card`),
   # which goes in the safe, never on the closet door. Every sign-in is pushed.
+  set_rescue_pw() {
+    RESCUE_PW="$(rand_pw 24)"
+    echo "arise-rescue:$RESCUE_PW" | chpasswd
+    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
+    printf '%s\n' "$RESCUE_PW" > "$CONF_DIR/secrets/rescue-password"; chmod 600 "$CONF_DIR/secrets/rescue-password"; unset RESCUE_PW
+  }
   if id arise-rescue >/dev/null 2>&1; then
-    note "arise-rescue exists"
+    if [ "$DRY_RUN" = 0 ] && [ ! -s "$CONF_DIR/secrets/rescue-password" ]; then
+      # An earlier run made the account but stopped before its password was set: finish it.
+      set_rescue_pw
+      note "arise-rescue existed without a recorded password; a new one is in $CONF_DIR/secrets/rescue-password"
+    else
+      note "arise-rescue exists"
+    fi
   elif [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] useradd -m -s /bin/bash -G sudo -c 'ariseOS break-glass admin' arise-rescue; a 24-character password into $CONF_DIR/secrets/rescue-password (0600)"
   else
     # No ':' in a comment: it is /etc/passwd's field separator and useradd refuses it (found by the rehearsal).
     useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin - console only" arise-rescue
-    RESCUE_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
-    echo "arise-rescue:$RESCUE_PW" | chpasswd
-    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
-    printf '%s\n' "$RESCUE_PW" > "$CONF_DIR/secrets/rescue-password"; chmod 600 "$CONF_DIR/secrets/rescue-password"; unset RESCUE_PW
+    set_rescue_pw
     note "arise-rescue created; password in $CONF_DIR/secrets/rescue-password (root only) and on the safe card"
   fi
   # --- the weekly virus scan (round 3, 28): Sunday 23:30, quarantine, a report ---
