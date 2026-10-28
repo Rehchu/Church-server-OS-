@@ -3,6 +3,7 @@
 Nothing here touches samba, docker or restic; the rules that decide what gets
 written are what is pinned.
 """
+import json
 import os
 import sys
 import unittest
@@ -245,6 +246,66 @@ class AuditAndLeaving(unittest.TestCase):
         self.assertTrue(c.delete("/api/directory/users/guest.speaker/leaving").json()["ok"])
         self.assertFalse(c.delete("/api/directory/users/guest.speaker/leaving").json()["ok"])
 
+
+
+class Browser(unittest.TestCase):
+    """Firefox on the closet monitor, in the ariseOS theme (docs/BROWSER.md)."""
+    ROOT = Path(__file__).resolve().parents[1]
+
+    def _build(self, cfg=None):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("abp", self.ROOT / "scripts" / "arise-browser-policies.py")
+        m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+        return m, m.build(cfg or {})
+
+    def test_policy_validates_against_firefoxs_own_schema(self):
+        try:
+            import jsonschema
+        except ImportError:
+            self.skipTest("jsonschema not installed")
+        schema = json.loads((self.ROOT / "tests" / "fixtures" / "firefox-policies-schema.json").read_text())
+        _, doc = self._build()
+        jsonschema.validate(doc["policies"], schema)
+        _, doc2 = self._build({"browser": {"open_web": True}})
+        jsonschema.validate(doc2["policies"], schema)
+
+    def test_every_preference_is_one_the_policy_may_set(self):
+        # Policies.sys.mjs (mozilla-firefox/firefox, main, 161.0a1): Preferences' allowedPrefixes, the ones used here
+        allowed = ("accessibility.", "browser.", "dom.", "extensions.", "layout.", "media.", "ui.", "toolkit.legacyUserProfileCustomizations.stylesheets")
+        _, doc = self._build()
+        for k in doc["policies"]["Preferences"]:
+            self.assertTrue(k.startswith(allowed), k)
+        self.assertEqual(doc["policies"]["Preferences"]["toolkit.legacyUserProfileCustomizations.stylesheets"]["Value"], True)
+
+    def test_site_list_and_open_web(self):
+        m, doc = self._build({"browser": {"allow": ["bible.com"]}, "system": {"hostname": "arise-pineville"}})
+        ex = doc["policies"]["WebsiteFilter"]["Exceptions"]
+        for need in ("*://127.0.0.1/*", "*://claude.ai/*", "*://studio.youtube.com/*" if False else "*://*.youtube.com/*", "*://*.google.com/*", "*://bible.com/*", "*://arise-pineville/*", "*://challenges.cloudflare.com/*"):
+            self.assertIn(need, ex)
+        self.assertEqual(doc["policies"]["WebsiteFilter"]["Block"], ["<all_urls>"])
+        _, open_doc = self._build({"browser": {"open_web": True}})
+        self.assertNotIn("WebsiteFilter", open_doc["policies"])
+        self.assertEqual(m.patterns(["https://example.org/x/*"]), ["https://example.org/x/*"])
+
+    def test_the_theme_and_the_setup_are_all_there(self):
+        fx = self.ROOT / "config" / "firefox"
+        for f in ("chrome/userChrome.css", "chrome/userContent.css", "user.js", "autoconfig.js", "ariseos.cfg"):
+            self.assertTrue((fx / f).is_file(), f)
+        css = (fx / "chrome" / "userChrome.css").read_text()
+        self.assertEqual(css.count("{"), css.count("}"))
+        self.assertIn('label="ariseOS"', css)                       # the desktop tab hides the toolbars
+        self.assertIn("<title>ariseOS</title>", (self.ROOT / "web" / "index.html").read_text())   # ...which needs this title
+        self.assertTrue((fx / "ariseos.cfg").read_text().startswith("//"))   # autoconfig skips line one
+        self.assertIn("/newtab.html", (fx / "ariseos.cfg").read_text())
+        self.assertTrue((self.ROOT / "web" / "newtab.html").is_file())
+        setup = (self.ROOT / "scripts" / "arise-browser-setup").read_text()
+        for f in ("userChrome.css", "userContent.css", "user.js", "autoconfig.js", "ariseos.cfg", "arise-browser-policies.py", "scripts/arise-browser"):
+            self.assertIn(f, setup)
+        self.assertIn("35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3", setup)   # Mozilla's published apt key fingerprint
+        unit = (self.ROOT / "config" / "systemd" / "arise-kiosk.service").read_text()
+        self.assertIn("/usr/local/bin/arise-browser", unit)
+        launcher = (self.ROOT / "scripts" / "arise-browser").read_text()
+        self.assertIn("/usr/bin/firefox", launcher); self.assertIn("epiphany", launcher)   # Firefox, with Epiphany as the fallback
 
 if __name__ == "__main__":
     unittest.main()

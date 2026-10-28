@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# ariseOS: installs and themes Firefox for the closet monitor.
+#
+#   sudo bash scripts/arise-browser-setup [--dry-run] [--src DIR]
+#
+# Called by installer/install.sh under --kiosk; safe to run again (every step
+# checks first). What it does, in order:
+#   1. Mozilla's own apt repository (packages.mozilla.org), pinned above
+#      Ubuntu's snap-transition package, then `apt-get install firefox`.
+#      Firefox updates arrive through apt like a security update (step 6).
+#   2. The house fonts (Anton, Oswald; SIL Open Font License) into
+#      /usr/local/share/fonts/arise, so the browser and the desktop have them
+#      even with the internet down.
+#   3. The enterprise policy: /etc/firefox/policies/policies.json, written by
+#      scripts/arise-browser-policies.py from [browser] in /etc/arise/arise.toml.
+#   4. Autoconfig: the new-tab page (the ariseOS new tab, served by the dashboard).
+#   5. The kiosk profile /var/lib/arise/browser with the house theme
+#      (chrome/userChrome.css, chrome/userContent.css) and user.js.
+#   6. unattended-upgrades also takes Firefox from packages.mozilla.org
+#      (browser updates are security updates, the same rule as round 3, 4).
+#   7. The launcher /usr/local/bin/arise-browser, which arise-kiosk.service runs.
+# Nothing here is reachable from outside the box; Firefox is a client.
+set -uo pipefail
+
+DRY_RUN=0
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift ;;
+    --src) SRC="$2"; shift 2 ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
+  esac
+done
+
+PROFILE=/var/lib/arise/browser
+FONTS=/usr/local/share/fonts/arise
+KEYRING=/etc/apt/keyrings/packages.mozilla.org.asc
+FAILED=0
+
+say()  { printf '  %s\n' "$*"; }
+warn() { printf '  ! %s\n' "$*" >&2; }
+run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; fi; }
+fail() { warn "$*"; FAILED=1; }
+
+if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
+echo "== Firefox for the closet monitor (ariseOS theme)"
+
+# 1. Mozilla's apt repository and the package
+if [ -f /etc/apt/sources.list.d/mozilla.list ] && [ -f "$KEYRING" ]; then
+  say "packages.mozilla.org already configured"
+else
+  run install -d -m 0755 /etc/apt/keyrings
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] fetch https://packages.mozilla.org/apt/repo-signing-key.gpg -> $KEYRING and check its fingerprint"
+  else
+    curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o "$KEYRING" || fail "could not fetch Mozilla's apt key"
+    # Mozilla publishes this fingerprint on its install page; a different key is refused.
+    fp=$(gpg -n -q --import --import-options import-show "$KEYRING" 2>/dev/null | awk '/pub/{getline; gsub(/^ +| +$/,""); print; exit}')
+    if [ "$fp" != "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3" ]; then
+      fail "Mozilla's apt key fingerprint is '$fp', not the published one; not adding the repository"
+      rm -f "$KEYRING"
+    fi
+  fi
+  if [ "$DRY_RUN" = 1 ] || [ -f "$KEYRING" ]; then
+    run sh -c "echo 'deb [signed-by=$KEYRING] https://packages.mozilla.org/apt mozilla main' > /etc/apt/sources.list.d/mozilla.list"
+    run sh -c "printf 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n' > /etc/apt/preferences.d/mozilla"
+  fi
+fi
+if command -v snap >/dev/null 2>&1 && snap list firefox >/dev/null 2>&1; then
+  run snap remove firefox || warn "the Firefox snap would not go; the apt one is used anyway"
+fi
+if [ "$DRY_RUN" = 0 ] && dpkg-query -W -f='${Version}' firefox 2>/dev/null | grep -qv snap; then
+  say "firefox $(dpkg-query -W -f='${Version}' firefox) installed"
+else
+  run apt-get update -q || fail "apt-get update failed"
+  run env DEBIAN_FRONTEND=noninteractive apt-get install -y -q firefox fontconfig || fail "apt-get install firefox failed"
+fi
+
+# 2. The house fonts
+run install -d -m 0755 "$FONTS"
+for f in "ofl/anton/Anton-Regular.ttf|Anton-Regular.ttf" "ofl/oswald/Oswald%5Bwght%5D.ttf|Oswald-Variable.ttf"; do
+  url="https://raw.githubusercontent.com/google/fonts/main/${f%%|*}"; out="$FONTS/${f##*|}"
+  if [ -s "$out" ]; then say "font ${f##*|} present"; continue; fi
+  run curl -fsSL "$url" -o "$out" || fail "could not fetch $url (the dashboard falls back to its web fonts)"
+done
+run fc-cache -f "$FONTS" >/dev/null 2>&1 || true
+
+# 3. The enterprise policy
+run install -d -m 0755 /etc/firefox/policies
+run python3 "$SRC/scripts/arise-browser-policies.py" --config /etc/arise/arise.toml --out /etc/firefox/policies/policies.json \
+  || fail "the browser policy could not be written"
+
+# 4. Autoconfig (new tab page). The install folder is where the firefox binary really lives.
+FFDIR=/usr/lib/firefox
+if [ "$DRY_RUN" = 0 ] && command -v firefox >/dev/null 2>&1; then
+  real=$(readlink -f "$(command -v firefox)"); [ -x "$(dirname "$real")/firefox-bin" ] || [ -x "$(dirname "$real")/firefox" ] && FFDIR=$(dirname "$real")
+fi
+run install -d -m 0755 "$FFDIR/defaults/pref"
+run install -m 0644 "$SRC/config/firefox/autoconfig.js" "$FFDIR/defaults/pref/autoconfig.js" || fail "autoconfig.js not installed"
+run install -m 0644 "$SRC/config/firefox/ariseos.cfg" "$FFDIR/ariseos.cfg" || fail "ariseos.cfg not installed"
+
+# 5. The kiosk profile and the house theme
+run install -d -m 0700 "$PROFILE" "$PROFILE/chrome"
+run install -m 0644 "$SRC/config/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
+run install -m 0644 "$SRC/config/firefox/chrome/userContent.css" "$PROFILE/chrome/userContent.css"
+run install -m 0644 "$SRC/config/firefox/user.js" "$PROFILE/user.js"
+if id -u arise-kiosk >/dev/null 2>&1; then
+  run chown -R arise-kiosk: "$PROFILE"
+else
+  warn "user arise-kiosk does not exist yet; install.sh --kiosk makes it, then re-run this"
+fi
+
+# 6. Firefox updates ride with the security updates
+UU=/etc/apt/apt.conf.d/52arise-firefox
+if [ -f "$UU" ]; then say "unattended-upgrades already takes Firefox"; else
+  run sh -c "printf 'Unattended-Upgrade::Origins-Pattern { \"origin=packages.mozilla.org\"; };\n' > $UU"
+fi
+
+# 7. The launcher
+run install -m 0755 "$SRC/scripts/arise-browser" /usr/local/bin/arise-browser
+
+if [ "$FAILED" = 1 ]; then echo "  Firefox setup finished with failures (above). The monitor stays on the previous browser until they are fixed."; exit 1; fi
+echo "  Firefox ready: arise-kiosk.service starts it on the monitor."

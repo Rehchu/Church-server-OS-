@@ -1,0 +1,147 @@
+/* ariseOS: Firefox in the house look (House Lights Down).
+ *
+ * Ink background, the stage red as the accent, square corners, Oswald for
+ * the tabs and Anton for the one line of type the chrome carries. Firefox
+ * loads this because the policy sets
+ * toolkit.legacyUserProfileCustomizations.stylesheets = true; it lives in
+ * the kiosk profile's chrome/ folder. Selectors and variable names were
+ * checked against mozilla-firefox/firefox (main, 161.0a1): navigator-toolbox,
+ * tabs.css, LightweightThemeConsumer. Where Firefox renames something, the
+ * direct rules below still hold the look.
+ */
+
+:root {
+  --arise-ink: #0A0A0C;
+  --arise-scrim: #060608;
+  --arise-panel: #111115;
+  --arise-panel2: #16161B;
+  --arise-panel3: #1C1C22;
+  --arise-red: #D6222D;
+  --arise-red-l: #DB3F48;
+  --arise-red-d: #780C12;
+  --arise-text: rgba(255, 255, 255, .88);
+  --arise-text2: rgba(255, 255, 255, .64);
+  --arise-line: rgba(255, 255, 255, .12);
+  --arise-font: "Oswald", "Helvetica Neue", Arial, sans-serif;
+
+  /* the theme engine's own names (LightweightThemeConsumer) */
+  --lwt-accent-color: var(--arise-ink) !important;
+  --lwt-text-color: var(--arise-text) !important;
+  --lwt-tab-line-color: var(--arise-red) !important;
+  --toolbox-background-color: var(--arise-ink) !important;
+  --toolbox-background-color-inactive: var(--arise-scrim) !important;
+  --toolbox-text-color: var(--arise-text) !important;
+  --toolbox-text-color-inactive: var(--arise-text2) !important;
+  --toolbar-background-color: var(--arise-panel) !important;
+  --toolbar-text-color: var(--arise-text) !important;
+  --toolbar-field-background-color: var(--arise-panel2) !important;
+  --toolbar-field-background-color-focus: var(--arise-panel3) !important;
+  --toolbar-field-text-color: #fff !important;
+  --toolbar-field-text-color-focus: #fff !important;
+  --toolbar-field-border-color: var(--arise-line) !important;
+  --toolbar-field-border-color-focus: var(--arise-red) !important;
+  --lwt-toolbar-field-highlight: var(--arise-red) !important;
+  --lwt-toolbar-field-highlight-text: #fff !important;
+  --toolbarbutton-icon-fill: var(--arise-text) !important;
+  --toolbarbutton-icon-fill-attention: var(--arise-red-l) !important;
+  --toolbarbutton-background-color-hover: rgba(214, 34, 45, .22) !important;
+  --toolbarbutton-background-color-active: rgba(214, 34, 45, .38) !important;
+  --tab-background-color-selected: var(--arise-panel) !important;
+  --tab-border-radius: 0 !important;
+  --panel-background-color: var(--arise-panel) !important;
+  --panel-text-color: var(--arise-text) !important;
+  --panel-border-color: var(--arise-line) !important;
+  --panel-border-radius: 0 !important;
+  --focus-outline-color: var(--arise-red) !important;
+  --chrome-content-separator-color: var(--arise-red) !important;
+  --tabs-navbar-separator-color: transparent !important;
+  --link-color: var(--arise-red-l) !important;
+}
+
+/* The desktop is its own chrome. When the selected tab is the ariseOS
+ * desktop (its page title is exactly "ariseOS"), Firefox's toolbars step
+ * aside and the desktop fills the closet monitor edge to edge. Any other
+ * tab (Claude, YouTube Studio, StreamYard...) shows the themed bar with
+ * its close button; closing it lands back on the desktop. */
+#main-window:has(#tabbrowser-tabs .tabbrowser-tab[selected][label="ariseOS"]) #navigator-toolbox {
+  visibility: collapse !important;
+}
+.tabbrowser-tab[label="ariseOS"] .tab-close-button { display: none !important; }
+.tabbrowser-tab[label="ariseOS"] .tab-label { font-family: "Anton", var(--arise-font) !important; letter-spacing: .18em !important; color: var(--arise-red-l) !important; }
+
+/* the toolbox: ink, a red rule under it like every ariseOS window */
+#navigator-toolbox {
+  background: var(--arise-ink) !important;
+  border-bottom: 3px solid var(--arise-red) !important;
+  font-family: var(--arise-font) !important;
+}
+#nav-bar, #PersonalToolbar { background: var(--arise-panel) !important; color: var(--arise-text) !important; box-shadow: none !important; }
+#TabsToolbar { background: var(--arise-ink) !important; }
+
+/* tabs: square, Oswald caps, the active one wears the red top rule */
+.tabbrowser-tab { font-family: var(--arise-font) !important; }
+.tab-background { border-radius: 0 !important; margin-block: 0 !important; box-shadow: none !important; background: transparent !important; border-top: 3px solid transparent !important; }
+.tabbrowser-tab:hover > .tab-stack > .tab-background { background: rgba(255, 255, 255, .05) !important; }
+.tabbrowser-tab[selected] > .tab-stack > .tab-background,
+.tab-background[selected] {
+  background: var(--arise-panel) !important;
+  border-top-color: var(--arise-red) !important;
+}
+.tab-label { text-transform: uppercase !important; letter-spacing: .08em !important; font-size: 12px !important; font-weight: 400 !important; color: var(--arise-text2) !important; }
+.tabbrowser-tab[selected] .tab-label { color: #fff !important; }
+.tab-close-button:hover { background: var(--arise-red) !important; fill: #fff !important; border-radius: 0 !important; }
+.tab-throbber[busy]::before { fill: var(--arise-red) !important; }
+#tabbrowser-tabs { --tab-loading-fill: var(--arise-red) !important; }
+
+/* the address field: panel2, square, a red ring when focused */
+#urlbar, #searchbar, .urlbar { font-family: var(--arise-font) !important; }
+#urlbar-background, .urlbar-background, #searchbar {
+  background: var(--arise-panel2) !important;
+  border: 1px solid var(--arise-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+#urlbar[focused] #urlbar-background, #urlbar[focused] .urlbar-background, .urlbar[focused] .urlbar-background {
+  border-color: var(--arise-red) !important;
+  outline: 2px solid var(--arise-red) !important;
+  outline-offset: -1px !important;
+  background: var(--arise-panel3) !important;
+}
+#urlbar-input, .urlbar-input { color: #fff !important; }
+#urlbar-input::selection { background: var(--arise-red) !important; color: #fff !important; }
+.urlbarView-row[selected] { background: var(--arise-red) !important; color: #fff !important; border-radius: 0 !important; }
+#identity-box, #tracking-protection-icon-container { border-radius: 0 !important; }
+
+/* toolbar buttons: square, red on hover */
+toolbarbutton, .toolbarbutton-1 > .toolbarbutton-icon, .toolbarbutton-1 > .toolbarbutton-badge-stack { border-radius: 0 !important; }
+
+/* things a church closet does not need */
+#firefox-view-button, #fxa-toolbar-menu-button, #alltabs-button,
+#pageActionButton, #urlbar-zoom-button, #star-button-box,
+#tracking-protection-icon-container, #urlbar-share-button, #urlbar-split-view-button,
+#taskbar-tab-urlbar-button-open, .titlebar-buttonbox-container, .titlebar-spacer {
+  display: none !important;
+}
+
+/* menus, panels and the context menu in the same ink and red */
+menupopup, panel, .panel-arrowcontent, #appMenu-popup {
+  --panel-background: var(--arise-panel) !important;
+  --panel-color: var(--arise-text) !important;
+  --panel-border-radius: 0 !important;
+  --menuitem-border-radius: 0 !important;
+  --menu-background-color: var(--arise-panel) !important;
+  --menu-color: var(--arise-text) !important;
+  --menu-border-color: var(--arise-line) !important;
+  --menuitem-hover-background-color: var(--arise-red) !important;
+  font-family: var(--arise-font) !important;
+}
+menupopup > menuitem[_moz-menuactive], menupopup > menu[_moz-menuactive] { background-color: var(--arise-red) !important; color: #fff !important; }
+.subviewbutton:hover, .subviewbutton:focus-visible { background: var(--arise-red) !important; color: #fff !important; border-radius: 0 !important; }
+
+/* the content area never flashes white before a page paints */
+#browser, #appcontent, #tabbrowser-tabpanels, .browserStack { background: var(--arise-ink) !important; }
+
+/* tab and site notifications */
+.notificationbox-stack notification-message, notification-message { border-radius: 0 !important; border-inline-start: 3px solid var(--arise-red) !important; }
+
+/* Larger text (Control Center) applies to pages; the chrome stays compact. */

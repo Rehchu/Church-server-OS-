@@ -1,0 +1,19 @@
+#!/bin/sh
+# ariseOS: the closet monitor's browser. cage runs this as arise-kiosk on tty1
+# (config/systemd/arise-kiosk.service). Firefox from packages.mozilla.org,
+# themed by the profile's chrome/userChrome.css, governed by
+# /etc/firefox/policies/policies.json. One window, one profile: the desktop is
+# the home tab; anything it opens arrives as a tab with the themed bar and
+# closes back to the desktop.
+PROFILE=/var/lib/arise/browser
+URL="${1:-http://127.0.0.1:4147/?kiosk=1}"
+export MOZ_ENABLE_WAYLAND=1
+export MOZ_DBUS_REMOTE=0
+# a crashed session must not leave a lock that stops the next start
+rm -f "$PROFILE/lock" "$PROFILE/.parentlock" 2>/dev/null
+if [ -x /usr/bin/firefox ]; then
+  exec /usr/bin/firefox --profile "$PROFILE" --new-instance "$URL"
+fi
+# Fallback: Firefox is not installed (its setup failed or was skipped). The old browser keeps the monitor alive.
+echo "arise-browser: /usr/bin/firefox missing; using Epiphany (sudo bash scripts/arise-browser-setup)" >&2
+exec /usr/bin/epiphany --application-mode --profile=/var/lib/arise/kiosk "$URL"

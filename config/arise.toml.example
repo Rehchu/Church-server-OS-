@@ -207,3 +207,9 @@ subnet = "192.168.3.0/24"
 probe = ""
 services = ""
 note = "Office and leadership computers: VPN clients, no site router needed."
+
+# The closet monitor's browser: Firefox in the ariseOS theme (docs/BROWSER.md).
+# Applied with: sudo arisectl browser apply   (rewrites the policy, restarts the monitor)
+[browser]
+open_web = false        # false: only the built-in list (the box, the Assistants, YouTube, StreamYard, the church site) plus `allow`
+allow = []              # extra sites, e.g. ["bible.com", "*.planningcenteronline.com"]

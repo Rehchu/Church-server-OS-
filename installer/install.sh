@@ -1176,8 +1176,9 @@ fi
 
 if [ "$WITH_KIOSK" = 1 ]; then
   say "6d/7  Kiosk: the Arise desktop on the closet monitor"
-  # cage (a Wayland kiosk compositor) + Epiphany (GTK WebKit) are plain apt
-  # packages: no snaps, no X, no desktop environment. ~250 MB.
+  # cage (a Wayland kiosk compositor) is a plain apt package: no X, no desktop
+  # environment. Firefox comes next from packages.mozilla.org (not the snap);
+  # Epiphany (GTK WebKit) is the small fallback browser.
   run apt-get install -y -q cage epiphany-browser
   if id -u arise-kiosk >/dev/null 2>&1; then
     note "user arise-kiosk exists"
@@ -1186,6 +1187,14 @@ if [ "$WITH_KIOSK" = 1 ]; then
   fi
   run mkdir -p /var/lib/arise/kiosk
   run chown -R arise-kiosk: /var/lib/arise/kiosk /var/lib/arise/kiosk-home
+  # The browser is Firefox from Mozilla's own apt repository, in the house theme
+  # (docs/BROWSER.md). Epiphany stays installed as the fallback the launcher uses
+  # if Firefox is ever missing, so the monitor is never blank.
+  if [ "$DRY_RUN" = 1 ]; then
+    bash "$SRC/scripts/arise-browser-setup" --dry-run --src "$SRC" || warn "Firefox setup (dry run) reported a problem"
+  else
+    bash "$SRC/scripts/arise-browser-setup" --src "$SRC" || warn "Firefox setup did not finish (above); the monitor uses Epiphany until it does: sudo bash $SRC/scripts/arise-browser-setup"
+  fi
   if [ -f "$SRC/config/systemd/arise-kiosk.service" ]; then
     run install -m 0644 "$SRC/config/systemd/arise-kiosk.service" /etc/systemd/system/arise-kiosk.service
     run systemctl daemon-reload

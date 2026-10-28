@@ -1,5 +1,5 @@
 [Unit]
-Description=Arise Server desktop on the closet monitor (cage + Epiphany kiosk on tty1)
+Description=Arise Server desktop on the closet monitor (cage + Firefox in the ariseOS theme, on tty1)
 # The web desktop, full screen, on the box's own monitor: the same Finder,
 # menu bar, dock and widgets anyone sees in a browser. Enabled by
 # install.sh --kiosk. Alt+F2 is a normal login; arisetui lives on tty3.
@@ -20,8 +20,10 @@ Environment=XDG_RUNTIME_DIR=/run/user/1501
 Environment=XDG_SESSION_TYPE=wayland
 Environment=GDK_BACKEND=wayland
 Environment=WEBKIT_DISABLE_DMABUF_RENDERER=1
+Environment=MOZ_ENABLE_WAYLAND=1
 ExecStartPre=/bin/sh -c 'until curl -fsS http://127.0.0.1:4147/api/health >/dev/null; do sleep 2; done'
-ExecStart=/usr/bin/cage -s -- /usr/bin/epiphany --application-mode --profile=/var/lib/arise/kiosk http://127.0.0.1:4147/?kiosk=1
+# arise-browser runs Firefox with the kiosk profile (scripts/arise-browser), or Epiphany if Firefox is missing.
+ExecStart=/usr/bin/cage -s -- /usr/local/bin/arise-browser http://127.0.0.1:4147/?kiosk=1
 Restart=always
 RestartSec=5
 UtmpIdentifier=tty1
