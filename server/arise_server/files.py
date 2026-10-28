@@ -14,9 +14,12 @@ from .config import load
 DEMO_TREE = {
     "/": [("homes", True), ("shares", True), ("automator", True), ("apps", True), ("backups", True)],
     "/homes": [("bradly", True), ("media-mac", True), ("office", True), ("kids-checkin", True)],
-    "/homes/bradly": [("Desktop", True), ("Documents", True), ("Pictures", True)],
+    "/homes/bradly": [("Desktop", True), ("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
+    "/homes/bradly/Photos": [("2026-10-19 baptisms", True), ("stage-wide.jpg", False, 3_900_000)],
+    "/homes/bradly/Downloads": [("proclaim-6.4.dmg", False, 310_000_000)],
     "/homes/bradly/Documents": [("Sunday setlist 2026-10-26.pdf", False, 182_000), ("Proclaim backgrounds", True), ("THUMB_2026-10-26_whose_hand.jpg", False, 412_000)],
-    "/homes/office": [("Desktop", True), ("Documents", True)],
+    "/homes/office": [("Desktop", True), ("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
+    "/homes/office/Photos": [("Fall festival 2026", True)],
     "/homes/office/Documents": [("Bulletin 2026-11-01.docx", False, 96_000), ("Visitor cards October.xlsx", False, 41_000), ("Letters", True)],
     "/shares": [("media", True), ("staff", True), ("leadership", True), ("kids", True), ("graphics", True)],
     "/shares/staff": [("Calendar 2026-27.pdf", False, 310_000), ("Forms", True), ("Phone list.xlsx", False, 22_000)],
@@ -37,6 +40,82 @@ DEMO_TEXT = {
     "LATEST_REPORT.md": "# Arise YouTube - automated run\n\n3 jobs done - 0 failed - 1 skipped\n",
     "holds.json": "{\n  \"holds\": []\n}\n",
 }
+
+# Every home starts with these (Bradly, Oct 28): made at first sign-in, by the
+# dashboard (ensure_home) and by Samba's root preexec on the [homes] share.
+HOME_FOLDERS = ("Documents", "Photos", "Videos", "Music", "Downloads")
+
+
+def ensure_home(user: str) -> dict:
+    """Make <homes>/<user> and its five folders if missing; chown to the user when
+    the OS knows them (a domain user through winbind). Never touches what exists."""
+    cfg = load()
+    if cfg.demo or not user or "/" in user or user.startswith("."):
+        return {"ok": True, "demo": cfg.demo, "made": []}
+    home = os.path.join(cfg.directory.homes_path, user)
+    made = []
+    try:
+        if not os.path.isdir(home):
+            os.makedirs(home, mode=0o700); made.append(home)
+        for f in HOME_FOLDERS:
+            d = os.path.join(home, f)
+            if not os.path.isdir(d):
+                os.makedirs(d, mode=0o700); made.append(d)
+        try:
+            import pwd
+            pw = pwd.getpwnam(user)
+            for d in made:
+                os.chown(d, pw.pw_uid, pw.pw_gid)
+        except (KeyError, OSError):
+            pass
+    except OSError as e:
+        return {"ok": False, "err": str(e), "made": made}
+    return {"ok": True, "demo": False, "made": made}
+
+
+def all_of(folder: str, who: dict | None = None) -> dict:
+    """The administrator's merged view: everyone's <folder> (Documents, Photos, …)
+    side by side, each entry labelled with its owner. Admin only; a member never
+    sees another person's folder (files.roots keeps them in their own)."""
+    cfg = load()
+    if who is not None and who.get("role", "admin") != "admin":
+        return {"error": "administrator only", "entries": []}
+    if folder not in HOME_FOLDERS:
+        return {"error": "not one of the home folders", "entries": []}
+    entries = []
+    if cfg.demo:
+        for path, es in DEMO_TREE.items():
+            parts = path.split("/")
+            if len(parts) == 4 and parts[1] == "homes" and parts[3] == folder:
+                for e in es:
+                    entries.append({"owner": parts[2], "name": e[0], "dir": e[1], "size": e[2] if len(e) > 2 else None, "mtime": "2026-10-26T14:02", "root": "data", "path": f"{path}/{e[0]}"})
+        owners = sorted({p.split("/")[2] for p in DEMO_TREE if p.startswith("/homes/") and len(p.split("/")) == 3})
+        return {"demo": True, "folder": folder, "owners": owners, "entries": entries}
+    homes = cfg.directory.homes_path
+    owners = []
+    if os.path.isdir(homes):
+        for u in sorted(os.listdir(homes)):
+            d = os.path.join(homes, u, folder)
+            if u.startswith(".") or not os.path.isdir(d):
+                continue
+            owners.append(u)
+            try:
+                with os.scandir(d) as it:
+                    for e in it:
+                        if e.name.startswith("."):
+                            continue
+                        try:
+                            st = e.stat(follow_symlinks=False)
+                        except OSError:
+                            continue
+                        entries.append({"owner": u, "name": e.name, "dir": e.is_dir(follow_symlinks=False), "size": None if e.is_dir() else st.st_size,
+                                        "mtime": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="minutes"), "root": "data", "path": f"/homes/{u}/{folder}/{e.name}"})
+            except PermissionError:
+                continue
+            if len(entries) > 5000:
+                break
+    entries.sort(key=lambda x: (x["owner"].lower(), not x["dir"], x["name"].lower()))
+    return {"demo": False, "folder": folder, "owners": owners, "entries": entries[:5000], "truncated": len(entries) > 5000}
 
 
 def roots(who: dict | None = None) -> list[dict]:

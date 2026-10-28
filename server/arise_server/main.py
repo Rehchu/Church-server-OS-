@@ -63,6 +63,8 @@ def api_login(body: Login, response: Response):
     tok, who = got
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    if not c.demo and who.get("via") != "demo":
+        files.ensure_home(who["user"])   # Documents, Photos, Videos, Music, Downloads from the first sign-in
     return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
 
 
@@ -533,6 +535,47 @@ def api_search(q: str = "", who=auth):
     else:
         out["users"], out["computers"] = [], []
     return out
+
+
+@app.get("/api/files/all")
+def api_files_all(folder: str = "Documents", who=admin):
+    """Everyone's Documents (Photos, …) side by side, for the administrator only."""
+    return files.all_of(folder, who)
+
+
+class UploadStart(BaseModel):
+    root: str = "data"
+    path: str = "/"
+    name: str
+    size: int
+    fingerprint: str = ""
+
+
+@app.post("/api/files/upload/start")
+def api_upload_start(body: UploadStart, who=auth):
+    return finder.upload_start(body.root, body.path, body.name, body.size, body.fingerprint, who)
+
+
+@app.put("/api/files/upload/chunk")
+async def api_upload_chunk(request: Request, token: str, offset: int, who=auth):
+    data = await request.body()
+    if len(data) > 2 * finder.UPLOAD_CHUNK:
+        return {"ok": False, "err": "chunk too big"}
+    return finder.upload_chunk(token, offset, data, who)
+
+
+@app.get("/api/files/upload/status")
+def api_upload_status(token: str, who=auth):
+    return finder.upload_status(token, who)
+
+
+class UploadFinish(BaseModel):
+    token: str
+
+
+@app.post("/api/files/upload/finish")
+def api_upload_finish(body: UploadFinish, who=auth):
+    return finder.upload_finish(body.token, who)
 
 
 @app.post("/api/files/upload")

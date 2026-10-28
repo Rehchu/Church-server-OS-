@@ -116,10 +116,51 @@ access to the share gets one log line, not an error. `mac/enroll-mac.sh` step
 5b does a first copy into `/Library/Fonts` for the whole Mac when the share
 can be mounted during enrolment, and leaves a TODO line when it cannot.
 
+## Every home starts the same (Bradly, Oct 28)
+
+A home folder is made with **Documents, Photos, Videos, Music, Downloads**
+inside it the first time the person signs in: the dashboard's login calls
+`files.ensure_home`, and the `[homes]` share's `root preexec` makes the same
+five when a Mac connects first. Nothing that exists is touched.
+
+For the administrator, the Finder sidebar carries an **Everyone** section:
+*All Documents*, *All Photos*, *All Videos*, *All Music*, *All Downloads*.
+Each shows every person's folder of that name side by side, each row labelled
+with whose it is; double-click opens the item where it lives, and the context
+menu offers Show in their folder, Get Info, Previous Versions and Move to
+Trash. The route (`GET /api/files/all?folder=`) is administrator-only; a
+member's roots never include another person's home, so a member never sees
+one (pinned in the tests).
+
+## Share links live until removed (Bradly, Oct 28)
+
+A share link no longer expires unless a life is picked for it: the Share
+dialog's default is "never (until removed)", with 1 day to a year as choices,
+and `[links] days = 0` in `arise.toml` is that default (`max_days = 365` caps a
+chosen life). The Shared Links list shows "never" for such a link; Remove
+still stops it at once. `arisectl link sweep` only drops links that were given
+a date.
+
+## Uploads to 10 GB, resumable (Bradly, Oct 28)
+
+Upload in the portal takes files up to **10 GB**. Anything over 8 MB goes up in
+8 MB pieces (`POST /api/files/upload/start`, `PUT /api/files/upload/chunk`,
+`POST /api/files/upload/finish`): each piece lands at the end of a
+`.arise-upload-<token>.part` file beside the destination, and a toast shows
+the progress. If the connection drops or the laptop closes, nothing is lost:
+the browser retries on its own, and picking the **same file again later** (same
+name, size and date, same folder, same person) resumes from where it stopped,
+because `start` finds the part and answers with how much it already has. The
+final rename happens only when every byte has arrived and the name is still
+free. Part files nobody has touched for three days are dropped by the daily
+Trash sweep. Smaller files use the plain upload as before.
+
 ## What is not verified here
 
-No real Samba, restic, Mac or Synology was in the session: the recycle lines
-were not run through `testparm`, `restic find` and `restore` were exercised
+No real Samba, restic, Mac or Synology was in the session: the recycle and
+preexec lines were not run through `testparm`, a 10 GB upload was not sent
+(the chunk path was exercised with a small file against the demo server and
+the rules are pinned in the tests), `restic find` and `restore` were exercised
 only through their parsers and the demo samples, and the font sync was not run
 on a Mac. The portal paths (Trash, Put Back, Empty, Previous Versions, Get
 Info, Recents, the editor, Compress, Open on my Mac) were walked with

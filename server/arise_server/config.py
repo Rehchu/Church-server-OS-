@@ -77,7 +77,7 @@ DEFAULTS = {
             "Rehchu/projectbackups", "Rehchu/ai-chat-backups",
         ],
     },
-    "links": {"days": 7, "max_days": 30, "max_zip_bytes": 2 * 1024 ** 3},
+    "links": {"days": 0, "max_days": 365, "max_zip_bytes": 2 * 1024 ** 3},   # days 0 = a link never expires (Bradly, Oct 28)
     "church": {"name": "Arise Church", "city": "Pineville, LA", "tagline": ""},   # services and sunday_checklist: see arise.toml.example
     "paths": {
         "state_dir": _root("/var/lib/arise", r"C:\Arise\state"),

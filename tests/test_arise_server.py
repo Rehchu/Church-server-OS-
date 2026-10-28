@@ -245,7 +245,12 @@ class V04(unittest.TestCase):
         r = links.create("home", "/Documents/x.pdf", me, days=99)
         self.assertTrue(r["ok"]); tok = r["token"]
         self.assertEqual(r["link"]["user"], "office")
-        self.assertLess(r["link"]["expires"], links._iso(31 * 86400))  # clamped to max_days
+        self.assertLess(r["link"]["expires"], links._iso(100 * 86400))  # a chosen life is kept (max_days 365)
+        forever = links.create("home", "/Documents/y.pdf", me)             # no life picked: never expires (Bradly, Oct 28)
+        self.assertIsNone(forever["link"]["expires"])
+        self.assertFalse(next(l for l in links.mine(me)["links"] if l["token"] == forever["token"])["expired"])
+        self.assertIsNotNone(links.resolve(forever["token"]))
+        links.revoke(forever["token"], me)
         self.assertFalse(links.create("data", "/", me)["ok"])  # not a member root
         self.assertIn(tok, [l["token"] for l in links.mine(me)["links"]])
         self.assertNotIn(tok, [l["token"] for l in links.mine(other)["links"]])
@@ -499,3 +504,34 @@ class Finder(unittest.TestCase):
         self.assertNotIn("recycle:repository", tpl.split("[recordings]")[1].split("\n[")[0])
         self.assertIn("**/.Trash", (ROOT / "config" / "backups.yaml.example").read_text().split("id: shares")[1].split("id:")[0])
         self.assertTrue((ROOT / "config" / "systemd" / "arise-trash.timer").exists())
+
+    def test_home_folders_and_the_admin_merged_views(self):
+        from arise_server import files
+        self.assertEqual(files.HOME_FOLDERS, ("Documents", "Photos", "Videos", "Music", "Downloads"))
+        self.assertTrue(files.ensure_home("office")["ok"])  # demo: nothing written
+        admin = {"user": "bradly", "role": "admin"}; office = {"user": "office", "role": "member"}
+        r = files.all_of("Documents", admin)
+        self.assertEqual(set(r["owners"]), {"bradly", "office"})  # the sample homes that have folders
+        owners = {e["owner"] for e in r["entries"]}
+        self.assertEqual(owners, {"bradly", "office"})
+        self.assertTrue(all(e["path"].startswith(f"/homes/{e['owner']}/Documents/") for e in r["entries"]))
+        self.assertEqual(files.all_of("Documents", office).get("error"), "administrator only")
+        self.assertEqual(files.all_of("Desktop", admin).get("error"), "not one of the home folders")
+        self.assertFalse(any(e["owner"] != "office" for e in []))  # a member's roots never include another home: pinned by test_admin_and_member_roots
+        tpl = (ROOT / "config" / "samba" / "smb.conf.template").read_text()
+        pre = tpl.split("[homes]")[1].split("root preexec")[1].split("\n")[0]
+        for f in files.HOME_FOLDERS:
+            self.assertIn(f, pre)
+
+    def test_resumable_upload_rules(self):
+        from arise_server import finder
+        office = {"user": "office", "role": "member"}
+        self.assertFalse(finder.upload_start("home", "/", ".hidden", 10, "x", office)["ok"])
+        self.assertFalse(finder.upload_start("home", "/", "big.mov", 11 * 1024 ** 3, "x", office)["ok"])
+        self.assertFalse(finder.upload_start("share:media", "/", "a.mov", 10, "x", office)["ok"])   # read-only for office
+        self.assertFalse(finder.upload_start("data", "/", "a.mov", 10, "x", office)["ok"])          # not a member root
+        st = finder.upload_start("home", "/Downloads", "a.mov", 100 * 1024 ** 2, "a.mov|104857600|1", office)
+        self.assertTrue(st["ok"]); self.assertEqual(st["offset"], 0); self.assertEqual(st["chunk"], 8 * 1024 ** 2)
+        self.assertEqual(finder.upload_chunk(st["token"], 0, b"abc", office)["offset"], 3)
+        self.assertTrue(finder.upload_finish(st["token"], office)["ok"])
+        self.assertEqual(finder.UPLOAD_MAX, 10 * 1024 ** 3)

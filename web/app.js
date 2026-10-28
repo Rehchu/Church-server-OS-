@@ -442,19 +442,21 @@ const FICO = { d: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 V.files = async () => {
   S.fs = S.fs || { root: (S.me?.roots?.[0]?.id) || 'data', path: '/', view: 'icon', hist: [], fwd: [], sel: null, q: '' };
   const fs = S.fs;
-  const special = fs.root === '@recent' || fs.root === '@trash';   // Recents and Trash are places, not folders
+  const allOf = fs.root.startsWith('@all:') ? fs.root.slice(5) : null;   // the admin's "All Documents" and friends
+  const special = fs.root === '@recent' || fs.root === '@trash' || !!allOf;   // places, not folders
   if (!special && S.me?.roots?.length && !S.me.roots.some(r => r.id === fs.root)) Object.assign(fs, { root: S.me.roots[0].id, path: '/', hist: [], fwd: [] });
-  const [roots, list] = await Promise.all([api('/files/roots'), special ? api(fs.root === '@recent' ? '/files/recent' : '/files/trash') : api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
+  const [roots, list] = await Promise.all([api('/files/roots'), allOf ? api(`/files/all?folder=${encodeURIComponent(allOf)}`) : special ? api(fs.root === '@recent' ? '/files/recent' : '/files/trash') : api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
   S.roots = roots.roots || []; S.fsDemo = !!list.demo; S.trashItems = fs.root === '@trash' ? (list.items || []) : null;
   const ql = fs.q.toLowerCase();
   const entries = (list.entries || []).filter(e => !ql || e.name.toLowerCase().includes(ql));
   const parts = special ? [] : fs.path.split('/').filter(Boolean);
-  const rootName = special ? (fs.root === '@recent' ? 'Recents' : 'Trash') : (S.roots.find(r => r.id === fs.root)?.name || fs.root);
+  const rootName = allOf ? 'All ' + allOf : special ? (fs.root === '@recent' ? 'Recents' : 'Trash') : (S.roots.find(r => r.id === fs.root)?.name || fs.root);
   const title = parts.length ? parts[parts.length - 1] : rootName;
   const FAV = isMember() ? [] : [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
   const side = `<div class="finder__side"><h4>Favorites</h4>${FAV.map(f => `<button data-go="${f[1]}|${f[2]}" class="${fs.root === f[1] && fs.path === f[2] ? 'on' : ''}"><i style="--i:${ICONURL[f[3]]}"></i>${esc(f[0])}</button>`).join('')}
     <h4>${isMember() ? 'Your places' : 'Locations'}</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : r.home ? 'users' : r.share ? 'folder' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
     <h4>Places</h4><button data-go="@recent|/" class="${fs.root === '@recent' ? 'on' : ''}"><i style="--i:${ICONURL.recent}"></i>Recents</button><button data-go="@trash|/" class="${fs.root === '@trash' ? 'on' : ''}"><i style="--i:${ICONURL.trash}"></i>Trash</button>
+    ${isMember() ? '' : `<h4>Everyone</h4>` + ['Documents', 'Photos', 'Videos', 'Music', 'Downloads'].map(f => `<button data-go="@all:${f}|/" class="${fs.root === '@all:' + f ? 'on' : ''}" title="Every person's ${f} folder, side by side"><i style="--i:${ICONURL.folder}"></i>All ${f}</button>`).join('')}
     <h4>Sharing</h4><button id="fLinks"><i style="--i:${ICONURL.backups}"></i>Shared links</button></div>`;
   const tools = special
     ? (fs.root === '@trash' && !isMember() ? `<button class="btn btn--ghost btn--xs" id="fEmpty">Empty Trash…</button>` : '')
@@ -464,7 +466,12 @@ V.files = async () => {
     <input class="search" id="fQ" placeholder="${special ? 'Filter by name' : 'Filter this folder'}" value="${esc(fs.q)}">${tools}</div>`;
   const icon = e => e.dir ? ICONURL.folder : fileIcon(e.name);
   let main, status;
-  if (fs.root === '@recent') {
+  if (allOf) {
+    const es = (list.entries || []).filter(e => !ql || e.name.toLowerCase().includes(ql) || e.owner.toLowerCase().includes(ql));
+    status = `${es.length} item${es.length === 1 ? '' : 's'} in ${(list.owners || []).length} ${allOf} folder${(list.owners || []).length === 1 ? '' : 's'}`;
+    main = list.error ? `<div class="finder__main empty">${esc(list.error)}</div>` : !es.length ? `<div class="finder__main empty">Nobody has anything in ${esc(allOf)} yet</div>`
+      : `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Whose</th><th>Date modified</th><th class="num">Size</th><th>Kind</th></tr></thead><tbody>${es.map(e => `<tr data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" data-r="${esc(e.root)}" data-p="${esc(e.path)}" tabindex="0"><td class="fname"><i style="--i:${icon(e)}"></i>${esc(e.name)}</td><td><span class="owner">${esc(e.owner)}</span></td><td class="dim">${fmtT(e.mtime)}</td><td class="num dim">${e.dir ? '—' : fmtB(e.size)}</td><td class="dim">${e.dir ? 'Folder' : kindOf(e.name)}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (fs.root === '@recent') {
     const hits = (list.hits || []).filter(h => !ql || h.name.toLowerCase().includes(ql));
     status = `${hits.length} file${hits.length === 1 ? '' : 's'} changed in the last ${list.days || 7} days${list.truncated ? ' (the newest 200)' : ''}`;
     main = !hits.length ? `<div class="finder__main empty">${list.error ? esc(list.error) : 'Nothing has changed this week'}</div>`
@@ -516,13 +523,24 @@ V.files.after = root => {
   $('#fFwd', root).onclick = () => { const h = fs.fwd.pop(); if (!h) return; fs.hist.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fIcon', root).onclick = () => { fs.view = 'icon'; rerender('files'); }; $('#fList', root).onclick = () => { fs.view = 'list'; rerender('files'); };
   const q = $('#fQ', root); q.oninput = () => { fs.q = q.value; clearTimeout(S.fqT); S.fqT = setTimeout(() => rerender('files'), 250); };
-  const up = $('#fsUp', root); if (up) up.onchange = async e => { const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append('root', fs.root); fd.append('path', fs.path); fd.append('file', f); const r = await act($('label[for=fsUp]', root), () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
+  const up = $('#fsUp', root); if (up) up.onchange = async e => { const f = e.target.files[0]; if (!f) return;
+    if (f.size > 8 * 1024 * 1024) { const ok = await uploadBig(f, fs.root, fs.path); if (ok) rerender('files'); return; }
+    const fd = new FormData(); fd.append('root', fs.root); fd.append('path', fs.path); fd.append('file', f); const r = await act($('label[for=fsUp]', root), () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
   const nf = $('#fNew', root); if (nf) nf.onclick = () => modal(`<h2>New folder</h2><div class="field"><label>Name</label><input id="nfName" placeholder="untitled folder"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nfGo">Create</button></div>`, m => { $('#nfGo', m).onclick = async e => { const r = await act(e.target, () => api('/files/mkdir', { method: 'POST', body: { root: fs.root, path: fs.path, name: $('#nfName', m).value.trim() } }), 'Folder created'); if (r && r.ok !== false) { m.close(); rerender('files'); } }; $('#nfName', m).focus(); });
   const mac = $('#fMac', root); if (mac) mac.onclick = () => openOnMac(fs.root, fs.path);
   const emp = $('#fEmpty', root); if (emp) emp.onclick = () => emptyTrash();
   if (fs.root === '@trash') {
     $$('[data-back]', root).forEach(b => b.onclick = async () => { const t = S.trashItems[+b.dataset.back]; if (!t) return; const r = await act(b, () => api('/files/trash/restore', { method: 'POST', body: { base: t.base, user: t.user, rel: t.rel } }), `${t.name} is back in ${t.label}/${t.original.split('/').slice(0, -1).join('/') || ''}`); if (r && r.ok !== false) { if (r.renamed) toast(`Put back as “${r.restored.split('/').pop()}”: the old name was taken`, 'warn', 6000); rerender('files'); } });
     $$('[data-t]', root).forEach(el => el.oncontextmenu = e => { e.preventDefault(); const t = S.trashItems[+el.dataset.t]; ctxMenu(e.clientX, e.clientY, [['Put Back', () => $(`[data-back="${el.dataset.t}"]`, root).click()], null, ['Copy original path', () => copyText(t.label + '/' + t.original)]]); });
+    return;
+  }
+  if (fs.root.startsWith('@all:')) {
+    $$('[data-p]', root).forEach(el => {
+      const r = el.dataset.r, p = el.dataset.p, n = el.dataset.n, dir = el.dataset.dir === '1';
+      const go = () => dir ? fsNav(r, p) : isText(n) ? editText(r, p, n) : quickLook(r, p, n);
+      el.ondblclick = go; el.onkeydown = e => { if (e.key === 'Enter') go(); };
+      el.oncontextmenu = e => { e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['Open', go], ['Show in their folder', () => fsNav(r, p.split('/').slice(0, -1).join('/') || '/')], dir ? null : ['Download', () => finderDownload(r, p)], null, ['Get Info', () => getInfo(n, dir, p, r)], ['Previous Versions…', () => versionsModal(r, p, n)], null, ['Move to Trash', () => trashIt(r, p, n)]]); };
+    });
     return;
   }
   if (fs.root === '@recent') {
@@ -567,6 +585,38 @@ V.files.after = root => {
   const main = $('#fMain', root); if (main) main.oncontextmenu = e => { if (e.target !== main) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New folder', () => $('#fNew', root).click()], ['Upload here', () => $('#fsUp', root).click()], IS_MAC ? ['Open on my Mac', () => openOnMac(fs.root, fs.path)] : null, null, ['Get Info', () => getInfo(fs.path.split('/').pop() || (S.roots.find(r => r.id === fs.root)?.name || ''), true, fs.path, fs.root)], null, ['Show as icons', () => { fs.view = 'icon'; rerender('files'); }], ['Show as list', () => { fs.view = 'list'; rerender('files'); }], null, ['Refresh', () => rerender('files')]]); };
 };
 const isText = n => /\.(txt|md|csv|json|ya?ml|toml|log)$/i.test(n || '');
+// A big upload goes up in 8 MB pieces and survives a dropped connection or a closed
+// laptop: start again with the same file and the server says where it left off.
+async function uploadBig(f, root, path) {
+  if (f.size > 10 * 1024 ** 3) { toast(`${f.name} is over the 10 GB limit; copy it onto the share from a Mac`, 'bad', 8000); return false; }
+  const fp = `${f.name}|${f.size}|${f.lastModified}`;
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<b>${esc(f.name)}</b><br><span class="up__pct">starting…</span><div class="up__bar"><i style="width:0"></i></div>`; $('#toasts').appendChild(t);
+  const say = (pct, msg) => { $('.up__pct', t).textContent = msg; $('.up__bar i', t).style.width = pct + '%'; };
+  const done = (ok, msg) => { t.className = 'toast ' + (ok ? 'ok' : 'bad'); say(ok ? 100 : 0, msg); setTimeout(() => t.remove(), ok ? 5000 : 12000); };
+  let st;
+  try { st = await api('/files/upload/start', { method: 'POST', body: { root, path, name: f.name, size: f.size, fingerprint: fp } }); } catch (e) { done(false, e.message); return false; }
+  if (st.ok === false) { done(false, st.err); return false; }
+  if (st.demo) { for (let i = 1; i <= 5; i++) { await new Promise(r => setTimeout(r, 120)); say(i * 20, `sample mode: pretending to send ${fmtB(f.size * i / 5)} of ${fmtB(f.size)}`); } done(true, 'sample mode: nothing was stored'); return true; }
+  let offset = st.offset || 0; const chunk = st.chunk || 8 * 1024 * 1024; let fails = 0;
+  if (st.resumed) say(Math.round(offset / f.size * 100), `resuming from ${fmtB(offset)}`);
+  while (offset < f.size) {
+    const piece = f.slice(offset, Math.min(f.size, offset + chunk));
+    try {
+      const r = await fetch(`/api/files/upload/chunk?token=${encodeURIComponent(st.token)}&offset=${offset}`, { method: 'PUT', body: piece, credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.ok === false) { done(false, j.err); return false; }
+      offset = j.offset; fails = 0;
+      say(Math.round(offset / f.size * 100), `${fmtB(offset)} of ${fmtB(f.size)}`);
+    } catch (e) {
+      if (++fails > 30) { done(false, `Lost the connection; pick the same file again to resume from ${fmtB(offset)}`); return false; }
+      say(Math.round(offset / f.size * 100), `connection dropped, retrying (${fails})…`); await new Promise(r => setTimeout(r, Math.min(15000, 1500 * fails)));
+      try { const q = await api(`/files/upload/status?token=${encodeURIComponent(st.token)}`); if (q.ok !== false) offset = q.offset; } catch {}
+    }
+  }
+  let fin; try { fin = await api('/files/upload/finish', { method: 'POST', body: { token: st.token } }); } catch (e) { done(false, e.message); return false; }
+  if (fin.ok === false) { done(false, fin.err); return false; }
+  done(true, `Uploaded ${fmtB(f.size)}`); return true;
+}
 function finderDownload(root, p) { if (S.demoOnly || S.fsDemo) return toast('Preview: nothing to download'); location.href = `/api/files/download?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; }
 function finderZip(root, p, name) { if (S.demoOnly || S.fsDemo) return toast(`Preview: on the server this downloads ${name}.zip`); toast(`Zipping ${name}… the download starts when it is ready`); location.href = `/api/files/zip?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; }
 async function openOnMac(root, p) {
@@ -650,13 +700,13 @@ async function editText(root, p, name) {
   });
 }
 function shareLink(root, p, name) {
-  const days = S.me?.links_days || 7;
-  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until it expires. Folders arrive as a zip.</p>
-    <div class="row" style="gap:10px;margin:12px 0"><label>Expires in <select id="slDays"><option value="1">1 day</option><option value="3">3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>7 days</option><option value="14">14 days</option><option value="30">30 days</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
+  const days = S.me?.links_days ?? 0;
+  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until you remove it (or until the date you pick). Folders arrive as a zip.</p>
+    <div class="row" style="gap:10px;margin:12px 0"><label>Expires <select id="slDays"><option value="0" ${days === 0 ? 'selected' : ''}>never (until removed)</option><option value="1">in 1 day</option><option value="3">in 3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>in 7 days</option><option value="14">in 14 days</option><option value="30" ${days === 30 ? 'selected' : ''}>in 30 days</option><option value="90">in 90 days</option><option value="365">in a year</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
     <div id="slOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="slGo">Make link</button></div>`, () => {
     $('#slGo').onclick = async () => { const b = $('#slGo'); b.disabled = true; try { const r = await api('/links', { method: 'POST', body: { root, path: p, days: +$('#slDays').value, note: $('#slNote').value } });
       if (r.ok === false) throw new Error(r.err); const url = r.url || (location.origin + '/s/' + r.token);
-      $('#slOut').innerHTML = `<div class="log pre" style="user-select:all;word-break:break-all">${esc(url)}</div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--xs" id="slCopy">Copy link</button><span class="muted">${r.demo ? 'sample: this link is not real' : 'until ' + esc(r.link.expires)}</span></div>`;
+      $('#slOut').innerHTML = `<div class="log pre" style="user-select:all;word-break:break-all">${esc(url)}</div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--xs" id="slCopy">Copy link</button><span class="muted">${r.demo ? 'sample: this link is not real' : r.link.expires ? 'until ' + esc(r.link.expires) : 'until you remove it'}</span></div>`;
       $('#slCopy').onclick = e => copyText(url, e.target); b.textContent = 'Made'; } catch (e) { toast(e.message, 'bad'); b.disabled = false; } };
   });
 }
@@ -664,7 +714,7 @@ async function linksModal() {
   let r; try { r = await api('/links'); } catch (e) { return toast(e.message, 'bad'); }
   const rows = r.links || [];
   modal(`<h2>Shared links</h2><p class="muted">${rows.length ? 'Remove a link and it stops working at once.' : 'Nothing shared yet. Right-click a file in Finder and pick Share Link.'}</p>
-    <table class="tbl" style="margin-top:10px"><thead><tr><th>File</th><th>Until</th><th class="num">Downloads</th>${S.role === 'admin' ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(l => `<tr class="${l.expired ? 'dim' : ''}"><td>${esc(l.name)}<br><small class="muted">${esc(l.note || l.root + l.path)}</small></td><td>${l.expired ? 'expired' : esc(l.expires.replace('T', ' '))}</td><td class="num">${l.downloads || 0}</td>${S.role === 'admin' ? `<td>${esc(l.user)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-copy="${esc(l.token)}">Copy</button> <button class="btn btn--ghost btn--xs" data-rm="${esc(l.token)}">Remove</button></td></tr>`).join('')}</tbody></table>
+    <table class="tbl" style="margin-top:10px"><thead><tr><th>File</th><th>Until</th><th class="num">Downloads</th>${S.role === 'admin' ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(l => `<tr class="${l.expired ? 'dim' : ''}"><td>${esc(l.name)}<br><small class="muted">${esc(l.note || l.root + l.path)}</small></td><td>${l.expired ? 'expired' : l.expires ? esc(l.expires.replace('T', ' ')) : 'never'}</td><td class="num">${l.downloads || 0}</td>${S.role === 'admin' ? `<td>${esc(l.user)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-copy="${esc(l.token)}">Copy</button> <button class="btn btn--ghost btn--xs" data-rm="${esc(l.token)}">Remove</button></td></tr>`).join('')}</tbody></table>
     <div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, () => {
     $$('[data-copy]').forEach(b => b.onclick = e => copyText(location.origin + '/s/' + b.dataset.copy, e.target));
     $$('[data-rm]').forEach(b => b.onclick = async () => { const x = await api('/links/' + b.dataset.rm, { method: 'DELETE' }); if (x.ok === false) return toast(x.err, 'bad'); toast('Link removed'); linksModal(); });

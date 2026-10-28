@@ -60,7 +60,8 @@
         create mask = 0600
         directory mask = 0700
         # Make the folder the first time the user connects.
-        root preexec = /bin/sh -c 'mkdir -p "/srv/arise/homes/%U" && chown "%U" "/srv/arise/homes/%U" && chmod 0700 "/srv/arise/homes/%U"'
+        # ... with Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28).
+        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; mkdir -p "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chown -R "%U" "$h" && chmod 0700 "$h"'
         # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
         # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
         # Put Back returns it and arise-trash.timer removes it after 30 days.

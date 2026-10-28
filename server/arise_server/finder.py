@@ -601,7 +601,8 @@ def trash_sweep(days: int = TRASH_DAYS, who=None, dry_run: bool = False) -> dict
                             del man[rel]; changed = True
             if changed and not dry_run:
                 write_json(_manifest_path(base, u), man)
-    return {"ok": True, "demo": False, "removed": len(removed), "bytes": total, "items": removed[:200], "dry_run": dry_run}
+    stale = 0 if dry_run else upload_sweep()
+    return {"ok": True, "demo": False, "removed": len(removed), "bytes": total, "items": removed[:200], "dry_run": dry_run, "stale_uploads": stale}
 
 
 def trash_empty(share: str, confirm: str, who=None) -> dict:
@@ -623,6 +624,138 @@ def trash_empty(share: str, confirm: str, who=None) -> dict:
     for u in os.listdir(tdir):
         udir = os.path.join(tdir, u)
         if os.path.isdir(udir):
-            n += sum(len(fs) for _dp, _d, fs in os.walk(udir))
+            n += sum(len([f for f in fs if f != ".arise-trash.json"]) for _dp, _d, fs in os.walk(udir))
             shutil.rmtree(udir, ignore_errors=True)
     return {"ok": True, "demo": False, "removed": n}
+
+
+# ---- resumable uploads, up to 10 GB (Bradly, Oct 28) ----------------------------------------
+# The browser sends a file in 8 MB pieces; each lands at the end of a .part file
+# beside the destination. A dropped connection or a closed laptop loses nothing:
+# `start` with the same name, size and date finds the part and answers with how
+# much it already has, and the browser carries on from there.
+UPLOAD_MAX = 10 * 1024 ** 3
+UPLOAD_CHUNK = 8 * 1024 ** 2
+UPLOAD_STALE_DAYS = 3
+
+
+def _upload_dir() -> str:
+    d = str(load().state_dir / "uploads")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def _upload_meta(token: str) -> dict | None:
+    if not re.fullmatch(r"[A-Za-z0-9_-]{8,40}", token or ""):
+        return None
+    return read_json(os.path.join(_upload_dir(), token + ".json"), default=None)
+
+
+def upload_start(root_id: str, rel: str, name: str, size: int, fingerprint: str, who=None) -> dict:
+    cfg = load()
+    name = os.path.basename(name or "").replace("\x00", "")
+    if not name or name.startswith(".") or name.endswith(".part"):
+        return {"ok": False, "err": "bad file name"}
+    if size is None or size < 0 or size > UPLOAD_MAX:
+        return {"ok": False, "err": f"{size / 1024 ** 3:.1f} GB is over the 10 GB limit; copy it onto the share from a Mac instead"}
+    rs = _rs(who)
+    if root_id not in rs:
+        return {"ok": False, "err": "not a place you can upload to"}
+    if not files._writable(rs, root_id):
+        return {"ok": False, "err": "that share is read-only for you"}
+    if cfg.demo:
+        return {"ok": True, "demo": True, "token": "demo-upload", "offset": 0, "chunk": UPLOAD_CHUNK, "size": size}
+    folder = files._resolve(rs[root_id]["path"], rel)
+    if not folder or not os.path.isdir(folder):
+        return {"ok": False, "err": "folder not found"}
+    dest = os.path.join(folder, name)
+    if os.path.exists(dest):
+        return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
+    user = (who or {}).get("user", "admin")
+    # the same file from the same person into the same folder resumes
+    for f in os.listdir(_upload_dir()):
+        if not f.endswith(".json"):
+            continue
+        m = read_json(os.path.join(_upload_dir(), f), default={}) or {}
+        if m.get("fingerprint") == fingerprint and m.get("user") == user and m.get("dest") == dest and os.path.isfile(m.get("part", "")):
+            return {"ok": True, "demo": False, "token": f[:-5], "offset": os.path.getsize(m["part"]), "chunk": UPLOAD_CHUNK, "size": size, "resumed": True}
+    import secrets
+    token = secrets.token_urlsafe(18)
+    part = os.path.join(folder, f".arise-upload-{token}.part")
+    open(part, "wb").close()
+    write_json(os.path.join(_upload_dir(), token + ".json"), {"root": root_id, "path": rel, "name": name, "size": size, "fingerprint": fingerprint, "user": user, "dest": dest, "part": part, "created": datetime.now().isoformat(timespec="seconds")})
+    return {"ok": True, "demo": False, "token": token, "offset": 0, "chunk": UPLOAD_CHUNK, "size": size}
+
+
+def upload_chunk(token: str, offset: int, data: bytes, who=None) -> dict:
+    if load().demo or token == "demo-upload":
+        return {"ok": True, "demo": True, "offset": offset + len(data)}
+    m = _upload_meta(token)
+    if not m or m.get("user") != (who or {}).get("user", "admin"):
+        return {"ok": False, "err": "no such upload; start it again"}
+    part = m["part"]
+    if not os.path.isfile(part):
+        return {"ok": False, "err": "the part file is gone; start the upload again"}
+    have = os.path.getsize(part)
+    if offset != have:
+        return {"ok": True, "offset": have, "resync": True}   # the browser re-sends from here
+    if have + len(data) > m["size"]:
+        return {"ok": False, "err": "more bytes than the file has; start the upload again"}
+    with open(part, "ab") as f:
+        f.write(data)
+    return {"ok": True, "demo": False, "offset": have + len(data)}
+
+
+def upload_status(token: str, who=None) -> dict:
+    if load().demo or token == "demo-upload":
+        return {"ok": True, "demo": True, "offset": 0}
+    m = _upload_meta(token)
+    if not m or m.get("user") != (who or {}).get("user", "admin") or not os.path.isfile(m.get("part", "")):
+        return {"ok": False, "err": "no such upload"}
+    return {"ok": True, "offset": os.path.getsize(m["part"]), "size": m["size"], "name": m["name"]}
+
+
+def upload_finish(token: str, who=None) -> dict:
+    if load().demo or token == "demo-upload":
+        return {"ok": True, "demo": True}
+    m = _upload_meta(token)
+    if not m or m.get("user") != (who or {}).get("user", "admin"):
+        return {"ok": False, "err": "no such upload"}
+    part, dest = m["part"], m["dest"]
+    if not os.path.isfile(part):
+        return {"ok": False, "err": "the part file is gone; start the upload again"}
+    have = os.path.getsize(part)
+    if have != m["size"]:
+        return {"ok": False, "err": f"only {have:,} of {m['size']:,} bytes arrived; the browser resumes from there", "offset": have}
+    if os.path.exists(dest):
+        os.unlink(part); os.unlink(os.path.join(_upload_dir(), token + ".json"))
+        return {"ok": False, "err": f"{m['name']} appeared here meanwhile; the upload was dropped, rename and try again"}
+    os.replace(part, dest)
+    try:
+        import pwd
+        pw = pwd.getpwnam(m["user"]); os.chown(dest, pw.pw_uid, pw.pw_gid)
+    except (KeyError, OSError):
+        pass
+    os.unlink(os.path.join(_upload_dir(), token + ".json"))
+    return {"ok": True, "demo": False, "path": dest, "bytes": have}
+
+
+def upload_sweep(days: int = UPLOAD_STALE_DAYS) -> int:
+    """Drop part files nobody has touched for `days` (the daily trash sweep calls this)."""
+    if load().demo:
+        return 0
+    n = 0; cutoff = time.time() - days * 86400
+    for f in os.listdir(_upload_dir()):
+        if not f.endswith(".json"):
+            continue
+        jp = os.path.join(_upload_dir(), f)
+        m = read_json(jp, default={}) or {}
+        part = m.get("part", "")
+        if not os.path.isfile(part) or os.path.getmtime(part) < cutoff:
+            for x in (part, jp):
+                try:
+                    os.unlink(x)
+                except OSError:
+                    pass
+            n += 1
+    return n
