@@ -1617,11 +1617,12 @@ $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo aris
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
-       Apps page in the dashboard: start, stop, logs, update, remove. More templates: arisectl app templates
+       Trilium (Notes) :8090   Immich (Photos) :2283
+       The other templates are deployed and stopped (memory): the Store starts them. arisectl app list
     8. The closet card: print $DATA_ROOT/shares/staff/CLOSET-CARD.html and tape it to the door; write the phone numbers on it by hand
     9. The UPS: when the model is known, uncomment [arise] in /etc/nut/ups.conf, MODE=standalone in nut.conf, restart nut-server nut-monitor; sudo arisectl ups
    10. The restore drill runs monthly by itself (arise-drill.timer); try it once now: sudo arisectl backup drill
-$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "    8. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
+$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "   11. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )
