@@ -193,6 +193,7 @@ if [ -z "${LAN_SUBNET:-}" ] && [ -n "$PRIMARY_IF" ] && command -v python3 >/dev/
   [ -n "$_CIDR" ] && LAN_SUBNET="$(python3 -c "import ipaddress,sys; print(ipaddress.ip_interface(sys.argv[1]).network)" "$_CIDR" 2>/dev/null || true)"
 fi
 LAN_SUBNET="${LAN_SUBNET:-192.168.1.0/24}"
+WG_SUBNET="10.47.0.0/24"
 note "primary interface: ${PRIMARY_IF:-unknown}  address: ${PRIMARY_IP:-unknown}  subnet: $LAN_SUBNET"
 if [ -n "$PRIMARY_IF" ] && [ -d "/sys/class/net/$PRIMARY_IF/wireless" ]; then
   warn "primary interface $PRIMARY_IF is WIRELESS. A domain controller on Wi-Fi drops Macs off the domain. Plug in Ethernet before going live."
@@ -710,7 +711,6 @@ if [ -z "$LAN_SUBNET" ] && [ -n "${PRIMARY_IP:-}" ]; then
   LAN_SUBNET="$(ip -o -4 route show 2>/dev/null | awk -v ip="$PRIMARY_IP" '$0 ~ ("src " ip) && $1 ~ /\// {print $1; exit}' || true)"
 fi
 LAN_SUBNET="${LAN_SUBNET:-192.168.1.0/24}"
-WG_SUBNET="10.47.0.0/24"
 note "admin user $ADMIN_USER · ssh port $SSH_PORT · LAN $LAN_SUBNET"
 
 # --- ufw --------------------------------------------------------------------

@@ -2,7 +2,7 @@
 window.ARISE_DEMO_DATA = {
 "GET /overview": {
 "demo": true,
-"version": "0.4.0",
+"version": "0.5.0",
 "codename": "Pineville",
 "profile": "server",
 "hostname": "arise-server",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:06:23",
+"last_run": "2026-10-28T02:22:58",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:06:23"
+"since": "2026-10-14T01:22:58"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T03:06:23",
+"last_logon": "2026-10-28T03:22:58",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T04:06:23",
+"last_logon": "2026-10-27T04:22:58",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T01:06:23",
+"last_logon": "2026-10-26T01:22:58",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T04:06:23",
+"last_logon": "2026-10-22T04:22:58",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T04:06:23",
+"last_logon": "2026-10-25T04:22:58",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T04:06:23",
+"last_logon": "2026-10-19T04:22:58",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T03:06:23",
+"last_seen": "2026-10-28T03:22:58",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T04:06:23",
+"last_seen": "2026-10-27T04:22:58",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T04:06:23",
+"last_seen": "2026-10-26T04:22:58",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T04:02:23",
+"last_seen": "2026-10-28T04:18:58",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T04:06:23",
+"last_check": "2026-10-19T04:22:58",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:06:23",
+"last_run": "2026-10-28T02:22:58",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1873,17 +1873,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T23:06:23",
+"when": "2026-10-27T23:22:58",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T23:06:23",
+"when": "2026-10-27T23:22:58",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T23:06:23",
+"when": "2026-10-27T23:22:58",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1918,7 +1918,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T04:06:23",
+"updated": "2026-10-25T04:22:58",
 "mem_h": "36.2 MB"
 },
 {
@@ -1931,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T04:06:23",
+"updated": "2026-10-25T04:22:58",
 "mem_h": "135.4 MB"
 },
 {
@@ -1944,7 +1944,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T04:06:23",
+"updated": "2026-10-27T04:22:58",
 "mem_h": "0 B"
 }
 ],
@@ -1953,6 +1953,30 @@ window.ARISE_DEMO_DATA = {
 "GET /apps/templates": {
 "demo": false,
 "templates": [
+{
+"id": "bookstack",
+"name": "BookStack",
+"description": "The church handbook as a wiki, organised in books and chapters - the Sunday runbook, the livestream checklist, safety policies, who to call. Search, page history, PDF export.",
+"category": "knowledge",
+"ports": [
+"8085:80"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/bookstack",
+"notes": "First login admin@admin.com / password at http://arise-server:8085; change\nboth at once. Memory: around 300 to 400 MB for both containers (an\nestimate). The docs/ folder of this repo is a good first book.\n"
+},
+{
+"id": "churchcrm",
+"name": "ChurchCRM",
+"description": "Members, families, groups, attendance and a printable directory, self-hosted. Only worth it if the church does not already pay for Planning Center, Breeze or the like. Giving stays off this box by Bradly's rule.",
+"category": "church",
+"ports": [
+"8086:80"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/churchcrm",
+"notes": "The setup wizard at http://arise-server:8086 asks for the database: host\ndb, name churchcrm, user churchcrm, the DB_PASSWORD you set. Verify the\nimage tag before the first deploy; the project moves between 5.x and 6.x.\nMemory: around 300 MB for both (an estimate).\n"
+},
 {
 "id": "filebrowser",
 "name": "File Browser",
@@ -1991,6 +2015,54 @@ window.ARISE_DEMO_DATA = {
 "notes": "BEFORE THE FIRST START, make the database schema once:\n  mkdir -p /srv/arise/apps/guacamole/initdb\n  docker run --rm guacamole/guacamole:1.5.5 /opt/guacamole/bin/initdb.sh --postgresql \\\n      > /srv/arise/apps/guacamole/initdb/001-initdb.sql\nand set POSTGRES_PASSWORD in /srv/arise/apps/guacamole/.env.\nOpen http://arise-server:8084/guacamole. First login guacadmin / guacadmin:\nCHANGE IT AT ONCE (Settings > Preferences), then add connections\n(Settings > Connections). Domain logins: uncomment the LDAP_* lines in\ncompose.yaml after creating a plain `guac-ldap` domain user for the lookup;\ndocs/REMOTE-ACCESS.md (c) has the matching guacamole.properties lines.\nImage tags 1.5.5 / postgres:15 were current when written: verify before\nfirst deploy. Put it behind Caddy (remote.ad.arisecenla.church) for HTTPS;\nclipboard and file transfer need a secure context.\n"
 },
 {
+"id": "jellyfin",
+"name": "Jellyfin",
+"description": "The sermon and service archive as a streaming library, from the recordings share on the Synology, to any browser, phone or TV. Private, no account with anyone.",
+"category": "media",
+"ports": [
+"8096:8096"
+],
+"icon": "screen",
+"data": "/srv/arise/apps/jellyfin",
+"notes": "First visit http://arise-server:8096: make the admin, add a library of\ntype \"Movies\" or \"Home Videos\" at /media/recordings. Name the files\n\"2026-10-26 Sunday Service.mp4\" and the dates sort. Keep \"Hardware\nacceleration: VAAPI, /dev/dri/renderD128\" if the OptiPlex has Intel\ngraphics; otherwise turn transcoding off and let clients play the MP4\nas is. Over Tailscale the phone app works from anywhere.\n"
+},
+{
+"id": "kimai",
+"name": "Kimai",
+"description": "Timesheets for hourly staff and volunteer hours, with weekly reports and exports. One container, SQLite, under 200 MB.",
+"category": "office",
+"ports": [
+"8089:8001"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/kimai",
+"notes": "The admin login is the ADMINMAIL / ADMINPASS pair above (set them in the\napp's .env before the first start; the password needs 8+ characters).\nVerify the image tag before the first deploy; Kimai releases often.\n"
+},
+{
+"id": "mattermost",
+"name": "Mattermost",
+"description": "The church's own team chat, a channel per ministry, file drops and calls, with phone apps. A second place to check, so only if leadership wants off the free plans.",
+"category": "communication",
+"ports": [
+"8065:8065"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/mattermost",
+"notes": "First visit http://arise-server:8065 makes the admin. The phone apps need\nthe server address over Tailscale. Memory about 500 MB to 1 GB for both\n(an estimate); on an 8 GB Dell this is the one app to think twice about.\n"
+},
+{
+"id": "moodle",
+"name": "Moodle",
+"description": "Courses with lessons, quizzes and completion tracking - a new-members track, volunteer onboarding, a study series. Heavy; deploy when someone will build a course.",
+"category": "learning",
+"ports": [
+"8092:8080"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/moodle",
+"notes": "The first start takes several minutes (it installs itself). Memory 1 GB+\nfor both (an estimate); 16 GB on the Dell, or run it alone. The LDAP\nauthentication plugin connects it to the domain later.\n"
+},
+{
 "id": "netalertx",
 "name": "NetAlertX",
 "description": "Open-source \"who is on my network\" with a timeline per device, presence history, and an alert (email, Discord, Telegram, webhook) the moment something new appears on the wire. The deeper version of the dashboard's Network app.",
@@ -2001,6 +2073,92 @@ window.ARISE_DEMO_DATA = {
 "icon": "pulse",
 "data": "/srv/arise/apps/netalertx",
 "notes": "Runs on the host network (it has to, to ARP-scan). Open http://arise-server:20211.\nFirst run: Settings > Scanners: ARPSCAN on, the subnet is read from the box.\nIt sees Netgear A's wire only; the office Netgear and the Mesh show as one\ndevice each, the same as the Network app, and for the same reason (NAT).\nBoth the Network app and NetAlertX can run; they do not fight.\n"
+},
+{
+"id": "netdata",
+"name": "Netdata",
+"description": "Per-second graphs of the whole box, every container, Samba and the network, with alarms, zero configuration. Local only, no cloud account.",
+"category": "monitoring",
+"ports": [
+"19999:19999"
+],
+"icon": "pulse",
+"data": "/srv/arise/apps/netdata",
+"notes": "Open http://arise-server:19999. Memory: about 150 to 300 MB (an estimate).\nRuns on the host network so it can see every interface. Ignore the\n\"connect to Netdata Cloud\" banner; everything works without it.\n"
+},
+{
+"id": "nextcloud",
+"name": "Nextcloud",
+"description": "Shared calendars, contacts, office documents in the browser and phone apps with photo upload. Files are already the portal's and SMB's job; deploy this for the calendar and documents, and mount the shares into it rather than copying.",
+"category": "collaboration",
+"ports": [
+"8091:80"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/nextcloud",
+"notes": "Memory about 1 GB for both (an estimate): the heaviest app here. Its users\nare its own; the \"LDAP user and group backend\" app connects it to the\ndomain so people use their church password (bind DN and base DN from\ndocs/DIRECTORY.md). Needs the Dell to have 16 GB to sit beside the rest.\n"
+},
+{
+"id": "nginx-rtmp",
+"name": "nginx RTMP relay",
+"description": "One stream in from OBS, pushed on to YouTube, Facebook and Owncast at once, from the server's wired connection instead of the booth's Wi-Fi. Only for an OBS setup; StreamYard already fans out.",
+"category": "streaming",
+"ports": [
+"1936:1935",
+"8088:80"
+],
+"icon": "screen",
+"data": "/srv/arise/apps/nginx-rtmp",
+"notes": "Before the first deploy write nginx.conf with an rtmp { server { application live\n{ live on; push rtmp://a.rtmp.youtube.com/live2/KEY; push rtmp://...; } } } block.\nOBS sends to rtmp://arise-server:1936/live. Listens on 1936 so it can live\nbeside Owncast. Verify the image before the first deploy.\n"
+},
+{
+"id": "owncast",
+"name": "Owncast",
+"description": "The church's own live-stream page with chat, fed by a second output from StreamYard or OBS. A backup destination when YouTube misbehaves, or a private stream for leadership.",
+"category": "streaming",
+"ports": [
+"8087:8080",
+"1935:1935"
+],
+"icon": "screen",
+"data": "/srv/arise/apps/owncast",
+"notes": "Admin at http://arise-server:8087/admin (admin / abc123 the first time;\nchange it). Stream key is in the admin. Memory under 200 MB idle (an\nestimate); transcoding to several qualities costs a core each: keep one\nquality unless the Dell has spare cores. Shares port 1935 with the\nnginx-rtmp template, so run one or the other.\n"
+},
+{
+"id": "phplist",
+"name": "phpList",
+"description": "Newsletters to the families with lists, templates and bounce handling. Only with an SMTP relay (Google Workspace for Nonprofits or a sender's free tier); mail straight from a church IP lands in spam.",
+"category": "communication",
+"ports": [
+"8093:80"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/phplist",
+"notes": "Set the SMTP relay in config/config.php before the first send. Memory\naround 250 MB for both (an estimate). Mailchimp's free tier is the\nsimpler answer until the list is past a couple of thousand addresses.\n"
+},
+{
+"id": "portainer",
+"name": "Portainer CE",
+"description": "Every container on the box with logs, a console and a stack editor, for the day the Apps page is not enough. Lightweight.",
+"category": "admin",
+"ports": [
+"9443:9443"
+],
+"icon": "lock",
+"data": "/srv/arise/apps/portainer",
+"notes": "https://arise-server:9443 (its own certificate; accept it once). Make the\nadmin account within five minutes of the first start or it locks itself\nand needs a restart. Memory: under 100 MB (an estimate).\n"
+},
+{
+"id": "synapse",
+"name": "Synapse (Matrix)",
+"description": "Encrypted messaging between ministry leads with the Element apps, on the church's own server. Fussier than Mattermost; pick one. Registration closed; the admin makes accounts.",
+"category": "communication",
+"ports": [
+"8008:8008"
+],
+"icon": "lock",
+"data": "/srv/arise/apps/synapse",
+"notes": "Run the one-time generate command in compose.yaml first. Make users with\nregister_new_matrix_user inside the container. Federation stays off (no\npublic address). Memory 400 MB+ (an estimate).\n"
 },
 {
 "id": "syncthing",
@@ -2014,6 +2172,18 @@ window.ARISE_DEMO_DATA = {
 "icon": "refresh",
 "data": "/srv/arise/apps/syncthing",
 "notes": "Install Syncthing on the Mac (syncthing.net), add this server's device ID from\nhttp://arise-server:8384, share the Mac folder with it. Set a password on the\nweb UI on first open (Settings > GUI) - it ships without one.\n"
+},
+{
+"id": "trilium",
+"name": "Trilium Notes",
+"description": "A hierarchical research notebook for sermon study, with links between notes, full search, and a desktop app that syncs to this server. One notebook per deployment.",
+"category": "knowledge",
+"ports": [
+"8090:8080"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/trilium",
+"notes": "First visit sets the password. For a second person's private notebook,\ndeploy again with another --name (each gets its own folder and port in\nthe Apps page). The newer fork is TriliumNext; this tag is the last stable\nof the original and is what the desktop app 0.63 matches.\n"
 },
 {
 "id": "uptime-kuma",
@@ -2076,7 +2246,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T02:06:23",
+"last": "2026-10-27T02:22:58",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -2186,7 +2356,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /health": {
 "ok": true,
-"version": "0.4.0",
+"version": "0.5.0",
 "demo": true
 },
 "GET /sites": {
@@ -2259,7 +2429,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T04:06"
+"when": "2026-10-28T04:22"
 },
 {
 "user": "bradly",
@@ -2493,8 +2663,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T04:06",
-"expires": "2026-11-02T04:06",
+"created": "2026-10-26T04:22",
+"expires": "2026-11-02T04:22",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -2830,7 +3000,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T04:06:24+00:00",
+"last_check": "2026-10-28T04:22:58+00:00",
 "security": 1
 },
 "GET /notify": {
