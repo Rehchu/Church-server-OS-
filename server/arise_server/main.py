@@ -517,7 +517,9 @@ def dir_user_enable(name: str, _=admin):
 
 
 @app.post("/api/directory/users/{name}/disable")
-def dir_user_disable(name: str, _=admin):
+def dir_user_disable(name: str, who=admin):
+    if name.lower() == str(who.get("user", "")).lower():
+        return {"ok": False, "err": "You cannot disable the account you are signed in with"}
     return directory.enable_user(name, False)
 
 
@@ -525,6 +527,8 @@ def dir_user_disable(name: str, _=admin):
 def dir_user_del(name: str, body: Confirm, who=recent):
     if who.get("role") != "admin":
         raise HTTPException(403, {"message": "Administrator only"})
+    if name.lower() == str(who.get("user", "")).lower():
+        return {"ok": False, "err": "You cannot delete the account you are signed in with"}
     return directory.delete_user(name, body.confirm)
 
 
@@ -973,7 +977,10 @@ class TrashEmpty(BaseModel):
 
 
 @app.post("/api/files/trash/empty")
-def api_files_trash_empty(body: TrashEmpty, who=admin):
+def api_files_trash_empty(body: TrashEmpty, who=recent):
+    """Emptying a Trash is permanent: an admin who typed the share's name AND the password again (round 4, 54)."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
     return finder.trash_empty(body.share, body.confirm, who)
 
 

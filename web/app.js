@@ -1991,14 +1991,24 @@ async function buildWidgets() {
 /* ---------------- lock, login, sign out ---------------- */
 function lockScreen(idle) {
   saver(false);
-  const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
+  lockReset(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
 function churchLine() { const c = S.church; const n = c?.next; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }
 function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); const h = $('#lock .lock__hint'); if (h) h.textContent = churchLine() + ($('#lock').classList.contains('idle') ? ' · press a key' : ''); }
 $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw').value; $('#lockPw').value = '';
   if (S.demo && !(S.demoOnly && window.AriseMock)) { $('#lock').hidden = true; return; }
-  try { await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } }); $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
+  const pwBox = $('#lockPw');
+  // Two-step users: the password alone is not an unlock. Ask for the six digits here (round 3: Microsoft Authenticator).
+  if (S.lockPending) {
+    try { await api('/auth/login/code', { method: 'POST', body: { pending: S.lockPending, code: pw } }); lockReset(); $('#lock').hidden = true; }
+    catch (er) { if (/Sign in again|more than five|Three wrong/.test(er.message)) lockReset(); toast(er.message, 'bad'); pwBox.focus(); }
+    return;
+  }
+  try { const r = await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } });
+    if (r && r.need_code) { S.lockPending = r.pending; pwBox.type = 'text'; pwBox.inputMode = 'numeric'; pwBox.autocomplete = 'one-time-code'; pwBox.placeholder = '6 digits from Authenticator'; pwBox.focus(); return; }
+    $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
+function lockReset() { S.lockPending = null; const b = $('#lockPw'); b.type = 'password'; b.inputMode = ''; b.autocomplete = 'current-password'; b.placeholder = 'Password'; }
 async function signOut() { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); }
 // The desktop's timers, so the sign-in screen can stop them all (it replaces the desktop).
 function every(fn, ms) { const id = setInterval(fn, ms); (S.timers = S.timers || []).push(id); return id; }
