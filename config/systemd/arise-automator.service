@@ -1,21 +1,25 @@
-# Arise Server — the nightly YouTube automator (arise_daily.py).
-# Fired by arise-automator.timer at 02:05 America/Chicago, five minutes after
-# the YouTube quota resets. Run by hand:  systemctl start arise-automator
-# Its own report lands in automator/LATEST_REPORT.md whatever happens.
+# Arise Server — the nightly YouTube automator (arise_daily.py), per the
+# automator's SERVER_HANDOFF.md section 7 (there called arise-nightly.service).
+# Fired by arise-automator.timer at 02:05 America/Chicago. It changes nothing
+# unless automator/runner.json in the repo names "ariseOS": while it names the
+# PC, each night writes a "not the runner" report and spends no quota.
+# The switch is Bradly's, made on the PC (docs/AUTOMATOR.md, "Cutover").
+# By hand: systemctl start arise-automator.service (harmless while the PC is the runner).
 [Unit]
-Description=Arise YouTube automator (nightly run)
-After=network-online.target
+Description=Arise Church YouTube nightly automator
 Wants=network-online.target
+After=network-online.target time-sync.target
 ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
 
 [Service]
 Type=oneshot
-WorkingDirectory=/srv/arise/automator/ARISE_YouTube_Updater/automator
-ExecStart=/opt/arise/venv/bin/python /srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
-Environment=PYTHONUTF8=1
-Environment=PYTHONIOENCODING=utf-8
-Environment=PYTHONUNBUFFERED=1
-Environment=TZ=America/Chicago
+User=arise-yt
+Group=arise-yt
+EnvironmentFile=/etc/arise/arise.env
+ExecStart=/opt/arise/scripts/arise-nightly.sh
 TimeoutStartSec=3h
-StandardOutput=append:/var/log/arise/automator.log
-StandardError=append:/var/log/arise/automator.log
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/automator/ARISE_YouTube_Updater /var/lib/arise/automator /etc/arise/secrets/youtube

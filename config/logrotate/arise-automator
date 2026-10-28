@@ -1,0 +1,11 @@
+# The automator's own run log grows by appending (handoff section 6).
+/var/lib/arise/automator/last-run.log {
+    monthly
+    rotate 12
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su arise-yt arise-yt
+}
