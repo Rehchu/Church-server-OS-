@@ -11,8 +11,18 @@ first). Sign in with your church name, written `first.last`, and the same
 password you use on a church Mac. One password for the Macs, the shares and
 this page.
 
-Forgotten it? Ask the media team; an administrator resets it. Nobody else can
-see it.
+Your first password is a temporary one: at your first login, on a church Mac
+or here, you choose your own.
+
+Forgotten it? Click **Forgot your password?** on the sign-in screen, or open
+`http://arise-server:4147/reset` from any browser. A link goes to the personal
+email on your profile (flame menu → **My Profile**), and works once, for 30
+minutes. No personal email on file? Ask the media team; an administrator
+resets it. Nobody else can see your password.
+
+**My Profile** keeps your phone, personal email and birthday (month and day
+only), which staff can see and members cannot, and lists your last ten
+sign-ins: one that was not you means change your password.
 
 ## Your files
 

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reset your password · Arise Church</title><meta name="color-scheme" content="dark"><meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+/* A page of its own (round 5, 6; Oct 28: staff and volunteers use their Macs, not the desktop):
+   ask for a link, or choose a new password from one. Nothing else of the dashboard loads here. */
+html,body{min-height:100%;margin:0;background:var(--ink)}
+.rs{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box}
+.rs__box{width:min(420px,100%);background:var(--panel);border-top:3px solid var(--red);padding:30px 26px 26px;box-sizing:border-box}
+.rs h1{font-family:Anton,Oswald,sans-serif;font-weight:400;letter-spacing:.04em;font-size:30px;margin:10px 0 6px;text-transform:uppercase}
+.rs p{color:var(--text2);font-size:15px;line-height:1.5;margin:8px 0}
+.rs label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.rs input{width:100%;box-sizing:border-box;background:var(--scrim);border:1px solid var(--line);color:var(--text);padding:12px;font:300 16px Oswald,sans-serif}
+.rs input:focus{border-color:var(--red);outline:none}
+.rs button{margin-top:18px;width:100%;background:var(--red);color:#fff;border:0;padding:13px;font:500 13px Oswald,sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.rs button[disabled]{opacity:.6;cursor:default}
+.rs .msg{margin-top:16px;padding:12px;border-left:3px solid var(--ok);background:var(--panel2);font-size:14px;line-height:1.5}
+.rs .msg.bad{border-color:var(--bad)} .rs .sample{border-color:var(--warn)}
+.rs ul{margin:8px 0 0 18px;padding:0;color:var(--text2);font-size:13px} .rs a{color:var(--redL)}
+.rs__foot{margin-top:22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+</style></head>
+<body><main class="rs"><div class="rs__box" id="box">
+  <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/></svg>
+  <div id="pane"><p>Loading…</p></div>
+  <div class="rs__foot" id="foot">Arise Church</div>
+</div></main>
+<script>
+const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const $ = s => document.querySelector(s);
+const post = async (path, body) => { const r = await fetch('/api' + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return r.json().catch(() => ({ ok: false, err: 'The server did not answer' })); };
+const token = new URLSearchParams(location.search).get('t') || '';
+let info = {};
+fetch('/api/public/sign-in').then(r => r.json()).then(d => { info = d || {}; $('#foot').textContent = `${info.church || 'Arise Church'} · ${info.host || ''} · ${info.realm || ''}`; }).catch(() => {});
+
+function askForLink() {
+  $('#pane').innerHTML = `<h1>Forgot your password?</h1><p>Type your user name (first.last, the one you type on your Mac). If your profile has a personal email, a link to choose a new password goes there. It works for 30 minutes.</p>
+    <form id="f"><label for="u">User name</label><input id="u" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="first.last" required>
+    <button type="submit">Send me a link</button></form><div id="out"></div>`;
+  $('#u').focus();
+  $('#f').onsubmit = async e => { e.preventDefault(); const b = $('#f button'); b.disabled = true;
+    const r = await post('/auth/forgot', { user: $('#u').value.trim() }); b.disabled = false;
+    $('#out').innerHTML = `<div class="msg ${r.ok === false ? 'bad' : ''}">${esc(r.message || r.err || '')}</div>` + (r.sample_link ? `<div class="msg sample">Sample: there is no mail in the sample. The email would carry this link: <a href="${esc(r.sample_link)}">open it</a>.</div>` : '');
+  };
+}
+async function chooseNew() {
+  const c = await (await fetch('/api/auth/reset/check?t=' + encodeURIComponent(token))).json().catch(() => ({ ok: false }));
+  if (!c.ok) { $('#pane').innerHTML = `<h1>That link is no good</h1><p>${esc(c.err || 'It has expired or was already used.')}</p><p><a href="/reset">Ask for a new one</a></p>`; return; }
+  const rules = await (await fetch('/api/public/sign-in')).json().catch(() => ({}));
+  $('#pane').innerHTML = `<h1>A new password</h1><p>For <b>${esc(c.name)}</b> (${esc(c.user)}). It is the password for your Mac and everything else at church.</p>
+    ${(rules.rules || []).length ? `<ul>${rules.rules.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+    <form id="f"><label for="p1">New password</label><input id="p1" type="password" autocomplete="new-password" required>
+    <label for="p2">The same again</label><input id="p2" type="password" autocomplete="new-password" required>
+    <button type="submit">Set my password</button></form><div id="out"></div>`;
+  $('#p1').focus();
+  $('#f').onsubmit = async e => { e.preventDefault();
+    if ($('#p1').value !== $('#p2').value) { $('#out').innerHTML = '<div class="msg bad">The two passwords are not the same.</div>'; return; }
+    const b = $('#f button'); b.disabled = true;
+    const r = await post('/auth/reset', { token, new: $('#p1').value }); b.disabled = false;
+    if (r.ok) { $('#pane').innerHTML = `<h1>Done</h1><p>${esc(r.message)}</p><p>On a Mac that was signed in, the login window takes the new password at the next login; it may ask for the old one once, to unlock the Mac's keychain.</p>`; return; }
+    $('#out').innerHTML = `<div class="msg bad">${esc(r.err || 'That did not work')}</div>` + ((r.rules || []).length ? `<ul>${r.rules.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+  };
+}
+token ? chooseNew() : askForLink();
+</script></body></html>

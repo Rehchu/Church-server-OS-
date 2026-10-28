@@ -33,7 +33,7 @@ const http = (status, message, extra = {}) => ({ __status: status, error: Object
 const NAME_RE = /^[A-Za-z][A-Za-z0-9._-]{1,63}$/;          // server/arise_server/directory.py
 const SHARE_RE = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,31}$/;       // server/arise_server/shares.py
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,}$/;
-const MEMBER_OK = ['/auth/', '/me', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
+const MEMBER_OK = ['/auth/', '/me', '/people', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
 const memberOk = p => MEMBER_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m));
 const SAMPLE_SECRET = SEED['POST /me/2fa/setup']?.secret || '';
 
@@ -95,7 +95,8 @@ function roots() {
 function authMe() {
   const s = me(); if (!s) return { error: { message: 'Sign in' } };
   const u = userOf(s.user);
-  return { user: s.user, role: s.role, demo: true, preview: true, display: u?.display || '', groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk() };
+  const pr = profOf(s.user); const disp = u?.display || '';
+  return { user: s.user, role: s.role, demo: true, preview: true, display: disp, name: fullName(s.user, disp), title: pr.title || '', greeting: pr.title ? `${pr.title} ${(disp || s.user).split(/\s+/)[0]}` : '', staff: isStaffUser(s), groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk() };
 }
 
 /* ---------- the file tree ---------- */
@@ -230,8 +231,11 @@ route('POST', /^\/auth\/login$/, async b => {
   if (u && !u.enabled) return http(401, 'That account is disabled. An administrator can enable it in Directory.');
   if (u && X.pw[u.name] && X.pw[u.name] !== pw) return http(401, 'Wrong user or password');
   const user = u ? u.name : name; const role = u ? (isAdminUser(u) ? 'admin' : 'member') : 'admin';
+  // A temporary password (round 5, 5): the right one, but they choose their own before anything else.
+  if (u && (X.mustchange || []).includes(u.name)) { signinAdd(user, false, 'temporary password: a new one is needed'); return ok({ need_new_password: true, user, rules: (get('GET /me/password/rules') || {}).words || [] }); }
   if (X.twofa.includes(user)) { const p = 'pending-' + token(10); mem.strikes[p] = { user, role, left: 3, at: Date.now() }; return ok({ need_code: true, pending: p, user }); }
   X.session = { user, role }; if (u) { u.last_logon = isoSec(); touch('GET /directory/users'); }
+  signinAdd(user, true, `directory · ${deviceOf(navigator.userAgent)}`);
   save(); return ok({ user, role });
 });
 route('POST', /^\/auth\/login\/code$/, async b => {
@@ -263,13 +267,17 @@ route('POST', /^\/directory\/users$/, b => {
   const want = (b.groups || []).map(g => String(g).trim()).filter(Boolean); const missing = want.filter(g => !groups().find(x => x.name.toLowerCase() === g.toLowerCase()));
   if (missing.length) return fail(`no such group: ${missing.join(', ')} (make it under Groups first)`);
   const gnames = want.map(g => groups().find(x => x.name.toLowerCase() === g.toLowerCase()).name);
-  users().push({ name, display: String(b.display || '').trim(), groups: gnames, enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${name}` });
+  const title = String(b.title || '').trim(); if (title && !/^[A-Za-z][A-Za-z .'-]{0,39}$/.test(title)) return fail('title: letters only, like Apostle, Pastor, Minister');
+  const disp0 = String(b.display || '').trim();
+  users().push({ name, display: disp0, groups: gnames, enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${name}`, must_change: b.temporary !== false, title, full_name: title ? `${title} ${disp0 || name}` : (disp0 || name) });
+  if (title) profOf(name).title = title;
+  if (b.temporary !== false) mustSet(name, true);
   for (const g of gnames) { const gr = groups().find(x => x.name === g); if (!gr.members.includes(name)) gr.members.push(name); }
   X.pw[name] = b.password;
   for (const f of ['Documents', 'Photos', 'Videos', 'Music', 'Downloads']) mkdirp('data', `/homes/${name}/${f}`);
   touch('GET /directory/users', 'GET /directory/groups'); return ok({ out: `created ${name}` });
 });
-route('POST', /^\/directory\/users\/([^/]+)\/reset-password$/, (b, m) => { const u = userOf(m[1]); if (!u || String(b.password || '').length < 8) return fail('bad name or password shorter than 8'); X.pw[u.name] = b.password; save(); return ok(); });
+route('POST', /^\/directory\/users\/([^/]+)\/reset-password$/, (b, m) => { const u = userOf(m[1]); if (!u || String(b.password || '').length < 8) return fail('bad name or password shorter than 8'); X.pw[u.name] = b.password; mustSet(u.name, b.temporary !== false); save(); return ok({ must_change: b.temporary !== false }); });
 route('POST', /^\/directory\/users\/([^/]+)\/(enable|disable)$/, (b, m) => {
   const u = userOf(m[1]); if (!u) return fail('no such user');
   if (m[2] === 'disable' && u.name === me()?.user) return fail('You cannot disable the account you are signed in with');
@@ -590,8 +598,124 @@ route('POST', /^\/notify\/test$/, () => ok({ demo: true, out: 'Preview: no Disco
 route('POST', /^\/security\/scan\/run$/, () => { const s = inService(); if (s) return fail(`Not during ${s.name}.`); const sc = getOr('GET /security/scan', { quarantine: '/srv/arise/.quarantine', installed: true, quarantined: [], next: 'Sunday 23:30' }); sc.last = Object.assign({}, sc.last || {}, { when: isoMin(), scanned: (sc.last?.scanned || 18000) + Math.round(Math.random() * 40), infected: 0, found: [], ok: true, seconds: 1900 }); touch('GET /security/scan'); return ok({ started: true }); });
 route('POST', /^\/security\/scan\/restore$/, b => { if (b.confirm !== b.name) return fail('type the file name to confirm'); const sc = getOr('GET /security/scan', { quarantined: [] }); const n = (sc.quarantined || []).length; sc.quarantined = (sc.quarantined || []).filter(q => q.file.split('/').pop() !== b.name); if (sc.quarantined.length === n) return fail('no such file in quarantine'); touch('GET /security/scan'); return ok({ out: `${b.name} is back where it was` }); });
 
+/* ---- profiles (round 5): temporary passwords, the reset link, profiles, prefs, sign-ins, the people list ---- */
+function profOf(user) { X.profiles = X.profiles || {}; return X.profiles[user] = X.profiles[user] || { title: '', departments: [], personal_email: '', mobile: '', birthday: '' }; }
+function fullName(user, display) { const t = (X.profiles?.[user]?.title || '').trim(); const n = (display || '').trim() || user; return t && !n.toLowerCase().startsWith(t.toLowerCase() + ' ') ? `${t} ${n}` : n; }
+function isStaffUser(s) { if (!s) return false; if (s.role === 'admin') return true; const g = groupsOf(s.user).map(x => x.toLowerCase()); return g.includes('staff') || g.includes('media'); }
+function mustSet(user, on) { X.mustchange = (X.mustchange || []).filter(x => x !== user); if (on) X.mustchange.push(user); const u = userOf(user); if (u) { u.must_change = !!on; touch('GET /directory/users'); } save(); }
+function signinAdd(user, okd, how) { X.signins = X.signins || {}; (X.signins[user] = X.signins[user] || []).unshift({ t: isoSec(), ok: okd, how, ip: 'this browser' }); X.signins[user] = X.signins[user].slice(0, 50); }
+function deviceOf(a) { a = a || ''; const b = /Edg\//.test(a) ? 'Edge' : /Firefox\//.test(a) ? 'Firefox' : /Chrome\//.test(a) ? 'Chrome' : /Safari\//.test(a) ? 'Safari' : 'a browser'; const s = /iPhone/.test(a) ? 'an iPhone' : /iPad/.test(a) ? 'an iPad' : /Android/.test(a) ? 'Android' : /Macintosh/.test(a) ? 'a Mac' : /Windows/.test(a) ? 'Windows' : /Linux|X11/.test(a) ? 'Linux' : ''; return s ? `${b} on ${s}` : b; }
+const MAIL_DOMAIN = () => ((get('GET /public/sign-in') || {}).mail_domain || 'ad.arisecenla.com');
+const PREF_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text))$/;
+const SELF_F = ['personal_email', 'mobile', 'birthday'], ADMIN_F = SELF_F.concat(['title', 'departments']);
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+function normBirthday(v) { v = String(v || '').trim().toLowerCase(); let mo, d; let m = v.match(/^(?:\d{4}-)?(\d{1,2})[-/](\d{1,2})(?:[-/]\d{2,4})?$/); if (m) { mo = +m[1]; d = +m[2]; } else { m = v.match(/^([a-z]+)\.?\s+(\d{1,2})(?:,?\s*\d{4})?$/); if (!m) return null; const i = MONTHS.findIndex(x => x.startsWith(m[1].slice(0, 3))); if (i < 0) return null; mo = i + 1; d = +m[2]; } const dim = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= dim[mo - 1])) return null; return String(mo).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+function profView(user, viewer) {
+  const u = userOf(user); const p = profOf(user); const disp = u?.display || user;
+  const out = { ok: true, user, display: disp, title: p.title || '', name: fullName(user, disp), mail: `${user}@${MAIL_DOMAIN()}`, departments: p.departments || [] };
+  const mine = viewer?.user === user;
+  if (mine || isStaffUser(viewer)) { for (const k of SELF_F) out[k] = p[k] || ''; out.can_edit = viewer.role === 'admin' ? ADMIN_F : mine ? SELF_F : []; } else out.can_edit = [];
+  return out;
+}
+function profEdit(user, fields, viewer) {
+  const admin = viewer?.role === 'admin'; if (!admin && viewer?.user !== user) return fail('You can change only your own profile');
+  const allowed = admin ? ADMIN_F : SELF_F; const errs = [];
+  const refused = Object.keys(fields).filter(k => !allowed.includes(k) && ADMIN_F.includes(k)); if (refused.length) errs.push(`only an administrator sets: ${refused.join(', ')}`);
+  const p = profOf(user); const next = {};
+  for (const k of allowed) { if (!(k in fields) || fields[k] == null) continue; let v = fields[k];
+    if (k === 'departments') { next[k] = (Array.isArray(v) ? v : String(v).split(/[;|,]/)).map(x => String(x).trim()).filter(Boolean).slice(0, 12); continue; }
+    v = String(v).trim(); if (!v) { next[k] = ''; continue; }
+    if (k === 'personal_email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) errs.push('personal email: that is not an email address');
+    else if (k === 'personal_email' && v.toLowerCase().endsWith('@' + MAIL_DOMAIN())) errs.push('personal email: use their own address, not the church one');
+    else if (k === 'mobile' && !/^[0-9+()\-. ]{7,25}$/.test(v)) errs.push('mobile: digits, spaces, + - ( ) only');
+    else if (k === 'birthday') { const b = normBirthday(v); if (!b) errs.push('birthday: month and day, like 03-14 or March 14'); else next[k] = b; }
+    else if (k === 'title' && !/^[A-Za-z][A-Za-z .'-]{0,39}$/.test(v)) errs.push('title: letters only, like Apostle, Pastor, Minister');
+    else next[k] = v; }
+  if (errs.length) return fail(errs.join('; '));
+  Object.assign(p, next); const u = userOf(user); if (u) { u.title = p.title || ''; u.full_name = fullName(user, u.display); touch('GET /directory/users'); }
+  save(); return ok({ profile: profView(user, viewer) });
+}
+const WORDS = ['Anchor', 'Beacon', 'Candle', 'Cedar', 'Crown', 'Dove', 'Ember', 'Garden', 'Harbor', 'Lamp', 'Meadow', 'Olive', 'River', 'Shore', 'Sparrow', 'Stone', 'Vine', 'Willow'];
+const tempPw = () => { const r = n => crypto.getRandomValues(new Uint32Array(1))[0] % n; return `${WORDS[r(WORDS.length)]}-${WORDS[r(WORDS.length)]}-${10 + r(90)}${'!#%+=?'[r(6)]}`; };
+const userName = (f, l) => [f, l].map(x => String(x || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '')).filter(Boolean).join('.');
+function csvRows(text) { const rows = []; let row = [], cell = '', q = false; text = String(text || '').replace(/^﻿/, ''); for (let i = 0; i < text.length; i++) { const c = text[i]; if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; } else if (c === '"') q = true; else if (c === ',') { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; } else cell += c; } if (cell || row.length) { row.push(cell); rows.push(row); } return rows.filter(r => r.some(x => x.trim())); }
+
+route('POST', /^\/auth\/login\/new-password$/, b => {
+  const u = userOf(String(b.user || '').trim()); if (!u || (X.pw[u.name] && X.pw[u.name] !== b.old)) return fail('Wrong user or password');
+  const min = (get('GET /me/password/rules') || {}).min_length || 8; const nw = String(b.new || '');
+  if (nw.length < min) return ok({ ok: false, err: `At least ${min} characters`, rules: (get('GET /me/password/rules') || {}).words || [] });
+  if (nw === b.old) return fail('choose a password different from the temporary one');
+  X.pw[u.name] = nw; mustSet(u.name, false); signinAdd(u.name, true, `temporary password replaced · ${deviceOf(navigator.userAgent)}`);
+  const role = isAdminUser(u) ? 'admin' : 'member';
+  if (X.twofa.includes(u.name)) { const p = 'pending-' + token(10); mem.strikes[p] = { user: u.name, role, left: 3, at: Date.now() }; return ok({ need_code: true, pending: p, user: u.name }); }
+  X.session = { user: u.name, role }; u.last_logon = isoSec(); touch('GET /directory/users'); save(); return ok({ user: u.name, role });
+});
+route('POST', /^\/auth\/forgot$/, b => {
+  const user = String(b.user || '').trim().toLowerCase(); const out = ok({ message: 'If that account has a personal email on file, a link to choose a new password is on its way. It works for 30 minutes.' });
+  const u = userOf(user); if (!u || !profOf(u.name).personal_email) return out;
+  X.resets = X.resets || {}; for (const [k, v] of Object.entries(X.resets)) if (v.user === u.name) delete X.resets[k];
+  const t = token(32); X.resets[t] = { user: u.name, exp: Date.now() + 30 * 60000, used: false }; save();
+  return Object.assign(out, { sample_link: `${location.origin}${location.pathname.replace(/[^/]*$/, '')}reset?t=${t}` });
+});
+route('POST', /^\/auth\/reset$/, b => {
+  const r = (X.resets || {})[b.token]; if (!r || r.used || r.exp < Date.now()) return fail('This link has expired or was already used. Ask for a new one.');
+  const min = (get('GET /me/password/rules') || {}).min_length || 8; if (String(b.new || '').length < min) return ok({ ok: false, err: `At least ${min} characters`, rules: (get('GET /me/password/rules') || {}).words || [] });
+  X.pw[r.user] = String(b.new); mustSet(r.user, false); r.used = true; save(); return ok({ user: r.user, message: 'Your new password works now: on your Mac, here, everywhere.' });
+});
+route('PUT', /^\/me\/profile$/, b => profEdit(me().user, b || {}, me()));
+route('PUT', /^\/directory\/users\/([^/]+)\/profile$/, (b, m) => { if (!isAdmin()) return http(403, 'Administrator only'); if (!userOf(decodeURIComponent(m[1]))) return fail('no such user'); return profEdit(decodeURIComponent(m[1]), b || {}, me()); });
+route('PUT', /^\/me\/prefs$/, b => {
+  const v = (b && b.prefs) || {}; const bad = Object.keys(v).filter(k => !PREF_RE.test(k)); if (bad.length) return fail(`not a setting that follows the account: ${bad.slice(0, 5).join(', ')}`);
+  X.prefs = X.prefs || {}; X.prefs[me().user] = Object.assign(X.prefs[me().user] || {}, Object.fromEntries(Object.entries(v).map(([k, x]) => [k, x == null ? '' : String(x)]))); save(); return ok({ prefs: X.prefs[me().user] });
+});
+route('POST', /^\/directory\/import$/, b => {
+  if (!isAdmin()) return http(403, 'Administrator only');
+  const rows = csvRows(b.csv); if (rows.length < 2) return fail('no rows (the first line names the columns: first, last, title, departments, personal_email, mobile, birthday, role)');
+  const head = rows[0].map(h => h.trim().toLowerCase()); if (!head.includes('first') || !head.includes('last')) return fail('missing columns: first, last');
+  const seen = new Set(); const out = [];
+  rows.slice(1).forEach((cells, i) => {
+    const r = Object.fromEntries(head.map((h, j) => [h, (cells[j] || '').trim()])); const name = userName(r.first, r.last); const role = (r.role || 'member').toLowerCase();
+    const row = { line: i + 2, first: r.first || '', last: r.last || '', user: name, role, title: r.title || '', display: `${r.first || ''} ${r.last || ''}`.trim(), warnings: [] };
+    const probs = [];
+    if (!r.first || !r.last) probs.push('needs a first and a last name'); else if (!NAME_RE.test(name)) probs.push(`${name} is not a usable user name`);
+    if (seen.has(name)) probs.push('the same person twice in the list'); else if (userOf(name)) probs.push('already has an account');
+    if (!['admin', 'staff', 'member'].includes(role)) probs.push(`role is admin, staff or member, not ${role}`);
+    if (r.birthday && !normBirthday(r.birthday)) probs.push('birthday: month and day, like 03-14 or March 14');
+    if (r.personal_email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.personal_email)) probs.push('personal email: that is not an email address');
+    seen.add(name);
+    const want = ({ admin: ['Domain Admins'], staff: ['Staff'], member: [] }[role] || []).concat(String(r.departments || '').split(/[;|]/).map(x => x.trim()).filter(Boolean));
+    row.groups = want.map(g => groups().find(x => x.name.toLowerCase() === g.toLowerCase())?.name).filter(Boolean);
+    row.warnings = want.filter(g => !groups().find(x => x.name.toLowerCase() === g.toLowerCase())).map(g => `no group ${g} yet (made in the Directory app)`);
+    if (probs.length) { out.push(Object.assign(row, { ok: false, err: probs.join('; ') })); return; }
+    row.ok = true;
+    if (b.apply) {
+      const pw = tempPw(); const t = row.title;
+      users().push({ name, display: row.display, groups: row.groups.slice(), enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${name}`, must_change: true, title: t, full_name: t ? `${t} ${row.display}` : row.display });
+      for (const g of row.groups) { const gr = groups().find(x => x.name === g); if (!gr.members.includes(name)) gr.members.push(name); }
+      X.pw[name] = pw; mustSet(name, true); Object.assign(profOf(name), { title: t, departments: String(r.departments || '').split(/[;|]/).map(x => x.trim()).filter(Boolean), personal_email: r.personal_email || '', mobile: r.mobile || '', birthday: normBirthday(r.birthday) || '' });
+      for (const f of ['Documents', 'Photos', 'Videos', 'Music', 'Downloads']) mkdirp('data', `/homes/${name}/${f}`);
+      row.temporary_password = pw; row.created = true;
+    }
+    out.push(row);
+  });
+  touch('GET /directory/users', 'GET /directory/groups');
+  return ok({ apply: !!b.apply, rows: out, created: out.filter(x => x.created).length, refused: out.filter(x => !x.ok).length, mail_domain: MAIL_DOMAIN(), realm: (get('GET /public/sign-in') || {}).realm || '' });
+});
+function r5Get(p, q) {
+  const s = me();
+  if (p === '/me/profile') return s ? profView(s.user, s) : undefined;
+  if (p === '/me/signins') return { ok: true, signins: ((X.signins || {})[s?.user] || []).slice(0, 10) };
+  if (p === '/me/prefs') return { ok: true, prefs: Object.assign({}, (X.prefs || {})[s?.user] || {}) };
+  if (p === '/people') { if (!isStaffUser(s)) return http(403, 'Only staff and administrators see the people list'); return { ok: true, people: users().map(u => Object.assign({ user: u.name, display: u.display || u.name, enabled: u.enabled }, profView(u.name, s))).sort((a, b) => a.name.localeCompare(b.name)) }; }
+  const m = p.match(/^\/directory\/users\/([^/]+)\/profile$/); if (m) { if (!isAdmin()) return http(403, 'Administrator only'); return profView(decodeURIComponent(m[1]), s); }
+  if (p === '/auth/reset/check') { const r = (X.resets || {})[q.get('t') || '']; if (!r || r.used || r.exp < Date.now()) return { ok: false, err: 'This link has expired or was already used. Ask for a new one.' }; const u = userOf(r.user); return { ok: true, user: r.user, name: fullName(r.user, u?.display) }; }
+  return undefined;
+}
+
+
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
+  const r5 = r5Get(p, q); if (r5 !== undefined) return r5;   // profiles (round 5)
   const s = me();
   if (p === '/songs') {
     const seed = get('GET /songs') || { songs: [] }; const L = lyricsAll(); const words = normT(q.get('q') || '').split(' ').filter(Boolean); const has = q.get('has') || '';
@@ -725,7 +849,7 @@ async function handle(method, fullPath, body) {
   method = (method || 'GET').toUpperCase();
   const [p0, qs] = String(fullPath).split('?'); const p = p0.split('/').map(seg => { try { return decodeURIComponent(seg); } catch { return seg; } }).join('/'); const q = new URLSearchParams(qs || '');
   const s = me();
-  if (!s && !/^\/(auth\/(login|me|logout)|auth\/login\/code|public\/|health)/.test(p)) return http(401, 'Sign in');
+  if (!s && !/^\/(auth\/(login|me|logout|forgot|reset)|public\/|health)/.test(p)) return http(401, 'Sign in');   // login covers /login/code and /login/new-password
   if (s && s.role !== 'admin' && !memberOk(p)) return http(403, 'That part of the dashboard is for the administrator');
   if (method === 'GET') {
     const c = computedGet(p, q); if (c !== undefined) return clone(c);

@@ -302,14 +302,14 @@ def cmd_user(a):
             pw = sys.stdin.readline().rstrip("\n")
         else:
             pw = a.password or getpass.getpass(f"Password for {a.name}: ")
-        show(directory.add_user(a.name, pw, a.display or "", a.groups.split(",") if a.groups else []))
+        show(directory.add_user(a.name, pw, a.display or "", a.groups.split(",") if a.groups else [], temporary=not a.permanent))
     elif a.sub == "remove":
         need_root()
         if input(f"Type the user name to remove it from the domain (home folder is kept): ") != a.name:
             sys.exit("not confirmed; nothing changed")
         show(directory.delete_user(a.name, a.name))
     elif a.sub == "passwd":
-        need_root(); show(directory.set_password(a.name, a.password or getpass.getpass(f"New password for {a.name}: ")))
+        need_root(); show(directory.set_password(a.name, a.password or getpass.getpass(f"New password for {a.name}: "), temporary=not a.permanent))
     elif a.sub in ("enable", "disable"):
         need_root(); show(directory.enable_user(a.name, a.sub == "enable"))
     elif a.sub == "homefix":
@@ -322,6 +322,39 @@ def cmd_user(a):
             r = run(["chown", "-R", f"{a.name}:", str(p)], timeout=600)
         os.chmod(p, 0o700)
         show(r)
+
+
+def cmd_directory(a):
+    """The day-one people list (round 5, 8): arisectl directory import people.csv [--apply]."""
+    from arise_server import profiles
+    if a.sub != "import" or not a.file:
+        sys.exit("usage: arisectl directory import people.csv [--apply]   (columns: " + ", ".join(profiles.COLUMNS) + ")")
+    if a.apply:
+        need_root()
+    try:
+        text = Path(a.file).read_text(encoding="utf-8-sig")
+    except OSError as e:
+        sys.exit(f"could not read {a.file}: {e}")
+    r = profiles.import_people(text, bool(a.apply), os.environ.get("SUDO_USER") or "arisectl")
+    if not r.get("ok"):
+        bad(r.get("err", "the list was refused")); sys.exit(1)
+    head(("creating" if a.apply else "checking (nothing is created without --apply)") + f": {len(r['rows'])} rows, mail @{r['mail_domain']}, realm {r['realm']}")
+    for row in r["rows"]:
+        tag = f"line {row['line']}: {row['user'] or '?'}"
+        if not row["ok"]:
+            bad(f"{tag}  {row['err']}")
+            continue
+        extra = f"  ({', '.join(row['groups'])})" if row["groups"] else ""
+        ok(f"{tag}  {row['title'] + ' ' if row['title'] else ''}{row['display']}{extra}" + ("" if a.apply else "  would be created"))
+        for w in row.get("warnings", []):
+            warn(f"    {w}")
+    if a.apply and r["created"]:
+        # The one place the temporary passwords appear: this screen. Not in a log, not on disk.
+        head("temporary passwords: print this, hand each one over, then close the window")
+        table([{"user": x["user"], "name": (x["title"] + " " if x["title"] else "") + x["display"], "temporary password": x["temporary_password"]}
+               for x in r["rows"] if x.get("created")], ["user", "name", "temporary password"])
+        print("  Each person chooses their own at their first login, at a Mac's login window or the dashboard.")
+    sys.exit(0 if not r["refused"] else 1)
 
 
 def cmd_group(a):
@@ -1343,7 +1376,8 @@ def build():
     sp.add_parser("doctor").set_defaults(f=cmd_doctor)
     p = sp.add_parser("admin"); p.add_argument("sub", choices=["set-password"]); p.set_defaults(f=cmd_admin)
     p = sp.add_parser("service"); p.add_argument("sub", choices=["list", "status", "start", "stop", "restart"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_service)
-    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.add_argument("--permanent", action="store_true", help="add/passwd: not a temporary password (default: they choose their own at the next login, round 5)"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("directory"); p.add_argument("sub", choices=["import"]); p.add_argument("file", nargs="?", help="people.csv: first,last,title,departments,personal_email,mobile,birthday,role"); p.add_argument("--apply", action="store_true", help="create the accounts (default: check only)"); p.set_defaults(f=cmd_directory)
     p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)

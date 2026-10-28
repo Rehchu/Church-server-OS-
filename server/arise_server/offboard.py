@@ -7,8 +7,10 @@ the admin may change their mind: Cancel). On the day, the daily sweep
 disables the account and moves the home folder's contents into the chosen
 person's home under "From <name> (<date>)". The account itself is never
 deleted here: deleting is Bradly's click (CLAUDE.md rule 1). Their mailbox
-goes with the account when the internal mail server exists (82); there is
-none yet, which the result says.
+goes with the account when the internal mail server exists (82), and only
+after its mail is exported as an mbox file into the same "From <name>"
+folder (round 5, 38: profiles.mailbox_export). There is no mail server yet,
+which the result says.
 """
 from __future__ import annotations
 
@@ -160,7 +162,14 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                     r["files"] = _move_home(e["name"], e["move_to"], now)
                 except OSError as ex:
                     r["files"] = {"ok": False, "err": str(ex)}
-            r["mailbox"] = "no internal mail server yet; nothing to delete"
+            # Round 5, 38: their mail is saved into the next person's folder before the mailbox can go.
+            # The mailbox is never deleted here; whatever deletes it later checks mailbox_exported first.
+            if cfg.demo:
+                r["mailbox"] = {"ok": True, "demo": True, "exported": 0, "note": "(sample) no mail server in the sample"}
+            else:
+                from . import profiles
+                r["mailbox"] = profiles.mailbox_export(e["name"], dest_dir(cfg.directory.homes_path, e["move_to"], e["name"], now))
+            e["mailbox_exported"] = bool(r["mailbox"].get("ok"))
             e["done"] = now.isoformat(timespec="seconds")
             e["result"] = r
             results.append(r)
