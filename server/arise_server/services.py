@@ -35,8 +35,11 @@ def available() -> bool:
 
 
 def list_services() -> dict:
+    if load().demo:
+        from . import demo_state
+        return {"demo": True, "services": demo_state.get("services", demo.SERVICES)}
     if not available():
-        return {"demo": True, "services": demo.SERVICES}
+        return {"demo": False, "services": [], "error": "systemctl is not here"}
     names = [u for u, _ in UNITS]
     r = run(["systemctl", "show", "--no-pager", "-p", "Id,ActiveState,SubState,ActiveEnterTimestamp,Description", *names], timeout=15)
     out, cur = [], {}
@@ -61,9 +64,20 @@ def act(unit: str, action: str) -> dict:
         return {"ok": False, "err": f"action must be one of {sorted(ALLOWED_ACTIONS)}"}
     if unit not in dict(UNITS):
         return {"ok": False, "err": "that unit is not managed here"}
+    if load().demo:
+        from . import demo, demo_state
+        row = next((x for x in demo_state.get("services", demo.SERVICES) if x["unit"] == unit), None)
+        if row is not None and action in ("start", "restart"):
+            row.update({"active": "active", "sub": "running" if unit.endswith(".service") else "waiting"})
+        elif row is not None and action == "stop":
+            row.update({"active": "inactive", "sub": "dead"})
+        return {"ok": True, "demo": True, "out": f"(sample) systemctl {action} {unit}"}
     if not available():
-        return {"ok": True, "demo": True, "out": f"(demo) systemctl {action} {unit}"}
-    return run(["systemctl", action, unit], timeout=60)
+        return {"ok": False, "err": "systemctl is not here; nothing was done"}
+    r = run(["systemctl", action, unit], timeout=60)
+    if not r["ok"]:
+        return {"ok": False, "err": f"systemctl {action} {unit}: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
+    return {"ok": True, "out": f"{action} {unit}: done"}
 
 
 def last_error_index(lines: list[str]) -> int | None:

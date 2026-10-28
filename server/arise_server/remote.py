@@ -81,9 +81,7 @@ def tailscale_status() -> dict | None:
 def wireguard_status() -> dict | None:
     rc = _remote_cfg()
     if load().demo:
-        return {"installed": True, "up": True, "interface": rc["wg_interface"], "endpoint": "arise.dyndns.example:51820", "subnet": rc["wg_subnet"], "peers": [
-            {"name": "alexandria-router", "ip": "10.47.0.2", "handshake": "28 s ago", "rx": 183_000_000, "tx": 912_000_000, "online": True},
-            {"name": "hub-laptop", "ip": "10.47.0.5", "handshake": "2 days ago", "rx": 2_100_000, "tx": 4_400_000, "online": False}]}
+        return {"installed": True, "up": True, "interface": rc["wg_interface"], "endpoint": "arise.dyndns.example:51820", "subnet": rc["wg_subnet"], "peers": _sample_peers()}
     if not which("wg"):
         return {"installed": False}
     r = run(["wg", "show", rc["wg_interface"], "dump"], timeout=10)
@@ -97,8 +95,23 @@ def wireguard_status() -> dict | None:
         if len(f) < 8:
             continue
         hs = int(f[4] or 0)
-        peers.append({"name": names.get(f[0], f[0][:10] + "…"), "ip": f[3], "handshake": _ago(hs), "rx": int(f[5] or 0), "tx": int(f[6] or 0), "online": hs and (datetime.now().timestamp() - hs) < 180})
+        peers.append({"name": names.get(f[0], f[0][:10] + "…"), "ip": f[3], "handshake": _ago(hs), "rx": int(f[5] or 0), "tx": int(f[6] or 0), "online": bool(hs) and (datetime.now().timestamp() - hs) < 180})
     return {"installed": True, "up": True, "interface": rc["wg_interface"], "endpoint": rc["wg_endpoint"], "subnet": rc["wg_subnet"], "peers": peers}
+
+
+def _sample_peers() -> list[dict]:
+    from . import demo_state
+    return demo_state.get("wg.peers", [
+        {"name": "alexandria-router", "ip": "10.47.0.2", "handshake": "28 s ago", "rx": 183_000_000, "tx": 912_000_000, "online": True},
+        {"name": "hub-laptop", "ip": "10.47.0.5", "handshake": "2 days ago", "rx": 2_100_000, "tx": 4_400_000, "online": False}])
+
+
+def next_peer_ip(conf: str, subnet: str) -> str | None:
+    """Pure: the first free host address in the WireGuard subnet (.2 to .249), from the config's AllowedIPs."""
+    prefix = subnet.split("/")[0].rsplit(".", 1)[0]
+    used = set(re.findall(rf"AllowedIPs\s*=\s*{re.escape(prefix)}\.(\d+)/32", conf))
+    n = next((i for i in range(2, 250) if str(i) not in used), None)
+    return f"{prefix}.{n}" if n else None
 
 
 def _ago(ts: int) -> str:
@@ -127,8 +140,15 @@ def add_wireguard_peer(name: str) -> dict:
     rc = _remote_cfg()
     if not NAME_RE.match(name or ""):
         return {"ok": False, "err": "name: letters, digits, dot, dash, underscore"}
-    if load().demo or not which("wg"):
-        return {"ok": True, "demo": True, "name": name, "config": f"[Interface]\nPrivateKey = (demo)\nAddress = 10.47.0.11/32\nDNS = 10.47.0.1\n\n[Peer]\nPublicKey = (server key)\nEndpoint = {rc['wg_endpoint'] or 'arise.example:51820'}\nAllowedIPs = {rc['wg_subnet']}, {rc['lan_subnet']}\nPersistentKeepalive = 25\n"}
+    if not load().demo and not which("wg"):
+        return {"ok": False, "err": "WireGuard is not installed (install.sh --wireguard); no peer was made"}
+    if load().demo:
+        peers = _sample_peers()
+        if any(x["name"] == name for x in peers):
+            return {"ok": False, "err": f"a device called {name} already has a key"}
+        ip = next_peer_ip("".join(f"AllowedIPs = {x['ip']}/32\n" for x in peers), rc["wg_subnet"]) or "10.47.0.249"
+        peers.append({"name": name, "ip": ip, "handshake": "never", "rx": 0, "tx": 0, "online": False})
+        return {"ok": True, "demo": True, "name": name, "ip": ip, "config": f"[Interface]\nPrivateKey = (sample)\nAddress = {ip}/32\nDNS = 10.47.0.1\n\n[Peer]\nPublicKey = (server key)\nEndpoint = {rc['wg_endpoint'] or 'arise.example:51820'}\nAllowedIPs = {rc['wg_subnet']}, {rc['lan_subnet']}\nPersistentKeepalive = 25\n"}
     iface = rc["wg_interface"]
     conf_path = f"/etc/wireguard/{iface}.conf"
     conf = read_text(conf_path, "")
@@ -137,13 +157,19 @@ def add_wireguard_peer(name: str) -> dict:
     m = re.search(r"^\s*PrivateKey\s*=\s*(\S+)", conf, re.M)
     if not m:
         return {"ok": False, "err": "server PrivateKey missing from the config"}
-    server_pub = run(["wg", "pubkey"], timeout=5, input_text=m.group(1))["out"].strip()
-    priv = run(["wg", "genkey"], timeout=5)["out"].strip()
-    pub = run(["wg", "pubkey"], timeout=5, input_text=priv)["out"].strip()
-    psk = run(["wg", "genpsk"], timeout=5)["out"].strip()
-    used = set(re.findall(r"AllowedIPs\s*=\s*10\.47\.0\.(\d+)/32", conf))
-    n = next(i for i in range(2, 250) if str(i) not in used)
-    ip = rc["wg_subnet"].rsplit(".", 1)[0] + f".{n}"
+    if name in _peer_names().values():
+        return {"ok": False, "err": f"a device called {name} already has a key"}
+    keys = [run(["wg", "pubkey"], timeout=5, input_text=m.group(1)), run(["wg", "genkey"], timeout=5)]
+    if not all(k["ok"] for k in keys):
+        return {"ok": False, "err": "wg could not make keys: " + next((k["err"] or k["out"]).strip() for k in keys if not k["ok"])[:200]}
+    server_pub, priv = keys[0]["out"].strip(), keys[1]["out"].strip()
+    pk, ps = run(["wg", "pubkey"], timeout=5, input_text=priv), run(["wg", "genpsk"], timeout=5)
+    if not (pk["ok"] and ps["ok"]):
+        return {"ok": False, "err": "wg could not make keys: " + ((pk["err"] or ps["err"]) or "").strip()[:200]}
+    pub, psk = pk["out"].strip(), ps["out"].strip()
+    ip = next_peer_ip(conf, rc["wg_subnet"])
+    if not ip:
+        return {"ok": False, "err": f"the WireGuard subnet {rc['wg_subnet']} is full"}
     with open(conf_path, "a", encoding="utf-8") as f:
         f.write(f"\n# {name} (added {datetime.now():%Y-%m-%d})\n[Peer]\nPublicKey = {pub}\nPresharedKey = {psk}\nAllowedIPs = {ip}/32\n")
     os.makedirs("/etc/wireguard/peers", exist_ok=True)

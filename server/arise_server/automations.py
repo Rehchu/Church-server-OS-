@@ -65,7 +65,8 @@ def describe(timer: str) -> tuple[str, str]:
 
 def list_automations() -> dict:
     if not available():
-        return {"demo": True, "never": NEVER, "timers": _demo()}
+        from . import demo_state
+        return {"demo": True, "never": NEVER, "timers": demo_state.get("timers", _demo)}
     r = run(["systemctl", "list-timers", "--all", "--no-pager", "--output=json"], timeout=15)
     rows = parse_timers_json(r["out"])
     out = []
@@ -88,8 +89,18 @@ def pause(timer: str, on: bool, confirm: str) -> dict:
     if confirm != timer:
         return {"ok": False, "err": "type the timer name to confirm"}
     if not available():
-        return {"ok": True, "demo": True, "out": f"(sample) systemctl {'enable' if on else 'disable'} --now {timer}"}
-    return run(["systemctl", "enable" if on else "disable", "--now", timer], timeout=30)
+        from . import demo_state
+        t = next((x for x in demo_state.get("timers", _demo) if x["timer"] == timer), None)
+        if not t:
+            return {"ok": False, "err": f"no timer called {timer}"}
+        t.update({"enabled": bool(on), "state": "enabled" if on else "disabled", "active": "active" if on else "inactive"})
+        if not on:
+            t["next"] = None
+        return {"ok": True, "demo": True, "enabled": bool(on), "out": f"(sample) {timer} {'resumed' if on else 'paused'}"}
+    r = run(["systemctl", "enable" if on else "disable", "--now", timer], timeout=30)
+    if not r["ok"]:
+        return {"ok": False, "err": f"systemctl {'enable' if on else 'disable'} --now {timer}: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
+    return {"ok": True, "enabled": bool(on), "out": f"{timer} {'resumed' if on else 'paused'}"}
 
 
 def _demo() -> list[dict]:

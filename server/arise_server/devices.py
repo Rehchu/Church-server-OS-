@@ -223,8 +223,8 @@ def scan(quiet: bool = False, wide: bool = False) -> dict:
 def list_devices() -> dict:
     cfg = load()
     if cfg.demo:
-        from . import demo
-        return {"demo": True, "meta": demo.DEVICES_META, "devices": demo.DEVICES, "network": {"subnet": "192.168.1.0/24", "iface": "eno1", "ip": "192.168.1.57"}}
+        from . import demo, demo_state
+        return {"demo": True, "meta": demo.DEVICES_META, "devices": demo_state.get("devices", demo.DEVICES), "network": {"subnet": "192.168.1.0/24", "iface": "eno1", "ip": "192.168.1.57"}}
     store = _load()
     meta = store.get("_meta", {})
     devs = [v for k, v in store.items() if not k.startswith("_")]
@@ -238,8 +238,21 @@ def list_devices() -> dict:
 
 def label(mac: str, name: str | None = None, note: str | None = None, kind: str | None = None) -> dict:
     mac = (mac or "").lower()
+    if kind is not None and kind and kind not in KINDS:
+        return {"ok": False, "err": f"kind must be one of {', '.join(KINDS)}"}
     if load().demo:
-        return {"ok": True, "demo": True}
+        from . import demo, demo_state
+        d = next((x for x in demo_state.get("devices", demo.DEVICES) if x["mac"].lower() == mac), None)
+        if not d:
+            return {"ok": False, "err": "no such device"}
+        if name is not None:
+            d["name"] = name.strip()[:60]
+        if note is not None:
+            d["note"] = note.strip()[:200]
+        if kind is not None:
+            d["kind"] = kind
+            d["kind_final"] = kind or d.get("guess") or "unknown"
+        return {"ok": True, "demo": True, "device": d}
     store = _load()
     d = store.get(mac)
     if not d:
@@ -260,11 +273,18 @@ def forget(mac: str) -> dict:
     """Drop a device that is gone for good from the list (it comes back if it is seen again)."""
     mac = (mac or "").lower()
     if load().demo:
-        return {"ok": True, "demo": True}
+        from . import demo, demo_state
+        devs = demo_state.get("devices", demo.DEVICES)
+        d = next((x for x in devs if x["mac"].lower() == mac), None)
+        if not d:
+            return {"ok": False, "err": "no such device"}
+        devs.remove(d)
+        return {"ok": True, "demo": True, "out": f"(sample) forgot {d.get('name') or mac}"}
     store = _load()
-    if mac in store:
-        del store[mac]
-        _save(store)
+    if mac not in store:
+        return {"ok": False, "err": "no such device"}
+    del store[mac]
+    _save(store)
     return {"ok": True}
 
 

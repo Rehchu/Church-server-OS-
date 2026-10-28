@@ -146,8 +146,19 @@ def import_contacts(contacts: list[dict]) -> dict:
     if _import_state.get("running"):
         return {"ok": False, "err": "an import is already running"}
     if load().demo:
-        _import_state.update({"running": False, "total": len(contacts), "done": len(contacts), "failed": 0, "started": datetime.now().isoformat(timespec="minutes"), "finished": datetime.now().isoformat(timespec="minutes"), "demo": True})
-        return {"ok": True, "demo": True, "queued": len(contacts)}
+        have = _sample_contacts()
+        seen = {c["email"].lower() for c in have}
+        added = 0
+        for c in contacts:
+            e = (c.get("email") or "").strip().lower()
+            if not e or e in seen:
+                continue
+            seen.add(e); added += 1
+            have.append({"id": f"c{len(have) + 1}", "email": e, "first_name": c.get("first_name", ""), "last_name": c.get("last_name", ""),
+                         "created_at": datetime.now().isoformat(timespec="seconds"), "unsubscribed": False})
+        now = datetime.now().isoformat(timespec="minutes")
+        _import_state.update({"running": False, "total": len(contacts), "done": added, "failed": 0, "skipped": len(contacts) - added, "errors": [], "started": now, "finished": now, "demo": True})
+        return {"ok": True, "demo": True, "queued": len(contacts), "added": added}
     a = ensure_audience()
     if not a["ok"]:
         return a
@@ -173,10 +184,20 @@ def import_status() -> dict:
     return dict(_import_state)
 
 
+def _sample_contacts() -> list[dict]:
+    from . import demo, demo_state
+    return demo_state.get("mail.contacts", demo.MAIL_CONTACTS)
+
+
+def _sample_broadcasts() -> list[dict]:
+    from . import demo, demo_state
+    return demo_state.get("mail.broadcasts", demo.MAIL_BROADCASTS)
+
+
 def contacts(limit: int = 2000) -> dict:
     if load().demo:
-        from . import demo
-        return {"demo": True, "audience": "demo-audience", "contacts": demo.MAIL_CONTACTS, "count": len(demo.MAIL_CONTACTS)}
+        rows = _sample_contacts()
+        return {"demo": True, "audience": "demo-audience", "contacts": rows[:limit], "count": len(rows)}
     a = ensure_audience()
     if not a["ok"]:
         return {"contacts": [], "count": 0, "err": a["err"]}
@@ -243,8 +264,13 @@ def send_test(to: str, subject: str, body_md: str) -> dict:
 
 def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:
     m = cfg_mail()
+    if not (subject or "").strip():
+        return {"ok": False, "err": "a subject first"}
     if load().demo:
-        return {"ok": True, "demo": True, "id": "demo-bc-" + str(int(time.time()))}
+        bc = {"id": "demo-bc-" + str(int(time.time() * 1000)), "name": name or subject, "subject": subject, "status": "draft",
+              "created_at": datetime.now().isoformat(timespec="seconds"), "sent_at": None, "audience_id": "demo-audience"}
+        _sample_broadcasts().append(bc)
+        return {"ok": True, "demo": True, "id": bc["id"], "broadcast": bc}
     if not m["from_email"]:
         return {"ok": False, "err": "set [mail] from_email in arise.toml first"}
     a = ensure_audience()
@@ -253,21 +279,31 @@ def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:
     body = {"audience_id": a["id"], "from": f"{m['from_name']} <{m['from_email']}>", "subject": subject, "html": render(subject, body_md), "name": name or subject}
     if m["reply_to"]:
         body["reply_to"] = m["reply_to"]
-    return _call("POST", "/broadcasts", body)
+    r = _call("POST", "/broadcasts", body)
+    if r.get("ok"):
+        r["id"] = (r.get("data") or {}).get("id", "")
+    return r
 
 
 def send_broadcast(bc_id: str, confirm: str) -> dict:
     if confirm != "send":
         return {"ok": False, "err": "type send to confirm: this goes to everyone on the list"}
     if load().demo:
-        return {"ok": True, "demo": True, "out": "(sample) would send the broadcast"}
+        bc = next((b for b in _sample_broadcasts() if b["id"] == bc_id), None)
+        if not bc:
+            return {"ok": False, "err": f"no broadcast {bc_id}"}
+        if bc["status"] == "sent":
+            return {"ok": False, "err": "that one has already gone"}
+        bc.update({"status": "sent", "sent_at": datetime.now().isoformat(timespec="seconds")})
+        return {"ok": True, "demo": True, "out": "(sample) sent to the sample list"}
+    if not (bc_id or "").strip():
+        return {"ok": False, "err": "no broadcast id"}
     return _call("POST", f"/broadcasts/{bc_id}/send", {})
 
 
 def broadcasts() -> dict:
     if load().demo:
-        from . import demo
-        return {"demo": True, "broadcasts": demo.MAIL_BROADCASTS}
+        return {"demo": True, "broadcasts": sorted(_sample_broadcasts(), key=lambda b: b.get("created_at") or "", reverse=True)}
     r = _call("GET", "/broadcasts")
     if not r["ok"]:
         return {"broadcasts": [], "err": r["err"]}

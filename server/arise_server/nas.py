@@ -23,8 +23,12 @@ def _mounted(path: str) -> bool:
 
 def status() -> dict:
     cfg = load()
+    if cfg.demo:
+        from . import demo_state
+        return {"demo": True, **demo_state.get("nas", demo.NAS)}
     if not available():
-        return {"demo": True, **demo.NAS}
+        return {"demo": False, "enabled": False, "mounted": False, "host": cfg.nas.host, "mount": cfg.nas.mount,
+                "note": "the Synology is not set up here yet ([nas] enabled = false in arise.toml)"}
     out = {"demo": False, "enabled": True, "host": cfg.nas.host, "mount": cfg.nas.mount, "protocol": cfg.nas.protocol, "share": cfg.nas.share,
            "mounted": _mounted(cfg.nas.mount), "total": None, "used": None, "free": None, "dsm": None, "domain_joined": None, "hyper_backup": None}
     if out["mounted"]:
@@ -42,23 +46,41 @@ def status() -> dict:
 
 def mount() -> dict:
     cfg = load()
+    if cfg.demo:
+        from . import demo_state
+        demo_state.get("nas", demo.NAS)["mounted"] = True
+        return {"ok": True, "demo": True, "out": "(sample) mounted"}
     if not available():
-        return {"ok": True, "demo": True}
+        return {"ok": False, "err": "the Synology is not set up here ([nas] enabled = false in arise.toml)"}
     if _mounted(cfg.nas.mount):
         return {"ok": True, "out": "already mounted"}
     os.makedirs(cfg.nas.mount, exist_ok=True)
-    if cfg.nas.protocol == "nfs":
-        return run(["mount", "-t", "nfs", f"{cfg.nas.host}:/volume1/{cfg.nas.share}", cfg.nas.mount], timeout=30)
-    cred = os.path.join(os.path.dirname(cfg.nas.dsm_credentials_file), "synology.cred")
+    r = run(mount_cmd(cfg.nas.protocol, cfg.nas.host, cfg.nas.share, cfg.nas.mount, os.path.join(os.path.dirname(cfg.nas.dsm_credentials_file), "synology.cred")), timeout=30)
+    if not r["ok"]:
+        return {"ok": False, "err": "mount: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
+    return {"ok": True, "out": f"mounted at {cfg.nas.mount}"}
+
+
+def mount_cmd(protocol: str, host: str, share: str, mount: str, cred: str) -> list[str]:
+    """Pure: the mount command for the Synology share (SMB 3 with a credentials file, or NFS)."""
+    if protocol == "nfs":
+        return ["mount", "-t", "nfs", f"{host}:/volume1/{share}", mount]
     opts = f"credentials={cred},vers=3.0,iocharset=utf8,uid=0,gid=0,file_mode=0660,dir_mode=0770,_netdev"
-    return run(["mount", "-t", "cifs", f"//{cfg.nas.host}/{cfg.nas.share}", cfg.nas.mount, "-o", opts], timeout=30)
+    return ["mount", "-t", "cifs", f"//{host}/{share}", mount, "-o", opts]
 
 
 def unmount() -> dict:
     cfg = load()
+    if cfg.demo:
+        from . import demo_state
+        demo_state.get("nas", demo.NAS)["mounted"] = False
+        return {"ok": True, "demo": True, "out": "(sample) unmounted"}
     if not available():
-        return {"ok": True, "demo": True}
-    return run(["umount", cfg.nas.mount], timeout=30)
+        return {"ok": False, "err": "the Synology is not set up here ([nas] enabled = false in arise.toml)"}
+    if not _mounted(cfg.nas.mount):
+        return {"ok": True, "out": "not mounted"}
+    r = run(["umount", cfg.nas.mount], timeout=30)
+    return {"ok": True, "out": "unmounted"} if r["ok"] else {"ok": False, "err": "umount: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
 
 
 def dsm_health() -> dict:

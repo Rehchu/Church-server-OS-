@@ -169,8 +169,10 @@ def rescue_rotate() -> dict:
     """A new 24-character password for arise-rescue, written to the secrets file only."""
     import secrets
     import string
-    if load().demo or not which("chpasswd"):
-        return {"ok": True, "demo": True}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) rotated; on the card"}
+    if not which("chpasswd"):
+        return {"ok": False, "err": "chpasswd is not installed; nothing was changed"}
     alphabet = string.ascii_letters + string.digits
     pw = "".join(secrets.choice(alphabet) for _ in range(24))
     r = run(["chpasswd"], timeout=10, input_text=f"{RESCUE_USER}:{pw}\n")
@@ -278,10 +280,16 @@ def parse_timeshift_list(out: str) -> list[dict]:
     return rows
 
 
+def _sample_snapshots() -> list[dict]:
+    return [{"num": 0, "name": "2026-10-25_03-30-02", "tags": "O", "note": "before update"}, {"num": 1, "name": "2026-10-28_03-30-01", "tags": "O", "note": "before update"}]
+
+
 def snapshot_list() -> dict:
-    if load().demo or not which("timeshift"):
-        return {"demo": True, "snapshots": [{"num": 0, "name": "2026-10-25_03-30-02", "tags": "O", "note": "before update"}, {"num": 1, "name": "2026-10-28_03-30-01", "tags": "O", "note": "before update"}],
-                "keep": SNAPSHOT_KEEP, "note": "sample: timeshift not installed here"}
+    if not load().demo and not which("timeshift"):
+        return {"demo": False, "snapshots": [], "error": "timeshift is not installed (install.sh step 6j installs it)"}
+    if load().demo:
+        from . import demo_state
+        return {"demo": True, "snapshots": demo_state.get("snapshots", _sample_snapshots)[-SNAPSHOT_KEEP:], "keep": SNAPSHOT_KEEP, "note": "sample: timeshift not installed here"}
     r = run(["timeshift", "--list"], timeout=60)
     return {"snapshots": parse_timeshift_list(r["out"]), "keep": SNAPSHOT_KEEP, "error": None if r["ok"] else (r["err"] or r["out"]).strip()[-300:]}
 
@@ -291,8 +299,13 @@ def snapshot_create(note: str = "") -> dict:
     bad = _refuse_in_service("The snapshot")
     if bad:
         return bad
-    if load().demo or not which("timeshift"):
-        return {"ok": True, "demo": True, "name": datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}
+    if load().demo:
+        from . import demo_state
+        name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        demo_state.get("snapshots", _sample_snapshots).append({"num": len(demo_state.get("snapshots", _sample_snapshots)), "name": name, "tags": "O", "note": note or "arisectl snapshot"})
+        return {"ok": True, "demo": True, "name": name}
+    if not which("timeshift"):
+        return {"ok": False, "err": "timeshift is not installed (install.sh step 6j installs it); no snapshot was taken"}
     note = (note or "arisectl snapshot")[:80]
     r = run(["timeshift", "--create", "--comments", note, "--tags", "O", "--scripted"], timeout=3600)
     if not r["ok"]:
@@ -303,8 +316,10 @@ def snapshot_create(note: str = "") -> dict:
 
 
 def snapshot_prune(keep: int = SNAPSHOT_KEEP) -> dict:
-    if load().demo or not which("timeshift"):
+    if load().demo:
         return {"ok": True, "demo": True, "removed": []}
+    if not which("timeshift"):
+        return {"ok": False, "err": "timeshift is not installed"}
     rows = [x for x in parse_timeshift_list(run(["timeshift", "--list"], timeout=60)["out"]) if "O" in x["tags"]]
     removed = []
     for x in rows[:-keep] if len(rows) > keep else []:
@@ -318,8 +333,10 @@ def snapshot_restore(name: str) -> dict:
     bad = _refuse_in_service("The restore")
     if bad:
         return bad
-    if load().demo or not which("timeshift"):
-        return {"ok": True, "demo": True}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": f"(sample) would roll the system back to {name}"}
+    if not which("timeshift"):
+        return {"ok": False, "err": "timeshift is not installed; nothing to restore from"}
     if not re.match(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$", name or ""):
         return {"ok": False, "err": "give the snapshot's name as listed, e.g. 2026-10-28_03-30-01"}
     r = run(["timeshift", "--restore", "--snapshot", name, "--scripted", "--yes"], timeout=3600)
@@ -364,10 +381,16 @@ def _reports_dir() -> Path:
     return Path("/var/log/arise")
 
 
+def _sample_scan() -> dict:
+    from . import demo_state
+    return demo_state.get("scan", lambda: {"last": {"when": "2026-10-26T23:31", "scanned": 18420, "infected": 1, "found": [{"file": "/srv/arise/shares/staff/USB import/invoice.pdf.exe", "sig": "Win.Trojan.Agent-1234 (sample)", "moved_to": QUARANTINE + "/2026-10-26/invoice.pdf.exe"}], "seconds": 1912.4, "ok": True},
+                                           "quarantined": [{"batch": "2026-10-26", "file": "/srv/arise/shares/staff/USB import/invoice.pdf.exe", "sig": "Win.Trojan.Agent-1234 (sample)", "moved_to": QUARANTINE + "/2026-10-26/invoice.pdf.exe"}]})
+
+
 def scan_status() -> dict:
     if load().demo:
-        return {"demo": True, "last": {"when": "2026-10-26T23:31", "scanned": 18420, "infected": 0, "found": [], "seconds": 1912.4, "ok": True},
-                "next": "Sunday 23:30", "quarantine": QUARANTINE, "installed": True, "quarantined": []}
+        st = _sample_scan()
+        return {"demo": True, "last": st["last"], "next": "Sunday 23:30", "quarantine": QUARANTINE, "installed": True, "quarantined": st["quarantined"]}
     reports = sorted(_reports_dir().glob("clamscan-*.json"))
     last = read_json(reports[-1], default=None) if reports else None
     q = []
@@ -387,8 +410,13 @@ def scan_run() -> dict:
     bad = _refuse_in_service("The virus scan")
     if bad:
         return bad
-    if load().demo or not which("clamscan"):
-        return {"ok": True, "demo": True, "scanned": 0, "infected": 0, "found": []}
+    if load().demo:
+        from . import demo_state
+        st = _sample_scan()
+        st["last"] = {"when": now_iso()[:16], "scanned": 18431, "infected": 0, "found": [], "seconds": 1890.0, "ok": True}
+        return {"ok": True, "demo": True, **st["last"]}
+    if not which("clamscan"):
+        return {"ok": False, "err": "clamav is not installed (install.sh step 6j); nothing was scanned"}
     stamp = datetime.now().strftime("%Y-%m-%d")
     qdir = Path(QUARANTINE) / stamp
     qdir.mkdir(parents=True, exist_ok=True)
@@ -420,7 +448,12 @@ def scan_restore(name: str, confirm: str) -> dict:
     if confirm != name:
         return {"ok": False, "err": "type the file's name to confirm"}
     if load().demo:
-        return {"ok": True, "demo": True}
+        st = _sample_scan()
+        row = next((q for q in st["quarantined"] if os.path.basename(q["file"]) == name), None)
+        if not row:
+            return {"ok": False, "err": f"{name} is not in quarantine"}
+        st["quarantined"].remove(row)
+        return {"ok": True, "demo": True, "out": f"(sample) {name} put back at {row['file']}"}
     for d in sorted(Path(QUARANTINE).glob("*")):
         man = read_json(d / "manifest.json", default=None) or {}
         for row in man.get("found", []):

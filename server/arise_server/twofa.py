@@ -15,6 +15,7 @@ signed, lives five minutes, and dies after three wrong codes.
 from __future__ import annotations
 
 import json
+import re
 import os
 import secrets
 import threading
@@ -123,16 +124,21 @@ def pending_attempt(nonce: str, correct: bool, wrong: dict | None = None, dead: 
 
 
 # ---- state -------------------------------------------------------------------------
+def _demo_on() -> set:
+    from . import demo_state
+    return demo_state.get("twofa.on", lambda: set(DEMO_ON))
+
+
 def enrolled(user: str) -> bool:
     if load().demo:
-        return user in DEMO_ON
+        return user in _demo_on()
     d = _read(user)
     return bool(d and d.get("on"))
 
 
 def status(user: str) -> dict:
     if load().demo:
-        on = user in DEMO_ON
+        on = user in _demo_on()
         return {"demo": True, "user": user, "on": on, "since": "2026-10-28T20:10" if on else None, "available": True}
     try:
         import pyotp  # noqa: F401
@@ -147,7 +153,7 @@ def status(user: str) -> dict:
 def who_has() -> list[str]:
     """Everyone with two-step on. Names only; no secrets."""
     if load().demo:
-        return list(DEMO_ON)
+        return sorted(_demo_on())
     out = []
     try:
         for p in sorted(_dir().glob("*.json")):
@@ -170,7 +176,9 @@ def setup(user: str) -> dict:
     if load().demo:
         secret = "ARISEOSSAMPLESECRETX"  # the sample: never a real key
         uri = provisioning_uri(secret, user)
-        return {"ok": True, "demo": True, "secret": secret, "uri": uri, "qr": qr_svg(uri), "on": user in DEMO_ON}
+        from . import demo_state
+        demo_state.get("twofa.pending", dict)[user] = secret
+        return {"ok": True, "demo": True, "secret": secret, "uri": uri, "qr": qr_svg(uri), "on": user in _demo_on()}
     d = _read(user) or {}
     if d.get("on"):
         return {"ok": False, "err": "Two-step is already on. Turn it off first (it asks for your password and a code)."}
@@ -183,7 +191,16 @@ def setup(user: str) -> dict:
 
 def enable(user: str, code: str) -> dict:
     if load().demo:
-        return {"ok": True, "demo": True, "on": True}
+        from . import demo_state
+        if user in _demo_on():
+            return {"ok": True, "demo": True, "on": True}
+        if user not in demo_state.get("twofa.pending", dict):
+            return {"ok": False, "err": "scan the code first (Two-step sign-in… in the flame menu)"}
+        if not re.fullmatch(r"\d{6}", (code or "").replace(" ", "")):
+            return {"ok": False, "err": "six digits from Microsoft Authenticator"}
+        demo_state.get("twofa.pending", dict).pop(user, None)
+        _demo_on().add(user)
+        return {"ok": True, "demo": True, "on": True, "since": datetime.now().isoformat(timespec="minutes")}
     d = _read(user)
     if not d or not d.get("secret"):
         return {"ok": False, "err": "scan the code first (Two-step sign-in… in the flame menu)"}
@@ -200,6 +217,9 @@ def enable(user: str, code: str) -> dict:
 def disable(user: str, password: str, code: str, by_admin: bool = False) -> dict:
     """Off again: the person's password and a current code, or an admin on the box (arisectl)."""
     if load().demo:
+        if not by_admin and not (password or "").strip():
+            return {"ok": False, "err": "wrong password"}
+        _demo_on().discard(user)
         return {"ok": True, "demo": True, "on": False}
     d = _read(user)
     if not d:

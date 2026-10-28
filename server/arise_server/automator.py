@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 from . import demo
 from .config import load
-from .util import now_iso, read_json, read_text
+from .util import now_iso, read_json, read_text, run, which
 
 _run_lock = threading.Lock()
 _last_manual: dict = {}
@@ -60,8 +60,12 @@ def overview() -> dict:
     if not available():
         d = dict(demo.AUTOMATOR)
         d["next_run"] = _next_run(cfg.automator.schedule)
-        d["demo"] = True
+        d["demo"] = cfg.demo
         d["schedule"] = cfg.automator.schedule
+        d["manual"] = dict(_last_manual)
+        d["timer_enabled"] = timer_enabled()
+        if not cfg.demo:
+            d["error"] = f"the automator is not on this server yet ({_paths()['script']} is missing)"
         return d
     p = _paths()
     latest = read_text(p["latest"], "")
@@ -155,13 +159,52 @@ def quota() -> dict:
     return {"demo": False, "ledger": read_json(_paths()["ledger"], default={})}
 
 
+def timer_enabled() -> bool:
+    """Is arise-automator.timer on? (CLAUDE.md rule 3: never run the real job by hand while it is.)"""
+    if load().demo:
+        from . import automations
+        return any(t["timer"] == "arise-automator.timer" and t.get("enabled") for t in automations.list_automations()["timers"])
+    if not which("systemctl"):
+        return False
+    return run(["systemctl", "is-enabled", "arise-automator.timer"], timeout=5)["out"].strip() == "enabled"
+
+
+def ran_tonight(now: float | None = None, hours: float = 12.0) -> bool:
+    """Did the real job already run in the last twelve hours (the timer's report, or a run from here)?"""
+    import time as _t
+    now = now or _t.time()
+    if load().demo:
+        return False
+    try:
+        if now - os.path.getmtime(_paths()["latest"]) < hours * 3600:
+            return True
+    except OSError:
+        pass
+    return False
+
+
+def run_refusal() -> str | None:
+    """Why a real run from the dashboard is refused, or None. Preview (the dry run) is never refused."""
+    if timer_enabled():
+        return "The nightly timer is on (02:05). A real run by hand would make two runs in one night. Use Preview, or pause the timer in Automations first."
+    if ran_tonight():
+        return "The automator already ran in the last twelve hours. It never runs twice in a night; use Preview."
+    return None
+
+
 def start(mode: str) -> dict:
     """mode: 'run' or 'preview' (dry run). Non-blocking; result lands in last-run.log and LATEST_REPORT.md."""
     if mode not in ("run", "preview"):
         return {"ok": False, "err": "mode must be run or preview"}
+    if mode == "run":
+        why = run_refusal()
+        if why:
+            return {"ok": False, "err": why}
+    if load().demo:
+        _last_manual.update({"mode": mode, "started": now_iso(), "finished": now_iso(), "ok": True, "demo": True, "out": f"(sample) {mode} of arise_daily.py"})
+        return {"ok": True, "demo": True, "mode": mode, "started": True}
     if not available():
-        _last_manual.update({"mode": mode, "started": now_iso(), "finished": now_iso(), "ok": True, "demo": True, "out": f"(demo) {mode} would start arise_daily.py"})
-        return {"ok": True, "demo": True, "mode": mode}
+        return {"ok": False, "err": f"the automator is not here ({_paths()['script']} is missing); the 04:00 mirror or a copy from the PC puts it there"}
     if not _run_lock.acquire(blocking=False):
         return {"ok": False, "err": "the automator is already running"}
     p = _paths()

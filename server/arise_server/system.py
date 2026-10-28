@@ -35,8 +35,10 @@ def updates() -> dict:
 
 def update_arise() -> dict:
     """git pull + pip install + restart. The timers keep running throughout."""
-    if load().demo or not os.path.isdir(os.path.join(ARISE_HOME, ".git")):
-        return {"ok": True, "demo": True, "out": "(demo) git pull && pip install -r server/requirements.txt && systemctl restart arise-web"}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) git pull && pip install -r server/requirements.txt && systemctl restart arise-web"}
+    if not os.path.isdir(os.path.join(ARISE_HOME, ".git")):
+        return {"ok": False, "err": f"{ARISE_HOME} is not a git checkout, so there is nothing to pull; reinstall from the repo"}
     steps = [
         ["git", "-C", ARISE_HOME, "pull", "--ff-only"],
         [os.path.join(ARISE_HOME, "venv", "bin", "pip"), "install", "-q", "-r", os.path.join(ARISE_HOME, "server", "requirements.txt")],
@@ -55,8 +57,10 @@ def update_arise() -> dict:
 
 
 def apt_upgrade() -> dict:
-    if load().demo or not which("apt-get"):
-        return {"ok": True, "demo": True}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) apt-get upgrade"}
+    if not which("apt-get"):
+        return {"ok": False, "err": "apt-get is not here; this is not an Ubuntu box"}
     env = dict(os.environ, DEBIAN_FRONTEND="noninteractive")
     import subprocess
     p = subprocess.run(["apt-get", "-y", "-q", "upgrade"], capture_output=True, text=True, timeout=3600, env=env)
@@ -68,9 +72,14 @@ def power(action: str, confirm: str) -> dict:
         return {"ok": False, "err": "action must be reboot or poweroff"}
     if confirm != action:
         return {"ok": False, "err": f"type {action} to confirm"}
-    if load().demo or not which("systemctl"):
-        return {"ok": True, "demo": True}
-    return run(["systemctl", action], timeout=10)
+    if load().demo:
+        return {"ok": True, "demo": True, "out": f"(sample) systemctl {action}"}
+    if not which("systemctl"):
+        return {"ok": False, "err": "systemctl is not here; nothing was done"}
+    r = run(["systemctl", action], timeout=10)
+    if not r["ok"]:
+        return {"ok": False, "err": f"systemctl {action}: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
+    return {"ok": True, "out": f"{'restarting' if action == 'reboot' else 'shutting down'} now"}
 
 
 # ----- the daily notification -------------------------------------------------

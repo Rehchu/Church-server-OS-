@@ -84,12 +84,13 @@ def all_of(folder: str, who: dict | None = None) -> dict:
         return {"error": "not one of the home folders", "entries": []}
     entries = []
     if cfg.demo:
-        for path, es in DEMO_TREE.items():
+        t = tree()
+        for path, es in t.items():
             parts = path.split("/")
             if len(parts) == 4 and parts[1] == "homes" and parts[3] == folder:
                 for e in es:
-                    entries.append({"owner": parts[2], "name": e[0], "dir": e[1], "size": e[2] if len(e) > 2 else None, "mtime": "2026-10-26T14:02", "root": "data", "path": f"{path}/{e[0]}"})
-        owners = sorted({p.split("/")[2] for p in DEMO_TREE if p.startswith("/homes/") and len(p.split("/")) == 3})
+                    entries.append({"owner": parts[2], **entry_dict(e), "root": "data", "path": f"{path}/{e[0]}"})
+        owners = sorted({p.split("/")[2] for p in t if p.startswith("/homes/") and len(p.split("/")) == 3})
         return {"demo": True, "folder": folder, "owners": owners, "entries": entries}
     homes = cfg.directory.homes_path
     owners = []
@@ -151,6 +152,81 @@ def _demo_rel(root_id: str, rel: str, who: dict | None) -> str | None:
     return None
 
 
+# ---- the sample file system (demo mode) ------------------------------------------
+# DEMO_TREE is the seed. tree() is the live copy a sample server's clicks change:
+# New Folder, Upload, Trash, Put Back, Save in the editor. In memory only.
+def tree() -> dict:
+    from . import demo_state
+    return demo_state.get("files.tree", DEMO_TREE)
+
+
+def _now_min() -> str:
+    return datetime.now().isoformat(timespec="minutes")
+
+
+def entry_dict(e: tuple) -> dict:
+    return {"name": e[0], "dir": e[1], "size": (e[2] if len(e) > 2 else None), "mtime": (e[3] if len(e) > 3 else "2026-10-26T14:02")}
+
+
+def _split(key: str) -> tuple[str, str]:
+    key = "/" + key.strip("/")
+    parent, _, name = key.rpartition("/")
+    return (parent or "/"), name
+
+
+def _join(parent: str, name: str) -> str:
+    return parent.rstrip("/") + "/" + name
+
+
+def demo_find(key: str) -> tuple | None:
+    parent, name = _split(key)
+    return next((e for e in tree().get(parent, []) if e[0] == name), None)
+
+
+def demo_add(parent: str, name: str, is_dir: bool, size: int | None = None) -> dict:
+    t = tree()
+    es = t.setdefault(parent, [])
+    if any(e[0] == name for e in es):
+        return {"ok": False, "err": f"{name} already exists here"}
+    es.append((name, bool(is_dir), None if is_dir else int(size or 0), _now_min()))
+    if is_dir:
+        t.setdefault(_join(parent, name), [])
+    return {"ok": True}
+
+
+def demo_take(key: str) -> dict | None:
+    """Take an entry, and everything under it, out of the sample tree (for the Trash)."""
+    t = tree()
+    key = "/" + key.strip("/")
+    parent, name = _split(key)
+    e = next((x for x in t.get(parent, []) if x[0] == name), None)
+    if not e:
+        return None
+    t[parent].remove(e)
+    sub = {k: t.pop(k) for k in list(t) if k == key or k.startswith(key + "/")}
+    from . import demo_state
+    txt = demo_state.get("files.text", dict)
+    texts = {k: txt.pop(k) for k in list(txt) if k == key or k.startswith(key + "/")}
+    return {"key": key, "entry": e, "sub": sub, "texts": texts}
+
+
+def demo_put(parent: str, taken: dict, name: str | None = None) -> str:
+    """Put a taken entry back under `parent` (as `name`); returns its new key."""
+    t = tree()
+    e = taken["entry"]
+    name = name or e[0]
+    new_key = _join(parent, name)
+    t.setdefault(parent, []).append((name, *e[1:]))
+    old = taken["key"]
+    for k, v in taken["sub"].items():
+        t[new_key + k[len(old):]] = v
+    from . import demo_state
+    txt = demo_state.get("files.text", dict)
+    for k, v in taken.get("texts", {}).items():
+        txt[new_key + k[len(old):]] = v
+    return new_key
+
+
 def _resolve(root: str, rel: str) -> str | None:
     base = os.path.realpath(root)
     target = os.path.realpath(os.path.join(base, rel.lstrip("/")))
@@ -166,9 +242,11 @@ def listing(root_id: str, rel: str = "/", who: dict | None = None) -> dict:
         return {"error": "unknown root"}
     root = rs[root_id]["path"]
     rel = "/" + rel.strip("/") if rel.strip("/") else "/"
-    if cfg.demo or not os.path.isdir(root):
-        entries = DEMO_TREE.get(_demo_rel(root_id, rel, who) or "", [])
-        return {"demo": True, "root": root_id, "path": rel, "entries": [{"name": e[0], "dir": e[1], "size": (e[2] if len(e) > 2 else None), "mtime": "2026-10-26T14:02"} for e in entries]}
+    if cfg.demo:
+        entries = sorted(tree().get(_demo_rel(root_id, rel, who) or "", []), key=lambda e: (not e[1], e[0].lower()))
+        return {"demo": True, "root": root_id, "path": rel, "entries": [entry_dict(e) for e in entries]}
+    if not os.path.isdir(root):
+        return {"error": f"{root} is not on this server yet", "root": root_id, "path": rel, "entries": []}
     target = _resolve(root, rel)
     if not target or not os.path.isdir(target):
         return {"error": "not a folder", "root": root_id, "path": rel}
@@ -205,13 +283,19 @@ def _writable(rs: dict, root_id: str) -> bool:
 def save_upload(root_id: str, rel: str, filename: str, data: bytes, who: dict | None = None) -> dict:
     cfg = load()
     rs = {r["id"]: r for r in roots(who)}
-    if root_id in rs and not _writable(rs, root_id):
+    if root_id not in rs:
+        return {"ok": False, "err": "not a place you can upload to"}
+    if not _writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
-    if root_id not in rs or cfg.demo:
-        return {"ok": True, "demo": True}
     name = os.path.basename(filename or "").replace("\x00", "")
     if not name or name.startswith("."):
         return {"ok": False, "err": "bad file name"}
+    if cfg.demo:
+        key = _demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
+        if key is None:
+            return {"ok": False, "err": "the sample has nothing there"}
+        r = demo_add(key, name, False, len(data))
+        return {**r, "demo": True, "bytes": len(data)} if r["ok"] else r
     folder = _resolve(rs[root_id]["path"], rel)
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
@@ -226,13 +310,19 @@ def save_upload(root_id: str, rel: str, filename: str, data: bytes, who: dict | 
 def make_folder(root_id: str, rel: str, name: str, who: dict | None = None) -> dict:
     cfg = load()
     rs = {r["id"]: r for r in roots(who)}
-    if root_id in rs and not _writable(rs, root_id):
+    if root_id not in rs:
+        return {"ok": False, "err": "not a place you can make a folder in"}
+    if not _writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
-    if root_id not in rs or cfg.demo:
-        return {"ok": True, "demo": True}
     name = os.path.basename(name or "").strip()
     if not name or name.startswith(".") or "/" in name:
         return {"ok": False, "err": "bad folder name"}
+    if cfg.demo:
+        key = _demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
+        if key is None:
+            return {"ok": False, "err": "the sample has nothing there"}
+        r = demo_add(key, name, True)
+        return {**r, "demo": True} if r["ok"] else r
     folder = _resolve(rs[root_id]["path"], rel)
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
@@ -294,7 +384,7 @@ def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
     member = who is not None and who.get("role") != "admin"
     if cfg.demo:
         hits = []
-        for path, entries in DEMO_TREE.items():
+        for path, entries in tree().items():
             for e in entries:
                 if q in e[0].lower():
                     hits.append({"root": "data", "path": (path.rstrip("/") + "/" + e[0]), "name": e[0], "dir": e[1], "size": e[2] if len(e) > 2 else None})
