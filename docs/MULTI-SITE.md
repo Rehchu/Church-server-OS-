@@ -106,6 +106,10 @@ everything it is not authoritative for to the forwarder in `arise.toml`.
 
 ## A second domain controller at Alexandria
 
+Superseded on Oct 28 by the node plan (docs/NODES.md): the second domain
+controller is **Arise-Home** first, at Bradly's house, and Arise-Alexandria
+when a third PC comes. The mechanics below still apply to either.
+
 Not needed on day one. Add one when Alexandria has more than a handful of
 domain Macs and logins there must survive the tunnel being down (a cached
 mobile account covers the common case; a second DC covers new users, password

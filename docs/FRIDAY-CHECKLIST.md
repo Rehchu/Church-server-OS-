@@ -2,10 +2,12 @@
 
 Photos are fine for all of it. Nothing on this list changes a setting.
 
-## The Dell (questions 1 to 3)
-- [ ] The model sticker (e.g. "OptiPlex 7050 SFF") and the service tag.
-- [ ] RAM and drives: boot it once, F2 at the Dell logo, read System Information. Or the sticker inside the lid.
-- [ ] Is there a free drive bay or M.2 slot? One look inside.
+## The two Windows PCs (round 4, 109 and 111: the stronger one is Arise-Pineville)
+- [ ] The Dell: the model sticker (e.g. "OptiPlex 7050 SFF") and the service tag.
+- [ ] The other PC: make and model (a sticker, or Settings > System > About on Windows).
+- [ ] For both: RAM, the disk's size and whether it is an SSD, the CPU (Settings > System > About, or F2 at boot). That decides which is Pineville and the disk split (91).
+- [ ] For both: is there a TPM 2.0 (Windows: `tpm.msc`, or BIOS > Security)? The encrypted disk unlocks by itself only with one.
+- [ ] Is there a free drive bay or M.2 slot? One look inside each.
 
 ## The Synology (questions 4 to 7)
 - [ ] Model (the sticker on the back) and how many bays are filled.
@@ -32,6 +34,12 @@ Photos are fine for all of it. Nothing on this list changes a setting.
 ## Power and the closet
 - [ ] The UPS model (for auto-shutdown).
 - [ ] A free wired port by the closet for the server.
+
+## Online, not at the church
+- [ ] Discord: four channels (#alerts, #sunday, #weekly, #daily) and a webhook URL for each (docs/DISCORD.md). Keep the URLs for the server only.
+- [ ] The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (the YouTube token).
+- [ ] Resend: the account, the domain to verify, the API key, the Wix contacts export.
+- [ ] The printer's brand and model (for CUPS and scanning).
 
 ## While you are there
 - [ ] Count the Macs, note the oldest macOS version, and which Mac runs Proclaim.

@@ -30,6 +30,11 @@ journalctl -u samba-ad-dc -n 100           the domain
 ls /var/log/arise/                         install, backup and automator logs
 sudo arisectl backup status                last backups, with the reason for a failure
 sudo arisectl automator status             the nightly YouTube job
+sudo arisectl security                     encryption, the virus scan, the certificate, two-step, arise-rescue
+sudo arisectl update                       what Software Update is waiting to install
+arisectl automations list                  every timer, next run, last result
+arisectl storage                           what is eating the disk
+arisectl trash list                        what sits in the shares' Trash
 ```
 
 ## Rules that do not bend
@@ -51,9 +56,11 @@ sudo arisectl automator status             the nightly YouTube job
    `arisectl share add` / `remove`, which write `arise-shares.conf` instead.
 5. Prefer `arisectl` verbs over raw commands; they log, they refuse the
    dangerous shapes, and the dashboard agrees with them.
-6. Secrets stay where they are: `/etc/arise/secrets/`, the apps' `.env`
-   files, `token.json`. Never print one into the conversation, never move
-   one into git, never paste one into a doc.
+6. Secrets stay where they are: `/etc/arise/secrets/` (the restic password,
+   `vapid.json`, `apps/*.env`, `totp/<user>.json`, `rescue-password`,
+   `wayvnc`, `discord.toml`), the apps' `.env` files, `token.json`, and
+   `/etc/arise/SAFE-CARD.txt`. Never print one into the conversation, never
+   move one into git, never paste one into a doc.
 7. Nothing on this box is reachable from the internet, by Bradly's choice.
    Do not open a port, add a port forward, or turn `public_url` on.
 8. `--staging` means the box is at Bradly's house: the domain is on
@@ -61,6 +68,14 @@ sudo arisectl automator status             the nightly YouTube job
    relocates it.
 9. Tell him what failed. A command that did nothing is a result to report,
    not a step to skip.
+10. You may fix small things yourself and tell him after (round 4, 43):
+    restart a stuck service, re-run a failed backup, clear a full log, put
+    a timer back. Anything bigger (a user, a share, an app's data, the
+    network, the domain) waits for his word.
+11. You talk to Bradly only (round 4, 44). Members get the Help app, not
+    you. This file is yours to edit (45); keep it short and true.
+12. Never during a service: Sundays 10:30, Mondays 19:00. The verbs refuse;
+    so do you. A delete in Finder is a move to the Trash; emptying it is his.
 
 ## The timers
 
@@ -69,8 +84,14 @@ sudo arisectl automator status             the nightly YouTube job
 | 02:05 | `arise-automator.timer` | the nightly YouTube job |
 | 03:00 | `arise-backup.timer` | restic to the Synology (30/12/24 kept) |
 | 04:00 | `arise-mirror.timer` | GitHub mirror refresh |
-| 07:00 | `arise-notify.timer` | the daily note (off: no webhook set) |
+| 04:30 | `arise-trash.timer` | the 30-day Trash sweep |
+| 07:00 | `arise-notify.timer` | the daily note (off: no webhook set; Discord's #daily is the plan) |
 | hourly | `arise-devices.timer` | the network scan |
+| every 15 min | `arise-idle-apps.timer` | idle desktop programs stopped |
+| monthly | `arise-drill.timer` | the restore drill |
+| Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |
+| Sun 23:30 | `arise-clamscan.timer` | the virus scan of the shares |
+| 23:00 / 06:00 | `arise-monitor-off/on.timer` | the closet panel sleeps and wakes |
 
 Do not schedule anything during a service: Sundays 10:30, Mondays 19:00.
 

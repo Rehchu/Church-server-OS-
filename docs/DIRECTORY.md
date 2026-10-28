@@ -169,8 +169,14 @@ opens (answers 25, 27 and 37):
 | `Volunteers` | nobody today: volunteers use a department login (answer 24) | kept for the day that changes |
 | `Kids-Check-in` | nobody today: there is no check-in station yet (answer 28) | the check-in machine login, later |
 
-Other departments get the same shape when their names come: one group, one
-shared login, one share. Nine shares in all today: `staff`, `leadership`,
+Other departments get the same shape when their names come. Bradly's rule
+since round 4 (104): **everyone has their own account**; a department is a
+*group* with its own share folder (and, when the mail server comes, its own
+address), and being in the group is what opens it. The shared department
+logins in the table above are the sample data's shape from round 1 and are
+not needed. Round 4 (99) also adds a **staff tier** in the dashboard: anyone
+in `Staff` or `Media` sees Photos, Notes and, later, the transcripts and the
+calendar's edit buttons; that tier is the next block, not yet in the code. Nine shares in all today: `staff`, `leadership`,
 `media`, `kids`, `graphics`, `childrens-department`, `inedge`, `worship`,
 `recordings`. `recordings` is on the Synology, holds every Sunday's video
 (answer 51), and is excluded from restic because a file of several GB a
@@ -189,23 +195,19 @@ Samba's defaults after `samba-tool domain provision`:
 | Maximum age | 42 days | **too short for a church** — people forget, Bradly gets the call |
 | Lockout | off | |
 
-Bradly's choice (answer 26): never expires, 12 characters minimum, lockout
-after 10 failures. The settings:
+Bradly's choice (answer 26, then round 3, 27): never expires, 12 characters
+minimum, **no lockout**. The settings the installer's step 5b applies:
 
 ```bash
 samba-tool domain passwordsettings set --max-pwd-age=0        # never expires
 samba-tool domain passwordsettings set --min-pwd-length=12
 samba-tool domain passwordsettings set --complexity=on
-samba-tool domain passwordsettings set --account-lockout-threshold=10
+samba-tool domain passwordsettings set --account-lockout-threshold=0   # none (round 3, 27)
 ```
 
-When someone locks themselves out, unlock them with:
-
-```bash
-arisectl user enable <name>
-# or directly
-samba-tool user unlock <name>
-```
+The dashboard shows these rules in words, with a strength meter, when
+someone changes their password (`GET /api/me/password/rules`). Two-step
+sign-in is optional per person on top (docs/SECURITY.md).
 
 See the current policy any time with `samba-tool domain passwordsettings show`.
 
@@ -234,8 +236,11 @@ stay readable to Domain Admins.
 
 ## Joining a Windows PC
 
-There are no Windows PCs at the church today (answer 31); the Proclaim
-machine is a Mac. This is reference for the day one appears. Windows 10/11
+Bradly (round 4, 26): "add windows pc capabilities just in case we get them
+at a location". The two Windows PCs the church has become the ariseOS nodes
+(docs/NODES.md), so today this is still reference. The decided shape (67)
+is a join script from the dashboard that joins, maps the shares as drives
+and trusts the church certificate, nothing else; not yet built. Windows 10/11
 **Pro** or better (Home edition cannot join a domain):
 
 1. Make sure the PC's DNS is the server (it will be, from DHCP).

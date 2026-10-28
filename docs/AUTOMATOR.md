@@ -5,6 +5,15 @@ The nightly YouTube job — `automator/arise_daily.py` in the
 to a systemd timer on Arise Server. Same script, same 2:05 AM, same rules. The
 server adds a place to see it: the dashboard's Automator page.
 
+Bradly's rules, Oct 28 (round 4, 95 and 96): **the server runs the real
+nightly job; the PC keeps the working copy, the dev work and its own backups
+as it does now.** The repo is the sync path: Bradly keeps it current from
+the PC, the server's 04:00 mirror and its checkout pull it, restic backs the
+server's copy up to the Synology. Nothing on the server ever writes back to
+the PC. Which machine holds which YouTube token is **still open**: paste
+docs/ASK-THE-AUTOMATOR-CHAT.md into the automator's own chat and bring the
+answers back (97).
+
 Nothing about *what* the automator does changes. Its hold list, quota ledger,
 worklist and report format are its own; this server runs it and shows the
 output.

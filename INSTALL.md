@@ -43,7 +43,7 @@ Boot the PC from the stick and answer the installer:
 | Network | leave DHCP for now; note the address it shows |
 | Proxy | blank |
 | Mirror | leave it |
-| Storage | **Use an entire disk**, tick **Set up this disk as an LVM group**. Pick the disk; confirm it wipes it. |
+| Storage | **Use an entire disk**, tick **Set up this disk as an LVM group** and **Encrypt the LVM group with LUKS** (round 3, 22; the passphrase goes on the safe card, the TPM unlocks it after step 6j). Pick the disk; confirm it wipes it. |
 | Profile | Your name: `Bradly Dyer` · server name: **`arise-server`** · username: `bradly` · a password you will remember |
 | Ubuntu Pro | Skip |
 | SSH | **Install OpenSSH server** — tick it. Then you can do the rest from your own PC. |
@@ -86,6 +86,30 @@ the log (`/var/log/arise/install.log`). Fix the cause and run it again — it
 skips what is already done. Flags if you need them: `--skip-docker` (no
 apps), `--skip-domain` (no AD, for a test box), `--dry-run` (prints the plan,
 changes nothing).
+
+Flags that arrived with v0.8 (the installer's header lists them all):
+
+| Flag | What it does |
+|---|---|
+| `--ssh-key "ssh-ed25519 AAAA… name"` or `--ssh-key-file FILE` | enrols your public key for the admin user. **SSH is keys only**: password login is off, always (round 4, 33). With no key, SSH is closed until one is added; the closet monitor still signs in |
+| `--no-caddy` | Caddy is now **on by default**: the dashboard behind `https://arise-server.ad.arisecenla.church` with the box's own certificate authority (round 3, 29). The root certificate is at `http://arise-server:4147/ca.crt`; `enroll-mac.sh` and `bind-mac.sh --dns` trust it on each Mac |
+| `--no-tpm` | do not bind the encrypted disk to the TPM. Default: if the disk is LUKS and a TPM 2.0 is there, step 6j asks the passphrase once and binds it, so the box boots alone (round 3, 22) |
+| `--no-safety` | skip step 6j: the break-glass admin, ClamAV, Timeshift, the TPM binding, the safe card |
+| `--restore REPO` | **reinstall**: on a fresh Ubuntu, step 0b pulls `/etc/arise`, `/etc/samba`, the domain's offline backup and the pinned address back from that restic repository first, then installs around them. docs/REINSTALL.md |
+| `--apps "a,b"` / `--no-apps` | the default is now **every template** (step 6a runs `arisectl app install-all`): all deployed, the autostart ones started within the memory budget, the heavy ones left stopped |
+| `--kiosk` | also installs step 6d-2: the panel off at 23:00 and on at 06:00, and Screen Sharing of it through Guacamole (wayvnc) |
+
+The disk: Bradly has not decided one partition or two (round 4, 91: "depends
+on the storage of the OptiPlex", specs Friday). Both shapes work. One
+partition is what the Ubuntu screen above does; two partitions (80 GB for
+the system, the rest at `/srv/arise`) mean a runaway log can never fill the
+church's files, only the data half needs the TPM-unlocked encryption, and a
+reinstall can wipe the system half alone. Pick **Encrypt** on the Ubuntu
+storage screen either way; it cannot be added later (docs/SECURITY.md).
+
+The install wizard (round 4, 59: a short on-screen set of questions, flags
+still working) is decided and not yet built; today the flags are the
+questions.
 
 ### 5. Fixed address: automatic, nothing to type
 
@@ -206,19 +230,49 @@ root-only; the same values sit in the app's own `.env`.
 | Guacamole (remote desktop) | `http://arise-server:8084/guacamole` | `guacadmin` / `guacadmin`, change at once |
 | Owncast (own live page) | `http://arise-server:8087` | `admin` / `abc123` at `/admin`, change at once |
 | Icecast (audio to phones) | `http://arise-server:8000` | source and admin passwords in the secrets file |
+| Trilium (Notes, app 28) | `http://arise-server:8090` | set the password on first visit |
+| Immich (Photos, app 29) | `http://arise-server:2283` (see its template) | you make the admin on first visit; staff only |
 
-Not deployed by default, one command away: `frigate` (needs the cameras
-reachable), `churchcrm`, `nextcloud`, `moodle`, `mattermost`, `synapse`,
-`kimai`, `trilium`, `phplist`, `nginx-rtmp`, `filebrowser`, `wg-easy`.
-`sudo arisectl app deploy <name>`; `--apps "a,b"` on the installer chooses a
-different set, `--no-apps` none.
+**Every template is preinstalled** (Bradly, round 3, 5), and the honest
+memory reality is this: the 26 templates together want far more RAM than
+one PC has, so step 6a deploys every one (images pulled, passwords
+generated, compose written) and starts only the ones marked `autostart` in
+their `template.yaml`, biggest last, until the box's RAM minus a 2 GB
+reserve for the domain and the dashboard is spoken for. Thirteen autostart
+today: netdata, uptime-kuma, netalertx, portainer, bookstack, jellyfin,
+syncthing, vaultwarden, guacamole, owncast, icecast, trilium, immich. The
+rest (`frigate`, `churchcrm`, `nextcloud`, `moodle`, `mattermost`, `synapse`,
+`kimai`, `phplist`, `nginx-rtmp`, `filebrowser`, `wg-easy`, `ollama`,
+`open-webui`) are deployed and stopped; the Store starts one with a click
+and shows the memory it costs. Every app runs under a memory and CPU cap
+from its template (round 3, 40), and `arisectl doctor` warns when the
+autostart caps would exceed the budget. `--apps "a,b"` on the installer
+narrows the set, `--no-apps` deploys none. docs/STORE.md.
 
 Every app answers the church LAN and the VPN only. Docker's published ports
 bypass the normal firewall, so a small unit (`arise-docker-firewall`)
 rewrites the chain Docker honours at every boot; in staging the allowed
 list is empty and nothing at home can reach a container.
 
-## Also installed: the splash, the UPS daemon, the drill, the closet card
+## The timers
+
+| When (America/Chicago) | Unit | What |
+|---|---|---|
+| 02:05 | `arise-automator.timer` | the nightly YouTube job |
+| 03:00 | `arise-backup.timer` | restic to the Synology, 30/12/24 kept |
+| 04:00 | `arise-mirror.timer` | the GitHub mirror |
+| 04:30 | `arise-trash.timer` | what has sat in a share's Trash for 30 days goes; stale upload parts after 3 days |
+| hourly | `arise-devices.timer` | the network scan |
+| every 15 min | `arise-idle-apps.timer` | desktop programs nobody has used for an hour are stopped |
+| monthly | `arise-drill.timer` | the restore drill |
+| Saturday 03:30 | `arise-update.timer` | only what Software Update queued: a snapshot first, a reboot only if needed |
+| Sunday 23:30 | `arise-clamscan.timer` | the virus scan of the shares, video skipped, quarantine, a push |
+| 23:00 / 06:00 | `arise-monitor-off.timer` / `arise-monitor-on.timer` | the closet panel sleeps and wakes (`--kiosk`) |
+
+Nothing runs during a service (Sundays 10:30, Mondays 19:00); the verbs
+behind these timers refuse to.
+
+## Also installed: the splash, the UPS daemon, the drill, the closet card, the safety basics
 
 - **Boot splash** (`--no-splash` to skip): the ariseOS Plymouth theme and a
   quiet kernel; docs/CONSOLE.md § The boot splash.
@@ -229,8 +283,25 @@ list is empty and nothing at home can reach a container.
 - **Restore drill**: `arise-drill.timer`, monthly; docs/BACKUPS.md § The restore drill.
 - **The closet card**: `/srv/arise/shares/staff/CLOSET-CARD.html` (also in
   `/etc/arise/`): the box's addresses, the three commands, where the backups
-  and the secrets are, who to call (write the phone numbers by hand). Print
-  it, tape it to the closet door.
+  and the secrets are, who to call (write the phone numbers by hand), and a
+  hand-written line for the restic password (Bradly's rule: the closet card
+  is its only paper copy). Print it, tape it to the closet door.
+- **The SAFE card** (step 6j): `/etc/arise/SAFE-CARD.txt`, root only, printed
+  with `sudo arisectl rescue card`: the `arise-rescue` password and a line
+  for the disk passphrase. **In the safe, never on the door.** It is a
+  different card from the closet card on purpose.
+- **The safety basics** (step 6j, `--no-safety` to skip; docs/SECURITY.md):
+  `arise-rescue`, a local break-glass admin that signs in at the closet
+  monitor when the domain itself is down (never SSH, never the dashboard;
+  every use is pushed to Bradly); ClamAV and its Sunday scan; Timeshift and
+  the first system snapshot; the TPM binding for the encrypted disk.
+- **Step 5b** sets the domain's password policy with **no lockout**
+  (round 3, 27); **step 6b** removes fail2ban if it was ever there and sets
+  sshd to keys only; **step 6f** keeps the journal a year (4 GB cap) and
+  rotates `/var/log/arise` weekly, 52 kept.
+- **BIOS**: set the PC to power on by itself after a power cut (round 4,
+  61): on a Dell, F2 → Power Management → **AC Recovery: Power On**. The
+  installer cannot reach the BIOS; it prints this reminder at the end.
 
 ## Installing at home first, then carrying it to the church
 
@@ -415,10 +486,11 @@ somewhere else. The full story, with the trade-offs, is
 (Pineville, Alexandria, the Apostolic Hub) is
 [docs/MULTI-SITE.md](docs/MULTI-SITE.md). The short version:
 
-1. **Put your SSH key on it before the door closes.** From your Mac:
-   `ssh-keygen -t ed25519` (once), then `ssh-copy-id bradly@arise-server`.
-   The installer only turns password login off once a key is there; re-run it
-   after `ssh-copy-id` and it does.
+1. **Put your SSH key on it before the door closes.** Give the installer
+   `--ssh-key-file ~/.ssh/id_ed25519.pub` (or run `ssh-copy-id bradly@arise-server`
+   from your Mac, then re-run the installer). Password login over SSH is off
+   from the first run; with no key, SSH stays closed and the closet monitor
+   is the way in.
 2. **The VPN.** Re-run the installer with a flag:
    - `--with-tailscale` (recommended): installs Tailscale and prints the
      `sudo tailscale up --ssh --advertise-routes=…` line, which needs a browser
@@ -431,13 +503,15 @@ somewhere else. The full story, with the trade-offs, is
 3. **Remote desktop.** `sudo arisectl app deploy guacamole`, do the one-time
    database step in its template notes, open `http://arise-server:8084/guacamole`,
    change `guacadmin`, add the Macs (VNC) and PCs (RDP).
-4. **HTTPS.** `--with-caddy` puts the dashboard, Vaultwarden and Guacamole
-   behind `https://…ad.arisecenla.church` with the server's own CA; trust the
-   root certificate once per device.
+4. **HTTPS.** Caddy is on by default (`--no-caddy` to skip): the dashboard,
+   Vaultwarden and Guacamole behind `https://…ad.arisecenla.church` with the
+   server's own CA. Every enrolled Mac trusts the root certificate through
+   `enroll-mac.sh` or `bind-mac.sh --dns`; anything else fetches it from
+   `http://arise-server:4147/ca.crt`.
 5. **The firewall** is always set: incoming denied by default, SSH allowed,
    the domain controller, dashboard and apps allowed from the LAN and the VPN
-   only. fail2ban watches SSH. Nothing is ever forwarded on the router except
-   UDP 51820 when WireGuard is chosen.
+   only. No fail2ban and no lockout, by Bradly's choice (round 3, 27). Nothing
+   is ever forwarded on the router except UDP 51820 when WireGuard is chosen.
 
 Check it from your phone's hotspot with the Tailscale app on: if
 `http://arise-server:4147` opens, the closet can close.
@@ -480,3 +554,5 @@ Check it from your phone's hotspot with the Tailscale app on: if
 Add `--kiosk` to `install.sh` to put the Arise desktop itself (Finder, dock, widgets) full screen on the closet monitor, or `--console` for the text `arisetui` dashboard instead (docs/CONSOLE.md).
 
 **Decision, Oct 27 2026:** the old PC (a Dell OptiPlex, specs to follow) is wiped; path A. Start with `docs/PRE-WIPE.md`.
+
+**Decision, Oct 28 2026:** there are two Windows PCs. Both are wiped and both get ariseOS: Arise-Pineville (the stronger one, the church's server) and Arise-Home (the other, at Bradly's house). docs/NODES.md. The one-box install above is what v0.8 ships; the node work is next. Rehearse the install and the reinstall at home first (round 4, 105; docs/REINSTALL.md).

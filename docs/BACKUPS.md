@@ -30,11 +30,14 @@ every snapshot, with or without Arise Server.
 | `shares` | `/srv/arise/shares` | the staff, leadership, media and kids shares |
 | `media` | `/mnt/synology/arise/media` | Proclaim graphics, loops, lower thirds, thumbnails, podcast art |
 | `github` | `/srv/arise/backups/github-mirror` | a bare mirror of every repo in `arise.toml` (see below) |
-| `config` | `/etc/arise`, `/etc/samba`, `/var/lib/samba/private` | the domain itself and the server's settings |
+| `config` (tagged `system`) | `/etc/arise` (with the secrets; the repository is encrypted), `/etc/samba`, `/var/lib/arise/samba-backup`, `/var/lib/samba/private`, the pinned netplan file | everything `arisectl reinstall` needs (docs/REINSTALL.md). `samba_offline: true` runs `samba-tool domain backup offline` into `/var/lib/arise/samba-backup/` first, a consistent copy of the domain database (copying `private/` while Samba writes can tear it); the last two kept |
 | `apps` | `/srv/arise/apps` | the Docker apps' data (Vaultwarden's vault, Uptime Kuma's history, Syncthing's config) |
 
-Each job has an `exclude` list (caches, `.Trash`, `node_modules`,
-`__pycache__`) and tags, so a snapshot can be found by what it is.
+Each job has an `exclude` list (caches, `**/.Trash`, `node_modules`,
+`__pycache__`) and tags, so a snapshot can be found by what it is. The
+shares' Trash (v0.8, docs/FINDER.md) is excluded on purpose: what sits in a
+Trash is on its way out, and Previous Versions restores from the snapshots,
+not the Trash.
 
 Edit the file to add a job. It is read fresh on every run.
 
@@ -58,7 +61,10 @@ that file still exists, writes the verdict to
 folder. `sudo arisectl backup drill` runs it now and says what happened:
 restored and identical, restored but the live file has changed since (normal
 for a working file), or a failure with the reason. The dashboard reads the
-same history. Bradly's choice, answer 47: monthly, automatic.
+same history. Bradly's choice, answer 47: monthly, automatic. Since v0.8 the
+drill also checks that the newest `system` snapshot holds
+`/etc/arise/arise.toml` and a domain backup tarball, so a reinstall would
+have what it needs.
 
 Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)
 per job. A file deleted on a Tuesday is in last night's snapshot for two weeks,
@@ -158,6 +164,14 @@ and the result is a row in the history like any other.
 
 And the human half: **restore one real file every month** and open it.
 A backup that has never been restored is a guess.
+
+## The second copy
+
+There is no off-site copy yet (round 4, 28: not now). The plan is
+Arise-Home (docs/NODES.md): Bradly's node at his house holds a full second
+restic copy and runs the same drill. Until that is built the Synology is the
+only copy, and the restic password lives on the closet card only (round 4,
+30; never in Vaultwarden, never in a chat).
 
 ## What is NOT backed up here
 

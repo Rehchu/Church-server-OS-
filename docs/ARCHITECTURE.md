@@ -49,19 +49,20 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | Product | **Arise Server** |
 | CLI | `arisectl` |
 | Web service | `arise-web.service`, port **4147** (the channel handle, @arisechurch4147) |
-| Hostname | `arise-server` |
+| Hostname | `arise-server` in the code, the units, the Caddyfile and these docs today |
+| Nodes (decided Oct 28, round 4, 110; not yet in the code) | the boxes are **`arise-pineville`** (the church's server, the strongest PC), **`arise-home`** (Bradly's full install at his house, the control node and replica) and later **`arise-alexandria`**. The hostname becomes a per-node value when the node work lands (docs/NODES.md); until then `arise-server` stays the name the installer sets |
 | AD realm / NetBIOS | `AD.ARISECENLA.CHURCH` / `ARISE` |
 | Install root (code) | `/opt/arise` |
 | Config | `/etc/arise/arise.toml`, `/etc/arise/backups.yaml` |
-| Secrets | `/etc/arise/secrets/` (restic password, DSM credentials), mode 0600 |
+| Secrets | `/etc/arise/secrets/` (restic password, DSM credentials, `vapid.json`, `apps/<name>.env`, `totp/<user>.json`, `rescue-password`, `wayvnc`, `discord.toml` when set), mode 0600; `/etc/arise/SAFE-CARD.txt` (the arise-rescue password and the disk passphrase line, for the safe, never the door) |
 | State | `/var/lib/arise/` (`state.json`, `backup-history.json`, metrics ring) |
 | Data root | `/srv/arise/` — `homes/`, `shares/`, `automator/`, `apps/`, `backups/` |
 | Automator checkout | `/srv/arise/automator/ARISE_YouTube_Updater` (clone of `Rehchu/arise-youtube-automation`) |
 | Synology mount | `/mnt/synology` (SMB or NFS), subfolders `arise-backups/`, `homes/` |
-| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-notify.timer` 07:00 (off: no daily note) · `arise-devices.timer` hourly network scan |
+| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-trash.timer` 04:30 (the 30-day sweep) · `arise-notify.timer` 07:00 (off: no daily note) · `arise-devices.timer` hourly network scan · `arise-idle-apps.timer` every 15 min (desktop programs idle an hour are stopped) · `arise-drill.timer` monthly · `arise-update.timer` Saturday 03:30 (only what Software Update queued; a snapshot first) · `arise-clamscan.timer` Sunday 23:30 · `arise-monitor-off.timer` 23:00 / `arise-monitor-on.timer` 06:00 (the closet panel, with `--kiosk`) · `arise-wayvnc.service` (Screen Sharing of the panel). Nothing runs during a service |
 | VPN | Tailscale (100.64.0.0/10) or WireGuard `wg0` on UDP 51820, tunnel `10.47.0.0/24` |
 | Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.church` behind Caddy) |
-| HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile` |
+| HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile`; on by default since v0.8 (`--no-caddy` to skip); the root certificate is served at `/ca.crt` and `enroll-mac.sh` / `bind-mac.sh --dns` trust it on each Mac |
 | Closet monitor | `arise-kiosk.service` on tty1: `cage` + Epiphany (app mode) showing `http://127.0.0.1:4147/?kiosk=1` as user `arise-kiosk` (uid 1501); or `arise-console.service` (`arisetui --kiosk`) for a text screen. They conflict; one at a time |
 | Logs | `journalctl -u arise-*`, plus `/var/log/arise/` |
 | Windows mode root | `C:\Arise\` with the same subfolders (`config\`, `data\`, `automator\`) |
@@ -76,15 +77,19 @@ domain controller**. Directory features need the Linux install.
 ```
 README.md                landing-style overview (Monolith README shape)
 INSTALL.md               both install paths, step by step
-docs/                    ARCHITECTURE (this), DIRECTORY, MAC-MIGRATION, SYNOLOGY,
-                         BACKUPS, AUTOMATOR, HARDWARE, DASHBOARD, CLI, REMOTE-ACCESS, MULTI-SITE
+docs/                    ARCHITECTURE (this), DIRECTORY, MAC-MIGRATION, SYNOLOGY, BACKUPS, AUTOMATOR,
+                         HARDWARE, DASHBOARD, CLI, REMOTE-ACCESS, MULTI-SITE, EVERYDAY, FINDER, SYSTEM-APPS,
+                         STORE, SECURITY, REINSTALL, NODES, PARITY, ROADMAP, ANSWERS
+catalog/catalog.yaml     the Store's catalogue of further free apps (compose generated from each entry)
+CHANGELOG.md             What's New: the top section is what About shows after an update
 site/                    the landing page (static, Arise design)
-server/arise_server/     FastAPI backend — the JSON API and static host
+server/arise_server/     FastAPI backend — the JSON API and static host; v0.8 adds twofa, security, calendar,
+                         help, weather, finder, updates, activity, automations, storage, monitor
 web/                     the dashboard SPA (vanilla JS, Arise design)
 cli/arisectl             the CLI (Python, stdlib only)
 installer/               install.sh (Ubuntu; --with-tailscale --with-wireguard --with-caddy), install.ps1 (Windows), autoinstall.yaml
 config/                  arise.toml.example, backups.yaml.example, systemd units, smb.conf.template, caddy/Caddyfile
-templates/<app>/         compose.yaml + template.yaml per app
+templates/<app>/         compose.yaml + template.yaml per app (autostart, ram_mb, limits, theme)
 mac/                     bind-mac.sh, migrate-mac-user.sh, mount-home.sh, CHECKLIST.md
 tests/                   pure-function tests, `python -m unittest discover tests`
 ```
@@ -104,7 +109,11 @@ port = 4147
 # bcrypt hash of the admin password, written by `arisectl admin set-password`
 admin_user = "bradly"
 admin_password_hash = ""
-session_hours = 12
+session_hours = 8760               # a year: signed in until they sign out (round 3, 38)
+
+[links]
+days = 0                            # a share link lives until removed (Oct 28); 0 = never
+max_days = 365                      # the longest life a link may be given
 
 [directory]
 enabled = true
@@ -273,7 +282,7 @@ and previewed anywhere, including the published preview page.
 | `POST /api/me/password` {old,new} | a person changes their own directory password (Kerberos check of the old one first) |
 | `POST /api/devices/scan?wide=1` · `GET /api/devices/cameras` | the wide scan ARPs the common ranges a device may be parked on (strays); cameras is an ONVIF WS-Discovery probe (UDP 3702, 3 s) with a reachable flag |
 | `GET /manifest.webmanifest` · `GET /sw.js` · `GET /api/push/key` · `POST /api/push/subscribe` · `POST /api/push/test` · `GET /api/about/week` | the phone app (manifest, service worker, home-screen icons under `web/icons/`), web push with VAPID keys made on the box (`/etc/arise/secrets/vapid.json`), subscriptions in `/var/lib/arise/push.json`; the About window's week |
-| `GET /api/church` · `GET /api/sunday` · `POST /api/sunday/{i}` · `POST /api/kiosk/open` {url} · `GET /api/public/signage` (no login) · `GET /signage` | the church (services from `[church]`, next service, verse of the day, the assistants list), the Sunday checklist (weekly, who ticked), the monitor opening a listed https site in its own window (localhost only), the lobby screen's feed and page |
+| `GET /api/church` · `GET /api/sunday` · `POST /api/sunday/{i}` · `POST /api/kiosk/open` {url} · `GET /api/public/signage` (no login) · `GET /signage` | the church (services from `[church]`, next service, verse of the day, the assistants list), the Sunday checklist (weekly, who ticked), the monitor opening a listed https site in its own window (localhost only), the lobby screen's feed and page. The other no-login routes: `/calendar.ics`, `/api/public/calendar.ics`, `/ca.crt`, `/api/public/ca.crt`, `/s/{token}` |
 | `GET /api/mail` · `GET /api/mail/contacts` · `POST /api/mail/import/preview` · `POST /api/mail/import` · `POST /api/mail/preview` · `POST /api/mail/test` · `POST /api/mail/broadcasts` · `POST /api/mail/broadcasts/{id}/send` {confirm:"send"} · `GET /api/mail/broadcasts` | Resend: one audience for the church family, contacts imported from a CSV in a background thread (rate-limited), the house HTML template, a test email, broadcasts; the key is `[mail] api_key_file`, never in the browser |
 | `GET /api/devices/behind` | what the other routers report as attached, read over their own API with the admin password (`[[routers]]`, kind netgear); never written |
 | `GET /api/devices` · `POST /api/devices/scan` · `POST /api/devices/{mac}` {name,note,kind} · `DELETE /api/devices/{mac}` | everything on the switch: `arp-scan --localnet` (else a ping sweep and the neighbour table), merged into `/var/lib/arise/devices.json` by MAC |
@@ -282,6 +291,26 @@ and previewed anywhere, including the published preview page.
 | `POST /api/system/power` `{action: reboot|poweroff, confirm}` | the closet has no power button you can reach |
 | `POST /api/notify/test` | sends a test line to the webhook |
 | `WS /api/terminal` | a pty on the box for the Terminal app (root on the Linux install) |
+| `POST /api/auth/login` → `{need_code, pending}` · `POST /api/auth/login/code` {pending, code} · `POST /api/auth/reauth` {password} | two-step sign-in (optional per person, TOTP, `twofa.py`): the second step when the person is enrolled, three wrong codes end the pending token; reauth stamps the session for five minutes and `require_recent_auth` guards `DELETE /api/directory/users/{name}` and `POST /api/system/power` |
+| `GET /api/me/2fa` · `POST /api/me/2fa/setup` · `POST /api/me/2fa/enable` {code} · `POST /api/me/2fa/disable` {password, code} · `GET /api/directory/2fa` (admin) | enrol: a fresh secret in `/etc/arise/secrets/totp/<user>.json` (0600), the otpauth URI and a QR as SVG (`segno`), the secret shown once; who has it on, names only |
+| `GET /api/me/password/rules` | the domain's password rules in words, read from `samba-tool domain passwordsettings show` (12 characters, never expires, no lockout) |
+| `GET /api/calendar?year&month` · `GET /api/calendar/subscribe` · `POST /api/calendar` · `PUT /api/calendar/{id}` · `DELETE /api/calendar/{id}` (admin) · `GET /api/public/calendar.ics` and `GET /calendar.ics` (no login) | the church calendar (`calendar.py`): the services generated from `[church]`, events in `/var/lib/arise/calendar.json`, an ICS feed with the services as RRULE every Mac and phone subscribes to |
+| `GET /api/weather` | Pineville from Open-Meteo (`weather.py`), °F, today and five days, cached 30 min; `{ok:false, why}` when offline |
+| `GET /api/help?q=` · `GET /api/help/{name}` | the docs (`help.py`): README and `docs/*.md` rendered server-side with raw HTML escaped; members get `PORTAL-GUIDE` only |
+| `GET /api/about/whatsnew` | the top section of CHANGELOG.md, ten lines at most |
+| `GET /api/files/info` · `GET /api/files/recent` · `GET /api/files/zip` · `GET`/`PUT /api/files/text` · `POST /api/files/text/preview` · `GET /api/files/all?folder=` (admin) | Finder (`finder.py`): Get Info (size, owner, dates, the SMB path, the share's valid users), Recents (7 days, cached 60 s), Compress (a zip to 2 GB), the text editor (text types to 1 MB, Markdown preview), the Everyone views |
+| `GET /api/files/trash` · `POST /api/files/trash` · `POST /api/files/trash/restore` · `POST /api/files/trash/empty` (admin) | the Trash: `<root>/.Trash/<user>/<timestamp>-<name>` with a manifest; Put Back; Empty with the share's name; Samba's `recycle` module lands the Macs' deletes in the same place; `arise-trash.timer` sweeps after 30 days |
+| `GET /api/files/versions` · `POST /api/files/versions/restore` | Previous Versions from restic (`backups.versions_of`, `restore_version`): restored beside the original as `name (restored YYYY-MM-DD)`; members for their own roots |
+| `POST /api/files/upload/start` · `PUT /api/files/upload/chunk?token&offset` · `GET /api/files/upload/status` · `POST /api/files/upload/finish` | resumable uploads to 10 GB; stale parts dropped by the trash sweep after 3 days |
+| `GET /api/updates` · `POST /api/updates/refresh` · `POST /api/updates/check-apps` · `POST /api/updates/queue` · `POST /api/updates/apply` | Software Update (`updates.py`): apt split security/other, app image updates, reboot-required, ariseOS's own version; the queue in `/var/lib/arise/updates-queue.json`; apply = `arisectl update apply` (snapshot first, refused during a service) |
+| `GET /api/activity` · `POST /api/activity/kill` {pid} | Activity Monitor (`activity.py`): processes and container stats, cached 3 s; kill refuses PID 1, samba, arise-web, dockerd, containerd, sshd |
+| `GET /api/automations` · `POST /api/automations/{timer}/{pause,resume}` | every `arise-*` timer with next run, last result, enabled (`automations.py`) |
+| `GET /api/storage` · `POST /api/storage/scan` | the disk by mount, share and app, the biggest files, the unchanged-in-a-year list (`storage.py`; the scan runs in a thread) |
+| `GET /api/monitor` · `POST /api/monitor/power` {on} | the closet panel's hours and Screen Sharing (`monitor.py`) |
+| `GET /api/apps/catalog` · `GET /api/apps/theme/{name}` · `GET /api/apps/open/{trilium,immich}` (members in Staff/Media) · `POST /api/apps/{name}/autostart` | the Store: the catalogue, what of the house look an app takes, the Notes and Photos windows, autostart per app |
+| `GET /api/logs/sources` · `GET /api/logs/file/{name}` | the grouped unit list and the files under `/var/log/arise` |
+| `GET /api/security` · `GET /api/security/scan` · `POST /api/security/scan/run` · `POST /api/security/scan/restore` {name} · `GET /api/security/snapshots` (admin) | the Security app (`security.py`): the rows, the ClamAV scan and quarantine, the Timeshift snapshots |
+| `GET /api/public/ca.crt` and `GET /ca.crt` (no login) | Caddy's root certificate as PEM, or 404 with a plain message when Caddy is not there |
 
 ## The dashboard (web/)
 
@@ -293,8 +322,8 @@ with one icon per app and a dot under the ones that are open, and a
 **launchpad** grid for the rest. On a phone every window is full-screen and
 the dock becomes a bottom bar.
 
-The apps, in dock order:
-**Overview · Directory · Files · Backups · Automator · Sermons · Bible · Apps · Remote · Campuses · Terminal · NAS · Services · Logs · Settings**.
+The apps, by folio:
+**01 Finder · 02 Overview · 03 Directory · 04 Backups · 05 Automator · 06 Sermons · 07 Bible · 08 Store · 09 Remote · 10 Campuses · 11 Terminal · 12 Synology · 13 Services · 14 Logs · 15 System Settings · 16 Network · 17 Assistants · 18 Sunday · 19 Mail · 20 Calendar · 21 Calculator · 22 Clock · 23 Help · 24 Activity Monitor · 25 Automations · 26 Storage · 27 Software Update · 28 Notes · 29 Photos · 30 Monitor · 31 Security**, and About from the flame menu. docs/DASHBOARD.md has the table.
 
 Design tokens (from the Wix site, do not drift):
 
@@ -331,14 +360,16 @@ arisectl mirror run               # refresh the GitHub mirror
 arisectl remote status|add-peer <name>   # VPN, SSH, Guacamole state; a new WireGuard device
 arisectl sites                    # Pineville · Alexandria · the Hub, with probe replies
 arisectl notify test|send         # the morning report to the webhook
-arisectl update                   # git pull + pip + restart arise-web
+arisectl update [check|refresh|queue|apply|apt|self]   # Software Update; apply = snapshot first, never during a service
 arisectl admin set-password       # writes the bcrypt hash into arise.toml
 arisectl doctor                   # checks everything and prints what to fix
+arisectl trash | app catalog|install-all|autostart|theme|idle-sweep | automations | storage | monitor
+arisectl security | twofa | rescue | encrypt | snapshot | scan | reinstall     # docs/CLI.md
 ```
 
 ## Rules carried over from the rest of the Arise work
 
 - Never silent: every scheduled run writes a report or a history row, success or failure.
-- Deleting is Bradly's click. No API route deletes a user's home or a backup snapshot without `confirm: "<name>"` in the body, and the UI asks twice.
+- Deleting is Bradly's click. No API route deletes a user's home or a backup snapshot without `confirm: "<name>"` in the body, and the UI asks twice; since v0.8 deleting a user and the power menu also ask the person's password again (`require_recent_auth`, five minutes). A delete in Finder is a move to the share's Trash.
 - Secrets never go in git. `token.json`, `client_secret.json`, restic password, DSM credentials: `.gitignore` covers them and the installer prints where to put them.
 - Chapter and quota rules of the automator are the automator's; this server only runs it and shows its output.

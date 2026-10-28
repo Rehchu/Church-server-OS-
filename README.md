@@ -8,11 +8,12 @@ Arise Server turns an old PC into the church's own server:
 - **home folders and shares** on the server, Mac-friendly, with a script that moves an old Mac's data in
 - the **nightly YouTube automator** (`arise_daily.py`) on a systemd timer at 02:05 Central, its reports on the dashboard
 - **backups** with restic to the Synology at 03:00, every run recorded, failures in red, plus a mirror of every GitHub repo
-- a small **app store** of Docker Compose templates the church actually uses
+- a **Store** of Docker Compose apps: 26 templates preinstalled within the box's memory, a catalogue of 35 more free ones, each capped and wearing the house look where it allows
 - the **Synology** joined to the domain, mounted, and watched
 - **remote access for a server in a locked closet**: key-only SSH, a VPN (Tailscale recommended, native WireGuard or wg-easy as the self-hosted option), Guacamole remote desktop to any church computer from a browser tab, HTTPS with the server's own CA, a Terminal app in the dashboard
 - **three sites on one server**: Pineville (main), Arise Church Alexandria and the Apostolic Hub reach it over the VPN; a Campuses app watches each one
-- **a daily report** to a Discord or Slack webhook when something needs you
+- **the safety basics**: optional two-step sign-in, a break-glass admin, the disk unlocked by the TPM, a snapshot before every update, a weekly virus scan, the church certificate on every Mac, reinstall from the Synology
+- **Discord** as Bradly's monitoring room: four channels for alerts, Sunday, the weekly and the daily (docs/DISCORD.md)
 - **one dashboard** on port 4147, laid out like a desktop (menu bar, windows, a dock, a launchpad), **one CLI**, `arisectl`, and **a console dashboard**, `arisetui`, for the monitor in the closet, all in the look of arisecenla.church
 
 Three things shaped it: [Monolith OS](https://github.com/shirou-eh/Monolith) (one CLI, one config, a web dashboard, an installer, profiles, restic backups, a landing page), [HomeDock OS](https://github.com/BansheeTech/HomeDockOS) (a Python backend, a browser desktop that streams live stats, apps as Docker Compose stacks), and the [Arise Church website](https://arisecenla.church) (Anton + Oswald, ink `#0A0A0C`, Arise red `#D6222D`, square corners, the two red dashes).
@@ -23,7 +24,7 @@ Plain Python 3.11+ and plain HTML/CSS/JS. No Node build step. The whole thing ru
 
 ## Status
 
-**v0.7.0 "Genesis" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, and eleven apps ready to use (INSTALL.md § What is running). Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
+**v0.8.0 "Exodus" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, every app template deployed with the light ones running (INSTALL.md § What is running), and the safety basics (docs/SECURITY.md). Thirty-one numbered apps in the dashboard (docs/DASHBOARD.md), a catalogue of 35 more free apps in the Store (docs/STORE.md), and the full map against Windows 11 and macOS in docs/PARITY.md. The next block is the two nodes, Arise-Pineville and Arise-Home (docs/NODES.md), once Friday's specs say which PC is which. Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
 
 What has **not** been run against a real Samba domain, a real Synology, a real restic repository, a real Tailscale or WireGuard tunnel or a real Guacamole: every call is written against the tools' documented interfaces, and `arisectl doctor` is there to find the first thing that disagrees.
 
@@ -107,7 +108,7 @@ Full guide: [INSTALL.md](INSTALL.md).
 
 ## The three surfaces
 
-**The dashboard** — `arise-web.service`, port 4147. A macOS-style desktop themed for Arise: a Finder, a menu bar with real menus, windows, a floating dock, Spotlight, Mission Control, ⌘Tab, a widgets panel, Control Center, a lock screen. With `install.sh --kiosk` it is also what the closet monitor shows. **Everyone in the directory signs in** with their domain password: members get their own files, the shares their groups allow, upload/download, share links, Sermons, Bible and Change Password from anywhere; the administrator gets everything. Apps: Finder · Overview · Directory · Backups · Automator · Sermons · Bible · Apps · Remote · Campuses · Terminal · Synology · Services · Logs · System Settings · Network (everything on the switch). One admin login (bcrypt hash in `arise.toml`). Every destructive action asks for the name typed. Secrets never reach the browser.
+**The dashboard** — `arise-web.service`, port 4147. A macOS-style desktop themed for Arise: a Finder, a menu bar with real menus, windows, a floating dock, Spotlight, Mission Control, ⌘Tab, a widgets panel, Control Center, a lock screen. With `install.sh --kiosk` it is also what the closet monitor shows. **Everyone in the directory signs in** with their domain password: members get their own files, the shares their groups allow, upload/download, share links, Sermons, Bible and Change Password from anywhere; the administrator gets everything. Apps: 01 Finder · 02 Overview · 03 Directory · 04 Backups · 05 Automator · 06 Sermons · 07 Bible · 08 Store · 09 Remote · 10 Campuses · 11 Terminal · 12 Synology · 13 Services · 14 Logs · 15 System Settings · 16 Network · 17 Assistants · 18 Sunday · 19 Mail · 20 Calendar · 21 Calculator · 22 Clock · 23 Help · 24 Activity Monitor · 25 Automations · 26 Storage · 27 Software Update · 28 Notes · 29 Photos · 30 Monitor · 31 Security. Every destructive action asks for the name typed, and the worst ones ask your password again. Secrets never reach the browser.
 
 **`arisectl`** — the same Python modules from the terminal:
 
@@ -126,7 +127,8 @@ arisectl mirror run
 arisectl remote status|add-peer <name>
 arisectl sites
 arisectl notify test|send
-arisectl update
+arisectl update [check|refresh|queue|apply|apt|self]
+arisectl trash | automations | storage | monitor | security | twofa | rescue | encrypt | snapshot | scan | reinstall
 ```
 
 **The installer** — `installer/install.sh`: loud, idempotent steps, `--dry-run` to read them first; `--with-tailscale`, `--with-wireguard`, `--with-caddy` for the remote pieces; `--kiosk` to put the desktop on the closet monitor, `--console` for the text dashboard instead.
@@ -184,7 +186,10 @@ arisectl notify test                            # the morning report, to the web
 | 02:05 | `arise-automator.timer` → `arise_daily.py` (worklist, holds, quota ledger, report) |
 | 03:00 | `arise-backup.timer` → `arisectl backup run` (every job, then forget/prune) |
 | 04:00 | `arise-mirror.timer` → `arisectl mirror run` (bare mirrors of the GitHub repos) |
-| 07:00 | `arise-notify.timer` → `arisectl notify send` (the morning report to the webhook, only when something needs you) |
+| 04:30 | `arise-trash.timer` → `arisectl trash sweep` (what sat 30 days in a Trash goes) |
+| 07:00 | `arise-notify.timer` → `arisectl notify send` (off: no daily note; Discord's #daily is the morning report's place, docs/DISCORD.md) |
+| Sat 03:30 | `arise-update.timer` → `arisectl update apply` (only what was queued; a snapshot first) |
+| Sun 23:30 | `arise-clamscan.timer` → `arisectl scan run` (the shares, video skipped) |
 
 Timers are `Persistent=true`: if the PC was off, they run at next boot. A missed night is skipped, not lost.
 
@@ -194,14 +199,16 @@ Timers are `Persistent=true`: if the PC was off, they run at next boot. A missed
 
 ```
 README.md  INSTALL.md
-docs/            ARCHITECTURE (the contract) · DIRECTORY · MAC-MIGRATION · SYNOLOGY · BACKUPS · AUTOMATOR · HARDWARE · DASHBOARD · CLI · REMOTE-ACCESS · MULTI-SITE
+docs/            ARCHITECTURE (the contract) · DIRECTORY · MAC-MIGRATION · SYNOLOGY · BACKUPS · AUTOMATOR · HARDWARE · DASHBOARD · CLI · REMOTE-ACCESS · MULTI-SITE · EVERYDAY · FINDER · SYSTEM-APPS · STORE · SECURITY · REINSTALL · NODES · PARITY · ROADMAP · ANSWERS
+catalog/         catalog.yaml, the Store's catalogue of further free apps
+CHANGELOG.md     What's New
 site/            the landing page (static)
 server/          FastAPI backend: arise_server/{main,config,auth,metrics,services,directory,shares,backups,automator,apps,nas,remote,sites,bible,sermons,files,system,demo}.py
 web/             the dashboard: index.html, styles.css, app.js, demo-data.js (generated)
 cli/arisectl     the CLI
 installer/       install.sh (Ubuntu; --with-tailscale --with-wireguard --with-caddy) · install.ps1 (Windows) · autoinstall.yaml · MAKE-USB.md
 config/          arise.toml.example · backups.yaml.example · systemd/ · samba/smb.conf.template · caddy/Caddyfile
-templates/       filebrowser · uptime-kuma · syncthing · vaultwarden · guacamole · wg-easy
+templates/       26 apps, each compose.yaml + template.yaml (autostart, ram_mb, limits, theme)
 mac/             bind-mac.sh · migrate-mac-user.sh · mount-home.sh · LaunchAgent plist · CHECKLIST.md
 scripts/         gen-demo-data.py
 tests/           python3 -m unittest discover tests
@@ -213,7 +220,7 @@ tests/           python3 -m unittest discover tests
 
 One file, `/etc/arise/arise.toml` (`C:\Arise\config\arise.toml` on Windows), read with `tomllib`. The dashboard never writes it; the installer and `arisectl` do. Backup jobs live in `/etc/arise/backups.yaml`. The `[remote]`, `[notify]` and `[[sites]]` blocks hold the VPN, the morning-report webhook and the three campuses. Secrets live in `/etc/arise/secrets/` and are gitignored by name: `token.json`, `client_secret.json`, `restic-password`, `github-token`, `dsm.json`, `synology.cred`.
 
-Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-server`, realm `AD.ARISECENLA.CHURCH`, port `4147`, code in `/opt/arise`, data in `/srv/arise`, NAS at `/mnt/synology`, VPN tunnel `10.47.0.0/24` (WireGuard) or the Tailscale range.
+Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-server` (the nodes become `arise-pineville`, `arise-home`, `arise-alexandria` when docs/NODES.md is built), realm `AD.ARISECENLA.CHURCH`, port `4147`, code in `/opt/arise`, data in `/srv/arise`, NAS at `/mnt/synology`, VPN tunnel `10.47.0.0/24` (WireGuard) or the Tailscale range.
 
 ---
 
@@ -234,6 +241,8 @@ Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-
 
 [INSTALL.md](INSTALL.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [DIRECTORY](docs/DIRECTORY.md) · [MAC-MIGRATION](docs/MAC-MIGRATION.md) · [SYNOLOGY](docs/SYNOLOGY.md) · [BACKUPS](docs/BACKUPS.md) · [AUTOMATOR](docs/AUTOMATOR.md) · [HARDWARE](docs/HARDWARE.md) · [DASHBOARD](docs/DASHBOARD.md) · [CONSOLE](docs/CONSOLE.md) · [CLI](docs/CLI.md) · [REMOTE-ACCESS](docs/REMOTE-ACCESS.md) · [MULTI-SITE](docs/MULTI-SITE.md) · [templates](templates/README.md) · [mac checklist](mac/CHECKLIST.md)
 
+**v0.8:** [EVERYDAY](docs/EVERYDAY.md) · [FINDER](docs/FINDER.md) · [SYSTEM-APPS](docs/SYSTEM-APPS.md) · [STORE](docs/STORE.md) · [SECURITY](docs/SECURITY.md) · [REINSTALL](docs/REINSTALL.md) · [NODES](docs/NODES.md) · [PARITY](docs/PARITY.md) · [ROADMAP](docs/ROADMAP.md) · [ANSWERS](docs/ANSWERS.md) · [DISCORD](docs/DISCORD.md) · [ASK-THE-AUTOMATOR-CHAT](docs/ASK-THE-AUTOMATOR-CHAT.md) · [PORTAL-GUIDE](docs/PORTAL-GUIDE.md) (what members see in Help) · [CHANGELOG](CHANGELOG.md)
+
 ## Licence
 
-MIT. Fonts: Anton and Oswald (SIL OFL, from Google Fonts).
+MIT, in [LICENSE](LICENSE) (Bradly Dyer, Arise Church; round 3, 37). Fonts: Anton and Oswald (SIL OFL, from Google Fonts).

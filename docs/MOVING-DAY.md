@@ -17,6 +17,12 @@ minutes at each end. Call it two hours (an estimate; measure your own
 drive). Nobody at a bound Mac notices until they need a file that is not
 cached.
 
+Bradly (round 4, 65): "I'll probably move everything on a day nobody is
+there. So there should only be down time for maintenance that day." So: a
+quiet weekday, no cache box at Pineville, and the whole day is the window.
+With Arise-Home built (docs/NODES.md) the home node holds the domain and the
+files while the church's box is in the car.
+
 ---
 
 ## Before the day (the week before)

@@ -63,10 +63,11 @@ password login **on** and says so loudly, so you cannot lock yourself out of
 a PC in a locked closet. Run `ssh-copy-id` from your Mac, then run the
 installer again (or add the line by hand and `systemctl reload ssh`).
 
-**fail2ban.** Installed and enabled with the `sshd` jail: five bad passwords
-from one address and that address is banned for ten minutes. Over the VPN you
-will never see it; it exists for the day someone forwards the port by
-mistake.
+**No fail2ban, no lockout.** Bradly's choice (round 3, 27): no address and no
+account is ever locked out. The installer removes fail2ban if an earlier
+run put it there. SSH is keys only (round 4, 33), so there is no password
+to guess; the closet monitor and `arise-rescue` are the way in without a
+key (docs/SECURITY.md).
 
 **Never from outside.** Do not forward port 22 on the church router. SSH is
 reachable over the VPN, and that is enough. If you ever need SSH without the
@@ -284,8 +285,9 @@ dashboard is never reachable from the internet.
 
 Three things want HTTPS: the Bitwarden apps (they refuse plain HTTP except on
 localhost), Guacamole (clipboard and file transfer need a secure context),
-and your own peace of mind on a hotel network. `install.sh --with-caddy`
-installs Caddy and `config/caddy/Caddyfile`, which proxies:
+and your own peace of mind on a hotel network. Caddy is **on by default since
+v0.8** (round 3, 29; `--no-caddy` to skip, `--with-caddy` still accepted):
+`install.sh` installs Caddy and `config/caddy/Caddyfile`, which proxies:
 
 | Name | To |
 |---|---|
@@ -294,8 +296,10 @@ installs Caddy and `config/caddy/Caddyfile`, which proxies:
 | `remote.ad.arisecenla.church` | Guacamole, :8084 |
 
 `tls internal` means Caddy makes its own certificate authority on the server
-and signs a certificate for each name. Browsers do not know that CA, so once
-per Mac:
+and signs a certificate for each name. Browsers do not know that CA. Every
+Mac that runs `enroll-mac.sh` or `bind-mac.sh --dns` fetches the root from
+`http://arise-server:4147/ca.crt` and trusts it; the Security app says
+whether the certificate is there. By hand, once per Mac:
 
 ```bash
 scp bradly@arise-server:/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/Desktop/arise-ca.crt
@@ -325,7 +329,7 @@ from (b) sends those lookups to the same DNS, so they work off-site too.
 ## (f) From the closet to anywhere — the checklist
 
 1. `ssh-copy-id` from your Mac. Confirm `ssh bradly@arise-server` needs no password.
-2. Run `sudo bash installer/install.sh --with-tailscale --with-caddy` (or `--with-wireguard`). Re-running it is safe.
+2. Run `sudo bash installer/install.sh --with-tailscale --ssh-key-file ~/.ssh/id_ed25519.pub` (Caddy is on by default; `--with-wireguard` if chosen). Re-running it is safe.
 3. `sudo tailscale up --ssh --advertise-routes=192.168.1.0/24`, sign in, approve the route, set MagicDNS and the split DNS for `ad.arisecenla.church`.
 4. Install Tailscale on your laptop and phone. From your phone's hotspot, open `http://arise-server:4147`. If it opens, the closet door can close.
 5. Deploy Guacamole, change `guacadmin`, add the media Mac (VNC) and the lobby PC (RDP). Open each one from the laptop on the hotspot.
