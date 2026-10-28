@@ -38,6 +38,13 @@ for p in GETS:
     data["GET " + p] = r.json()
 for u in ["arise-web.service", "arise-automator.service", "arise-backup.service", "arise-mirror.service", "samba-ad-dc.service", "docker.service", "arise-nas-mount.service"]:
     data[f"GET /logs/{u}"] = c.get(f"/api/logs/{u}").json()
+# The Automator's channel: every sample video, its card and its transcript. The
+# preview's mock filters and searches these itself (computedGet in demo-mock.js).
+data["GET /automator/channel"] = c.get("/api/automator/channel").json()
+data["GET /automator/videos"] = c.get("/api/automator/videos").json()
+for v in data["GET /automator/videos"]["videos"]:
+    data[f"GET /automator/videos/{v['id']}"] = c.get(f"/api/automator/videos/{v['id']}").json()
+    data[f"GET /automator/videos/{v['id']}/transcript"] = c.get(f"/api/automator/videos/{v['id']}/transcript").json()
 for name in data["GET /automator/reports"]["reports"]:
     data[f"GET /automator/reports/{name}"] = c.get(f"/api/automator/reports/{name}").json()
 for a in data["GET /apps"]["apps"]:

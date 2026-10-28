@@ -182,6 +182,23 @@ From the command line: `arisectl archive status` and `arisectl archive search
 <words> [--kind K] [--repo R] [--history]` work for members of arise-claude and
 for root. `build` and `setup` need root.
 
+## The dashboard reads it too
+
+The Automator app's Videos and Search tabs (docs/AUTOMATOR.md) read the index
+read-only, the same way the MCP server does, through `arise_archive.query` plus
+`arise_archive.catalogue` (the channel snapshots). The dashboard runs as root, so
+the folder modes above do not stop it; the rules are kept in code instead:
+
+- The tabs are the administrator's only.
+- Private folders (`"private": true`) are left out unless the viewer is Bradly
+  (the `[claude] users` list, round 4, 44) and he ticks "private folders". A
+  private file opened by anyone else is refused.
+- Only images that are indexed `media` inside the clones are served
+  (`/api/automator/archive/file`), so no path outside the archive can be asked for.
+- Past versions are labelled as such and never offered as the live text.
+- Song credits are shown as the description writes them; the song lookup is the
+  exact `song` tool.
+
 ## Size (inventory at 8326b4a and 716872e)
 
 | | Tracked files | Files on disk | `.git` |

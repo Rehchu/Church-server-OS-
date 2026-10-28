@@ -12,9 +12,9 @@ Releases are named after books of the Bible from v0.7 on (round 2, 20).
 - Weather for Pineville, snap windows, accessibility switches, a Dock that hides, a greeting, the next service on the lock screen
 - Two-step sign-in, optional, with Microsoft Authenticator; dangerous clicks ask your password again
 - The break-glass admin arise-rescue, the disk unlocked by the TPM, a snapshot before every update, reinstall from the Synology
-- The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only, no lockout
-- Restart and Shut Down in the flame menu, never during a service; the closet panel sleeps at 23:00
-- Firefox in the ariseOS colours as the browser; Claude Desktop on the monitor for Bradly; the Arise repos two-way with GitHub (Backups → Repos); the automator handoff and its searchable archive
+- The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only; Restart and Shut Down never during a service
+- Firefox in the ariseOS colours as the browser; Claude Desktop on the monitor for Bradly; the Arise repos two-way with GitHub (Backups → Repos); the automator handoff
+- The Automator app: every video with its thumbnails, YouTube and Studio links, chapters, songs and transcript, and a search of every sermon transcript that opens the video at that moment
 - MIT licence; 115 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up
 
 ## v0.7 "Genesis": the feel

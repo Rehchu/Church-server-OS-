@@ -75,6 +75,41 @@ sudo stat -c '%a %U %y' /etc/arise/secrets/youtube/token.json
 sudo -u arise-yt git -C /srv/arise/automator/ARISE_YouTube_Updater status
 ```
 
+## The Automator app (the dashboard)
+
+The app on the desktop has seven tabs. Everything in the first two is read-only:
+nothing there spends quota, writes to YouTube or touches the token.
+
+| Tab | What |
+|---|---|
+| **Videos** | Every video the channel snapshots and the archive know (about 1,380 at the Oct 28 inventory), newest first, each with its YouTube thumbnail. Filter by title or id, by Services / Shorts / Other, or to the ones with a transcript, with chapters, or on the hold list. |
+| **Search** | Searches the sermon transcripts (the default), descriptions, chapters, songs, set lists and notes, or everything. Results are grouped by video: thumbnail, title, date, YouTube and Studio links, and each hit with its time. Clicking a time opens the video with the transcript at that moment. A CCLI number shows its song_bank.json entry. "Past versions" adds the `_backup` files; "private folders" (emails/, memory/) is there for Bradly only. |
+| Latest report, Worklist, Hold list, Past reports | as before |
+| **Server switch** | Who runs the 02:05 job tonight (the PC, until runner.json says otherwise) and the handoff's section 9 checklist, row by row. |
+
+**A video's card** (open one from either tab):
+
+- **Thumbnails.** YouTube's current one (full-size link), plus every thumbnail the toolkit made: files named after the video id, and `THUMB_<date>_…` / podcast / Spotify art made for the service date. Each opens full size or downloads. A Short shows only files named after itself.
+- **Links.** Watch on YouTube, Open in Studio (`studio.youtube.com/video/<id>/edit`), Copy link, and on a Short, the full service it came from.
+- **Chapters** from the description, each one a jump into the transcript and a ▶ link to YouTube at that second.
+- **Songs** exactly as the description credits them, and the set list for that date when there is one. Nothing is looked up or added: credits come only from song_bank.json.
+- **Shorts from this service** (the Shorts whose description links to it).
+- **Description**: every version (the channel snapshot, the toolkit's description files, the applied text, past versions marked as such), with **Copy** and **Copy clean** (no `**`, no CCLI numbers: the text for StreamYard, CLAUDE.md Oct 5).
+- **Transcript**: the timed text with each line linked to that second on YouTube, a find box, and a choice of source when there are several. The note above it says what the archive's rule says: transcripts hold sung lyrics, which never go into a title, description or Short.
+- **In the archive**: every file that names the video, each one readable in place.
+
+Where the data comes from: the archive's index and its clone of the automator repo
+(docs/ARCHIVE.md), so it is as fresh as the 04:15 refresh. Titles and descriptions
+come from the channel snapshots the PC writes (`cloud_workspace/_all_vids.json`,
+`_channel_index.json`, `channel_descriptions.json`, `channel_inventory.csv`) and
+can be older than YouTube. The card asks YouTube's public oEmbed for the title as
+it is now (no key, no quota; cached a week in `/var/lib/arise/channel/oembed.json`)
+and shows it when it differs. A date in the title ("Glory Night October 19, 2026")
+wins over the snapshot's, because a stream is often scheduled a week ahead.
+
+The tabs are the administrator's. Spotlight's sermon-transcript results open the
+Search tab for an administrator, and the Sermons app for members as before.
+
 ## Setting it up
 
 `install.sh` runs `scripts/arise-automator-setup`; `sudo arisectl automator setup`

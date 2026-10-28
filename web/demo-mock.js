@@ -564,6 +564,31 @@ route('POST', /^\/security\/scan\/restore$/, b => { if (b.confirm !== b.name) re
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
   const s = me();
+  if (p === '/automator/videos') {
+    const all = (get('GET /automator/videos') || { videos: [] }).videos; const ql = (q.get('q') || '').trim().toLowerCase(); const kind = q.get('kind') || '', has = q.get('has') || '';
+    let rows = all.filter(r => !ql || r.id.toLowerCase() === ql || ql.split(/\s+/).every(w => (r.title || '').toLowerCase().includes(w)));
+    if (kind) rows = rows.filter(r => r.kind === kind);
+    if (has) rows = rows.filter(r => has === 'transcript' ? r.transcript : has === 'chapters' ? r.chapters : has === 'held' ? r.held : true);
+    return { demo: true, total: rows.length, page: 1, pages: 1, per: 48, videos: rows, note: (get('GET /automator/videos') || {}).note };
+  }
+  if (p === '/automator/search') {
+    const raw = (q.get('q') || '').trim(), kind = q.get('kind') || 'transcript'; const words = raw.toLowerCase().replace(/"/g, '').split(/\s+/).filter(Boolean);
+    const vids = (get('GET /automator/videos') || { videos: [] }).videos; const out = { query: raw, kind, demo: true, videos: [], files: [], titles: [], songs: [], count: 0, lyrics: 'Transcripts include what was sung. Never copy sung words into a title, description or Short.' };
+    if (!words.length) return out;
+    out.titles = vids.filter(v => words.every(w => (v.title || '').toLowerCase().includes(w)));
+    if (kind === 'transcript' || kind === 'all') for (const v of vids) {
+      const t = get(`GET /automator/videos/${v.id}/transcript`); if (!t || !(t.segments || []).length) continue;
+      const hits = t.segments.filter(s => words.every(w => s.text.toLowerCase().includes(w))).map(s => {
+        let sn = s.text.replace(/[\[\]]/g, ''); for (const w of words) sn = sn.replace(new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'), '[$1]');
+        const m = Math.floor(s.t / 60), h = Math.floor(m / 60); const at = h ? `${h}:${String(m % 60).padStart(2, '0')}:${String(Math.floor(s.t % 60)).padStart(2, '0')}` : `${m}:${String(Math.floor(s.t % 60)).padStart(2, '0')}`;
+        return { kind: 'transcript', snippet: sn, link: `https://youtu.be/${v.id}?t=${Math.floor(s.t)}`, sec: s.t, at, repo: t.repo, path: t.source, history: false, private: false };
+      });
+      if (hits.length) { out.videos.push(Object.assign({}, v, { hits: hits.slice(0, 12), total: hits.length })); out.count += hits.length; }
+    }
+    return out;
+  }
+  if (p.startsWith('/automator/videos/') && p.endsWith('/transcript')) return getOr('GET ' + p, { ok: true, segments: [], sources: [], note: 'No timed transcript for this video in the sample set.' });
+  if (p === '/automator/archive/doc') return { ok: true, demo: true, repo: q.get('repo'), path: q.get('path'), text: 'Sample: on the server this is the file’s text from the archive (read-only).' };
   if (p === '/auth/me') return authMe();
   if (p === '/files/roots') return { roots: roots() };
   if (p === '/files/list') {

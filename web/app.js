@@ -382,7 +382,7 @@ async function paintRepos() {
 
 V.automator = async () => {
   const [a, wl, h] = await Promise.all([api('/automator'), api('/automator/worklist'), api('/automator/holds')]);
-  const q = pct(a.quota_today, a.quota_daily);
+  const q = pct(a.quota_today, a.quota_daily); S.auA = a;
   return `<div class="fade">
     <div class="grid" style="margin-bottom:14px">
       <div class="c3 panel ${a.last_ok === false ? 'panel--bad' : a.last_ok ? 'panel--ok' : 'panel--warn'}"><div class="stat"><span class="stat__l">Last run</span><span class="stat__v" style="font-size:22px">${a.last_run ? ago(a.last_run) : 'never'}</span><span class="stat__n">${esc(a.last_summary || 'no report on this server yet')}</span></div></div>
@@ -391,8 +391,11 @@ V.automator = async () => {
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Guard rails</span><span class="stat__v">${a.holds}<small>on hold</small></span><span class="stat__n">${a.rules} standing rules · ${a.worklist_enabled} of ${a.worklist_total} jobs enabled</span></div><div class="row" style="margin-top:10px"><button class="btn btn--ghost btn--xs" id="auPreview">Preview tonight</button><button class="btn btn--xs" id="auRun">Run now</button></div></div>
     </div>
     ${a.manual?.started ? `<p class="note" style="margin-bottom:14px"><b>${esc(a.manual.mode)}</b> started ${fmtT(a.manual.started)} · ${a.manual.finished ? (a.manual.ok ? 'finished ok' : `failed: ${esc(a.manual.error || 'exit ' + a.manual.code)}`) : 'still running'} · output in last-run.log</p>` : ''}
-    <div class="tabs" id="auTabs"><button class="active" data-t="report">Latest report</button><button data-t="work">Worklist</button><button data-t="holds">Hold list</button><button data-t="reports">Past reports</button></div>
-    <div data-tab="report" class="panel panel--flat"><div class="md">${md(a.latest_report)}</div></div>
+    <div class="tabs" id="auTabs"><button class="active" data-t="videos">Videos</button><button data-t="search">Search</button><button data-t="report">Latest report</button><button data-t="work">Worklist</button><button data-t="holds">Hold list</button><button data-t="reports">Past reports</button><button data-t="switch">Server switch</button></div>
+    <div data-tab="videos" id="chVideos"><div class="empty">Loading the videos…</div></div>
+    <div data-tab="search" hidden id="chSearch"></div>
+    <div data-tab="switch" hidden id="auSwitch"><div class="empty">Loading…</div></div>
+    <div data-tab="report" hidden class="panel panel--flat"><div class="md">${md(a.latest_report)}</div></div>
     <div data-tab="work" hidden class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>Job</th><th>Note</th><th class="num">Est. units</th><th>State</th></tr></thead><tbody>
       ${(wl.jobs || []).map(j => `<tr><td class="num dim">${esc(j.priority ?? '')}</td><td><b>${esc(j.id)}</b></td><td style="font-size:13px;color:var(--text2)">${esc(j.note || j.why || '')}</td><td class="num">${j.cost_estimate != null ? fmtN(j.cost_estimate) : '—'}</td><td>${j.enabled === false ? '<span class="pill warn">off</span>' : '<span class="pill ok">on</span>'}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">No worklist.json found</td></tr>'}
     </tbody></table><p class="note" style="margin-top:12px">The automator runs only what is in <code>worklist.json</code>, in priority order. To stop a job for a night set its <code>enabled</code> to false in that file - don't delete it; the note saying why it exists is worth keeping.</p></div>
@@ -403,10 +406,188 @@ V.automator = async () => {
 };
 V.automator.after = () => {
   tabs('#auTabs', 'automator');
+  chVideos(); chSearch(); chSwitch();
   $('#auPreview').onclick = e => act(e.target, () => api('/automator/preview', { method: 'POST' }), 'Preview started: a dry run, nothing is written to YouTube');
   $('#auRun').onclick = e => modal(`<h2>Run the automator now?</h2><p class="note" style="margin-bottom:14px">This spends real quota and writes to the channel exactly as the 02:05 run would. The hold list still applies. If a chat session is also working today, remember the 10,000 units are shared.</p><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="auGo">Run</button></div>`, m => { $('#auGo', m).onclick = async ev => { const r = await act(ev.target, () => api('/automator/run', { method: 'POST' }), 'Run started; the report appears when it finishes'); if (r) { m.close(); setTimeout(() => rerender('automator'), 3000); } }; });
   $$('[data-rep]').forEach(b => b.onclick = async () => { $$('[data-rep]').forEach(x => x.classList.toggle('active', x === b)); const r = await api(`/automator/reports/${encodeURIComponent(b.dataset.rep)}`); $('#repBody').innerHTML = `<h3 style="margin:0 0 10px">${esc(b.dataset.rep.replace('.md', '').replace('_', ' · '))}</h3>` + md(r.text || '(an empty report)'); });
 };
+
+/* ---------------- the channel: every video, a search that opens on the video ----------------
+   Read-only, from the archive (docs/ARCHIVE.md) and the channel snapshots in the automator repo.
+   Nothing here spends quota or writes to YouTube. */
+const CH = { q: '', kind: '', has: '', page: 1, sq: '', skind: 'transcript', hist: false, priv: false, open: null, at: null, from: null };
+const KIND_LABEL = { service: 'Service', short: 'Short', video: 'Video' };
+const dur = s => { if (s == null || s === '') return ''; s = Math.max(0, Math.round(+s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
+const fmtD = d => { if (!d) return 'no date'; const t = new Date(String(d).slice(0, 10) + 'T12:00:00'); return isNaN(t) ? esc(d) : t.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); };
+const snip = s => esc(s || '').replace(/\[([^\]]{1,80})\]/g, '<mark>$1</mark>');
+// "Copy clean" for StreamYard (CLAUDE.md, Oct 5): no ** and no "CCLI #123".
+const cleanDesc = t => String(t || '').replace(/\*\*|__/g, '').replace(/[ \t]*\(?\bCCLI\s*(?:Song\s*)?(?:No\.?|#)\s*\d+\)?/gi, '').replace(/[ \t]+$/gm, '');
+// A thumbnail that falls back (the toolkit's own file, then a plain title card) when YouTube's image cannot load.
+const thumbImg = (src, title, seconds, fallback) => `<div class="vthumb"><span class="vthumb__ph">${esc(String(title || '').split(' | ')[0])}</span><img loading="lazy" alt="" src="${esc(src || '')}" data-fallback="${esc(fallback || '')}">${seconds ? `<span class="vthumb__d">${dur(seconds)}</span>` : ''}</div>`;
+function wireThumbs(root) {
+  $$('.vthumb img', root).forEach(img => { const fail = () => { const f = img.dataset.fallback; if (f) { img.dataset.fallback = ''; img.src = f; } else img.remove(); }; img.onerror = fail; if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) fail(); });
+}
+const vcard = v => `<button class="vcard" data-vid="${esc(v.id)}">${thumbImg(v.thumb, v.title || v.id, v.seconds)}<span class="vcard__b"><b>${esc(v.title || v.id)}</b><small>${fmtD(v.date)} · ${KIND_LABEL[v.kind] || 'Video'}</small><span class="vcard__p">${v.held ? '<span class="tag tag--warn">on hold</span>' : ''}${v.transcript ? '<span class="tag">transcript</span>' : ''}${v.chapters ? '<span class="tag">chapters</span>' : ''}${v.shorts ? `<span class="tag">${v.shorts} Shorts</span>` : ''}</span></span></button>`;
+
+function chWire(root, from) {
+  wireThumbs(root);
+  $$('[data-vid]', root).forEach(b => b.onclick = e => { e.preventDefault(); CH.open = b.dataset.vid; CH.at = b.dataset.at != null && b.dataset.at !== '' ? +b.dataset.at : null; CH.from = from; (from === 'search' ? chSearch : chVideos)(); });
+  $$('[data-doc-path]', root).forEach(b => b.onclick = () => chDoc(b.dataset.docRepo, b.dataset.docPath, b.dataset.docLine));
+}
+
+async function chVideos() {
+  const el = $('#chVideos'); if (!el) return;
+  if (CH.open && CH.from === 'videos') return chVideo(el, CH.open, CH.at);
+  const p = new URLSearchParams({ q: CH.q, kind: CH.kind, has: CH.has, page: CH.page });
+  const r = await api('/automator/videos?' + p).catch(e => ({ error: e.message, videos: [] }));
+  if (!el.isConnected) return;
+  const typing = document.activeElement && document.activeElement.id === 'chQ';
+  el.innerHTML = `<div class="chbar"><input id="chQ" type="search" placeholder="Find a video by title or id" value="${esc(CH.q)}" autocomplete="off">
+    <div class="seg" id="chKind">${[['', 'All'], ['service', 'Services'], ['short', 'Shorts'], ['video', 'Other']].map(([k, l]) => `<button data-k="${k}" class="${CH.kind === k ? 'active' : ''}">${l}</button>`).join('')}</div>
+    <select id="chHas">${[['', 'Everything'], ['transcript', 'Has a transcript'], ['chapters', 'Has chapters'], ['held', 'On the hold list']].map(([k, l]) => `<option value="${k}" ${CH.has === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+    <span class="muted chbar__n">${fmtN(r.total || 0)} ${r.total === 1 ? 'video' : 'videos'}</span></div>
+    ${r.error ? `<p class="note" style="color:var(--warn);margin-bottom:12px">${esc(r.error)}</p>` : ''}
+    <div class="vgrid">${(r.videos || []).map(vcard).join('') || '<div class="empty">No videos match.</div>'}</div>
+    ${r.pages > 1 ? `<div class="row chpager"><button class="btn btn--ghost btn--xs" id="chPrev" ${r.page <= 1 ? 'disabled' : ''}>← Newer</button><span class="muted">Page ${r.page} of ${r.pages}</span><button class="btn btn--ghost btn--xs" id="chNext" ${r.page >= r.pages ? 'disabled' : ''}>Older →</button></div>` : ''}
+    <p class="note" style="margin-top:12px">${esc(r.note || '')} Open a video for its thumbnails, links, chapters, songs and transcript.</p>`;
+  chWire(el, 'videos');
+  const q = $('#chQ', el); let t;
+  q.oninput = () => { clearTimeout(t); t = setTimeout(() => { CH.q = q.value.trim(); CH.page = 1; chVideos(); }, 300); };
+  if (typing) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+  $$('#chKind button', el).forEach(b => b.onclick = () => { CH.kind = b.dataset.k; CH.page = 1; chVideos(); });
+  $('#chHas', el).onchange = e => { CH.has = e.target.value; CH.page = 1; chVideos(); };
+  const pv = $('#chPrev', el), nx = $('#chNext', el);
+  if (pv) pv.onclick = () => { CH.page--; chVideos(); };
+  if (nx) nx.onclick = () => { CH.page++; chVideos(); };
+}
+
+const CH_KINDS = [['transcript', 'Transcripts'], ['description', 'Descriptions'], ['chapters', 'Chapters'], ['song', 'Songs'], ['setlist', 'Set lists'], ['note', 'Notes'], ['all', 'Everything']];
+function chSearch() {
+  const el = $('#chSearch'); if (!el) return;
+  if (CH.open && CH.from === 'search') return chVideo(el, CH.open, CH.at);
+  el.innerHTML = `<form class="chsearch" id="chSF"><input id="chSQ" type="search" placeholder="Search what was preached, the descriptions, the songs…" value="${esc(CH.sq)}" autocomplete="off"><button class="btn" type="submit">Search</button></form>
+    <div class="row chchips" id="chSK">${CH_KINDS.map(([k, l]) => `<button type="button" class="chip ${CH.skind === k ? 'active' : ''}" data-k="${k}">${l}</button>`).join('')}
+      <label class="chk"><input type="checkbox" id="chHist" ${CH.hist ? 'checked' : ''}> past versions</label>${S.me?.claude ? `<label class="chk" title="emails/, memory/: names of private people. Bradly only."><input type="checkbox" id="chPriv" ${CH.priv ? 'checked' : ''}> private folders</label>` : ''}</div>
+    <div id="chSR">${CH.sq ? '<div class="empty">Searching…</div>' : `<div class="chhint"><p>Search every sermon transcript, description, chapter list and set list in the archive. Each result opens its video, with the thumbnails, the YouTube and Studio links, the chapters, the songs and the transcript at that moment.</p>
+      <p class="muted">Try <a href="#" data-try="framing">framing</a>, <a href="#" data-try="&quot;peace is a garrison&quot;">"peace is a garrison"</a> (quotes match the exact phrase), or a CCLI number like <a href="#" data-try="7247827" data-kind="all">7247827</a>.</p></div>`}</div>`;
+  const run = () => { CH.sq = $('#chSQ', el).value.trim(); chSearch(); };
+  $('#chSF', el).onsubmit = e => { e.preventDefault(); run(); };
+  $$('#chSK .chip', el).forEach(b => b.onclick = () => { CH.skind = b.dataset.k; CH.sq = $('#chSQ', el).value.trim(); chSearch(); });
+  $('#chHist', el).onchange = e => { CH.hist = e.target.checked; if (CH.sq) chSearch(); };
+  const pr = $('#chPriv', el); if (pr) pr.onchange = e => { CH.priv = e.target.checked; if (CH.sq) chSearch(); };
+  $$('[data-try]', el).forEach(a => a.onclick = e => { e.preventDefault(); CH.sq = a.dataset.try; if (a.dataset.kind) CH.skind = a.dataset.kind; chSearch(); });
+  if (CH.sq) chSearchRun(); else $('#chSQ', el).focus();
+}
+async function chSearchRun() {
+  const out = $('#chSR'); if (!out) return;
+  const want = JSON.stringify([CH.sq, CH.skind, CH.hist, CH.priv]); CH.want = want;
+  const p = new URLSearchParams({ q: CH.sq, kind: CH.skind, history: CH.hist, private: CH.priv });
+  const r = await api('/automator/search?' + p).catch(e => ({ error: e.message, videos: [] }));
+  if (!out.isConnected || CH.want !== want) return;
+  const songs = (r.songs || []).map(s => `<div class="panel panel--flat chsong"><div class="kicker">From song_bank.json</div><b>${esc(s.title)}</b> ${s.ccli ? `<span class="mono">CCLI ${esc(s.ccli)}</span>` : '<span class="tag">no CCLI number</span>'}<div class="muted">${esc(s.writers || '')}</div>${s.credit_line ? `<div class="mono" style="font-size:12px;margin-top:6px">${esc(s.credit_line)}</div>` : ''}</div>`).join('');
+  const titles = (r.titles || []).length ? `<div class="kicker" style="margin:14px 0 8px">Titles that match</div><div class="vgrid vgrid--sm">${r.titles.map(vcard).join('')}</div>` : '';
+  const vids = r.videos || [];
+  const groups = vids.map(g => `<div class="panel panel--flat chg"><div class="chg__hd"><button class="chg__t" data-vid="${esc(g.id)}" aria-label="Open">${thumbImg(g.thumb, g.title || g.id, g.seconds)}</button><div class="chg__m"><button class="linkish" data-vid="${esc(g.id)}"><b>${esc(g.title || g.id)}</b></button><div class="muted">${fmtD(g.date)} · ${KIND_LABEL[g.kind] || 'Video'} · ${g.total > g.hits.length ? `the first ${g.hits.length} of ${g.total} matches` : `${g.hits.length} ${g.hits.length === 1 ? 'match' : 'matches'}`}${g.held ? ' · <span class="tag tag--warn">on hold</span>' : ''}</div>
+      <div class="row" style="margin-top:8px;gap:6px"><button class="btn btn--xs" data-vid="${esc(g.id)}">Open</button><a class="btn btn--ghost btn--xs" href="${esc(g.watch)}" target="_blank" rel="noopener">YouTube</a><a class="btn btn--ghost btn--xs" href="${esc(g.studio)}" target="_blank" rel="noopener">Studio</a></div></div></div>
+    <div class="chhits">${g.hits.map(h => `<div class="chhit">${h.at != null ? `<button class="chhit__t mono" data-vid="${esc(g.id)}" data-at="${h.sec}" title="Open the transcript here">${esc(h.at)}</button>` : `<span class="tag">${esc(h.kind)}</span>`}<span class="chhit__s">${snip(h.snippet)}</span>${h.history ? '<span class="tag">past version</span>' : ''}${h.private ? '<span class="tag">private</span>' : ''}${h.link ? `<a class="chhit__y" href="${esc(h.link)}" target="_blank" rel="noopener" title="Watch from here on YouTube">▶</a>` : ''}</div>`).join('')}</div></div>`).join('');
+  const files = (r.files || []).length ? `<div class="kicker" style="margin:14px 0 8px">In files that name no video</div><div class="panel panel--flat">${r.files.map(f => `<button class="chfile" data-doc-repo="${esc(f.repo)}" data-doc-path="${esc(f.path)}" data-doc-line="${f.lines ? f.lines[0] : ''}"><span class="tag">${esc(f.kind)}</span><span class="mono chfile__p">${esc(f.path)}</span><span class="chhit__s">${snip(f.snippet)}</span></button>`).join('')}</div>` : '';
+  const none = !songs && !titles && !groups && !files && !r.error;
+  out.innerHTML = (r.error ? `<p class="note" style="color:var(--warn)">${esc(r.error)}</p>` : '') + songs + titles
+    + (groups ? `<div class="kicker" style="margin:14px 0 8px">${fmtN(r.count)} ${r.count === 1 ? 'match' : 'matches'} in ${vids.length} ${vids.length === 1 ? 'video' : 'videos'}</div>${groups}` : '') + files
+    + (none ? `<div class="empty">Nothing found for “${esc(CH.sq)}”${CH.skind !== 'all' ? ` in ${esc((CH_KINDS.find(k => k[0] === CH.skind) || [, ''])[1].toLowerCase())}. Try Everything.` : '.'}</div>` : '')
+    + `<p class="note" style="margin-top:12px">${esc(r.lyrics || '')} A hit is a lead to check, never a fact: speakers come from Bradly and song credits from song_bank.json.</p>`;
+  chWire(out, 'search');
+}
+
+async function chVideo(el, vid, at) {
+  el.innerHTML = '<div class="empty">Opening…</div>';
+  const v = await api('/automator/videos/' + encodeURIComponent(vid)).catch(e => ({ ok: false, err: e.message }));
+  if (!el.isConnected) return;
+  const backTo = () => { CH.open = null; CH.at = null; (CH.from === 'search' ? chSearch : chVideos)(); };
+  const back = `<button class="btn btn--ghost btn--xs" id="chBack">← ${CH.from === 'search' ? 'Back to the results' : 'All videos'}</button>`;
+  if (v.ok === false) { el.innerHTML = back + `<p class="note" style="margin-top:12px;color:var(--warn)">${esc(v.err || 'Could not open that video')}</p>`; $('#chBack', el).onclick = backTo; return; }
+  const vers = v.versions || [];
+  let cur = vers.findIndex(x => !x.history && (x.text || '').trim()); if (cur < 0) cur = 0;
+  const own = (v.thumbs || [])[0]?.url || '';
+  el.innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:12px">${back}<span class="muted mono" style="font-size:12px">${esc(v.id)}</span></div>
+  <div class="chv"><div class="chv__hero">${thumbImg(v.thumb_large, v.title || v.id, v.seconds, own)}</div>
+    <div class="chv__meta"><div class="kicker">${KIND_LABEL[v.kind] || 'Video'} · ${fmtD(v.date)}${v.seconds ? ' · ' + dur(v.seconds) : ''}</div><h2 class="chv__title">${esc(v.title || v.id)}</h2>
+      ${v.now && v.now.title && v.now.title !== v.title ? `<p class="note">On YouTube now: <b>${esc(v.now.title)}</b> <span class="muted">(checked ${esc(v.now.checked || '')})</span></p>` : ''}
+      ${v.held ? `<p class="note chv__held"><b>On the hold list.</b> No script writes to this video${v.held_reason ? ': ' + esc(v.held_reason) : ''}.</p>` : ''}
+      ${v.date_note ? `<p class="note">Date: ${esc(v.date_note)}.</p>` : ''}
+      <div class="row chv__acts"><a class="btn" href="${esc(v.watch)}" target="_blank" rel="noopener">Watch on YouTube</a><a class="btn btn--ghost" href="${esc(v.studio)}" target="_blank" rel="noopener">Open in Studio</a><button class="btn btn--ghost" id="chCopyLink">Copy link</button>${v.parent_video ? `<button class="btn btn--ghost" data-vid="${esc(v.parent_video.id)}">The full service</button>` : ''}</div>
+      <div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">${v.transcript ? '<span class="tag">transcript</span>' : ''}${(v.chapters || []).length ? `<span class="tag">${v.chapters.length} chapters</span>` : ''}${(v.shorts || []).length ? `<span class="tag">${v.shorts.length} Shorts</span>` : ''}${v.privacy ? `<span class="tag">${esc(v.privacy)}</span>` : ''}${v.sample ? '<span class="tag">sample</span>' : ''}</div></div></div>
+  <div class="grid" style="margin-top:14px">
+    <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Thumbnails</h3><span class="sub">${(v.thumbs || []).length + 1}</span></div><div class="chthumbs">
+      <figure><a href="${esc(v.thumb_max)}" target="_blank" rel="noopener">${thumbImg(v.thumb, v.title, null)}</a><figcaption>On YouTube now<br><span class="muted"><a href="${esc(v.thumb_max)}" target="_blank" rel="noopener">full size</a></span></figcaption></figure>
+      ${(v.thumbs || []).map(t => `<figure><a href="${esc(t.url)}" target="_blank" rel="noopener">${thumbImg(t.url, t.name, null)}</a><figcaption title="${esc(t.repo + '/' + t.path)}">${esc(t.name)}<br><span class="muted">${esc(t.why)}${t.width ? ` · ${t.width}×${t.height}` : ''} · <a href="${esc(t.url)}" download="${esc(t.name)}">download</a></span></figcaption></figure>`).join('')}</div>
+      ${(v.thumbs || []).length ? '' : '<p class="note">No thumbnail file in the archive names this video or its date.</p>'}</div>
+    ${v.kind === 'short' && !(v.chapters || []).length ? '' : `<div class="c6 panel panel--flat"><div class="panel__hd"><h3>Chapters</h3><span class="sub">${(v.chapters || []).length || 'none'}</span></div>${(v.chapters || []).length ? `<div class="chchap">${v.chapters.map(c => `<div class="chchap__r"><button class="mono" data-seek="${c.sec}" title="Show this moment in the transcript">${esc(c.at)}</button><span>${esc(c.title)}</span><a href="${esc(c.link)}" target="_blank" rel="noopener" title="Watch from here">▶</a></div>`).join('')}</div>` : '<p class="note">No chapters in the description.</p>'}</div>`}
+    ${(v.credits || []).length || (v.setlists || []).length ? `<div class="c6 panel panel--flat"><div class="panel__hd"><h3>Songs</h3></div>${(v.credits || []).length ? `<ul class="chcred">${v.credits.map(c => `<li>${esc(c)}</li>`).join('')}</ul><p class="note">As the description writes them. Credits come only from song_bank.json.</p>` : ''}${(v.setlists || []).map(s => `<details style="margin-top:8px"><summary>Set list · <span class="mono">${esc(s.path)}</span></summary><pre class="log pre">${esc(s.text)}</pre></details>`).join('')}</div>` : ''}
+    ${(v.shorts || []).length ? `<div class="c6 panel panel--flat"><div class="panel__hd"><h3>Shorts from this service</h3><span class="sub">${v.shorts.length}</span></div><div class="vgrid vgrid--sm">${v.shorts.map(vcard).join('')}</div></div>` : ''}
+    <div class="c12 panel panel--flat"><div class="panel__hd"><h3>Description</h3>${vers.length > 1 ? `<select id="chVer">${vers.map((x, i) => `<option value="${i}" ${i === cur ? 'selected' : ''}>${esc(x.source)}${x.history ? ' (past version)' : ''}${x.private ? ' (private)' : ''}</option>`).join('')}</select>` : ''}<span class="row" style="margin-left:auto;gap:6px">${vers.length ? '<button class="btn btn--ghost btn--xs" id="chCopyDesc">Copy</button><button class="btn btn--ghost btn--xs" id="chCopyClean" title="No ** and no CCLI numbers: the text for StreamYard">Copy clean</button>' : ''}</span></div>
+      ${vers.length ? `<pre class="chdesc" id="chDesc">${esc(vers[cur].text)}</pre>` : '<p class="note">No description in the snapshots or the archive.</p>'}<p class="note" style="margin-top:8px">${esc(v.note || '')}</p></div>
+    <div class="c12 panel panel--flat" id="chTx"><div class="panel__hd"><h3>Transcript</h3></div><div class="empty">${v.transcript ? 'Loading the transcript…' : 'No transcript for this video in the archive.'}</div></div>
+    <div class="c12 panel panel--flat"><div class="panel__hd"><h3>In the archive</h3><span class="sub">${(v.files || []).length} ${(v.files || []).length === 1 ? 'file' : 'files'}</span></div>${(v.files || []).map(f => `<button class="chfile" data-doc-repo="${esc(f.repo)}" data-doc-path="${esc(f.path)}"><span class="tag">${esc(f.kind)}</span><span class="mono chfile__p">${esc(f.path)}</span>${f.history ? '<span class="tag">past version</span>' : ''}${f.private ? '<span class="tag">private</span>' : ''}</button>`).join('') || '<p class="note">No file names this video by its id.</p>'}</div>
+  </div>`;
+  chWire(el, CH.from || 'videos');
+  $('#chBack', el).onclick = backTo;
+  $('#chCopyLink', el).onclick = e => copyText(v.watch, e.target);
+  const ver = $('#chVer', el); if (ver) ver.onchange = () => { cur = +ver.value; $('#chDesc', el).textContent = vers[cur].text; };
+  const cd = $('#chCopyDesc', el); if (cd) cd.onclick = e => copyText(vers[cur].text, e.target);
+  const cc = $('#chCopyClean', el); if (cc) cc.onclick = () => copyText(cleanDesc(vers[cur].text));
+  $$('[data-seek]', el).forEach(b => b.onclick = () => chSeek(+b.dataset.seek));
+  if (v.transcript) chTranscript(vid, at);
+}
+async function chTranscript(vid, at, source) {
+  const box = $('#chTx'); if (!box) return;
+  const t = await api(`/automator/videos/${encodeURIComponent(vid)}/transcript` + (source ? '?source=' + encodeURIComponent(source) : '')).catch(e => ({ ok: false, err: e.message }));
+  if (!box.isConnected) return;
+  if (t.ok === false || !(t.segments || []).length) { const e = $('.empty', box); if (e) e.textContent = t.err || t.note || 'No timed transcript for this video.'; return; }
+  box.innerHTML = `<div class="panel__hd"><h3>Transcript</h3><span class="sub">${fmtN(t.segments.length)} lines</span>${(t.sources || []).length > 1 ? `<select id="chTxSrc">${t.sources.map(s => `<option value="${esc(s.path)}" ${s.path === t.source ? 'selected' : ''}>${esc(s.path)} (${s.segments})</option>`).join('')}</select>` : `<span class="muted mono" style="font-size:11px">${esc(t.source || '')}</span>`}<input id="chTxQ" type="search" placeholder="Find in this transcript" autocomplete="off" style="margin-left:auto;width:220px"><span class="muted" id="chTxN"></span></div>
+    <p class="note" style="margin-bottom:8px">${esc(t.lyrics || '')}</p>
+    <div class="chtx" id="chTxL">${t.segments.map(s => `<div class="chtx__r" data-t="${s.t}"><a class="mono" href="${esc(t.link)}?t=${Math.floor(s.t)}" target="_blank" rel="noopener" title="Watch from here">${dur(s.t)}</a><span>${esc(s.text)}</span></div>`).join('')}</div>`;
+  const src = $('#chTxSrc', box); if (src) src.onchange = () => chTranscript(vid, null, src.value);
+  const q = $('#chTxQ', box); let tm;
+  q.oninput = () => { clearTimeout(tm); tm = setTimeout(() => {
+    const w = q.value.trim().toLowerCase(); const rows = $$('#chTxL .chtx__r', box); let n = 0, first = null;
+    rows.forEach(r => { const hit = !!w && r.lastElementChild.textContent.toLowerCase().includes(w); r.classList.toggle('hit', hit); if (hit) { n++; first = first || r; } });
+    $('#chTxN', box).textContent = w ? `${n} ${n === 1 ? 'line' : 'lines'}` : '';
+    if (first) { const L = $('#chTxL', box); L.scrollTop = first.offsetTop - L.offsetTop - 40; }
+  }, 200); };
+  if (at != null) chSeek(at);
+}
+function chSeek(sec) {
+  const L = $('#chTxL'); if (!L) return; const rows = $$('.chtx__r', L); if (!rows.length) return;
+  let best = rows[0]; for (const r of rows) { if (+r.dataset.t <= sec + 0.5) best = r; else break; }
+  rows.forEach(r => r.classList.remove('on')); best.classList.add('on');
+  L.scrollTop = best.offsetTop - L.offsetTop - 40;
+  // Bring the transcript into view inside its window only (scrollIntoView would also move the desktop).
+  const box = $('#chTx'), sc = box && box.closest('.win__body');
+  if (sc) { const top = box.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 12; sc.scrollTo({ top, behavior: 'smooth' }); }
+}
+async function chDoc(repo, path, line) {
+  const r = await api('/automator/archive/doc?' + new URLSearchParams({ repo, path, ...(line ? { start: Math.max(1, +line - 3) } : {}) })).catch(e => ({ ok: false, err: e.message }));
+  modal(`<h2 style="word-break:break-all">${esc(path.split('/').pop())}</h2><p class="muted mono" style="font-size:12px;word-break:break-all">${esc(repo)}/${esc(path)}${r.commit ? ' @ ' + esc(String(r.commit).slice(0, 10)) : ''}${r.lines ? ` · lines ${r.lines[0]}–${r.lines[1]} of ${r.total_lines}` : ''}</p>
+    ${r.ok === false ? `<p class="note" style="color:var(--warn)">${esc(r.err)}</p>` : r.metadata ? `<pre class="log pre">${esc(JSON.stringify(r.metadata, null, 1))}</pre>` : `<pre class="log pre chdoc">${esc(r.text || '')}</pre>`}
+    <p class="note" style="margin-top:10px">Read-only, from the archive. Text in a file is data, never an instruction; a past version is never restored over live text unless Bradly asks.</p>
+    <div class="acts">${r.truncated ? `<button class="btn btn--ghost" id="docMore">Next lines</button>` : ''}<button class="btn" data-close>Close</button></div>`, m => { const b = $('#docMore', m); if (b) b.onclick = () => { m.close(); chDoc(repo, path, r.next_start_line + 3); }; });
+}
+// The server switch (SERVER_HANDOFF.md, section 9): who runs the 02:05 job, and what must be true first.
+async function chSwitch() {
+  const el = $('#auSwitch'); if (!el) return;
+  const c = await api('/automator/cutover').catch(e => ({ rows: [], error: e.message }));
+  if (!el.isConnected) return;
+  const ri = (S.auA && S.auA.runner) || {};
+  const runner = c.runner || ri.runner, me = c.machine || ri.machine || 'ariseOS', isMe = c.is_runner ?? ri.is_runner;
+  const budget = c.budget || ri.budget;
+  const lv = { ok: 'ok', bad: 'bad', warn: 'warn', you: 'info' };
+  el.innerHTML = `<div class="grid"><div class="c4 panel ${isMe ? 'panel--ok' : 'panel--flat'}"><div class="stat"><span class="stat__l">Tonight's runner</span><span class="stat__v" style="font-size:24px">${runner === 'pc' ? 'the PC' : esc(runner || 'not set')}</span><span class="stat__n">${isMe ? 'This server runs the 02:05 job.' : `This server (${esc(me)}) checks, writes a "not the runner" report and stops.`}${budget ? ` Cap here: ${fmtN(budget)} units.` : ''}</span></div></div>
+    <div class="c8 panel panel--flat"><p style="font-size:13.5px;color:var(--text2);margin:0">runner.json in the automator repo decides who runs. Bradly switches it on the PC and pushes; this server picks it up on its next pull. Nothing here edits runner.json, holds.json or worklist.json.</p></div></div>
+    <div class="kicker" style="margin:16px 0 8px">Before the switch (SERVER_HANDOFF.md, section 9)</div>
+    ${c.error ? `<p class="note" style="color:var(--warn)">${esc(c.error)}</p>` : ''}
+    <div class="chsw">${(c.rows || []).map(r => `<div class="chsw__r"><span class="pill ${lv[r.level] || 'warn'}">${r.level === 'you' ? 'Bradly' : esc(r.level)}</span><div><div>${esc(r.text)}</div>${r.fix ? `<code class="chsw__fix">${esc(r.fix)}</code>` : ''}</div></div>`).join('') || '<div class="empty">No checklist</div>'}</div>`;
+}
 
 V.nas = async () => {
   const n = await api('/nas');
@@ -1028,7 +1209,7 @@ const APPS = [
   { id: 'overview', n: '02', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true },
   { id: 'directory', n: '03', name: 'Directory', what: 'Users, groups, joined computers', dock: true },
   { id: 'backups', n: '04', name: 'Backups', what: 'restic jobs, history, snapshots', dock: true },
-  { id: 'automator', n: '05', name: 'Automator', what: 'The 02:05 YouTube job', dock: true },
+  { id: 'automator', n: '05', name: 'Automator', what: 'The channel, the transcripts, the 02:05 job', dock: true, w: 1180, h: 760 },
   { id: 'sermons', n: '06', name: 'Sermons', what: 'The channel, no quota spent', tone: 'bone', dock: true },
   { id: 'bible', n: '07', name: 'Bible', what: 'Read a passage', tone: 'bone', dock: true, w: 820, h: 560 },
   { id: 'apps', n: '08', name: 'Store', what: 'Every app, installed and the catalogue', dock: true, w: 1040, h: 680 },
@@ -1806,7 +1987,7 @@ function spotResults(q, remote) {
   if (remote) {
     if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
     if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
-    if (remote.transcripts?.length) out += `<div class="h">Sermons · transcripts</div>` + remote.transcripts.map(t => row(I.sermons, t.title, t.snippet, { app: 'sermons' })).join('');
+    if (remote.transcripts?.length) out += `<div class="h">Sermons · transcripts</div>` + remote.transcripts.map(t => row(I.sermons, t.title, t.snippet, S.role === 'admin' ? { chsearch: q } : { app: 'sermons' })).join('');
     if (remote.hits?.length) out += `<div class="h">Files</div>` + remote.hits.slice(0, 10).map(h => row(I.files, h.name, h.path, { file: h })).join('');
   }
   if (!out) out = `<div class="h">Nothing for “${esc(q)}”</div>`;
@@ -1815,6 +1996,7 @@ function spotResults(q, remote) {
 function spotGo(data) {
   toggleSpot(false);
   if (data.app) openApp(data.app);
+  else if (data.chsearch != null) { CH.sq = data.chsearch; CH.skind = 'transcript'; CH.open = null; (S.tabs = S.tabs || {}).automator = 'search'; if (S.wins?.automator) rerender('automator'); else openApp('automator'); }
   else if (data.bible) { S.bible = { ref: data.bible, tr: S.bible?.tr || 'web' }; openApp('bible'); }
   else if (data.calc) { S.calc = { expr: '', res: fmtCalc(calcEval(data.calc)) }; copyText(S.calc.res); openApp('calc'); }
   else if (data.act != null) actions()[data.act][1]();
@@ -2195,5 +2377,5 @@ boot();
   }
 }
 
-window.arise = { api, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
+window.arise = { api, cleanDesc, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();

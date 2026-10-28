@@ -8,14 +8,14 @@ window.ARISE_DEMO_DATA = {
 "hostname": "arise-server",
 "machine": {
 "hostname": "vm",
-"os": "Linux 6.18.44-fc-v180",
+"os": "Linux 6.18.44-fc-v185",
 "arch": "x86_64",
 "python": "3.13.17",
 "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793198524
+"boot_time": 1793223447
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.CHURCH",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:22:23",
+"last_run": "2026-10-28T02:59:16",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T13:22:23"
+"since": "2026-10-14T18:59:16"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T15:22:23",
+"last_logon": "2026-10-28T20:59:16",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T16:22:23",
+"last_logon": "2026-10-27T21:59:16",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T13:22:23",
+"last_logon": "2026-10-26T18:59:16",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T16:22:23",
+"last_logon": "2026-10-22T21:59:16",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T16:22:23",
+"last_logon": "2026-10-25T21:59:16",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T16:22:23",
+"last_logon": "2026-10-19T21:59:16",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T15:22:23",
+"last_seen": "2026-10-28T20:59:16",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T16:22:23",
+"last_seen": "2026-10-27T21:59:16",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T16:22:23",
+"last_seen": "2026-10-26T21:59:16",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T16:18:23",
+"last_seen": "2026-10-28T21:55:16",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T16:22:23",
+"last_check": "2026-10-19T21:59:16",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:22:23",
+"last_run": "2026-10-28T02:59:16",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1883,17 +1883,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-28T11:22:23",
+"when": "2026-10-28T16:59:16",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-28T11:22:23",
+"when": "2026-10-28T16:59:16",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-28T11:22:23",
+"when": "2026-10-28T16:59:16",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1983,7 +1983,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2000,7 +2000,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2017,7 +2017,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2034,7 +2034,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2051,7 +2051,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-26T16:22:23",
+"updated": "2026-10-26T21:59:16",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2068,7 +2068,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2085,7 +2085,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2102,7 +2102,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T16:22:23",
+"updated": "2026-10-27T21:59:16",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2119,7 +2119,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2136,7 +2136,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-25T16:22:23",
+"updated": "2026-10-25T21:59:16",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -2984,7 +2984,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T14:22:23",
+"last": "2026-10-27T19:59:16",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3173,7 +3173,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T16:22"
+"when": "2026-10-28T21:59"
 },
 {
 "user": "bradly",
@@ -3407,8 +3407,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T16:22",
-"expires": "2026-11-02T16:22",
+"created": "2026-10-26T21:59",
+"expires": "2026-11-02T21:59",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -3752,7 +3752,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5377,
+"in_minutes": 5040,
 "in_words": "3 days"
 },
 "verse": {
@@ -3886,7 +3886,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5377,
+"in_minutes": 5040,
 "in_words": "3 days"
 },
 "verse": {
@@ -3933,7 +3933,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-28T16:22"
+"now": "2026-10-28T21:59"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4035,7 +4035,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T16:22:23+00:00",
+"last_check": "2026-10-28T21:59:16+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4048,7 +4048,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-28T12:22:23",
+"t": "2026-10-28T17:59:16",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4056,7 +4056,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T11:22:23",
+"t": "2026-10-27T16:59:16",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4064,7 +4064,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T16:22:23",
+"t": "2026-10-26T21:59:16",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4072,7 +4072,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T14:22:23",
+"t": "2026-10-25T19:59:16",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4080,7 +4080,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T16:22:23",
+"t": "2026-10-23T21:59:16",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4088,7 +4088,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T15:22:23",
+"t": "2026-10-23T20:59:16",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4096,7 +4096,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T13:22:23",
+"t": "2026-10-22T18:59:16",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4104,7 +4104,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T13:22:23",
+"t": "2026-10-22T18:59:16",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4706,6 +4706,7 @@ window.ARISE_DEMO_DATA = {
 "The break-glass admin arise-rescue, the disk unlocked by the TPM, a snapshot before every update, reinstall from the Synology",
 "The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only, no lockout",
 "Restart and Shut Down in the flame menu, never during a service; the closet panel sleeps at 23:00",
+"Firefox in the ariseOS colours as the browser; Claude Desktop on the monitor for Bradly; the Arise repos two-way with GitHub (Backups → Repos); the automator handoff and its searchable archive",
 "MIT licence; 115 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up"
 ]
 },
@@ -4758,7 +4759,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-28T16:22:23+00:00",
+"checked_at": "2026-10-28T21:59:17+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -4783,7 +4784,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-28T16:22:23+00:00",
+"queued_at": "2026-10-28T21:59:17+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -4791,16 +4792,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-23T16:22",
+"when": "2026-10-23T21:59",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-28T16:22:23+00:00"
+"last_check": "2026-10-28T21:59:17+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793204543.618624,
+"t": 1793224757.6963942,
 "processes": [
 {
 "pid": 470,
@@ -4810,7 +4811,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1791994943.6186075,
+"since": 1792015157.69638,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -4827,7 +4828,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1791994943.6186066,
+"since": 1792015157.696374,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -4844,7 +4845,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1791994943.6185832,
+"since": 1792015157.6963542,
 "io": {
 "read": 10000000,
 "write": 0
@@ -4861,7 +4862,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1791994943.618593,
+"since": 1792015157.6963625,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -4878,7 +4879,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1791994943.6186018,
+"since": 1792015157.6963692,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -4895,7 +4896,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1791994943.6185899,
+"since": 1792015157.6963592,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -4912,7 +4913,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1791994943.6185918,
+"since": 1792015157.6963613,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -4929,7 +4930,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1791994943.618598,
+"since": 1792015157.6963658,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -4946,7 +4947,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1791994943.618609,
+"since": 1792015157.6963809,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -4963,7 +4964,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1791994943.6186,
+"since": 1792015157.6963675,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -4980,7 +4981,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1791994943.6186109,
+"since": 1792015157.696383,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -4997,7 +4998,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1791994943.6186051,
+"since": 1792015157.6963725,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5014,7 +5015,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1791994943.6186097,
+"since": 1792015157.6963818,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5031,7 +5032,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1791994943.618603,
+"since": 1792015157.6963706,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5151,8 +5152,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-28T17:00:00",
-"last": "2026-10-27T17:00:00",
+"next": "2026-10-28T22:00:00",
+"last": "2026-10-27T22:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5309,7 +5310,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-28T10:22",
+"as_of": "2026-10-28T15:59",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5382,62 +5383,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-28T16:22"
+"mtime": "2026-10-28T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-21T16:22"
+"mtime": "2026-10-21T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-14T16:22"
+"mtime": "2026-10-14T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-07T16:22"
+"mtime": "2026-10-07T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-09-30T16:22"
+"mtime": "2026-09-30T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-23T16:22"
+"mtime": "2026-09-23T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-16T16:22"
+"mtime": "2026-09-16T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-09T16:22"
+"mtime": "2026-09-09T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-02T16:22"
+"mtime": "2026-09-02T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-26T16:22"
+"mtime": "2026-08-26T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-19T16:22"
+"mtime": "2026-08-19T21:59"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-12T16:22"
+"mtime": "2026-08-12T21:59"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5454,17 +5455,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-15T16:22"
+"mtime": "2025-06-15T21:59"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-15T16:22"
+"mtime": "2025-06-15T21:59"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-15T16:22"
+"mtime": "2025-06-15T21:59"
 }
 ],
 "old_days": 365
@@ -7102,7 +7103,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7117,7 +7118,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7132,7 +7133,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7147,7 +7148,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7162,7 +7163,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7177,7 +7178,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7192,7 +7193,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 },
 {
@@ -7207,11 +7208,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T16:22:23+00:00",
+"when": "2026-10-28T21:59:17+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-28T16:22:23+00:00",
+"last": "2026-10-28T21:59:17+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -7575,7 +7576,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-26T16:22",
+"when": "2026-10-26T21:59",
 "from": "portal"
 },
 {
@@ -7587,7 +7588,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-16T16:22",
+"when": "2026-10-16T21:59",
 "from": "mac"
 },
 {
@@ -7599,7 +7600,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-01T16:22",
+"when": "2026-10-01T21:59",
 "from": "mac"
 }
 ],
@@ -7795,6 +7796,3325 @@ window.ARISE_DEMO_DATA = {
 "lines": 1,
 "last_error_line": null,
 "last_error": null
+},
+"GET /automator/channel": {
+"demo": true,
+"index": true,
+"videos": 8,
+"built_at": null,
+"snapshot": [
+"channel_inventory.csv",
+"channel_descriptions.json",
+"cloud_workspace/_channel_index.json",
+"cloud_workspace/_all_vids.json"
+]
+},
+"GET /automator/videos": {
+"demo": true,
+"total": 8,
+"page": 1,
+"pages": 1,
+"per": 48,
+"counts": {
+"service": 6,
+"short": 2,
+"video": 0
+},
+"videos": [
+{
+"id": "2wVIGBvQLzE",
+"title": "Peace Is a Garrison | Apostle Bryant Sanders | Glory Night October 19, 2026",
+"date": "2026-10-19",
+"kind": "service",
+"seconds": 6420,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 0,
+"sample": true,
+"watch": "https://youtu.be/2wVIGBvQLzE",
+"studio": "https://studio.youtube.com/video/2wVIGBvQLzE/edit",
+"thumb": "https://i.ytimg.com/vi/2wVIGBvQLzE/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/2wVIGBvQLzE/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/2wVIGBvQLzE/maxresdefault.jpg"
+},
+{
+"id": "hu9cnsymsSo",
+"title": "YOUR WORDS ARE FRAMING SOMETHING | Pastor Vanessa Sanders",
+"date": "2026-10-18",
+"kind": "service",
+"seconds": 7380,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 0,
+"sample": true,
+"watch": "https://youtu.be/hu9cnsymsSo",
+"studio": "https://studio.youtube.com/video/hu9cnsymsSo/edit",
+"thumb": "https://i.ytimg.com/vi/hu9cnsymsSo/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/hu9cnsymsSo/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/hu9cnsymsSo/maxresdefault.jpg"
+},
+{
+"id": "yMewy7Nwi3c",
+"title": "Pitch the Ship: Intimacy with the Holy Spirit",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 58,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": false,
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": 0,
+"sample": true,
+"watch": "https://youtube.com/shorts/yMewy7Nwi3c",
+"studio": "https://studio.youtube.com/video/yMewy7Nwi3c/edit",
+"thumb": "https://i.ytimg.com/vi/yMewy7Nwi3c/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/yMewy7Nwi3c/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/yMewy7Nwi3c/maxresdefault.jpg"
+},
+{
+"id": "AnVfOCesXM4",
+"title": "PITCH THE SHIP | Apostle Bryant Sanders",
+"date": "2026-10-11",
+"kind": "service",
+"seconds": 6990,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 2,
+"sample": true,
+"watch": "https://youtu.be/AnVfOCesXM4",
+"studio": "https://studio.youtube.com/video/AnVfOCesXM4/edit",
+"thumb": "https://i.ytimg.com/vi/AnVfOCesXM4/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/AnVfOCesXM4/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/AnVfOCesXM4/maxresdefault.jpg"
+},
+{
+"id": "9s5f2cIwg8o",
+"title": "Pocket Square: A Small Test of Obedience",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 61,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": false,
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": 0,
+"sample": true,
+"watch": "https://youtube.com/shorts/9s5f2cIwg8o",
+"studio": "https://studio.youtube.com/video/9s5f2cIwg8o/edit",
+"thumb": "https://i.ytimg.com/vi/9s5f2cIwg8o/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/9s5f2cIwg8o/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/9s5f2cIwg8o/maxresdefault.jpg"
+},
+{
+"id": "4V4QeHZevgU",
+"title": "A Bride Willing to Follow | Apostle Bryant Sanders | Glory Night October 5, 2026",
+"date": "2026-10-05",
+"kind": "service",
+"seconds": 5980,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 0,
+"sample": true,
+"watch": "https://youtu.be/4V4QeHZevgU",
+"studio": "https://studio.youtube.com/video/4V4QeHZevgU/edit",
+"thumb": "https://i.ytimg.com/vi/4V4QeHZevgU/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/4V4QeHZevgU/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/4V4QeHZevgU/maxresdefault.jpg"
+},
+{
+"id": "W8t2JYXOIBk",
+"title": "EXERCISING OUR SPIRITUAL SENSES | Apostle Bryant Sanders",
+"date": "2026-10-04",
+"kind": "service",
+"seconds": 7210,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 0,
+"sample": true,
+"watch": "https://youtu.be/W8t2JYXOIBk",
+"studio": "https://studio.youtube.com/video/W8t2JYXOIBk/edit",
+"thumb": "https://i.ytimg.com/vi/W8t2JYXOIBk/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/W8t2JYXOIBk/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/W8t2JYXOIBk/maxresdefault.jpg"
+},
+{
+"id": "MnXmccLS2p8",
+"title": "Sample: a held service (the GAURD spelling stays)",
+"date": "2026-07-12",
+"kind": "service",
+"seconds": 6600,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": true,
+"in_catalogue": true,
+"held": true,
+"parent": null,
+"shorts": 0,
+"sample": true,
+"watch": "https://youtu.be/MnXmccLS2p8",
+"studio": "https://studio.youtube.com/video/MnXmccLS2p8/edit",
+"thumb": "https://i.ytimg.com/vi/MnXmccLS2p8/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/MnXmccLS2p8/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/MnXmccLS2p8/maxresdefault.jpg"
+}
+],
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text."
+},
+"GET /automator/videos/2wVIGBvQLzE": {
+"ok": true,
+"demo": true,
+"id": "2wVIGBvQLzE",
+"title": "Peace Is a Garrison | Apostle Bryant Sanders | Glory Night October 19, 2026",
+"date": "2026-10-19",
+"kind": "service",
+"seconds": 6420,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/2wVIGBvQLzE?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/2wVIGBvQLzE?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/2wVIGBvQLzE?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/2wVIGBvQLzE?t=2400"
+},
+{
+"at": "1:32:00",
+"sec": 5520,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/2wVIGBvQLzE?t=5520"
+}
+],
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": [],
+"sample": true,
+"watch": "https://youtu.be/2wVIGBvQLzE",
+"studio": "https://studio.youtube.com/video/2wVIGBvQLzE/edit",
+"thumb": "https://i.ytimg.com/vi/2wVIGBvQLzE/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/2wVIGBvQLzE/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/2wVIGBvQLzE/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:32:00 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-10-19_sample.jpg",
+"name": "THUMB_2026-10-19_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-10-19",
+"why": "made for 2026-10-19",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iIzYwMUNDQyIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+UEVBQ0UgSVMgQSBHQVJSSVNPTjwvdGV4dD48dGV4dCB4PSI2NCIgeT0iNjYwIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iT3N3YWxkLEFyaWFsIiBmb250LXNpemU9IjQ0Ij4yMDI2LTEwLTE5IMK3IFNBTVBMRSBUSFVNQk5BSUw8L3RleHQ+PC9zdmc+"
+}
+],
+"transcripts": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/2wVIGBvQLzE_streamyard.vtt",
+"segments": 107
+}
+],
+"files": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/2wVIGBvQLzE_streamyard.vtt",
+"kind": "transcript",
+"history": false,
+"private": false
+}
+],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/2wVIGBvQLzE/transcript": {
+"ok": true,
+"demo": true,
+"video_id": "2wVIGBvQLzE",
+"source": "transcripts/2wVIGBvQLzE_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"sources": [
+{
+"path": "transcripts/2wVIGBvQLzE_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"segments": 107
+}
+],
+"segments": [
+{
+"t": 0.0,
+"d": 60.0,
+"text": "Sample caption at 0:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 60.0,
+"d": 60.0,
+"text": "Sample caption at 1:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 120.0,
+"d": 60.0,
+"text": "Sample caption at 2:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 180.0,
+"d": 60.0,
+"text": "Sample caption at 3:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 240.0,
+"d": 60.0,
+"text": "Sample caption at 4:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 300.0,
+"d": 60.0,
+"text": "Sample caption at 5:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 360.0,
+"d": 60.0,
+"text": "Sample caption at 6:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 420.0,
+"d": 60.0,
+"text": "Sample caption at 7:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 480.0,
+"d": 60.0,
+"text": "Sample caption at 8:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 540.0,
+"d": 60.0,
+"text": "Sample caption at 9:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 600.0,
+"d": 60.0,
+"text": "Sample caption at 10:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 660.0,
+"d": 60.0,
+"text": "Sample caption at 11:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 720.0,
+"d": 60.0,
+"text": "Sample caption at 12:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 780.0,
+"d": 60.0,
+"text": "Sample caption at 13:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 840.0,
+"d": 60.0,
+"text": "Sample caption at 14:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 900.0,
+"d": 60.0,
+"text": "Sample caption at 15:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 960.0,
+"d": 60.0,
+"text": "Sample caption at 16:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1020.0,
+"d": 60.0,
+"text": "Sample caption at 17:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1080.0,
+"d": 60.0,
+"text": "Sample caption at 18:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1140.0,
+"d": 60.0,
+"text": "Sample caption at 19:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1200.0,
+"d": 60.0,
+"text": "Sample caption at 20:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1260.0,
+"d": 60.0,
+"text": "Sample caption at 21:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1320.0,
+"d": 60.0,
+"text": "Sample caption at 22:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1380.0,
+"d": 60.0,
+"text": "Sample caption at 23:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1440.0,
+"d": 60.0,
+"text": "Sample caption at 24:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1500.0,
+"d": 60.0,
+"text": "Sample caption at 25:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1560.0,
+"d": 60.0,
+"text": "Sample caption at 26:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1620.0,
+"d": 60.0,
+"text": "Sample caption at 27:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1680.0,
+"d": 60.0,
+"text": "Sample caption at 28:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1740.0,
+"d": 60.0,
+"text": "Sample caption at 29:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1800.0,
+"d": 60.0,
+"text": "Sample caption at 30:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1860.0,
+"d": 60.0,
+"text": "Sample caption at 31:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1920.0,
+"d": 60.0,
+"text": "Sample caption at 32:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1980.0,
+"d": 60.0,
+"text": "Sample caption at 33:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2040.0,
+"d": 60.0,
+"text": "Sample caption at 34:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2100.0,
+"d": 60.0,
+"text": "Sample caption at 35:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2160.0,
+"d": 60.0,
+"text": "Sample caption at 36:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2220.0,
+"d": 60.0,
+"text": "Sample caption at 37:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2280.0,
+"d": 60.0,
+"text": "Sample caption at 38:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2340.0,
+"d": 60.0,
+"text": "Sample caption at 39:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2400.0,
+"d": 60.0,
+"text": "Sample caption at 40:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2460.0,
+"d": 60.0,
+"text": "Sample caption at 41:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2520.0,
+"d": 60.0,
+"text": "Sample caption at 42:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2580.0,
+"d": 60.0,
+"text": "Sample caption at 43:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2640.0,
+"d": 60.0,
+"text": "Sample caption at 44:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2700.0,
+"d": 60.0,
+"text": "Sample caption at 45:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2760.0,
+"d": 60.0,
+"text": "Sample caption at 46:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2820.0,
+"d": 60.0,
+"text": "Sample caption at 47:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2880.0,
+"d": 60.0,
+"text": "Sample caption at 48:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2940.0,
+"d": 60.0,
+"text": "Sample caption at 49:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3000.0,
+"d": 60.0,
+"text": "Sample caption at 50:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3060.0,
+"d": 60.0,
+"text": "Sample caption at 51:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3120.0,
+"d": 60.0,
+"text": "Sample caption at 52:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3180.0,
+"d": 60.0,
+"text": "Sample caption at 53:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3240.0,
+"d": 60.0,
+"text": "Sample caption at 54:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3300.0,
+"d": 60.0,
+"text": "Sample caption at 55:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3360.0,
+"d": 60.0,
+"text": "Sample caption at 56:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3420.0,
+"d": 60.0,
+"text": "Sample caption at 57:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3480.0,
+"d": 60.0,
+"text": "Sample caption at 58:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3540.0,
+"d": 60.0,
+"text": "Sample caption at 59:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3600.0,
+"d": 60.0,
+"text": "Sample caption at 1:00:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3660.0,
+"d": 60.0,
+"text": "Sample caption at 1:01:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3720.0,
+"d": 60.0,
+"text": "Sample caption at 1:02:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3780.0,
+"d": 60.0,
+"text": "Sample caption at 1:03:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3840.0,
+"d": 60.0,
+"text": "Sample caption at 1:04:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3900.0,
+"d": 60.0,
+"text": "Sample caption at 1:05:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3960.0,
+"d": 60.0,
+"text": "Sample caption at 1:06:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4020.0,
+"d": 60.0,
+"text": "Sample caption at 1:07:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4080.0,
+"d": 60.0,
+"text": "Sample caption at 1:08:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4140.0,
+"d": 60.0,
+"text": "Sample caption at 1:09:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4200.0,
+"d": 60.0,
+"text": "Sample caption at 1:10:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4260.0,
+"d": 60.0,
+"text": "Sample caption at 1:11:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4320.0,
+"d": 60.0,
+"text": "Sample caption at 1:12:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4380.0,
+"d": 60.0,
+"text": "Sample caption at 1:13:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4440.0,
+"d": 60.0,
+"text": "Sample caption at 1:14:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4500.0,
+"d": 60.0,
+"text": "Sample caption at 1:15:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4560.0,
+"d": 60.0,
+"text": "Sample caption at 1:16:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4620.0,
+"d": 60.0,
+"text": "Sample caption at 1:17:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4680.0,
+"d": 60.0,
+"text": "Sample caption at 1:18:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4740.0,
+"d": 60.0,
+"text": "Sample caption at 1:19:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4800.0,
+"d": 60.0,
+"text": "Sample caption at 1:20:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4860.0,
+"d": 60.0,
+"text": "Sample caption at 1:21:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4920.0,
+"d": 60.0,
+"text": "Sample caption at 1:22:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4980.0,
+"d": 60.0,
+"text": "Sample caption at 1:23:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5040.0,
+"d": 60.0,
+"text": "Sample caption at 1:24:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5100.0,
+"d": 60.0,
+"text": "Sample caption at 1:25:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5160.0,
+"d": 60.0,
+"text": "Sample caption at 1:26:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5220.0,
+"d": 60.0,
+"text": "Sample caption at 1:27:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5280.0,
+"d": 60.0,
+"text": "Sample caption at 1:28:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5340.0,
+"d": 60.0,
+"text": "Sample caption at 1:29:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5400.0,
+"d": 60.0,
+"text": "Sample caption at 1:30:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5460.0,
+"d": 60.0,
+"text": "Sample caption at 1:31:00, during the message, “Peace Is A Garrison”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5520.0,
+"d": 60.0,
+"text": "Sample caption at 1:32:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5580.0,
+"d": 60.0,
+"text": "Sample caption at 1:33:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5640.0,
+"d": 60.0,
+"text": "Sample caption at 1:34:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5700.0,
+"d": 60.0,
+"text": "Sample caption at 1:35:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5760.0,
+"d": 60.0,
+"text": "Sample caption at 1:36:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5820.0,
+"d": 60.0,
+"text": "Sample caption at 1:37:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5880.0,
+"d": 60.0,
+"text": "Sample caption at 1:38:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5940.0,
+"d": 60.0,
+"text": "Sample caption at 1:39:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6000.0,
+"d": 60.0,
+"text": "Sample caption at 1:40:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6060.0,
+"d": 60.0,
+"text": "Sample caption at 1:41:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6120.0,
+"d": 60.0,
+"text": "Sample caption at 1:42:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6180.0,
+"d": 60.0,
+"text": "Sample caption at 1:43:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6240.0,
+"d": 60.0,
+"text": "Sample caption at 1:44:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6300.0,
+"d": 60.0,
+"text": "Sample caption at 1:45:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6360.0,
+"d": 60.0,
+"text": "Sample caption at 1:46:00, during the altar call and the close. On the server this is the real StreamYard caption."
+}
+],
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short.",
+"link": "https://youtu.be/2wVIGBvQLzE"
+},
+"GET /automator/videos/hu9cnsymsSo": {
+"ok": true,
+"demo": true,
+"id": "hu9cnsymsSo",
+"title": "YOUR WORDS ARE FRAMING SOMETHING | Pastor Vanessa Sanders",
+"date": "2026-10-18",
+"kind": "service",
+"seconds": 7380,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/hu9cnsymsSo?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/hu9cnsymsSo?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/hu9cnsymsSo?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/hu9cnsymsSo?t=2400"
+},
+{
+"at": "1:48:00",
+"sec": 6480,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/hu9cnsymsSo?t=6480"
+}
+],
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": [],
+"sample": true,
+"watch": "https://youtu.be/hu9cnsymsSo",
+"studio": "https://studio.youtube.com/video/hu9cnsymsSo/edit",
+"thumb": "https://i.ytimg.com/vi/hu9cnsymsSo/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/hu9cnsymsSo/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/hu9cnsymsSo/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:48:00 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-10-18_sample.jpg",
+"name": "THUMB_2026-10-18_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-10-18",
+"why": "made for 2026-10-18",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI0Q2MjIyRCIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+WU9VUiBXT1JEUyBBUkUgRlJBTUlORyBTT01FVEhJTkc8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjY2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI0NCI+MjAyNi0xMC0xOCDCtyBTQU1QTEUgVEhVTUJOQUlMPC90ZXh0Pjwvc3ZnPg=="
+}
+],
+"transcripts": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/hu9cnsymsSo_streamyard.vtt",
+"segments": 123
+}
+],
+"files": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/hu9cnsymsSo_streamyard.vtt",
+"kind": "transcript",
+"history": false,
+"private": false
+}
+],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/hu9cnsymsSo/transcript": {
+"ok": true,
+"demo": true,
+"video_id": "hu9cnsymsSo",
+"source": "transcripts/hu9cnsymsSo_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"sources": [
+{
+"path": "transcripts/hu9cnsymsSo_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"segments": 123
+}
+],
+"segments": [
+{
+"t": 0.0,
+"d": 60.0,
+"text": "Sample caption at 0:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 60.0,
+"d": 60.0,
+"text": "Sample caption at 1:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 120.0,
+"d": 60.0,
+"text": "Sample caption at 2:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 180.0,
+"d": 60.0,
+"text": "Sample caption at 3:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 240.0,
+"d": 60.0,
+"text": "Sample caption at 4:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 300.0,
+"d": 60.0,
+"text": "Sample caption at 5:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 360.0,
+"d": 60.0,
+"text": "Sample caption at 6:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 420.0,
+"d": 60.0,
+"text": "Sample caption at 7:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 480.0,
+"d": 60.0,
+"text": "Sample caption at 8:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 540.0,
+"d": 60.0,
+"text": "Sample caption at 9:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 600.0,
+"d": 60.0,
+"text": "Sample caption at 10:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 660.0,
+"d": 60.0,
+"text": "Sample caption at 11:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 720.0,
+"d": 60.0,
+"text": "Sample caption at 12:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 780.0,
+"d": 60.0,
+"text": "Sample caption at 13:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 840.0,
+"d": 60.0,
+"text": "Sample caption at 14:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 900.0,
+"d": 60.0,
+"text": "Sample caption at 15:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 960.0,
+"d": 60.0,
+"text": "Sample caption at 16:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1020.0,
+"d": 60.0,
+"text": "Sample caption at 17:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1080.0,
+"d": 60.0,
+"text": "Sample caption at 18:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1140.0,
+"d": 60.0,
+"text": "Sample caption at 19:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1200.0,
+"d": 60.0,
+"text": "Sample caption at 20:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1260.0,
+"d": 60.0,
+"text": "Sample caption at 21:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1320.0,
+"d": 60.0,
+"text": "Sample caption at 22:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1380.0,
+"d": 60.0,
+"text": "Sample caption at 23:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1440.0,
+"d": 60.0,
+"text": "Sample caption at 24:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1500.0,
+"d": 60.0,
+"text": "Sample caption at 25:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1560.0,
+"d": 60.0,
+"text": "Sample caption at 26:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1620.0,
+"d": 60.0,
+"text": "Sample caption at 27:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1680.0,
+"d": 60.0,
+"text": "Sample caption at 28:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1740.0,
+"d": 60.0,
+"text": "Sample caption at 29:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1800.0,
+"d": 60.0,
+"text": "Sample caption at 30:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1860.0,
+"d": 60.0,
+"text": "Sample caption at 31:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1920.0,
+"d": 60.0,
+"text": "Sample caption at 32:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1980.0,
+"d": 60.0,
+"text": "Sample caption at 33:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2040.0,
+"d": 60.0,
+"text": "Sample caption at 34:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2100.0,
+"d": 60.0,
+"text": "Sample caption at 35:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2160.0,
+"d": 60.0,
+"text": "Sample caption at 36:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2220.0,
+"d": 60.0,
+"text": "Sample caption at 37:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2280.0,
+"d": 60.0,
+"text": "Sample caption at 38:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2340.0,
+"d": 60.0,
+"text": "Sample caption at 39:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2400.0,
+"d": 60.0,
+"text": "Sample caption at 40:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2460.0,
+"d": 60.0,
+"text": "Sample caption at 41:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2520.0,
+"d": 60.0,
+"text": "Sample caption at 42:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2580.0,
+"d": 60.0,
+"text": "Sample caption at 43:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2640.0,
+"d": 60.0,
+"text": "Sample caption at 44:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2700.0,
+"d": 60.0,
+"text": "Sample caption at 45:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2760.0,
+"d": 60.0,
+"text": "Sample caption at 46:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2820.0,
+"d": 60.0,
+"text": "Sample caption at 47:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2880.0,
+"d": 60.0,
+"text": "Sample caption at 48:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2940.0,
+"d": 60.0,
+"text": "Sample caption at 49:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3000.0,
+"d": 60.0,
+"text": "Sample caption at 50:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3060.0,
+"d": 60.0,
+"text": "Sample caption at 51:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3120.0,
+"d": 60.0,
+"text": "Sample caption at 52:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3180.0,
+"d": 60.0,
+"text": "Sample caption at 53:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3240.0,
+"d": 60.0,
+"text": "Sample caption at 54:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3300.0,
+"d": 60.0,
+"text": "Sample caption at 55:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3360.0,
+"d": 60.0,
+"text": "Sample caption at 56:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3420.0,
+"d": 60.0,
+"text": "Sample caption at 57:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3480.0,
+"d": 60.0,
+"text": "Sample caption at 58:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3540.0,
+"d": 60.0,
+"text": "Sample caption at 59:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3600.0,
+"d": 60.0,
+"text": "Sample caption at 1:00:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3660.0,
+"d": 60.0,
+"text": "Sample caption at 1:01:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3720.0,
+"d": 60.0,
+"text": "Sample caption at 1:02:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3780.0,
+"d": 60.0,
+"text": "Sample caption at 1:03:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3840.0,
+"d": 60.0,
+"text": "Sample caption at 1:04:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3900.0,
+"d": 60.0,
+"text": "Sample caption at 1:05:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3960.0,
+"d": 60.0,
+"text": "Sample caption at 1:06:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4020.0,
+"d": 60.0,
+"text": "Sample caption at 1:07:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4080.0,
+"d": 60.0,
+"text": "Sample caption at 1:08:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4140.0,
+"d": 60.0,
+"text": "Sample caption at 1:09:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4200.0,
+"d": 60.0,
+"text": "Sample caption at 1:10:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4260.0,
+"d": 60.0,
+"text": "Sample caption at 1:11:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4320.0,
+"d": 60.0,
+"text": "Sample caption at 1:12:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4380.0,
+"d": 60.0,
+"text": "Sample caption at 1:13:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4440.0,
+"d": 60.0,
+"text": "Sample caption at 1:14:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4500.0,
+"d": 60.0,
+"text": "Sample caption at 1:15:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4560.0,
+"d": 60.0,
+"text": "Sample caption at 1:16:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4620.0,
+"d": 60.0,
+"text": "Sample caption at 1:17:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4680.0,
+"d": 60.0,
+"text": "Sample caption at 1:18:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4740.0,
+"d": 60.0,
+"text": "Sample caption at 1:19:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4800.0,
+"d": 60.0,
+"text": "Sample caption at 1:20:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4860.0,
+"d": 60.0,
+"text": "Sample caption at 1:21:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4920.0,
+"d": 60.0,
+"text": "Sample caption at 1:22:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4980.0,
+"d": 60.0,
+"text": "Sample caption at 1:23:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5040.0,
+"d": 60.0,
+"text": "Sample caption at 1:24:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5100.0,
+"d": 60.0,
+"text": "Sample caption at 1:25:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5160.0,
+"d": 60.0,
+"text": "Sample caption at 1:26:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5220.0,
+"d": 60.0,
+"text": "Sample caption at 1:27:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5280.0,
+"d": 60.0,
+"text": "Sample caption at 1:28:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5340.0,
+"d": 60.0,
+"text": "Sample caption at 1:29:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5400.0,
+"d": 60.0,
+"text": "Sample caption at 1:30:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5460.0,
+"d": 60.0,
+"text": "Sample caption at 1:31:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5520.0,
+"d": 60.0,
+"text": "Sample caption at 1:32:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5580.0,
+"d": 60.0,
+"text": "Sample caption at 1:33:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5640.0,
+"d": 60.0,
+"text": "Sample caption at 1:34:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5700.0,
+"d": 60.0,
+"text": "Sample caption at 1:35:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5760.0,
+"d": 60.0,
+"text": "Sample caption at 1:36:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5820.0,
+"d": 60.0,
+"text": "Sample caption at 1:37:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5880.0,
+"d": 60.0,
+"text": "Sample caption at 1:38:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5940.0,
+"d": 60.0,
+"text": "Sample caption at 1:39:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6000.0,
+"d": 60.0,
+"text": "Sample caption at 1:40:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6060.0,
+"d": 60.0,
+"text": "Sample caption at 1:41:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6120.0,
+"d": 60.0,
+"text": "Sample caption at 1:42:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6180.0,
+"d": 60.0,
+"text": "Sample caption at 1:43:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6240.0,
+"d": 60.0,
+"text": "Sample caption at 1:44:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6300.0,
+"d": 60.0,
+"text": "Sample caption at 1:45:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6360.0,
+"d": 60.0,
+"text": "Sample caption at 1:46:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6420.0,
+"d": 60.0,
+"text": "Sample caption at 1:47:00, during the message, “Your Words Are Framing Something”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6480.0,
+"d": 60.0,
+"text": "Sample caption at 1:48:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6540.0,
+"d": 60.0,
+"text": "Sample caption at 1:49:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6600.0,
+"d": 60.0,
+"text": "Sample caption at 1:50:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6660.0,
+"d": 60.0,
+"text": "Sample caption at 1:51:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6720.0,
+"d": 60.0,
+"text": "Sample caption at 1:52:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6780.0,
+"d": 60.0,
+"text": "Sample caption at 1:53:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6840.0,
+"d": 60.0,
+"text": "Sample caption at 1:54:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6900.0,
+"d": 60.0,
+"text": "Sample caption at 1:55:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6960.0,
+"d": 60.0,
+"text": "Sample caption at 1:56:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7020.0,
+"d": 60.0,
+"text": "Sample caption at 1:57:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7080.0,
+"d": 60.0,
+"text": "Sample caption at 1:58:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7140.0,
+"d": 60.0,
+"text": "Sample caption at 1:59:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7200.0,
+"d": 60.0,
+"text": "Sample caption at 2:00:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7260.0,
+"d": 60.0,
+"text": "Sample caption at 2:01:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 7320.0,
+"d": 60.0,
+"text": "Sample caption at 2:02:00, during the altar call and the close. On the server this is the real StreamYard caption."
+}
+],
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short.",
+"link": "https://youtu.be/hu9cnsymsSo"
+},
+"GET /automator/videos/yMewy7Nwi3c": {
+"ok": true,
+"demo": true,
+"id": "yMewy7Nwi3c",
+"title": "Pitch the Ship: Intimacy with the Holy Spirit",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 58,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": [],
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": [],
+"sample": true,
+"watch": "https://youtube.com/shorts/yMewy7Nwi3c",
+"studio": "https://studio.youtube.com/video/yMewy7Nwi3c/edit",
+"thumb": "https://i.ytimg.com/vi/yMewy7Nwi3c/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/yMewy7Nwi3c/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/yMewy7Nwi3c/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [],
+"setlists": [],
+"parent_video": {
+"id": "AnVfOCesXM4",
+"title": "PITCH THE SHIP | Apostle Bryant Sanders",
+"date": "2026-10-11",
+"kind": "service",
+"seconds": 6990,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 2,
+"sample": true,
+"watch": "https://youtu.be/AnVfOCesXM4",
+"studio": "https://studio.youtube.com/video/AnVfOCesXM4/edit",
+"thumb": "https://i.ytimg.com/vi/AnVfOCesXM4/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/AnVfOCesXM4/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/AnVfOCesXM4/maxresdefault.jpg"
+},
+"thumbs": [],
+"transcripts": [],
+"files": [],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/yMewy7Nwi3c/transcript": {
+"ok": true,
+"video_id": "yMewy7Nwi3c",
+"segments": [],
+"sources": [],
+"note": "No timed transcript for this video in the archive."
+},
+"GET /automator/videos/AnVfOCesXM4": {
+"ok": true,
+"demo": true,
+"id": "AnVfOCesXM4",
+"title": "PITCH THE SHIP | Apostle Bryant Sanders",
+"date": "2026-10-11",
+"kind": "service",
+"seconds": 6990,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/AnVfOCesXM4?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/AnVfOCesXM4?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/AnVfOCesXM4?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/AnVfOCesXM4?t=2400"
+},
+{
+"at": "1:41:30",
+"sec": 6090,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/AnVfOCesXM4?t=6090"
+}
+],
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": [
+{
+"id": "yMewy7Nwi3c",
+"title": "Pitch the Ship: Intimacy with the Holy Spirit",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 58,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": false,
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": 0,
+"sample": true,
+"watch": "https://youtube.com/shorts/yMewy7Nwi3c",
+"studio": "https://studio.youtube.com/video/yMewy7Nwi3c/edit",
+"thumb": "https://i.ytimg.com/vi/yMewy7Nwi3c/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/yMewy7Nwi3c/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/yMewy7Nwi3c/maxresdefault.jpg"
+},
+{
+"id": "9s5f2cIwg8o",
+"title": "Pocket Square: A Small Test of Obedience",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 61,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": false,
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": 0,
+"sample": true,
+"watch": "https://youtube.com/shorts/9s5f2cIwg8o",
+"studio": "https://studio.youtube.com/video/9s5f2cIwg8o/edit",
+"thumb": "https://i.ytimg.com/vi/9s5f2cIwg8o/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/9s5f2cIwg8o/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/9s5f2cIwg8o/maxresdefault.jpg"
+}
+],
+"sample": true,
+"watch": "https://youtu.be/AnVfOCesXM4",
+"studio": "https://studio.youtube.com/video/AnVfOCesXM4/edit",
+"thumb": "https://i.ytimg.com/vi/AnVfOCesXM4/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/AnVfOCesXM4/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/AnVfOCesXM4/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:41:30 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-10-11_sample.jpg",
+"name": "THUMB_2026-10-11_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-10-11",
+"why": "made for 2026-10-11",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI0Q2MjIyRCIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+UElUQ0ggVEhFIFNISVA8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjY2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI0NCI+MjAyNi0xMC0xMSDCtyBTQU1QTEUgVEhVTUJOQUlMPC90ZXh0Pjwvc3ZnPg=="
+}
+],
+"transcripts": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/AnVfOCesXM4_streamyard.vtt",
+"segments": 117
+}
+],
+"files": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/AnVfOCesXM4_streamyard.vtt",
+"kind": "transcript",
+"history": false,
+"private": false
+}
+],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/AnVfOCesXM4/transcript": {
+"ok": true,
+"demo": true,
+"video_id": "AnVfOCesXM4",
+"source": "transcripts/AnVfOCesXM4_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"sources": [
+{
+"path": "transcripts/AnVfOCesXM4_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"segments": 117
+}
+],
+"segments": [
+{
+"t": 0.0,
+"d": 60.0,
+"text": "Sample caption at 0:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 60.0,
+"d": 60.0,
+"text": "Sample caption at 1:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 120.0,
+"d": 60.0,
+"text": "Sample caption at 2:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 180.0,
+"d": 60.0,
+"text": "Sample caption at 3:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 240.0,
+"d": 60.0,
+"text": "Sample caption at 4:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 300.0,
+"d": 60.0,
+"text": "Sample caption at 5:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 360.0,
+"d": 60.0,
+"text": "Sample caption at 6:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 420.0,
+"d": 60.0,
+"text": "Sample caption at 7:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 480.0,
+"d": 60.0,
+"text": "Sample caption at 8:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 540.0,
+"d": 60.0,
+"text": "Sample caption at 9:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 600.0,
+"d": 60.0,
+"text": "Sample caption at 10:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 660.0,
+"d": 60.0,
+"text": "Sample caption at 11:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 720.0,
+"d": 60.0,
+"text": "Sample caption at 12:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 780.0,
+"d": 60.0,
+"text": "Sample caption at 13:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 840.0,
+"d": 60.0,
+"text": "Sample caption at 14:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 900.0,
+"d": 60.0,
+"text": "Sample caption at 15:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 960.0,
+"d": 60.0,
+"text": "Sample caption at 16:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1020.0,
+"d": 60.0,
+"text": "Sample caption at 17:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1080.0,
+"d": 60.0,
+"text": "Sample caption at 18:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1140.0,
+"d": 60.0,
+"text": "Sample caption at 19:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1200.0,
+"d": 60.0,
+"text": "Sample caption at 20:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1260.0,
+"d": 60.0,
+"text": "Sample caption at 21:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1320.0,
+"d": 60.0,
+"text": "Sample caption at 22:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1380.0,
+"d": 60.0,
+"text": "Sample caption at 23:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1440.0,
+"d": 60.0,
+"text": "Sample caption at 24:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1500.0,
+"d": 60.0,
+"text": "Sample caption at 25:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1560.0,
+"d": 60.0,
+"text": "Sample caption at 26:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1620.0,
+"d": 60.0,
+"text": "Sample caption at 27:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1680.0,
+"d": 60.0,
+"text": "Sample caption at 28:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1740.0,
+"d": 60.0,
+"text": "Sample caption at 29:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1800.0,
+"d": 60.0,
+"text": "Sample caption at 30:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1860.0,
+"d": 60.0,
+"text": "Sample caption at 31:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1920.0,
+"d": 60.0,
+"text": "Sample caption at 32:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1980.0,
+"d": 60.0,
+"text": "Sample caption at 33:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2040.0,
+"d": 60.0,
+"text": "Sample caption at 34:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2100.0,
+"d": 60.0,
+"text": "Sample caption at 35:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2160.0,
+"d": 60.0,
+"text": "Sample caption at 36:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2220.0,
+"d": 60.0,
+"text": "Sample caption at 37:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2280.0,
+"d": 60.0,
+"text": "Sample caption at 38:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2340.0,
+"d": 60.0,
+"text": "Sample caption at 39:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2400.0,
+"d": 60.0,
+"text": "Sample caption at 40:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2460.0,
+"d": 60.0,
+"text": "Sample caption at 41:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2520.0,
+"d": 60.0,
+"text": "Sample caption at 42:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2580.0,
+"d": 60.0,
+"text": "Sample caption at 43:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2640.0,
+"d": 60.0,
+"text": "Sample caption at 44:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2700.0,
+"d": 60.0,
+"text": "Sample caption at 45:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2760.0,
+"d": 60.0,
+"text": "Sample caption at 46:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2820.0,
+"d": 60.0,
+"text": "Sample caption at 47:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2880.0,
+"d": 60.0,
+"text": "Sample caption at 48:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2940.0,
+"d": 60.0,
+"text": "Sample caption at 49:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3000.0,
+"d": 60.0,
+"text": "Sample caption at 50:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3060.0,
+"d": 60.0,
+"text": "Sample caption at 51:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3120.0,
+"d": 60.0,
+"text": "Sample caption at 52:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3180.0,
+"d": 60.0,
+"text": "Sample caption at 53:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3240.0,
+"d": 60.0,
+"text": "Sample caption at 54:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3300.0,
+"d": 60.0,
+"text": "Sample caption at 55:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3360.0,
+"d": 60.0,
+"text": "Sample caption at 56:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3420.0,
+"d": 60.0,
+"text": "Sample caption at 57:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3480.0,
+"d": 60.0,
+"text": "Sample caption at 58:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3540.0,
+"d": 60.0,
+"text": "Sample caption at 59:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3600.0,
+"d": 60.0,
+"text": "Sample caption at 1:00:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3660.0,
+"d": 60.0,
+"text": "Sample caption at 1:01:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3720.0,
+"d": 60.0,
+"text": "Sample caption at 1:02:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3780.0,
+"d": 60.0,
+"text": "Sample caption at 1:03:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3840.0,
+"d": 60.0,
+"text": "Sample caption at 1:04:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3900.0,
+"d": 60.0,
+"text": "Sample caption at 1:05:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3960.0,
+"d": 60.0,
+"text": "Sample caption at 1:06:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4020.0,
+"d": 60.0,
+"text": "Sample caption at 1:07:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4080.0,
+"d": 60.0,
+"text": "Sample caption at 1:08:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4140.0,
+"d": 60.0,
+"text": "Sample caption at 1:09:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4200.0,
+"d": 60.0,
+"text": "Sample caption at 1:10:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4260.0,
+"d": 60.0,
+"text": "Sample caption at 1:11:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4320.0,
+"d": 60.0,
+"text": "Sample caption at 1:12:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4380.0,
+"d": 60.0,
+"text": "Sample caption at 1:13:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4440.0,
+"d": 60.0,
+"text": "Sample caption at 1:14:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4500.0,
+"d": 60.0,
+"text": "Sample caption at 1:15:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4560.0,
+"d": 60.0,
+"text": "Sample caption at 1:16:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4620.0,
+"d": 60.0,
+"text": "Sample caption at 1:17:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4680.0,
+"d": 60.0,
+"text": "Sample caption at 1:18:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4740.0,
+"d": 60.0,
+"text": "Sample caption at 1:19:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4800.0,
+"d": 60.0,
+"text": "Sample caption at 1:20:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4860.0,
+"d": 60.0,
+"text": "Sample caption at 1:21:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4920.0,
+"d": 60.0,
+"text": "Sample caption at 1:22:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4980.0,
+"d": 60.0,
+"text": "Sample caption at 1:23:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5040.0,
+"d": 60.0,
+"text": "Sample caption at 1:24:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5100.0,
+"d": 60.0,
+"text": "Sample caption at 1:25:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5160.0,
+"d": 60.0,
+"text": "Sample caption at 1:26:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5220.0,
+"d": 60.0,
+"text": "Sample caption at 1:27:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5280.0,
+"d": 60.0,
+"text": "Sample caption at 1:28:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5340.0,
+"d": 60.0,
+"text": "Sample caption at 1:29:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5400.0,
+"d": 60.0,
+"text": "Sample caption at 1:30:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5460.0,
+"d": 60.0,
+"text": "Sample caption at 1:31:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5520.0,
+"d": 60.0,
+"text": "Sample caption at 1:32:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5580.0,
+"d": 60.0,
+"text": "Sample caption at 1:33:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5640.0,
+"d": 60.0,
+"text": "Sample caption at 1:34:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5700.0,
+"d": 60.0,
+"text": "Sample caption at 1:35:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5760.0,
+"d": 60.0,
+"text": "Sample caption at 1:36:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5820.0,
+"d": 60.0,
+"text": "Sample caption at 1:37:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5880.0,
+"d": 60.0,
+"text": "Sample caption at 1:38:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5940.0,
+"d": 60.0,
+"text": "Sample caption at 1:39:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6000.0,
+"d": 60.0,
+"text": "Sample caption at 1:40:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6060.0,
+"d": 60.0,
+"text": "Sample caption at 1:41:00, during the message, “Pitch The Ship”. On the server this is the real StreamYard caption."
+},
+{
+"t": 6120.0,
+"d": 60.0,
+"text": "Sample caption at 1:42:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6180.0,
+"d": 60.0,
+"text": "Sample caption at 1:43:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6240.0,
+"d": 60.0,
+"text": "Sample caption at 1:44:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6300.0,
+"d": 60.0,
+"text": "Sample caption at 1:45:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6360.0,
+"d": 60.0,
+"text": "Sample caption at 1:46:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6420.0,
+"d": 60.0,
+"text": "Sample caption at 1:47:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6480.0,
+"d": 60.0,
+"text": "Sample caption at 1:48:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6540.0,
+"d": 60.0,
+"text": "Sample caption at 1:49:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6600.0,
+"d": 60.0,
+"text": "Sample caption at 1:50:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6660.0,
+"d": 60.0,
+"text": "Sample caption at 1:51:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6720.0,
+"d": 60.0,
+"text": "Sample caption at 1:52:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6780.0,
+"d": 60.0,
+"text": "Sample caption at 1:53:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6840.0,
+"d": 60.0,
+"text": "Sample caption at 1:54:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6900.0,
+"d": 60.0,
+"text": "Sample caption at 1:55:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 6960.0,
+"d": 60.0,
+"text": "Sample caption at 1:56:00, during the altar call and the close. On the server this is the real StreamYard caption."
+}
+],
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short.",
+"link": "https://youtu.be/AnVfOCesXM4"
+},
+"GET /automator/videos/9s5f2cIwg8o": {
+"ok": true,
+"demo": true,
+"id": "9s5f2cIwg8o",
+"title": "Pocket Square: A Small Test of Obedience",
+"date": "2026-10-11",
+"kind": "short",
+"seconds": 61,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": [],
+"in_catalogue": true,
+"held": false,
+"parent": "AnVfOCesXM4",
+"shorts": [],
+"sample": true,
+"watch": "https://youtube.com/shorts/9s5f2cIwg8o",
+"studio": "https://studio.youtube.com/video/9s5f2cIwg8o/edit",
+"thumb": "https://i.ytimg.com/vi/9s5f2cIwg8o/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/9s5f2cIwg8o/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/9s5f2cIwg8o/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [],
+"setlists": [],
+"parent_video": {
+"id": "AnVfOCesXM4",
+"title": "PITCH THE SHIP | Apostle Bryant Sanders",
+"date": "2026-10-11",
+"kind": "service",
+"seconds": 6990,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": true,
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": 2,
+"sample": true,
+"watch": "https://youtu.be/AnVfOCesXM4",
+"studio": "https://studio.youtube.com/video/AnVfOCesXM4/edit",
+"thumb": "https://i.ytimg.com/vi/AnVfOCesXM4/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/AnVfOCesXM4/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/AnVfOCesXM4/maxresdefault.jpg"
+},
+"thumbs": [],
+"transcripts": [],
+"files": [],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/9s5f2cIwg8o/transcript": {
+"ok": true,
+"video_id": "9s5f2cIwg8o",
+"segments": [],
+"sources": [],
+"note": "No timed transcript for this video in the archive."
+},
+"GET /automator/videos/4V4QeHZevgU": {
+"ok": true,
+"demo": true,
+"id": "4V4QeHZevgU",
+"title": "A Bride Willing to Follow | Apostle Bryant Sanders | Glory Night October 5, 2026",
+"date": "2026-10-05",
+"kind": "service",
+"seconds": 5980,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": true,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/4V4QeHZevgU?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/4V4QeHZevgU?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/4V4QeHZevgU?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/4V4QeHZevgU?t=2400"
+},
+{
+"at": "1:24:40",
+"sec": 5080,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/4V4QeHZevgU?t=5080"
+}
+],
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": [],
+"sample": true,
+"watch": "https://youtu.be/4V4QeHZevgU",
+"studio": "https://studio.youtube.com/video/4V4QeHZevgU/edit",
+"thumb": "https://i.ytimg.com/vi/4V4QeHZevgU/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/4V4QeHZevgU/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/4V4QeHZevgU/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:24:40 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-10-05_sample.jpg",
+"name": "THUMB_2026-10-05_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-10-05",
+"why": "made for 2026-10-05",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iIzVEMURDQyIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+QSBCUklERSBXSUxMSU5HIFRPIEZPTExPVzwvdGV4dD48dGV4dCB4PSI2NCIgeT0iNjYwIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iT3N3YWxkLEFyaWFsIiBmb250LXNpemU9IjQ0Ij4yMDI2LTEwLTA1IMK3IFNBTVBMRSBUSFVNQk5BSUw8L3RleHQ+PC9zdmc+"
+}
+],
+"transcripts": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/4V4QeHZevgU_streamyard.vtt",
+"segments": 100
+}
+],
+"files": [
+{
+"repo": "arise-youtube-automation",
+"path": "transcripts/4V4QeHZevgU_streamyard.vtt",
+"kind": "transcript",
+"history": false,
+"private": false
+}
+],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/4V4QeHZevgU/transcript": {
+"ok": true,
+"demo": true,
+"video_id": "4V4QeHZevgU",
+"source": "transcripts/4V4QeHZevgU_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"sources": [
+{
+"path": "transcripts/4V4QeHZevgU_streamyard.vtt",
+"repo": "arise-youtube-automation",
+"segments": 100
+}
+],
+"segments": [
+{
+"t": 0.0,
+"d": 60.0,
+"text": "Sample caption at 0:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 60.0,
+"d": 60.0,
+"text": "Sample caption at 1:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 120.0,
+"d": 60.0,
+"text": "Sample caption at 2:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 180.0,
+"d": 60.0,
+"text": "Sample caption at 3:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 240.0,
+"d": 60.0,
+"text": "Sample caption at 4:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 300.0,
+"d": 60.0,
+"text": "Sample caption at 5:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 360.0,
+"d": 60.0,
+"text": "Sample caption at 6:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 420.0,
+"d": 60.0,
+"text": "Sample caption at 7:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 480.0,
+"d": 60.0,
+"text": "Sample caption at 8:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 540.0,
+"d": 60.0,
+"text": "Sample caption at 9:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 600.0,
+"d": 60.0,
+"text": "Sample caption at 10:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 660.0,
+"d": 60.0,
+"text": "Sample caption at 11:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 720.0,
+"d": 60.0,
+"text": "Sample caption at 12:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 780.0,
+"d": 60.0,
+"text": "Sample caption at 13:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 840.0,
+"d": 60.0,
+"text": "Sample caption at 14:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 900.0,
+"d": 60.0,
+"text": "Sample caption at 15:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 960.0,
+"d": 60.0,
+"text": "Sample caption at 16:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1020.0,
+"d": 60.0,
+"text": "Sample caption at 17:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1080.0,
+"d": 60.0,
+"text": "Sample caption at 18:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1140.0,
+"d": 60.0,
+"text": "Sample caption at 19:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1200.0,
+"d": 60.0,
+"text": "Sample caption at 20:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1260.0,
+"d": 60.0,
+"text": "Sample caption at 21:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1320.0,
+"d": 60.0,
+"text": "Sample caption at 22:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1380.0,
+"d": 60.0,
+"text": "Sample caption at 23:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1440.0,
+"d": 60.0,
+"text": "Sample caption at 24:00, during welcome and worship. On the server this is the real StreamYard caption."
+},
+{
+"t": 1500.0,
+"d": 60.0,
+"text": "Sample caption at 25:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1560.0,
+"d": 60.0,
+"text": "Sample caption at 26:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1620.0,
+"d": 60.0,
+"text": "Sample caption at 27:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1680.0,
+"d": 60.0,
+"text": "Sample caption at 28:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1740.0,
+"d": 60.0,
+"text": "Sample caption at 29:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1800.0,
+"d": 60.0,
+"text": "Sample caption at 30:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1860.0,
+"d": 60.0,
+"text": "Sample caption at 31:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1920.0,
+"d": 60.0,
+"text": "Sample caption at 32:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 1980.0,
+"d": 60.0,
+"text": "Sample caption at 33:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2040.0,
+"d": 60.0,
+"text": "Sample caption at 34:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2100.0,
+"d": 60.0,
+"text": "Sample caption at 35:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2160.0,
+"d": 60.0,
+"text": "Sample caption at 36:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2220.0,
+"d": 60.0,
+"text": "Sample caption at 37:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2280.0,
+"d": 60.0,
+"text": "Sample caption at 38:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2340.0,
+"d": 60.0,
+"text": "Sample caption at 39:00, during announcements and the offering. On the server this is the real StreamYard caption."
+},
+{
+"t": 2400.0,
+"d": 60.0,
+"text": "Sample caption at 40:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2460.0,
+"d": 60.0,
+"text": "Sample caption at 41:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2520.0,
+"d": 60.0,
+"text": "Sample caption at 42:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2580.0,
+"d": 60.0,
+"text": "Sample caption at 43:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2640.0,
+"d": 60.0,
+"text": "Sample caption at 44:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2700.0,
+"d": 60.0,
+"text": "Sample caption at 45:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2760.0,
+"d": 60.0,
+"text": "Sample caption at 46:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2820.0,
+"d": 60.0,
+"text": "Sample caption at 47:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2880.0,
+"d": 60.0,
+"text": "Sample caption at 48:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 2940.0,
+"d": 60.0,
+"text": "Sample caption at 49:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3000.0,
+"d": 60.0,
+"text": "Sample caption at 50:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3060.0,
+"d": 60.0,
+"text": "Sample caption at 51:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3120.0,
+"d": 60.0,
+"text": "Sample caption at 52:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3180.0,
+"d": 60.0,
+"text": "Sample caption at 53:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3240.0,
+"d": 60.0,
+"text": "Sample caption at 54:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3300.0,
+"d": 60.0,
+"text": "Sample caption at 55:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3360.0,
+"d": 60.0,
+"text": "Sample caption at 56:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3420.0,
+"d": 60.0,
+"text": "Sample caption at 57:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3480.0,
+"d": 60.0,
+"text": "Sample caption at 58:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3540.0,
+"d": 60.0,
+"text": "Sample caption at 59:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3600.0,
+"d": 60.0,
+"text": "Sample caption at 1:00:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3660.0,
+"d": 60.0,
+"text": "Sample caption at 1:01:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3720.0,
+"d": 60.0,
+"text": "Sample caption at 1:02:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3780.0,
+"d": 60.0,
+"text": "Sample caption at 1:03:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3840.0,
+"d": 60.0,
+"text": "Sample caption at 1:04:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3900.0,
+"d": 60.0,
+"text": "Sample caption at 1:05:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 3960.0,
+"d": 60.0,
+"text": "Sample caption at 1:06:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4020.0,
+"d": 60.0,
+"text": "Sample caption at 1:07:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4080.0,
+"d": 60.0,
+"text": "Sample caption at 1:08:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4140.0,
+"d": 60.0,
+"text": "Sample caption at 1:09:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4200.0,
+"d": 60.0,
+"text": "Sample caption at 1:10:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4260.0,
+"d": 60.0,
+"text": "Sample caption at 1:11:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4320.0,
+"d": 60.0,
+"text": "Sample caption at 1:12:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4380.0,
+"d": 60.0,
+"text": "Sample caption at 1:13:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4440.0,
+"d": 60.0,
+"text": "Sample caption at 1:14:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4500.0,
+"d": 60.0,
+"text": "Sample caption at 1:15:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4560.0,
+"d": 60.0,
+"text": "Sample caption at 1:16:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4620.0,
+"d": 60.0,
+"text": "Sample caption at 1:17:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4680.0,
+"d": 60.0,
+"text": "Sample caption at 1:18:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4740.0,
+"d": 60.0,
+"text": "Sample caption at 1:19:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4800.0,
+"d": 60.0,
+"text": "Sample caption at 1:20:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4860.0,
+"d": 60.0,
+"text": "Sample caption at 1:21:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4920.0,
+"d": 60.0,
+"text": "Sample caption at 1:22:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 4980.0,
+"d": 60.0,
+"text": "Sample caption at 1:23:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5040.0,
+"d": 60.0,
+"text": "Sample caption at 1:24:00, during the message, “A Bride Willing To Follow”. On the server this is the real StreamYard caption."
+},
+{
+"t": 5100.0,
+"d": 60.0,
+"text": "Sample caption at 1:25:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5160.0,
+"d": 60.0,
+"text": "Sample caption at 1:26:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5220.0,
+"d": 60.0,
+"text": "Sample caption at 1:27:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5280.0,
+"d": 60.0,
+"text": "Sample caption at 1:28:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5340.0,
+"d": 60.0,
+"text": "Sample caption at 1:29:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5400.0,
+"d": 60.0,
+"text": "Sample caption at 1:30:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5460.0,
+"d": 60.0,
+"text": "Sample caption at 1:31:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5520.0,
+"d": 60.0,
+"text": "Sample caption at 1:32:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5580.0,
+"d": 60.0,
+"text": "Sample caption at 1:33:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5640.0,
+"d": 60.0,
+"text": "Sample caption at 1:34:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5700.0,
+"d": 60.0,
+"text": "Sample caption at 1:35:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5760.0,
+"d": 60.0,
+"text": "Sample caption at 1:36:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5820.0,
+"d": 60.0,
+"text": "Sample caption at 1:37:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5880.0,
+"d": 60.0,
+"text": "Sample caption at 1:38:00, during the altar call and the close. On the server this is the real StreamYard caption."
+},
+{
+"t": 5940.0,
+"d": 60.0,
+"text": "Sample caption at 1:39:00, during the altar call and the close. On the server this is the real StreamYard caption."
+}
+],
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short.",
+"link": "https://youtu.be/4V4QeHZevgU"
+},
+"GET /automator/videos/W8t2JYXOIBk": {
+"ok": true,
+"demo": true,
+"id": "W8t2JYXOIBk",
+"title": "EXERCISING OUR SPIRITUAL SENSES | Apostle Bryant Sanders",
+"date": "2026-10-04",
+"kind": "service",
+"seconds": 7210,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/W8t2JYXOIBk?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/W8t2JYXOIBk?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/W8t2JYXOIBk?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/W8t2JYXOIBk?t=2400"
+},
+{
+"at": "1:45:10",
+"sec": 6310,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/W8t2JYXOIBk?t=6310"
+}
+],
+"in_catalogue": true,
+"held": false,
+"parent": null,
+"shorts": [],
+"sample": true,
+"watch": "https://youtu.be/W8t2JYXOIBk",
+"studio": "https://studio.youtube.com/video/W8t2JYXOIBk/edit",
+"thumb": "https://i.ytimg.com/vi/W8t2JYXOIBk/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/W8t2JYXOIBk/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/W8t2JYXOIBk/maxresdefault.jpg",
+"held_reason": null,
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:45:10 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-10-04_sample.jpg",
+"name": "THUMB_2026-10-04_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-10-04",
+"why": "made for 2026-10-04",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI0Q2MjIyRCIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+RVhFUkNJU0lORyBPVVIgU1BJUklUVUFMIFNFTlNFUzwvdGV4dD48dGV4dCB4PSI2NCIgeT0iNjYwIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iT3N3YWxkLEFyaWFsIiBmb250LXNpemU9IjQ0Ij4yMDI2LTEwLTA0IMK3IFNBTVBMRSBUSFVNQk5BSUw8L3RleHQ+PC9zdmc+"
+}
+],
+"transcripts": [],
+"files": [],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/W8t2JYXOIBk/transcript": {
+"ok": true,
+"video_id": "W8t2JYXOIBk",
+"segments": [],
+"sources": [],
+"note": "No timed transcript for this video in the archive."
+},
+"GET /automator/videos/MnXmccLS2p8": {
+"ok": true,
+"demo": true,
+"id": "MnXmccLS2p8",
+"title": "Sample: a held service (the GAURD spelling stays)",
+"date": "2026-07-12",
+"kind": "service",
+"seconds": 6600,
+"privacy": "public",
+"views": null,
+"upcoming": null,
+"transcript": false,
+"chapters": [
+{
+"at": "0:00",
+"sec": 0,
+"title": "Welcome (sample chapter)",
+"link": "https://youtu.be/MnXmccLS2p8?t=0"
+},
+{
+"at": "2:30",
+"sec": 150,
+"title": "Worship (sample chapter)",
+"link": "https://youtu.be/MnXmccLS2p8?t=150"
+},
+{
+"at": "25:00",
+"sec": 1500,
+"title": "Announcements (sample chapter)",
+"link": "https://youtu.be/MnXmccLS2p8?t=1500"
+},
+{
+"at": "40:00",
+"sec": 2400,
+"title": "The message (sample chapter)",
+"link": "https://youtu.be/MnXmccLS2p8?t=2400"
+},
+{
+"at": "1:35:00",
+"sec": 5700,
+"title": "Altar call (sample chapter)",
+"link": "https://youtu.be/MnXmccLS2p8?t=5700"
+}
+],
+"in_catalogue": true,
+"held": true,
+"parent": null,
+"shorts": [],
+"sample": true,
+"watch": "https://youtu.be/MnXmccLS2p8",
+"studio": "https://studio.youtube.com/video/MnXmccLS2p8/edit",
+"thumb": "https://i.ytimg.com/vi/MnXmccLS2p8/mqdefault.jpg",
+"thumb_large": "https://i.ytimg.com/vi/MnXmccLS2p8/hqdefault.jpg",
+"thumb_max": "https://i.ytimg.com/vi/MnXmccLS2p8/maxresdefault.jpg",
+"held_reason": "spelling call: GAURD stays",
+"versions": [
+{
+"source": "channel snapshot (sample)",
+"text": "Sample description. On the server this is the text from the channel snapshot and from the toolkit's files, each version labelled with the file it came from.\n\n0:00 Welcome (sample chapter)\n2:30 Worship (sample chapter)\n25:00 Announcements (sample chapter)\n40:00 The message (sample chapter)\n1:35:00 Altar call (sample chapter)",
+"history": false
+},
+{
+"source": "cloud_workspace/work/_backup_sample_pre.json (sample)",
+"text": "Sample: an older version, kept as history.",
+"history": true
+}
+],
+"credits": [
+"Sample credit line, shown exactly as the description writes it (CCLI numbers come only from song_bank.json)."
+],
+"setlists": [],
+"parent_video": null,
+"thumbs": [
+{
+"repo": "arise-youtube-automation",
+"path": "THUMB_2026-07-12_sample.jpg",
+"name": "THUMB_2026-07-12_sample.jpg",
+"size": 182000,
+"width": 1280,
+"height": 720,
+"date": "2026-07-12",
+"why": "made for 2026-07-12",
+"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCIgdmlld0JveD0iMCAwIDEyODAgNzIwIj48cmVjdCB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIGZpbGw9IiMwYjBiMGQiLz48cmVjdCB4PSIwIiB5PSI1NjAiIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI0Q2MjIyRCIvPjx0ZXh0IHg9IjY0IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSI2Ij5BUklTRSBDSFVSQ0g8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjM2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjcwMCI+U0FNUExFOiBBIEhFTEQgU0VSVklDRSAoVEhFIEdBVVJEIFNQRUw8L3RleHQ+PHRleHQgeD0iNjQiIHk9IjY2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9Ik9zd2FsZCxBcmlhbCIgZm9udC1zaXplPSI0NCI+MjAyNi0wNy0xMiDCtyBTQU1QTEUgVEhVTUJOQUlMPC90ZXh0Pjwvc3ZnPg=="
+}
+],
+"transcripts": [],
+"files": [],
+"now": null,
+"note": "Titles and descriptions are from the channel snapshots in the automator repo; YouTube may have newer text.",
+"lyrics": "Transcripts include what was sung. Never copy sung words into a title, description or Short."
+},
+"GET /automator/videos/MnXmccLS2p8/transcript": {
+"ok": true,
+"video_id": "MnXmccLS2p8",
+"segments": [],
+"sources": [],
+"note": "No timed transcript for this video in the archive."
 },
 "GET /automator/reports/2026-10-26_0205.md": {
 "demo": true,

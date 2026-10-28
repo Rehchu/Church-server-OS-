@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
+from . import VERSION, CODENAME, apps, automator, backups, bible, channel, church, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
 from . import activity, automations, monitor, storage, updates
 from . import auth as _auth
 from . import links
@@ -666,6 +666,47 @@ def auto_run(_=admin):
 @app.post("/api/automator/preview")
 def auto_preview(_=admin):
     return automator.start("preview")
+
+
+# The channel side of the Automator app: every video, its thumbnails and links, and a
+# search of the transcripts and the toolkit's files (server/arise_server/channel.py).
+@app.get("/api/automator/channel")
+def auto_channel(_=admin):
+    return channel.status()
+
+
+@app.get("/api/automator/videos")
+def auto_videos(q: str = "", kind: str = "", has: str = "", page: int = 1, _=admin):
+    return channel.videos(q, kind, has, page)
+
+
+@app.get("/api/automator/videos/{vid}")
+def auto_video(vid: str, who=admin):
+    return channel.video(vid, who)
+
+
+@app.get("/api/automator/videos/{vid}/transcript")
+def auto_video_transcript(vid: str, source: str = "", who=admin):
+    return channel.transcript(vid, source, who)
+
+
+@app.get("/api/automator/search")
+def auto_search(q: str = "", kind: str = "transcript", history: bool = False, private: bool = False, who=admin):
+    return channel.search(q, kind, history, private, who)
+
+
+@app.get("/api/automator/archive/doc")
+def auto_archive_doc(repo: str, path: str, start: int | None = None, who=admin):
+    return channel.document(repo, path, start, who)
+
+
+@app.get("/api/automator/archive/file")
+def auto_archive_file(repo: str, path: str, who=admin):
+    """A thumbnail or other image from the archive, read-only."""
+    f, ctype, err = channel.image(repo, path, who)
+    if not f:
+        raise HTTPException(404, {"message": err})
+    return FileResponse(f, media_type=ctype, headers={"Cache-Control": "private, max-age=86400"})
 
 
 # ----- apps --------------------------------------------------------------------

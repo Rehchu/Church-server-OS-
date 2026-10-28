@@ -59,7 +59,8 @@ def cap(obj: dict, list_key: str | None = None) -> dict:
 
 
 def search(cfg: Config, query: str, kind=None, repo=None, video_id=None, date_from=None, date_to=None,
-           include_history: bool = False, include_private: bool = True, limit: int = 20) -> dict:
+           include_history: bool = False, include_private: bool = True, limit: int = 20, uncapped: bool = False) -> dict:
+    """uncapped: the dashboard's own search (up to 200 hits), which pages them itself; the MCP keeps the 20 KB cap."""
     q = fts_query(query)
     if not q:
         return {"results": [], "note": "empty query"}
@@ -83,7 +84,7 @@ def search(cfg: Config, query: str, kind=None, repo=None, video_id=None, date_fr
            f"snippet(chunks, 0, '[', ']', ' … ', 28) AS snip, bm25(chunks) * {weight} AS score "
            f"FROM chunks JOIN chunk_meta m ON m.id = chunks.rowid JOIN docs d ON d.id = m.doc_id "
            f"WHERE {' AND '.join(where)} ORDER BY score LIMIT ?")
-    args.append(max(1, min(int(limit or 20), 100)))
+    args.append(max(1, min(int(limit or 20), 200 if uncapped else 100)))
     with _db(cfg) as db:
         rows = db.execute(sql, args).fetchall()
     res = []
@@ -98,8 +99,11 @@ def search(cfg: Config, query: str, kind=None, repo=None, video_id=None, date_fr
             item["private"] = True
         if r["history"]:
             item["history"] = "a PAST state, not the live text"
+        if uncapped:
+            item["score"] = r["score"]
         res.append(item)
-    return cap({"query": query, "results": res}, "results")
+    out = {"query": query, "results": res}
+    return out if uncapped else cap(out, "results")
 
 
 def _safe(cfg: Config, repo: str, path: str) -> Path:

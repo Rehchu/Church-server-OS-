@@ -34,7 +34,7 @@ BUILT_IN = [
     "claude.ai", "*.claude.ai", "*.anthropic.com",
     "chatgpt.com", "*.chatgpt.com", "*.openai.com",
     "grok.com", "*.grok.com", "x.ai", "*.x.ai", "x.com", "*.x.com",
-    "youtube.com", "*.youtube.com", "*.google.com", "*.googleusercontent.com", "*.gstatic.com", "*.recaptcha.net",
+    "youtube.com", "*.youtube.com", "youtu.be", "*.ytimg.com", "*.googlevideo.com", "*.google.com", "*.googleusercontent.com", "*.gstatic.com", "*.recaptcha.net",
     "streamyard.com", "*.streamyard.com",
     "arisecenla.church", "*.arisecenla.church",
     "github.com", "*.github.com", "*.tailscale.com",
