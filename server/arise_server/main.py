@@ -661,7 +661,8 @@ def api_mail_import(body: MailImport, _=auth):
 @app.post("/api/mail/preview")
 def api_mail_preview(body: MailDraft, _=auth):
     c = church.info()
-    return {"html": mail.render(body.subject, body.body, c["name"], c["city"])}
+    # the merge tags are Resend's; show the preview the way a reader named nobody sees it
+    return {"html": mail.render(body.subject, body.body, c["name"], c["city"]).replace("{{{FIRST_NAME|there}}}", "there").replace("{{{RESEND_UNSUBSCRIBE_URL}}}", "#")}
 
 
 @app.post("/api/mail/test")
