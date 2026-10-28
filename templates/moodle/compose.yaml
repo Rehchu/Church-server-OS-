@@ -2,10 +2,13 @@
 # track, a volunteer onboarding course, a Bible study series. Heavy (PHP +
 # MariaDB, 1 GB+). Only when someone will actually build a course.
 # Passwords in /srv/arise/apps/moodle/.env (DB_PASSWORD, MOODLE_PASSWORD).
-# Verify the image tag before the first deploy; Bitnami re-tags often.
+# Bitnami stopped publishing versioned free images in 2025: bitnami/moodle and
+# bitnami/mariadb tags are gone. bitnamilegacy/* keeps the last builds (Aug 2025)
+# with the same MOODLE_*/MARIADB_* variables, but gets NO security updates. Fine for
+# a try-out (autostart is off); move to a maintained image before members rely on it.
 services:
   db:
-    image: bitnami/mariadb:11.4
+    image: bitnamilegacy/mariadb:11.8.3
     container_name: arise-app-moodle-db
     restart: unless-stopped
     environment:
@@ -19,7 +22,7 @@ services:
       - /srv/arise/apps/moodle/db:/bitnami/mariadb
 
   moodle:
-    image: bitnami/moodle:4.4
+    image: bitnamilegacy/moodle:5.0.2
     container_name: arise-app-moodle
     restart: unless-stopped
     depends_on:

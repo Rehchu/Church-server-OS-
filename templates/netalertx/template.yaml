@@ -3,7 +3,7 @@ title: NetAlertX
 description: Open-source "who is on my network" with a timeline per device, presence history, and an alert (email, Discord, Telegram, webhook) the moment something new appears on the wire. The deeper version of the dashboard's Network app.
 category: network
 icon: pulse
-version: "latest"
+version: "26.10.0"
 ports:
   - 20211:20211
 volumes:

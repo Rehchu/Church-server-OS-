@@ -3,7 +3,7 @@ title: Moodle
 description: Courses with lessons, quizzes and completion tracking - a new-members track, volunteer onboarding, a study series. Heavy; deploy when someone will build a course.
 category: learning
 icon: folder
-version: "4.4"
+version: "5.0.2"
 ports:
   - 8092:8080
 volumes:

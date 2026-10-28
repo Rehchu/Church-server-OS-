@@ -3,7 +3,7 @@ title: ChurchCRM
 description: Members, families, groups, attendance and a printable directory, self-hosted. Only worth it if the church does not already pay for Planning Center, Breeze or the like. Giving stays off this box by Bradly's rule.
 category: church
 icon: folder
-version: "5.9.0"
+version: "7.8.2"
 ports:
   - 8086:80
 volumes:
