@@ -20,6 +20,7 @@ from pydantic import BaseModel
 
 from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, sermons, services, shares, sites, system
 from . import links
+from . import finder
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
 from .util import human_bytes
@@ -540,6 +541,120 @@ async def api_files_upload(root: str = Form("data"), path: str = Form("/"), file
     if len(data) > 2 * 1024 ** 3:
         return {"ok": False, "err": "2 GB limit here; use the share for bigger files"}
     return files.save_upload(root, path, file.filename or "", data, who)
+
+
+# ----- the Finder's everyday pieces (v0.8): Trash, versions, info, recents, text, zip ----
+@app.get("/api/files/info")
+def api_files_info(root: str = "data", path: str = "/", who=auth):
+    return finder.info(root, path, who)
+
+
+@app.get("/api/files/recent")
+def api_files_recent(who=auth):
+    return finder.recent(who)
+
+
+@app.get("/api/files/zip")
+def api_files_zip(root: str = "data", path: str = "/", who=auth):
+    r = finder.zip_path(root, path, who)
+    if r.get("demo"):
+        return JSONResponse({"ok": True, "demo": True, "message": f"(sample) would download {r['name']}"})
+    if not r.get("ok"):
+        raise HTTPException(413 if "GB" in (r.get("err") or "") else 404, {"message": r.get("err", "could not zip")})
+    return FileResponse(r["zip"], filename=r["name"], media_type="application/zip")
+
+
+@app.get("/api/files/text")
+def api_files_text(root: str = "data", path: str = "/", who=auth):
+    return finder.read_text(root, path, who)
+
+
+class TextBody(BaseModel):
+    root: str = "data"
+    path: str
+    text: str
+    mtime: Optional[str] = None
+
+
+@app.put("/api/files/text")
+def api_files_text_save(body: TextBody, who=auth):
+    return finder.write_text(body.root, body.path, body.text, who, body.mtime)
+
+
+class MdBody(BaseModel):
+    text: str
+
+
+@app.post("/api/files/text/preview")
+def api_files_text_preview(body: MdBody, who=auth):
+    return {"html": finder.render_markdown(body.text[:finder.TEXT_MAX])}
+
+
+@app.get("/api/files/trash")
+def api_files_trash(who=auth):
+    return finder.trash_list(who)
+
+
+class TrashPut(BaseModel):
+    root: str = "data"
+    path: str
+    confirm: str = ""
+
+
+@app.post("/api/files/trash")
+def api_files_trash_put(body: TrashPut, who=auth):
+    return finder.trash_put(body.root, body.path, who, body.confirm)
+
+
+class TrashRestore(BaseModel):
+    base: str
+    user: str
+    rel: str
+
+
+@app.post("/api/files/trash/restore")
+def api_files_trash_restore(body: TrashRestore, who=auth):
+    return finder.trash_restore(body.base, body.user, body.rel, who)
+
+
+class TrashEmpty(BaseModel):
+    share: str
+    confirm: str = ""
+
+
+@app.post("/api/files/trash/empty")
+def api_files_trash_empty(body: TrashEmpty, who=admin):
+    return finder.trash_empty(body.share, body.confirm, who)
+
+
+@app.get("/api/files/versions")
+def api_files_versions(root: str = "data", path: str = "/", who=auth):
+    """The nightly copies the backup holds of one file this person may reach."""
+    got = finder._abs(root, path, who)
+    if load().demo:
+        return backups.versions_of(got[1] if got else ("/srv/arise" + path))
+    if not got:
+        return {"error": "no such file", "versions": [], "backed_up": False}
+    return backups.versions_of(got[1])
+
+
+class VersionRestore(BaseModel):
+    root: str = "data"
+    path: str
+    snapshot: str
+
+
+@app.post("/api/files/versions/restore")
+def api_files_versions_restore(body: VersionRestore, who=auth):
+    got = finder._abs(body.root, body.path, who)
+    rs = {r["id"]: r for r in files.roots(who)}
+    if body.root in rs and not files._writable(rs, body.root):
+        return {"ok": False, "err": "that share is read-only for you; ask the media team to put it back"}
+    if load().demo:
+        return backups.restore_version("/srv/arise" + body.path, body.snapshot, who)
+    if not got:
+        return {"ok": False, "err": "not a file you can reach"}
+    return backups.restore_version(got[1], body.snapshot, who)
 
 
 # ----- share links -------------------------------------------------------------

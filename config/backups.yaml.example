@@ -32,6 +32,9 @@ jobs:
     # swallow the backup history; its RAID is its protection until an off-site
     # copy exists (docs/ANSWERS.md 48, 51).
     paths: ["/srv/arise/shares"]
+    # The Trash is not backed up: what someone threw away need not fill the
+    # repository. Put Back is the way home for 30 days (docs/FINDER.md).
+    exclude: ["**/.Trash"]
     tags: [shares]
 
   - id: github

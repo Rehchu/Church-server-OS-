@@ -1,0 +1,7 @@
+[Unit]
+Description=Arise Server Trash sweep (removes what has sat in any share's .Trash for 30 days)
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arisectl trash sweep --quiet

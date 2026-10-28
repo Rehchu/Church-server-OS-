@@ -11,6 +11,7 @@
     arisectl computer list|remove <name>
     arisectl share list|add <name> <path> [--group G] [--comment C]|remove <name>
     arisectl backup status|jobs|run [job]|snapshots|restore <id|latest> [--tag T] [--at DATE] [--path P] --target DIR|verify|prune|drill
+    arisectl trash list|sweep [--dry-run]|empty <share>          the Trash on every share (30 days, then the sweep)
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
     arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM
     arisectl app list|templates|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
@@ -590,6 +591,39 @@ def cmd_link(a):
         sys.exit("arisectl link list|revoke <token>|sweep")
 
 
+def cmd_trash(a):
+    """The Trash on every share: what is in it, the daily sweep, an admin's empty (docs/FINDER.md)."""
+    from arise_server import finder
+    if a.sub == "list":
+        r = finder.trash_list(None)
+        rows = r["items"]
+        if not rows:
+            print("every Trash is empty"); return
+        table([{"share": t["label"], "by": t["user"], "deleted": str(t["when"])[:16], "size": "folder" if t["dir"] else human_bytes(t["size"]), "was": t["original"]} for t in rows[:200]], ["share", "by", "deleted", "size", "was"])
+        if len(rows) > 200: print(f"  … and {len(rows) - 200} more")
+        if r.get("demo"): warn("sample data")
+    elif a.sub == "sweep":
+        need_root()
+        r = finder.trash_sweep(days=finder.TRASH_DAYS, dry_run=a.dry_run)
+        if a.quiet:
+            sys.exit(0 if r.get("ok") else 1)
+        (ok if r.get("ok") else bad)(f"{'would remove' if a.dry_run else 'removed'} {r.get('removed', 0)} item(s), {human_bytes(r.get('bytes'))}, older than {finder.TRASH_DAYS} days")
+        for it in r.get("items", [])[:40]: print(f"    {it}")
+        if r.get("demo"): warn("sample data")
+    elif a.sub == "empty":
+        need_root()
+        if not a.share:
+            sys.exit("arisectl trash empty <share>   (every user's deleted items in that share, for good)")
+        typed = input(f"  Type the share name ({a.share}) to empty its Trash: ").strip()
+        r = finder.trash_empty(a.share, typed, None)
+        if r.get("ok"):
+            ok(f"emptied the Trash of {a.share}: {r.get('removed', 0)} item(s) gone" + (" (sample)" if r.get("demo") else ""))
+        else:
+            bad(r.get("err", "failed")); sys.exit(1)
+    else:
+        sys.exit("arisectl trash list|sweep [--dry-run]|empty <share>")
+
+
 def cmd_sites(a):
     from arise_server import directory, sites
     r = sites.status(directory.list_computers()["computers"])
@@ -685,6 +719,7 @@ def build():
     sp.add_parser("sites").set_defaults(f=cmd_sites)
     sp.add_parser("ups").set_defaults(f=cmd_ups)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
+    p = sp.add_parser("trash"); p.add_argument("sub", choices=["list", "sweep", "empty"]); p.add_argument("share", nargs="?", help="empty: the share whose Trash goes (typed again to confirm)"); p.add_argument("--dry-run", action="store_true", help="sweep: show what would go"); p.add_argument("--quiet", action="store_true", help="sweep: print nothing (the daily timer)"); p.set_defaults(f=cmd_trash)
     p = sp.add_parser("mail"); p.add_argument("sub", choices=["status", "contacts", "import", "test"]); p.add_argument("arg1", nargs="?"); p.add_argument("arg2", nargs="?"); p.set_defaults(f=cmd_mail)
     p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "cameras", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.add_argument("--wide", action="store_true", help="also scan the common ranges a device may be parked on"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)

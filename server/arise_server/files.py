@@ -31,6 +31,14 @@ DEMO_TREE = {
 }
 
 
+# Sample contents for the editor (demo mode). Nothing here is a church record.
+DEMO_TEXT = {
+    "ARISE_BRAND_KIT.md": "# Arise brand kit\n\nThe house look for every graphic: ink background, the red flame, Anton for titles, Oswald for everything else.\n\n## Colours\n\n| Name | Hex |\n|---|---|\n| Ink | #0A0A0C |\n| Red | #D6222D |\n| Bone | #F4F2F0 |\n\n## Rules\n\n- Titles in Anton, all caps.\n- The flame never stretches.\n- Sunday Service thumbnails keep red; Glory Night matches the stage.\n",
+    "LATEST_REPORT.md": "# Arise YouTube - automated run\n\n3 jobs done - 0 failed - 1 skipped\n",
+    "holds.json": "{\n  \"holds\": []\n}\n",
+}
+
+
 def roots(who: dict | None = None) -> list[dict]:
     """What this person may browse. The admin sees the whole data root and the
     NAS; a member sees their own home folder and the shares their groups allow."""

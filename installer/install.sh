@@ -578,6 +578,12 @@ fi
 for sh in staff leadership media graphics kids childrens-department inedge worship; do
   run mkdir -p "$DATA_ROOT/shares/$sh"
 done
+# Media/Fonts (docs/ANSWERS.md round 3, 39): the Proclaim fonts live here and every
+# enrolled Mac installs what it finds on its hourly sync (mac/arise-home-sync.sh).
+run mkdir -p "$DATA_ROOT/shares/media/Fonts"
+if [ "$DRY_RUN" = 0 ] && [ ! -f "$DATA_ROOT/shares/media/Fonts/README.txt" ]; then
+  printf '%s\n' "Fonts for the Proclaim graphics. Drop .ttf / .otf / .ttc files here;" "every enrolled Mac installs them on its hourly sync (mac/arise-home-sync.sh)." "Keep the licence file beside a bought font." > "$DATA_ROOT/shares/media/Fonts/README.txt"
+fi
 run mkdir -p "$DATA_ROOT/shares"
 if [ "$DRY_RUN" = 0 ] && [ "$SKIP_DOMAIN" = 0 ] && getent group "Domain Users" >/dev/null 2>&1; then
   # Each share folder belongs to its group so the force group in smb.conf matches on disk.
@@ -863,6 +869,14 @@ elif [ -f "$UNIT_SRC/arise-devices.timer" ]; then
   else
     run systemctl enable arise-devices.timer
   fi
+fi
+if [ -f "$UNIT_SRC/arise-trash.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-trash.timer || warn "arise-trash.timer failed to start"
+  else
+    run systemctl enable arise-trash.timer
+  fi
+  note "arise-trash.timer: 04:30 daily, removes what has sat in a share's Trash for 30 days (arisectl trash)"
 fi
 if [ -f "$UNIT_SRC/arise-drill.timer" ]; then
   if [ "$NO_START" = 0 ]; then
