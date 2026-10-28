@@ -1,5 +1,8 @@
-"""systemd units of interest. Falls back to demo data when systemctl is absent."""
+"""systemd units of interest, and the Logs app's readers. Falls back to demo data when systemctl is absent."""
 from __future__ import annotations
+
+import os
+import re
 
 from . import demo
 from .config import load
@@ -16,6 +19,15 @@ UNITS = [
     ("ssh.service", "SSH"),
 ]
 ALLOWED_ACTIONS = {"start", "stop", "restart"}
+
+# The Logs app's unit picker, grouped, in plain words (round 3, 7).
+LOG_GROUPS = [
+    ("Arise", [("arise-web.service", "the dashboard"), ("arise-automator.service", "the nightly YouTube job"), ("arise-backup.service", "backups"), ("arise-mirror.service", "GitHub mirror"), ("arise-devices.service", "network scan"), ("arise-drill.service", "restore drill"), ("arise-update.service", "software updates"), ("arise-nas-mount.service", "Synology mount"), ("arise-kiosk.service", "the closet monitor (cage)"), ("arise-wayvnc.service", "screen sharing"), ("arise-notify.service", "the daily note")]),
+    ("The box", [("samba-ad-dc.service", "the domain"), ("docker.service", "Docker"), ("ssh.service", "SSH"), ("caddy.service", "HTTPS (Caddy)"), ("nut-monitor.service", "the UPS"), ("smartd.service", "disk health"), ("unattended-upgrades.service", "security patches"), ("systemd-networkd.service", "the network"), ("tailscaled.service", "Tailscale")]),
+]
+READABLE_RE = re.compile(r"^(arise-[a-z-]+\.(service|timer)|samba-ad-dc\.service|docker\.service|ssh\.service|caddy\.service|nut-[a-z]+\.service|smartd\.service|unattended-upgrades\.service|systemd-networkd\.service|tailscaled\.service|cockpit\.service|apt-daily(-upgrade)?\.service|fstrim\.service)$")
+ERROR_RE = re.compile(r"\b(error|failed|fatal|traceback|exception|denied|refused|timed? ?out|unreachable|critical|panic)\b", re.I)
+FILE_RE = re.compile(r"^[A-Za-z0-9._-]+\.(log|txt|md)$")
 
 
 def available() -> bool:
@@ -54,10 +66,75 @@ def act(unit: str, action: str) -> dict:
     return run(["systemctl", action, unit], timeout=60)
 
 
+def last_error_index(lines: list[str]) -> int | None:
+    """The index of the last line that looks like an error, else None. Pure."""
+    for i in range(len(lines) - 1, -1, -1):
+        if ERROR_RE.search(lines[i] or ""):
+            return i
+    return None
+
+
+def _with_error(res: dict) -> dict:
+    lines = (res.get("text") or "").splitlines()
+    idx = last_error_index(lines)
+    res["lines"] = len(lines)
+    res["last_error_line"] = idx
+    res["last_error"] = lines[idx][:300] if idx is not None else None
+    return res
+
+
 def journal(unit: str, lines: int = 200) -> dict:
     if not available():
-        return {"demo": True, "unit": unit, "text": demo.LOGS.get(unit, f"(demo) no sample log for {unit}")}
-    if unit not in dict(UNITS) and not unit.startswith("arise-"):
+        return _with_error({"demo": True, "unit": unit, "text": demo.LOGS.get(unit, f"(demo) no sample log for {unit}")})
+    if unit not in dict(UNITS) and not READABLE_RE.match(unit or ""):
         return {"unit": unit, "text": "that unit is not readable here"}
-    r = run(["journalctl", "-u", unit, "-n", str(min(lines, 2000)), "--no-pager", "-o", "short"], timeout=20)
-    return {"demo": False, "unit": unit, "text": r["out"] or r["err"]}
+    r = run(["journalctl", "-u", unit, "-n", str(min(max(int(lines), 10), 2000)), "--no-pager", "-o", "short"], timeout=20)
+    return _with_error({"demo": False, "unit": unit, "text": r["out"] or r["err"]})
+
+
+def log_sources() -> dict:
+    """What the Logs app can read: the grouped units, the arise log files, the apps."""
+    cfg = load()
+    files = []
+    if cfg.demo:
+        files = [{"name": "install.log", "size": 184_220, "mtime": "2026-10-26T14:02"}, {"name": "backup.log", "size": 61_004, "mtime": "2026-10-28T03:16"}, {"name": "automator.log", "size": 402_118, "mtime": "2026-10-28T02:09"}, {"name": "updates.log", "size": 2_208, "mtime": "2026-10-25T03:31"}, {"name": "drill.log", "size": 1_020, "mtime": "2026-10-01T03:40"}]
+    else:
+        d = cfg.paths.log_dir
+        try:
+            from datetime import datetime
+            for n in sorted(os.listdir(d)):
+                p = os.path.join(d, n)
+                if FILE_RE.match(n) and os.path.isfile(p):
+                    st = os.stat(p)
+                    files.append({"name": n, "size": st.st_size, "mtime": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="minutes")})
+        except OSError:
+            pass
+    apps_ = []
+    try:
+        from . import apps as _apps
+        apps_ = [{"name": a["name"], "status": a["status"]} for a in _apps.list_apps()["apps"]]
+    except Exception:  # noqa: BLE001
+        pass
+    return {"demo": cfg.demo, "groups": [{"name": g, "units": [{"unit": u, "what": w} for u, w in us]} for g, us in LOG_GROUPS], "files": files, "apps": apps_, "log_dir": cfg.paths.log_dir}
+
+
+def log_file(name: str, lines: int = 300) -> dict:
+    cfg = load()
+    if not FILE_RE.match(name or "") or "/" in name:
+        return {"name": name, "text": "that is not a log file name"}
+    if cfg.demo:
+        samples = {"install.log": "2026-10-26 14:02:11 ==> Preflight\n2026-10-26 14:02:12     OS: Ubuntu 24.04.1 LTS\n2026-10-26 14:03:40 ==> 5/7 Active Directory domain AD.ARISECENLA.CHURCH\n2026-10-26 14:09:02 ==> 6a/7 Apps\n2026-10-26 14:31:55     app netdata: up\n2026-10-26 14:33:10     app guacamole: up\n2026-10-26 14:40:00 ==> 7/7 Done.",
+                   "updates.log": "2026-10-18T03:30:04-05:00 ok 3 packages, 0 apps, no reboot needed\n2026-10-25T03:30:02-05:00 ok 2 packages, 1 apps, reboot needed\n",
+                   "backup.log": "2026-10-28 03:00:01 job automator: started\n2026-10-28 03:02:35 job automator: ok, 797.1 MB added\n2026-10-28 03:04:00 job homes: started\n2026-10-28 03:11:12 job homes: ok, 451.3 MB added\n2026-10-28 03:16:30 prune: kept 30 daily, 12 weekly, 24 monthly"}
+        return _with_error({"demo": True, "name": name, "text": samples.get(name, f"(demo) no sample for {name}")})
+    p = os.path.join(cfg.paths.log_dir, name)
+    try:
+        with open(p, "rb") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            f.seek(max(0, size - 400_000))
+            text = f.read().decode("utf-8", "replace")
+    except OSError as e:
+        return {"name": name, "text": f"cannot read {p}: {e}"}
+    tail = text.splitlines()[-min(max(int(lines), 10), 2000):]
+    return _with_error({"demo": False, "name": name, "text": "\n".join(tail)})

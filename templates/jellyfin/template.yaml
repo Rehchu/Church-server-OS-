@@ -10,6 +10,11 @@ volumes:
   - /srv/arise/apps/jellyfin/config:/config
   - /mnt/synology/arise/recordings:/media/recordings
 env: {}
+autostart: true
+ram_mb: 600
+limits:
+  mem_mb: 2048
+  cpus: 2.0
 notes: |
   First visit http://arise-server:8096: make the admin, add a library of
   type "Movies" or "Home Videos" at /media/recordings. Name the files
@@ -17,3 +22,9 @@ notes: |
   acceleration: VAAPI, /dev/dri/renderD128" if the OptiPlex has Intel
   graphics; otherwise turn transcoding off and let clients play the MP4
   as is. Over Tailscale the phone app works from anywhere.
+# The house look (theme pack): Jellyfin takes custom CSS from Dashboard →
+# General → Custom CSS; the Store shows the house CSS with a Copy button.
+theme:
+  accepts: [primary, dark, css]
+  via: css
+  note: "Dashboard → General → Custom CSS: paste the house CSS from the Store (red #D6222D on ink, Anton/Oswald). Jellyfin is dark by default."

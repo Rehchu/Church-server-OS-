@@ -1,0 +1,7 @@
+[Unit]
+Description=Arise idle desktop apps sweep (stops apps whose manifest set idle_stop_minutes once nobody is connected)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arisectl app idle-sweep

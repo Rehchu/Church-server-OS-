@@ -11,6 +11,11 @@ volumes:
   - /srv/arise/apps/frigate/config:/config
   - /mnt/synology/arise/cameras:/media/frigate
 env: {}
+autostart: false
+ram_mb: 1500
+limits:
+  mem_mb: 3072
+  cpus: 2.0
 notes: |
   Before deploying: every camera needs an address on the server's network and
   an RTSP user. Network app > Find cameras lists what answers and whether it is

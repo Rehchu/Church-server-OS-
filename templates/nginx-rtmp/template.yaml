@@ -10,6 +10,11 @@ ports:
 volumes:
   - /srv/arise/apps/nginx-rtmp/nginx.conf:/etc/nginx/nginx.conf
 env: {}
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 256
+  cpus: 1.0
 notes: |
   Before the first deploy write nginx.conf with an rtmp { server { application live
   { live on; push rtmp://a.rtmp.youtube.com/live2/KEY; push rtmp://...; } } } block.

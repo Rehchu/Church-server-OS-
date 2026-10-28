@@ -13,6 +13,11 @@ volumes:
   - /srv/arise/apps/guacamole/record:/record
 env:
   POSTGRES_PASSWORD: "CHANGE-ME-run-openssl-rand-base64-24"
+autostart: true
+ram_mb: 900
+limits:
+  mem_mb: 1536
+  cpus: 1.5
 notes: |
   BEFORE THE FIRST START, make the database schema once:
     mkdir -p /srv/arise/apps/guacamole/initdb

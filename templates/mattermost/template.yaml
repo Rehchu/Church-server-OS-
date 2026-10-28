@@ -11,6 +11,11 @@ volumes:
   - /srv/arise/apps/mattermost/db:/var/lib/postgresql/data
 env:
   DB_PASSWORD: CHANGE-ME
+autostart: false
+ram_mb: 900
+limits:
+  mem_mb: 1536
+  cpus: 1.5
 notes: |
   First visit http://arise-server:8065 makes the admin. The phone apps need
   the server address over Tailscale. Memory about 500 MB to 1 GB for both

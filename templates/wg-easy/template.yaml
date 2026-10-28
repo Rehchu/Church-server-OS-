@@ -12,6 +12,11 @@ volumes:
 env:
   WG_HOST: "CHANGE-ME.duckdns.org"
   PASSWORD_HASH: ""
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 192
+  cpus: 0.5
 notes: |
   Set WG_HOST to the church's public DNS name (or static IP) and PASSWORD_HASH
   to a bcrypt hash of the web UI password, made with:

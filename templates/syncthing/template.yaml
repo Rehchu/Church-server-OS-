@@ -13,6 +13,11 @@ volumes:
 env:
   PUID: "1500"
   PGID: "1500"
+autostart: true
+ram_mb: 150
+limits:
+  mem_mb: 512
+  cpus: 1.0
 notes: |
   Install Syncthing on the Mac (syncthing.net), add this server's device ID from
   http://arise-server:8384, share the Mac folder with it. Set a password on the

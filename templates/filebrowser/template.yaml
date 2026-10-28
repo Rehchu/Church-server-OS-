@@ -12,6 +12,11 @@ volumes:
   - /srv/arise/apps/filebrowser/config:/config
 env:
   FB_BASEURL: ""
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 256
+  cpus: 0.5
 notes: |
   First login is admin / admin. Change it immediately (Settings > User Management).
   It runs as the 'arise' user (uid 1500) so it can only touch what that user can.

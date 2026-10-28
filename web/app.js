@@ -363,28 +363,6 @@ V.automator.after = () => {
   $$('[data-rep]').forEach(b => b.onclick = async () => { const r = await api(`/automator/reports/${encodeURIComponent(b.dataset.rep)}`); $('#repBody').innerHTML = md(r.text); });
 };
 
-V.apps = async () => {
-  const [a, t] = await Promise.all([api('/apps'), api('/apps/templates')]);
-  const installed = new Set((a.apps || []).map(x => x.template));
-  return `<div class="fade">
-    ${a.docker === false && !a.demo ? '<p class="note" style="margin-bottom:14px">Docker is not running on this server, so apps cannot be deployed. <code>sudo systemctl start docker</code> or run the installer again without --skip-docker.</p>' : ''}
-    <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>Installed</h3><span class="sub">${(a.apps || []).filter(x => x.status === 'running').length} running</span></div>
-    ${(a.apps || []).length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>App</th><th>State</th><th>Address</th><th class="num">CPU</th><th class="num">Memory</th><th></th></tr></thead><tbody>
-      ${a.apps.map(x => `<tr><td><b>${esc(x.name)}</b></td><td><span class="pill ${x.status === 'running' ? 'ok' : 'warn'}">${esc(x.status)}</span></td><td>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--redL)">${esc(x.url)}</a>` : '—'}</td><td class="num">${x.cpu != null ? x.cpu.toFixed(1) + '%' : '—'}</td><td class="num">${fmtB(x.mem)}</td>
-        <td class="acts">${x.status === 'running' ? `<button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="restart">Restart</button><button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="stop">Stop</button>` : `<button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="start">Start</button>`}<button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="update">Update</button><button class="btn btn--ghost btn--xs" data-logs="${esc(x.name)}">Logs</button><button class="btn btn--danger btn--xs" data-rmapp="${esc(x.name)}">Remove</button></td></tr>`).join('')}
-    </tbody></table></div>` : '<div class="empty">Nothing installed yet. Pick one below.</div>'}</div>
-    <div class="mark"><span class="kicker">App store · what the church uses</span></div>
-    <div class="cards">${(t.templates || []).map(x => `<div class="card"><span class="cat">${esc(x.category)}</span><h3>${esc(x.name)}</h3><p>${esc(x.description)}</p>${x.notes ? `<p style="color:var(--warn);font-size:12px">${esc(x.notes)}</p>` : ''}<div class="row row--between"><span class="mono dim" style="font-size:11.5px">${(x.ports || []).map(esc).join(' · ')}</span>${installed.has(x.id) ? '<span class="pill ok">installed</span>' : `<button class="btn btn--sm" data-deploy="${esc(x.id)}">Install</button>`}</div></div>`).join('')}</div>
-    <pre class="log" id="appLog" hidden style="margin-top:14px"></pre>
-  </div>`;
-};
-V.apps.after = () => {
-  $$('[data-deploy]').forEach(b => b.onclick = async () => { const r = await act(b, () => api('/apps/deploy', { method: 'POST', body: { template: b.dataset.deploy } }), `Installing ${b.dataset.deploy}; first start pulls the image`); if (r) setTimeout(render, 2000); });
-  $$('[data-app]').forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/apps/${encodeURIComponent(b.dataset.app)}/${b.dataset.do}`, { method: 'POST', body: {} }), `${b.dataset.do} sent`); if (r) setTimeout(render, 1500); });
-  $$('[data-logs]').forEach(b => b.onclick = async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.logs)}/logs`); const p = $('#appLog'); p.hidden = false; p.textContent = r.text || '(empty)'; p.scrollIntoView({ behavior: 'smooth' }); });
-  $$('[data-rmapp]').forEach(b => b.onclick = () => confirmType('Remove app', b.dataset.rmapp, 'Stops and removes the containers. <b>Its data folder is kept</b> under /srv/arise/apps.', async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.rmapp)}/remove`, { method: 'POST', body: { confirm: b.dataset.rmapp } }); if (r.ok === false) throw new Error(r.err); toast('Removed'); rerender('apps'); }));
-};
-
 V.nas = async () => {
   const n = await api('/nas');
   const d = n.dsm || {};
@@ -407,45 +385,6 @@ V.services = async () => {
   </tbody></table></div>`;
 };
 V.services.after = () => { $$('[data-log]').forEach(a => a.onclick = e => { e.preventDefault(); S.logUnit = a.dataset.log; openApp('logs'); }); $$('[data-svc]').forEach(b => b.onclick = async () => { if (b.dataset.svc === 'arise-web.service' && b.dataset.do !== 'restart') { toast('Stopping the dashboard from the dashboard is a bad idea', 'warn'); return; } const r = await act(b, () => api(`/services/${encodeURIComponent(b.dataset.svc)}/${b.dataset.do}`, { method: 'POST' }), `${b.dataset.do} ${b.dataset.svc}`); if (r) setTimeout(render, 1200); }); };
-
-V.logs = async () => {
-  const arg = S.logUnit;
-  const units = ['arise-web.service', 'arise-automator.service', 'arise-backup.service', 'arise-mirror.service', 'samba-ad-dc.service', 'docker.service', 'arise-nas-mount.service'];
-  const unit = decodeURIComponent(arg || units[0]);
-  const r = await api(`/logs/${encodeURIComponent(unit)}?lines=300`);
-  return `<div class="fade"><div class="toolbar"><select class="search" id="logUnit">${units.map(u => `<option ${u === unit ? 'selected' : ''}>${esc(u)}</option>`).join('')}</select><button class="btn btn--ghost btn--sm" id="logRefresh">Refresh</button><span class="spacer"></span><span class="sub" style="font-size:12px;color:var(--muted)">last 300 lines · journalctl -u ${esc(unit)}</span></div><pre class="log" style="max-height:72vh">${esc(r.text || '(empty)')}</pre></div>`;
-};
-V.logs.after = () => { $('#logUnit').onchange = e => { S.logUnit = e.target.value; rerender('logs'); }; $('#logRefresh').onclick = render; };
-
-V.settings = async () => {
-  const s = await api('/settings');
-  const sec = (name, d) => `<div class="c6 panel panel--flat"><div class="panel__hd"><h3>${esc(name)}</h3></div><div class="kv">${Object.entries(d).map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono" style="font-size:12.5px">${esc(Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'yes' : 'no') : (v === '' ? '—' : v))}</dd>`).join('')}</div></div>`;
-  const [u, n] = await Promise.all([api('/system/updates').catch(() => ({})), api('/notify').catch(() => ({}))]);
-  const sys = `<div class="grid" style="margin-bottom:14px">
-    <div class="c4 panel ${u.apt_upgradable || u.arise_behind ? 'panel--warn' : 'panel--ok'}"><div class="panel__hd"><h3>Updates</h3><span class="sub">${u.last_check ? ago(u.last_check) : ''}</span></div>
-      <div class="kv"><dt>Packages</dt><dd>${fmtN(u.apt_upgradable)} upgradable${u.security ? ` · <span style="color:var(--warn)">${u.security} security</span>` : ''}</dd><dt>Arise Server</dt><dd>${u.arise_behind == null ? 'not a git checkout' : u.arise_behind ? `${u.arise_behind} commit${u.arise_behind === 1 ? '' : 's'} behind` : 'up to date'}</dd></div>
-      <div class="row" style="margin-top:12px"><button class="btn btn--xs" id="upArise">Update Arise Server</button><button class="btn btn--ghost btn--xs" id="upApt">Upgrade packages</button></div>
-      <p class="note" style="margin-top:10px;font-size:12px">Updating Arise Server restarts the dashboard; the timers keep running. Package upgrades can take minutes.</p></div>
-    <div class="c4 panel panel--flat"><div class="panel__hd"><h3>Daily note</h3><span class="pill ${n.configured ? 'ok' : ''}">${n.configured ? `webhook set · ${String(n.hour).padStart(2, '0')}:00` : 'not configured'}</span></div>
-      <p style="font-size:13px;color:var(--text2)">Every morning the server sends what needs you (or nothing, when all is clear) to a Discord or Slack webhook, so a failed backup is known before anyone opens this page.</p>
-      ${n.last ? `<div class="kv" style="margin-top:10px"><dt>Last</dt><dd>${fmtT(n.last.when)} · ${n.last.sent ? 'sent' : 'not sent'}${n.last.error ? ` · ${esc(n.last.error)}` : ''}</dd></div>` : ''}
-      <div class="row" style="margin-top:12px"><button class="btn btn--ghost btn--xs" id="ntTest">Send a test</button></div>
-      <p class="note" style="margin-top:10px;font-size:12px">Set <code>webhook_url</code> under <code>[notify]</code> in arise.toml.</p></div>
-    <div class="c4 panel panel--bad"><div class="panel__hd"><h3>Power</h3><span class="sub">locked closet</span></div>
-      <p style="font-size:13px;color:var(--text2)">The box lives where nobody can press its button. Both of these ask you to type the word. A reboot takes about a minute; the dashboard comes back on its own.</p>
-      <div class="row" style="margin-top:12px"><button class="btn btn--ghost btn--xs" id="pwReboot">Reboot</button><button class="btn btn--danger btn--xs" id="pwOff">Shut down</button></div></div>
-  </div>`;
-  return sys + `<div class="fade"><p class="note" style="margin-bottom:14px">Read from <code>${esc(s._meta?.path)}</code>${s._meta?.found ? '' : ' <b>(not found: these are the defaults)</b>'}. The dashboard never writes this file; change it with <code>sudo nano ${esc(s._meta?.path)}</code> and <code>sudo systemctl restart arise-web</code>, or with <code>arisectl</code>. Secrets are never shown here.</p>
-    <div class="grid">${['system', 'web', 'directory', 'automator', 'backups', 'nas', 'apps', 'github', 'paths'].filter(k => s[k]).map(k => sec(k, s[k])).join('')}</div></div>`;
-};
-V.settings.after = () => {
-  $('#upArise').onclick = e => modal(`<h2>Update Arise Server?</h2><p class="note" style="margin-bottom:14px">Pulls the latest code from GitHub, installs any new Python libraries, reinstalls arisectl and the units, and restarts the dashboard. This page reloads when it is back.</p><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="upGo">Update</button></div>`, m => { $('#upGo', m).onclick = async ev => { const r = await act(ev.target, () => api('/system/update', { method: 'POST' }), 'Updated; reloading'); if (r) { m.close(); setTimeout(() => location.reload(), 4000); } }; });
-  $('#upApt').onclick = e => act(e.target, () => api('/system/apt-upgrade', { method: 'POST' }), 'Packages upgraded');
-  $('#ntTest').onclick = e => act(e.target, () => api('/notify/test', { method: 'POST' }), 'Test note sent');
-  $('#pwReboot').onclick = () => confirmType('Reboot the server', 'reboot', 'Everything stops for about a minute: the directory, the shares, the apps. Logged-in Macs keep working on cached accounts. The dashboard comes back by itself.', async () => { const r = await api('/system/power', { method: 'POST', body: { action: 'reboot', confirm: 'reboot' } }); if (r.ok === false) throw new Error(r.err); toast('Rebooting…', 'warn', 8000); });
-  $('#pwOff').onclick = () => confirmType('Shut the server down', 'poweroff', '<b>Someone has to walk to the closet to turn it back on.</b> Nothing on it runs until then: no logins against the domain, no 02:05 automator, no backups.', async () => { const r = await api('/system/power', { method: 'POST', body: { action: 'poweroff', confirm: 'poweroff' } }); if (r.ok === false) throw new Error(r.err); toast('Shutting down.', 'warn', 8000); });
-};
-
 
 V.overview.after = () => { $$('[data-open]').forEach(a => a.onclick = e => { e.preventDefault(); openApp(a.dataset.open); }); };
 
@@ -1017,6 +956,13 @@ const I = {
   calc: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2h16v20H4zm2 2v4h12V4zM6 10v2h3v-2zm5 0v2h3v-2zm5 0v2h2v-2zM6 14v2h3v-2zm5 0v2h3v-2zm5 0v6h2v-6zM6 18v2h3v-2zm5 0v2h3v-2z"/></svg>',
   clock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3h2v5.6l3.5 2-1 1.7L11 13.6z"/></svg>',
   help: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 12.5a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM12 6.5c2.2 0 3.8 1.3 3.8 3.2 0 1.3-.7 2-1.8 2.7-.9.6-1.1.9-1.1 1.6h-1.9c0-1.5.6-2.2 1.7-2.9.8-.5 1.1-.8 1.1-1.4 0-.8-.7-1.4-1.8-1.4-1 0-1.7.6-1.8 1.6H8.3c.1-2 1.6-3.4 3.7-3.4z"/></svg>',
+  activity: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h4l3-8 4 16 3-8h6v2h-4.8L14 22 10 6l-2.2 6H2z"/></svg>',
+  automations: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3h2v5.6l3.5 2-1 1.7L11 13.6z"/></svg>',
+  storage: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v6H3zm0 8h18v8H3zm3-6h3v2H6zm0 8h3v2H6zm9-8h3v2h-3zm0 8h3v2h-3z"/></svg>',
+  updates: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l5 5h-3v6h-4V8H7zM4 17h16v4H4z"/></svg>',
+  notes: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h13l3 3v15H4zm3 5v2h10V8zm0 4v2h10v-2zm0 4v2h7v-2z"/></svg>',
+  photos: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v14H3zm2 2v10h14V7zm2 8l3-4 2 2.5L14 11l3 4z"/></svg>',
+  monitor: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 4h20v13H2zm2 2v9h16V6zm5 12h6v2H9z"/></svg>',
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
 const APPS = [
@@ -1027,14 +973,14 @@ const APPS = [
   { id: 'automator', n: '05', name: 'Automator', what: 'The 02:05 YouTube job', dock: true },
   { id: 'sermons', n: '06', name: 'Sermons', what: 'The channel, no quota spent', tone: 'bone', dock: true },
   { id: 'bible', n: '07', name: 'Bible', what: 'Read a passage', tone: 'bone', dock: true, w: 820, h: 560 },
-  { id: 'apps', n: '08', name: 'Apps', what: 'Docker templates the church uses', dock: true },
+  { id: 'apps', n: '08', name: 'Store', what: 'Every app, installed and the catalogue', dock: true, w: 1040, h: 680 },
   { id: 'remote', n: '09', name: 'Remote', what: 'VPN, SSH, remote desktop', dock: true },
   { id: 'sites', n: '10', name: 'Campuses', what: 'Pineville, Alexandria, the Hub', w: 760, h: 520 },
   { id: 'terminal', n: '11', name: 'Terminal', what: 'A shell on the box', dock: true, flush: true, w: 860, h: 500 },
   { id: 'nas', n: '12', name: 'Synology', what: 'Mount, space, DSM health' },
   { id: 'services', n: '13', name: 'Services', what: 'The systemd units' },
-  { id: 'logs', n: '14', name: 'Logs', what: 'journalctl, last 300 lines' },
-  { id: 'settings', n: '15', name: 'System Settings', what: 'arise.toml, updates, power' },
+  { id: 'logs', n: '14', name: 'Logs', what: 'The journal, the arise logs, the apps; search; the last error', w: 1040, h: 660 },
+  { id: 'settings', n: '15', name: 'System Settings', what: 'One window: appearance, users, sharing, backups, updates, time', w: 1000, h: 640 },
   { id: 'devices', n: '16', name: 'Network', what: 'Everything on the switch', w: 980, h: 600 },
   { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
   { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
@@ -1044,11 +990,19 @@ const APPS = [
   { id: 'calc', n: '21', name: 'Calculator', what: 'Sums, also in Spotlight', tone: 'bone', w: 420, h: 560 },
   { id: 'clock', n: '22', name: 'Clock', what: 'World clock, timer, stopwatch, alarm', tone: 'bone', w: 760, h: 480 },
   { id: 'help', n: '23', name: 'Help', what: 'The docs, in here; F1', whatMember: 'How the portal works', tone: 'bone', dock: true, w: 1000, h: 660 },
+  { id: 'activity', n: '24', name: 'Activity Monitor', what: 'Processes and containers, who is using the box', w: 1040, h: 680 },
+  { id: 'automations', n: '25', name: 'Automations', what: 'Every timer: next run, last result, pause', w: 980, h: 620 },
+  { id: 'storage', n: '26', name: 'Storage', what: 'What is eating the disk', w: 1040, h: 680 },
+  { id: 'updates', n: '27', name: 'Software Update', what: 'Security automatic; the rest on your click, Saturday 03:30', w: 1000, h: 680 },
+  { id: 'notes', n: '28', name: 'Notes', what: 'Trilium, in a window', whatMember: 'Trilium, in a window', tone: 'bone', groups: ['Staff', 'Media'], w: 1000, h: 680 },
+  { id: 'photos', n: '29', name: 'Photos', what: 'Immich, the church photo library', whatMember: 'Immich, the church photo library', tone: 'bone', groups: ['Staff', 'Media'], w: 1040, h: 700 },
+  { id: 'monitor', n: '30', name: 'Monitor', what: 'The closet panel: off at night, Screen Sharing', w: 860, h: 560 },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 600, h: 640 },
 ];
-const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help'];
+const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help', 'notes', 'photos'];
 const isMember = () => S.role === 'member';
-const visibleApps = () => isMember() ? APPS.filter(a => MEMBER_APPS.includes(a.id)) : APPS;
+const inGroups = a => !a.groups || a.groups.some(g => (S.me?.groups || []).includes(g));
+const visibleApps = () => isMember() ? APPS.filter(a => MEMBER_APPS.includes(a.id) && inGroups(a)) : APPS;
 const appOf = id => APPS.find(a => a.id === id);
 // Shortcut labels: a Windows keyboard on the closet monitor has no ⌘. Ctrl does the same job in every handler.
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
@@ -1387,6 +1341,260 @@ function pwScore(pw, user) {
 }
 const PW_WORDS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
+/* ---------------- v0.8 Exodus: the system apps and the Store (round 3) ---------------- */
+const mb = n => n == null ? '—' : n >= 1024 ? (n / 1024).toFixed(1) + ' GB' : n + ' MB';
+const hl = (text, q) => { const e = esc(text); if (!q) return e; const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'); return e.replace(re, m => `<mark>${m}</mark>`); };
+const ago2 = t => t ? ago(t) : 'never';
+
+/* System Settings: one window, like macOS (round 3, 3) */
+const SETTINGS_SECTIONS = [['appearance', 'Appearance'], ['users', 'Users'], ['sharing', 'Sharing'], ['backups', 'Backups'], ['updates', 'Software Update'], ['time', 'Time'], ['notifications', 'Notifications'], ['power', 'Power'], ['config', 'Config file'], ['about', 'About']];
+V.settings = async () => {
+  S.settingsSec = S.settingsSec || 'appearance';
+  const q = async (p, d) => { try { return await api(p); } catch { return d; } };
+  const [s, u, n, pk, sh, au] = await Promise.all([q('/settings', {}), q('/updates', {}), q('/notify', {}), q('/push/key', {}), q('/shares', { shares: [] }), q('/automations', { timers: [] })]);
+  const o = S.overview || {}; const c = S.church || {};
+  const bone = PREF.get('theme', 'dark') === 'bone', snd = PREF.get('sounds', '1') === '1';
+  const sec = {
+    appearance: `<h2>Appearance</h2><p class="note" style="margin-bottom:14px">These live in this browser (and on the closet monitor, which stays dark). Control Center has the same switches.</p>
+      <div class="kv"><dt>Theme</dt><dd>${bone ? 'Bone (light paper)' : 'House Lights Down (dark stage)'} <button class="btn btn--ghost btn--xs" data-pref="theme">Switch</button></dd>
+      <dt>Sounds</dt><dd>${snd ? 'on, quiet' : 'off'} <button class="btn btn--ghost btn--xs" data-pref="sounds">${snd ? 'Turn off' : 'Turn on'}</button></dd>
+      <dt>Accessibility</dt><dd>${['text', 'motion', 'contrast'].map(k => `${k}: ${PREF.get('access.' + k, '') === '1' ? 'on' : 'off'}`).join(' · ')} <span class="muted">(Control Center)</span></dd>
+      <dt>Wallpaper</dt><dd>The ink and red stage (round 2, 33: stays)</dd></div>`,
+    users: `<h2>Users</h2><div class="kv"><dt>Directory</dt><dd>${esc(o.realm || s.directory?.realm || '')} · ${o.directory_ok ? 'online' : 'down'}</dd><dt>Users</dt><dd>${o.counts?.users ?? '—'}</dd><dt>Groups</dt><dd>${o.counts?.groups ?? '—'}</dd><dt>Computers</dt><dd>${o.counts?.computers ?? '—'}</dd><dt>Admins</dt><dd>${esc(s.web?.admins_group || 'Domain Admins')} · admin user ${esc(s.web?.admin_user || '')}</dd><dt>Member sign-in</dt><dd>${s.web?.member_login === false ? 'off' : 'on: anyone in the directory gets the portal'}</dd></div>
+      <p class="note" style="margin-top:12px">Names are first.last. Two-step sign-in is optional per person (Microsoft Authenticator when they turn it on).</p><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="directory">Open Directory</button></div>`,
+    sharing: `<h2>Sharing</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Share</th><th>Who</th><th class="num">Used</th></tr></thead><tbody>${(sh.shares || []).filter(x => x.name !== 'sysvol').map(x => `<tr><td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.comment || '')}</small></td><td class="dim">${esc((x.valid_users || []).join(', ') || 'everyone')}</td><td class="num">${fmtB(x.used)}</td></tr>`).join('')}</tbody></table></div>
+      <p class="note" style="margin-top:12px">Macs reach every share at <code>smb://${esc(s.system?.hostname || 'arise-server')}</code> with the same password. Share links for anyone else come from Finder.</p><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="files">Open Finder</button><button class="btn btn--ghost btn--xs" data-open="directory">Shares in Directory</button></div>`,
+    backups: `<h2>Backups</h2><div class="kv"><dt>When</dt><dd>${esc(s.backups?.schedule || '03:00')} nightly, restic to the Synology</dd><dt>Kept</dt><dd>${s.backups?.keep_daily ?? 30} daily · ${s.backups?.keep_weekly ?? 12} weekly · ${s.backups?.keep_monthly ?? 24} monthly</dd><dt>Repository</dt><dd class="mono" style="font-size:12px">${esc(s.backups?.restic_repo || '')}</dd><dt>Last</dt><dd>${o.backup?.last ? (o.backup.last.ok ? 'ok' : '<span style="color:var(--redL)">failed</span>') + ' · ' + ago(o.backup.last.started) : '—'}</dd><dt>Drill</dt><dd>monthly, one file back and compared (arise-drill.timer)</dd></div><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="backups">Open Backups</button></div>`,
+    updates: `<h2>Software Update</h2><div class="kv"><dt>Security</dt><dd>${(u.security || []).length} pending · installed by itself, never a reboot</dd><dt>Waiting for you</dt><dd>${(u.other || []).length} packages · ${(u.apps?.apps || []).filter(x => x.update).length} apps with a newer image</dd><dt>Reboot</dt><dd>${u.reboot_required ? '<span style="color:var(--warn)">needed</span>' : 'not needed'}</dd><dt>Window</dt><dd>${esc(u.window || 'Saturday 03:30')} · a system snapshot first · never during a service</dd><dt>Queued</dt><dd>${(u.queue?.packages || []).length} packages, ${(u.queue?.apps || []).length} apps${u.queue?.reboot ? ', reboot' : ''}</dd></div><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="updates">Open Software Update</button></div>`,
+    time: `<h2>Time</h2><div class="kv"><dt>Time zone</dt><dd>${esc(s.system?.timezone || 'America/Chicago')} · the domain's clock (chrony), checked by doctor</dd><dt>Services</dt><dd>${(c.services || []).map(x => `${esc(x.day)}s ${esc(fmtSvc(x.time))} · ${esc(x.name)} · ${esc(x.site)}`).join('<br>') || '—'}</dd></div>
+      <h3 style="margin:16px 0 8px">The timers</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>What</th><th>Next</th><th>Last</th></tr></thead><tbody>${(au.timers || []).map(t => `<tr><td><b>${esc(t.name)}</b><br><small class="muted mono">${esc(t.timer)}</small></td><td class="dim">${t.next ? fmtT(t.next) : '—'}</td><td class="dim">${t.last ? fmtT(t.last) + (t.last_ok === false ? ' · <span style="color:var(--redL)">failed</span>' : '') : '—'}</td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="automations">Open Automations</button></div>`,
+    notifications: `<h2>Notifications</h2><div class="kv"><dt>Push</dt><dd>${pk.available ? 'on this server · to ' + esc((pk.users || [S.user]).join(', ') || 'the administrator') : 'not set up (' + esc(pk.note || 'keys missing') + ')'}${pk.enabled_for_me ? ' · <button class="btn btn--ghost btn--xs" data-pref="push">' + (PREF.get('push', '') === '1' ? 'on for this device' : 'turn on here') + '</button>' : ''}</dd>
+      <dt>Discord</dt><dd>${n.configured ? 'webhook set (the address stays in arise.toml)' : 'no webhook yet: failures and the Sunday all-green will post once one is set'}</dd><dt>Daily note</dt><dd>${n.configured ? String(n.hour).padStart(2, '0') + ':00' : 'off (Bradly: no daily note)'}</dd><dt>Needs you</dt><dd>${(o.attention || []).length} items now · the menu-bar pill and the first widget</dd></div>
+      <div class="row" style="margin-top:12px"><button class="btn btn--ghost btn--xs" id="stNtTest">Send a test note</button></div>`,
+    power: `<h2>Power</h2><p class="note" style="margin-bottom:12px">The box lives where nobody can press its button. Both ask you to type the word; both are refused while a service is on. The UPS shuts the box down on its own when the battery is nearly flat.</p>
+      <div class="row"><button class="btn btn--ghost btn--xs" id="stReboot">Restart…</button><button class="btn btn--danger btn--xs" id="stOff">Shut Down…</button><button class="btn btn--ghost btn--xs" data-svc="arise-web.service">Restart the dashboard</button><button class="btn btn--ghost btn--xs" data-svc="samba-ad-dc.service">Restart the domain</button></div>
+      <h3 style="margin:16px 0 8px">The closet monitor</h3><p class="note">Off 23:00, on 06:00. Screen Sharing through Guacamole, Bradly only.</p><div class="row" style="margin-top:10px"><button class="btn btn--xs" data-open="monitor">Open Monitor</button></div>`,
+    config: `<h2>Config file</h2><p class="note" style="margin-bottom:14px">Read from <code>${esc(s._meta?.path)}</code>${s._meta?.found ? '' : ' <b>(not found: these are the defaults)</b>'}. The dashboard never writes this file; change it with <code>sudo nano ${esc(s._meta?.path)}</code> and <code>sudo systemctl restart arise-web</code>, or with <code>arisectl</code>. Secrets are never shown here.</p>
+      <div class="grid">${['system', 'web', 'directory', 'automator', 'backups', 'nas', 'apps', 'github', 'paths'].filter(k => s[k]).map(k => `<div class="c6 panel panel--flat"><div class="panel__hd"><h3>${esc(k)}</h3></div><div class="kv">${Object.entries(s[k]).map(([kk, v]) => `<dt>${esc(kk)}</dt><dd class="mono" style="font-size:12.5px">${esc(Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'yes' : 'no') : (v === '' ? '—' : v))}</dd>`).join('')}</div></div>`).join('')}</div>`,
+    about: `<h2>About</h2><div class="kv"><dt>ariseOS</dt><dd>v${esc(o.version || '')} “${esc(o.codename || '')}”</dd><dt>Host</dt><dd>${esc(o.hostname || '')}</dd><dt>System</dt><dd>${esc(o.machine?.os || '')}</dd></div><div class="row" style="margin-top:12px"><button class="btn btn--xs" data-open="about">About This Server</button></div>`,
+  };
+  return `<div class="settings"><nav class="settings__nav">${SETTINGS_SECTIONS.map(([id, name]) => `<button class="${S.settingsSec === id ? 'active' : ''}" data-sec="${id}">${esc(name)}</button>`).join('')}</nav><div class="settings__body fade">${sec[S.settingsSec] || ''}</div></div>`;
+};
+V.settings.after = root => {
+  $$('[data-sec]', root).forEach(b => b.onclick = () => { S.settingsSec = b.dataset.sec; rerender('settings'); });
+  $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
+  $$('[data-pref]', root).forEach(b => b.onclick = () => { const k = b.dataset.pref; if (k in CC_FEEL) CC_FEEL[k](); setTimeout(() => rerender('settings'), 150); });
+  const t = $('#stNtTest', root); if (t) t.onclick = e => act(e.target, () => api('/notify/test', { method: 'POST' }), 'Test note sent');
+  const r = $('#stReboot', root); if (r) r.onclick = () => powerAsk('reboot');
+  const o = $('#stOff', root); if (o) o.onclick = () => powerAsk('poweroff');
+  $$('[data-svc]', root).forEach(b => b.onclick = async () => { const u = b.dataset.svc; const r2 = await act(b, () => api(`/services/${encodeURIComponent(u)}/restart`, { method: 'POST' }), `restart ${u} sent`); if (r2 && u === 'arise-web.service') setTimeout(() => location.reload(), 4000); });
+};
+
+/* Software Update (round 3, 4 and 25) */
+V.updates = async () => {
+  const u = await api('/updates'); S.updatesCache = u;
+  const q = u.queue || { packages: [], apps: [] }; const apps_ = (u.apps?.apps || []);
+  const pkgRow = p => `<label class="up__row"><input type="checkbox" data-pkg="${esc(p.name)}" ${q.packages.includes(p.name) ? 'checked' : ''}><b>${esc(p.name)}</b><span class="mono dim">${esc(p.from || '?')} → ${esc(p.version)}</span><small>${esc(p.suite)}</small></label>`;
+  return `<div class="fade">
+    ${u.in_service ? `<p class="note" style="margin-bottom:14px;border-left-color:var(--warn)"><b>${esc(u.in_service.name)}</b> is on now (${esc(u.in_service.day)} ${esc(u.in_service.time)}): nothing installs and nothing reboots until it is over.</p>` : ''}
+    <div class="grid" style="margin-bottom:14px">
+      <div class="c4 panel panel--ok"><div class="stat"><span class="stat__l">Security</span><span class="stat__v">${(u.security || []).length}</span><span class="stat__n">installs itself, never a reboot</span></div></div>
+      <div class="c4 panel ${(u.other || []).length || apps_.some(a => a.update) ? 'panel--warn' : 'panel--flat'}"><div class="stat"><span class="stat__l">Waiting for you</span><span class="stat__v">${(u.other || []).length + apps_.filter(a => a.update).length}</span><span class="stat__n">${(u.other || []).length} packages · ${apps_.filter(a => a.update).length} apps</span></div></div>
+      <div class="c4 panel ${u.reboot_required ? 'panel--warn' : 'panel--flat'}"><div class="stat"><span class="stat__l">Reboot</span><span class="stat__v" style="font-size:22px">${u.reboot_required ? 'needed' : 'not needed'}</span><span class="stat__n">${(u.reboot_pkgs || []).slice(0, 3).map(esc).join(', ') || 'the kernel has not asked'}</span></div></div>
+    </div>
+    <div class="toolbar"><button class="btn btn--ghost btn--sm" id="upRefresh">Refresh the lists</button><button class="btn btn--ghost btn--sm" id="upCheckApps">Check apps</button><span class="spacer"></span><span class="sub" style="font-size:12px;color:var(--muted)">window: <b>${esc(u.window)}</b> · snapshot first · ${u.last_check ? 'checked ' + ago(u.last_check) : ''}</span></div>
+    <div class="grid">
+      <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Packages waiting for you</h3><span class="sub">${(u.other || []).length}</span></div>${(u.other || []).length ? `<div class="up__list">${u.other.map(pkgRow).join('')}</div>` : '<div class="empty">Nothing waiting. Security patches arrive on their own.</div>'}
+        ${(u.security || []).length ? `<details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:12.5px">${u.security.length} security patches (automatic)</summary><div class="up__list" style="margin-top:8px">${u.security.map(p => `<div class="up__row"><span></span><b>${esc(p.name)}</b><span class="mono dim">${esc(p.from || '?')} → ${esc(p.version)}</span><small>${esc(p.suite)}</small></div>`).join('')}</div></details>` : ''}</div>
+      <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Apps</h3><span class="sub">${u.apps?.checked_at ? 'checked ' + ago(u.apps.checked_at) : 'not checked yet'}</span></div>
+        ${apps_.length ? `<div class="up__list">${apps_.map(a => `<label class="up__row"><input type="checkbox" data-appq="${esc(a.name)}" ${q.apps.includes(a.name) ? 'checked' : ''} ${a.update ? '' : 'disabled'}><b>${esc(a.name)}</b><span class="dim">${a.update ? 'newer image pulled, waiting to switch' : 'up to date'}</span>${a.error ? `<small style="color:var(--redL)">${esc(a.error)}</small>` : ''}</label>`).join('')}</div>` : '<div class="empty">Press <b>Check apps</b>: every app\'s image is pulled and compared; nothing is switched until you queue it.</div>'}
+        <label class="up__row" style="margin-top:14px;border-top:1px solid var(--line2);padding-top:12px"><input type="checkbox" id="upReboot" ${q.reboot ? 'checked' : ''} ${u.reboot_required ? '' : 'disabled'}><b>Reboot afterwards</b><span class="dim">${u.reboot_required ? 'only if no service is on' : 'nothing asks for one'}</span></label></div>
+    </div>
+    <div class="panel panel--flat" style="margin-top:14px"><div class="panel__hd"><h3>What is queued</h3><span class="sub">${q.queued_at ? 'by ' + esc(q.by || '') + ' · ' + ago(q.queued_at) : 'nothing yet'}</span></div>
+      <p style="font-size:13.5px;color:var(--text2)">${q.packages.length} packages, ${q.apps.length} apps${q.reboot ? ', then a reboot' : ''}. Queued items install <b>${esc(u.window)}</b> after a system snapshot (<code>arisectl snapshot create</code>), and the kernel reboot happens only if no service is on.</p>
+      <div class="row" style="margin-top:12px"><button class="btn btn--xs" id="upQueue">Queue the ticked items for ${esc(u.window)}</button><button class="btn btn--ghost btn--xs" id="upNow">Install now…</button><button class="btn btn--ghost btn--xs" id="upClear">Clear the queue</button></div>
+      ${u.last_apply ? `<p class="note" style="margin-top:12px">Last apply ${fmtT(u.last_apply.when)}: ${u.last_apply.ok ? 'ok' : '<span style="color:var(--redL)">failed</span>'} · ${esc(u.last_apply.summary || '')}</p>` : ''}
+      ${u.arise?.behind ? `<p class="note" style="margin-top:12px">ariseOS itself is ${u.arise.behind} commits behind GitHub. <button class="btn btn--ghost btn--xs" id="upSelf">Update ariseOS</button></p>` : ''}</div>
+  </div>`;
+};
+V.updates.after = root => {
+  const sel = () => ({ packages: $$('[data-pkg]:checked', root).map(x => x.dataset.pkg), apps: $$('[data-appq]:checked', root).map(x => x.dataset.appq), reboot: $('#upReboot', root)?.checked || false });
+  $('#upRefresh', root).onclick = e => act(e.target, () => api('/updates/refresh', { method: 'POST' }), 'Lists refreshed').then(() => rerender('updates'));
+  $('#upCheckApps', root).onclick = e => act(e.target, () => api('/updates/check-apps', { method: 'POST' }), 'Images pulled and compared').then(() => rerender('updates'));
+  $('#upQueue', root).onclick = e => act(e.target, () => api('/updates/queue', { method: 'POST', body: sel() }), 'Queued').then(() => rerender('updates'));
+  $('#upClear', root).onclick = e => act(e.target, () => api('/updates/queue', { method: 'POST', body: { packages: [], apps: [], reboot: false } }), 'Queue cleared').then(() => rerender('updates'));
+  $('#upNow', root).onclick = () => { const s = sel(); confirmType('Install now', 'install', `Queues the ticked items (${s.packages.length} packages, ${s.apps.length} apps${s.reboot ? ', reboot' : ''}) and runs the Saturday apply right now: a system snapshot first, then the installs. Refused while a service is on. Minutes, not seconds.`, async () => { await api('/updates/queue', { method: 'POST', body: s }); const r = await api('/updates/apply', { method: 'POST', body: { confirm: 'install' } }); if (r.ok === false) throw new Error(r.summary || r.err); toast(r.summary || 'Done'); rerender('updates'); }); };
+  const self = $('#upSelf', root); if (self) self.onclick = e => act(e.target, () => api('/system/update', { method: 'POST' }), 'ariseOS updating; this page reloads when it is back').then(() => setTimeout(() => location.reload(), 6000));
+};
+
+/* The Store (round 3, 5 and 40) */
+const CAT_NAMES = { desktop: 'Desktop programs', experiment: 'Experiments', office: 'Office', media: 'Media', monitoring: 'Monitoring', admin: 'Admin', code: 'Code', automation: 'Automation', network: 'Network', knowledge: 'Knowledge', files: 'Files', security: 'Security', remote: 'Remote', streaming: 'Streaming', communication: 'Communication', church: 'Church', learning: 'Learning', ai: 'AI', cameras: 'Cameras', collaboration: 'Collaboration' };
+V.apps = async () => {
+  S.storeTab = S.storeTab || 'installed'; S.storeQ = S.storeQ || ''; S.storeCat = S.storeCat || '';
+  const [a, t, c] = await Promise.all([api('/apps'), api('/apps/templates'), api('/apps/catalog').catch(() => ({ apps: [] }))]);
+  const installed = new Map((a.apps || []).map(x => [x.name, x]));
+  const all = [...(t.templates || []).map(x => ({ ...x, source: 'template' })), ...(c.apps || []).map(x => ({ ...x, source: 'catalog' }))];
+  const running = (a.apps || []).filter(x => x.status === 'running');
+  const capSum = running.reduce((s, x) => s + (x.limit_mb || 0), 0), estSum = running.reduce((s, x) => s + (x.ram_mb || 0), 0);
+  const total = a.ram_total_mb || 0, budget = Math.max(0, total - (a.reserve_mb || 2048)), p = total ? Math.min(100, Math.round(capSum / total * 100)) : 0;
+  const gauge = `<div class="panel panel--flat" style="margin-bottom:14px"><div class="row row--between"><span class="kicker">Memory promised to running apps</span><span class="mono" style="font-size:12px">${mb(capSum)} of ${mb(total)} RAM · about ${mb(estSum)} in use · ${mb(a.reserve_mb || 2048)} kept for the domain and the dashboard</span></div><div class="meter ${capSum > budget ? '' : capSum > budget * 0.8 ? 'meter--warn' : 'meter--ok'}"><i style="width:${p}%"></i></div>${capSum > budget ? '<p class="note" style="margin-top:10px;border-left-color:var(--warn)">Over the budget: if everything running hit its cap at once the domain would feel it. Stop one, or turn autostart off on the heaviest.</p>' : ''}</div>`;
+  const badge = (txt, cls = '') => `<span class="pill ${cls}">${esc(txt)}</span>`;
+  const card = x => {
+    const inst = installed.get(x.id); const th = x.theme || { via: 'none' };
+    return `<div class="card store__card ${x.experimental ? 'store__card--exp' : ''}"><div class="row row--between"><span class="cat">${esc(CAT_NAMES[x.category] || x.category)}${x.source === 'catalog' ? ' · catalogue' : ''}</span>${inst ? badge(inst.status === 'running' ? 'running' : 'stopped', inst.status === 'running' ? 'ok' : 'warn') : ''}</div><h3>${esc(x.name)}</h3><p>${esc(x.description)}</p>
+      <div class="store__meta"><span title="an honest estimate at rest">~${mb(x.ram_mb)} · cap ${mb(x.limits?.mem_mb)} · ${x.limits?.cpus} CPU</span>${x.idle_stop_minutes ? `<span>stops itself after ${x.idle_stop_minutes} min idle</span>` : ''}<span>${th.via === 'none' ? 'keeps its own look' : 'house look via ' + esc(th.via)}</span>${x.experimental ? '<span style="color:var(--warn)">experiment: expect it not to work</span>' : ''}</div>
+      ${x.notes ? `<p style="color:var(--warn);font-size:12px">${esc(x.notes.slice(0, 220))}${x.notes.length > 220 ? '…' : ''}</p>` : ''}${x.source === 'catalog' ? '<p style="color:var(--muted);font-size:11.5px">image tag not pulled from this build: verify before first deploy</p>' : ''}
+      <div class="row row--between"><span class="mono dim" style="font-size:11.5px">${(x.ports || []).map(esc).join(' · ')}</span><span class="row">${th.via !== 'none' ? `<button class="btn btn--ghost btn--xs" data-theme="${esc(x.id)}">House look</button>` : ''}${inst ? `<button class="btn btn--ghost btn--xs" data-deploy="${esc(x.id)}">Redeploy</button>` : `<button class="btn btn--xs" data-deploy="${esc(x.id)}">Install</button>`}</span></div></div>`;
+  };
+  const cats = [...new Set(all.map(x => x.category))].sort();
+  const ql = S.storeQ.toLowerCase();
+  const shown = all.filter(x => (!S.storeCat || x.category === S.storeCat) && (!ql || x.name.toLowerCase().includes(ql) || x.description.toLowerCase().includes(ql) || x.id.includes(ql)));
+  const instRows = (a.apps || []).map(x => `<tr><td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.source === 'catalog' ? 'catalogue' : 'template')} · ~${mb(x.ram_mb)} · cap ${mb(x.limit_mb)}</small></td><td><span class="pill ${x.status === 'running' ? 'ok' : 'warn'}">${esc(x.status)}</span></td><td>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--redL)">${esc(x.url)}</a>` : '—'}</td><td class="num">${x.cpu != null ? x.cpu.toFixed(1) + '%' : '—'}</td><td class="num">${fmtB(x.mem)}</td><td><label class="store__auto" title="start with the box"><input type="checkbox" data-auto="${esc(x.name)}" ${x.autostart !== false ? 'checked' : ''}> auto</label></td>
+    <td class="acts">${x.status === 'running' ? `<button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="restart">Restart</button><button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="stop">Stop</button>` : `<button class="btn btn--xs" data-app="${esc(x.name)}" data-do="start">Start</button>`}<button class="btn btn--ghost btn--xs" data-logs="${esc(x.name)}">Logs</button><button class="btn btn--ghost btn--xs" data-rmapp="${esc(x.name)}">Remove</button></td></tr>`).join('');
+  return `<div class="fade">
+    ${a.docker === false && !a.demo ? '<p class="note" style="margin-bottom:14px">Docker is not running on this server, so apps cannot be deployed. <code>sudo systemctl start docker</code> or run the installer again without --skip-docker.</p>' : ''}
+    <div class="tabs" id="storeTabs"><button class="${S.storeTab === 'installed' ? 'active' : ''}" data-t="installed">Installed · ${(a.apps || []).length}</button><button class="${S.storeTab === 'catalog' ? 'active' : ''}" data-t="catalog">Catalogue · ${all.length}</button></div>
+    <div data-tab="installed" ${S.storeTab === 'installed' ? '' : 'hidden'}>${gauge}
+      ${(a.apps || []).length ? `<div class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>App</th><th>State</th><th>Address</th><th class="num">CPU</th><th class="num">Memory</th><th></th><th></th></tr></thead><tbody>${instRows}</tbody></table></div>` : '<div class="empty">Nothing installed yet. The Catalogue has everything.</div>'}
+      <p class="note" style="margin-top:12px">Every template was deployed at install; the heavy ones were left stopped so the domain always has room. <b>Remove</b> takes the containers down and keeps the data folder under /srv/arise/apps. Deleting a data folder is your click, by hand.</p>
+      <pre class="log" id="appLog" hidden style="margin-top:14px"></pre></div>
+    <div data-tab="catalog" ${S.storeTab === 'catalog' ? '' : 'hidden'}>
+      <div class="toolbar"><input class="search" id="storeQ" placeholder="Search the catalogue" value="${esc(S.storeQ)}"><select class="search" id="storeCat"><option value="">Every category</option>${cats.map(k => `<option value="${esc(k)}" ${S.storeCat === k ? 'selected' : ''}>${esc(CAT_NAMES[k] || k)}</option>`).join('')}</select><span class="spacer"></span><span class="sub" style="font-size:12px;color:var(--muted)">${shown.length} apps · free, self-hosted, capped</span></div>
+      <div class="cards">${shown.map(card).join('') || '<div class="empty">Nothing matches.</div>'}</div></div>
+  </div>`;
+};
+V.apps.after = root => {
+  $$('#storeTabs button', root).forEach(b => b.onclick = () => { S.storeTab = b.dataset.t; rerender('apps'); });
+  const q = $('#storeQ', root); if (q) { q.oninput = () => { S.storeQ = q.value; clearTimeout(S.storeT); S.storeT = setTimeout(() => rerender('apps'), 350); }; }
+  const sc = $('#storeCat', root); if (sc) sc.onchange = () => { S.storeCat = sc.value; rerender('apps'); };
+  $$('[data-deploy]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/apps/deploy', { method: 'POST', body: { template: b.dataset.deploy } }), `Installing ${b.dataset.deploy}; the first start pulls the image`); if (r) setTimeout(render, 2000); });
+  $$('[data-app]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/apps/${encodeURIComponent(b.dataset.app)}/${b.dataset.do}`, { method: 'POST', body: {} }), `${b.dataset.do} sent`); if (r) setTimeout(render, 1500); });
+  $$('[data-auto]', root).forEach(cb => cb.onchange = async () => { const r = await api(`/apps/${encodeURIComponent(cb.dataset.auto)}/autostart`, { method: 'POST', body: { on: cb.checked } }); if (r.ok === false) { toast(r.err, 'bad'); cb.checked = !cb.checked; } else toast(`${cb.dataset.auto}: autostart ${cb.checked ? 'on' : 'off'}${r.demo ? ' (sample)' : ''}`); });
+  $$('[data-logs]', root).forEach(b => b.onclick = async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.logs)}/logs`); const p = $('#appLog', root); p.hidden = false; p.textContent = r.text || '(empty)'; p.scrollIntoView({ behavior: 'smooth' }); });
+  $$('[data-rmapp]', root).forEach(b => b.onclick = () => confirmType('Remove app', b.dataset.rmapp, 'Stops and removes the containers. <b>Its data folder is kept</b> under /srv/arise/apps; deleting that is a separate, by-hand decision.', async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.rmapp)}/remove`, { method: 'POST', body: { confirm: b.dataset.rmapp } }); if (r.ok === false) throw new Error(r.err); toast('Removed; data kept'); rerender('apps'); }));
+  $$('[data-theme]', root).forEach(b => b.onclick = async () => {
+    const t = await api(`/apps/theme/${encodeURIComponent(b.dataset.theme)}`).catch(e => ({ ok: false, err: e.message })); if (t.ok === false) return toast(t.err, 'bad');
+    modal(`<h2>${esc(b.dataset.theme)}: the house look</h2><p class="note" style="margin-bottom:12px">Via <b>${esc(t.via)}</b>${t.accepts?.length ? ' · takes ' + esc(t.accepts.join(', ')) : ''}. House values: red ${esc(t.house?.red)}, ink ${esc(t.house?.ink)}, ${esc(t.house?.fonts)}, the flame logo.</p>${t.note ? `<p style="font-size:13.5px;color:var(--text2)">${esc(t.note)}</p>` : ''}
+      ${Object.keys(t.env || {}).length ? `<div class="kv" style="margin-top:10px">${Object.entries(t.env).map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono" style="font-size:12px">${esc(v)}</dd>`).join('')}</div>` : ''}${(t.files || []).length ? `<p class="muted" style="margin-top:10px;font-size:12.5px">Files written once at deploy: ${t.files.map(esc).join(', ')}</p>` : ''}${(t.commands || []).length ? `<p class="muted" style="margin-top:10px;font-size:12.5px">Run after the first start: ${t.commands.map(esc).join(' · ')}</p>` : ''}
+      ${t.css ? `<pre class="log" style="margin-top:12px;max-height:220px">${esc(t.css)}</pre>` : ''}<div class="acts">${t.css ? '<button class="btn btn--ghost" id="thCopy">Copy the CSS</button>' : ''}<button class="btn" data-close>Close</button></div>`, m => { const c2 = $('#thCopy', m); if (c2) c2.onclick = () => copyText(t.css, c2); });
+  });
+};
+
+/* Activity Monitor (round 3, 6) */
+V.activity = async () => {
+  const a = await api('/activity'); S.actSort = S.actSort || 'cpu';
+  const procs = [...(a.processes || [])].sort((x, y) => S.actSort === 'name' ? x.name.localeCompare(y.name) : S.actSort === 'user' ? x.user.localeCompare(y.user) : (y[S.actSort] || 0) - (x[S.actSort] || 0));
+  const th = (k, l, num) => `<th class="${num ? 'num' : ''} ${S.actSort === k ? 'on' : ''}" data-sort="${k}" style="cursor:pointer">${l}${S.actSort === k ? ' ▾' : ''}</th>`;
+  const t = a.totals || {};
+  return `<div class="fade"><div class="grid" style="margin-bottom:14px">
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">CPU</span><span class="stat__v">${(t.cpu ?? 0).toFixed(0)}%</span><span class="stat__n">${t.cores} cores · load ${(t.load || []).map(x => x.toFixed(2)).join(' · ')}</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Memory</span><span class="stat__v">${(t.mem_pct ?? 0).toFixed(0)}%</span><span class="stat__n">${fmtB(t.mem_used)} of ${fmtB(t.mem_total)}</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Processes</span><span class="stat__v">${fmtN(t.procs)}</span><span class="stat__n">top ${procs.length} shown</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Containers</span><span class="stat__v">${(a.containers || []).length}</span><span class="stat__n">docker stats</span></div></div></div>
+    <div class="tabs" id="actTabs"><button class="${S.actTab !== 'containers' ? 'active' : ''}" data-t="procs">Processes</button><button class="${S.actTab === 'containers' ? 'active' : ''}" data-t="containers">Containers</button></div>
+    <div data-tab="procs" ${S.actTab === 'containers' ? 'hidden' : ''}><div class="panel panel--flat tbl-wrap"><table class="tbl tbl--tight"><thead><tr>${th('name', 'Process')}${th('pid', 'PID', 1)}${th('user', 'User')}${th('cpu', 'CPU', 1)}${th('mem', 'Memory', 1)}<th class="num">Read / Write</th><th>Container</th><th></th></tr></thead><tbody>
+      ${procs.map(p => `<tr><td><b>${esc(p.name)}</b><br><small class="muted mono" title="${esc(p.cmd)}">${esc(p.cmd.slice(0, 70))}</small></td><td class="num mono">${p.pid}</td><td class="dim">${esc(p.user)}</td><td class="num">${p.cpu.toFixed(1)}%</td><td class="num">${fmtB(p.mem)}</td><td class="num dim" style="font-size:12px">${p.io ? fmtB(p.io.read) + ' / ' + fmtB(p.io.write) : '—'}</td><td class="mono dim" style="font-size:11.5px">${esc(p.container || '')}</td><td class="acts">${p.protected ? '<span class="muted" style="font-size:11px" title="the domain, Docker, SSH, the dashboard or systemd">kept</span>' : `<button class="btn btn--ghost btn--xs" data-kill="${p.pid}" data-name="${esc(p.name)}">End</button>`}</td></tr>`).join('')}</tbody></table></div></div>
+    <div data-tab="containers" ${S.actTab === 'containers' ? '' : 'hidden'}><div class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>Container</th><th class="num">CPU</th><th class="num">Memory</th><th class="num">Cap</th><th>Net in / out</th><th>Disk</th><th class="num">PIDs</th></tr></thead><tbody>
+      ${(a.containers || []).map(c => `<tr><td><b>${esc(c.name)}</b><br><small class="muted mono">${esc(c.id)}</small></td><td class="num">${c.cpu.toFixed(1)}%</td><td class="num">${fmtB(c.mem)}</td><td class="num dim">${c.mem_limit ? fmtB(c.mem_limit) : '—'}</td><td class="dim">${esc(c.net)}</td><td class="dim">${esc(c.block)}</td><td class="num">${esc(c.pids)}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">No containers running.</td></tr>'}</tbody></table></div></div>
+    <p class="note" style="margin-top:12px">Refreshes every 3 seconds while open. <b>End</b> asks for the PID; the domain, Docker, SSH, the dashboard and systemd cannot be ended from here. ${a.demo ? 'Sample data.' : ''}</p></div>`;
+};
+V.activity.after = root => {
+  $$('#actTabs button', root).forEach(b => b.onclick = () => { S.actTab = b.dataset.t; rerender('activity'); });
+  $$('[data-sort]', root).forEach(h => h.onclick = () => { S.actSort = h.dataset.sort; rerender('activity'); });
+  $$('[data-kill]', root).forEach(b => b.onclick = () => confirmType(`End ${b.dataset.name}`, b.dataset.kill, `Sends TERM to PID ${b.dataset.kill}, then KILL if it does not stop in a second. Unsaved work in it is lost.`, async () => { const r = await api('/activity/kill', { method: 'POST', body: { pid: +b.dataset.kill, confirm: b.dataset.kill } }); if (r.ok === false) throw new Error(r.err); toast(r.out || 'Ended'); rerender('activity'); }));
+  clearInterval(S.actT); S.actT = setInterval(() => { if (S.wins.activity && !S.wins.activity.min && $('#modal').open === false && !$('#wb-activity .busy')) rerender('activity'); else if (!S.wins.activity) clearInterval(S.actT); }, 3000);
+};
+
+/* Logs (round 3, 7) */
+V.logs = async () => {
+  const src = await api('/logs/sources').catch(() => ({ groups: [], files: [], apps: [] }));
+  S.logUnit = S.logUnit || 'arise-web.service'; S.logLines = S.logLines || 300; S.logQ = S.logQ || '';
+  const sel = S.logUnit; const isFile = sel.startsWith('file:'), isApp = sel.startsWith('app:');
+  const r = isFile ? await api(`/logs/file/${encodeURIComponent(sel.slice(5))}?lines=${S.logLines}`) : isApp ? await api(`/apps/${encodeURIComponent(sel.slice(4))}/logs?lines=${S.logLines}`) : await api(`/logs/${encodeURIComponent(sel)}?lines=${S.logLines}`);
+  const lines = (r.text || '').split('\n'); const errIdx = r.last_error_line ?? (() => { for (let i = lines.length - 1; i >= 0; i--) if (/\b(error|failed|fatal|traceback|exception|denied|refused|timed? ?out)\b/i.test(lines[i])) return i; return null; })();
+  const q = S.logQ.trim(); const shown = q ? lines.map((l, i) => [l, i]).filter(([l]) => l.toLowerCase().includes(q.toLowerCase())) : lines.map((l, i) => [l, i]);
+  const opt = (v, l) => `<option value="${esc(v)}" ${sel === v ? 'selected' : ''}>${esc(l)}</option>`;
+  return `<div class="fade"><div class="toolbar"><select class="search" id="logUnit">${(src.groups || []).map(g => `<optgroup label="${esc(g.name)}">${g.units.map(u => opt(u.unit, `${u.what} · ${u.unit}`)).join('')}</optgroup>`).join('')}${(src.apps || []).length ? `<optgroup label="Apps">${src.apps.map(a => opt('app:' + a.name, a.name + (a.status === 'running' ? '' : ' (stopped)'))).join('')}</optgroup>` : ''}${(src.files || []).length ? `<optgroup label="${esc(src.log_dir || '/var/log/arise')}">${src.files.map(f => opt('file:' + f.name, `${f.name} · ${fmtB(f.size)}`)).join('')}</optgroup>` : ''}</select>
+      <select class="search" id="logLines" style="min-width:90px">${[100, 300, 1000].map(n => `<option ${S.logLines === n ? 'selected' : ''}>${n}</option>`).join('')}</select><input class="search" id="logQ" placeholder="Search these lines" value="${esc(S.logQ)}"><button class="btn btn--ghost btn--sm" id="logRefresh">Refresh</button><span class="spacer"></span>
+      ${errIdx != null ? `<button class="btn btn--ghost btn--sm" id="logErr">Last error ↓</button>` : '<span class="sub" style="font-size:12px;color:var(--ok)">no error lines</span>'}<button class="btn btn--ghost btn--sm" id="logCopy">Copy</button><button class="btn btn--sm" id="logClaude">Copy for Claude</button></div>
+    <p class="sub" style="font-size:12px;color:var(--muted);margin-bottom:8px">${esc(isFile ? sel.slice(5) : isApp ? 'docker compose logs ' + sel.slice(4) : 'journalctl -u ' + sel)} · ${lines.length} lines${q ? ` · ${shown.length} match “${esc(q)}”` : ''}${r.demo ? ' · sample' : ''}</p>
+    <pre class="log log--lines" id="logBody">${shown.map(([l, i]) => `<span class="${i === errIdx ? 'err' : ''}" id="ll${i}">${hl(l, q)}</span>`).join('\n') || '(empty)'}</pre></div>`;
+};
+V.logs.after = root => {
+  $('#logUnit', root).onchange = e => { S.logUnit = e.target.value; rerender('logs'); };
+  $('#logLines', root).onchange = e => { S.logLines = +e.target.value; rerender('logs'); };
+  $('#logQ', root).oninput = e => { S.logQ = e.target.value; clearTimeout(S.logT); S.logT = setTimeout(() => rerender('logs'), 350); };
+  $('#logRefresh', root).onclick = () => rerender('logs');
+  const er = $('#logErr', root); if (er) er.onclick = () => $('.log--lines .err', root)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const text = () => $('#logBody', root).innerText;
+  $('#logCopy', root).onclick = e => copyText(text(), e.target);
+  $('#logClaude', root).onclick = e => { const errL = $('.log--lines .err', root)?.innerText || '(no error line)'; copyText(`On arise-server, ${esc(S.logUnit)} shows this. The last error line is:\n${errL}\n\nWhat went wrong and what should I run? Do not delete anything. The last ${S.logLines} lines:\n\n${text()}`, e.target); };
+};
+
+/* Automations (round 3, 8) */
+const RUN_NOW = { 'arise-automator.timer': ['Preview (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], 'arise-backup.timer': ['Run every job now', () => runAllBackups()], 'arise-mirror.timer': ['Refresh the mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], 'arise-devices.timer': ['Scan now', () => api('/devices/scan', { method: 'POST', body: {} }).then(() => toast('Scan started'))], 'arise-update.timer': ['Open Software Update', () => openApp('updates')], 'arise-monitor-off.timer': ['Open Monitor', () => openApp('monitor')], 'arise-monitor-on.timer': ['Open Monitor', () => openApp('monitor')] };
+V.automations = async () => {
+  const r = await api('/automations');
+  return `<div class="fade"><p class="note" style="margin-bottom:14px"><b>${esc(r.never)}</b> Pausing a timer stops it firing until you resume it; the real automator run is only ever this timer's, never a button here.</p>
+    <div class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>What</th><th>Next</th><th>Last</th><th>State</th><th></th></tr></thead><tbody>
+    ${(r.timers || []).map(t => `<tr class="${t.enabled ? '' : 'dim'}"><td><b>${esc(t.name)}</b><br><small class="muted">${esc(t.what)}</small><br><small class="muted mono">${esc(t.timer)}</small></td><td>${t.next ? `${fmtT(t.next)}<br><small class="muted">${ago(t.next).replace(' ago', '')}</small>` : '—'}</td><td>${t.last ? `${fmtT(t.last)}<br>${t.running ? '<span class="pill info">running</span>' : t.last_ok ? '<span class="pill ok">ok</span>' : t.last_ok === false ? `<span class="pill bad">failed${t.exit ? ' · exit ' + esc(t.exit) : ''}</span>` : ''}` : '<span class="muted">never</span>'}</td><td><span class="pill ${t.enabled ? 'ok' : 'warn'}">${t.enabled ? 'on' : 'paused'}</span></td>
+      <td class="acts">${RUN_NOW[t.timer] ? `<button class="btn btn--ghost btn--xs" data-run="${esc(t.timer)}">${esc(RUN_NOW[t.timer][0])}</button>` : ''}${t.timer.startsWith('arise-') ? `<button class="btn btn--ghost btn--xs" data-pause="${esc(t.timer)}" data-on="${t.enabled ? 0 : 1}">${t.enabled ? 'Pause' : 'Resume'}</button>` : ''}<a class="btn btn--ghost btn--xs" data-log="${esc(t.service)}">Logs</a></td></tr>`).join('')}</tbody></table></div></div>`;
+};
+V.automations.after = root => {
+  $$('[data-run]', root).forEach(b => b.onclick = e => { const f = RUN_NOW[b.dataset.run]; if (f) act(e.target, () => Promise.resolve(f[1]()), null); });
+  $$('[data-pause]', root).forEach(b => b.onclick = () => { const on = b.dataset.on === '1'; confirmType(`${on ? 'Resume' : 'Pause'} ${b.dataset.pause}`, b.dataset.pause, on ? 'The timer fires again at its next time.' : 'The timer stops firing until you resume it. Nothing running now is interrupted.', async () => { const r = await api(`/automations/${encodeURIComponent(b.dataset.pause)}/${on ? 'resume' : 'pause'}`, { method: 'POST', body: { confirm: b.dataset.pause } }); if (r.ok === false) throw new Error(r.err); toast(on ? 'Resumed' : 'Paused'); rerender('automations'); }); });
+  $$('[data-log]', root).forEach(a => a.onclick = e => { e.preventDefault(); S.logUnit = a.dataset.log; openApp('logs'); if (S.wins.logs) rerender('logs'); });
+};
+
+/* Storage (round 3, 9) */
+V.storage = async () => {
+  const s = await api('/storage'); const sc = s.scan;
+  const bar = (used, total) => `<div class="meter ${pct(used, total) > 90 ? '' : pct(used, total) > 75 ? 'meter--warn' : 'meter--ok'}"><i style="width:${pct(used, total)}%"></i></div>`;
+  const maxRoot = Math.max(1, ...(sc?.roots || []).map(r => r.bytes || 0));
+  return `<div class="fade"><div class="grid" style="margin-bottom:14px">${(s.mounts || []).map(m => `<div class="c4 panel ${m.pct >= 90 ? 'panel--bad' : m.pct >= 75 ? 'panel--warn' : 'panel--flat'}"><div class="stat"><span class="stat__l">${esc(m.mount)} <span class="muted">${esc(m.fs)}</span></span><span class="stat__v" style="font-size:24px">${fmtB(m.free)}<small>free</small></span><span class="stat__n">${fmtB(m.used)} used of ${fmtB(m.total)} · ${m.pct}%${m.pct >= 75 ? ' · <span style="color:var(--warn)">says so at 75%</span>' : ''}</span></div>${bar(m.used, m.total)}</div>`).join('')}</div>
+    <div class="toolbar"><span class="kicker">What is eating the disk</span><span class="spacer"></span><span class="sub" style="font-size:12px;color:var(--muted)">${sc ? 'as of ' + fmtT(sc.as_of) + (sc.truncated ? ' · partial (time cap)' : '') : 'no scan yet'}${s.scanning ? ' · scanning…' : ''}</span><button class="btn btn--ghost btn--sm" id="stScan" ${s.scanning ? 'disabled' : ''}>Rescan</button></div>
+    ${sc ? `<div class="grid"><div class="c6 panel panel--flat"><div class="panel__hd"><h3>By share and app</h3></div>${[...sc.roots].sort((a, b) => (b.bytes || 0) - (a.bytes || 0)).map(r => `<div class="st__row"><div class="row row--between"><span><b>${esc(r.name)}</b> <span class="muted" style="font-size:11px">${esc(r.kind)}${r.missing ? ' · missing' : ''}</span></span><span class="mono" style="font-size:12px">${fmtB(r.bytes)} · ${fmtN(r.files)} files</span></div><div class="meter meter--ok"><i style="width:${Math.max(1, (r.bytes || 0) / maxRoot * 100)}%"></i></div></div>`).join('')}</div>
+      <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Biggest files</h3><span class="sub">top ${sc.biggest.length}</span></div><div class="tbl-wrap"><table class="tbl tbl--tight"><tbody>${sc.biggest.slice(0, 25).map(f => `<tr><td class="mono" style="font-size:12px;word-break:break-all">${esc(f.path)}</td><td class="num" style="white-space:nowrap">${fmtB(f.bytes)}</td><td class="dim" style="white-space:nowrap">${esc((f.mtime || '').slice(0, 10))}</td></tr>`).join('')}</tbody></table></div></div>
+      <div class="c12 panel panel--flat"><div class="panel__hd"><h3>Not changed in a year</h3><span class="sub">${sc.old.length} files over 1 MB</span></div><p class="note" style="margin-bottom:10px">${esc(s.note)} Nothing is deleted from here: open the folder in Finder and decide by hand.</p>${sc.old.length ? `<div class="tbl-wrap"><table class="tbl tbl--tight"><tbody>${sc.old.map(f => `<tr><td class="mono" style="font-size:12px;word-break:break-all">${esc(f.path)}</td><td class="num" style="white-space:nowrap">${fmtB(f.bytes)}</td><td class="dim" style="white-space:nowrap">${esc((f.mtime || '').slice(0, 10))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nothing old and large.</div>'}</div></div>` : '<div class="empty">Press Rescan: the shares and app folders are walked once (a minute or two) and the result is kept.</div>'}</div>`;
+};
+V.storage.after = root => { const b = $('#stScan', root); if (b) b.onclick = e => act(e.target, () => api('/storage/scan', { method: 'POST' }), 'Scan started; this page refreshes in a minute').then(() => setTimeout(() => rerender('storage'), 45000)); };
+
+/* Notes (Trilium) and Photos (Immich): an app in a window (round 3, 11 and 12) */
+async function appWindow(id, tmpl, what) {
+  const r = await api(`/apps/open/${tmpl}`).catch(e => ({ ok: false, err: e.message }));
+  if (!r.installed) return `<div class="fade"><div class="empty">${esc(what)} is not installed yet.${isMember() ? ' Ask the media team.' : ` <button class="btn btn--xs" data-open="apps">Open the Store</button>`}</div></div>`;
+  if (!r.running) return `<div class="fade"><div class="empty">${esc(what)} is installed but stopped.${isMember() ? ' Ask the media team to start it.' : ` <button class="btn btn--xs" data-start="${esc(tmpl)}">Start it</button>`}</div></div>`;
+  return `<div class="appframe"><div class="appframe__bar"><span class="muted" style="font-size:12px">${esc(what)} · <a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--redL)">${esc(r.url)}</a></span><span class="spacer"></span><a class="btn btn--ghost btn--xs" href="${esc(r.url)}" target="_blank" rel="noopener">Open in a tab</a></div><iframe src="${esc(r.url)}" title="${esc(what)}" referrerpolicy="no-referrer"></iframe><p class="appframe__note muted">If the window stays blank the app refuses to be framed: use <b>Open in a tab</b>.</p></div>`;
+}
+const appWindowAfter = tmpl => root => { $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open)); $$('[data-start]', root).forEach(b => b.onclick = e => act(e.target, () => api(`/apps/${tmpl}/start`, { method: 'POST', body: {} }), 'Starting').then(() => setTimeout(render, 2500))); };
+V.notes = () => appWindow('notes', 'trilium', 'Notes (Trilium)'); V.notes.after = appWindowAfter('trilium');
+V.photos = () => appWindow('photos', 'immich', 'Photos (Immich)'); V.photos.after = appWindowAfter('immich');
+
+/* The closet monitor: power and Screen Sharing (round 3, 17 and 30) */
+V.monitor = async () => {
+  const m = await api('/monitor'); const sh = m.share || {};
+  return `<div class="fade"><div class="grid">
+    <div class="c6 panel ${m.kiosk ? 'panel--ok' : 'panel--warn'}"><div class="panel__hd"><h3>The panel</h3><span class="sub">${m.kiosk ? 'kiosk running' : 'kiosk not running'}</span></div>
+      ${(m.outputs || []).map(o => `<div class="widget__row"><span>${esc(o.name)} ${esc(o.description || '')}</span><b>${o.enabled === false ? '<span style="color:var(--warn)">off</span>' : 'on'}</b></div>`).join('') || `<p class="note">${esc(m.error || 'No output reported: is a monitor plugged in?')}</p>`}
+      <div class="widget__row"><span>Schedule</span><b>off ${esc(m.schedule?.off)} · on ${esc(m.schedule?.on)}</b></div>${Object.entries(m.timers || {}).map(([t, s]) => `<div class="widget__row"><span class="mono" style="font-size:12px">${esc(t)}</span><b>${esc(s)}</b></div>`).join('')}
+      <div class="row" style="margin-top:12px"><button class="btn btn--ghost btn--xs" data-pw="0">Off now</button><button class="btn btn--xs" data-pw="1">On now</button></div>
+      <p class="note" style="margin-top:12px">After a scheduled off the panel does not wake on a key; the 06:00 timer or <b>On now</b> brings it back. The screensaver at five idle minutes and the lock at ten stay as they are.</p></div>
+    <div class="c6 panel ${sh.on ? 'panel--ok' : 'panel--flat'}"><div class="panel__hd"><h3>Screen Sharing</h3><span class="sub">${sh.on ? 'on · ' + esc(sh.user || '') + ' only' : 'off'}</span></div>
+      <p style="font-size:13.5px;color:var(--text2)">See the closet monitor from your phone or Mac, over Tailscale, without walking to the closet. wayvnc shares cage's display to Guacamole only (the Docker network, a password, TLS); Guacamole shows it in a tab as the connection <b>${esc(sh.connection || 'Closet monitor')}</b>, for <b>${esc(sh.user || 'bradly.dyer')}</b> alone.</p>
+      ${sh.on ? `<div class="kv" style="margin-top:10px"><dt>wayvnc</dt><dd class="mono" style="font-size:12px">${esc(sh.address || '')}:${sh.port} · ${esc(sh.service || '')}</dd><dt>Guacamole</dt><dd>${sh.guacamole ? `<a href="${esc(sh.guacamole)}" target="_blank" rel="noopener" style="color:var(--redL)">${esc(sh.guacamole)}</a>` : 'not deployed'}</dd></div>` : '<p class="note" style="margin-top:10px">Turn it on from the box: <code>sudo arisectl monitor share on</code> (it makes the password, the certificate and the Guacamole user; the Guacamole password is shown once there, root only).</p>'}
+      ${sh.guacamole ? `<div class="row" style="margin-top:12px"><a class="btn btn--xs" href="${esc(sh.guacamole)}" target="_blank" rel="noopener">Open Guacamole</a></div>` : ''}</div></div>${m.demo ? '<p class="muted" style="margin-top:12px;font-size:12px">Sample data.</p>' : ''}</div>`;
+};
+V.monitor.after = root => { $$('[data-pw]', root).forEach(b => b.onclick = e => act(e.target, () => api('/monitor/power', { method: 'POST', body: { on: b.dataset.pw === '1' } }), b.dataset.pw === '1' ? 'Panel on' : 'Panel off').then(() => setTimeout(() => rerender('monitor'), 800))); };
+
+/* The menu-bar badge for Software Update (pending or a reboot) */
+async function updatesBadge() {
+  if (isMember()) return;
+  let b = $('#barUp'); if (!b) { b = document.createElement('button'); b.id = 'barUp'; b.className = 'bar__pill bar__pill--up'; b.hidden = true; b.title = 'Software Update'; b.onclick = () => openApp('updates'); $('#barAtt').before(b); }
+  try { const u = S.updatesCache && Date.now() - (S.updatesAt || 0) < 600000 ? S.updatesCache : await api('/updates'); S.updatesCache = u; S.updatesAt = Date.now();
+    const n = (u.other || []).length + (u.apps?.apps || []).filter(x => x.update).length; const rb = u.reboot_required;
+    b.hidden = !n && !rb; b.innerHTML = `<i></i><b>${n || ''}</b><span class="bar__pilltxt">${rb ? (n ? 'updates · reboot' : 'reboot needed') : 'updates'}</span>`; } catch { b.hidden = true; }
+}
+
 /* ---------------- window manager ---------------- */
 function tabs(sel) {
   const root = $(sel); if (!root) return; const panels = $$('[data-tab]', root.parentElement);
@@ -1395,7 +1603,7 @@ function tabs(sel) {
 let cascade = 0;
 function openApp(id, focusOnly) {
   const a = appOf(id); if (!a) return;
-  if (isMember() && !MEMBER_APPS.includes(id)) { toast('That app is for the administrator', 'warn'); return; }
+  if (isMember() && (!MEMBER_APPS.includes(id) || !inGroups(a))) { toast(a.groups ? 'That app is for the ' + a.groups.join(' and ') + ' groups' : 'That app is for the administrator', 'warn'); return; }
   closeOverlays();
   let w = S.wins[id];
   if (w) { w.min = false; w.el.classList.remove('min'); focusWin(id); if (!focusOnly) rerender(id); return; }
@@ -1466,6 +1674,11 @@ function menuItems(id) {
     clock: [['World clock', () => { S.clock.tab = 'world'; rerender('clock'); }], ['Timer', () => { S.clock.tab = 'timer'; rerender('clock'); }], ['Stopwatch', () => { S.clock.tab = 'sw'; rerender('clock'); }], ['Alarm', () => { S.clock.tab = 'alarm'; rerender('clock'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
     calc: [['Clear', () => { S.calc = { expr: '', res: '0' }; rerender('calc'); }], ['Copy result', () => copyText(S.calc?.res || '0')], null, ['Close Window', () => closeApp(id), '⌘W']],
     help: [['Portal guide', () => { S.help.name = 'PORTAL-GUIDE'; rerender('help'); }], ['Keyboard Shortcuts', () => shortcutsSheet(), '⌘/'], null, ['Close Window', () => closeApp(id), '⌘W']],
+    apps: [['Installed', () => { S.storeTab = 'installed'; rerender('apps'); }], ['Catalogue', () => { S.storeTab = 'catalog'; rerender('apps'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
+    updates: [['Refresh the lists', () => $('#upRefresh')?.click()], ['Check apps', () => $('#upCheckApps')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
+    logs: [['Last error', () => $('#logErr')?.click()], ['Copy for Claude', () => $('#logClaude')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
+    storage: [['Rescan', () => $('#stScan')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
+    settings: SETTINGS_SECTIONS.map(([sid, name]) => [name, () => { S.settingsSec = sid; rerender('settings'); }]).concat([null, ['Close Window', () => closeApp(id), '⌘W']]),
     assist: [['Open Claude', () => $$('[data-url]').find(b => b.dataset.url.includes('claude'))?.click()], ['Claude Code in Terminal', () => $('[data-claude-code]')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
   }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
@@ -1515,7 +1728,7 @@ function switcher(step) {
 }
 
 /* Spotlight */
-const ACTIONS_ALL = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about']];
+const ACTIONS_ALL = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about'], ['Check for updates', () => openApp('updates'), 'updates'], ['Rescan storage', () => { openApp('storage'); setTimeout(() => $('#stScan')?.click(), 1500); }, 'storage'], ['Turn the monitor off', () => api('/monitor/power', { method: 'POST', body: { on: false } }).then(r => toast(r.ok === false ? r.err : 'Panel off', r.ok === false ? 'bad' : 'ok')), 'monitor']];
 const ACTIONS_ANY = [['Help', () => openApp('help'), 'help'], ['Keyboard shortcuts', () => shortcutsSheet(), 'help'], ['Subscribe to the calendar', () => subscribeModal(), 'calendar'], ['Set a timer', () => { S.clock = S.clock || { tab: 'timer', timer: { total: 300, left: 300, on: false, at: 0 }, sw: { el: 0, on: false, t0: 0, laps: [] }, alarm: null }; S.clock.tab = 'timer'; openApp('clock'); }, 'clock']];
 const actions = () => (isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL).concat(ACTIONS_ANY);
 function spotResults(q, remote) {
@@ -1704,6 +1917,7 @@ async function buildWidgets() {
   const att = o.attention || [], bad = att.some(x => x.level === 'bad');
   const badKey = att.filter(x => x.level === 'bad').map(x => x.text).join('|'); if (bad && S.badKey !== undefined && S.badKey !== badKey) tone('bad'); S.badKey = badKey;
   $('#barAtt').hidden = !att.length; $('#barAttN').textContent = att.length;
+  updatesBadge();
   const a = o.automator || {}, b = o.backup || {}, n = o.nas || {};
   const bk = $('#stBk'); bk.className = 'bar__item ' + (b.failed_recent ? 'bad' : b.last ? 'ok' : ''); $('b', bk).textContent = b.last ? (b.last.ok ? 'ok' : 'failed') : '—';
   try { const r = await api('/remote'); S.remoteCache = r; const on = r.tailscale?.up || r.wireguard?.up; const v = $('#stVpn'); v.className = 'bar__item ' + (on ? 'ok' : 'warn'); $('b', v).textContent = on ? (r.tailscale?.up ? `${(r.tailscale.peers || []).filter(p => p.online).length} online` : 'up') : 'off'; } catch {}
@@ -1850,5 +2064,5 @@ async function boot() {
 }
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
-window.arise = { pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
+window.arise = { updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();

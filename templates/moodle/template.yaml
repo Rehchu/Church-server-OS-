@@ -12,6 +12,11 @@ volumes:
 env:
   DB_PASSWORD: CHANGE-ME
   MOODLE_PASSWORD: CHANGE-ME
+autostart: false
+ram_mb: 1200
+limits:
+  mem_mb: 2048
+  cpus: 1.5
 notes: |
   The first start takes several minutes (it installs itself). Memory 1 GB+
   for both (an estimate); 16 GB on the Dell, or run it alone. The LDAP

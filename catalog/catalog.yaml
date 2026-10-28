@@ -1,0 +1,520 @@
+# The Store's catalogue: free, self-hosted apps that are NOT in templates/ yet.
+# Bradly (round 3, 5): "definitely an App Store for other Linux programs that
+# are free!" Each entry is enough to write a compose.yaml: one image, its
+# port, its data folder under /srv/arise/apps/<name>/, the env it needs
+# (CHANGE-ME values become generated secrets, root-only, like the templates).
+#
+# ram_mb is an honest estimate at rest; limits are the caps the deploy writes
+# (mem_limit, cpus) so no app can starve the domain or the dashboard.
+# Image tags were current when this file was written and were not pulled from
+# this build: verify before first deploy. The dashboard says so on every card.
+#
+# Deliberately NOT here: anything that fights the network the church keeps as
+# it is (Pi-hole, AdGuard, another DHCP or DNS), and anything that needs a
+# port forward from the internet.
+apps:
+  - name: gitea
+    title: Gitea
+    description: Your own GitHub on the box, for the church's code, slide templates and the automator, with pull requests and a wiki. The GitHub mirror stays; this is a second home.
+    category: code
+    image: gitea/gitea:1.22.3
+    ports: ["3000:3000", "2222:22"]
+    volumes: ["/srv/arise/apps/gitea/data:/data"]
+    env: {USER_UID: "1000", USER_GID: "1000", GITEA__server__ROOT_URL: "http://arise-server:3000/"}
+    ram_mb: 250
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://about.gitea.com
+
+  - name: paperless
+    title: Paperless-ngx
+    description: Scan or drop the office paperwork (invoices, letters, forms) and it becomes searchable, tagged and backed up. The filing cabinet with a search box.
+    category: office
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.13.5
+    ports: ["8010:8000"]
+    volumes: ["/srv/arise/apps/paperless/data:/usr/src/paperless/data", "/srv/arise/apps/paperless/media:/usr/src/paperless/media", "/srv/arise/apps/paperless/consume:/usr/src/paperless/consume", "/srv/arise/apps/paperless/export:/usr/src/paperless/export"]
+    env: {PAPERLESS_URL: "http://arise-server:8010", PAPERLESS_SECRET_KEY: "CHANGE-ME", PAPERLESS_TIME_ZONE: "America/Chicago", PAPERLESS_OCR_LANGUAGE: "eng", PAPERLESS_ADMIN_USER: "admin", PAPERLESS_ADMIN_PASSWORD: "CHANGE-ME"}
+    ram_mb: 700
+    limits: {mem_mb: 1536, cpus: 2.0}
+    homepage: https://docs.paperless-ngx.com
+    notes: Runs with its built-in SQLite and no separate broker only in the small all-in-one mode shown here; for a busy office add redis later.
+
+  - name: stirling-pdf
+    title: Stirling PDF
+    description: "Every PDF chore in a browser tab: merge, split, compress, rotate, sign, convert to and from Word. Nothing leaves the building."
+    category: office
+    image: frooodle/s-pdf:0.36.6
+    ports: ["8011:8080"]
+    volumes: ["/srv/arise/apps/stirling-pdf/configs:/configs", "/srv/arise/apps/stirling-pdf/logs:/logs"]
+    env: {DOCKER_ENABLE_SECURITY: "false", LANGS: "en_US"}
+    ram_mb: 500
+    limits: {mem_mb: 1536, cpus: 1.5}
+    homepage: https://stirlingtools.com
+
+  - name: homepage
+    title: Homepage
+    description: One start page with a tile for every app on the box, live status on each. For a browser's home page on the office Mac.
+    category: admin
+    image: ghcr.io/gethomepage/homepage:v0.9.13
+    ports: ["3001:3000"]
+    volumes: ["/srv/arise/apps/homepage/config:/app/config"]
+    env: {HOMEPAGE_ALLOWED_HOSTS: "arise-server:3001,arise-server.ad.arisecenla.church:3001"}
+    ram_mb: 120
+    limits: {mem_mb: 384, cpus: 0.5}
+    homepage: https://gethomepage.dev
+    theme:
+      accepts: [primary, dark, name, css]
+      via: files
+      files:
+        config/settings.yaml: "title: {{name}}\ntheme: dark\ncolor: red\nheaderStyle: boxed\nbackground:\n  blur: sm\n  brightness: 50\n"
+        config/custom.css: "{{css}}"
+      note: Written once at deploy under /srv/arise/apps/homepage/config (settings.yaml and custom.css); edit them there afterwards.
+
+  - name: navidrome
+    title: Navidrome
+    description: The worship team's tracks and recordings as a music library with phone apps (Subsonic-compatible). Points at the worship share.
+    category: media
+    image: deluan/navidrome:0.53.3
+    ports: ["4533:4533"]
+    volumes: ["/srv/arise/apps/navidrome/data:/data", "/srv/arise/shares/worship:/music:ro"]
+    env: {ND_SCANSCHEDULE: "1h", ND_LOGLEVEL: "info"}
+    ram_mb: 120
+    limits: {mem_mb: 512, cpus: 1.0}
+    homepage: https://www.navidrome.org
+
+  - name: audiobookshelf
+    title: Audiobookshelf
+    description: Sermon audio and any audiobooks as a library with progress sync and a phone app. The podcast feed's sibling for people who want a library.
+    category: media
+    image: ghcr.io/advplyr/audiobookshelf:2.17.3
+    ports: ["13378:80"]
+    volumes: ["/srv/arise/apps/audiobookshelf/config:/config", "/srv/arise/apps/audiobookshelf/metadata:/metadata", "/mnt/synology/arise/recordings:/audiobooks:ro"]
+    env: {TZ: "America/Chicago"}
+    ram_mb: 200
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://www.audiobookshelf.org
+
+  - name: freshrss
+    title: FreshRSS
+    description: Follow church news, denominational sites and blogs in one reader, on the box. Replaces a dozen browser tabs.
+    category: office
+    image: freshrss/freshrss:1.24.3
+    ports: ["8012:80"]
+    volumes: ["/srv/arise/apps/freshrss/data:/var/www/FreshRSS/data", "/srv/arise/apps/freshrss/extensions:/var/www/FreshRSS/extensions"]
+    env: {TZ: "America/Chicago", CRON_MIN: "*/20"}
+    ram_mb: 80
+    limits: {mem_mb: 384, cpus: 0.5}
+    homepage: https://freshrss.org
+
+  - name: linkding
+    title: Linkding
+    description: "A shared bookmark shelf for the media team: sermon illustration sources, graphics sites, YouTube tools, tagged and searchable."
+    category: office
+    image: sissbruecker/linkding:1.36.0
+    ports: ["9090:9090"]
+    volumes: ["/srv/arise/apps/linkding/data:/etc/linkding/data"]
+    env: {LD_SUPERUSER_NAME: "admin", LD_SUPERUSER_PASSWORD: "CHANGE-ME"}
+    ram_mb: 100
+    limits: {mem_mb: 384, cpus: 0.5}
+    homepage: https://github.com/sissbruecker/linkding
+    notes: Port 9090 clashes with Cockpit if Cockpit is on; change the first number in ports before installing if so.
+
+  - name: vikunja
+    title: Vikunja
+    description: To-do lists and project boards for the team (service planning, the Hub move, events), with phone apps. Kanban, lists, reminders.
+    category: office
+    image: vikunja/vikunja:0.24.4
+    ports: ["3456:3456"]
+    volumes: ["/srv/arise/apps/vikunja/files:/app/vikunja/files", "/srv/arise/apps/vikunja/db:/db"]
+    env: {VIKUNJA_SERVICE_PUBLICURL: "http://arise-server:3456/", VIKUNJA_DATABASE_PATH: "/db/vikunja.db", VIKUNJA_SERVICE_JWTSECRET: "CHANGE-ME", VIKUNJA_SERVICE_TIMEZONE: "America/Chicago"}
+    ram_mb: 100
+    limits: {mem_mb: 384, cpus: 0.5}
+    homepage: https://vikunja.io
+
+  - name: excalidraw
+    title: Excalidraw
+    description: A whiteboard in the browser for stage layouts, cable runs and the network drawing. Hand-drawn look, exports to PNG and SVG.
+    category: office
+    image: excalidraw/excalidraw:latest
+    ports: ["8013:80"]
+    volumes: []
+    env: {}
+    ram_mb: 40
+    limits: {mem_mb: 192, cpus: 0.5}
+    homepage: https://excalidraw.com
+    notes: The project publishes only a latest tag; the image is a static page, so a surprise update is unlikely to matter.
+
+  - name: drawio
+    title: draw.io
+    description: Diagrams (flowcharts, the network map, floor plans) with the draw.io editor, served from the box. Files save to the shares.
+    category: office
+    image: jgraph/drawio:24.7.17
+    ports: ["8014:8080"]
+    volumes: []
+    env: {}
+    ram_mb: 250
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://www.drawio.com
+
+  - name: calibre-web
+    title: Calibre-Web
+    description: The church library's e-books and study PDFs as a browsable shelf with sending to Kindle and reading in the browser.
+    category: media
+    image: lscr.io/linuxserver/calibre-web:0.6.23
+    ports: ["8083:8083"]
+    volumes: ["/srv/arise/apps/calibre-web/config:/config", "/srv/arise/shares/staff/Library:/books"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    ram_mb: 150
+    limits: {mem_mb: 512, cpus: 0.5}
+    homepage: https://github.com/janeczku/calibre-web
+    notes: Port 8083 is Vaultwarden's in the templates; change the first number before installing.
+
+  - name: memos
+    title: Memos
+    description: A quick-notes wall for the team, like a shared Sticky Notes with Markdown and tags. Lighter than Trilium, for one-liners.
+    category: knowledge
+    image: neosmemo/memos:0.23.0
+    ports: ["5230:5230"]
+    volumes: ["/srv/arise/apps/memos/data:/var/opt/memos"]
+    env: {}
+    ram_mb: 60
+    limits: {mem_mb: 256, cpus: 0.5}
+    homepage: https://usememos.com
+
+  - name: n8n
+    title: n8n
+    description: Visual automations between apps (a new upload posts to Discord, a form fills a sheet) without code. The church's own Zapier.
+    category: automation
+    image: docker.n8n.io/n8nio/n8n:1.64.3
+    ports: ["5678:5678"]
+    volumes: ["/srv/arise/apps/n8n/data:/home/node/.n8n"]
+    env: {GENERIC_TIMEZONE: "America/Chicago", TZ: "America/Chicago", N8N_HOST: "arise-server", N8N_SECURE_COOKIE: "false", N8N_ENCRYPTION_KEY: "CHANGE-ME"}
+    ram_mb: 350
+    limits: {mem_mb: 1024, cpus: 1.0}
+    homepage: https://n8n.io
+
+  - name: ntfy
+    title: ntfy
+    description: Push notifications to any phone from a script or a timer, with a phone app, no account. A second channel beside the dashboard's own push.
+    category: automation
+    image: binwiederhier/ntfy:v2.11.0
+    ports: ["8015:80"]
+    volumes: ["/srv/arise/apps/ntfy/cache:/var/cache/ntfy", "/srv/arise/apps/ntfy/etc:/etc/ntfy"]
+    env: {TZ: "America/Chicago", NTFY_BASE_URL: "http://arise-server:8015", NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db", NTFY_AUTH_DEFAULT_ACCESS: "deny-all", NTFY_AUTH_FILE: "/var/cache/ntfy/auth.db"}
+    command: serve
+    ram_mb: 30
+    limits: {mem_mb: 192, cpus: 0.5}
+    homepage: https://ntfy.sh
+
+  - name: gotify
+    title: Gotify
+    description: A simple notification server with an Android app, for scripts that want to say "done" or "failed".
+    category: automation
+    image: gotify/server:2.5.0
+    ports: ["8016:80"]
+    volumes: ["/srv/arise/apps/gotify/data:/app/data"]
+    env: {GOTIFY_DEFAULTUSER_PASS: "CHANGE-ME", TZ: "America/Chicago"}
+    ram_mb: 30
+    limits: {mem_mb: 192, cpus: 0.5}
+    homepage: https://gotify.net
+
+  - name: grafana
+    title: Grafana
+    description: Dashboards and graphs over any data (Netdata, Uptime Kuma, a spreadsheet of attendance) for the office wall.
+    category: monitoring
+    image: grafana/grafana-oss:11.3.0
+    ports: ["3002:3000"]
+    volumes: ["/srv/arise/apps/grafana/data:/var/lib/grafana"]
+    env: {GF_SECURITY_ADMIN_PASSWORD: "CHANGE-ME", GF_USERS_ALLOW_SIGN_UP: "false"}
+    ram_mb: 200
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://grafana.com/oss/grafana/
+    theme:
+      accepts: [dark, name]
+      via: env
+      env: {GF_USERS_DEFAULT_THEME: "dark", GF_SERVER_ROOT_URL: "http://arise-server:3002", GF_DEFAULT_INSTANCE_NAME: "{{name}}"}
+      note: Dark by default and named for the church through its env; the logo swap needs a paid feature, so it keeps Grafana's.
+
+  - name: healthchecks
+    title: Healthchecks
+    description: Watches the timers' heartbeats (backup, automator, mirror) and alerts when one does NOT run, which Uptime Kuma cannot see.
+    category: monitoring
+    image: healthchecks/healthchecks:v3.7
+    ports: ["8017:8000"]
+    volumes: ["/srv/arise/apps/healthchecks/config:/data"]
+    env: {SITE_ROOT: "http://arise-server:8017", SITE_NAME: "Arise checks", SECRET_KEY: "CHANGE-ME", DEBUG: "False", REGISTRATION_OPEN: "False", DB: "sqlite", DB_NAME: "/data/hc.sqlite"}
+    ram_mb: 200
+    limits: {mem_mb: 512, cpus: 0.5}
+    homepage: https://healthchecks.io
+
+  - name: metabase
+    title: Metabase
+    description: Questions over a database or spreadsheet with charts and a dashboard, for anyone who can click. Giving stays off the box; this is for attendance, events, the channel.
+    category: office
+    image: metabase/metabase:v0.51.3
+    ports: ["3003:3000"]
+    volumes: ["/srv/arise/apps/metabase/data:/metabase-data"]
+    env: {MB_DB_FILE: "/metabase-data/metabase.db", JAVA_TIMEZONE: "America/Chicago"}
+    ram_mb: 1200
+    limits: {mem_mb: 2048, cpus: 1.5}
+    homepage: https://www.metabase.com
+
+  - name: snipe-it
+    title: Snipe-IT
+    description: An inventory of the church's gear (cameras, Macs, lights, cables) with who has it and when it was bought. Asset tags and check-outs.
+    category: office
+    image: snipe/snipe-it:v7.0.13
+    ports: ["8018:80"]
+    volumes: ["/srv/arise/apps/snipe-it/data:/var/lib/snipeit"]
+    env: {APP_URL: "http://arise-server:8018", APP_KEY: "CHANGE-ME-base64-see-notes", APP_TIMEZONE: "America/Chicago", DB_CONNECTION: "sqlite", MAIL_MAILER: "log"}
+    ram_mb: 300
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://snipeitapp.com
+    notes: APP_KEY must be "base64:" plus 32 random bytes; the deploy generates a random string, so replace it once with `docker compose exec snipe-it php artisan key:generate --show` before first use.
+
+  - name: shlink
+    title: Shlink
+    description: Short links with the church's own address for bulletins and slides (arise.link/give-style), with click counts.
+    category: office
+    image: shlinkio/shlink:4.2.3
+    ports: ["8019:8080"]
+    volumes: ["/srv/arise/apps/shlink/data:/etc/shlink/data"]
+    env: {DEFAULT_DOMAIN: "arise-server:8019", IS_HTTPS_ENABLED: "false", INITIAL_API_KEY: "CHANGE-ME"}
+    ram_mb: 120
+    limits: {mem_mb: 384, cpus: 0.5}
+    homepage: https://shlink.io
+
+  - name: umami
+    title: Umami
+    description: Privacy-friendly visitor counts for the church website, no cookies, no Google. Needs the website to carry one script tag.
+    category: monitoring
+    image: ghcr.io/umami-software/umami:postgresql-v2.14.0
+    ports: ["3004:3000"]
+    volumes: []
+    env: {UMAMI_DB_PASSWORD: "CHANGE-ME", APP_SECRET: "CHANGE-ME", DATABASE_URL: "postgresql://umami:${UMAMI_DB_PASSWORD}@umami-db:5432/umami", DATABASE_TYPE: "postgresql"}
+    extra_services:
+      umami-db:
+        image: postgres:15-alpine
+        container_name: arise-app-umami-db
+        restart: unless-stopped
+        environment: ["POSTGRES_DB=umami", "POSTGRES_USER=umami", "POSTGRES_PASSWORD=${UMAMI_DB_PASSWORD}"]
+        volumes: ["/srv/arise/apps/umami/db:/var/lib/postgresql/data"]
+    ram_mb: 350
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://umami.is
+    notes: First login admin / umami; change it at once.
+
+  - name: searxng
+    title: SearXNG
+    description: A private search page that asks the big engines for you and keeps nothing. For the office browser's search box.
+    category: office
+    image: searxng/searxng:2024.10.26-5f1f6c7
+    ports: ["8020:8080"]
+    volumes: ["/srv/arise/apps/searxng/config:/etc/searxng"]
+    env: {BASE_URL: "http://arise-server:8020/", INSTANCE_NAME: "Arise search"}
+    ram_mb: 150
+    limits: {mem_mb: 512, cpus: 1.0}
+    homepage: https://docs.searxng.org
+
+  - name: speedtest-tracker
+    title: Speedtest Tracker
+    description: Runs an internet speed test on a schedule and graphs it, so "the internet was slow Sunday" has a number next to it.
+    category: network
+    image: lscr.io/linuxserver/speedtest-tracker:0.24.0
+    ports: ["8021:80"]
+    volumes: ["/srv/arise/apps/speedtest-tracker/config:/config"]
+    env: {PUID: "1000", PGID: "1000", APP_KEY: "CHANGE-ME-base64-see-notes", DB_CONNECTION: "sqlite", APP_URL: "http://arise-server:8021", SPEEDTEST_SCHEDULE: "0 */6 * * *", TZ: "America/Chicago"}
+    ram_mb: 150
+    limits: {mem_mb: 512, cpus: 1.0}
+    homepage: https://docs.speedtest-tracker.dev
+    notes: APP_KEY must be "base64:" plus 32 random bytes (the deploy's random string is not); make one with `openssl rand -base64 32` and put it in the .env before first start.
+
+  - name: planka
+    title: Planka
+    description: A Trello-style board for the team's projects, self-hosted. Cards, lists, due dates, attachments.
+    category: office
+    image: ghcr.io/plankanban/planka:1.24.3
+    ports: ["3005:1337"]
+    volumes: ["/srv/arise/apps/planka/user-avatars:/app/public/user-avatars", "/srv/arise/apps/planka/attachments:/app/private/attachments"]
+    env: {BASE_URL: "http://arise-server:3005", PLANKA_DB_PASSWORD: "CHANGE-ME", DATABASE_URL: "postgresql://planka:${PLANKA_DB_PASSWORD}@planka-db/planka", SECRET_KEY: "CHANGE-ME", DEFAULT_ADMIN_EMAIL: "admin@arise-server", DEFAULT_ADMIN_PASSWORD: "CHANGE-ME", DEFAULT_ADMIN_NAME: "Admin", DEFAULT_ADMIN_USERNAME: "admin"}
+    extra_services:
+      planka-db:
+        image: postgres:16-alpine
+        container_name: arise-app-planka-db
+        restart: unless-stopped
+        environment: ["POSTGRES_DB=planka", "POSTGRES_USER=planka", "POSTGRES_PASSWORD=${PLANKA_DB_PASSWORD}"]
+        volumes: ["/srv/arise/apps/planka/db:/var/lib/postgresql/data"]
+    ram_mb: 300
+    limits: {mem_mb: 768, cpus: 1.0}
+    homepage: https://planka.app
+    notes: Vikunja above needs no database and does a similar job with less memory.
+
+  # ---- Desktop programs that run on the server and open in a browser tab ----
+  # (Bradly, Oct 28). linuxserver.io's KasmVNC images: the whole program in a
+  # window, saving straight to the shares (/shares) and the home folders
+  # (/homes). Off by default; each stops itself after an hour with nobody
+  # connected (idle_stop_minutes, swept by arise-idle-apps.timer) so an open
+  # GIMP does not sit on 1 GB all week. First open: http://arise-server:<port>.
+  - name: gimp
+    title: GIMP
+    description: Photo editing in a browser tab, on the server. Opens the graphics share directly; saves there too. Stops itself after an hour idle.
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/gimp:2.10.38
+    ports: ["3010:3000"]
+    volumes: ["/srv/arise/apps/gimp/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 600
+    limits: {mem_mb: 2048, cpus: 2.0}
+    homepage: https://docs.linuxserver.io/images/docker-gimp/
+    theme: none
+
+  - name: inkscape
+    title: Inkscape
+    description: Vector graphics (logos, lower thirds, print) in a browser tab, saving to the shares. Stops itself after an hour idle.
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/inkscape:1.3.2
+    ports: ["3011:3000"]
+    volumes: ["/srv/arise/apps/inkscape/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 500
+    limits: {mem_mb: 2048, cpus: 2.0}
+    homepage: https://docs.linuxserver.io/images/docker-inkscape/
+    theme: none
+
+  - name: krita
+    title: Krita
+    description: Painting and illustration in a browser tab, for the thumbnail and slide art, saving to the shares. Stops itself after an hour idle.
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/krita:5.2.6
+    ports: ["3012:3000"]
+    volumes: ["/srv/arise/apps/krita/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 700
+    limits: {mem_mb: 3072, cpus: 2.0}
+    homepage: https://docs.linuxserver.io/images/docker-krita/
+    theme: none
+
+  - name: kdenlive
+    title: Kdenlive
+    description: "Video editing in a browser tab, on the server's CPU: trims and Shorts from the recordings without moving a 6 GB file. Slow on an OptiPlex, but it works while you make coffee. Stops itself after an hour idle."
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/kdenlive:24.08.2
+    ports: ["3013:3000"]
+    volumes: ["/srv/arise/apps/kdenlive/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes", "/mnt/synology/arise/recordings:/recordings"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 1200
+    limits: {mem_mb: 4096, cpus: 3.0}
+    homepage: https://docs.linuxserver.io/images/docker-kdenlive/
+    theme: none
+
+  - name: shotcut
+    title: Shotcut
+    description: A lighter video editor in a browser tab, for quick cuts of the recordings. Stops itself after an hour idle.
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/shotcut:24.10.29
+    ports: ["3014:3000"]
+    volumes: ["/srv/arise/apps/shotcut/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes", "/mnt/synology/arise/recordings:/recordings"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 900
+    limits: {mem_mb: 3072, cpus: 3.0}
+    homepage: https://docs.linuxserver.io/images/docker-shotcut/
+    theme: none
+
+  - name: libreoffice
+    title: LibreOffice
+    description: Writer, Calc and Impress in a browser tab, opening the office documents on the shares from any device, even a phone. Stops itself after an hour idle.
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/libreoffice:24.8.2
+    ports: ["3015:3000"]
+    volumes: ["/srv/arise/apps/libreoffice/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 500
+    limits: {mem_mb: 2048, cpus: 2.0}
+    homepage: https://docs.linuxserver.io/images/docker-libreoffice/
+    theme: none
+
+  - name: audacity
+    title: Audacity
+    description: "Audio editing in a browser tab: trim a sermon's audio, clean a hum, export for the podcast feed. Saves to the shares. Stops itself after an hour idle."
+    category: desktop
+    kind: desktop
+    image: lscr.io/linuxserver/audacity:3.7.0
+    ports: ["3016:3000"]
+    volumes: ["/srv/arise/apps/audacity/config:/config", "/srv/arise/shares:/shares", "/srv/arise/homes:/homes", "/mnt/synology/arise/recordings:/recordings"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 400
+    limits: {mem_mb: 2048, cpus: 2.0}
+    homepage: https://docs.linuxserver.io/images/docker-audacity/
+    theme: none
+
+  - name: onlyoffice
+    title: OnlyOffice Document Server
+    description: Opens and edits .docx, .xlsx and .pptx in the browser with everyone in the same document. Finder will hand office files to it (that hook is a later block); until then Nextcloud and the portal can point at it. Off by default.
+    category: office
+    image: onlyoffice/documentserver:8.2.0
+    ports: ["8022:80"]
+    volumes: ["/srv/arise/apps/onlyoffice/data:/var/www/onlyoffice/Data", "/srv/arise/apps/onlyoffice/logs:/var/log/onlyoffice", "/srv/arise/apps/onlyoffice/db:/var/lib/postgresql", "/srv/arise/apps/onlyoffice/fonts:/usr/share/fonts/truetype/custom"]
+    env: {JWT_ENABLED: "true", JWT_SECRET: "CHANGE-ME"}
+    autostart: false
+    ram_mb: 1500
+    limits: {mem_mb: 3072, cpus: 2.0}
+    homepage: https://www.onlyoffice.com/document-server.aspx
+    theme:
+      accepts: [fonts]
+      via: files
+      note: Drop the house fonts (Anton, Oswald) in /srv/arise/apps/onlyoffice/fonts and restart; the editor then offers them.
+
+  # ---- The two experiments (off by default; nothing depends on either) ----
+  - name: game-night
+    title: Game night
+    description: A full desktop in a browser tab for the lobby TV on a youth night, with room for Heroic Games Launcher and free games (SuperTuxKart, Xonotic, 0 A.D.) installed inside it. Off by default; a laptop with a controller still does this better.
+    category: experiment
+    kind: desktop
+    image: lscr.io/linuxserver/webtop:ubuntu-kde
+    ports: ["3017:3000"]
+    volumes: ["/srv/arise/apps/game-night/config:/config", "/srv/arise/shares:/shares:ro"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago", TITLE: "Arise game night"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 1500
+    limits: {mem_mb: 4096, cpus: 3.0}
+    homepage: https://docs.linuxserver.io/images/docker-webtop/
+    theme: none
+    notes: Heroic Games Launcher has no container image of its own; install it inside this desktop (flatpak install com.heroicgameslauncher.hgl) along with the games (apt install supertuxkart xonotic 0ad). Games want a GPU the OptiPlex's iGPU barely gives; expect 2D and older titles only, through the browser's video stream.
+
+  - name: proclaim-wine
+    title: Proclaim under Wine (experiment)
+    description: An experiment, marked as one. A Windows-compatibility desktop in a browser tab to try Proclaim's installer under Wine. Proclaim is a .NET/WPF app and Wine runs few of those; expect it NOT to work. The lobby sign stays Proclaim on a Mac or PC either way.
+    category: experiment
+    kind: desktop
+    experimental: true
+    image: lscr.io/linuxserver/webtop:ubuntu-xfce
+    ports: ["3018:3000"]
+    volumes: ["/srv/arise/apps/proclaim-wine/config:/config", "/srv/arise/shares/graphics:/shares/graphics:ro"]
+    env: {PUID: "1000", PGID: "1000", TZ: "America/Chicago", TITLE: "Proclaim (Wine experiment)"}
+    autostart: false
+    idle_stop_minutes: 60
+    ram_mb: 1000
+    limits: {mem_mb: 3072, cpus: 2.0}
+    homepage: https://www.winehq.org
+    theme: none
+    notes: Inside the desktop, apt install wine64 winetricks, then run Proclaim's .exe installer. If it fails (likely), nothing else on the box cares. The .dmg cannot run on Linux at all.
