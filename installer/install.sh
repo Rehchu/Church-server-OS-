@@ -25,6 +25,9 @@
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
 #    --console           show the arisetui text dashboard on the closet monitor (tty1)
 #    --kiosk             show the Arise desktop (Finder, dock, widgets) full screen on the closet monitor (tty1)
+#    --staging           installing somewhere that is NOT the church (Bradly's house): the domain listens
+#                        on this box only, no address is pinned, no network scan, no DC ports open.
+#                        At the church run install.sh again WITHOUT --staging and it switches over.
 #    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
 #                        nothing on any router changes, Bradly's rule)
 #    --dry-run           print every step, change nothing
@@ -58,6 +61,8 @@ WITH_CADDY=0
 WITH_CONSOLE=0
 WITH_KIOSK=0
 PIN_IP=1
+STAGING=0
+STAGING_MARK="/etc/arise/staging"
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
 NO_START=0
@@ -78,6 +83,7 @@ while [ $# -gt 0 ]; do
     --console)     WITH_CONSOLE=1; shift ;;
     --kiosk)       WITH_KIOSK=1; shift ;;
     --no-pin-ip)   PIN_IP=0; shift ;;
+    --staging)     STAGING=1; PIN_IP=0; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     -h|--help)     usage 0 ;;
     *) echo "unknown flag: $1" >&2; usage 2 ;;
@@ -115,7 +121,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -151,6 +157,18 @@ if [ "$SKIP_DOMAIN" = 0 ] && [ "$DRY_RUN" = 0 ] && [ ! -f /var/lib/samba/private
   [ "$ADMIN_PASS" = "$ADMIN_PASS2" ] || die "passwords did not match"
   [ ${#ADMIN_PASS} -ge 8 ] || die "password must be at least 8 characters"
 fi
+
+# Staging (at home) vs the church. The marker file remembers which this box
+# last ran as, so a plain run at the church knows it is relocating.
+if [ "$STAGING" = 1 ]; then
+  note "STAGING: this box is not at the church. The domain will listen on this box only (interfaces = lo),"
+  note "         no address is pinned, no network scan runs, no DC port is opened, timers stay enabled but idle."
+elif [ -f "$STAGING_MARK" ]; then
+  RELOCATING=1
+  note "RELOCATING: this box was staged elsewhere (${STAGING_MARK}). Switching it to the church network:"
+  note "            address pinned here, domain on the wire, DNS records refreshed, scans on."
+fi
+RELOCATING="${RELOCATING:-0}"
 
 # A domain controller must not be on Wi-Fi and must have a fixed address.
 PRIMARY_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
@@ -421,6 +439,20 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
       fi
     fi
   fi
+  # Staging: the DC listens on loopback only, so nothing on a home network ever
+  # sees the domain, its DNS or its shares. Relocating: take that back out.
+  if [ -f /etc/samba/smb.conf ] && [ "$DRY_RUN" = 0 ]; then
+    sed -i '/^\s*# arise-server: staging$/,/^\s*bind interfaces only = yes$/d' /etc/samba/smb.conf
+    if [ "$STAGING" = 1 ]; then
+      sed -i '/^\[global\]/a\        # arise-server: staging\n        interfaces = lo\n        bind interfaces only = yes' /etc/samba/smb.conf
+      testparm -s >/dev/null 2>&1 || die "smb.conf failed testparm after the staging lines"
+      note "staging: Samba bound to loopback only (interfaces = lo)"
+    elif [ "$RELOCATING" = 1 ]; then
+      note "relocating: Samba now listens on the wire"
+    fi
+  elif [ "$DRY_RUN" = 1 ] && [ "$STAGING" = 1 ]; then
+    note "[dry-run] would bind Samba to loopback only (interfaces = lo, bind interfaces only = yes)"
+  fi
 
   # Kerberos: use the file the provision wrote.
   if [ -f /var/lib/samba/private/krb5.conf ]; then
@@ -599,8 +631,10 @@ run ufw allow from "$LAN_SUBNET" to any port "$WEB_PORT" proto tcp comment 'aris
 run ufw allow from "$WG_SUBNET" to any port "$WEB_PORT" proto tcp comment 'arise dashboard (vpn)'
 run ufw allow from 100.64.0.0/10 to any port "$WEB_PORT" proto tcp comment 'arise dashboard (tailscale)'
 # The domain controller's ports, LAN and VPN only. Nothing of the DC is ever
-# reachable from the internet.
-for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
+# reachable from the internet. Staging: none of them, the DC is on loopback.
+DC_SRCS=("$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10")
+if [ "$STAGING" = 1 ]; then DC_SRCS=(); note "staging: only ssh and the dashboard are reachable; no DC port is opened"; fi
+for src in "${DC_SRCS[@]}"; do
   run ufw allow from "$src" to any port 53 comment 'dns'
   run ufw allow from "$src" to any port 88 comment 'kerberos'
   run ufw allow from "$src" to any port 135 proto tcp comment 'rpc'
@@ -690,7 +724,10 @@ else
 fi
 
 # --- the daily notification timer (unit files come from config/systemd) ------
-if [ -f "$UNIT_SRC/arise-devices.timer" ]; then
+if [ -f "$UNIT_SRC/arise-devices.timer" ] && [ "$STAGING" = 1 ]; then
+  run systemctl disable --now arise-devices.timer >/dev/null 2>&1 || true
+  note "staging: the hourly network scan is off (it would scan the house)"
+elif [ -f "$UNIT_SRC/arise-devices.timer" ]; then
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now arise-devices.timer || warn "arise-devices.timer failed to start"
   else
@@ -881,6 +918,19 @@ fi
 # ----------------------------------------------------------------------------
 # 7. Summary — what still needs a human
 # ----------------------------------------------------------------------------
+# Staging marker, and the relocation refresh.
+if [ "$STAGING" = 1 ]; then
+  if [ "$DRY_RUN" = 0 ]; then mkdir -p /etc/arise; date -Is > "$STAGING_MARK"; fi
+  note "staging marker written: $STAGING_MARK. At the church: sudo bash install.sh (same flags, without --staging)"
+elif [ "$RELOCATING" = 1 ] && [ "$DRY_RUN" = 0 ]; then
+  rm -f "$STAGING_MARK"
+  if command -v samba_dnsupdate >/dev/null 2>&1 && [ "$SKIP_DOMAIN" = 0 ]; then
+    systemctl restart samba-ad-dc >/dev/null 2>&1 || true; sleep 4
+    samba_dnsupdate --use-samba-tool >/dev/null 2>&1 && note "domain DNS records now carry this box's church address" || warn "samba_dnsupdate failed; run: sudo samba_dnsupdate --use-samba-tool --verbose"
+  fi
+  note "relocation done: staging marker removed"
+fi
+
 say "7/7  Done. What still needs you"
 AUTOMATOR_DIR="$DATA_ROOT/automator/ARISE_YouTube_Updater"
 cat <<SUMMARY

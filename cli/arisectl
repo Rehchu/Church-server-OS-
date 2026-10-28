@@ -110,6 +110,8 @@ def cmd_doctor(a):
     head("arisectl doctor")
     (ok if cfg.found else bad)(f"config {cfg.path}" + ("" if cfg.found else " is missing - copy config/arise.toml.example there"))
     (ok if cfg.web.admin_password_hash else bad)("dashboard password " + ("set" if cfg.web.admin_password_hash else "not set - run: sudo arisectl admin set-password"))
+    if Path("/etc/arise/staging").exists():
+        warn("STAGING: not at the church yet; the domain is on loopback only, no scan runs. At the church: sudo bash /opt/arise/installer/install.sh")
     # The address install.sh pinned (the one DHCP gave the box) must still be the box's address.
     pinned = Path("/etc/netplan/60-arise-pinned.yaml")
     if pinned.exists():

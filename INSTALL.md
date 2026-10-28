@@ -184,6 +184,45 @@ Docker, and starts everything. Then **First boot**.
 
 ---
 
+## Installing at home first, then carrying it to the church
+
+Bradly's plan: install at home, check it, carry it in. The box must not
+touch anything at home. So the first install runs in **staging** mode:
+
+```bash
+sudo bash /opt/arise/installer/install.sh --staging --kiosk --with-tailscale
+```
+
+What staging changes, and nothing else:
+
+| At home (`--staging`) | At the church (plain `install.sh`, same other flags) |
+|---|---|
+| the domain listens on this box only (`interfaces = lo`); no home device can see the domain, its DNS or its shares | listens on the wire |
+| the firewall opens only SSH and the dashboard; no DC port | the DC ports, LAN and VPN only, as documented |
+| no address is pinned (it would pin your home address) | the church address is pinned on the box |
+| the hourly network scan is off (it would list your house) | on |
+| timers enabled but idle: no automator token, no NAS, nothing to back up | the same timers, now with things to do |
+| the dashboard shows a STAGING line in Needs You; `arisectl doctor` says so too | the line goes away |
+
+Everything else is real: the OS, the desktop on the monitor, the dashboard,
+the CLI, the domain itself (provisioned, just unreachable from the house),
+Tailscale (`tailscale up` can wait for the church; if you do it at home, do
+not advertise a route). Checking it from your laptop at home: SSH, and the
+dashboard at the address `arisectl info` prints. Nothing at home connects to
+it unless you type its address.
+
+**At the church:** plug it into the switch, power on, then once:
+
+```bash
+sudo bash /opt/arise/installer/install.sh --kiosk --with-tailscale
+```
+
+The installer sees the staging marker and relocates: pins the church
+address, puts Samba on the wire, opens the DC ports, refreshes the domain's
+DNS records (`samba_dnsupdate`) so they carry the church address instead of
+the home one, turns the network scan on, removes the marker. Then
+`sudo arisectl doctor`.
+
 ## First boot — in this order
 
 Every command below is real; run them on the server as `bradly`.

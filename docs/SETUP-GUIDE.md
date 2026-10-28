@@ -122,6 +122,13 @@ cable from the UPS to the server, for the step below.
 
 ### Day 1 — the OS
 
+Bradly installs at home first and carries the box in. Use `--staging` at
+home (INSTALL.md § Installing at home first): the domain listens on the
+box only, no home address is pinned, no scan of the house, no DC port
+open. At the church, the same command without `--staging` relocates it in
+one run.
+
+
 INSTALL.md § Path A, steps 1 to 5: make the USB, install Ubuntu, get the
 code on it, run the installer, set the fixed address. Run the installer with
 the flags you will actually use so the box is complete on the first pass:

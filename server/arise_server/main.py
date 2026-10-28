@@ -138,6 +138,8 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
         items.append({"level": "warn", "text": f"No config at {c.path}: running on defaults with sample data. Run the installer or `arisectl doctor`."})
     if not c.web.admin_password_hash and not c.demo:
         items.append({"level": "bad", "text": "No admin password set. Run: sudo arisectl admin set-password"})
+    if os.path.exists("/etc/arise/staging"):
+        items.append({"level": "warn", "text": "STAGING: this box is not at the church yet. The domain listens on this box only and no network scan runs. At the church: sudo bash /opt/arise/installer/install.sh (without --staging)."})
     for u in bad:
         items.append({"level": "bad", "text": f"{u} is not running."})
     if auto.get("token_ok") is False:
