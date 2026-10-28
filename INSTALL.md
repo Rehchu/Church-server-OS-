@@ -87,12 +87,20 @@ skips what is already done. Flags if you need them: `--skip-docker` (no
 apps), `--skip-domain` (no AD, for a test box), `--dry-run` (prints the plan,
 changes nothing).
 
-### 5. Fixed address
+### 5. Fixed address: automatic, nothing to type
 
-Pin the address on the server (no router setting is changed, by Bradly's rule); pick one outside Netgear A's DHCP range:
+The installer's step 2b keeps **the address Netgear A already gave the box**
+and pins it in `/etc/netplan/60-arise-pinned.yaml` on the server, so the
+domain controller never moves. No router setting changes, no existing device
+changes address, and you never choose or type an IP (Bradly's rule,
+docs/ANSWERS.md). `arisectl doctor` checks every day that the pinned
+address is still the box's address.
+
+Only if that step reported a warning, do it by hand with the same values
+the box already has (`ip -4 addr` and `ip route` show them):
 
 ```bash
-sudo nano /etc/netplan/50-cloud-init.yaml
+sudo nano /etc/netplan/60-arise-pinned.yaml
 ```
 
 ```yaml
@@ -101,10 +109,10 @@ network:
   ethernets:
     enp3s0:                      # your interface name — `ip link` shows it
       dhcp4: false
-      addresses: [192.168.1.20/24]   # a free address on the church LAN
+      addresses: [192.168.1.57/24]   # the address the box has NOW, unchanged
       routes:
         - to: default
-          via: 192.168.1.1           # the router
+          via: 192.168.1.1           # the router, as it is
       nameservers:
         addresses: [127.0.0.1]       # the DC is its own DNS
         search: [ad.arisecenla.church]

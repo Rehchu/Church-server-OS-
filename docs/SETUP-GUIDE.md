@@ -109,11 +109,11 @@ Cisco sticker and each router's LAN page still need a photo (answers 10 and
 
 - **where the server plugs in**: decided. Wired into the switch on Netgear
   A's network (the router at the modem). **No router, switch or Mesh
-  setting changes, ever**: the server takes a static address in netplan,
-  each Mac gets a per-domain resolver file from `bind-mac.sh --dns`, and
-  Tailscale covers everything the NATs block. docs/NETWORK.md § The
-  Pineville network as it is;
-- the server's **static IP** on that network (docs/NETWORK.md § The IP plan);
+  setting changes, ever, and no IP address changes**: the installer keeps
+  the address the router hands the box and pins it on the server, each Mac
+  gets a per-domain resolver file from `bind-mac.sh --dns`, and Tailscale
+  covers everything the NATs block. docs/NETWORK.md § The Pineville network
+  as it is;
 - whether home folders live on the server's disk or on the Synology
   (docs/SYNOLOGY.md; the OptiPlex's disk size decides, question 2, Sunday).
 

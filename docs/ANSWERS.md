@@ -110,11 +110,11 @@ file it points to. Nothing in this file is assumed; every line is his answer.
 | The media / streaming Mac is on the Mesh Wi-Fi; the NDI cameras are split between the Mesh and the switch | NDI discovery does not cross the NAT; sources are added by address. Guacamole cannot reach that Mac through the NAT, so the media Mac runs Tailscale and Guacamole uses its Tailscale address |
 | **Bradly: leave the network as it is; leave the streaming Mac on Wi-Fi; the infrastructure cannot be changed at all, not even a router setting** | no re-wiring, no AP mode, no VLANs, no DHCP reservation, no DNS change on any router. Static address in netplan on the server; `/etc/resolver` file on each Mac (`bind-mac.sh --dns`); Tailscale for everything the NATs block, including the Synology if it is not on Netgear A's network. NETWORK.md § The Pineville network as it is |
 | Alexandria's equipment: unknown | one Mac with Tailscale needs nothing from the router there |
+| **Bradly: no IP address, network setting or router change of any kind** | the server keeps the address Netgear A gives it and pins it on itself (install.sh step 2b); no device changes address; every Mac-side setting is a file on that Mac; Tailscale does the rest. There is nothing left on the list that touches a router, and the router pages no longer need a photo |
 
 ## Still needed
 
 - Sunday: questions 1 to 7.
-- A photo of Netgear A's LAN page (its subnet and DHCP range), and of Netgear B's and the Mesh's, so nothing clashes with the Hub later. The switch model no longer matters: it is unmanaged.
 - Where the Synology is plugged in: on Netgear A's network it mounts directly; elsewhere it gets the Tailscale package. No cable moves either way.
 - The full list of department accounts (27) and the people in staff and media (24).
 - The UPS model (8), for `nut`.

@@ -109,6 +109,16 @@ def cmd_doctor(a):
     head("arisectl doctor")
     (ok if cfg.found else bad)(f"config {cfg.path}" + ("" if cfg.found else " is missing - copy config/arise.toml.example there"))
     (ok if cfg.web.admin_password_hash else bad)("dashboard password " + ("set" if cfg.web.admin_password_hash else "not set - run: sudo arisectl admin set-password"))
+    # The address install.sh pinned (the one DHCP gave the box) must still be the box's address.
+    pinned = Path("/etc/netplan/60-arise-pinned.yaml")
+    if pinned.exists():
+        import re as _re
+        m = _re.search(r"addresses:\s*\[([0-9.]+)/", pinned.read_text())
+        cur = run(["sh", "-c", "ip -o route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i==\"src\") print $(i+1)}'"], timeout=5)["out"].strip()
+        if m and cur:
+            (ok if m.group(1) == cur else bad)(f"pinned address {m.group(1)} " + ("is this box's address" if m.group(1) == cur else f"but the box answers as {cur}: another device may hold it; reboot, then re-run install.sh step 2b"))
+    else:
+        warn("address not pinned (no /etc/netplan/60-arise-pinned.yaml); if the router ever hands this box a new address the Macs lose the domain. Run install.sh again, or INSTALL.md § 5")
     for mod in ("fastapi", "uvicorn", "psutil", "yaml", "bcrypt"):
         try:
             __import__(mod); ok(f"python module {mod}")

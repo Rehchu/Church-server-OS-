@@ -77,7 +77,7 @@ So every setting lives on the server or on the Mac, never on a router:
 
 | Instead of | On the server or the Mac |
 |---|---|
-| a DHCP reservation on Netgear A | a **static address in netplan on the server** (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Reading A's LAN page to see that range is looking, not changing |
+| a DHCP reservation on Netgear A | **nothing to choose**: the installer keeps the address Netgear A already handed the box and pins it in netplan on the server (INSTALL.md § 5). No router setting, no new IP, no existing device touched. The router still thinks it is an ordinary lease; `arisectl doctor` watches for the rare clash |
 | the routers handing out the server as DNS | each church Mac gets a **per-domain resolver file**, `/etc/resolver/ad.arisecenla.church`, written by `mac/bind-mac.sh --dns <server ip>` (and by `enroll-mac.sh --dns`). Only names in the church domain are asked of the server; everything else keeps the router's DNS. Nothing on the Mesh or the Netgears knows the server exists |
 | any route or port forward | **Tailscale**, which works from behind any number of routers with nothing opened. The subnet route is approved in the Tailscale admin console, not on a router |
 | reaching the media Mac through the Mesh's NAT | the media Mac runs the **Tailscale app**; Guacamole and anything else use its Tailscale address |
@@ -121,10 +121,11 @@ LAN address, which is fine: nothing needs to reach them, they reach the
 server. Alexandria's Mac and the personal Macs reach the server over
 Tailscale regardless of where they are.
 
-**Still needed:** a look at Netgear A's LAN page (its subnet and DHCP
-range, so the server's static address lands outside the range and
-`[[sites]] subnet` is right), and the same for Netgear B and the Mesh so
-nothing clashes with the Hub's `192.168.30.0/24` later. Looking only.
+**Still needed:** nothing from the routers for day 1. The installer
+reads the box's own address and subnet, and `arisectl info` prints them, so
+`[[sites]] subnet` is filled from the server, not from a router page. The
+Hub's subnet is chosen when the Hub's router exists; it only has to differ
+from Pineville's, which the server will have told us by then.
 
 ## VLANs: later, not day 1
 

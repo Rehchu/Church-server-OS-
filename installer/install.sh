@@ -25,6 +25,8 @@
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
 #    --console           show the arisetui text dashboard on the closet monitor (tty1)
 #    --kiosk             show the Arise desktop (Finder, dock, widgets) full screen on the closet monitor (tty1)
+#    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
+#                        nothing on any router changes, Bradly's rule)
 #    --dry-run           print every step, change nothing
 #    -h | --help
 #
@@ -55,6 +57,7 @@ WITH_WIREGUARD=0
 WITH_CADDY=0
 WITH_CONSOLE=0
 WITH_KIOSK=0
+PIN_IP=1
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
 NO_START=0
@@ -74,6 +77,7 @@ while [ $# -gt 0 ]; do
     --with-caddy)  WITH_CADDY=1; shift ;;
     --console)     WITH_CONSOLE=1; shift ;;
     --kiosk)       WITH_KIOSK=1; shift ;;
+    --no-pin-ip)   PIN_IP=0; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     -h|--help)     usage 0 ;;
     *) echo "unknown flag: $1" >&2; usage 2 ;;
@@ -111,7 +115,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -218,6 +222,59 @@ else
   note "timezone already $TIMEZONE"
 fi
 run systemctl enable --now chrony >/dev/null 2>&1 || warn "chrony did not start; Kerberos needs the clock within 5 minutes of the Macs"
+
+# ----------------------------------------------------------------------------
+# 2b. Keep the address the router gave us, and pin it (docs/ANSWERS.md: no
+#     router changes, no IP changes). The box asked Netgear A for an address
+#     like any new device; from here on it keeps exactly that address, gateway
+#     and interface, written as static in netplan on this box only. Nobody
+#     types an IP and nothing on the router changes.
+# ----------------------------------------------------------------------------
+say "2b/7  Pin this box's address (the one DHCP gave it)"
+if [ "$PIN_IP" = 1 ] && [ -n "$PRIMARY_IF" ] && [ -n "$PRIMARY_IP" ]; then
+  CIDR="$(ip -o -4 addr show dev "$PRIMARY_IF" 2>/dev/null | awk '{print $4}' | head -1 || true)"
+  GW="$(ip -o route show default dev "$PRIMARY_IF" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="via") print $(i+1)}' | head -1 || true)"
+  PINNED="/etc/netplan/60-arise-pinned.yaml"
+  if [ -f "$PINNED" ] && grep -q "$PRIMARY_IP/" "$PINNED"; then
+    note "already pinned: $PRIMARY_IP on $PRIMARY_IF ($PINNED)"
+  elif [ -z "$CIDR" ] || [ -z "$GW" ]; then
+    warn "could not read the address/gateway on $PRIMARY_IF; not pinning. INSTALL.md § 5 does it by hand"
+  elif [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] write $PINNED: $PRIMARY_IF static $CIDR via $GW, DNS 127.0.0.1 (the DC), search ${REALM,,}; then netplan apply"
+  else
+    mkdir -p /etc/netplan
+    cat > "$PINNED" <<NETPLAN
+# Written by Arise Server install.sh. This is the address Netgear A handed
+# this box by DHCP, kept for good so the domain controller never moves.
+# Nothing on the router was changed. Remove this file and run
+# 'netplan apply' to go back to DHCP.
+network:
+  version: 2
+  ethernets:
+    $PRIMARY_IF:
+      dhcp4: false
+      addresses: [$CIDR]
+      routes:
+        - to: default
+          via: $GW
+      nameservers:
+        addresses: [127.0.0.1]
+        search: [${REALM,,}]
+NETPLAN
+    chmod 600 "$PINNED"
+    # the cloud-init netplan still says dhcp4: true for this interface; ours
+    # sorts later (60- > 50-) and wins for the keys it sets.
+    if netplan generate >/dev/null 2>&1; then
+      netplan apply >/dev/null 2>&1 || warn "netplan apply failed; the address stays as DHCP gave it until the next boot"
+      note "pinned $CIDR via $GW on $PRIMARY_IF; the router still thinks it is a DHCP lease, which is fine"
+    else
+      rm -f "$PINNED"; warn "netplan rejected the pin; removed $PINNED and left DHCP alone (INSTALL.md § 5 by hand)"
+    fi
+  fi
+  note "If the router ever hands this address to another device (it can, since the lease is not reserved), arisectl doctor reports the clash; the fix is to run this step again after a reboot."
+else
+  note "address pinning skipped (--no-pin-ip or no primary interface); the DC's address may change at the router's whim"
+fi
 
 # ----------------------------------------------------------------------------
 # 3. Code and Python
