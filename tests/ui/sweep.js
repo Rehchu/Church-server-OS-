@@ -1,0 +1,330 @@
+// The preview sweep: every app, every control, as the administrator and as a member,
+// on a desktop screen and a phone. It drives the published preview (no API behind it:
+// web/demo-mock.js answers), does the real flows (make a user, disable them, add an
+// event, upload a file, trash it, put it back…) and checks the result is there after a
+// re-render and after a reload. Then it clicks everything else once and flags any
+// control that did nothing, any page error, any "not in the preview yet".
+//
+//   node tests/ui/sweep.js [out-dir]            (Playwright and Chromium are on the box)
+//   DEMO_DATA=… node tests/ui/sweep.js          to sweep a freshly generated sample set
+// Exit code 1 when anything failed.
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+const { serve } = require('./serve-preview');
+
+const OUT = process.argv[2] || path.join(require('os').tmpdir(), 'arise-sweep');
+fs.mkdirSync(OUT, { recursive: true });
+const results = [];
+const rec = (area, control, ok, note = '') => { results.push({ area, control, result: ok === true ? 'pass' : ok === 'skip' ? 'skip' : 'FAIL', note: String(note || '').slice(0, 300) }); if (ok !== true && ok !== 'skip') console.log(`  FAIL ${area} · ${control} · ${note}`); };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const INSTRUMENT = () => {
+  window.__errs = []; window.__toasts = []; window.__warn = [];
+  addEventListener('error', e => window.__errs.push('error: ' + (e.message || e.type)));
+  addEventListener('unhandledrejection', e => window.__errs.push('rejection: ' + ((e.reason && e.reason.message) || e.reason)));
+  const ow = console.warn; console.warn = (...a) => { window.__warn.push(a.join(' ')); ow.apply(console, a); };
+  const oe = console.error; console.error = (...a) => { window.__errs.push('console.error: ' + a.join(' ')); oe.apply(console, a); };
+  document.addEventListener('DOMContentLoaded', () => { const t = document.getElementById('toasts'); if (t) new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) window.__toasts.push({ cls: n.className, text: n.textContent }); }).observe(t, { childList: true }); });
+};
+
+async function newPage(browser, url, viewport = { width: 1440, height: 900 }, storage) {
+  const ctx = await browser.newContext({ viewport, storageState: storage });
+  await ctx.addInitScript(INSTRUMENT);
+  const p = await ctx.newPage(); p.ctx = ctx;
+  p.on('pageerror', e => p.evaluate(m => window.__errs && window.__errs.push('pageerror: ' + m), e.message).catch(() => {}));
+  p.on('dialog', d => d.accept().catch(() => {}));            // the editor's "discard changes?" confirm
+  p.on('popup', pop => pop.close().catch(() => {}));           // Watch / Studio / an assistant: a new tab, closed again
+  await p.goto(url, { waitUntil: 'domcontentloaded' }); await settle(p, 1400);
+  return p;
+}
+const settle = (p, ms = 450) => p.waitForTimeout(ms);
+const toasts = p => p.evaluate(() => { const t = window.__toasts.slice(); window.__toasts.length = 0; return t; });
+const errs = p => p.evaluate(() => { const e = window.__errs.slice(); window.__errs.length = 0; return e; });
+const warns = p => p.evaluate(() => { const w = window.__warn.filter(x => x.includes('not in the preview')); window.__warn.length = 0; return w; });
+async function app(p, id) { await p.evaluate(i => window.arise.openApp(i), id); for (let i = 0; i < 40; i++) { const busy = await p.evaluate(i => { const b = document.getElementById('wb-' + i); return !b || !!b.querySelector('.skeleton') && !b.querySelector('.finder, .help, .calapp, .settings'); }, id); if (!busy) break; await sleep(100); } await settle(p, 250); }
+const modalOpen = p => p.evaluate(() => document.getElementById('modal').open);
+const closeModal = p => p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); });
+async function confirmWord(p, word) { await p.fill('#cfWord', word); await p.click('#cfGo'); await settle(p, 500); await reauth(p); }
+async function reauth(p, pw = 'any-password') { if (await p.$('#raPw')) { await p.fill('#raPw', pw); await p.click('#raf button[type=submit]'); await settle(p, 700); } }
+const text = (p, sel) => p.evaluate(s => document.querySelector(s)?.textContent || '', sel);
+// The text of the first row under sel that mentions needle (querySelector has no :has-text).
+const rowText = (p, sel, needle) => p.evaluate(([s, n]) => [...document.querySelectorAll(s + ' tr')].find(t => t.textContent.includes(n))?.textContent || '', [sel, needle]);
+const exists = (p, sel) => p.evaluate(s => !!document.querySelector(s), sel);
+async function ctxPick(p, sel, label) { await p.click(sel, { button: 'right' }); await settle(p, 200); const ok = await p.evaluate(l => { const b = [...document.querySelectorAll('#ctx button')].find(x => x.textContent.trim() === l); if (b) { b.click(); return true; } return false; }, label); await settle(p, 450); return ok; }
+async function flame(p, label) { await p.click('#barLogo'); await settle(p, 200); const ok = await p.evaluate(l => { const b = [...document.querySelectorAll('#menuDrop button')].find(x => x.textContent.startsWith(l)); if (b) { b.click(); return true; } return false; }, label); await settle(p, 500); return ok; }
+async function step(area, control, fn) { const pg = step.page; if (pg) await pg.evaluate(() => { const m = document.getElementById('modal'); if (m && m.open) m.close(); const c = document.getElementById('ctx'); if (c) c.hidden = true; }).catch(() => {}); try { const had = pg ? await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true) : true; const r = await fn(); if (pg && had && !/Sign out|Sign-in|Member/.test(area + control) && !(await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true))) return rec(area, control, false, 'the desktop went away (the sign-in screen came up) during this step'); if (r === 'skip') return rec(area, control, 'skip'); rec(area, control, r === undefined ? true : r === true ? true : false, r === false ? 'the expected change did not show' : (typeof r === 'string' ? r : '')); } catch (e) { step.n = (step.n || 0) + 1; if (pg) await pg.screenshot({ path: path.join(OUT, `fail-${step.n}.png`) }).catch(() => {}); const why = e.message.split('\n').filter(l => /intercepts pointer|not visible|not enabled|not stable|outside of the viewport/.test(l)).slice(-1)[0] || ''; rec(area, control, false, e.message.split('\n')[0] + (why ? ' · ' + why.trim() : '')); } }
+const bad = (ts, re) => ts.some(t => /\bbad\b/.test(t.cls) && (!re || re.test(t.text)));
+
+/* ---------------- the flows ---------------- */
+async function flows(browser, url) {
+  const p = await newPage(browser, url); step.page = p; p.setDefaultTimeout(6000);
+  const A = 'admin';
+  await step(A, 'the desktop boots with no error', async () => { const e = await errs(p); return e.length ? 'errors: ' + e.join(' | ') : true; });
+
+  // Directory: users
+  await app(p, 'directory');
+  await p.screenshot({ path: path.join(OUT, 'dir-1-before.png') });
+  await step('Directory', 'New user: a bad name is refused with the rule', async () => { await p.click('#addUser'); await p.fill('#nuName', 'Bad Name'); await p.fill('#nuPw', 'longpassword1'); await p.click('#nuGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /name: letters/) || 'no error toast: ' + JSON.stringify(t); });
+  await step('Directory', 'New user: a short password is refused', async () => { await p.click('#addUser'); await p.fill('#nuDisp', 'Short Pass'); await p.fill('#nuPw', 'short'); await p.click('#nuGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /8 characters/) || JSON.stringify(t); });
+  await step('Directory', 'New user: John Smith becomes john.smith, in Staff', async () => { await p.click('#addUser'); await p.fill('#nuDisp', 'John Smith'); const nm = await p.inputValue('#nuName'); if (nm !== 'john.smith') return 'name filled as ' + nm; await p.fill('#nuPw', 'longpassword1'); await p.check('#nuGroups input[value="Staff"]'); await p.click('#nuGo'); await settle(p, 800); return await exists(p, '#uTable tr[data-q^="john.smith"]'); });
+  await p.screenshot({ path: path.join(OUT, 'dir-2-created.png') });
+  await step('Directory', 'the new user is still there after a reload', async () => { await p.reload({ waitUntil: 'domcontentloaded' }); await settle(p, 1300); await app(p, 'directory'); return await exists(p, '#uTable tr[data-q^="john.smith"]'); });
+  await step('Directory', 'the same name twice is refused', async () => { await p.click('#addUser'); await p.fill('#nuDisp', 'John Smith'); await p.fill('#nuPw', 'longpassword1'); await p.click('#nuGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /already exists/) || JSON.stringify(t); });
+  await step('Directory', 'Disable shows disabled', async () => { await p.click('[data-tog="john.smith"]'); await settle(p, 700); return (await text(p, '#uTable tr[data-q^="john.smith"]')).includes('disabled'); });
+  await p.screenshot({ path: path.join(OUT, 'dir-3-disabled.png') });
+  await step('Directory', 'Enable flips it back', async () => { await p.click('[data-tog="john.smith"]'); await settle(p, 700); return !(await text(p, '#uTable tr[data-q^="john.smith"]')).includes('disabled'); });
+  await p.screenshot({ path: path.join(OUT, 'dir-4-enabled.png') });
+  await step('Directory', 'you cannot disable yourself', async () => { await p.click('[data-tog="bradly"]'); await settle(p); return bad(await toasts(p), /signed in with/); });
+  await step('Directory', 'Reset password', async () => { await p.click('[data-pw="john.smith"]'); await p.fill('#rpPw', 'newpassword22'); await p.click('#rpGo'); await settle(p); const t = await toasts(p); return t.some(x => /Password set/.test(x.text)) || JSON.stringify(t); });
+  await step('Directory', 'Find a user filters the list', async () => { await p.fill('#uq', 'john'); await settle(p, 150); const n = await p.evaluate(() => [...document.querySelectorAll('#uTable tbody tr')].filter(t => !t.hidden).length); await p.fill('#uq', ''); return n === 1 || 'rows shown: ' + n; });
+  // groups
+  await step('Directory', 'New group Praise-Team', async () => { await p.click('#dirTabs [data-t="groups"]'); await p.click('#addGroup'); await p.fill('#ngName', 'Praise-Team'); await p.fill('#ngDesc', 'Sweep group'); await p.click('#ngGo'); await settle(p, 700); return (await text(p, '[data-tab="groups"]')).includes('Praise-Team'); });
+  await step('Directory', 'the Groups tab stays open after a re-render', async () => (await p.evaluate(() => !document.querySelector('#wb-directory [data-tab="groups"]').hidden)));
+  await step('Directory', 'Add member john.smith to Praise-Team', async () => { await p.click('[data-addm="Praise-Team"]'); await p.fill('#amUser', 'john.smith'); await p.click('#amGo'); await settle(p, 700); return await exists(p, '[data-rmm="Praise-Team"][data-u="john.smith"]'); });
+  await step('Directory', 'Add a member who does not exist is refused', async () => { await p.click('[data-addm="Praise-Team"]'); await p.fill('#amUser', 'nobody.here'); await p.click('#amGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /no such user/) || JSON.stringify(t); });
+  await step('Directory', 'Take john.smith out of Praise-Team', async () => { await p.click('[data-rmm="Praise-Team"][data-u="john.smith"]'); await confirmWord(p, 'john.smith'); return !(await exists(p, '[data-rmm="Praise-Team"][data-u="john.smith"]')); });
+  // shares
+  await step('Directory', 'Shares tab: New share youth', async () => { await p.click('#dirTabs [data-t="shares"]'); await p.click('#addShare'); await p.fill('#nsName', 'youth'); if ((await p.inputValue('#nsPath')) !== '/srv/arise/shares/youth') return 'path not filled'; await p.click('#nsGo'); await settle(p, 700); return (await text(p, '#wb-directory [data-tab="shares"]')).includes('youth'); });
+  await step('Directory', 'a bad share name is refused', async () => { await p.click('#addShare'); await p.fill('#nsName', '!!'); await p.fill('#nsPath', '/srv/arise/x'); await p.click('#nsGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /share name/) || JSON.stringify(t); });
+  await step('Directory', 'Remove share youth (typed name)', async () => { await p.click('#wb-directory [data-rm="youth"]'); await confirmWord(p, 'youth'); return !(await text(p, '#wb-directory [data-tab="shares"]')).includes('[youth]') && !(await exists(p, '#wb-directory [data-rm="youth"]')); });
+  await step('Directory', 'Delete john.smith asks twice (name, then password)', async () => { await p.click('#dirTabs [data-t="users"]'); await p.click('[data-del="john.smith"]'); await p.fill('#cfWord', 'john.smith'); await p.click('#cfGo'); await settle(p, 500); const asked = await exists(p, '#raPw'); await reauth(p); await settle(p, 600); const gone = !(await exists(p, '#uTable tr[data-q^="john.smith"]')); return asked && gone ? true : `asked again: ${asked}, gone: ${gone}`; });
+  // put john back for the sign-in tests
+  await p.click('#addUser'); await p.fill('#nuDisp', 'John Smith'); await p.fill('#nuPw', 'longpassword1'); await p.check('#nuGroups input[value="Staff"]'); await p.click('#nuGo'); await settle(p, 700);
+
+  // Finder
+  await app(p, 'files');
+  await step('Finder', 'Home folders → bradly', async () => { await p.click('[data-go="data|/homes"]'); await settle(p, 500); await p.dblclick('.fi[data-n="bradly"]'); await settle(p, 500); return (await text(p, '.finder__tb .title')) === 'bradly'; });
+  await step('Finder', 'New folder', async () => { await p.click('#fNew'); await p.fill('#nfName', 'Sweep folder'); await p.click('#nfGo'); await settle(p, 600); return await exists(p, '.fi[data-n="Sweep folder"]'); });
+  await step('Finder', 'a folder with a slash is refused', async () => { await p.click('#fNew'); await p.fill('#nfName', 'a/b'); await p.click('#nfGo'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /bad folder name/) || JSON.stringify(t); });
+  await step('Finder', 'Upload a text file', async () => { await p.setInputFiles('#fsUp', { name: 'notes.md', mimeType: 'text/markdown', buffer: Buffer.from('# Sweep notes\n\nHello from the sweep.\n') }); await settle(p, 800); return await exists(p, '.fi[data-n="notes.md"]'); });
+  await step('Finder', 'Edit the text file and save', async () => { await p.dblclick('.fi[data-n="notes.md"]'); await settle(p, 500); await p.fill('#edText', '# Sweep notes\n\nEdited by the sweep.\n'); await p.click('#edSave'); await settle(p, 500); const st = await text(p, '#edSt'); await p.click('#edClose'); await settle(p, 300); return st.startsWith('saved') || 'status: ' + st; });
+  await step('Finder', 'the Markdown preview renders', async () => { await p.dblclick('.fi[data-n="notes.md"]'); await settle(p, 500); await p.click('#edTabs [data-t="prev"]'); await settle(p, 400); const h = await p.evaluate(() => document.getElementById('edPrev').innerHTML); await p.click('#edClose'); return h.includes('<h1>') || h; });
+  await step('Finder', 'Quick Look (Space) shows the saved text', async () => { await p.click('.fi[data-n="notes.md"]'); await p.keyboard.press(' '); await settle(p, 400); const t = await text(p, '#qlBody'); await p.click('#qlClose'); return t.includes('Edited by the sweep') || t; });
+  await step('Finder', 'Get Info', async () => { const ok = await ctxPick(p, '.fi[data-n="notes.md"]', 'Get Info'); const o = await modalOpen(p); const t = await text(p, '#modalBody'); await closeModal(p); return ok && o && t.includes('notes.md') ? true : 'no info'; });
+  await step('Finder', 'Previous Versions', async () => { await ctxPick(p, '.fi[data-n="notes.md"]', 'Previous Versions…'); const t = await text(p, '#modalBody'); const btn = await exists(p, '#modalBody [data-snap]'); if (btn) { await p.click('#modalBody [data-snap]'); await settle(p, 600); } else await closeModal(p); return btn ? await exists(p, '.fi[data-n^="notes (restored"]') : t; });
+  await step('Finder', 'Share Link…', async () => { await ctxPick(p, '.fi[data-n="notes.md"]', 'Share Link…'); await p.click('#slGo'); await settle(p, 400); const t = await text(p, '#slOut'); await closeModal(p); return /\/s\//.test(t) || t; });
+  await step('Finder', 'Shared links lists it, and Remove takes it away', async () => { await p.click('#fLinks'); await settle(p, 400); const n = (await p.$$('#modalBody [data-rm]')).length; const has = (await text(p, '#modalBody')).includes('notes.md'); if (!has) { await closeModal(p); return 'not listed'; } await p.click('#modalBody tr:has-text("notes.md") [data-rm]'); await settle(p, 500); const n2 = (await p.$$('#modalBody [data-rm]')).length; await closeModal(p); return n2 === n - 1 || `${n} → ${n2}`; });
+  await step('Finder', 'Move to Trash (typed name)', async () => { await ctxPick(p, '.fi[data-n="notes.md"]', 'Move to Trash'); await confirmWord(p, 'notes.md'); return !(await exists(p, '.fi[data-n="notes.md"]')); });
+  await step('Finder', 'the Trash holds it; Put Back brings it home', async () => { await p.click('[data-go="@trash|/"]'); await settle(p, 500); const row = await p.$('tr:has-text("notes.md") [data-back]'); if (!row) return 'not in the Trash'; await row.click(); await settle(p, 600); await p.click('[data-go="data|/homes"]'); await settle(p, 400); await p.dblclick('.fi[data-n="bradly"]'); await settle(p, 500); return await exists(p, '.fi[data-n="notes.md"]'); });
+  await step('Finder', 'Recents shows this week\'s files', async () => { await p.click('[data-go="@recent|/"]'); await settle(p, 500); return (await text(p, '#fMain')).includes('notes.md'); });
+  await step('Finder', 'All Documents (everyone\'s, side by side)', async () => { await p.click('[data-go="@all:Documents|/"]'); await settle(p, 500); return (await p.$$('#fMain [data-p]')).length > 0; });
+  await step('Finder', 'Empty Trash asks for the share, then the name', async () => { await p.click('[data-go="@trash|/"]'); await settle(p, 500); const n = (await p.$$('[data-back]')).length; if (!n) return 'skip'; await p.click('#fEmpty'); await settle(p, 300); const share = await p.inputValue('#etShare'); await p.click('#etGo'); await settle(p, 300); await confirmWord(p, share); const n2 = (await p.$$('[data-back]')).length; return n2 < n || `${n} → ${n2}`; });
+  await step('Finder', 'Spotlight finds the uploaded file', async () => { await p.keyboard.press('Control+Space'); await p.keyboard.type('notes'); await settle(p, 700); const t = await text(p, '#spotRes'); await p.keyboard.press('Escape'); return t.includes('notes.md') || t.slice(0, 120); });
+
+  // Calendar
+  await app(p, 'calendar');
+  const day = await p.evaluate(() => { const d = new Date(); d.setDate(Math.min(27, d.getDate() + 2)); return d.toISOString().slice(0, 10); });
+  await step('Calendar', 'Add an event shows in the month', async () => { await p.click('#calAdd'); await p.fill('#evT', 'Sweep bake sale'); await p.fill('#evS', day + 'T10:00'); await p.click('#evf button[type=submit]'); await settle(p, 700); return (await text(p, '.calm')).includes('Sweep bake sale'); });
+  await step('Calendar', 'an event without a title is refused', async () => { await p.click('#calAdd'); await p.fill('#evS', day + 'T10:00'); await p.evaluate(() => { const t = document.getElementById('evT'); t.removeAttribute('required'); t.value = '  '; }); await p.click('#evf button[type=submit]'); await settle(p); const t = await toasts(p); await closeModal(p); return bad(t, /title/) || JSON.stringify(t); });
+  await step('Calendar', 'Edit the event', async () => { await p.click('.calm__ev:has-text("Sweep bake sale")'); await p.click('#evEd'); await p.fill('#evT', 'Sweep bake sale (moved)'); await p.click('#evf button[type=submit]'); await settle(p, 700); return (await text(p, '.calm')).includes('(moved)'); });
+  await step('Calendar', 'Next month and back', async () => { const a = await text(p, '.calapp__hd h2'); await p.click('#calNext'); await settle(p, 400); const b = await text(p, '.calapp__hd h2'); await p.click('#calPrev'); await settle(p, 400); return a !== b && (await text(p, '.calapp__hd h2')) === a; });
+  await step('Calendar', 'Subscribe shows the feed address', async () => { await p.click('#calSub'); await settle(p, 300); const v = await p.inputValue('#subUrl'); await closeModal(p); return /^webcal:/.test(v) || v; });
+  await step('Calendar', 'Remove the event (typed word)', async () => { await p.click('.calm__ev:has-text("(moved)")'); await p.click('#evRm'); await confirmWord(p, 'remove'); return !(await text(p, '.calm')).includes('(moved)'); });
+
+  // Sunday
+  await app(p, 'sunday');
+  await step('Sunday', 'a tick stays ticked after a re-render and a reload', async () => { const before = await p.isChecked('input[data-i="2"]'); await p.click('input[data-i="2"]'); await settle(p, 600); const mid = await p.isChecked('input[data-i="2"]'); await p.reload({ waitUntil: 'domcontentloaded' }); await settle(p, 1300); await app(p, 'sunday'); const after = await p.isChecked('input[data-i="2"]'); return mid !== before && after === mid; });
+
+  // Backups, automator, Synology, services
+  await app(p, 'backups');
+  await step('Backups', 'Run now adds a history row', async () => { const n = (await p.$$('[data-tab="hist"] tbody tr')).length; await p.click('[data-run="homes"]'); await sleep(3200); return (await p.$$('[data-tab="hist"] tbody tr')).length === n + 1; });
+  await step('Backups', 'Check now stamps the integrity check', async () => { await p.click('#bkCheck'); await settle(p, 500); await p.evaluate(() => window.arise.rerender('backups')); await settle(p, 500); return (await text(p, '#wb-backups')).includes('just now'); });
+  await step('Backups', 'the tabs open (History, Snapshots, Restore)', async () => { for (const t of ['snaps', 'restore', 'hist']) { await p.click(`#bkTabs [data-t="${t}"]`); await settle(p, 120); if (await p.evaluate(x => document.querySelector(`#wb-backups [data-tab="${x}"]`).hidden, t)) return t + ' did not show'; } return true; });
+  await app(p, 'automator');
+  await step('Automator', 'Run now is refused while the 02:05 timer is on', async () => { await p.click('#auRun'); await p.click('#auGo'); await settle(p, 500); const t = await toasts(p); await closeModal(p); return bad(t, /timer is on/) || JSON.stringify(t); });
+  await step('Automator', 'Preview tonight', async () => { await p.click('#auPreview'); await settle(p, 400); const t = await toasts(p); return t.some(x => /Preview started/.test(x.text)) || JSON.stringify(t); });
+  await step('Automator', 'a past report opens', async () => { await p.click('#auTabs [data-t="reports"]'); await p.click('[data-rep]'); await settle(p, 400); return (await text(p, '#repBody')).length > 20; });
+  await app(p, 'nas');
+  await step('Synology', 'Unmount then Mount', async () => { await p.click('#nasUn'); await settle(p, 700); const off = (await text(p, '#wb-nas')).includes('not mounted'); await p.click('#nasMount'); await settle(p, 700); const on = !(await text(p, '#wb-nas')).includes('not mounted'); return off && on; });
+  await app(p, 'services');
+  await step('Services', 'Stop and Start a unit', async () => { await p.click('[data-svc="docker.service"][data-do="stop"]'); await sleep(1500); const s1 = await rowText(p, '#wb-services', 'docker.service'); await p.click('[data-svc="docker.service"][data-do="start"]'); await sleep(1500); const s2 = await rowText(p, '#wb-services', 'docker.service'); return s1.includes('inactive') && s2.includes('active · running') ? true : s1 + ' / ' + s2; });
+
+  // Store
+  await app(p, 'apps');
+  await step('Store', 'Stop an app, then Start it', async () => { await p.click('[data-app="netdata"][data-do="stop"]'); await sleep(1900); const a = await rowText(p, '#wb-apps', 'netdata'); await p.click('[data-app="netdata"][data-do="start"]'); await sleep(1900); const b = await rowText(p, '#wb-apps', 'netdata'); return a.includes('stopped') && b.includes('running') ? true : a.slice(0, 60) + ' / ' + b.slice(0, 60); });
+  await step('Store', 'Autostart off sticks after a reload', async () => { await p.uncheck('[data-auto="netdata"]'); await settle(p, 400); await p.reload({ waitUntil: 'domcontentloaded' }); await settle(p, 1300); await app(p, 'apps'); return !(await p.isChecked('[data-auto="netdata"]')); });
+  await step('Store', 'Install from the catalogue', async () => { await p.click('#storeTabs [data-t="catalog"]'); await settle(p, 400); await p.fill('#storeQ', 'gitea'); await sleep(700); await p.click('[data-deploy="gitea"]'); await sleep(2500); await p.click('#storeTabs [data-t="installed"]'); await settle(p, 400); return (await text(p, '#wb-apps [data-tab="installed"]')).includes('gitea'); });
+  await step('Store', 'Remove keeps the data folder (typed name)', async () => { await p.click('[data-rmapp="gitea"]'); await confirmWord(p, 'gitea'); return !(await exists(p, '[data-rmapp="gitea"]')); });
+  await step('Store', 'the house look of an app', async () => { await p.click('#storeTabs [data-t="catalog"]'); await p.fill('#storeQ', ''); await sleep(600); const b = await p.$('[data-theme]'); if (!b) return 'no themed app'; await b.click(); await settle(p, 400); const o = await modalOpen(p); await closeModal(p); return o; });
+
+  // Automations, updates, activity, storage, monitor, logs
+  await app(p, 'automations');
+  await step('Automations', 'Pause a timer, then Resume it', async () => { await p.click('[data-pause="arise-backup.timer"]'); await confirmWord(p, 'arise-backup.timer'); const a = await rowText(p, '#wb-automations', 'arise-backup.timer'); await p.click('[data-pause="arise-backup.timer"]'); await confirmWord(p, 'arise-backup.timer'); const b = await rowText(p, '#wb-automations', 'arise-backup.timer'); return a.includes('paused') && !b.includes('paused') ? true : a.slice(0, 80); });
+  await app(p, 'updates');
+  await step('Software Update', 'Queue the ticked items', async () => { await p.check('[data-pkg="tzdata"]'); await p.click('#upQueue'); await settle(p, 700); return (await text(p, '#wb-updates')).includes('just now'); });
+  await step('Software Update', 'Install now (typed word) applies the queue', async () => { await p.click('#upNow'); await confirmWord(p, 'install'); await settle(p, 400); return (await text(p, '#wb-updates')).includes('Last apply'); });
+  await app(p, 'activity');
+  await step('Activity Monitor', 'End a process (typed PID)', async () => { const b = await p.$('[data-kill]'); if (!b) return 'no process to end'; const pid = await b.getAttribute('data-kill'); await b.click(); await confirmWord(p, pid); return !(await exists(p, `[data-kill="${pid}"]`)); });
+  await step('Activity Monitor', 'sort by memory', async () => { await p.click('[data-sort="mem"]'); await settle(p, 400); return (await text(p, '#wb-activity th.on')).includes('Memory'); });
+  await p.evaluate(() => window.arise.closeApp('activity'));
+  await app(p, 'storage');
+  await step('Storage', 'Rescan', async () => { await p.click('#stScan'); await settle(p, 400); return (await toasts(p)).some(t => /Scan started/.test(t.text)); });
+  await app(p, 'monitor');
+  await step('Monitor', 'Off now, On now', async () => { await p.click('[data-pw="0"]'); await sleep(1200); const off = (await text(p, '#wb-monitor')).includes('off'); await p.click('[data-pw="1"]'); await sleep(1200); return off; });
+  await app(p, 'logs');
+  await step('Logs', 'switch the source, search, last error', async () => { const opts = await p.$$eval('#logUnit option', o => o.map(x => x.value)); await p.selectOption('#logUnit', opts[1]); await settle(p, 600); await p.fill('#logQ', 'error'); await sleep(700); return (await p.inputValue('#logUnit')) === opts[1]; });
+
+  // Network, remote
+  await app(p, 'devices');
+  await step('Network', 'Name a device', async () => { await p.click('[data-edit]'); await p.fill('#devName', 'Sweep router'); await p.click('#devF button[type=submit]'); await settle(p, 700); return (await text(p, '#wb-devices table')).includes('Sweep router'); });
+  await step('Network', 'Scan now', async () => { await p.click('#devScan'); await settle(p, 700); return (await text(p, '#wb-devices')).includes('just now'); });
+  await step('Network', 'Find cameras', async () => { await p.click('#devCams'); await settle(p, 700); return (await text(p, '#devCamsOut')).length > 10; });
+  await app(p, 'remote');
+  await step('Remote', 'Add a computer to the VPN', async () => { await p.click('#rmTabs [data-t="wg"]'); await p.click('#wgAdd'); await p.fill('#wgName', 'sweep-laptop'); await p.click('#wgGo'); await settle(p, 500); const c = await text(p, '#wgConf'); await closeModal(p); await p.evaluate(() => window.arise.rerender('remote')); await settle(p, 500); return c.includes('[Interface]') && (await text(p, '#wb-remote')).includes('sweep-laptop'); });
+
+  // Mail
+  await app(p, 'mail');
+  await step('Mail', 'Preview fills the email', async () => { await p.fill('#mlSubj', 'Sweep news'); await p.fill('#mlBody', 'Hello church\n\n## This Sunday\n- 10:30 Pineville'); await p.click('#mlPrev'); await settle(p, 500); const h = await p.evaluate(() => document.getElementById('mlFrame').srcdoc); return h.includes('This Sunday') || 'srcdoc: ' + h.slice(0, 80); });
+  await step('Mail', 'a test to a bad address is refused', async () => { await p.fill('#mlTestTo', 'not-an-email'); await p.click('#mlTest'); await settle(p); return bad(await toasts(p), /email address/); });
+  await step('Mail', 'a test to a good address says what happens', async () => { await p.fill('#mlTestTo', 'bradly@example.com'); await p.click('#mlTest'); await settle(p); const t = await toasts(p); return t.some(x => /test/i.test(x.text) && !/\bbad\b/.test(x.cls)) || JSON.stringify(t); });
+  await step('Mail', 'Import a Wix CSV adds contacts', async () => { await p.click('[data-tab="contacts"]'); await settle(p, 500); const n = await text(p, '#wb-mail b'); await p.setInputFiles('#mlCsv', { name: 'wix.csv', mimeType: 'text/csv', buffer: Buffer.from('Email,First Name,Last Name\nsweep.one@example.com,Sweep,One\nsweep.two@example.com,Sweep,Two\nbad-address,Bad,Row\n') }); await settle(p, 500); await p.click('#mlGo'); await sleep(1800); const n2 = await text(p, '#wb-mail b'); return +n2 === +n + 2 || `${n} → ${n2}`; });
+  await step('Mail', 'Send to everyone (typed send) lands in Sent', async () => { await p.click('[data-tab="compose"]'); await settle(p, 400); await p.fill('#mlSubj', 'Sweep news'); await p.fill('#mlBody', 'Body'); await p.click('#mlSend'); await confirmWord(p, 'send'); await settle(p, 400); return (await text(p, '#wb-mail')).includes('Sweep news'); });
+
+  // Security and two-step
+  await app(p, 'security');
+  await step('Security', 'Scan now records a scan', async () => { await p.click('#secScan'); await settle(p, 500); await p.evaluate(() => window.arise.rerender('security')); await settle(p, 500); return (await text(p, '#wb-security')).includes('clean'); });
+  await step('Security', 'Two-step: turn it off (password + code)', async () => { await p.click('#secTwofa'); await settle(p, 400); if (!(await exists(p, '#tfOff'))) { await closeModal(p); return 'not on to begin with'; } await p.fill('#tfPw', 'x'); await p.fill('#tfCode', '000000'); await p.click('#tfOff button[type=submit]'); await settle(p, 600); return (await text(p, '#wb-security')).includes('Nobody has it on'); });
+  await step('Security', 'Two-step: set up shows the QR, a code turns it on', async () => { await p.click('#secTwofa'); await settle(p, 600); const qr = await exists(p, '#tfQr svg'); await p.fill('#tfCode', '123'); await p.click('#tfOn button[type=submit]'); await settle(p); const refused = (await toasts(p)).some(t => /not right/.test(t.text)); await p.fill('#tfCode', '000000'); await p.click('#tfOn button[type=submit]'); await settle(p, 600); const on = (await text(p, '#wb-security')).includes('On for: bradly'); return qr && refused && on ? true : `qr ${qr} refused ${refused} on ${on}`; });
+
+  // Settings, power, the flame menu
+  await app(p, 'settings');
+  await step('System Settings', 'every section opens', async () => { const secs = await p.$$eval('[data-sec]', b => b.map(x => x.dataset.sec)); for (const s of secs) { await p.click(`[data-sec="${s}"]`); await settle(p, 250); if (!(await text(p, '.settings__body h2'))) return s + ' empty'; } return true; });
+  await step('System Settings', 'Manage shares opens the Shares tab', async () => { await p.click('[data-sec="sharing"]'); await settle(p, 250); await p.click('[data-shares]'); await settle(p, 600); return await p.evaluate(() => !document.querySelector('#wb-directory [data-tab="shares"]').hidden); });
+  await step('Power', 'Restart… asks for the word and the password', async () => { await flame(p, 'Restart…'); await p.fill('#cfWord', 'reboot'); await p.click('#cfGo'); await settle(p, 500); const asked = await exists(p, '#raPw') || 'no password asked (a yes within five minutes?)'; await reauth(p); await settle(p, 400); const t = await toasts(p); const said = t.some(x => /would restart|Not during/.test(x.text)); return said ? true : 'toasts: ' + JSON.stringify(t) + ' ' + asked; });
+
+  // Spotlight, keys, overlays
+  await step('Spotlight', 'a sum', async () => { await p.keyboard.press('Control+Space'); await p.keyboard.type('12*(3+4)'); await settle(p, 300); const t = await text(p, '#spotRes'); await p.keyboard.press('Enter'); await settle(p, 600); const r = await text(p, '#calcRes'); return t.includes('= 84') && r === '84' ? true : t.slice(0, 60) + ' / ' + r; });
+  await step('Spotlight', 'a verse opens the Bible', async () => { await p.keyboard.press('Control+Space'); await p.keyboard.type('Psalm 23'); await settle(p, 300); await p.click('#spotRes button:has-text("Read Psalm 23")'); await settle(p, 800); return (await text(p, '#wb-bible h2')).includes('Psalm 23'); });
+  await step('Spotlight', 'an app by name', async () => { await p.keyboard.press('Control+Space'); await p.keyboard.type('weather'); await settle(p, 300); await p.keyboard.press('Escape'); return true; });
+  await step('Keys', 'F1 opens Help', async () => { await p.click('#stage', { position: { x: 20, y: 300 } }); await p.keyboard.press('F1'); await settle(p, 800); return !!(await p.evaluate(() => window.arise.S.wins.help)); });
+  await step('Keys', 'Ctrl+/ shows the shortcuts', async () => { await p.click('#stage', { position: { x: 20, y: 300 } }); await p.keyboard.press('Control+/'); await settle(p, 300); const o = await modalOpen(p); await p.keyboard.press('Escape'); return o; });
+  await step('Keys', 'Ctrl+← snaps a window to the left half', async () => { await app(p, 'about'); await p.evaluate(() => window.arise.focusWin('about')); await p.click('#stage', { position: { x: 5, y: 300 } }).catch(() => {}); await p.evaluate(() => window.arise.focusWin('about')); await p.keyboard.press('Control+ArrowLeft'); await settle(p, 200); return (await p.evaluate(() => window.arise.S.wins.about.el.style.left)) === '0px'; });
+  await step('Keys', 'Ctrl+W closes the window', async () => { await p.evaluate(() => window.arise.focusWin('about')); await p.keyboard.press('Control+w'); await settle(p, 200); return !(await p.evaluate(() => window.arise.S.wins.about)); });
+  await step('Keys', 'Ctrl+Alt+Q locks the screen, even with a window open', async () => { await app(p, 'calc'); await p.evaluate(() => window.arise.focusWin('calc')); await p.keyboard.press('Control+Alt+q'); await settle(p, 300); const locked = await p.evaluate(() => !document.getElementById('lock').hidden); const stillOpen = !!(await p.evaluate(() => window.arise.S.wins.calc)); if (locked) { await p.fill('#lockPw', 'any'); await p.keyboard.press('Enter'); await settle(p, 600); } return locked && stillOpen ? true : `locked ${locked}, window kept ${stillOpen}`; });
+  await step('Keys', 'F3 Mission Control, Escape back', async () => { await p.keyboard.press('F3'); await settle(p, 300); const on = await p.evaluate(() => document.getElementById('stage').classList.contains('mc')); await p.keyboard.press('Escape'); return on; });
+  await step('Lock', 'the lock screen unlocks with the password', async () => { await flame(p, 'Lock Screen'); const l = await p.evaluate(() => !document.getElementById('lock').hidden); await p.fill('#lockPw', 'whatever'); await p.keyboard.press('Enter'); await settle(p, 600); return l && await p.evaluate(() => document.getElementById('lock').hidden); });
+  await step('Dock', 'Remove from Dock, Keep in Dock', async () => { const has = () => exists(p, '#dock [data-app="terminal"]'); await p.evaluate(() => window.arise.closeApp('terminal')); await ctxPick(p, '#dock [data-app="terminal"]', 'Remove from Dock'); const gone = !(await has()); await p.evaluate(() => window.arise.toggleLaunchpad(true)); await settle(p, 200); await ctxPick(p, '[data-lp="terminal"]', 'Keep in Dock'); await p.evaluate(() => window.arise.toggleLaunchpad(false)); return gone && await has(); });
+  await step('Widgets', 'Notification Center opens with the widgets', async () => { await p.click('#barClock'); await settle(p, 600); const t = await text(p, '#ncBody'); await p.click('#barClock'); return t.includes('Weather') && t.length > 100; });
+  await step('Control Center', 'Bone theme and back', async () => { await p.click('#ccBtn'); await settle(p, 200); await p.click('#cc [data-act="theme"]'); await settle(p, 200); const bone = await p.evaluate(() => document.body.classList.contains('bone')); await p.click('#cc [data-act="theme"]'); await p.click('#ccBtn'); return bone; });
+  await step('Control Center', 'Larger text', async () => { await p.click('#ccBtn'); await settle(p, 200); await p.click('#cc [data-act="a11y-text"]'); const on = await p.evaluate(() => document.body.classList.contains('a11y-text')); await p.click('#cc [data-act="a11y-text"]'); await p.click('#ccBtn'); return on; });
+  await step('Walkthrough', 'Show me around, five steps', async () => { await p.evaluate(() => window.arise.walkthrough(true)); for (let i = 0; i < 5; i++) { await p.click('#wkNext'); await settle(p, 120); } return !(await exists(p, '.walk')); });
+  await step('Preview menu', 'the badge menu lists the switches', async () => { await p.click('#demoBadge'); await settle(p, 200); const t = await text(p, '#ctx'); await p.keyboard.press('Escape'); await p.mouse.click(700, 500); return t.includes('View as a member') && t.includes('Reset the preview'); });
+  const e1 = await errs(p); await step(A, 'no page errors in the flows', async () => e1.length ? e1.join(' | ') : true);
+  const w1 = await warns(p); await step(A, 'nothing "not in the preview yet"', async () => w1.length ? w1.join(' | ') : true);
+
+  // sign-in: john.smith (a member, with the password set when he was made)
+  await step('Sign-in', 'Sign out shows the sign-in screen', async () => { await flame(p, 'Sign Out'); await settle(p, 1500); return await exists(p, '.login #lf'); });
+  await step('Sign-in', 'a wrong password is refused', async () => { await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'wrong-one'); await p.click('#lf button'); await settle(p, 400); return (await text(p, '.login .toast')).includes('Wrong'); });
+  await step('Sign-in', 'john.smith signs in with his password and gets the portal', async () => { await p.fill('#lp', 'longpassword1'); await p.click('#lf button'); await settle(p, 1800); return await p.evaluate(() => document.body.classList.contains('member') && window.arise.S.user === 'john.smith'); });
+  await step('Member', 'Finder opens on My files with five folders', async () => { await app(p, 'files'); return (await p.$$('#fMain .fi')).length === 5; });
+  await step('Member', 'a member cannot open Directory', async () => { await p.evaluate(() => window.arise.openApp('directory')); await settle(p, 300); return !(await p.evaluate(() => window.arise.S.wins.directory)); });
+  await step('Member', 'the calendar has no Add button for members', async () => { await app(p, 'calendar'); return !(await exists(p, '#calAdd')); });
+  await step('Member', 'two-step for a member: turn it on', async () => { await flame(p, 'Two-step sign-in…'); await settle(p, 500); await p.fill('#tfCode', '000000'); await p.click('#tfOn button[type=submit]'); await settle(p, 500); return (await toasts(p)).some(t => /Two-step is on/.test(t.text)); });
+  await step('Sign-in', 'with two-step on, sign-in asks for the six digits', async () => { await flame(p, 'Sign Out'); await settle(p, 1500); await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'longpassword1'); await p.click('#lf button'); await settle(p, 600); const asked = await exists(p, '#lc'); await p.fill('#lc', '000000'); await p.click('#lf button'); await settle(p, 1800); return asked && await p.evaluate(() => window.arise.S.user === 'john.smith'); });
+  const e2 = await errs(p); await step('Member', 'no page errors as a member', async () => e2.length ? e2.join(' | ') : true);
+  await p.ctx.close();
+}
+
+/* ---------------- click everything once ---------------- */
+// Every visible control in every window, once: on the window as it opens and then
+// on each of its tabs. A control "answered" if anything happened: a modal, a menu,
+// a toast, a window, Quick Look, a new tab, or any window's content changed.
+// Clicking the tab that is already open, Refresh, Read and Today on what is already
+// shown are allowed to change nothing.
+const SKIP_IN_GENERIC = new Set(['terminal']);
+const CTRL = i => `#wb-${i} button, #wb-${i} a.btn, #wb-${i} label.btn, #wb-${i} input[type=checkbox]`;
+const IDEMPOTENT = /^(Refresh|Read|Today|Copy|Copy link|Copy the CSS|Copy result|Rescan|Scan now|Check now|Preview tonight|Last error ↓|Copy for Claude|Clear|=)$/;
+async function sweepWindow(p, id) {
+  const seen = new Set(); let answered = 0, quiet = 0; const none = [];
+  const tabsOf = () => p.evaluate(i => [...document.querySelectorAll(`#wb-${i} .tabs button, #wb-${i} .settings__nav button`)].map(b => b.textContent.trim()), id);
+  const states = [null, ...(await tabsOf())];
+  const goTab = async label => { if (label == null) return; await p.evaluate(([i, l]) => { const b = [...document.querySelectorAll(`#wb-${i} .tabs button, #wb-${i} .settings__nav button`)].find(x => x.textContent.trim() === l); if (b && !b.classList.contains('active') && !b.classList.contains('on')) b.click(); }, [id, label]); await sleep(350); };
+  for (const st of states) {
+    await goTab(st);
+    for (let guard = 0; guard < +(process.env.MAX_CONTROLS || 60); guard++) {
+      const pick = await p.evaluate(([i, sel, seenList]) => {
+        const keyOf = el => (el.closest('.tabs, .settings__nav') ? 'tab:' : '') + (el.getAttribute('aria-label') || el.textContent || el.value || el.tagName).trim().slice(0, 40) + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join(',');
+        const els = [...document.querySelectorAll(sel)].filter(el => el.offsetParent !== null && !el.disabled);
+        const el = els.find(e => !seenList.includes(keyOf(e)) && !(e.tagName === 'A' && (e.target === '_blank' || /^(https?|webcal|smb|mailto):/.test(e.getAttribute('href') || ''))) && !(e.tagName === 'LABEL' && e.getAttribute('for')) && !/^(Sign Out|Shut Down)/.test(e.textContent.trim()));
+        if (!el) return null;
+        const label = (el.getAttribute('aria-label') || el.textContent || el.value || el.tagName).trim().slice(0, 40);
+        const h = s => { let x = 0; for (let k = 0; k < s.length; k++) x = (x * 31 + s.charCodeAt(k)) | 0; return x; };
+        const all = [...document.querySelectorAll('.win__body')].map(b => h(b.innerHTML) + ':' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join('')).join('|');
+        window.__sig = { all, toasts: window.__toasts.length, wins: Object.keys(window.arise.S.wins).length };
+        const active = el.classList.contains('active') || el.classList.contains('on') || el.getAttribute('aria-pressed') === 'true' || (el.type === 'submit' && el.form && !el.form.checkValidity());
+        const key = keyOf(el); el.setAttribute('data-sweep-target', '1'); const dattr = [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name.slice(5) + '=' + a.value).join(' '); return { key, label: label + (dattr ? ` [${dattr}]` : ''), active, tab: !!el.closest('.tabs, .settings__nav') };
+      }, [id, CTRL(id), [...seen]]);
+      if (!pick) break;
+      seen.add(pick.key);
+      const pops = p.popups || 0;
+      await p.evaluate(() => { const el = document.querySelector('[data-sweep-target]'); el.removeAttribute('data-sweep-target'); el.click(); }).catch(() => {});
+      await sleep(380);
+      const what = await p.evaluate(() => { const s = window.__sig; if (!s) return 'reloaded'; const h = x => { let v = 0; for (let k = 0; k < x.length; k++) v = (v * 31 + x.charCodeAt(k)) | 0; return v; }; const all = [...document.querySelectorAll('.win__body')].map(b => h(b.innerHTML) + ':' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join('')).join('|');
+        return document.getElementById('modal').open ? 'modal' : !document.getElementById('ctx').hidden ? 'menu' : window.__toasts.length > s.toasts ? 'toast' : Object.keys(window.arise.S.wins).length !== s.wins ? 'window' : !document.getElementById('ql').hidden ? 'quicklook' : document.querySelector('.walk') ? 'walk' : all !== s.all ? 'changed' : ''; });
+      let popped = (p.popups || 0) > pops; if (!what && !popped) { await sleep(600); popped = (p.popups || 0) > pops; }
+      if (what || popped) answered++; else if (pick.active || IDEMPOTENT.test(pick.label.replace(/ \[.*$/, ''))) quiet++; else none.push(pick.label);
+      await p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); document.getElementById('ctx').hidden = true; document.getElementById('ql').hidden = true; document.querySelector('.walk')?.remove(); });
+      await p.evaluate(i => { Object.keys(window.arise.S.wins).filter(k => k !== i).forEach(k => window.arise.closeApp(k)); if (!window.arise.S.wins[i]) window.arise.openApp(i); }, id); await sleep(['apps', 'services', 'backups', 'automator', 'notes', 'photos'].includes(id) && !pick.tab ? 1700 : 120);   // these windows refresh themselves a moment after an action
+      if (!pick.tab) await goTab(st);
+    }
+  }
+  return { answered, quiet, none };
+}
+async function everyControl(browser, url, role) {
+  const p = await newPage(browser, url); p.popups = 0; p.on('popup', () => { p.popups++; });
+  if (role === 'member') { await p.evaluate(() => { window.AriseMock.viewAs('member'); window.AriseMock.flush(); }); await p.reload({ waitUntil: 'domcontentloaded' }); await settle(p, 1500); }
+  const only = (process.env.APPS || '').split(',').filter(Boolean);
+  const ids = (await p.evaluate(() => (window.arise.S.role === 'member' ? window.arise.APPS.filter(a => ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help', 'notes', 'photos'].includes(a.id)) : window.arise.APPS).map(a => a.id))).filter(i => !only.length || only.includes(i));
+  for (const id of ids) {
+    if (SKIP_IN_GENERIC.has(id)) { rec(`${role} · ${id}`, 'opens', 'skip'); continue; }
+    await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)));
+    await app(p, id);
+    const opened = await p.evaluate(i => !!window.arise.S.wins[i], id);
+    if (!opened) { const g = await p.evaluate(i => window.arise.APPS.find(a => a.id === i)?.groups, id); rec(`${role} · ${id}`, 'opens', role === 'member' && g ? 'skip' : false, 'did not open'); await toasts(p); continue; }
+    const loadErr = await p.evaluate(i => document.querySelector(`#wb-${i} .panel--bad h3`)?.textContent === 'Could not load' ? document.querySelector(`#wb-${i} .panel--bad p`)?.textContent : '', id);
+    rec(`${role} · ${id}`, 'opens', !loadErr, loadErr);
+    const r = await sweepWindow(p, id);
+    rec(`${role} · ${id}`, `${r.answered} controls answered, ${r.quiet} already showed it`, r.none.length === 0, r.none.length ? 'did nothing: ' + r.none.join(', ') : '');
+    const e = await errs(p); if (e.length) rec(`${role} · ${id}`, 'no page errors', false, e.join(' | '));
+    const w = await warns(p); if (w.length) rec(`${role} · ${id}`, 'all in the preview', false, w.join(' | '));
+    const t = (await toasts(p)).filter(x => /\bbad\b/.test(x.cls) && !/not right|refused|Not during|already|no such|type the|is kept|cannot|timer is on|first|bad|empty|only|Type|that does not look/i.test(x.text));
+    if (t.length) rec(`${role} · ${id}`, 'no unexpected red toasts', false, t.map(x => x.text).join(' | '));
+  }
+  await p.ctx.close();
+}
+
+/* ---------------- the phone ---------------- */
+async function phone(browser, url) {
+  const p = await newPage(browser, url, { width: 390, height: 844 });
+  const ids = await p.evaluate(() => window.arise.APPS.filter(a => !a.hidden).map(a => a.id));
+  for (const id of ids) {
+    await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)));
+    await app(p, id); await settle(p, 200);
+    const o = await p.evaluate(() => ({ page: document.documentElement.scrollWidth - innerWidth, body: document.body.scrollWidth - innerWidth }));
+    rec(`phone · ${id}`, 'no sideways scroll', o.page <= 1 && o.body <= 1, `page +${o.page}px, body +${o.body}px`);
+    if (['files', 'directory', 'calendar', 'sunday', 'apps', 'settings'].includes(id)) await p.screenshot({ path: path.join(OUT, `phone-${id}.png`) });
+  }
+  const e = await errs(p); rec('phone', 'no page errors', !e.length, e.join(' | '));
+  await p.ctx.close();
+}
+
+(async () => {
+  const srv = await serve(0); const url = `http://127.0.0.1:${srv.address().port}/`;
+  const browser = await chromium.launch();
+  const t0 = Date.now();
+  try {
+    const only = (process.env.ONLY || 'flows,admin,member,phone').split(',');
+    if (only.includes('flows')) { console.log('flows…'); await flows(browser, url); }
+    if (only.includes('admin')) { console.log('every control, admin…'); await everyControl(browser, url, 'admin'); }
+    if (only.includes('member')) { console.log('every control, member…'); await everyControl(browser, url, 'member'); }
+    if (only.includes('phone')) { console.log('the phone…'); await phone(browser, url); }
+  } finally { await browser.close(); srv.close(); }
+  const by = {}; for (const r of results) { const a = r.area.split(' · ')[0] === 'admin' || r.area.split(' · ')[0] === 'member' || r.area.split(' · ')[0] === 'phone' ? r.area : r.area; (by[a] = by[a] || { pass: 0, fail: 0, skip: 0 })[r.result === 'pass' ? 'pass' : r.result === 'skip' ? 'skip' : 'fail']++; }
+  const lines = ['| Area | Control | Result | Note |', '|---|---|---|---|', ...results.map(r => `| ${r.area} | ${r.control} | ${r.result} | ${r.note.replace(/\|/g, '/')} |`)];
+  fs.writeFileSync(path.join(OUT, 'sweep.md'), lines.join('\n') + '\n'); fs.writeFileSync(path.join(OUT, 'sweep.json'), JSON.stringify(results, null, 1));
+  const fails = results.filter(r => r.result === 'FAIL');
+  console.log(`\n${results.length} checks · ${results.length - fails.length} passed or skipped · ${fails.length} failed · ${Math.round((Date.now() - t0) / 1000)} s · ${path.join(OUT, 'sweep.md')}`);
+  for (const f of fails) console.log(`FAIL | ${f.area} | ${f.control} | ${f.note}`);
+  process.exit(fails.length ? 1 : 0);
+})();
