@@ -294,7 +294,7 @@ PKGS=(
   winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
-  restic rsync git curl jq arp-scan nmap ffmpeg
+  restic rsync git curl jq arp-scan nmap ffmpeg bind9-host
   ca-certificates gnupg
   python3 python3-venv python3-pip
   chrony
@@ -594,26 +594,38 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
     fi
   fi
 
-  # DNS: the DC is its own resolver. systemd-resolved must stop listening on
-  # :53 and the box must look at 127.0.0.1 with the realm as search domain.
+  # DNS, in two moves (the rehearsal found the old order broke every later
+  # download: the box was pointed at 127.0.0.1 before the DC answered, so with
+  # --no-start, or a DC that failed to start, apt could resolve nothing).
+  #  1. Free :53 for Samba (resolved's stub listener off) but keep the box
+  #     resolving through the upstream servers it already had.
+  #  2. Start the DC; only when it answers BOTH the domain's SRV record and an
+  #     outside name (through its forwarder) does the box switch to 127.0.0.1.
   if [ "$DRY_RUN" = 1 ]; then
-    note "[dry-run] point DNS at 127.0.0.1, search ${REALM,,}; disable systemd-resolved's stub listener"
+    note "[dry-run] resolved: stub listener off, upstream DNS kept; switch to 127.0.0.1 (search ${REALM,,}) only once the DC answers"
   else
     mkdir -p /etc/systemd/resolved.conf.d
     cat > /etc/systemd/resolved.conf.d/arise-ad-dc.conf <<RESOLVED
 # Written by Arise Server install.sh. The Samba AD DC serves DNS on :53;
 # resolved's stub listener on 127.0.0.53 must get out of the way.
 [Resolve]
-DNS=127.0.0.1
-Domains=${REALM,,}
 DNSStubListener=no
 RESOLVED
-    systemctl restart systemd-resolved || true
-    # /etc/resolv.conf: a plain file Samba, Kerberos and the Macs' expectations agree with.
+    systemctl restart systemd-resolved >/dev/null 2>&1 || true
+    # Until the DC answers, resolve through the upstream servers directly.
+    if [ -f /run/systemd/resolve/resolv.conf ] && grep -q '^nameserver' /run/systemd/resolve/resolv.conf; then
+      if [ -L /etc/resolv.conf ] || ! grep -q '^nameserver 127\.0\.0\.1' /etc/resolv.conf 2>/dev/null; then
+        ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+      fi
+    fi
+  fi
+  dns_switch_to_dc() {
     if [ -L /etc/resolv.conf ]; then rm -f /etc/resolv.conf; fi
     printf 'nameserver 127.0.0.1\nsearch %s\n' "${REALM,,}" > /etc/resolv.conf
-    note "DNS now 127.0.0.1, search ${REALM,,}"
-  fi
+    printf '[Resolve]\nDNS=127.0.0.1\nDomains=%s\nDNSStubListener=no\n' "${REALM,,}" > /etc/systemd/resolved.conf.d/arise-ad-dc.conf
+    systemctl restart systemd-resolved >/dev/null 2>&1 || true
+    note "DNS now 127.0.0.1 (the DC), search ${REALM,,}"
+  }
 
   # The local user that the dashboard runs samba-tool as is root (the service
   # runs as root); nothing extra. Start the DC.
@@ -621,22 +633,30 @@ RESOLVED
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now samba-ad-dc
     if [ "$DRY_RUN" = 0 ]; then
-      sleep 3
+      DC_OK=0
+      for _ in 1 2 3 4 5 6 7 8 9 10; do
+        if host -W 2 -t SRV "_ldap._tcp.${REALM,,}" 127.0.0.1 >/dev/null 2>&1; then DC_OK=1; break; fi
+        sleep 2
+      done
       if samba-tool domain info 127.0.0.1 >/dev/null 2>&1; then
         note "DC answering: $(samba-tool domain info 127.0.0.1 | tr '\n' ' ' | sed 's/  */ /g')"
       else
         warn "samba-ad-dc started but 'samba-tool domain info 127.0.0.1' failed — journalctl -u samba-ad-dc"
       fi
-      # The DC's own DNS record. If this fails the Macs cannot find the domain.
-      if host -t SRV "_ldap._tcp.${REALM,,}" 127.0.0.1 >/dev/null 2>&1; then
+      if [ "$DC_OK" = 1 ]; then
         note "SRV record _ldap._tcp.${REALM,,} resolves"
+        if host -W 3 archive.ubuntu.com 127.0.0.1 >/dev/null 2>&1; then
+          dns_switch_to_dc
+        else
+          warn "the DC answers for ${REALM,,} but not for outside names (dns forwarder $DNS_FORWARDER?); the box keeps its upstream DNS so the install can go on. Fix the forwarder, then: sudo arisectl doctor"
+        fi
       else
-        warn "SRV lookup for _ldap._tcp.${REALM,,} failed — the Macs will not find the domain until DNS works"
+        warn "SRV lookup for _ldap._tcp.${REALM,,} failed — the Macs will not find the domain until DNS works; the box keeps its upstream DNS for now (journalctl -u samba-ad-dc)"
       fi
     fi
   else
     run systemctl enable samba-ad-dc
-    note "--no-start: samba-ad-dc enabled, not started"
+    note "--no-start: samba-ad-dc enabled, not started; the box keeps its upstream DNS. After 'systemctl start samba-ad-dc', re-run the installer to switch DNS to the DC"
   fi
 fi
 
