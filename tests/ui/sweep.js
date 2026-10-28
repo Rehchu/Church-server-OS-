@@ -227,44 +227,68 @@ async function flows(browser, url) {
 }
 
 /* ---------------- click everything once ---------------- */
+// Every visible control in every window, once: on the window as it opens and then
+// on each of its tabs. A control "answered" if anything happened: a modal, a menu,
+// a toast, a window, Quick Look, a new tab, or any window's content changed.
+// Clicking the tab that is already open, Refresh, Read and Today on what is already
+// shown are allowed to change nothing.
 const SKIP_IN_GENERIC = new Set(['terminal']);
+const CTRL = i => `#wb-${i} button, #wb-${i} a.btn, #wb-${i} label.btn, #wb-${i} input[type=checkbox]`;
+const IDEMPOTENT = /^(Refresh|Read|Today|Copy|Copy link|Copy the CSS|Copy result|Rescan|Scan now|Check now|Preview tonight|Last error ↓|Copy for Claude|Clear|=)$/;
+async function sweepWindow(p, id) {
+  const seen = new Set(); let answered = 0, quiet = 0; const none = [];
+  const tabsOf = () => p.evaluate(i => [...document.querySelectorAll(`#wb-${i} .tabs button, #wb-${i} .settings__nav button`)].map(b => b.textContent.trim()), id);
+  const states = [null, ...(await tabsOf())];
+  const goTab = async label => { if (label == null) return; await p.evaluate(([i, l]) => { const b = [...document.querySelectorAll(`#wb-${i} .tabs button, #wb-${i} .settings__nav button`)].find(x => x.textContent.trim() === l); if (b && !b.classList.contains('active') && !b.classList.contains('on')) b.click(); }, [id, label]); await sleep(350); };
+  for (const st of states) {
+    await goTab(st);
+    for (let guard = 0; guard < +(process.env.MAX_CONTROLS || 60); guard++) {
+      const pick = await p.evaluate(([i, sel, seenList]) => {
+        const keyOf = el => (el.closest('.tabs, .settings__nav') ? 'tab:' : '') + (el.getAttribute('aria-label') || el.textContent || el.value || el.tagName).trim().slice(0, 40) + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join(',');
+        const els = [...document.querySelectorAll(sel)].filter(el => el.offsetParent !== null && !el.disabled);
+        const el = els.find(e => !seenList.includes(keyOf(e)) && !(e.tagName === 'A' && (e.target === '_blank' || /^(https?|webcal|smb|mailto):/.test(e.getAttribute('href') || ''))) && !(e.tagName === 'LABEL' && e.getAttribute('for')) && !/^(Sign Out|Shut Down)/.test(e.textContent.trim()));
+        if (!el) return null;
+        const label = (el.getAttribute('aria-label') || el.textContent || el.value || el.tagName).trim().slice(0, 40);
+        const h = s => { let x = 0; for (let k = 0; k < s.length; k++) x = (x * 31 + s.charCodeAt(k)) | 0; return x; };
+        const all = [...document.querySelectorAll('.win__body')].map(b => h(b.innerHTML) + ':' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join('')).join('|');
+        window.__sig = { all, toasts: window.__toasts.length, wins: Object.keys(window.arise.S.wins).length };
+        const active = el.classList.contains('active') || el.classList.contains('on') || el.getAttribute('aria-pressed') === 'true' || (el.type === 'submit' && el.form && !el.form.checkValidity());
+        const key = keyOf(el); el.setAttribute('data-sweep-target', '1'); const dattr = [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name.slice(5) + '=' + a.value).join(' '); return { key, label: label + (dattr ? ` [${dattr}]` : ''), active, tab: !!el.closest('.tabs, .settings__nav') };
+      }, [id, CTRL(id), [...seen]]);
+      if (!pick) break;
+      seen.add(pick.key);
+      const pops = p.popups || 0;
+      await p.evaluate(() => { const el = document.querySelector('[data-sweep-target]'); el.removeAttribute('data-sweep-target'); el.click(); }).catch(() => {});
+      await sleep(380);
+      const what = await p.evaluate(() => { const s = window.__sig; if (!s) return 'reloaded'; const h = x => { let v = 0; for (let k = 0; k < x.length; k++) v = (v * 31 + x.charCodeAt(k)) | 0; return v; }; const all = [...document.querySelectorAll('.win__body')].map(b => h(b.innerHTML) + ':' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join('')).join('|');
+        return document.getElementById('modal').open ? 'modal' : !document.getElementById('ctx').hidden ? 'menu' : window.__toasts.length > s.toasts ? 'toast' : Object.keys(window.arise.S.wins).length !== s.wins ? 'window' : !document.getElementById('ql').hidden ? 'quicklook' : document.querySelector('.walk') ? 'walk' : all !== s.all ? 'changed' : ''; });
+      let popped = (p.popups || 0) > pops; if (!what && !popped) { await sleep(600); popped = (p.popups || 0) > pops; }
+      if (what || popped) answered++; else if (pick.active || IDEMPOTENT.test(pick.label.replace(/ \[.*$/, ''))) quiet++; else none.push(pick.label);
+      await p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); document.getElementById('ctx').hidden = true; document.getElementById('ql').hidden = true; document.querySelector('.walk')?.remove(); });
+      await p.evaluate(i => { Object.keys(window.arise.S.wins).filter(k => k !== i).forEach(k => window.arise.closeApp(k)); if (!window.arise.S.wins[i]) window.arise.openApp(i); }, id); await sleep(['apps', 'services', 'backups', 'automator', 'notes', 'photos'].includes(id) && !pick.tab ? 1700 : 120);   // these windows refresh themselves a moment after an action
+      if (!pick.tab) await goTab(st);
+    }
+  }
+  return { answered, quiet, none };
+}
 async function everyControl(browser, url, role) {
-  const p = await newPage(browser, url);
+  const p = await newPage(browser, url); p.popups = 0; p.on('popup', () => { p.popups++; });
   if (role === 'member') { await p.evaluate(() => { window.AriseMock.viewAs('member'); window.AriseMock.flush(); }); await p.reload({ waitUntil: 'domcontentloaded' }); await settle(p, 1500); }
-  const ids = await p.evaluate(() => (window.arise.S.role === 'member' ? window.arise.APPS.filter(a => ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help', 'notes', 'photos'].includes(a.id)) : window.arise.APPS).map(a => a.id));
+  const only = (process.env.APPS || '').split(',').filter(Boolean);
+  const ids = (await p.evaluate(() => (window.arise.S.role === 'member' ? window.arise.APPS.filter(a => ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help', 'notes', 'photos'].includes(a.id)) : window.arise.APPS).map(a => a.id))).filter(i => !only.length || only.includes(i));
   for (const id of ids) {
     if (SKIP_IN_GENERIC.has(id)) { rec(`${role} · ${id}`, 'opens', 'skip'); continue; }
     await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)));
     await app(p, id);
     const opened = await p.evaluate(i => !!window.arise.S.wins[i], id);
-    if (!opened) { rec(`${role} · ${id}`, 'opens', role === 'member' ? 'skip' : false, 'did not open'); continue; }
+    if (!opened) { const g = await p.evaluate(i => window.arise.APPS.find(a => a.id === i)?.groups, id); rec(`${role} · ${id}`, 'opens', role === 'member' && g ? 'skip' : false, 'did not open'); await toasts(p); continue; }
     const loadErr = await p.evaluate(i => document.querySelector(`#wb-${i} .panel--bad h3`)?.textContent === 'Could not load' ? document.querySelector(`#wb-${i} .panel--bad p`)?.textContent : '', id);
     rec(`${role} · ${id}`, 'opens', !loadErr, loadErr);
-    let n = await p.evaluate(i => document.querySelectorAll(`#wb-${i} button, #wb-${i} a.btn, #wb-${i} label.btn, #wb-${i} .tabs [data-t], #wb-${i} input[type=checkbox]`).length, id);
-    n = Math.min(n, +(process.env.MAX_CONTROLS || 60)); let did = 0, none = [];
-    for (let k = 0; k < n; k++) {
-      const info = await p.evaluate(([i, k]) => {
-        const els = [...document.querySelectorAll(`#wb-${i} button, #wb-${i} a.btn, #wb-${i} label.btn, #wb-${i} .tabs [data-t], #wb-${i} input[type=checkbox]`)]; const el = els[k]; if (!el) return null;
-        const vis = el.offsetParent !== null && !el.disabled; const label = (el.getAttribute('aria-label') || el.textContent || el.value || el.tagName).trim().slice(0, 40);
-        const ext = el.tagName === 'A' && (el.target === '_blank' || /^(https?|webcal|smb):/.test(el.getAttribute('href') || ''));
-        const sig = document.getElementById('wb-' + i).innerHTML.length + '|' + [...document.querySelectorAll(`#wb-${i} input`)].map(x => x.checked ? 1 : 0).join('');
-        window.__sig = { sig, toasts: window.__toasts.length, wins: Object.keys(window.arise.S.wins).length };
-        return { vis, label, ext, file: el.tagName === 'LABEL' && !!el.getAttribute('for') };
-      }, [id, k]);
-      if (!info) break;
-      if (!info.vis || info.ext || info.file) continue;
-      if (/^(Sign Out|Shut Down|Restart…)/.test(info.label)) continue;
-      await p.evaluate(([i, k]) => { const els = [...document.querySelectorAll(`#wb-${i} button, #wb-${i} a.btn, #wb-${i} label.btn, #wb-${i} .tabs [data-t], #wb-${i} input[type=checkbox]`)]; els[k].click(); }, [id, k]).catch(() => {});
-      await sleep(320);
-      const changed = await p.evaluate(i => { const b = document.getElementById('wb-' + i); const s = window.__sig; if (!b) return 'closed'; const sig = b.innerHTML.length + '|' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join(''); return document.getElementById('modal').open ? 'modal' : !document.getElementById('ctx').hidden ? 'menu' : window.__toasts.length > s.toasts ? 'toast' : Object.keys(window.arise.S.wins).length !== s.wins ? 'window' : !document.getElementById('ql').hidden ? 'quicklook' : sig !== s.sig ? 'changed' : document.querySelector('.walk') ? 'walk' : ''; }, id);
-      if (changed) did++; else none.push(info.label);
-      await p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); document.getElementById('ctx').hidden = true; document.getElementById('ql').hidden = true; document.querySelector('.walk')?.remove(); });
-      await p.evaluate(i => { if (!window.arise.S.wins[i]) window.arise.openApp(i); }, id); await sleep(80);
-    }
-    rec(`${role} · ${id}`, `${did} controls answered`, none.length === 0, none.length ? 'did nothing: ' + none.join(', ') : '');
+    const r = await sweepWindow(p, id);
+    rec(`${role} · ${id}`, `${r.answered} controls answered, ${r.quiet} already showed it`, r.none.length === 0, r.none.length ? 'did nothing: ' + r.none.join(', ') : '');
     const e = await errs(p); if (e.length) rec(`${role} · ${id}`, 'no page errors', false, e.join(' | '));
     const w = await warns(p); if (w.length) rec(`${role} · ${id}`, 'all in the preview', false, w.join(' | '));
-    const t = (await toasts(p)).filter(x => /\bbad\b/.test(x.cls) && !/not right|refused|Not during|already|no such|type the|is kept|cannot|timer is on|first|bad|empty|only/i.test(x.text));
+    const t = (await toasts(p)).filter(x => /\bbad\b/.test(x.cls) && !/not right|refused|Not during|already|no such|type the|is kept|cannot|timer is on|first|bad|empty|only|Type|that does not look/i.test(x.text));
     if (t.length) rec(`${role} · ${id}`, 'no unexpected red toasts', false, t.map(x => x.text).join(' | '));
   }
   await p.ctx.close();

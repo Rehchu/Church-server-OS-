@@ -391,7 +391,7 @@ V.automator.after = () => {
   tabs('#auTabs', 'automator');
   $('#auPreview').onclick = e => act(e.target, () => api('/automator/preview', { method: 'POST' }), 'Preview started: a dry run, nothing is written to YouTube');
   $('#auRun').onclick = e => modal(`<h2>Run the automator now?</h2><p class="note" style="margin-bottom:14px">This spends real quota and writes to the channel exactly as the 02:05 run would. The hold list still applies. If a chat session is also working today, remember the 10,000 units are shared.</p><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="auGo">Run</button></div>`, m => { $('#auGo', m).onclick = async ev => { const r = await act(ev.target, () => api('/automator/run', { method: 'POST' }), 'Run started; the report appears when it finishes'); if (r) { m.close(); setTimeout(() => rerender('automator'), 3000); } }; });
-  $$('[data-rep]').forEach(b => b.onclick = async () => { const r = await api(`/automator/reports/${encodeURIComponent(b.dataset.rep)}`); $('#repBody').innerHTML = md(r.text); });
+  $$('[data-rep]').forEach(b => b.onclick = async () => { $$('[data-rep]').forEach(x => x.classList.toggle('active', x === b)); const r = await api(`/automator/reports/${encodeURIComponent(b.dataset.rep)}`); $('#repBody').innerHTML = `<h3 style="margin:0 0 10px">${esc(b.dataset.rep.replace('.md', '').replace('_', ' · '))}</h3>` + md(r.text || '(an empty report)'); });
 };
 
 V.nas = async () => {
@@ -773,7 +773,7 @@ V.bible = async () => {
   return `<div class="fade">
     <div class="panel" style="margin-bottom:14px"><div class="grid" style="align-items:end"><div class="c4 field" style="margin:0"><label>Bible</label><select id="bbTr">${(tr.translations || []).map(t => `<option value="${esc(t.id)}" ${t.id === (r.translation || S.bible.tr) ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div>
       <div class="c6 field" style="margin:0"><label>Reference</label><input id="bbRef" value="${esc(S.bible.ref)}" placeholder="John 3:16"></div><div class="c2"><button class="btn" id="bbGo" style="width:100%;justify-content:center">Read</button></div></div>
-      <div class="chips">${chips.map(c => `<button class="chip" data-ref="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>
+      <div class="chips">${chips.map(c => `<button class="chip ${c.toLowerCase() === String(r.reference || S.bible.ref).toLowerCase() ? 'on' : ''}" data-ref="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>
     ${r.ok ? `<div class="mark"><span class="kicker">${esc(r.translation_name || r.translation)}</span></div><h2 style="color:#fff">${esc(r.reference)}</h2>
       <p class="passage">${(r.verses || []).map(v => `<b>${v.verse}</b>${esc(v.text)}`).join(' ')}</p>
       <div class="row" style="margin-top:18px"><button class="btn btn--ghost btn--sm" id="bbCopy">Copy</button><a class="btn btn--ghost btn--sm" href="https://arisecenla.church/arise-bible?ref=${encodeURIComponent(r.reference)}" target="_blank" rel="noopener">Open on arisecenla.church</a></div>
@@ -1054,7 +1054,8 @@ const kbd = h => !h || IS_MAC ? h : h.replace('⌃⌘', 'Ctrl+Alt+').replace('�
 const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span>`;
 
 V.about = async () => {
-  const o = S.overview || await api('/overview'); const m = o.machine || S.machine || {};
+  // Members cannot read /overview (the administrator's); their About is built from what they may read.
+  const o = S.overview || (isMember() ? await api('/about/whatsnew').then(w => ({ version: w.version, codename: w.codename, hostname: 'arise-server', realm: 'AD.ARISECENLA.CHURCH', profile: 'member portal', machine: {} })).catch(() => ({ machine: {} })) : await api('/overview')); const m = o.machine || S.machine || {};
   let wk = null; try { wk = await api('/about/week'); } catch {}
   let nw = null; try { nw = await api('/about/whatsnew'); } catch {}
   const whatsnew = nw && nw.lines?.length ? `<div class="about__new"><div class="widget__kicker">What's new in v${esc(nw.version)} “${esc(nw.codename)}”</div><ul>${nw.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul></div>` : '';
@@ -1294,7 +1295,7 @@ function paintClock(root, full) {
       $('#swReset', body).onclick = () => { s.on = false; s.el = 0; s.laps = []; paintClock(root, true); };
       $('#swLaps', body).innerHTML = s.laps.map((l, i) => `<li><span>Lap ${s.laps.length - i}</span><b>${fmtSw(l)}</b></li>`).join('');
     }
-    $('#swT', body).textContent = fmtSw(el); $('#swGo', body).textContent = s.on ? 'Stop' : el ? 'Resume' : 'Start';
+    $('#swT', body).textContent = fmtSw(el); $('#swGo', body).textContent = s.on ? 'Stop' : el ? 'Resume' : 'Start'; $('#swLap', body).disabled = !el; $('#swReset', body).disabled = !el && !s.laps.length;
   } else {
     const a = c.alarm;
     if (full || !$('.alarm', body)) { body.innerHTML = `<div class="alarm"><div class="clock__big">${a ? fmtHM(a.at) : '—'}</div><p class="muted" style="text-align:center">${a ? (a.rang ? 'Rang. Set another or clear it.' : `Set${a.label ? ' · ' + esc(a.label) : ''}. It rings while this page is open.`) : 'No alarm set. It rings on this screen while the page is open; it is not a phone alarm.'}</p>
@@ -1515,7 +1516,7 @@ V.apps.after = root => {
   $$('[data-deploy]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/apps/deploy', { method: 'POST', body: { template: b.dataset.deploy } }), `Installing ${b.dataset.deploy}; the first start pulls the image`); if (r) setTimeout(() => rerender('apps'), 2000); });
   $$('[data-app]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/apps/${encodeURIComponent(b.dataset.app)}/${b.dataset.do}`, { method: 'POST', body: {} }), `${b.dataset.do} sent`); if (r) setTimeout(() => rerender('apps'), 1500); });
   $$('[data-auto]', root).forEach(cb => cb.onchange = async () => { const r = await api(`/apps/${encodeURIComponent(cb.dataset.auto)}/autostart`, { method: 'POST', body: { on: cb.checked } }); if (r.ok === false) { toast(r.err, 'bad'); cb.checked = !cb.checked; } else toast(`${cb.dataset.auto}: autostart ${cb.checked ? 'on' : 'off'}${r.demo ? ' (sample)' : ''}`); });
-  $$('[data-logs]', root).forEach(b => b.onclick = async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.logs)}/logs`); const p = $('#appLog', root); p.hidden = false; p.textContent = r.text || '(empty)'; p.scrollIntoView({ behavior: 'smooth' }); });
+  $$('[data-logs]', root).forEach(b => b.onclick = async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.logs)}/logs`); const p = $('#appLog', root); p.hidden = false; p.textContent = `docker compose logs ${b.dataset.logs}\n\n` + (r.text || '(empty)'); p.scrollIntoView({ behavior: 'smooth' }); });
   $$('[data-rmapp]', root).forEach(b => b.onclick = () => confirmType('Remove app', b.dataset.rmapp, 'Stops and removes the containers. <b>Its data folder is kept</b> under /srv/arise/apps; deleting that is a separate, by-hand decision.', async () => { const r = await api(`/apps/${encodeURIComponent(b.dataset.rmapp)}/remove`, { method: 'POST', body: { confirm: b.dataset.rmapp } }); if (r.ok === false) throw new Error(r.err); toast('Removed; data kept'); rerender('apps'); }));
   $$('[data-theme]', root).forEach(b => b.onclick = async () => {
     const t = await api(`/apps/theme/${encodeURIComponent(b.dataset.theme)}`).catch(e => ({ ok: false, err: e.message })); if (t.ok === false) return toast(t.err, 'bad');
