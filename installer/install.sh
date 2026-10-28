@@ -1469,7 +1469,8 @@ if [ "$WITH_SAFETY" = 1 ]; then
   elif [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] useradd -m -s /bin/bash -G sudo -c 'ariseOS break-glass admin' arise-rescue; a 24-character password into $CONF_DIR/secrets/rescue-password (0600)"
   else
-    useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin (round 3, 21): console only" arise-rescue
+    # No ':' in a comment: it is /etc/passwd's field separator and useradd refuses it (found by the rehearsal).
+    useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin - console only" arise-rescue
     RESCUE_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
     echo "arise-rescue:$RESCUE_PW" | chpasswd
     mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
