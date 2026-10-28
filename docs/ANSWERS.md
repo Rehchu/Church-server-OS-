@@ -137,7 +137,7 @@ docs/ROADMAP.md turns these into releases.
 | 8 | A clip cutter for Shorts? | No | nothing built; cutting stays on the Mac |
 | 9 | The portal as a phone home-screen app? | Yes | a web app manifest; Add to Home Screen on iPhone and Android |
 | 10 | Push notifications? | Yes, to me only | web push to Bradly's phone: failed backup, stream down, new device |
-| 11 | Two-step sign-in for admins? | "2 step authentication using Microsoft Authenticator" | TOTP codes for the four admins; Microsoft Authenticator does TOTP, so no Microsoft account is needed |
+| 11 | Two-step sign-in for admins? | "2 step authentication using Microsoft Authenticator"; Oct 28: "2fa is optional, but if they do opt in, then it uses Microsoft Authenticator" | Two-step is optional for everyone; whoever turns it on enrols Microsoft Authenticator (TOTP, no Microsoft account needed). Nobody is forced |
 | 12 | Who ticks the Sunday checklist? | Anyone signed in | members included; the audit log says who |
 | 13 | Jellyfin for whom? | Staff only for now | no lobby channel, no family access yet |
 | 14 | Recordings kept how long? | Forever (YouTube is also the archive) | nothing is ever deleted; the Synology's size is the only limit |

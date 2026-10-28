@@ -23,7 +23,7 @@ means it should not be promised for a date.
 
 | Item | What it is | Needs from Bradly | Cost |
 |---|---|---|---|
-| 2FA | TOTP codes for the four admins, enrolled from the flame menu; Microsoft Authenticator scans the code (11); done before any member signs in | scan a QR code once per admin | a day |
+| 2FA | Optional, per person (Bradly, Oct 28): anyone may turn two-step on from the flame menu; when they do, Microsoft Authenticator scans the code (TOTP, no Microsoft account needed). Nobody is forced; an admin can see who has it on | scan a QR code once, if they want it | a day |
 | Audit log | who signed in, shared, changed a user, ticked the checklist; a year kept; admins read it; nothing deletable from the dashboard (23) | nothing | a day |
 | Offboarding | a "leaving" button in Directory: 30 days of grace, then disable; a "move files to" picker (24) | nothing | a day |
 | Restore drill | monthly, automatic: one random file restored from last night's backup to a scratch folder and compared (47) | nothing | small |
