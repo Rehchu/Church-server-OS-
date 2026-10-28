@@ -99,7 +99,7 @@ folder). Over 2 GB it refuses with the size and says to open it on the share.
 ## Open on my Mac (answer 18)
 
 On a Mac, the Finder toolbar and the folder's context menu carry **Open on my
-Mac**: the browser opens `smb://arise-server.ad.arisecenla.church/<share>/<path>`
+Mac**: the browser opens `smb://arise-server.ad.arisecenla.com/<share>/<path>`
 and the Mac's own Finder shows the same folder. A home is reached as
 `smb://…/<user>`, Samba's `[homes]` answering to the person's name; a path
 under `/srv/arise/shares` with no narrower share is reached through `shares`.

@@ -13,7 +13,7 @@ services:
       - WG_HOST=${WG_HOST:-CHANGE-ME.duckdns.org}     # the public DNS name or static IP clients connect to
       - PASSWORD_HASH=${PASSWORD_HASH:-}              # bcrypt hash for the web UI; see template notes
       - WG_DEFAULT_ADDRESS=10.47.0.x
-      - WG_DEFAULT_DNS=192.168.1.10                   # the domain controller, so ad.arisecenla.church resolves
+      - WG_DEFAULT_DNS=192.168.1.10                   # the domain controller, so ad.arisecenla.com resolves
       - WG_ALLOWED_IPS=10.47.0.0/24, 192.168.1.0/24   # tunnel + the Pineville LAN only (split tunnel)
       - WG_PERSISTENT_KEEPALIVE=25
       - UI_TRAFFIC_STATS=true

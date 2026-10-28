@@ -2,7 +2,7 @@
 
 Two jobs, in this order, one Mac at a time:
 
-1. **Bind** the Mac to `AD.ARISECENLA.CHURCH` so people log in with their
+1. **Bind** the Mac to `AD.ARISECENLA.COM` so people log in with their
    church account.
 2. **Migrate** whatever is in the old local account into that person's server
    home, then have them log in as the domain user for the first time.
@@ -126,7 +126,7 @@ shared `media` login (answer 32). Two things are different about it:
   a 60 GB home folder over Wi‑Fi takes hours and drops. On Ethernet it takes
   minutes to an hour.
 - **Same network as the server**, and the Mac's DNS must be the server. Check
-  with `dig +short _ldap._tcp.ad.arisecenla.church SRV` — it must print a line.
+  with `dig +short _ldap._tcp.ad.arisecenla.com SRV` — it must print a line.
 - **Time within 5 minutes of the server.** Kerberos refuses otherwise.
   System Settings → General → Date & Time → "Set time and date automatically"
   on. `bind-mac.sh` checks this.
@@ -149,10 +149,10 @@ sudo ./bind-mac.sh --computer-name MEDIA-MAC-01
 That script checks DNS, checks the SRV records, checks the clock, then runs:
 
 ```bash
-dsconfigad -add AD.ARISECENLA.CHURCH \
+dsconfigad -add AD.ARISECENLA.COM \
   -computer MEDIA-MAC-01 \
   -username administrator \
-  -ou "OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=church" \
+  -ou "OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=com" \
   -mobile enable -mobileconfirm disable \
   -localhome enable -useuncpath enable \
   -groups "ARISE\Domain Admins"
@@ -164,10 +164,10 @@ and prints `dsconfigad -show`, then tests `id <user>` for a domain account.
 
 1. Finder → Go → Go to Folder → `/System/Library/CoreServices/Applications/`
    → **Directory Utility**. Click the padlock.
-2. Active Directory → ✓ → Active Directory Domain: `ad.arisecenla.church`,
+2. Active Directory → ✓ → Active Directory Domain: `ad.arisecenla.com`,
    Computer ID: the name on the label (e.g. `MEDIA-MAC-01`). Click **Bind**.
 3. Credentials: `administrator`. Computer OU:
-   `OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=church`.
+   `OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=com`.
 4. Before clicking OK, open **Show Advanced Options**:
    - **User Experience**: ✓ *Create mobile account at login*,
      ✗ *Require confirmation before creating a mobile account*,
@@ -262,7 +262,7 @@ is owned by the domain user), so the files are the person's when they log in.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Bind: "Unable to add server. Node name wasn't found" | the Mac is not asking the DC for the church domain | run `bind-mac.sh --dns <server ip>` (writes `/etc/resolver/ad.arisecenla.church`; no router change), `dscacheutil -flushcache`, retry |
+| Bind: "Unable to add server. Node name wasn't found" | the Mac is not asking the DC for the church domain | run `bind-mac.sh --dns <server ip>` (writes `/etc/resolver/ad.arisecenla.com`; no router change), `dscacheutil -flushcache`, retry |
 | Bind: "Authentication server could not be contacted" | clock skew | turn automatic time on, wait a minute |
 | Login window spins, then "unable to log in" | Mac cannot reach the DC and no mobile account yet | plug in Ethernet for the *first* login of each person |
 | Share mounts but files are read-only | home folder ownership | on the server: `arisectl user homefix <name>` |

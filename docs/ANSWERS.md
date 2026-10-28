@@ -250,7 +250,7 @@ means below.
 | 2 | Documents in the browser? | OnlyOffice Docs, opened from Finder | click a .docx in the portal, edit in place, saved to the share |
 | 3 | An internal mail server? | Yes, an internal-only mail server | Postfix + Dovecot on the box; see 5 to 7 |
 | 4 | The theme rule for apps? | Set everything each app allows; frame the rest | house red, ink, the flame, Anton and Oswald wherever an app takes them; an app that takes nothing keeps its look inside our window |
-| 5 | Who gets a mailbox? | Staff and departments, first.last@ad.arisecenla.church | one box per staff or department account |
+| 5 | Who gets a mailbox? | Staff and departments, first.last@ad.arisecenla.com | one box per staff or department account |
 | 6 | How is it read? | "They should get it through their personal email, apple mail, or whatever mail service they use on their phone." | each account's mail is forwarded out through Resend's relay to the person's own address; nothing inbound from the internet |
 | 7 | Where does the personal address come from, and replies? | a field on their Directory account; replies go back to the sender's personal address (Reply-To) | admins type it once; the person can change it |
 | 8 | Proclaim under Wine on the server? | Try it as an experiment, not relied on | a Store entry marked experimental, off by default |
@@ -368,6 +368,52 @@ means below.
 | 116 | (unprompted, Oct 28) The automator's account | "the Automator doesn't need its own profile, it can run on mine! Since nobody else will have access to Claude, unless they log into their own account via the dashboard on web" | the 02:05 job runs as Bradly's own Linux account (`[owner] user`, set by install.sh from the account that ran sudo, or `--owner`); no arise-yt; the units get User= from a drop-in and refuse to run as root without one |
 | 117 | (unprompted, Oct 28) Claude's access | "My login of Claude must have full file access to modify, update, ect." | his account: every ariseOS group, sudo without a password (`/etc/sudoers.d/arise-owner`, visudo-checked); Claude Code on the box gets the ariseOS folders with edits accepted; Claude Desktop on the monitor opens as his account. A credential's content is still never read into a chat (his own rule); `arisectl owner` shows it all |
 | 118 | (unprompted, Oct 28) Songs | "I'd also need the song list searchable as well! And I'd have to add the lyrics most likely from proclaim!" | the Automator app's Songs tab: song_bank.json searchable by title, number, writer or a line of the lyrics; lyrics pasted or imported (SongSelect .txt/.usr, ChordPro, text) into `/srv/arise/songs/lyrics`, backed up, never in git, never in a description |
+
+## Round 5 (Oct 28, night): the final batch, how it is set up out of the box
+
+Asked as pop-ups, 36 questions plus two follow-ups. "Other" answers are quoted.
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 1 | The directory's domain | **arisecenla.com** ("Yes, we own .com at Wix") | the realm becomes **AD.ARISECENLA.COM** (NetBIOS ARISE unchanged); mail first.last@ad.arisecenla.com. The website stays arisecenla.church. Replaces the .church realm everywhere before the install |
+| 2 | DNS at Wix | Only email records | SPF and DKIM for the sending domain; nothing at Wix points at the server (rule 7 holds) |
+| 3 | Sending domain | mail.arisecenla.com | Resend and the server's own mail send from it; its records go in Wix's DNS for arisecenla.com |
+| 4 | Email on the domain today | None | nothing to work around; no MX is touched |
+| 5 | A new account's first password | Temporary, changed at the first sign-in | the Directory app sets a temporary password and the flag; sign-in asks for a new one before anything else |
+| 6 | A forgotten password | They reset it themselves | a reset link to the profile's personal email (through Resend); admins can still reset |
+| 7 | Names | With their title | a Title field; "Apostle Bryant Sanders" on faces, the Directory, mail and the greeting; the username stays first.last |
+| 8 | Accounts on day one | Everyone from a list | the guided setup (and `arisectl directory import people.csv`) creates them all: name, title, department(s), personal email, phone, birthday |
+| 9 | Profile fields | Personal email, mobile phone, birthday, title & department | all four |
+| 10 | Who sees profile details | Staff and admins | members see none |
+| 11 | Desktop settings | Follow the account | wallpaper, theme, Dock and sounds saved on the server, the same on every device |
+| 12 | Where homes live | Wait for Friday's specs | decided with the OptiPlex's disk size |
+| 13 | Home quota until the Synology | 50 GB each | a 50 GB quota per home, shown in Storage and Finder |
+| 14 | Previous Versions | 90 days | Finder offers 90 days; restic keeps its 30/12/24 for restores by Bradly |
+| 15 | Backups until the Synology | Arise-Home over Tailscale | restic to the home node until the Synology is ready (the nightly job reports red until one of the two exists) |
+| 16 | The Church folder | Everyone writes | every account adds, edits and moves to Trash there |
+| 17 | Department folders | All staff write | any staff member edits any department's folder; admins see all; department accounts write their own |
+| 18 | A Pastors folder | Yes, pastors only | `pastors` share for Apostle Bryant and Pastor Vanessa only; hidden from every other account in Finder and Spotlight, admins included; root access to it is logged |
+| 19 | Sharing with a person | "Shared with me" | Share with… a person; it shows in their Finder sidebar with a notification |
+| 20 | An admin opens someone's home | Allowed, in the audit log | each opening is recorded |
+| 21 | Claude and staff homes | Only when Bradly names the file | CLAUDE.md rule |
+| 22 | Own sign-in history | Yes, on the profile | the last ten sign-ins, device and time |
+| 23 | The network scan's list | Admins only | |
+| 24 | Desktop icons | Yes, like a Mac | the Desktop folder's files on the wallpaper |
+| 25 | Menu-bar stats | Admins only | staff and members: clock, notifications, Control Center |
+| 26 | Staff in a browser on their Mac | The simple portal | the desktop is for admins and the closet monitor |
+| 27 | Monitor text size | Larger | about 125% on the closet monitor only |
+| 28 | Staff notifications | Calendar reminders, shared with them, internal mail, the Sunday checklist, and "Every department has their own checklist" | all of these; see 29 |
+| 29 | Who edits a department's checklist | The department's leader | a leader per department; admins edit any; members tick |
+| 30 | When department lists reset | Before each service | reset the night before Sunday Service and Glory Night; each list has its own nudge time |
+| 31 | Sign-in faces | Nobody preselected | |
+| 32 | A new home folder | A "Start here" note | one page in every new home, beside the five folders |
+| 33 | The first admin sign-in | A guided setup | people (the list), shares, Synology, Discord, Resend, Tailscale; skippable, resumable |
+| 34 | The idle glance view | Clock, next service, verse | nothing about the server's health to passers-by |
+| 35 | The mark | Keep the flame | |
+| 36 | Alexandria | A group and share now | `alexandria` group and share from day one |
+| 37 | Guest passes | No guests | speakers keep emailing the media team |
+| 38 | A leaver's mail | Export to their files | saved as a file into the folder of whoever takes their files, then the mailbox goes |
+| 39 | Service names | Sunday Service and Glory Night | everywhere people see them |
 
 ## Still needed
 

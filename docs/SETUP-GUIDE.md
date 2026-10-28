@@ -21,7 +21,7 @@ top. Four faces, one box:
 | **The OS on the monitor** | the Arise desktop, full screen on the closet monitor from boot (`install.sh --kiosk`, docs/CONSOLE.md) | you, standing at the box | the closet |
 | **The dashboard** | the same desktop in a browser: `http://arise-server:4147`. Every directory user can sign in. Admins see everything; members see their files, the shares they are allowed, Sermons, Bible, Campuses, a share-link button and a change-password button | everyone with an account | the church network, or Tailscale from anywhere. Nothing is exposed to the open internet (answer 36) |
 | **SMB on the network** | `smb://arise-server/homes/<user>` and `smb://arise-server/shares/<name>`, the same folders the dashboard shows. Church Macs bound to the domain log in with the directory password and keep Desktop and Documents on the server | staff, media and the department logins at a church computer | any church site, on the LAN or over Tailscale |
-| **The directory** | a real Active Directory domain, `AD.ARISECENLA.CHURCH`, run by Samba (docs/DIRECTORY.md). Users, groups, computers, passwords, Kerberos, DNS | every Mac and PC that joins; every login above | everywhere the DNS reaches |
+| **The directory** | a real Active Directory domain, `AD.ARISECENLA.COM`, run by Samba (docs/DIRECTORY.md). Users, groups, computers, passwords, Kerberos, DNS | every Mac and PC that joins; every login above | everywhere the DNS reaches |
 
 Underneath: the YouTube automator at 02:05, restic backups to the Synology
 at 03:00, the GitHub mirror at 04:00 (README § The nightly timetable). The
@@ -240,7 +240,7 @@ Mac and phone prints to it (round 2, 6 and 26); nothing on router B changes.
 
 Alexandria is one Mac and there is no place for a route box (answers 19
 and 21), so the Mac is its own tunnel: docs/NETWORK.md § A church across
-town, option A. The order: the split-DNS rule for `ad.arisecenla.church` in
+town, option A. The order: the split-DNS rule for `ad.arisecenla.com` in
 the Tailscale console (done on day 4), Tailscale installed on that Mac and
 set to start at login, `ping arise-server` and the two `dig` lines, then
 `mac/enroll-mac.sh` exactly like day 2. Drive there for it. Nobody streams
@@ -443,7 +443,7 @@ and need a file" is "install Tailscale."
 
 | Symptom | Look here first | Then |
 |---|---|---|
-| A Mac will not bind, or a login hangs at church | the Mac is not using the server for DNS: `dig +short _ldap._tcp.ad.arisecenla.church SRV` on the Mac | docs/DIRECTORY.md § DNS; the VLAN the Mac is on (docs/NETWORK.md) |
+| A Mac will not bind, or a login hangs at church | the Mac is not using the server for DNS: `dig +short _ldap._tcp.ad.arisecenla.com SRV` on the Mac | docs/DIRECTORY.md § DNS; the VLAN the Mac is on (docs/NETWORK.md) |
 | Everything is fine on site, nothing works from Alexandria | Tailscale on that Mac: signed in, running, the split-DNS rule in the console | Dashboard → Remote → the device list; docs/NETWORK.md § A church across town |
 | The dashboard says *Sample data* | the server has no `arise.toml` or a tool is missing | `sudo arisectl doctor` |
 | A backup row is red | the reason is in the row | Dashboard → Backups → History; docs/BACKUPS.md |

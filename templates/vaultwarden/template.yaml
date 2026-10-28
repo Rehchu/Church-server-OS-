@@ -11,7 +11,7 @@ volumes:
 env:
   SIGNUPS_ALLOWED: "false"
   ADMIN_TOKEN: "CHANGE-ME-run-openssl-rand-base64-48"
-  DOMAIN: "https://vault.ad.arisecenla.church"
+  DOMAIN: "https://vault.ad.arisecenla.com"
 autostart: true
 ram_mb: 100
 limits:

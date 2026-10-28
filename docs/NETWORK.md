@@ -79,13 +79,13 @@ So every setting lives on the server or on the Mac, never on a router:
 | Instead of | On the server or the Mac |
 |---|---|
 | a DHCP reservation on Netgear A | **nothing to choose**: the installer keeps the address Netgear A already handed the box and pins it in netplan on the server (INSTALL.md § 5). No router setting, no new IP, no existing device touched. The router still thinks it is an ordinary lease; `arisectl doctor` watches for the rare clash |
-| the routers handing out the server as DNS | each church Mac gets a **per-domain resolver file**, `/etc/resolver/ad.arisecenla.church`, written by `mac/bind-mac.sh --dns <server ip>` (and by `enroll-mac.sh --dns`). Only names in the church domain are asked of the server; everything else keeps the router's DNS. Nothing on the Mesh or the Netgears knows the server exists |
+| the routers handing out the server as DNS | each church Mac gets a **per-domain resolver file**, `/etc/resolver/ad.arisecenla.com`, written by `mac/bind-mac.sh --dns <server ip>` (and by `enroll-mac.sh --dns`). Only names in the church domain are asked of the server; everything else keeps the router's DNS. Nothing on the Mesh or the Netgears knows the server exists |
 | any route or port forward | **Tailscale**, which works from behind any number of routers with nothing opened. The subnet route is approved in the Tailscale admin console, not on a router |
 | reaching the media Mac through the Mesh's NAT | the media Mac runs the **Tailscale app**; Guacamole and anything else use its Tailscale address |
 | moving the Synology onto the switch | if it is on Netgear A's network, nothing to do. If it is behind the Mesh or Netgear B, install the **Tailscale package on the Synology** (it is in DSM's Package Center) and the server mounts it by its Tailscale address. No cable moves |
 
 Second DNS option, for any Mac on Tailscale: the Tailscale admin console's
-split DNS rule (docs/REMOTE-ACCESS.md step 5) sends `ad.arisecenla.church`
+split DNS rule (docs/REMOTE-ACCESS.md step 5) sends `ad.arisecenla.com`
 to the server for every device on the tailnet, wherever it is. The resolver
 file covers Macs without Tailscale; the two do not conflict.
 
@@ -318,15 +318,15 @@ relay and still works, slower.
 ## DNS, the part that decides whether AD works
 
 A domain member finds its domain controller by asking DNS for
-`_ldap._tcp.ad.arisecenla.church`. Only the server's DNS knows that
+`_ldap._tcp.ad.arisecenla.com`. Only the server's DNS knows that
 answer. So:
 
 | Who | DNS server to use | How it gets it |
 |---|---|---|
 | The staff network at the site where the server is (and the Media and Kids VLANs, once they exist) | the server (`192.168.10.10` in the plan), **only** that one | the staff router's DHCP DNS option (answer 14) |
 | Guest, IoT | the router or `1.1.1.1`; they must not reach the server anyway | DHCP on those VLANs |
-| Any device on Tailscale, anywhere | its normal DNS for everything, **the server for `ad.arisecenla.church`** | Tailscale admin → DNS → split DNS: nameserver `192.168.10.10`, restricted to `ad.arisecenla.church` (docs/REMOTE-ACCESS.md § (b)) |
-| A whole remote site behind a route box (Pineville after the move, if that is the choice) | the server for `ad.arisecenla.church` | the site router's DHCP hands out the server as DNS, with the router itself second for when the tunnel is down; the server forwards everything else to `1.1.1.1` |
+| Any device on Tailscale, anywhere | its normal DNS for everything, **the server for `ad.arisecenla.com`** | Tailscale admin → DNS → split DNS: nameserver `192.168.10.10`, restricted to `ad.arisecenla.com` (docs/REMOTE-ACCESS.md § (b)) |
+| A whole remote site behind a route box (Pineville after the move, if that is the choice) | the server for `ad.arisecenla.com` | the site router's DHCP hands out the server as DNS, with the router itself second for when the tunnel is down; the server forwards everything else to `1.1.1.1` |
 | WireGuard clients | the server through the tunnel | `DNS = 10.47.0.1` in the client config |
 
 The server forwards everything that is not the realm to the forwarder in
@@ -384,7 +384,7 @@ used.
 The recipe for Alexandria's Mac, in order:
 
 1. Tailscale console: the split-DNS rule, nameserver = the server's LAN
-   address, restricted to `ad.arisecenla.church` (docs/REMOTE-ACCESS.md § (b)).
+   address, restricted to `ad.arisecenla.com` (docs/REMOTE-ACCESS.md § (b)).
    Done once, for every device.
 2. On the Mac: install Tailscale, sign in with the church login, set it to
    start at login.

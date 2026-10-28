@@ -9,7 +9,7 @@ ports:
 volumes:
   - /srv/arise/apps/kimai/data:/opt/kimai/var/data
 env:
-  ADMINMAIL: bradly.dyer@arisecenla.church
+  ADMINMAIL: bradly.dyer@ad.arisecenla.com
   ADMINPASS: CHANGE-ME-12chars
 autostart: false
 ram_mb: 250

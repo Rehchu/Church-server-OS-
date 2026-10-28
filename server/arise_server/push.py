@@ -136,7 +136,7 @@ def send(title: str, body: str, url: str = "/", tag: str = "", throttle_s: int =
     for user in who_gets():
         for r in list(d.get(user, [])):
             try:
-                webpush(subscription_info=r["sub"], data=payload, vapid_private_key=k["private_pem"], vapid_claims={"sub": "mailto:admin@arisecenla.church"}, ttl=3600)
+                webpush(subscription_info=r["sub"], data=payload, vapid_private_key=k["private_pem"], vapid_claims={"sub": "mailto:admin@mail.arisecenla.com"}, ttl=3600)
                 sent += 1
             except WebPushException as e:
                 if getattr(e, "response", None) is not None and e.response.status_code in (404, 410):

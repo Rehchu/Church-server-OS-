@@ -76,7 +76,7 @@ that is not the server. Then it runs about five minutes:
 ==> 2/7  Hostname and timezone
 ==> 3/7  Code to /opt/arise and the Python venv
 ==> 4/7  Config (/etc/arise), state (/var/lib/arise), data (/srv/arise)
-==> 5/7  Active Directory domain AD.ARISECENLA.CHURCH (NetBIOS ARISE)
+==> 5/7  Active Directory domain AD.ARISECENLA.COM (NetBIOS ARISE)
 ==> 6/7  Docker and the Arise services
 ==> 7/7  Done. What still needs you
 ```
@@ -92,7 +92,7 @@ Flags that arrived with v0.8 (the installer's header lists them all):
 | Flag | What it does |
 |---|---|
 | `--ssh-key "ssh-ed25519 AAAA… name"` or `--ssh-key-file FILE` | enrols your public key for the admin user. **SSH is keys only**: password login is off, always (round 4, 33). With no key, SSH is closed until one is added; the closet monitor still signs in |
-| `--no-caddy` | Caddy is now **on by default**: the dashboard behind `https://arise-server.ad.arisecenla.church` with the box's own certificate authority (round 3, 29). The root certificate is at `http://arise-server:4147/ca.crt`; `enroll-mac.sh` and `bind-mac.sh --dns` trust it on each Mac |
+| `--no-caddy` | Caddy is now **on by default**: the dashboard behind `https://arise-server.ad.arisecenla.com` with the box's own certificate authority (round 3, 29). The root certificate is at `http://arise-server:4147/ca.crt`; `enroll-mac.sh` and `bind-mac.sh --dns` trust it on each Mac |
 | `--no-tpm` | do not bind the encrypted disk to the TPM. Default: if the disk is LUKS and a TPM 2.0 is there, step 6j asks the passphrase once and binds it, so the box boots alone (round 3, 22) |
 | `--no-safety` | skip step 6j: the break-glass admin, ClamAV, Timeshift, the TPM binding, the safe card |
 | `--restore REPO` | **reinstall**: on a fresh Ubuntu, step 0b pulls `/etc/arise`, `/etc/samba`, the domain's offline backup and the pinned address back from that restic repository first, then installs around them. docs/REINSTALL.md |
@@ -139,7 +139,7 @@ network:
           via: 192.168.1.1           # the router, as it is
       nameservers:
         addresses: [127.0.0.1]       # the DC is its own DNS
-        search: [ad.arisecenla.church]
+        search: [ad.arisecenla.com]
 ```
 
 ```bash
@@ -457,7 +457,7 @@ sudo bash bind-mac.sh --computer-name OFFICE-MAC-01 --dns 192.168.1.20   # from 
 ```
 
 `--dns` writes a per-domain resolver file on the Mac (no router is touched;
-Bradly's rule), binds it to `AD.ARISECENLA.CHURCH`
+Bradly's rule), binds it to `AD.ARISECENLA.COM`
 with mobile accounts on, and checks that a domain user can be looked up.
 Create that user first, on the server or in the dashboard's Directory page:
 
@@ -496,7 +496,7 @@ somewhere else. The full story, with the trade-offs, is
      `sudo tailscale up --ssh --advertise-routes=…` line, which needs a browser
      login, so it is yours to run. Then install the Tailscale app on every
      off-site Mac, PC and phone, approve the subnet route and set the split
-     DNS for `ad.arisecenla.church` in the admin console. No port forward.
+     DNS for `ad.arisecenla.com` in the admin console. No port forward.
    - `--with-wireguard`: native WireGuard on UDP 51820. Forward that one port
      on the Pineville router, set `[remote] wg_endpoint` in `arise.toml`, add
      devices from Dashboard → Remote or `sudo arisectl remote add-peer <name>`.
@@ -504,7 +504,7 @@ somewhere else. The full story, with the trade-offs, is
    database step in its template notes, open `http://arise-server:8084/guacamole`,
    change `guacadmin`, add the Macs (VNC) and PCs (RDP).
 4. **HTTPS.** Caddy is on by default (`--no-caddy` to skip): the dashboard,
-   Vaultwarden and Guacamole behind `https://…ad.arisecenla.church` with the
+   Vaultwarden and Guacamole behind `https://…ad.arisecenla.com` with the
    server's own CA. Every enrolled Mac trusts the root certificate through
    `enroll-mac.sh` or `bind-mac.sh --dns`; anything else fetches it from
    `http://arise-server:4147/ca.crt`.
@@ -534,8 +534,8 @@ Check it from your phone's hotspot with the Tailscale app on: if
 - **Dashboard not loading:** `sudo systemctl status arise-web`, then
   `sudo journalctl -u arise-web -n 50`.
 - **Macs cannot find the domain:** on the server, `host -t SRV
-  _ldap._tcp.ad.arisecenla.church 127.0.0.1` must answer. If not,
-  `sudo systemctl status samba-ad-dc`. On the Mac, `/etc/resolver/ad.arisecenla.church` must name the
+  _ldap._tcp.ad.arisecenla.com 127.0.0.1` must answer. If not,
+  `sudo systemctl status samba-ad-dc`. On the Mac, `/etc/resolver/ad.arisecenla.com` must name the
   server (`scutil --dns | grep -A3 arisecenla`); `bind-mac.sh --dns` writes it.
 - **Kerberos "clock skew":** the server and the Mac are more than 5 minutes
   apart. `chronyc tracking` on the server; the Mac syncs to Apple by default.

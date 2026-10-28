@@ -15,13 +15,13 @@
   What it does, in order, and it stops at the first thing that fails:
     1. Checks the edition (Windows Home cannot join a domain).
     2. Name resolution WITHOUT touching the network: an NRPT rule sends only
-       *.ad.arisecenla.church to the server (the Windows twin of the Macs'
+       *.ad.arisecenla.com to the server (the Windows twin of the Macs'
        /etc/resolver file). The adapter's DNS, the router and the Mesh are not
        changed (docs/ANSWERS.md: the network stays as it is). Skipped with
        -NoDnsRule when the PC already resolves the domain (e.g. over Tailscale).
     3. Trusts the church certificate (the padlock on https://arise-server):
        downloads http://<server>:4147/ca.crt into LocalMachine\Root.
-    4. Joins AD.ARISECENLA.CHURCH into OU=PCs,OU=Computers (install.sh makes
+    4. Joins AD.ARISECENLA.COM into OU=PCs,OU=Computers (install.sh makes
        that OU). Asks for a domain admin's name and password.
     5. Installs a sign-in script for every user that maps the shares they may
        open as drive letters (H: home, S: church shares, the department shares
@@ -40,9 +40,9 @@
 param(
     [string]$ServerIp = "",
     [string]$Server = "arise-server",
-    [string]$Realm = "ad.arisecenla.church",
+    [string]$Realm = "ad.arisecenla.com",
     [string]$NetBios = "ARISE",
-    [string]$OU = "OU=PCs,OU=Computers,DC=ad,DC=arisecenla,DC=church",
+    [string]$OU = "OU=PCs,OU=Computers,DC=ad,DC=arisecenla,DC=com",
     [string]$ComputerName = $env:COMPUTERNAME,
     [switch]$NoDnsRule,
     [switch]$NoRestart

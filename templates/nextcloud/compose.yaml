@@ -32,7 +32,7 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
-      - NEXTCLOUD_TRUSTED_DOMAINS=arise-server arise-server.ad.arisecenla.church localhost
+      - NEXTCLOUD_TRUSTED_DOMAINS=arise-server arise-server.ad.arisecenla.com localhost
     volumes:
       - /srv/arise/apps/nextcloud/html:/var/www/html
       - /srv/arise/shares:/shares

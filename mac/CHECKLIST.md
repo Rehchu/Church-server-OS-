@@ -14,7 +14,7 @@ Print one of these per Mac. Keep it in the Media folder on the server when done.
 ## Before (both kinds)
 
 - [ ] Mac plugged into **Ethernet** (not Wi‑Fi)
-- [ ] `dig +short _ldap._tcp.ad.arisecenla.church SRV` prints a line in Terminal
+- [ ] `dig +short _ldap._tcp.ad.arisecenla.com SRV` prints a line in Terminal
 - [ ] Automatic date & time on
 - [ ] The `mac/` folder from the repo copied to the Mac (Desktop is fine)
 - [ ] The `ARISE\administrator` password to hand

@@ -17,7 +17,7 @@ limits:
 notes: |
   Suggested monitors after first login:
     HTTPS  https://arisecenla.church
-    Ping   synology.ad.arisecenla.church
+    Ping   synology.ad.arisecenla.com
     HTTP   http://127.0.0.1:4147/api/overview      (the dashboard)
     HTTPS  https://www.youtube.com/@arisechurch4147/live   (keyword "LIVE" on Sundays 10:30 and Mondays 19:00 only)
 theme:

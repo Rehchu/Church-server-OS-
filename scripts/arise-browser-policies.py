@@ -30,13 +30,13 @@ CADDY_ROOT = "/etc/arise/ca/arise-root.crt"   # a world-readable copy of Caddy's
 # Sign-in hops are included: Google for YouTube Studio, OpenAI/Apple/Microsoft for
 # ChatGPT, X for Grok, Cloudflare's challenge frame for both.
 BUILT_IN = [
-    "127.0.0.1", "localhost", "arise-server", "*.ad.arisecenla.church", "arise-pineville", "arise-home", "arise-alexandria",
+    "127.0.0.1", "localhost", "arise-server", "*.ad.arisecenla.com", "arise-pineville", "arise-home", "arise-alexandria",
     "claude.ai", "*.claude.ai", "*.anthropic.com",
     "chatgpt.com", "*.chatgpt.com", "*.openai.com",
     "grok.com", "*.grok.com", "x.ai", "*.x.ai", "x.com", "*.x.com",
     "youtube.com", "*.youtube.com", "youtu.be", "*.ytimg.com", "*.googlevideo.com", "*.google.com", "*.googleusercontent.com", "*.gstatic.com", "*.recaptcha.net",
     "streamyard.com", "*.streamyard.com",
-    "arisecenla.church", "*.arisecenla.church",
+    "arisecenla.church", "*.arisecenla.church", "arisecenla.com", "*.arisecenla.com",
     "github.com", "*.github.com", "*.tailscale.com",
     "challenges.cloudflare.com", "appleid.apple.com", "login.microsoftonline.com", "login.live.com",
 ]

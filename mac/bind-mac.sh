@@ -1,9 +1,9 @@
 #!/bin/bash
 # bind-mac.sh — join this Mac to the Arise Church domain.
 #
-#   sudo ./bind-mac.sh --computer-name MEDIA-MAC-01 --dns 192.168.1.20 [--ou "OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=church"] [--admin administrator] [--test-user jane.smith]
+#   sudo ./bind-mac.sh --computer-name MEDIA-MAC-01 --dns 192.168.1.20 [--ou "OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=com"] [--admin administrator] [--test-user jane.smith]
 #
-# --dns <server ip> writes /etc/resolver/ad.arisecenla.church on this Mac, so
+# --dns <server ip> writes /etc/resolver/ad.arisecenla.com on this Mac, so
 # only names in the church domain are asked of the server; everything else
 # keeps using whatever DNS the router hands out. No router is touched: the
 # Pineville routers stay exactly as they are (docs/ANSWERS.md, Oct 28).
@@ -12,11 +12,11 @@
 # the three things that make a bind fail, and it says exactly which one did.
 set -u
 
-REALM="AD.ARISECENLA.CHURCH"
-REALM_LC="ad.arisecenla.church"
+REALM="AD.ARISECENLA.COM"
+REALM_LC="ad.arisecenla.com"
 NETBIOS="ARISE"
 DC_HOST="arise-server.${REALM_LC}"
-OU="OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=church"
+OU="OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=com"
 ADMIN="administrator"
 COMPUTER=""
 TEST_USER=""
@@ -55,7 +55,7 @@ if [ -n "$DNS_IP" ]; then
   say "wrote /etc/resolver/${REALM_LC} -> $DNS_IP (only *.${REALM_LC} is asked of the server)"
   dscacheutil -flushcache; killall -HUP mDNSResponder 2>/dev/null || true
   # The church certificate (round 3, 29): Caddy's root, served by the dashboard.
-  # Trusting it once gives this Mac the padlock on https://arise-server.ad.arisecenla.church.
+  # Trusting it once gives this Mac the padlock on https://arise-server.ad.arisecenla.com.
   step "The church certificate (padlock on the dashboard)"
   CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
   if curl -fsS -m 8 -o "$CA_TMP" "http://$DNS_IP:4147/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then

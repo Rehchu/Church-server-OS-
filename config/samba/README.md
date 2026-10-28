@@ -23,4 +23,4 @@ share. Every `fruit:` line in the template has a comment saying what it does.
 
 Why `.local` is never used: macOS owns `.local` for Bonjour. A domain called
 `arise.local` makes Macs time out on every lookup. The realm is
-`AD.ARISECENLA.CHURCH`, a subdomain of the church's own domain.
+`AD.ARISECENLA.COM`, a subdomain of the church's own domain.

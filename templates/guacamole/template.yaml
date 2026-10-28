@@ -30,5 +30,5 @@ notes: |
   compose.yaml after creating a plain `guac-ldap` domain user for the lookup;
   docs/REMOTE-ACCESS.md (c) has the matching guacamole.properties lines.
   Image tags 1.5.5 / postgres:15 were current when written: verify before
-  first deploy. Put it behind Caddy (remote.ad.arisecenla.church) for HTTPS;
+  first deploy. Put it behind Caddy (remote.ad.arisecenla.com) for HTTPS;
   clipboard and file transfer need a secure context.

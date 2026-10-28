@@ -37,7 +37,7 @@ DEFAULTS = {
     },
     "directory": {
         "enabled": not WINDOWS,
-        "realm": "AD.ARISECENLA.CHURCH",
+        "realm": "AD.ARISECENLA.COM",
         "netbios": "ARISE",
         "dns_forwarder": "1.1.1.1",
         "homes_path": _root("/srv/arise/homes", r"C:\Arise\data\homes"),
@@ -61,7 +61,7 @@ DEFAULTS = {
     },
     "nas": {
         "enabled": True,
-        "host": "synology.ad.arisecenla.church",
+        "host": "synology.ad.arisecenla.com",
         "mount": _root("/mnt/synology", r"Z:\\"),
         "protocol": "smb",
         "share": "arise",

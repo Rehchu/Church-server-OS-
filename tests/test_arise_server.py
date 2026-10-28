@@ -35,7 +35,7 @@ class Config(unittest.TestCase):
         cfg = config.load(force=True)
         self.assertTrue(cfg.found)
         self.assertEqual(cfg.web.port, 4147)
-        self.assertEqual(cfg.directory.realm, "AD.ARISECENLA.CHURCH")
+        self.assertEqual(cfg.directory.realm, "AD.ARISECENLA.COM")
         self.assertEqual(cfg.directory.netbios, "ARISE")
         self.assertEqual(cfg.system.hostname, "arise-server")
         self.assertEqual(cfg.automator.schedule, "02:05")
@@ -1207,10 +1207,10 @@ class Finder(unittest.TestCase):
     def test_smb_address_and_who_can_open_it(self):
         from arise_server import finder
         office = {"user": "office", "role": "member"}; admin = {"user": "bradly", "role": "admin"}
-        self.assertEqual(finder.smb_path("home", "/Documents", office), "smb://arise-server.ad.arisecenla.church/office/Documents")
-        self.assertEqual(finder.smb_path("share:staff", "/Forms", office), "smb://arise-server.ad.arisecenla.church/staff/Forms")
-        self.assertEqual(finder.smb_path("data", "/homes/bradly/Desktop", admin), "smb://arise-server.ad.arisecenla.church/bradly/Desktop")
-        self.assertEqual(finder.smb_path("data", "/shares/media/loops", admin), "smb://arise-server.ad.arisecenla.church/shares/media/loops")
+        self.assertEqual(finder.smb_path("home", "/Documents", office), "smb://arise-server.ad.arisecenla.com/office/Documents")
+        self.assertEqual(finder.smb_path("share:staff", "/Forms", office), "smb://arise-server.ad.arisecenla.com/staff/Forms")
+        self.assertEqual(finder.smb_path("data", "/homes/bradly/Desktop", admin), "smb://arise-server.ad.arisecenla.com/bradly/Desktop")
+        self.assertEqual(finder.smb_path("data", "/shares/media/loops", admin), "smb://arise-server.ad.arisecenla.com/shares/media/loops")
         self.assertIsNone(finder.smb_path("data", "/automator", admin))
         info = finder.info("data", "/shares/staff/Phone list.xlsx", admin)
         self.assertEqual(info["access"]["share"], "staff")

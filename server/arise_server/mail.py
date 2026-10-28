@@ -313,7 +313,7 @@ def broadcasts() -> dict:
 def status() -> dict:
     m = cfg_mail()
     key = bool(_key()) or load().demo
-    out = {"provider": "Resend", "configured": bool(key and m["from_email"]) or load().demo, "key": key, "from_name": m["from_name"], "from_email": m["from_email"] or ("news@arisecenla.church" if load().demo else ""),
+    out = {"provider": "Resend", "configured": bool(key and m["from_email"]) or load().demo, "key": key, "from_name": m["from_name"], "from_email": m["from_email"] or ("news@mail.arisecenla.com" if load().demo else ""),
            "reply_to": m["reply_to"] or ("arisenow.church@gmail.com" if load().demo else ""), "audience_id": m["audience_id"] or ("demo-audience" if load().demo else ""), "demo": load().demo,
            "gmail_warning": m["from_email"].lower().endswith("@gmail.com") if m["from_email"] else False}
     return out

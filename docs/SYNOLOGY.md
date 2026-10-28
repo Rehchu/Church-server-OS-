@@ -39,7 +39,7 @@ The NAS must use the server for DNS, like everything else.
    (uncheck "get automatically" if the router hands out something else).
    Set a **static IP** on the NAS too.
 2. Control Panel → **Domain/LDAP** → Domain → **Join**:
-   - Domain: `ad.arisecenla.church`
+   - Domain: `ad.arisecenla.com`
    - DNS server: the server's IP (it asks again)
    - Account: `administrator` (or Bradly's Domain Admin) and password
 3. DSM checks the domain, lists `ARISE\Domain Users` etc. Click **Join**.
@@ -49,7 +49,7 @@ The NAS must use the server for DNS, like everything else.
 
 If the join fails on "unable to find domain", it is DNS on the NAS (step 1).
 If it fails on the clock, Control Panel → Regional Options → Time → sync with
-`arise-server.ad.arisecenla.church`.
+`arise-server.ad.arisecenla.com`.
 
 ## 3. Shared folders
 
@@ -104,7 +104,7 @@ password=<the service account's password>
 domain=ARISE
 
 # /etc/fstab
-//synology.ad.arisecenla.church/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=arise,gid=arise,vers=3.0,iocharset=utf8,_netdev,nofail  0  0
+//synology.ad.arisecenla.com/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=arise,gid=arise,vers=3.0,iocharset=utf8,_netdev,nofail  0  0
 ```
 
 `arise-server` is a domain service account created by `install.sh` for this
@@ -116,7 +116,7 @@ Permissions → add the server's IP, read/write, "map root to admin" off,
 squash "no mapping". Then:
 
 ```
-synology.ad.arisecenla.church:/volume1/arise  /mnt/synology  nfs  defaults,_netdev,nofail  0  0
+synology.ad.arisecenla.com:/volume1/arise  /mnt/synology  nfs  defaults,_netdev,nofail  0  0
 ```
 
 Pick one. `[nas] protocol` in `arise.toml` records which.

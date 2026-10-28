@@ -34,7 +34,7 @@ its own tunnel, and that is the whole Alexandria setup:
 
 - **Always-on VPN on the Mac.** Tailscale installed, signed in with the
   church login, set to start at login. The Mac binds to
-  `AD.ARISECENLA.CHURCH` over the tunnel (the split-DNS rule in
+  `AD.ARISECENLA.COM` over the tunnel (the split-DNS rule in
   docs/REMOTE-ACCESS.md is what makes the realm resolve). Nothing to do at
   the Alexandria router. If its Tailscale is signed out, that Mac is off
   the church network until someone signs it in; the mobile account still
@@ -88,12 +88,12 @@ way.
 
 ## DNS at each site
 
-The domain only works when `ad.arisecenla.church` resolves to the domain
+The domain only works when `ad.arisecenla.com` resolves to the domain
 controller. At Pineville the router hands out the server as the DNS server
 (docs/DIRECTORY.md). Off-site:
 
 - Tailscale: one split-DNS rule in the admin console (restrict
-  `ad.arisecenla.church` to the server's address) covers every device.
+  `ad.arisecenla.com` to the server's address) covers every device.
 - WireGuard: the client config carries `DNS = 10.47.0.1`, which is the
   server through the tunnel, so the device uses the DC for everything while
   the tunnel is up.
@@ -118,7 +118,7 @@ changes and group policy while cut off).
 On a small Ubuntu box in Alexandria, with the tunnel up:
 
 ```bash
-sudo samba-tool domain join ad.arisecenla.church DC -U administrator --dns-backend=SAMBA_INTERNAL
+sudo samba-tool domain join ad.arisecenla.com DC -U administrator --dns-backend=SAMBA_INTERNAL
 ```
 
 Then point Alexandria's DHCP DNS at that box first and Pineville second.

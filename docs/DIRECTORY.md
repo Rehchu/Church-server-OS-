@@ -81,15 +81,15 @@ differs (docs/MAC-MIGRATION.md, "The automatic way").
 
 | | |
 |---|---|
-| Realm (Kerberos / DNS) | `AD.ARISECENLA.CHURCH` |
+| Realm (Kerberos / DNS) | `AD.ARISECENLA.COM` |
 | NetBIOS (short) name | `ARISE` |
-| Domain controller | `arise-server.ad.arisecenla.church` |
+| Domain controller | `arise-server.ad.arisecenla.com` |
 
 The realm is a **subdomain of the domain the church already owns**
 (`arisecenla.church`). That is Microsoft's and Samba's recommended practice: it
 never collides with a public name, and the public website at
 `arisecenla.church` keeps resolving normally because the DC only answers for
-`ad.arisecenla.church`.
+`ad.arisecenla.com`.
 
 Do **not** use `arise.local`. macOS reserves the `.local` suffix for Bonjour
 (mDNS). A Mac asked to find a `.local` domain controller tries multicast first,
@@ -101,7 +101,7 @@ the fact means rebuilding the domain.
 
 AD does not work unless every device asks the **domain controller** for the
 church domain's names. Devices find the DC by looking up SRV records
-(`_ldap._tcp.ad.arisecenla.church`, `_kerberos._tcp...`) that only the DC's
+(`_ldap._tcp.ad.arisecenla.com`, `_kerberos._tcp...`) that only the DC's
 DNS holds.
 
 **Bradly's rule (Oct 28): no router, switch or Mesh setting changes, at
@@ -112,10 +112,10 @@ the church domain is wired in on each device instead:
    (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Looking at that
    range on the router page is allowed; changing anything there is not.
 2. Every church Mac gets a **per-domain resolver file**,
-   `/etc/resolver/ad.arisecenla.church`, holding `nameserver <server ip>`.
+   `/etc/resolver/ad.arisecenla.com`, holding `nameserver <server ip>`.
    `mac/bind-mac.sh --dns <server ip>` writes it (and `enroll-mac.sh --dns`
    passes it through). macOS then asks the server only for names ending in
-   `ad.arisecenla.church` and keeps the router's DNS for everything else, so
+   `ad.arisecenla.com` and keeps the router's DNS for everything else, so
    the internet keeps working even when the server is off.
 3. Any device on **Tailscale** gets the same thing from the tailnet's split
    DNS rule (docs/REMOTE-ACCESS.md step 5), wherever it is. The two do not
@@ -126,13 +126,13 @@ the church domain is wired in on each device instead:
 Check from any Mac on the network:
 
 ```bash
-dig +short arise-server.ad.arisecenla.church
-dig +short _ldap._tcp.ad.arisecenla.church SRV
+dig +short arise-server.ad.arisecenla.com
+dig +short _ldap._tcp.ad.arisecenla.com SRV
 ```
 
 Both must print an answer. `dig` ignores `/etc/resolver`, so on a Mac that
 uses the resolver file test with `dscacheutil -q host -a name
-arise-server.ad.arisecenla.church` instead. Empty output means the Mac is not
+arise-server.ad.arisecenla.com` instead. Empty output means the Mac is not
 asking the DC; nothing below will work until that is fixed.
 
 If the server is ever off, the Macs lose only the church domain's names; the
@@ -144,7 +144,7 @@ one advantage of this layout over the usual "router hands out the DC" setup.
 Keep it small. A church of this size does not need a tree of OUs.
 
 ```
-DC=ad,DC=arisecenla,DC=church
+DC=ad,DC=arisecenla,DC=com
 ├── OU=People
 │   ├── OU=Staff
 │   └── OU=Volunteers
@@ -245,7 +245,7 @@ and trusts the church certificate, nothing else; not yet built. Windows 10/11
 
 1. Make sure the PC's DNS is the server (it will be, from DHCP).
 2. Settings → System → About → **Domain or workgroup** → Change → Domain:
-   `ad.arisecenla.church`.
+   `ad.arisecenla.com`.
 3. Credentials: `ARISE\administrator` (or Bradly's Domain Admin account).
 4. Reboot. Log in as `ARISE\jane.smith`.
 

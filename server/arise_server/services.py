@@ -137,7 +137,7 @@ def log_file(name: str, lines: int = 300) -> dict:
     if not FILE_RE.match(name or "") or "/" in name:
         return {"name": name, "text": "that is not a log file name"}
     if cfg.demo:
-        samples = {"install.log": "2026-10-26 14:02:11 ==> Preflight\n2026-10-26 14:02:12     OS: Ubuntu 24.04.1 LTS\n2026-10-26 14:03:40 ==> 5/7 Active Directory domain AD.ARISECENLA.CHURCH\n2026-10-26 14:09:02 ==> 6a/7 Apps\n2026-10-26 14:31:55     app netdata: up\n2026-10-26 14:33:10     app guacamole: up\n2026-10-26 14:40:00 ==> 7/7 Done.",
+        samples = {"install.log": "2026-10-26 14:02:11 ==> Preflight\n2026-10-26 14:02:12     OS: Ubuntu 24.04.1 LTS\n2026-10-26 14:03:40 ==> 5/7 Active Directory domain AD.ARISECENLA.COM\n2026-10-26 14:09:02 ==> 6a/7 Apps\n2026-10-26 14:31:55     app netdata: up\n2026-10-26 14:33:10     app guacamole: up\n2026-10-26 14:40:00 ==> 7/7 Done.",
                    "updates.log": "2026-10-18T03:30:04-05:00 ok 3 packages, 0 apps, no reboot needed\n2026-10-25T03:30:02-05:00 ok 2 packages, 1 apps, reboot needed\n",
                    "backup.log": "2026-10-28 03:00:01 job automator: started\n2026-10-28 03:02:35 job automator: ok, 797.1 MB added\n2026-10-28 03:04:00 job homes: started\n2026-10-28 03:11:12 job homes: ok, 451.3 MB added\n2026-10-28 03:16:30 prune: kept 30 daily, 12 weekly, 24 monthly"}
         return _with_error({"demo": True, "name": name, "text": samples.get(name, f"(demo) no sample for {name}")})

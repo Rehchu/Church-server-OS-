@@ -207,7 +207,7 @@ samples so the sparklines are full on first paint.
 
 On the church network: `http://arise-server:4147`. From Alexandria, the Hub or
 home: the same address over the VPN (docs/REMOTE-ACCESS.md), or
-`https://arise-server.ad.arisecenla.church` once Caddy is on. It is not meant
+`https://arise-server.ad.arisecenla.com` once Caddy is on. It is not meant
 to face the internet directly; the VPN is the front door.
 
 ## Running it anywhere

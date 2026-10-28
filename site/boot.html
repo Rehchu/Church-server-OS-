@@ -84,7 +84,7 @@ h1{font-size:clamp(28px,4vw,46px);color:#fff}
     <div class="scene" data-n="2"><pre id="ilog"></pre></div>
 
     <div class="scene" data-n="3"><pre>
-<span class="r">      ▄▄</span>          <span class="w">ARISE SERVER</span>  ·  arise-server.ad.arisecenla.church  ·  Ubuntu 24.04.3 LTS
+<span class="r">      ▄▄</span>          <span class="w">ARISE SERVER</span>  ·  arise-server.ad.arisecenla.com  ·  Ubuntu 24.04.3 LTS
 <span class="r">     ▟██▙</span>         Arise Church, Pineville LA
 <span class="r">    ▟████▙</span>
 <span class="r">   ▟██▛▜██▙</span>       dashboard   http://arise-server:4147
@@ -98,7 +98,7 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
     <div class="scene" data-n="4"><pre id="motd"></pre></div>
 
     <div class="scene" data-n="5"><pre><span class="r">      ▄▄      </span> <span class="w">ARISE SERVER</span>
-<span class="r">     ▟██▙     </span> <span class="d">v0.7.0 “Genesis”  ·  arise-server  ·  AD.ARISECENLA.CHURCH</span>
+<span class="r">     ▟██▙     </span> <span class="d">v0.7.0 “Genesis”  ·  arise-server  ·  AD.ARISECENLA.COM</span>
 <span class="r">    ▟████▙    </span> <span id="tuiClock">Tue Oct 28  02:01:12 AM</span>
 <span class="r">   ▟██▛▜██▙   </span>
 <span class="r">  ▟██▛  ▜██▙  </span> <span class="d">up 14d 3h 7m   load 0.42 0.58 0.61   46°C</span>
@@ -167,10 +167,10 @@ function installer() {
   const lines = [
     ['w', '$ sudo bash installer/install.sh --admin-pass ******** --with-tailscale --console'],
     ['r', '== 1/7  Packages'], ['', '   samba winbind krb5-user restic docker.io python3-venv ufw fail2ban chrony … ok'],
-    ['r', '== 2/7  Hostname arise-server, timezone America/Chicago'], ['', '   /etc/hosts: 192.168.1.10 arise-server.ad.arisecenla.church arise-server'],
+    ['r', '== 2/7  Hostname arise-server, timezone America/Chicago'], ['', '   /etc/hosts: 192.168.1.10 arise-server.ad.arisecenla.com arise-server'],
     ['r', '== 3/7  Code to /opt/arise and the Python venv'], ['', '   pip: fastapi uvicorn psutil pyyaml bcrypt … google-api-python-client pillow tzdata'], ['', '   /usr/local/bin/arisectl, /usr/local/bin/arisetui'],
     ['r', '== 4/7  Config (/etc/arise), state (/var/lib/arise), data (/srv/arise)'], ['', '   user arise (uid 1500) · homes shares automator apps backups'],
-    ['r', '== 5/7  Active Directory domain AD.ARISECENLA.CHURCH (NetBIOS ARISE)'], ['', '   samba-tool domain provision … ok'], ['', '   krb5.conf written · resolv.conf → 127.0.0.1 · SRV _ldap._tcp.ad.arisecenla.church resolves'], ['', '   smb.conf: [homes] [shares] with the Mac (fruit) settings'],
+    ['r', '== 5/7  Active Directory domain AD.ARISECENLA.COM (NetBIOS ARISE)'], ['', '   samba-tool domain provision … ok'], ['', '   krb5.conf written · resolv.conf → 127.0.0.1 · SRV _ldap._tcp.ad.arisecenla.com resolves'], ['', '   smb.conf: [homes] [shares] with the Mac (fruit) settings'],
     ['r', '== 6/7  Services and timers'], ['', '   arise-web.service active on :4147'], ['', '   arise-automator.timer 02:05 · arise-backup.timer 03:00 · arise-mirror.timer 04:00 · arise-notify.timer 07:00'],
     ['r', '== 6b/7 Remote access and the firewall'], ['', '   ufw: deny incoming; ssh; 4147 + DC ports from the LAN and the VPN only'], ['', '   fail2ban sshd jail · sshd drop-in (password login stays on until a key exists)'], ['y', '   tailscale installed. Run once, in a browser login:  sudo tailscale up --ssh --advertise-routes=192.168.1.0/24'],
     ['r', '== 6c/7 Console: banner, login message, arisetui on tty1'],
@@ -189,7 +189,7 @@ function installer() {
 function banner() { const t = $('#loginTyped'); t.textContent = ''; 'bradly'.split('').forEach((c, i) => later(() => t.textContent += c, 900 + i * 140)); }
 function login() {
   const m = $('#motd'); m.innerHTML = '';
-  const lines = ['<span class="d">Password:</span>', '', '<span class="r">      ▄▄</span>', '<span class="r">     ▟██▙</span>      <span class="w">ARISE SERVER</span>', '<span class="r">    ▟████▙</span>     Arise Church · Pineville, LA', '<span class="r">   ▟██▛▜██▙</span>', '<span class="r">  ▟██▛  ▜██▙</span>   arisetui        the console dashboard', '<span class="r">  ▜██▙▄▄▟██▛</span>   arisectl doctor what needs fixing', '<span class="r">   ▜██████▛</span>    arisectl info   what this box is', '<span class="r">     ▀▀▀▀</span>', '  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)', '  profile   server   config /etc/arise/arise.toml', '  realm     AD.ARISECENLA.CHURCH / ARISE   directory on', '  web       http://arise-server:4147   password set', '  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05', '  backups   /mnt/synology/arise-backups/restic  at 03:00', '', '<span class="g">bradly@arise-server</span>:~$ <span id="shTyped"></span><span class="cur"></span>'];
+  const lines = ['<span class="d">Password:</span>', '', '<span class="r">      ▄▄</span>', '<span class="r">     ▟██▙</span>      <span class="w">ARISE SERVER</span>', '<span class="r">    ▟████▙</span>     Arise Church · Pineville, LA', '<span class="r">   ▟██▛▜██▙</span>', '<span class="r">  ▟██▛  ▜██▙</span>   arisetui        the console dashboard', '<span class="r">  ▜██▙▄▄▟██▛</span>   arisectl doctor what needs fixing', '<span class="r">   ▜██████▛</span>    arisectl info   what this box is', '<span class="r">     ▀▀▀▀</span>', '  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)', '  profile   server   config /etc/arise/arise.toml', '  realm     AD.ARISECENLA.COM / ARISE   directory on', '  web       http://arise-server:4147   password set', '  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05', '  backups   /mnt/synology/arise-backups/restic  at 03:00', '', '<span class="g">bradly@arise-server</span>:~$ <span id="shTyped"></span><span class="cur"></span>'];
   lines.forEach((l, i) => later(() => { m.innerHTML += l + '\n'; }, 120 * (i + 1)));
   later(() => { const t = $('#shTyped'); if (t) 'arisetui'.split('').forEach((c, i) => later(() => t.textContent += c, i * 120)); }, 120 * lines.length + 600);
 }
@@ -265,7 +265,7 @@ Media on the Synology  2026-10-24T03:04   <span class="r">FAILED</span>         
 - applied 19 · read back 19 · backed up first to desc_backups/
 <span class="r">## Job: shorts-tags (priority 2)</span>
 - skipped — disabled in worklist.json until Bradly sets the priority</pre>`,
-  5: () => `<pre><span class="w">AD.ARISECENLA.CHURCH  ·  ARISE  ·  arise-server.ad.arisecenla.church</span>
+  5: () => `<pre><span class="w">AD.ARISECENLA.COM  ·  ARISE  ·  arise-server.ad.arisecenla.com</span>
 <span class="g">● LDAP</span>          <span class="g">● KERBEROS</span>      <span class="g">● DNS</span>
 
 <span class="d">USER             NAME                     GROUPS                             LAST LOGIN</span>

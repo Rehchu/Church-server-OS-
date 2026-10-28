@@ -16,8 +16,8 @@
 #
 # Every name below needs an A record in the domain's DNS pointing at this
 # server's LAN address (replace 192.168.1.10):
-#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault  A 192.168.1.10
-#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church remote A 192.168.1.10
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com vault  A 192.168.1.10
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com remote A 192.168.1.10
 # (`arise-server` already has one from the domain provision.) Off-site, the
 # Tailscale split-DNS rule or the WireGuard DNS line sends these lookups to
 # the same DNS, so the names work through the tunnel too.
@@ -27,24 +27,24 @@
 
 # The dashboard (and its Terminal app, which is a websocket - Caddy proxies
 # websockets without any extra directive).
-arise-server.ad.arisecenla.church, arise-server {
+arise-server.ad.arisecenla.com, arise-server {
 	tls internal
 	reverse_proxy 127.0.0.1:4147
 }
 
 # Vaultwarden. The Bitwarden apps refuse plain HTTP; this is what makes them
-# work. Set DOMAIN=https://vault.ad.arisecenla.church in the vaultwarden .env.
-vault.ad.arisecenla.church {
+# work. Set DOMAIN=https://vault.ad.arisecenla.com in the vaultwarden .env.
+vault.ad.arisecenla.com {
 	tls internal
 	reverse_proxy 127.0.0.1:8083
 }
 
 # Guacamole. Its web app lives under /guacamole/; this strips the prefix so
-# https://remote.ad.arisecenla.church/ opens it directly. Guacamole's tunnel is
+# https://remote.ad.arisecenla.com/ opens it directly. Guacamole's tunnel is
 # a websocket; Caddy's reverse_proxy passes the Upgrade headers through
 # unchanged, so no special handling is needed. Clipboard sync and file
 # transfer in the browser need this HTTPS origin.
-remote.ad.arisecenla.church {
+remote.ad.arisecenla.com {
 	tls internal
 	redir / /guacamole/ 302
 	reverse_proxy /guacamole/* 127.0.0.1:8084

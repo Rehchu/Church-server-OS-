@@ -80,7 +80,7 @@ Full guide: [INSTALL.md](INSTALL.md).
 
 | Need | What Arise Server does |
 |---|---|
-| "Like Active Directory" | A Samba AD domain controller, realm `AD.ARISECENLA.CHURCH`, NetBIOS `ARISE`. Kerberos, LDAP, DNS. Macs bind with Directory Utility; Windows joins the domain; the Synology joins too. [docs/DIRECTORY.md](docs/DIRECTORY.md) |
+| "Like Active Directory" | A Samba AD domain controller, realm `AD.ARISECENLA.COM`, NetBIOS `ARISE`. Kerberos, LDAP, DNS. Macs bind with Directory Utility; Windows joins the domain; the Synology joins too. [docs/DIRECTORY.md](docs/DIRECTORY.md) |
 | Macs with profiles and files on the server | Mobile accounts (cached local home, works offline) plus the user's server home share mounted at login, Desktop and Documents kept there. `mac/migrate-mac-user.sh` moves an existing local account's data over with a manifest and never deletes. [docs/MAC-MIGRATION.md](docs/MAC-MIGRATION.md) |
 | The Synology | Joins the domain; holds the bulk files (`media`, optionally `homes`) on four drives; is the restic target; ships the off-site copy with Hyper Backup. [docs/SYNOLOGY.md](docs/SYNOLOGY.md) |
 | Run the automator | `arise-automator.timer` at 02:05 America/Chicago runs `automator/arise_daily.py` from the cloned `arise-youtube-automation` repo. Reports, worklist, holds and quota on the dashboard; preview (dry run) and run from there or `arisectl`. [docs/AUTOMATOR.md](docs/AUTOMATOR.md) |
@@ -194,7 +194,7 @@ tests/           python3 -m unittest discover tests
 
 One file, `/etc/arise/arise.toml` (`C:\Arise\config\arise.toml` on Windows), read with `tomllib`. The dashboard never writes it; the installer and `arisectl` do. Backup jobs live in `/etc/arise/backups.yaml`. Secrets live in `/etc/arise/secrets/` and are gitignored by name: `token.json`, `client_secret.json`, `restic-password`, `github-token`, `dsm.json`, `synology.cred`.
 
-Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-server`, realm `AD.ARISECENLA.CHURCH`, port `4147`, code in `/opt/arise`, data in `/srv/arise`, NAS at `/mnt/synology`.
+Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-server`, realm `AD.ARISECENLA.COM`, port `4147`, code in `/opt/arise`, data in `/srv/arise`, NAS at `/mnt/synology`.
 
 ---
 

@@ -49,14 +49,14 @@ services:
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-CHANGE-ME}
       # Uncomment to authenticate against the AD domain (see docs/REMOTE-ACCESS.md (c)).
       # The LDAP extension ships inside the image; these variables switch it on.
-      # - LDAP_HOSTNAME=arise-server.ad.arisecenla.church
+      # - LDAP_HOSTNAME=arise-server.ad.arisecenla.com
       # - LDAP_PORT=389
       # - LDAP_ENCRYPTION_METHOD=none
-      # - LDAP_USER_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_USER_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=com
       # - LDAP_USERNAME_ATTRIBUTE=sAMAccountName
-      # - LDAP_SEARCH_BIND_DN=CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_SEARCH_BIND_DN=CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=com
       # - LDAP_SEARCH_BIND_PASSWORD=CHANGE-ME
-      # - LDAP_GROUP_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=church
+      # - LDAP_GROUP_BASE_DN=CN=Users,DC=ad,DC=arisecenla,DC=com
       # - LDAP_MEMBER_ATTRIBUTE=member
       - TZ=America/Chicago
     volumes:

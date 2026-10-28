@@ -9,7 +9,7 @@ when a doc and ANSWERS.md disagree, ANSWERS.md wins.
 
 - Ubuntu Server 24.04 on a Dell OptiPlex in a closet, with a monitor that
   shows the Arise desktop (a kiosk browser on tty1).
-- A Samba Active Directory domain controller: realm `AD.ARISECENLA.CHURCH`,
+- A Samba Active Directory domain controller: realm `AD.ARISECENLA.COM`,
   NetBIOS `ARISE`. It is also the DNS for that domain.
 - The dashboard (`arise-web.service`, port 4147): the desktop, the member
   portal, every app page. Code in `/opt/arise`, config in
@@ -87,6 +87,9 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
     02:05 job's, `main` only, and a change there makes the next pull fail. Work on the automator from a separate clone in Bradly's
     home (docs/CLAUDE-ON-THE-BOX.md).
 11b. You talk to Bradly only (round 4, 44).
+11c. Staff home folders (`/srv/arise/homes/<user>`, except Bradly's): open a
+    file there only when Bradly names it (round 5, 21). The Pastors share is
+    the two pastors' only: never open it (round 5, 18).
 13. The Arise repos live in `/srv/arise/repos/<name>` and sync two-way with
     GitHub every 15 minutes (docs/REPOS.md): a commit there is on GitHub
     within 15 minutes. Commit only when Bradly says so. Never commit a

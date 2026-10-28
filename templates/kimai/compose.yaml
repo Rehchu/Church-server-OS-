@@ -11,7 +11,7 @@ services:
     environment:
       - TZ=America/Chicago
       - DATABASE_URL=sqlite:///%kernel.project_dir%/var/data/kimai.sqlite
-      - ADMINMAIL=${ADMINMAIL:-bradly.dyer@arisecenla.church}
+      - ADMINMAIL=${ADMINMAIL:-bradly.dyer@ad.arisecenla.com}
       - ADMINPASS=${ADMINPASS:-CHANGE-ME-12chars}
       - TRUSTED_HOSTS=arise-server,localhost,127.0.0.1
     volumes:

@@ -156,7 +156,7 @@ it. That root is the church certificate. The dashboard serves it read-only at
 `http://arise-server:4147/ca.crt` (a root certificate is public by nature);
 `enroll-mac.sh` and `bind-mac.sh --dns` fetch it and put it in the Mac's
 System keychain as trusted, so every enrolled Mac shows the padlock on
-`https://arise-server.ad.arisecenla.church`. Phones over Tailscale use
+`https://arise-server.ad.arisecenla.com`. Phones over Tailscale use
 Tailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.
 `--no-caddy` turns it off.
 
@@ -168,7 +168,7 @@ By hand on a Mac:
 ## An internal mail server: decided, not built yet
 
 Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the
-department accounts, `first.last@ad.arisecenla.church`, with every message
+department accounts, `first.last@ad.arisecenla.com`, with every message
 forwarded out through Resend's SMTP relay to the person's personal address
 (stored on their Directory account), Reply-To set to the original sender.
 Nothing of it is built in v0.8. What it needs when it is:
@@ -179,7 +179,7 @@ Nothing of it is built in v0.8. What it needs when it is:
   at it; the From must be at the domain verified in Resend (the same rule the
   Mail app already enforces: never a gmail.com address).
 - **No inbound port.** Nothing on this box is reachable from the internet
-  (rule 7). Mail *to* `first.last@ad.arisecenla.church` is internal only
+  (rule 7). Mail *to* `first.last@ad.arisecenla.com` is internal only
   (Macs and phones on the LAN or Tailscale); the outside world reaches people
   at their personal address, which is where the forward lands.
 - **Dovecot IMAP on the LAN and Tailscale only** (ufw: 993 from the LAN

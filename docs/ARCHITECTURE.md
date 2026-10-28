@@ -17,7 +17,7 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 1. **A directory, like Active Directory.** A Samba Active Directory Domain
    Controller. Real AD: Kerberos, LDAP, DNS, group policy. Macs bind to it with
    Apple's own Directory Utility; the Synology joins it too. One login
-   everywhere. Realm `AD.ARISECENLA.CHURCH`, NetBIOS `ARISE`.
+   everywhere. Realm `AD.ARISECENLA.COM`, NetBIOS `ARISE`.
    (Never `.local`: macOS Bonjour owns that suffix and binding breaks.)
 2. **Files and user profiles on the server.** Every domain user gets a home
    share (`\\arise-server\homes\<user>`, or on the Synology once it is joined).
@@ -51,7 +51,7 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | Web service | `arise-web.service`, port **4147** (the channel handle, @arisechurch4147) |
 | Hostname | `arise-server` in the code, the units, the Caddyfile and these docs today |
 | Nodes (decided Oct 28, round 4, 110; not yet in the code) | the boxes are **`arise-pineville`** (the church's server, the strongest PC), **`arise-home`** (Bradly's full install at his house, the control node and replica) and later **`arise-alexandria`**. The hostname becomes a per-node value when the node work lands (docs/NODES.md); until then `arise-server` stays the name the installer sets |
-| AD realm / NetBIOS | `AD.ARISECENLA.CHURCH` / `ARISE` |
+| AD realm / NetBIOS | `AD.ARISECENLA.COM` / `ARISE` |
 | Install root (code) | `/opt/arise` |
 | Config | `/etc/arise/arise.toml`, `/etc/arise/backups.yaml` |
 | Secrets | `/etc/arise/secrets/` (restic password, DSM credentials, `vapid.json`, `apps/<name>.env`, `totp/<user>.json`, `rescue-password`, `wayvnc`, `discord.toml` when set), mode 0600; `/etc/arise/SAFE-CARD.txt` (the arise-rescue password and the disk passphrase line, for the safe, never the door) |
@@ -61,7 +61,7 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | Synology mount | `/mnt/synology` (SMB or NFS), subfolders `arise-backups/`, `homes/` |
 | Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-trash.timer` 04:30 (the 30-day sweep) · `arise-notify.timer` 07:00 (off: no daily note) · `arise-devices.timer` hourly network scan · `arise-idle-apps.timer` every 15 min (desktop programs idle an hour are stopped) · `arise-drill.timer` monthly · `arise-update.timer` Saturday 03:30 (only what Software Update queued; a snapshot first) · `arise-clamscan.timer` Sunday 23:30 · `arise-monitor-off.timer` 23:00 / `arise-monitor-on.timer` 06:00 (the closet panel, with `--kiosk`) · `arise-wayvnc.service` (Screen Sharing of the panel). Nothing runs during a service |
 | VPN | Tailscale (100.64.0.0/10) or WireGuard `wg0` on UDP 51820, tunnel `10.47.0.0/24` |
-| Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.church` behind Caddy) |
+| Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.com` behind Caddy) |
 | HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile`; on by default since v0.8 (`--no-caddy` to skip); the root certificate is served at `/ca.crt` and `enroll-mac.sh` / `bind-mac.sh --dns` trust it on each Mac |
 | Closet monitor | `arise-kiosk.service` on tty1: `cage` + Epiphany (app mode) showing `http://127.0.0.1:4147/?kiosk=1` as user `arise-kiosk` (uid 1501); or `arise-console.service` (`arisetui --kiosk`) for a text screen. They conflict; one at a time |
 | Logs | `journalctl -u arise-*`, plus `/var/log/arise/` |
@@ -117,7 +117,7 @@ max_days = 365                      # the longest life a link may be given
 
 [directory]
 enabled = true
-realm = "AD.ARISECENLA.CHURCH"
+realm = "AD.ARISECENLA.COM"
 netbios = "ARISE"
 dns_forwarder = "1.1.1.1"
 homes_path = "/srv/arise/homes"      # or /mnt/synology/homes once the NAS is joined
@@ -139,7 +139,7 @@ jobs_file = "/etc/arise/backups.yaml"
 
 [nas]
 enabled = true
-host = "synology.ad.arisecenla.church"
+host = "synology.ad.arisecenla.com"
 mount = "/mnt/synology"
 protocol = "smb"                    # smb | nfs
 share = "arise"

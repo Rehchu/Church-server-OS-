@@ -141,8 +141,8 @@ class Directory(unittest.TestCase):
         self.assertEqual([c for c in rec.calls if "-rf" in c or "bad name" in c], [])
 
     def test_user_show_parses_disabled_last_logon_and_groups(self):
-        text = ("dn: CN=Jane Doe,CN=Users,DC=ad,DC=arisecenla,DC=church\ndisplayName: Jane Doe\nuserAccountControl: 514\n"
-                "lastLogon: 134064288000000000\nmemberOf: CN=Staff,CN=Users,DC=ad,DC=arisecenla,DC=church\n")
+        text = ("dn: CN=Jane Doe,CN=Users,DC=ad,DC=arisecenla,DC=com\ndisplayName: Jane Doe\nuserAccountControl: 514\n"
+                "lastLogon: 134064288000000000\nmemberOf: CN=Staff,CN=Users,DC=ad,DC=arisecenla,DC=com\n")
         d = directory.parse_user_show("jane.doe", text)
         self.assertFalse(d["enabled"]); self.assertEqual(d["groups"], ["Staff"]); self.assertEqual(d["display"], "Jane Doe")
         self.assertTrue(d["last_logon"].startswith("2025-"))   # a FILETIME, turned into a date
@@ -250,8 +250,8 @@ class AppsNasPeers(unittest.TestCase):
             self.assertEqual(rec.calls, [base + ["stop"], base + ["up", "-d"]])
 
     def test_nas_mount_command(self):
-        self.assertEqual(nas.mount_cmd("smb", "synology.ad.arisecenla.church", "arise", "/mnt/synology", "/etc/arise/secrets/synology.cred"),
-                         ["mount", "-t", "cifs", "//synology.ad.arisecenla.church/arise", "/mnt/synology", "-o",
+        self.assertEqual(nas.mount_cmd("smb", "synology.ad.arisecenla.com", "arise", "/mnt/synology", "/etc/arise/secrets/synology.cred"),
+                         ["mount", "-t", "cifs", "//synology.ad.arisecenla.com/arise", "/mnt/synology", "-o",
                           "credentials=/etc/arise/secrets/synology.cred,vers=3.0,iocharset=utf8,uid=0,gid=0,file_mode=0660,dir_mode=0770,_netdev"])
         self.assertEqual(nas.mount_cmd("nfs", "nas", "arise", "/mnt/synology", "x")[:4], ["mount", "-t", "nfs", "nas:/volume1/arise"])
 

@@ -11,7 +11,7 @@
 #    2. hostname arise-server, timezone America/Chicago
 #    3. copies this repo to /opt/arise, builds the Python venv
 #    4. /etc/arise config, /var/lib/arise state, /srv/arise data folders
-#    5. provisions the Samba Active Directory domain AD.ARISECENLA.CHURCH
+#    5. provisions the Samba Active Directory domain AD.ARISECENLA.COM
 #    6. installs the systemd units and timers, starts the dashboard on :4147
 #    7. prints what still needs a human (token.json, restic password, NAS)
 #
@@ -62,7 +62,7 @@ set -Eeuo pipefail
 # ----------------------------------------------------------------------------
 HOSTNAME_WANTED="arise-server"
 TIMEZONE="America/Chicago"
-REALM="AD.ARISECENLA.CHURCH"
+REALM="AD.ARISECENLA.COM"
 NETBIOS="ARISE"
 DNS_FORWARDER="1.1.1.1"
 INSTALL_ROOT="/opt/arise"
@@ -1134,7 +1134,7 @@ if [ "$WITH_TAILSCALE" = 1 ]; then
   fi
   warn "Tailscale needs a browser login, so this is yours to run:"
   warn "    sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET"
-  warn "then approve the subnet route in the admin console and set split DNS for ad.arisecenla.church (docs/REMOTE-ACCESS.md)."
+  warn "then approve the subnet route in the admin console and set split DNS for ad.arisecenla.com (docs/REMOTE-ACCESS.md)."
 fi
 
 # --- WireGuard (optional) -----------------------------------------------------
@@ -1242,8 +1242,8 @@ if [ "$WITH_CADDY" = 1 ]; then
   else
     run systemctl enable caddy || warn "caddy not enabled (not installed?)"
   fi
-  note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
-  note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
+  note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.com with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
+  note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
 fi
 
 # ----------------------------------------------------------------------------

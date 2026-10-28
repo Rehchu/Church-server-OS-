@@ -113,9 +113,9 @@ Then:
    from any device on the tailnet, anywhere.
 5. **Split DNS for the realm** (DNS → Nameservers → Add nameserver → Custom,
    nameserver = the server's LAN IP, *Restrict to domain*
-   `ad.arisecenla.church`). This is what makes a **domain-bound Mac in
+   `ad.arisecenla.com`). This is what makes a **domain-bound Mac in
    Alexandria** find the domain controller: Kerberos and LDAP look up
-   `ad.arisecenla.church` and get the real DC, through the tunnel.
+   `ad.arisecenla.com` and get the real DC, through the tunnel.
 6. `--ssh` turns on **Tailscale SSH**: `ssh arise-server` from any tailnet
    device, authenticated by your Tailscale login, with the sshd rules above
    still applying for plain SSH. Useful on a phone.
@@ -179,7 +179,7 @@ Then you:
 
    Paste it into the WireGuard app (Mac App Store, Windows, iOS, Android) as a
    new tunnel. `DNS = 10.47.0.1` points the device at the DC's DNS while the
-   tunnel is up, so `ad.arisecenla.church` resolves. The server keeps the
+   tunnel is up, so `ad.arisecenla.com` resolves. The server keeps the
    peer's public key in `/etc/wireguard/peers/<name>.json`; it never sees the
    private key again, so if the config is lost, delete the peer and make a
    new one.
@@ -215,7 +215,7 @@ Guacamole is a remote desktop gateway that runs in a browser tab: no client
 to install, and it reaches **any** church computer through the server, not
 just the server itself. Deploy it with the `guacamole` template (Dashboard →
 Apps → Guacamole → Install, or `arisectl app deploy guacamole`), then open
-`http://arise-server:8084/guacamole` (or `https://remote.ad.arisecenla.church`
+`http://arise-server:8084/guacamole` (or `https://remote.ad.arisecenla.com`
 once Caddy is on).
 
 First login is `guacadmin` / `guacadmin`. **Change it before you do anything
@@ -239,14 +239,14 @@ Add these lines to `guacamole.properties` (the template mounts it at
 `/srv/arise/apps/guacamole/home/guacamole.properties`) and restart the app:
 
 ```
-ldap-hostname: arise-server.ad.arisecenla.church
+ldap-hostname: arise-server.ad.arisecenla.com
 ldap-port: 389
 ldap-encryption-method: none
-ldap-user-base-dn: CN=Users,DC=ad,DC=arisecenla,DC=church
+ldap-user-base-dn: CN=Users,DC=ad,DC=arisecenla,DC=com
 ldap-username-attribute: sAMAccountName
-ldap-search-bind-dn: CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=church
+ldap-search-bind-dn: CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=com
 ldap-search-bind-password: <that account's password>
-ldap-group-base-dn: CN=Users,DC=ad,DC=arisecenla,DC=church
+ldap-group-base-dn: CN=Users,DC=ad,DC=arisecenla,DC=com
 ldap-member-attribute: member
 ```
 
@@ -291,9 +291,9 @@ v0.8** (round 3, 29; `--no-caddy` to skip, `--with-caddy` still accepted):
 
 | Name | To |
 |---|---|
-| `arise-server.ad.arisecenla.church` (and plain `arise-server`) | the dashboard, :4147 |
-| `vault.ad.arisecenla.church` | Vaultwarden, :8083 |
-| `remote.ad.arisecenla.church` | Guacamole, :8084 |
+| `arise-server.ad.arisecenla.com` (and plain `arise-server`) | the dashboard, :4147 |
+| `vault.ad.arisecenla.com` | Vaultwarden, :8083 |
+| `remote.ad.arisecenla.com` | Guacamole, :8084 |
 
 `tls internal` means Caddy makes its own certificate authority on the server
 and signs a certificate for each name. Browsers do not know that CA. Every
@@ -317,8 +317,8 @@ The names need DNS records in the domain's DNS so every device resolves
 them to the server:
 
 ```bash
-sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault  A 192.168.1.10
-sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church remote A 192.168.1.10
+sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com vault  A 192.168.1.10
+sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com remote A 192.168.1.10
 ```
 
 (replace the address with the server's). Over Tailscale the split-DNS rule
@@ -330,10 +330,10 @@ from (b) sends those lookups to the same DNS, so they work off-site too.
 
 1. `ssh-copy-id` from your Mac. Confirm `ssh bradly@arise-server` needs no password.
 2. Run `sudo bash installer/install.sh --with-tailscale --ssh-key-file ~/.ssh/id_ed25519.pub` (Caddy is on by default; `--with-wireguard` if chosen). Re-running it is safe.
-3. `sudo tailscale up --ssh --advertise-routes=192.168.1.0/24`, sign in, approve the route, set MagicDNS and the split DNS for `ad.arisecenla.church`.
+3. `sudo tailscale up --ssh --advertise-routes=192.168.1.0/24`, sign in, approve the route, set MagicDNS and the split DNS for `ad.arisecenla.com`.
 4. Install Tailscale on your laptop and phone. From your phone's hotspot, open `http://arise-server:4147`. If it opens, the closet door can close.
 5. Deploy Guacamole, change `guacadmin`, add the media Mac (VNC) and the lobby PC (RDP). Open each one from the laptop on the hotspot.
-6. Trust the Caddy CA on your Mac; open `https://arise-server.ad.arisecenla.church`.
+6. Trust the Caddy CA on your Mac; open `https://arise-server.ad.arisecenla.com`.
 7. Turn off sleep on every computer you intend to reach.
 8. `sudo arisectl doctor`, then the Remote app in the dashboard: SSH key-only, VPN up, Guacamole running.
 

@@ -73,7 +73,7 @@ The DNS line is the one people feel. Two ways round it, pick one the week
 before: give the Pineville staff router's DHCP a second DNS entry (the
 router itself) for the day, or have the Pineville Macs on Tailscale (or the
 route box in place) **before** the move with Tailscale's split DNS carrying
-`ad.arisecenla.church`, so lookups for the realm fail cleanly and everything
+`ad.arisecenla.com`, so lookups for the realm fail cleanly and everything
 else resolves through the router.
 
 **At the Hub:**
@@ -90,15 +90,15 @@ else resolves through the router.
    `192.168.30.10/24`, gateway `192.168.30.1`, DNS `127.0.0.1`; `sudo
    netplan apply`. Or if the Hub router has a DHCP reservation for the
    server's MAC, keep netplan on DHCP and just confirm the address.
-4. `/etc/hosts`: the line for `arise-server.ad.arisecenla.church
+4. `/etc/hosts`: the line for `arise-server.ad.arisecenla.com
    arise-server` carries the new address.
 5. The domain's own DNS records: Samba registers the DC's address at start,
    but check and fix by hand:
 
    ```bash
    sudo samba_dnsupdate --verbose
-   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.church arise-server A
-   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.church @ ALL | grep -i 192.168
+   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.com arise-server A
+   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.com @ ALL | grep -i 192.168
    ```
 
    Any record still showing `192.168.10.10` (or the old `.1.x`): delete and

@@ -7,7 +7,7 @@
 #                        [--no-migrate] [--dry-run]
 #
 # What it does, in order, and says so as it goes:
-#   1. Binds the Mac to AD.ARISECENLA.CHURCH (mac/bind-mac.sh; skipped if bound).
+#   1. Binds the Mac to AD.ARISECENLA.COM (mac/bind-mac.sh; skipped if bound).
 #   2. Lists the local accounts on this Mac (real people only: uid >= 501,
 #      a home folder under /Users, not "admin"/"guest"/anything in --skip).
 #   3. For each one, creates the same-named user in the directory on the
@@ -99,7 +99,7 @@ CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
 if [ $DRY -eq 1 ]; then say "would fetch $DASH/ca.crt and trust it in the System keychain"
 elif security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then say "already trusted"; REPORT+=("certificate: already trusted")
 elif curl -fsS -m 8 -o "$CA_TMP" "$DASH/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
-  if security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then say "trusted: this Mac shows the padlock on https://${SERVER}.ad.arisecenla.church"; REPORT+=("certificate: trusted")
+  if security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then say "trusted: this Mac shows the padlock on https://${SERVER}.ad.arisecenla.com"; REPORT+=("certificate: trusted")
   else say "could not add it (security add-trusted-cert failed)"; TODO+=("trust the church certificate by hand: docs/SECURITY.md"); fi
 else say "no certificate at $DASH/ca.crt yet (Caddy not running on the server); skipped"; TODO+=("run enroll-mac.sh again once Caddy runs, for the padlock"); fi
 rm -f "$CA_TMP"

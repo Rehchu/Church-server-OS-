@@ -57,7 +57,7 @@ apps:
     image: ghcr.io/gethomepage/homepage:v0.9.13
     ports: ["3001:3000"]
     volumes: ["/srv/arise/apps/homepage/config:/app/config"]
-    env: {HOMEPAGE_ALLOWED_HOSTS: "arise-server:3001,arise-server.ad.arisecenla.church:3001"}
+    env: {HOMEPAGE_ALLOWED_HOSTS: "arise-server:3001,arise-server.ad.arisecenla.com:3001"}
     ram_mb: 120
     limits: {mem_mb: 384, cpus: 0.5}
     homepage: https://gethomepage.dev

@@ -61,7 +61,7 @@ services = [
 provider = "resend"
 api_key_file = "/etc/arise/secrets/resend-api-key"
 from_name = "Arise Church"
-from_email = ""           # e.g. "news@arisecenla.church" once the domain is verified in Resend
+from_email = ""           # e.g. "news@mail.arisecenla.com" once the domain is verified in Resend
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
 
@@ -80,7 +80,7 @@ max_zip_bytes = 2147483648   # folders bigger than this are not zipped
 [directory]
 # The Samba Active Directory Domain Controller. Provisioned by install.sh.
 enabled = true
-realm = "AD.ARISECENLA.CHURCH"
+realm = "AD.ARISECENLA.COM"
 netbios = "ARISE"
 # Where the DC sends lookups it does not own (everything that is not the realm).
 dns_forwarder = "1.1.1.1"
@@ -120,13 +120,13 @@ jobs_file = "/etc/arise/backups.yaml"
 # The 4-bay Synology. Model and DSM version: not known yet — fill in docs/SYNOLOGY.md
 # once it is on the bench.
 enabled = true
-host = "synology.ad.arisecenla.church"
+host = "synology.ad.arisecenla.com"
 mount = "/mnt/synology"
 # "smb" (works once the NAS is in the domain) or "nfs" (simplest if it is not).
 protocol = "smb"
 share = "arise"
 # Optional: the DSM web API for health, disk and Hyper Backup status in the dashboard.
-# Leave empty to skip. e.g. "https://synology.ad.arisecenla.church:5001"
+# Leave empty to skip. e.g. "https://synology.ad.arisecenla.com:5001"
 dsm_url = ""
 dsm_credentials_file = "/etc/arise/secrets/dsm.json"
 
