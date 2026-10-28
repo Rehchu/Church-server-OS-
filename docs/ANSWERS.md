@@ -227,6 +227,80 @@ and where ariseOS stands on each.
 | 39 | A Font library? | Yes | `Media/Fonts` on the share; every enrolled Mac installs what is there on the hourly sync |
 | 40 | Resource caps on the apps? | Yes, cap every app | memory and CPU limits from each template; the domain and the dashboard always have room |
 
+## Round 4 (Oct 28, later): one hundred more, the whole OS
+
+Bradly: "Ask another 100 questions covering the entirety of the OS to make
+it the best thing ever! This is going to be the final batch until I get the
+info from the equipment." He also pasted a list of free desktop programs
+(LibreOffice, OnlyOffice, Thunderbird, GIMP, Krita, Inkscape, Kdenlive,
+Shotcut, VLC, Dolphin, Ark, Flameshot, GParted, Heroic, Wine, Okular, Samba,
+Nextcloud, Postfix+Dovecot, CUPS, PostgreSQL, Nginx, Docker, restic, Netdata)
+with "If you can use any of these as well, use them! If not then they can be
+in the App Store!" and "Any and all apps installed should match our theme,
+colors, etc! Not the native app stylings." The codename is his: Exodus.
+
+Desktop programs cannot run inside a browser desktop as themselves; they run
+on the server in a container and open in a browser window (the way Kasm and
+linuxserver.io do it), saving to the shares. That is what "in the Store"
+means below.
+
+| # | Question, in a few words | Answer | What it decides |
+|---|---|---|---|
+| 1 | The desktop programs (GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity) in the browser? | In the Store, started when needed | installed and ready, stopped until Open, stop themselves after an hour idle; the memory cost shown |
+| 2 | Documents in the browser? | OnlyOffice Docs, opened from Finder | click a .docx in the portal, edit in place, saved to the share |
+| 3 | An internal mail server? | Yes, an internal-only mail server | Postfix + Dovecot on the box; see 5 to 7 |
+| 4 | The theme rule for apps? | Set everything each app allows; frame the rest | house red, ink, the flame, Anton and Oswald wherever an app takes them; an app that takes nothing keeps its look inside our window |
+| 5 | Who gets a mailbox? | Staff and departments, first.last@ad.arisecenla.church | one box per staff or department account |
+| 6 | How is it read? | "They should get it through their personal email, apple mail, or whatever mail service they use on their phone." | each account's mail is forwarded out through Resend's relay to the person's own address; nothing inbound from the internet |
+| 7 | Where does the personal address come from, and replies? | a field on their Directory account; replies go back to the sender's personal address (Reply-To) | admins type it once; the person can change it |
+| 8 | Proclaim under Wine on the server? | Try it as an experiment, not relied on | a Store entry marked experimental, off by default |
+| 9 | Games? | Heroic + a few FOSS games on the lobby TV | a "Game night" Store entry, off by default |
+| 10 | The lobby TV? | Keep Proclaim; the server's sign page is a backup | nothing changes on the TV |
+| 11 | Announcements? | Staff, in the Calendar app | an event marked "announce" shows on the sign and in the week widget |
+| 12 | The Dock? | Auto-hide, slides up from the bottom | mouse at the bottom edge brings it back |
+| 13 | The Dock's default set? | Finder, Overview, Sunday, Sermons, Calendar, Mail, Store, Settings, Terminal | each person pins or unpins their own |
+| 14 | The sign-in screen? | A list of faces to click, like a Mac | see 16 |
+| 15 | A greeting after sign-in? | "Good morning, Bradly" with the day's verse reference | a three-second toast |
+| 16 | Whose faces, and on the monitor? | Each person uploads their own; admins and staff listed on the monitor | members type their name on their own devices; no photo = initials on red |
+| 17 | Clock and dates? | 12-hour, Sunday first, US dates, °F | |
+| 18 | The screensaver? | Clock, next service, the verse, the channel's thumbnails slowly | plus the weather and the week's announcements |
+| 19 | The lock and sign-in line? | "Arise Church · Pineville" and the next service | |
+| 20 | Folder layout? | "Each user has a folder, admin access them all! Users can't access other users folders. So documents would all merge into one document folder for admins, photos, etc." | a personal folder each; admins get merged views (All Documents, All Photos, …) with the owner labelled; members never see another person's folder |
+| 21 | Home quota? | "Depends on the synology storage. I still need to get drives for it." | no quota until the Synology's drives are known (see 30) |
+| 22 | Biggest upload? | 10 GB, resumable | chunked uploads that continue after a drop |
+| 23 | Share link expiry? | Never, until removed | changeable per link |
+| 24 | Starting folders in a home? | Documents, Photos, Videos, Music, Downloads | created at first sign-in; these are what the admin's merged views merge |
+| 25 | A shared space? | Yes: one Church folder for all, plus a folder per department | |
+| 26 | Windows PCs? | "Yes add windows pc capabilities just in case we get them at a location" | Windows joins the domain the same way; the shares as network drives; a join script and doc |
+| 27 | Downloading recordings? | Admins and Media; everyone can stream in the browser | |
+| 28 | An off-site backup copy? | Not now | |
+| 29 | Back up the recordings? | "The synology isn't even setup yet. It needs 4 new hard drives. Will get the model of it for you Friday so you can recommend a setup for user data, storage, etc." | a Synology layout recommendation waits for the model on Friday |
+| 30 | Where the restic key lives? | The closet card only | |
+| 31 | A USB drive plugged into the server? | "It auto syncs everything to the appropriate folder or location" → Into the folder of whoever is signed in on the monitor | a plugged-in drive is imported, sorted by type (Photos, Videos, Documents, Audio), virus-scanned, into the signed-in person's home; the stick is never changed; a push when done |
+| 32 | Phone photos without cables? | Through the portal's upload only | Immich stays the library; the phone uploads through the portal |
+| 33 | SSH? | Keys only, passwords off; arise-rescue is the exception at the console | |
+| 34 | Keep Cockpit? | Keep it, admins only, for the rare deep thing | linked from Settings |
+| 35 | Disk-space warning? | 75% | a push at 75% |
+| 36 | Temperature alerts? | Just the morning report line | |
+| 37 | A weekly summary? | Yes, Monday morning, in the dashboard and a push | |
+| 38 | Push at night? | Everything, any hour | no quiet hours |
+| 39 | Tailscale access? | Admins now; staff when they ask | |
+| 40 | A screen per campus after the move? | Yes, any old PC or a Raspberry Pi per campus, same desktop, a campus badge | a kiosk image that boots into the dashboard over Tailscale |
+| 41 | Wake-on-LAN for the Macs? | No | |
+| 42 | Remote screen of a church Mac? | "I never miss a service" | nothing built |
+| 43 | May Claude fix things itself? | Fix small things itself, tell me after | restart a stuck service, re-run a failed backup, clear a full log; bigger waits for him |
+| 44 | Who can talk to Claude on the box? | "Claude is available to me only" | Bradly only; members get the help box |
+| 45 | Who edits Claude's notes (CLAUDE.md on the box)? | Claude edits freely | |
+| 46 | "Ask Claude about this" on red items? | Yes, everywhere something is red | opens Claude with the facts pasted in; Bradly only (44) |
+| 47 | What buzzes the phone? | Everything: failures (backup, stream, domain, disk, UPS), Sunday all-green and the Monday weekly, security (new device, arise-rescue used, a virus found), housekeeping (updates waiting, an import finished, a quota warning) | |
+| 48 | The phone home screen? | Needs-you list, next service, backups, stream, the checklist | |
+| 49 | A member's first screen? | Their files, the Sunday list, this week's calendar, the verse | |
+| 50 | Members see who else has an account? | No; only staff and admins see the list | |
+| 51 | Default Bible translation? | KJV | public domain, offline |
+| 52 | A Songs app for the CCLI report? | Yes | every song per service from the automator's credits; a count per song; an export in CCLI's shape; numbers only from the song bank |
+| 53 | Where ariseOS updates come from? | GitHub releases, checked daily, installed on his click in the window | What's New shown before the click |
+| 54 | Password again for dangerous clicks? | Yes, password again, remembered for five minutes | on top of typing the name |
+
 ## Still needed
 
 - Sunday: questions 1 to 7.
