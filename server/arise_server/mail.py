@@ -262,6 +262,19 @@ def send_test(to: str, subject: str, body_md: str) -> dict:
     return _call("POST", "/emails", body)
 
 
+def send_notice(to: str, subject: str, text: str) -> dict:
+    """One plain notice to one person (round 5: "a file was shared with you"). Never a newsletter."""
+    m = cfg_mail()
+    if not EMAIL_RE.match(to or ""):
+        return {"ok": False, "err": "that is not an email address"}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": f"(sample) would email {to}"}
+    if not m["from_email"]:
+        return {"ok": False, "err": "no [mail] from_email yet; the notice went by push only"}
+    body = {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text}
+    return _call("POST", "/emails", body)
+
+
 def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:
     m = cfg_mail()
     if not (subject or "").strip():

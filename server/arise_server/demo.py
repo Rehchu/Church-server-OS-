@@ -26,18 +26,23 @@ USERS = [
     {"name": "guest-speaker", "display": "Guest Speaker (loaner)", "groups": ["Volunteers"], "enabled": False, "last_logon": None, "home": r"\\arise-server\homes\guest-speaker"},
     {"name": "childrens.department", "display": "Children's Department", "groups": ["Childrens-Department"], "enabled": True, "last_logon": _ago(days=3), "home": r"\\arise-server\homes\childrens.department"},
     {"name": "inedge", "display": "Inedge", "groups": ["Inedge"], "enabled": True, "last_logon": _ago(days=9), "home": r"\\arise-server\homes\inedge"},
+    # Round 5: the two pastors (the Pastors folder is theirs alone).
+    {"name": "bryant.sanders", "display": "Apostle Bryant Sanders", "groups": ["Domain Admins", "Staff", "Leadership", "Pastors"], "enabled": True, "last_logon": _ago(days=1, hours=4), "home": r"\\arise-server\homes\bryant.sanders"},
+    {"name": "vanessa.sanders", "display": "Pastor Vanessa Sanders", "groups": ["Domain Admins", "Staff", "Leadership", "Pastors"], "enabled": True, "last_logon": _ago(days=2), "home": r"\\arise-server\homes\vanessa.sanders"},
 ]
 
 GROUPS = [
-    {"name": "Domain Admins", "members": ["bradly"], "description": "Server administrators"},
-    {"name": "Staff", "members": ["bradly", "office"], "description": "Church office staff"},
+    {"name": "Domain Admins", "members": ["bradly", "bryant.sanders", "vanessa.sanders"], "description": "Server administrators"},
+    {"name": "Staff", "members": ["bradly", "office", "bryant.sanders", "vanessa.sanders"], "description": "Church office staff"},
     {"name": "Media", "members": ["bradly", "media-mac"], "description": "Livestream, YouTube, projector"},
-    {"name": "Leadership", "members": [], "description": "Pastoral leadership"},
+    {"name": "Leadership", "members": ["bryant.sanders", "vanessa.sanders"], "description": "Pastoral leadership"},
     {"name": "Volunteers", "members": ["guest-speaker"], "description": "Volunteer logins"},
     {"name": "Kids-Check-in", "members": ["kids-checkin"], "description": "Children's ministry check-in station"},
     {"name": "Childrens-Department", "members": ["childrens.department"], "description": "Children's Department (department login)"},
     {"name": "Inedge", "members": ["inedge"], "description": "Inedge (department login)"},
     {"name": "Worship", "members": [], "description": "Worship and music"},
+    {"name": "Pastors", "members": ["bryant.sanders", "vanessa.sanders"], "description": "The Pastors folder: Apostle Bryant and Pastor Vanessa only"},
+    {"name": "Alexandria", "members": [], "description": "Arise Church Alexandria (campus)"},
 ]
 
 COMPUTERS = [
@@ -56,15 +61,19 @@ DIRECTORY_STATUS = {
 SHARES = [
     {"name": "homes", "path": "/srv/arise/homes", "comment": "One folder per user, Mac-friendly", "writable": True, "browseable": False, "used": 48_700_000_000, "mac": True, "valid_users": ["%S"], "write_list": []},
     {"name": "shares", "path": "/srv/arise/shares", "comment": "Everyone in Domain Users", "writable": True, "browseable": True, "used": 212_000_000_000, "mac": True, "valid_users": [], "write_list": []},
-    {"name": "media", "path": "/mnt/synology/media", "comment": "On the Synology - service recordings, graphics", "writable": True, "browseable": True, "used": 1_380_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff"], "write_list": ["@Media"]},
+    {"name": "media", "path": "/mnt/synology/media", "comment": "On the Synology - service recordings, graphics", "writable": False, "browseable": True, "used": 1_380_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff", "@Domain Admins", "media", "media-mac"], "write_list": ["@Staff", "@Domain Admins", "media", "media-mac"]},
     {"name": "staff", "path": "/srv/arise/shares/staff", "comment": "Staff: pastors and paid staff", "writable": True, "browseable": True, "used": 31_000_000_000, "mac": True, "valid_users": ["@Staff", "@Domain Admins"], "write_list": []},
     {"name": "leadership", "path": "/srv/arise/shares/leadership", "comment": "Leadership only", "writable": True, "browseable": True, "used": 4_200_000_000, "mac": True, "valid_users": ["@Leadership", "@Domain Admins"], "write_list": []},
     {"name": "graphics", "path": "/srv/arise/shares/graphics", "comment": "Proclaim backgrounds, loops, lower thirds (synced to the media Mac)", "writable": True, "browseable": True, "used": 58_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff", "@Domain Admins"], "write_list": ["@Media", "@Domain Admins"]},
-    {"name": "kids", "path": "/srv/arise/shares/kids", "comment": "Kids ministry", "writable": True, "browseable": True, "used": 2_900_000_000, "mac": True, "valid_users": ["@Kids", "@Childrens-Department", "@Domain Admins"], "write_list": []},
-    {"name": "childrens-department", "path": "/srv/arise/shares/childrens-department", "comment": "Children's Department", "writable": True, "browseable": True, "used": 1_100_000_000, "mac": True, "valid_users": ["@Childrens-Department", "@Domain Admins"], "write_list": []},
-    {"name": "inedge", "path": "/srv/arise/shares/inedge", "comment": "Inedge", "writable": True, "browseable": True, "used": 640_000_000, "mac": True, "valid_users": ["@Inedge", "@Domain Admins"], "write_list": []},
-    {"name": "worship", "path": "/srv/arise/shares/worship", "comment": "Worship and music: charts, setlists, tracks", "writable": True, "browseable": True, "used": 12_000_000_000, "mac": True, "valid_users": ["@Worship", "@Media", "@Domain Admins"], "write_list": []},
+    {"name": "kids", "path": "/srv/arise/shares/kids", "comment": "Kids ministry", "writable": False, "browseable": True, "used": 2_900_000_000, "mac": True, "valid_users": ["@Kids", "@Staff", "@Domain Admins", "kids"], "write_list": ["@Staff", "@Domain Admins", "kids"]},
+    {"name": "childrens-department", "path": "/srv/arise/shares/childrens-department", "comment": "Children's Department", "writable": False, "browseable": True, "used": 1_100_000_000, "mac": True, "valid_users": ["@Childrens-Department", "@Staff", "@Domain Admins", "childrens.department"], "write_list": ["@Staff", "@Domain Admins", "childrens.department"]},
+    {"name": "inedge", "path": "/srv/arise/shares/inedge", "comment": "Inedge", "writable": False, "browseable": True, "used": 640_000_000, "mac": True, "valid_users": ["@Inedge", "@Staff", "@Domain Admins", "inedge"], "write_list": ["@Staff", "@Domain Admins", "inedge"]},
+    {"name": "worship", "path": "/srv/arise/shares/worship", "comment": "Worship and music: charts, setlists, tracks", "writable": False, "browseable": True, "used": 12_000_000_000, "mac": True, "valid_users": ["@Worship", "@Staff", "@Domain Admins", "worship"], "write_list": ["@Staff", "@Domain Admins", "worship"]},
     {"name": "recordings", "path": "/mnt/synology/arise/recordings", "comment": "Sunday recordings (on the Synology; not in the restic backup)", "writable": True, "browseable": True, "used": 1_240_000_000_000, "mac": True, "valid_users": ["@Media", "@Domain Admins"], "write_list": []},
+    {"name": "church", "path": "/srv/arise/shares/church", "comment": "The Church folder: everyone reads and writes", "writable": True, "browseable": True, "used": 3_400_000_000, "mac": True, "valid_users": ["@Domain Users"], "write_list": []},
+    {"name": "alexandria", "path": "/srv/arise/shares/alexandria", "comment": "Alexandria: staff and the campus write", "writable": False, "browseable": True, "used": 0, "mac": True, "valid_users": ["@Alexandria", "@Staff", "@Domain Admins", "alexandria"], "write_list": ["@Staff", "@Domain Admins", "alexandria"]},
+    {"name": "pastors", "path": "/srv/arise/pastors", "comment": "Pastors only", "writable": True, "browseable": False, "used": 900_000_000, "mac": True, "valid_users": ["bryant.sanders", "vanessa.sanders"], "write_list": []},
+    {"name": "shared", "path": "/srv/arise/shared/%U", "comment": "Shared with me", "writable": True, "browseable": True, "used": 0, "mac": True, "valid_users": ["%U"], "write_list": []},
     {"name": "sysvol", "path": "/var/lib/samba/sysvol", "comment": "Domain policies (system)", "writable": False, "browseable": False, "used": 2_100_000, "mac": False, "valid_users": ["@Domain Admins"], "write_list": []},
 ]
 

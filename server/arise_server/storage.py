@@ -64,6 +64,8 @@ def walk(roots: list[dict], time_cap: float = 120.0, top_n: int = 50, old_days: 
     the biggest files, the big-and-old files. Gives up politely at time_cap."""
     t0 = time.time()
     cutoff = time.time() - old_days * 86400
+    from . import sharing
+    private = os.path.normpath(sharing.pastors_path())
     sizes, biggest, old = [], [], []
     truncated = False
     for r in roots:
@@ -81,6 +83,8 @@ def walk(roots: list[dict], time_cap: float = 120.0, top_n: int = 50, old_days: 
                     continue
                 total += st.st_size
                 files += 1
+                if private and (fp == private or fp.startswith(private + os.sep)):
+                    continue   # round 5, row 18: the Pastors folder counts in the totals, its names never show
                 item = (st.st_size, fp, st.st_mtime)
                 if len(biggest) < top_n:
                     heapq.heappush(biggest, item)
@@ -107,7 +111,7 @@ def _roots() -> list[dict]:
     try:
         from . import shares
         for s in shares.list_shares()["shares"]:
-            if s.get("path") and s["name"] != "sysvol":
+            if s.get("path") and s["name"] != "sysvol" and "%" not in s["path"]:
                 out.append({"id": "share:" + s["name"], "name": s["name"], "path": s["path"], "kind": "share"})
     except Exception:  # noqa: BLE001
         pass

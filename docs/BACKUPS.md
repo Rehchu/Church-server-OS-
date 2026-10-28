@@ -165,6 +165,44 @@ and the result is a row in the history like any other.
 And the human half: **restore one real file every month** and open it.
 A backup that has never been restored is a guess.
 
+## Where tonight's backup goes (round 5, row 15)
+
+Until the Synology has its drives, the backup goes to **Arise-Home over
+Tailscale**. `[backups] targets = ["synology", "arise-home"]` is the order;
+the first one that is ready at 03:00 is used:
+
+| Target | Ready when | Repository |
+|---|---|---|
+| `synology` | `/mnt/synology` is mounted | `synology_repo`, or `restic_repo` when that is empty |
+| `arise-home` | `ssh` to it answers, non-interactively, over Tailscale | `arise_home_repo`, e.g. `sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville` |
+
+**Neither ready = the job fails red** with "no backup target is ready", in the
+history, on the Backups page and in `arisectl backup status`. It is never a
+quiet skip. The Backups page shows the live target, both rows and why a row
+is not ready. The same restic password opens both repositories.
+
+Setting up Arise-Home as the target (once, by Bradly):
+
+1. On Arise-Home: an account that can only do sftp
+   (`useradd -m -s /usr/sbin/nologin arise-backup`, and a `Match User
+   arise-backup` block at the end of `/etc/ssh/sshd_config` with
+   `ForceCommand internal-sftp`, `AllowTcpForwarding no`), and the folder
+   `/srv/arise/backups/restic-pineville` owned by it.
+2. On this server, as root: `ssh-keygen -t ed25519` (root's own key: the
+   backup runs as root), copy the `.pub` to that account's
+   `authorized_keys`, then `sudo ssh arise-backup@arise-home` once so the
+   host key is recorded (the check refuses unknown host keys).
+3. `arise_home_repo = "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville"`
+   in `/etc/arise/arise.toml`, restart arise-web, and
+   `sudo arisectl backup run` once: the first run initialises the repository.
+
+**The switch to the Synology** needs no change: once the Synology is mounted
+it is ready, it comes first in `targets`, and the next run goes there (a new
+repository is initialised there on the first run). The Arise-Home repository
+stays as it is and becomes the second copy below. To keep sending there too,
+that is a second job, not a setting; to stop, remove `arise-home` from
+`targets`.
+
 ## The second copy
 
 There is no off-site copy yet (round 4, 28: not now). The plan is

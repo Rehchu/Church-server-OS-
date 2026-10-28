@@ -58,6 +58,12 @@ nothing does: the recordings on the Synology are not in the restic backup.
 Members may restore into their own roots; a read-only share (graphics for
 Staff) says to ask the media team.
 
+**They reach 90 days** (round 5, row 14; `[storage] versions_days`): the
+modal lists the copies from the last 90 days only. restic itself still keeps
+its 30 daily, 12 weekly and 24 monthly snapshots; anything older than 90 days
+is Bradly's restore (`arisectl backup restore`, docs/BACKUPS.md). Set
+`versions_days = 0` to list every snapshot.
+
 Routes: `GET /api/files/versions?root&path`, `POST /api/files/versions/restore`
 (root, path, snapshot). `backups.versions_of`, `backups.restore_version`,
 `backups.restored_name`, `backups.job_for`, `backups.parse_find`.
@@ -154,6 +160,43 @@ because `start` finds the part and answers with how much it already has. The
 final rename happens only when every byte has arrived and the name is still
 free. Part files nobody has touched for three days are dropped by the daily
 Trash sweep. Smaller files use the plain upload as before.
+
+## The home quota (round 5, row 13)
+
+Every home gets **50 GB** (`[storage] home_quota_gb`). Finder's sidebar shows
+the line under Sharing ("38.9 GB of 50.0 GB", a bar, and *Nearly full* from
+90 %, `quota_warn_pct`). Storage lists every home against the quota. An
+upload or a new file that would pass 50 GB is refused with the reason, in the
+dashboard, before a byte is written.
+
+The dashboard's check covers the dashboard. **A Mac copying over SMB is held
+by the filesystem's own quota**, which has to be switched on once on the disk
+that holds the homes (ext4):
+
+```
+# 1. add usrquota to that filesystem's options in /etc/fstab, e.g.
+#    UUID=...  /srv/arise  ext4  defaults,usrquota  0  2
+sudo mount -o remount /srv/arise
+sudo quotacheck -cum /srv/arise      # builds aquota.user (a few minutes on a full disk)
+sudo quotaon -v /srv/arise
+sudo arisectl quota apply            # setquota for every home: soft = hard = 50 GB
+sudo arisectl quota                  # each home: used, of, percent
+```
+
+The installer runs `arisectl quota apply` by itself when quotas are already
+on, and says how to turn them on when they are not. Run `quota apply` again
+after adding people. Two things to know:
+- the filesystem quota counts **every file the person owns on that disk**,
+  their files in the Church and department folders included, not only the
+  home. The dashboard's line counts the home folder only.
+- with `homes_on = "synology"` the homes are on the Synology and its own
+  DSM quota does this job; `quota apply` has nothing to set on a network mount.
+
+## Shared with me (round 5, row 19)
+
+**Share with…** on a file or folder, the **Shared with me** section of the
+sidebar and **Shared by me** are described in docs/SHARES.md, with the rules
+for the Church, department and Pastors folders.
 
 ## What is not verified here
 

@@ -66,13 +66,14 @@ def create(root: str, rel: str, who: dict, days: int | None = None, note: str = 
     name = os.path.basename(rel) or rs[root]["name"]
     is_dir = False
     if cfg.demo:
+        from . import sharing
         key = files._demo_rel(root, rel, who)
-        hit = files.demo_find(key) if key and key != "/" else None
+        hit = files.demo_find(key) if key and key != "/" and not sharing.hidden_demo(key, who) else None
         if key and key != "/" and not hit:
             return {"ok": False, "err": "no such file"}
         is_dir = bool(hit[1]) if hit else True
     else:
-        target = files._resolve(rs[root]["path"], rel)
+        target = files._resolve(rs[root], rel, who, "share link")
         if not target or not os.path.exists(target):
             return {"ok": False, "err": "no such file"}
         is_dir = os.path.isdir(target)

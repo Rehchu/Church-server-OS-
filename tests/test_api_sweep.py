@@ -140,6 +140,15 @@ CALLS = {
     ("POST", "/api/files/mkdir"): ("/api/files/mkdir", {"root": "data", "path": "/homes/bradly/Documents", "name": "Sweep folder"}, None),
     ("GET", "/api/search"): ("/api/search", None, {"q": "setlist"}),
     ("GET", "/api/files/all"): ("/api/files/all", None, {"folder": "Documents"}),
+    # round 5: storage, sharing and privacy (rows 12-20, 36)
+    ("GET", "/api/files/shared"): ("/api/files/shared", None, None),
+    ("POST", "/api/files/share"): ("/api/files/share", {"root": "home", "path": "/Documents", "to": ["office"], "perm": "read"}, None),
+    ("DELETE", "/api/files/share/{sid}"): ("/api/files/share/nosuchshare", None, None),
+    ("GET", "/api/files/share/people"): ("/api/files/share/people", None, None),
+    ("GET", "/api/files/quota"): ("/api/files/quota", None, None),
+    ("GET", "/api/storage/quotas"): ("/api/storage/quotas", None, None),
+    ("GET", "/api/backups/targets"): ("/api/backups/targets", None, None),
+    ("POST", "/api/shares/folders"): ("/api/shares/folders", {"dry_run": True}, None),
     ("POST", "/api/files/upload/start"): ("/api/files/upload/start", {"root": "data", "path": "/homes/bradly/Downloads", "name": "sweep.bin", "size": 3, "fingerprint": "sweep|3"}, None),
     ("PUT", "/api/files/upload/chunk"): None,          # needs the token from start: covered by the Finder flow below
     ("GET", "/api/files/upload/status"): ("/api/files/upload/status", None, {"token": "nope"}),

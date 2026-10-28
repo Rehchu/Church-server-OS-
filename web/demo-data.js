@@ -22,17 +22,17 @@ window.ARISE_DEMO_DATA = {
 "directory_ok": true,
 "directory_demo": true,
 "counts": {
-"users": 7,
-"groups": 9,
+"users": 9,
+"groups": 11,
 "computers": 4,
-"shares": 12,
+"shares": 16,
 "apps": 10,
 "apps_running": 7,
 "backups": 5
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:35:36",
+"last_run": "2026-10-28T02:11:41",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:11:41"
 }
 ]
 },
@@ -141,8 +141,8 @@ window.ARISE_DEMO_DATA = {
 "kerberos_ok": true,
 "ldap_ok": true,
 "forest_level": "2008_R2",
-"users": 7,
-"groups": 9,
+"users": 9,
+"groups": 11,
 "computers": 4
 },
 "GET /directory/users": {
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T21:35:36",
+"last_logon": "2026-10-28T22:11:41",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T22:35:36",
+"last_logon": "2026-10-27T23:11:41",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T19:35:36",
+"last_logon": "2026-10-26T20:11:41",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T22:35:36",
+"last_logon": "2026-10-22T23:11:41",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T22:35:36",
+"last_logon": "2026-10-25T23:11:41",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,8 +217,34 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T22:35:36",
+"last_logon": "2026-10-19T23:11:41",
 "home": "\\\\arise-server\\homes\\inedge"
+},
+{
+"name": "bryant.sanders",
+"display": "Apostle Bryant Sanders",
+"groups": [
+"Domain Admins",
+"Staff",
+"Leadership",
+"Pastors"
+],
+"enabled": true,
+"last_logon": "2026-10-27T19:11:41",
+"home": "\\\\arise-server\\homes\\bryant.sanders"
+},
+{
+"name": "vanessa.sanders",
+"display": "Pastor Vanessa Sanders",
+"groups": [
+"Domain Admins",
+"Staff",
+"Leadership",
+"Pastors"
+],
+"enabled": true,
+"last_logon": "2026-10-26T23:11:41",
+"home": "\\\\arise-server\\homes\\vanessa.sanders"
 }
 ]
 },
@@ -228,7 +254,9 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "Domain Admins",
 "members": [
-"bradly"
+"bradly",
+"bryant.sanders",
+"vanessa.sanders"
 ],
 "description": "Server administrators"
 },
@@ -236,7 +264,9 @@ window.ARISE_DEMO_DATA = {
 "name": "Staff",
 "members": [
 "bradly",
-"office"
+"office",
+"bryant.sanders",
+"vanessa.sanders"
 ],
 "description": "Church office staff"
 },
@@ -250,7 +280,10 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "name": "Leadership",
-"members": [],
+"members": [
+"bryant.sanders",
+"vanessa.sanders"
+],
 "description": "Pastoral leadership"
 },
 {
@@ -285,6 +318,19 @@ window.ARISE_DEMO_DATA = {
 "name": "Worship",
 "members": [],
 "description": "Worship and music"
+},
+{
+"name": "Pastors",
+"members": [
+"bryant.sanders",
+"vanessa.sanders"
+],
+"description": "The Pastors folder: Apostle Bryant and Pastor Vanessa only"
+},
+{
+"name": "Alexandria",
+"members": [],
+"description": "Arise Church Alexandria (campus)"
 }
 ]
 },
@@ -295,28 +341,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T21:35:36",
+"last_seen": "2026-10-28T22:11:41",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T22:35:36",
+"last_seen": "2026-10-27T23:11:41",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T22:35:36",
+"last_seen": "2026-10-26T23:11:41",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T22:31:36",
+"last_seen": "2026-10-28T23:07:41",
 "ip": "192.168.1.20"
 }
 ]
@@ -354,16 +400,22 @@ window.ARISE_DEMO_DATA = {
 "name": "media",
 "path": "/mnt/synology/media",
 "comment": "On the Synology - service recordings, graphics",
-"writable": true,
+"writable": false,
 "browseable": true,
 "used": 1380000000000,
 "mac": true,
 "valid_users": [
 "@Media",
-"@Staff"
+"@Staff",
+"@Domain Admins",
+"media",
+"media-mac"
 ],
 "write_list": [
-"@Media"
+"@Staff",
+"@Domain Admins",
+"media",
+"media-mac"
 ],
 "used_h": "1.3 TB"
 },
@@ -420,62 +472,84 @@ window.ARISE_DEMO_DATA = {
 "name": "kids",
 "path": "/srv/arise/shares/kids",
 "comment": "Kids ministry",
-"writable": true,
+"writable": false,
 "browseable": true,
 "used": 2900000000,
 "mac": true,
 "valid_users": [
 "@Kids",
-"@Childrens-Department",
-"@Domain Admins"
+"@Staff",
+"@Domain Admins",
+"kids"
 ],
-"write_list": [],
+"write_list": [
+"@Staff",
+"@Domain Admins",
+"kids"
+],
 "used_h": "2.7 GB"
 },
 {
 "name": "childrens-department",
 "path": "/srv/arise/shares/childrens-department",
 "comment": "Children's Department",
-"writable": true,
+"writable": false,
 "browseable": true,
 "used": 1100000000,
 "mac": true,
 "valid_users": [
 "@Childrens-Department",
-"@Domain Admins"
+"@Staff",
+"@Domain Admins",
+"childrens.department"
 ],
-"write_list": [],
+"write_list": [
+"@Staff",
+"@Domain Admins",
+"childrens.department"
+],
 "used_h": "1.0 GB"
 },
 {
 "name": "inedge",
 "path": "/srv/arise/shares/inedge",
 "comment": "Inedge",
-"writable": true,
+"writable": false,
 "browseable": true,
 "used": 640000000,
 "mac": true,
 "valid_users": [
 "@Inedge",
-"@Domain Admins"
+"@Staff",
+"@Domain Admins",
+"inedge"
 ],
-"write_list": [],
+"write_list": [
+"@Staff",
+"@Domain Admins",
+"inedge"
+],
 "used_h": "610.4 MB"
 },
 {
 "name": "worship",
 "path": "/srv/arise/shares/worship",
 "comment": "Worship and music: charts, setlists, tracks",
-"writable": true,
+"writable": false,
 "browseable": true,
 "used": 12000000000,
 "mac": true,
 "valid_users": [
 "@Worship",
-"@Media",
-"@Domain Admins"
+"@Staff",
+"@Domain Admins",
+"worship"
 ],
-"write_list": [],
+"write_list": [
+"@Staff",
+"@Domain Admins",
+"worship"
+],
 "used_h": "11.2 GB"
 },
 {
@@ -492,6 +566,70 @@ window.ARISE_DEMO_DATA = {
 ],
 "write_list": [],
 "used_h": "1.1 TB"
+},
+{
+"name": "church",
+"path": "/srv/arise/shares/church",
+"comment": "The Church folder: everyone reads and writes",
+"writable": true,
+"browseable": true,
+"used": 3400000000,
+"mac": true,
+"valid_users": [
+"@Domain Users"
+],
+"write_list": [],
+"used_h": "3.2 GB"
+},
+{
+"name": "alexandria",
+"path": "/srv/arise/shares/alexandria",
+"comment": "Alexandria: staff and the campus write",
+"writable": false,
+"browseable": true,
+"used": 0,
+"mac": true,
+"valid_users": [
+"@Alexandria",
+"@Staff",
+"@Domain Admins",
+"alexandria"
+],
+"write_list": [
+"@Staff",
+"@Domain Admins",
+"alexandria"
+],
+"used_h": "0 B"
+},
+{
+"name": "pastors",
+"path": "/srv/arise/pastors",
+"comment": "Pastors only",
+"writable": true,
+"browseable": false,
+"used": 900000000,
+"mac": true,
+"valid_users": [
+"bryant.sanders",
+"vanessa.sanders"
+],
+"write_list": [],
+"used_h": "858.3 MB"
+},
+{
+"name": "shared",
+"path": "/srv/arise/shared/%U",
+"comment": "Shared with me",
+"writable": true,
+"browseable": true,
+"used": 0,
+"mac": true,
+"valid_users": [
+"%U"
+],
+"write_list": [],
+"used_h": "0 B"
 },
 {
 "name": "sysvol",
@@ -1752,16 +1890,39 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T22:35:36",
+"last_check": "2026-10-19T23:11:41",
 "keep": {
 "daily": 14,
 "weekly": 8,
 "monthly": 12
+},
+"target": {
+"live": "arise-home",
+"repo": "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville",
+"name": "Arise-Home over Tailscale",
+"targets": [
+{
+"id": "synology",
+"name": "the Synology",
+"repo": "/mnt/synology/arise-backups/restic",
+"ready": false,
+"why": "no drives yet (sample)"
+},
+{
+"id": "arise-home",
+"name": "Arise-Home over Tailscale",
+"repo": "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville",
+"ready": true,
+"why": "reachable (sample)"
+}
+],
+"error": null,
+"demo": true
 }
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:35:36",
+"last_run": "2026-10-28T02:11:41",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1883,17 +2044,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:11:41",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:11:41",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:11:41",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1983,7 +2144,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2000,7 +2161,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2017,7 +2178,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2034,7 +2195,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2051,7 +2212,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-26T22:35:36",
+"updated": "2026-10-26T23:11:41",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2068,7 +2229,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2085,7 +2246,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2102,7 +2263,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T22:35:36",
+"updated": "2026-10-27T23:11:41",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2119,7 +2280,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2136,7 +2297,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:11:41",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -2984,7 +3145,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T20:35:36",
+"last": "2026-10-27T21:11:41",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3023,7 +3184,40 @@ window.ARISE_DEMO_DATA = {
 "python": "/opt/arise/venv/bin/python",
 "schedule": "02:05"
 },
+"storage": {
+"homes_on": "server",
+"home_quota_gb": 50,
+"quota_warn_pct": 90,
+"versions_days": 90,
+"pastors": [
+"bryant.sanders",
+"vanessa.sanders"
+],
+"pastors_path": "/srv/arise/pastors",
+"departments": [
+"childrens-department",
+"inedge",
+"media",
+"worship",
+"kids",
+"alexandria"
+],
+"department_accounts": {
+"media": [
+"media-mac"
+]
+},
+"church_folder": "church",
+"staff_group": "Staff",
+"shared_path": "/srv/arise/shared"
+},
 "backups": {
+"targets": [
+"synology",
+"arise-home"
+],
+"synology_repo": "",
+"arise_home_repo": "",
 "restic_repo": "/mnt/synology/arise-backups/restic",
 "schedule": "03:00",
 "keep_daily": 30,
@@ -3176,7 +3370,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T22:35"
+"when": "2026-10-28T23:11"
 },
 {
 "user": "bradly",
@@ -3410,8 +3604,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T22:35",
-"expires": "2026-11-02T22:35",
+"created": "2026-10-26T23:11",
+"expires": "2026-11-02T23:11",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -3755,7 +3949,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5004,
+"in_minutes": 4968,
 "in_words": "3 days"
 },
 "verse": {
@@ -3889,7 +4083,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5004,
+"in_minutes": 4968,
 "in_words": "3 days"
 },
 "verse": {
@@ -3936,7 +4130,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-28T22:35"
+"now": "2026-10-28T23:11"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4038,7 +4232,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T22:35:37+00:00",
+"last_check": "2026-10-28T23:11:41+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4051,7 +4245,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-28T18:35:37",
+"t": "2026-10-28T19:11:41",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4059,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T17:35:37",
+"t": "2026-10-27T18:11:41",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4067,7 +4261,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T22:35:37",
+"t": "2026-10-26T23:11:41",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4075,7 +4269,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T20:35:37",
+"t": "2026-10-25T21:11:41",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4083,7 +4277,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T22:35:37",
+"t": "2026-10-23T23:11:41",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4091,7 +4285,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T21:35:37",
+"t": "2026-10-23T22:11:41",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4099,7 +4293,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T19:35:37",
+"t": "2026-10-22T20:11:41",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4107,7 +4301,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T19:35:37",
+"t": "2026-10-22T20:11:41",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4465,8 +4659,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "BACKUPS",
 "title": "Backups — what is kept, where, and how to get it back",
-"size": 9312,
-"lines": 192,
+"size": 11424,
+"lines": 230,
 "blurb": "\"Backed up\" means: a copy exists somewhere else, taken on a schedule, with a"
 },
 {
@@ -4528,8 +4722,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "FINDER",
 "title": "The Finder: Trash, Previous Versions, Get Info, Recents, the editor, Open on my Mac",
-"size": 9275,
-"lines": 168,
+"size": 11408,
+"lines": 211,
 "blurb": "What v0.8 \"Exodus\" added to the Finder (app 01), from Bradly's round 3 answers"
 },
 {
@@ -4652,6 +4846,13 @@ window.ARISE_DEMO_DATA = {
 "blurb": "This is the one page to start from. It says what the system is, who gets"
 },
 {
+"name": "SHARES",
+"title": "Shares: the Church folder, the department folders, Pastors, Shared with me",
+"size": 9289,
+"lines": 185,
+"blurb": "Round 5 (docs/ANSWERS.md, rows 12 to 20, 23 and 36). The staff and volunteers"
+},
+{
 "name": "STACK",
 "title": "The FOSS stack: what fits this box, what does not, and why",
 "size": 12145,
@@ -4762,7 +4963,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-28T22:35:37+00:00",
+"checked_at": "2026-10-28T23:11:42+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -4787,7 +4988,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-28T22:35:37+00:00",
+"queued_at": "2026-10-28T23:11:42+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -4795,16 +4996,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-23T22:35",
+"when": "2026-10-23T23:11",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-28T22:35:37+00:00"
+"last_check": "2026-10-28T23:11:42+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793226937.2474759,
+"t": 1793229102.0393627,
 "processes": [
 {
 "pid": 470,
@@ -4814,7 +5015,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792017337.2474542,
+"since": 1792019502.0393434,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -4831,7 +5032,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792017337.2474525,
+"since": 1792019502.0393424,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -4848,7 +5049,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792017337.2474244,
+"since": 1792019502.0393229,
 "io": {
 "read": 10000000,
 "write": 0
@@ -4865,7 +5066,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792017337.2474353,
+"since": 1792019502.039332,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -4882,7 +5083,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792017337.247445,
+"since": 1792019502.0393384,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -4899,7 +5100,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792017337.2474298,
+"since": 1792019502.0393283,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -4916,7 +5117,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792017337.2474327,
+"since": 1792019502.0393302,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -4933,7 +5134,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792017337.2474403,
+"since": 1792019502.0393355,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -4950,7 +5151,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792017337.2474558,
+"since": 1792019502.039344,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -4967,7 +5168,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792017337.247443,
+"since": 1792019502.039337,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -4984,7 +5185,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792017337.2474592,
+"since": 1792019502.0393507,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5001,7 +5202,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792017337.2474499,
+"since": 1792019502.0393412,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5018,7 +5219,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792017337.2474573,
+"since": 1792019502.0393496,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5035,7 +5236,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792017337.247447,
+"since": 1792019502.0393395,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5155,8 +5356,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-28T23:00:00",
-"last": "2026-10-27T23:00:00",
+"next": "2026-10-29T00:00:00",
+"last": "2026-10-28T00:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5215,8 +5416,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-off.service",
 "name": "Monitor off",
 "what": "23:00: the closet panel goes to sleep.",
-"next": "2026-10-28T23:00:00",
-"last": "2026-10-27T23:00:00",
+"next": "2026-10-29T23:00:00",
+"last": "2026-10-28T23:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5313,7 +5514,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-28T16:35",
+"as_of": "2026-10-28T17:11",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5386,62 +5587,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-28T22:35"
+"mtime": "2026-10-28T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-21T22:35"
+"mtime": "2026-10-21T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-14T22:35"
+"mtime": "2026-10-14T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-07T22:35"
+"mtime": "2026-10-07T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-09-30T22:35"
+"mtime": "2026-09-30T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-23T22:35"
+"mtime": "2026-09-23T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-16T22:35"
+"mtime": "2026-09-16T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-09T22:35"
+"mtime": "2026-09-09T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-02T22:35"
+"mtime": "2026-09-02T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-26T22:35"
+"mtime": "2026-08-26T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-19T22:35"
+"mtime": "2026-08-19T23:11"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-12T22:35"
+"mtime": "2026-08-12T23:11"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5458,17 +5659,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:11"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:11"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:11"
 }
 ],
 "old_days": 365
@@ -7078,6 +7279,125 @@ window.ARISE_DEMO_DATA = {
 "logo_url": "http://arise-server:4147/icons/icon-512.png"
 }
 },
+"GET /storage/quotas": {
+"demo": true,
+"quota": 53687091200,
+"warn_pct": 90,
+"homes": [
+{
+"user": "bradly",
+"used": 41800000000,
+"quota": 53687091200,
+"pct": 77.9,
+"warn": false,
+"full": false
+},
+{
+"user": "media-mac",
+"used": 18900000000,
+"quota": 53687091200,
+"pct": 35.2,
+"warn": false,
+"full": false
+},
+{
+"user": "office",
+"used": 6200000000,
+"quota": 53687091200,
+"pct": 11.5,
+"warn": false,
+"full": false
+}
+],
+"enforced_by": "the dashboard",
+"homes_on": "server",
+"homes_path": "/srv/arise/homes"
+},
+"GET /backups/targets": {
+"live": "arise-home",
+"repo": "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville",
+"name": "Arise-Home over Tailscale",
+"targets": [
+{
+"id": "synology",
+"name": "the Synology",
+"repo": "/mnt/synology/arise-backups/restic",
+"ready": false,
+"why": "no drives yet (sample)"
+},
+{
+"id": "arise-home",
+"name": "Arise-Home over Tailscale",
+"repo": "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville",
+"ready": true,
+"why": "reachable (sample)"
+}
+],
+"error": null,
+"demo": true
+},
+"GET /files/shared": {
+"demo": true,
+"with_me": [],
+"by_me": [],
+"all": []
+},
+"GET /files/quota": {
+"user": "demo",
+"used": 0,
+"quota": 53687091200,
+"pct": 0.0,
+"warn": false,
+"full": false
+},
+"GET /files/share/people": {
+"people": [
+{
+"name": "bradly",
+"display": "Bradly Dyer"
+},
+{
+"name": "media-mac",
+"display": "Media Booth Mac"
+},
+{
+"name": "office",
+"display": "Church Office"
+},
+{
+"name": "kids-checkin",
+"display": "Kids Check-in"
+},
+{
+"name": "childrens.department",
+"display": "Children's Department"
+},
+{
+"name": "inedge",
+"display": "Inedge"
+},
+{
+"name": "bryant.sanders",
+"display": "Apostle Bryant Sanders"
+},
+{
+"name": "vanessa.sanders",
+"display": "Pastor Vanessa Sanders"
+}
+],
+"groups": [
+"Staff",
+"Media",
+"Leadership",
+"Volunteers",
+"Kids-Check-in",
+"Childrens-Department",
+"Inedge",
+"Worship",
+"Alexandria"
+],
+"typed": false
+},
 "GET /me/2fa": {
 "demo": true,
 "user": "demo",
@@ -7106,7 +7426,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7121,7 +7441,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7136,7 +7456,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7151,7 +7471,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7166,7 +7486,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7181,7 +7501,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7196,7 +7516,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 },
 {
@@ -7211,11 +7531,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:11:42+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-28T22:35:37+00:00",
+"last": "2026-10-28T23:11:42+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -7462,6 +7782,22 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "root": "data",
+"path": "/shares/church/Welcome packet.pdf",
+"name": "Welcome packet.pdf",
+"size": 1200000,
+"mtime": "2026-10-26T14:02",
+"where": "/shares/church"
+},
+{
+"root": "data",
+"path": "/shares/church/Church calendar 2026-27.pdf",
+"name": "Church calendar 2026-27.pdf",
+"size": 310000,
+"mtime": "2026-10-26T14:02",
+"where": "/shares/church"
+},
+{
+"root": "data",
 "path": "/shares/staff/Calendar 2026-27.pdf",
 "name": "Calendar 2026-27.pdf",
 "size": 310000,
@@ -7579,7 +7915,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-26T22:35",
+"when": "2026-10-26T23:11",
 "from": "portal"
 },
 {
@@ -7591,7 +7927,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-16T22:35",
+"when": "2026-10-16T23:11",
 "from": "mac"
 },
 {
@@ -7603,7 +7939,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-01T22:35",
+"when": "2026-10-01T23:11",
 "from": "mac"
 }
 ],
@@ -11512,6 +11848,44 @@ window.ARISE_DEMO_DATA = {
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
+},
+{
+"name": "pastors",
+"dir": true,
+"size": null,
+"mtime": "2026-10-27T21:10"
+}
+]
+},
+"GET /files/list?root=data&path=/pastors": {
+"demo": true,
+"root": "data",
+"path": "/pastors",
+"entries": [
+{
+"name": "Sermon notes",
+"dir": true,
+"size": null,
+"mtime": "2026-10-27T21:10"
+},
+{
+"name": "Counsel follow-ups.docx",
+"dir": false,
+"size": 44000,
+"mtime": "2026-10-27T21:10"
+}
+]
+},
+"GET /files/list?root=data&path=/pastors/Sermon notes": {
+"demo": true,
+"root": "data",
+"path": "/pastors/Sermon notes",
+"entries": [
+{
+"name": "2026-11-02 outline.docx",
+"dir": false,
+"size": 31000,
+"mtime": "2026-10-27T21:10"
 }
 ]
 },
@@ -11522,6 +11896,12 @@ window.ARISE_DEMO_DATA = {
 "entries": [
 {
 "name": "bradly",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "bryant.sanders",
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
@@ -11540,6 +11920,86 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "name": "office",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "vanessa.sanders",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes/bryant.sanders": {
+"demo": true,
+"root": "data",
+"path": "/homes/bryant.sanders",
+"entries": [
+{
+"name": "Documents",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Downloads",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Music",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Photos",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Videos",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes/vanessa.sanders": {
+"demo": true,
+"root": "data",
+"path": "/homes/vanessa.sanders",
+"entries": [
+{
+"name": "Documents",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Downloads",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Music",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Photos",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Videos",
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
@@ -11733,7 +12193,31 @@ window.ARISE_DEMO_DATA = {
 "path": "/shares",
 "entries": [
 {
+"name": "alexandria",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "childrens-department",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "church",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
 "name": "graphics",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "inedge",
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
@@ -11758,6 +12242,69 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "name": "staff",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "worship",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/church": {
+"demo": true,
+"root": "data",
+"path": "/shares/church",
+"entries": [
+{
+"name": "Church calendar 2026-27.pdf",
+"dir": false,
+"size": 310000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Welcome packet.pdf",
+"dir": false,
+"size": 1200000,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/alexandria": {
+"demo": true,
+"root": "data",
+"path": "/shares/alexandria",
+"entries": []
+},
+"GET /files/list?root=data&path=/shares/childrens-department": {
+"demo": true,
+"root": "data",
+"path": "/shares/childrens-department",
+"entries": [
+{
+"name": "Lesson plans",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/inedge": {
+"demo": true,
+"root": "data",
+"path": "/shares/inedge",
+"entries": []
+},
+"GET /files/list?root=data&path=/shares/worship": {
+"demo": true,
+"root": "data",
+"path": "/shares/worship",
+"entries": [
+{
+"name": "Charts",
 "dir": true,
 "size": null,
 "mtime": "2026-10-26T14:02"
@@ -12019,6 +12566,191 @@ window.ARISE_DEMO_DATA = {
 }
 ]
 },
+"POST /shares/folders": {
+"ok": true,
+"demo": true,
+"conf": "# Written by ariseOS (server/arise_server/sharing.py, round 5). Regenerate: sudo arisectl share folders\n# The POSIX ACLs on each folder are the truth; these lines say who connects and who writes.\n[global]\n  # [shared] follows links into the items shared with a person; their own permissions still apply.\n  allow insecure wide links = yes\n\n[church]\n  comment = The Church folder: everyone reads and writes\n  path = /srv/arise/shares/church\n  valid users = @\"ARISE\\Domain Users\"\n  read only = no\n  browseable = yes\n  force group = \"Domain Users\"\n  inherit acls = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[childrens-department]\n  comment = Childrens Department: staff and the department write, the department reads\n  path = /srv/arise/shares/childrens-department\n  valid users = @\"ARISE\\Childrens-Department\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" childrens-department childrens.department\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" childrens-department childrens.department\n  read only = yes\n  browseable = yes\n  force group = \"Childrens-Department\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[inedge]\n  comment = Inedge: staff and the department write, the department reads\n  path = /srv/arise/shares/inedge\n  valid users = @\"ARISE\\Inedge\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" inedge\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" inedge\n  read only = yes\n  browseable = yes\n  force group = \"Inedge\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[media]\n  comment = Media: staff and the department write, the department reads\n  path = /srv/arise/shares/media\n  valid users = @\"ARISE\\Media\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" media media-mac\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" media media-mac\n  read only = yes\n  browseable = yes\n  force group = \"Media\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[worship]\n  comment = Worship: staff and the department write, the department reads\n  path = /srv/arise/shares/worship\n  valid users = @\"ARISE\\Worship\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" worship\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" worship\n  read only = yes\n  browseable = yes\n  force group = \"Worship\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[kids]\n  comment = Kids: staff and the department write, the department reads\n  path = /srv/arise/shares/kids\n  valid users = @\"ARISE\\Kids\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" kids\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" kids\n  read only = yes\n  browseable = yes\n  force group = \"Kids\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[alexandria]\n  comment = Alexandria: staff and the department write, the department reads\n  path = /srv/arise/shares/alexandria\n  valid users = @\"ARISE\\Alexandria\" @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" alexandria\n  write list = @\"ARISE\\Staff\" @\"ARISE\\Domain Admins\" alexandria\n  read only = yes\n  browseable = yes\n  force group = \"Alexandria\"\n  inherit acls = yes\n  access based share enum = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[pastors]\n  comment = Pastors only\n  path = /srv/arise/pastors\n  valid users = bryant.sanders vanessa.sanders\n  read only = no\n  browseable = no\n  access based share enum = yes\n  force group = \"Pastors\"\n  inherit acls = yes\n  vfs objects = acl_xattr fruit streams_xattr recycle\n  recycle:repository = .Trash/%U\n  recycle:keeptree = yes\n  recycle:versions = yes\n  recycle:touch = yes\n  recycle:directory_mode = 0770\n  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload\n  recycle:exclude_dir = .Trash,/tmp\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  fruit:posix_rename = yes\n\n[shared]\n  comment = Shared with me\n  path = /srv/arise/shared/%U\n  valid users = %U\n  read only = no\n  browseable = yes\n  wide links = yes\n  follow symlinks = yes\n  inherit acls = yes\n  vfs objects = acl_xattr fruit streams_xattr\n  fruit:metadata = stream\n  fruit:model = MacSamba\n  root preexec = /bin/sh -c 'mkdir -p \"/srv/arise/shared/%U\" && chmod 0755 \"/srv/arise/shared/%U\"'\n",
+"acls": [
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/church"
+],
+[
+"chgrp",
+"Domain Users",
+"/srv/arise/shares/church"
+],
+[
+"chmod",
+"2775",
+"/srv/arise/shares/church"
+],
+[
+"setfacl",
+"-m",
+"g::rwx,d:g::rwx,d:o::r-x",
+"/srv/arise/shares/church"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/childrens-department"
+],
+[
+"chgrp",
+"Childrens-Department",
+"/srv/arise/shares/childrens-department"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/childrens-department"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:childrens-department:rwx,u:childrens.department:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:childrens-department:rwx,d:u:childrens.department:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/childrens-department"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/inedge"
+],
+[
+"chgrp",
+"Inedge",
+"/srv/arise/shares/inedge"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/inedge"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:inedge:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:inedge:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/inedge"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/media"
+],
+[
+"chgrp",
+"Media",
+"/srv/arise/shares/media"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/media"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:media:rwx,u:media-mac:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:media:rwx,d:u:media-mac:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/media"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/worship"
+],
+[
+"chgrp",
+"Worship",
+"/srv/arise/shares/worship"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/worship"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:worship:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:worship:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/worship"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/kids"
+],
+[
+"chgrp",
+"Kids",
+"/srv/arise/shares/kids"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/kids"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:kids:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:kids:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/kids"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shares/alexandria"
+],
+[
+"chgrp",
+"Alexandria",
+"/srv/arise/shares/alexandria"
+],
+[
+"chmod",
+"2750",
+"/srv/arise/shares/alexandria"
+],
+[
+"setfacl",
+"-m",
+"g:Staff:rwx,g:Domain Admins:rwx,g::r-x,o::---,u:alexandria:rwx,d:g:Staff:rwx,d:g:Domain Admins:rwx,d:g::r-x,d:o::---,d:u:alexandria:rwx,m::rwx,d:m::rwx",
+"/srv/arise/shares/alexandria"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/pastors"
+],
+[
+"chown",
+"root:Pastors",
+"/srv/arise/pastors"
+],
+[
+"chmod",
+"2770",
+"/srv/arise/pastors"
+],
+[
+"setfacl",
+"-m",
+"u:bryant.sanders:rwx,u:vanessa.sanders:rwx,g::---,o::---,d:u:bryant.sanders:rwx,d:u:vanessa.sanders:rwx,d:g::---,d:o::---,m::rwx,d:m::rwx",
+"/srv/arise/pastors"
+],
+[
+"mkdir",
+"-p",
+"/srv/arise/shared"
+],
+[
+"chmod",
+"0755",
+"/srv/arise/shared"
+]
+]
+},
 "GET /files/list?root=nas&path=/": {
 "demo": true,
 "root": "nas",
@@ -12228,7 +12960,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "BACKUPS",
 "title": "Backups — what is kept, where, and how to get it back",
-"html": "<h1 id=\"backups-what-is-kept-where-and-how-to-get-it-back\">Backups — what is kept, where, and how to get it back</h1>\n<p>\"Backed up\" means: a copy exists somewhere else, taken on a schedule, with a\nrecord that it ran, and a restore that has been tried. Everything here is\nbuilt to meet that definition. A run that fails writes a failed row; a run\nthat is skipped writes a skipped row. Nothing is ever silent.</p>\n<h2 id=\"the-tool-restic\">The tool: restic</h2>\n<p><a href=\"https://restic.net\">restic</a> makes <strong>encrypted, deduplicated snapshots</strong>. Each\nnight it looks at the job's folders, stores only the blocks that changed, and\nrecords a snapshot you can browse like a folder from any date. The repository\nis a plain directory on the Synology:</p>\n<pre><code>/mnt/synology/arise-backups/restic\n</code></pre>\n<p>encrypted with the password in <code>/etc/arise/secrets/restic-password</code>. <strong>Write\nthat password on paper and keep it away from the building.</strong> Without it the\nrepository is noise; with it, any Linux or Mac with restic installed can read\nevery snapshot, with or without Arise Server.</p>\n<h2 id=\"the-jobs-etcarisebackupsyaml\">The jobs: <code>/etc/arise/backups.yaml</code></h2>\n<table>\n<thead>\n<tr>\n<th>Job</th>\n<th>Paths</th>\n<th>What it is</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>automator</code></td>\n<td><code>/srv/arise/automator</code></td>\n<td>the YouTube toolkit: scripts, song bank, transcripts, setlists, thumbnails, the reports and the quota ledger. <code>token.json</code> and <code>client_secret.json</code> are <strong>in</strong> this backup (they are not in git, so this is their only other copy)</td>\n</tr>\n<tr>\n<td><code>homes</code></td>\n<td><code>/srv/arise/homes</code> (or <code>/mnt/synology/homes</code> when homes are on the NAS)</td>\n<td>every person's Desktop, Documents and whatever else they put in their home</td>\n</tr>\n<tr>\n<td><code>shares</code></td>\n<td><code>/srv/arise/shares</code></td>\n<td>the staff, leadership, media and kids shares</td>\n</tr>\n<tr>\n<td><code>media</code></td>\n<td><code>/mnt/synology/arise/media</code></td>\n<td>Proclaim graphics, loops, lower thirds, thumbnails, podcast art</td>\n</tr>\n<tr>\n<td><code>github</code></td>\n<td><code>/srv/arise/backups/github-mirror</code></td>\n<td>a bare mirror of every repo in <code>arise.toml</code> (see below)</td>\n</tr>\n<tr>\n<td><code>config</code> (tagged <code>system</code>)</td>\n<td><code>/etc/arise</code> (with the secrets; the repository is encrypted), <code>/etc/samba</code>, <code>/var/lib/arise/samba-backup</code>, <code>/var/lib/samba/private</code>, the pinned netplan file</td>\n<td>everything <code>arisectl reinstall</code> needs (docs/REINSTALL.md). <code>samba_offline: true</code> runs <code>samba-tool domain backup offline</code> into <code>/var/lib/arise/samba-backup/</code> first, a consistent copy of the domain database (copying <code>private/</code> while Samba writes can tear it); the last two kept</td>\n</tr>\n<tr>\n<td><code>apps</code></td>\n<td><code>/srv/arise/apps</code></td>\n<td>the Docker apps' data (Vaultwarden's vault, Uptime Kuma's history, Syncthing's config)</td>\n</tr>\n</tbody>\n</table>\n<p>Each job has an <code>exclude</code> list (caches, <code>**/.Trash</code>, <code>node_modules</code>,\n<code>__pycache__</code>) and tags, so a snapshot can be found by what it is. The\nshares' Trash (v0.8, docs/FINDER.md) is excluded on purpose: what sits in a\nTrash is on its way out, and Previous Versions restores from the snapshots,\nnot the Trash.</p>\n<p>Edit the file to add a job. It is read fresh on every run.</p>\n<h2 id=\"schedule-and-retention\">Schedule and retention</h2>\n<table>\n<thead>\n<tr>\n<th>When (America/Chicago)</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>02:05</td>\n<td>the automator runs (YouTube quota resets at 02:00)</td>\n</tr>\n<tr>\n<td><strong>03:00</strong></td>\n<td><code>arise-backup.timer</code>: every job in order, then <code>restic forget --prune</code> with the policy below</td>\n</tr>\n<tr>\n<td>04:00</td>\n<td><code>arise-mirror.timer</code>: refresh the GitHub mirror (the 03:00 run of the next night snapshots it)</td>\n</tr>\n<tr>\n<td>04:30</td>\n<td>the Synology's own Hyper Backup to the off-site copy (set on the NAS)</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"the-restore-drill\">The restore drill</h2>\n<p>A backup nobody has restored from is a hope, not a backup. Once a month\n(<code>arise-drill.timer</code>, a random hour on the first of the month) the server\npicks one random file under 50 MB from the latest snapshot, restores it\ninto a scratch folder, compares it byte for byte with the live file when\nthat file still exists, writes the verdict to\n<code>/var/lib/arise/drill-history.json</code> (the last 24), and wipes the scratch\nfolder. <code>sudo arisectl backup drill</code> runs it now and says what happened:\nrestored and identical, restored but the live file has changed since (normal\nfor a working file), or a failure with the reason. The dashboard reads the\nsame history. Bradly's choice, answer 47: monthly, automatic. Since v0.8 the\ndrill also checks that the newest <code>system</code> snapshot holds\n<code>/etc/arise/arise.toml</code> and a domain backup tarball, so a reinstall would\nhave what it needs.</p>\n<p>Policy from <code>arise.toml</code>: <strong>keep 30 daily, 12 weekly, 24 monthly</strong> snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)\nper job. A file deleted on a Tuesday is in last night's snapshot for two weeks,\nin a weekly for two months, in a monthly for a year.</p>\n<p>The run order matters: the automator must be finished before its folder is\nsnapshotted, and the mirror must be refreshed before the next snapshot. If the\nautomator is still running at 03:00 (it never has been; a run is under ten\nminutes), the backup job snapshots whatever is on disk and notes it.</p>\n<h2 id=\"where-to-see-that-it-ran\">Where to see that it ran</h2>\n<ul>\n<li><strong>Dashboard → Backups</strong>: last run per job (green/red), bytes added,\n  snapshot count, repository size, free space on the NAS. The red ones say\n  why.</li>\n<li><code>arisectl backup status</code>: the same table in the terminal.</li>\n<li><code>/var/lib/arise/backup-history.json</code>: the raw rows, one per job per run\n  (<code>job, started, finished, ok, snapshot_id, bytes_added, error</code>).</li>\n<li><code>journalctl -u arise-backup</code>: restic's own output.</li>\n</ul>\n<h2 id=\"restoring\">Restoring</h2>\n<p>Set these once in the shell (or use <code>arisectl</code>, which does it for you):</p>\n<pre><code class=\"language-bash\">export RESTIC_REPOSITORY=/mnt/synology/arise-backups/restic\nexport RESTIC_PASSWORD_FILE=/etc/arise/secrets/restic-password\n</code></pre>\n<p><strong>One file, as it was last Thursday</strong></p>\n<pre><code class=\"language-bash\">restic snapshots --tag homes                       # find the snapshot id from Thursday\nrestic restore &amp;lt;id&gt; --include &quot;/srv/arise/homes/jsmith/Documents/Budget 2026.xlsx&quot; --target /tmp/restore\n# the file is at /tmp/restore/srv/arise/homes/jsmith/Documents/Budget 2026.xlsx\n</code></pre>\n<p>or browse without restoring:</p>\n<pre><code class=\"language-bash\">mkdir -p /mnt/restic &amp;&amp; restic mount /mnt/restic       # then open /mnt/restic/snapshots/&amp;lt;date&gt;/... in another terminal; Ctrl-C unmounts\n</code></pre>\n<p><strong>One folder</strong></p>\n<pre><code class=\"language-bash\">restic restore &amp;lt;id&gt; --include &quot;/srv/arise/shares/media/loops&quot; --target /tmp/restore\n</code></pre>\n<p><strong>A whole job to a date</strong></p>\n<pre><code class=\"language-bash\">arisectl backup restore --job automator --at 2026-10-20 --target /tmp/restore-automator\n</code></pre>\n<p>which is <code>restic restore latest --tag automator --time \"2026-10-20 23:59\" --target ...</code>.\nRestores go to a <code>--target</code> folder, never straight over the live data; moving\nthe restored files into place is a person's step.</p>\n<p><strong>The whole server</strong> — reinstall Ubuntu, run <code>installer/install.sh --skip-domain</code>,\nmount the NAS (<code>arisectl nas mount</code>), restore the <code>config</code> job on top of the\nfresh system (<code>arisectl backup restore latest --tag config --target /</code>), then\n<code>systemctl unmask samba-ad-dc &amp;&amp; systemctl enable --now samba-ad-dc</code>. The domain\ncomes back with every user and computer account. See\n<code>INSTALL.md</code>.</p>\n<h2 id=\"the-github-mirror\">The GitHub mirror</h2>\n<p>Every repo in <code>[github].repos</code> in <code>arise.toml</code> is mirrored to\n<code>/srv/arise/backups/github-mirror/&amp;lt;owner&gt;__&amp;lt;repo&gt;.git</code>:</p>\n<pre><code class=\"language-bash\">git clone --mirror https://github.com/Rehchu/arisechurch.git      # first time\ngit -C &amp;lt;path&gt;.git remote update --prune                            # every night after\n</code></pre>\n<p>A mirror is a bare repository with every branch, tag and commit. Clone from it\nlike from GitHub. The private repos need a <strong>read-only</strong> fine-grained token\n(GitHub → Settings → Developer settings → Fine-grained tokens → Contents:\nread-only on those repos, one year expiry) saved as one line in\n<code>/etc/arise/secrets/github-token</code>, mode 0600. <code>arisectl mirror run</code> does a\nrefresh now and reports each repo as updated, unchanged or failed; the\ndashboard's Backups page shows the same.</p>\n<h2 id=\"verifying-once-a-month\">Verifying — once a month</h2>\n<p>restic can read the whole repository back and check every block:</p>\n<pre><code class=\"language-bash\">arisectl backup verify          # = restic check --read-data-subset=10%\n</code></pre>\n<p>Ten percent of the data, chosen at random, every month; the full read\n(<code>restic check --read-data</code>) once a year or after any NAS drive is replaced.\n<code>arise-backup-verify.timer</code> runs the monthly one on the first Sunday at 05:00\nand the result is a row in the history like any other.</p>\n<p>And the human half: <strong>restore one real file every month</strong> and open it.\nA backup that has never been restored is a guess.</p>\n<h2 id=\"the-second-copy\">The second copy</h2>\n<p>There is no off-site copy yet (round 4, 28: not now). The plan is\nArise-Home (docs/NODES.md): Bradly's node at his house holds a full second\nrestic copy and runs the same drill. Until that is built the Synology is the\nonly copy, and the restic password lives on the closet card only (round 4,\n30; never in Vaultwarden, never in a chat).</p>\n<h2 id=\"what-is-not-backed-up-here\">What is NOT backed up here</h2>\n<ul>\n<li><strong>The YouTube videos themselves.</strong> They live on YouTube. Nothing on this\n  server holds the recordings; StreamYard and YouTube do. If a local archive\n  of the services is ever wanted, that is a separate job (and terabytes).</li>\n<li><strong>The live website.</strong> Its code is in the <code>arisechurch</code> repo (mirrored, see\n  above) and the CMS exports and audit material are in <code>arise-church-backup</code>\n  (also mirrored). The design-only parts that live in the Wix Editor are\n  Wix's; they are not exportable.</li>\n<li><strong>Mail, Google Drive, Tithe.ly, Canva.</strong> Those are their providers'.</li>\n<li><strong>The Synology's own system settings</strong> — use DSM's Control Panel →\n  Update &amp; Restore → Configuration Backup, and keep that <code>.dss</code> file in the\n  <code>arise</code> share so restic picks it up.</li>\n<li><strong>Anything on a Mac that is not in Desktop, Documents or the share.</strong>\n  The migration doc says what stays local. If it matters, it goes in the\n  share.</li>\n</ul>",
+"html": "<h1 id=\"backups-what-is-kept-where-and-how-to-get-it-back\">Backups — what is kept, where, and how to get it back</h1>\n<p>\"Backed up\" means: a copy exists somewhere else, taken on a schedule, with a\nrecord that it ran, and a restore that has been tried. Everything here is\nbuilt to meet that definition. A run that fails writes a failed row; a run\nthat is skipped writes a skipped row. Nothing is ever silent.</p>\n<h2 id=\"the-tool-restic\">The tool: restic</h2>\n<p><a href=\"https://restic.net\">restic</a> makes <strong>encrypted, deduplicated snapshots</strong>. Each\nnight it looks at the job's folders, stores only the blocks that changed, and\nrecords a snapshot you can browse like a folder from any date. The repository\nis a plain directory on the Synology:</p>\n<pre><code>/mnt/synology/arise-backups/restic\n</code></pre>\n<p>encrypted with the password in <code>/etc/arise/secrets/restic-password</code>. <strong>Write\nthat password on paper and keep it away from the building.</strong> Without it the\nrepository is noise; with it, any Linux or Mac with restic installed can read\nevery snapshot, with or without Arise Server.</p>\n<h2 id=\"the-jobs-etcarisebackupsyaml\">The jobs: <code>/etc/arise/backups.yaml</code></h2>\n<table>\n<thead>\n<tr>\n<th>Job</th>\n<th>Paths</th>\n<th>What it is</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>automator</code></td>\n<td><code>/srv/arise/automator</code></td>\n<td>the YouTube toolkit: scripts, song bank, transcripts, setlists, thumbnails, the reports and the quota ledger. <code>token.json</code> and <code>client_secret.json</code> are <strong>in</strong> this backup (they are not in git, so this is their only other copy)</td>\n</tr>\n<tr>\n<td><code>homes</code></td>\n<td><code>/srv/arise/homes</code> (or <code>/mnt/synology/homes</code> when homes are on the NAS)</td>\n<td>every person's Desktop, Documents and whatever else they put in their home</td>\n</tr>\n<tr>\n<td><code>shares</code></td>\n<td><code>/srv/arise/shares</code></td>\n<td>the staff, leadership, media and kids shares</td>\n</tr>\n<tr>\n<td><code>media</code></td>\n<td><code>/mnt/synology/arise/media</code></td>\n<td>Proclaim graphics, loops, lower thirds, thumbnails, podcast art</td>\n</tr>\n<tr>\n<td><code>github</code></td>\n<td><code>/srv/arise/backups/github-mirror</code></td>\n<td>a bare mirror of every repo in <code>arise.toml</code> (see below)</td>\n</tr>\n<tr>\n<td><code>config</code> (tagged <code>system</code>)</td>\n<td><code>/etc/arise</code> (with the secrets; the repository is encrypted), <code>/etc/samba</code>, <code>/var/lib/arise/samba-backup</code>, <code>/var/lib/samba/private</code>, the pinned netplan file</td>\n<td>everything <code>arisectl reinstall</code> needs (docs/REINSTALL.md). <code>samba_offline: true</code> runs <code>samba-tool domain backup offline</code> into <code>/var/lib/arise/samba-backup/</code> first, a consistent copy of the domain database (copying <code>private/</code> while Samba writes can tear it); the last two kept</td>\n</tr>\n<tr>\n<td><code>apps</code></td>\n<td><code>/srv/arise/apps</code></td>\n<td>the Docker apps' data (Vaultwarden's vault, Uptime Kuma's history, Syncthing's config)</td>\n</tr>\n</tbody>\n</table>\n<p>Each job has an <code>exclude</code> list (caches, <code>**/.Trash</code>, <code>node_modules</code>,\n<code>__pycache__</code>) and tags, so a snapshot can be found by what it is. The\nshares' Trash (v0.8, docs/FINDER.md) is excluded on purpose: what sits in a\nTrash is on its way out, and Previous Versions restores from the snapshots,\nnot the Trash.</p>\n<p>Edit the file to add a job. It is read fresh on every run.</p>\n<h2 id=\"schedule-and-retention\">Schedule and retention</h2>\n<table>\n<thead>\n<tr>\n<th>When (America/Chicago)</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>02:05</td>\n<td>the automator runs (YouTube quota resets at 02:00)</td>\n</tr>\n<tr>\n<td><strong>03:00</strong></td>\n<td><code>arise-backup.timer</code>: every job in order, then <code>restic forget --prune</code> with the policy below</td>\n</tr>\n<tr>\n<td>04:00</td>\n<td><code>arise-mirror.timer</code>: refresh the GitHub mirror (the 03:00 run of the next night snapshots it)</td>\n</tr>\n<tr>\n<td>04:30</td>\n<td>the Synology's own Hyper Backup to the off-site copy (set on the NAS)</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"the-restore-drill\">The restore drill</h2>\n<p>A backup nobody has restored from is a hope, not a backup. Once a month\n(<code>arise-drill.timer</code>, a random hour on the first of the month) the server\npicks one random file under 50 MB from the latest snapshot, restores it\ninto a scratch folder, compares it byte for byte with the live file when\nthat file still exists, writes the verdict to\n<code>/var/lib/arise/drill-history.json</code> (the last 24), and wipes the scratch\nfolder. <code>sudo arisectl backup drill</code> runs it now and says what happened:\nrestored and identical, restored but the live file has changed since (normal\nfor a working file), or a failure with the reason. The dashboard reads the\nsame history. Bradly's choice, answer 47: monthly, automatic. Since v0.8 the\ndrill also checks that the newest <code>system</code> snapshot holds\n<code>/etc/arise/arise.toml</code> and a domain backup tarball, so a reinstall would\nhave what it needs.</p>\n<p>Policy from <code>arise.toml</code>: <strong>keep 30 daily, 12 weekly, 24 monthly</strong> snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)\nper job. A file deleted on a Tuesday is in last night's snapshot for two weeks,\nin a weekly for two months, in a monthly for a year.</p>\n<p>The run order matters: the automator must be finished before its folder is\nsnapshotted, and the mirror must be refreshed before the next snapshot. If the\nautomator is still running at 03:00 (it never has been; a run is under ten\nminutes), the backup job snapshots whatever is on disk and notes it.</p>\n<h2 id=\"where-to-see-that-it-ran\">Where to see that it ran</h2>\n<ul>\n<li><strong>Dashboard → Backups</strong>: last run per job (green/red), bytes added,\n  snapshot count, repository size, free space on the NAS. The red ones say\n  why.</li>\n<li><code>arisectl backup status</code>: the same table in the terminal.</li>\n<li><code>/var/lib/arise/backup-history.json</code>: the raw rows, one per job per run\n  (<code>job, started, finished, ok, snapshot_id, bytes_added, error</code>).</li>\n<li><code>journalctl -u arise-backup</code>: restic's own output.</li>\n</ul>\n<h2 id=\"restoring\">Restoring</h2>\n<p>Set these once in the shell (or use <code>arisectl</code>, which does it for you):</p>\n<pre><code class=\"language-bash\">export RESTIC_REPOSITORY=/mnt/synology/arise-backups/restic\nexport RESTIC_PASSWORD_FILE=/etc/arise/secrets/restic-password\n</code></pre>\n<p><strong>One file, as it was last Thursday</strong></p>\n<pre><code class=\"language-bash\">restic snapshots --tag homes                       # find the snapshot id from Thursday\nrestic restore &amp;lt;id&gt; --include &quot;/srv/arise/homes/jsmith/Documents/Budget 2026.xlsx&quot; --target /tmp/restore\n# the file is at /tmp/restore/srv/arise/homes/jsmith/Documents/Budget 2026.xlsx\n</code></pre>\n<p>or browse without restoring:</p>\n<pre><code class=\"language-bash\">mkdir -p /mnt/restic &amp;&amp; restic mount /mnt/restic       # then open /mnt/restic/snapshots/&amp;lt;date&gt;/... in another terminal; Ctrl-C unmounts\n</code></pre>\n<p><strong>One folder</strong></p>\n<pre><code class=\"language-bash\">restic restore &amp;lt;id&gt; --include &quot;/srv/arise/shares/media/loops&quot; --target /tmp/restore\n</code></pre>\n<p><strong>A whole job to a date</strong></p>\n<pre><code class=\"language-bash\">arisectl backup restore --job automator --at 2026-10-20 --target /tmp/restore-automator\n</code></pre>\n<p>which is <code>restic restore latest --tag automator --time \"2026-10-20 23:59\" --target ...</code>.\nRestores go to a <code>--target</code> folder, never straight over the live data; moving\nthe restored files into place is a person's step.</p>\n<p><strong>The whole server</strong> — reinstall Ubuntu, run <code>installer/install.sh --skip-domain</code>,\nmount the NAS (<code>arisectl nas mount</code>), restore the <code>config</code> job on top of the\nfresh system (<code>arisectl backup restore latest --tag config --target /</code>), then\n<code>systemctl unmask samba-ad-dc &amp;&amp; systemctl enable --now samba-ad-dc</code>. The domain\ncomes back with every user and computer account. See\n<code>INSTALL.md</code>.</p>\n<h2 id=\"the-github-mirror\">The GitHub mirror</h2>\n<p>Every repo in <code>[github].repos</code> in <code>arise.toml</code> is mirrored to\n<code>/srv/arise/backups/github-mirror/&amp;lt;owner&gt;__&amp;lt;repo&gt;.git</code>:</p>\n<pre><code class=\"language-bash\">git clone --mirror https://github.com/Rehchu/arisechurch.git      # first time\ngit -C &amp;lt;path&gt;.git remote update --prune                            # every night after\n</code></pre>\n<p>A mirror is a bare repository with every branch, tag and commit. Clone from it\nlike from GitHub. The private repos need a <strong>read-only</strong> fine-grained token\n(GitHub → Settings → Developer settings → Fine-grained tokens → Contents:\nread-only on those repos, one year expiry) saved as one line in\n<code>/etc/arise/secrets/github-token</code>, mode 0600. <code>arisectl mirror run</code> does a\nrefresh now and reports each repo as updated, unchanged or failed; the\ndashboard's Backups page shows the same.</p>\n<h2 id=\"verifying-once-a-month\">Verifying — once a month</h2>\n<p>restic can read the whole repository back and check every block:</p>\n<pre><code class=\"language-bash\">arisectl backup verify          # = restic check --read-data-subset=10%\n</code></pre>\n<p>Ten percent of the data, chosen at random, every month; the full read\n(<code>restic check --read-data</code>) once a year or after any NAS drive is replaced.\n<code>arise-backup-verify.timer</code> runs the monthly one on the first Sunday at 05:00\nand the result is a row in the history like any other.</p>\n<p>And the human half: <strong>restore one real file every month</strong> and open it.\nA backup that has never been restored is a guess.</p>\n<h2 id=\"where-tonights-backup-goes-round-5-row-15\">Where tonight's backup goes (round 5, row 15)</h2>\n<p>Until the Synology has its drives, the backup goes to <strong>Arise-Home over\nTailscale</strong>. <code>[backups] targets = [\"synology\", \"arise-home\"]</code> is the order;\nthe first one that is ready at 03:00 is used:</p>\n<table>\n<thead>\n<tr>\n<th>Target</th>\n<th>Ready when</th>\n<th>Repository</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>synology</code></td>\n<td><code>/mnt/synology</code> is mounted</td>\n<td><code>synology_repo</code>, or <code>restic_repo</code> when that is empty</td>\n</tr>\n<tr>\n<td><code>arise-home</code></td>\n<td><code>ssh</code> to it answers, non-interactively, over Tailscale</td>\n<td><code>arise_home_repo</code>, e.g. <code>sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville</code></td>\n</tr>\n</tbody>\n</table>\n<p><strong>Neither ready = the job fails red</strong> with \"no backup target is ready\", in the\nhistory, on the Backups page and in <code>arisectl backup status</code>. It is never a\nquiet skip. The Backups page shows the live target, both rows and why a row\nis not ready. The same restic password opens both repositories.</p>\n<p>Setting up Arise-Home as the target (once, by Bradly):</p>\n<ol>\n<li>On Arise-Home: an account that can only do sftp\n   (<code>useradd -m -s /usr/sbin/nologin arise-backup</code>, and a <code>Match User\n   arise-backup</code> block at the end of <code>/etc/ssh/sshd_config</code> with\n   <code>ForceCommand internal-sftp</code>, <code>AllowTcpForwarding no</code>), and the folder\n   <code>/srv/arise/backups/restic-pineville</code> owned by it.</li>\n<li>On this server, as root: <code>ssh-keygen -t ed25519</code> (root's own key: the\n   backup runs as root), copy the <code>.pub</code> to that account's\n   <code>authorized_keys</code>, then <code>sudo ssh arise-backup@arise-home</code> once so the\n   host key is recorded (the check refuses unknown host keys).</li>\n<li><code>arise_home_repo = \"sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville\"</code>\n   in <code>/etc/arise/arise.toml</code>, restart arise-web, and\n   <code>sudo arisectl backup run</code> once: the first run initialises the repository.</li>\n</ol>\n<p><strong>The switch to the Synology</strong> needs no change: once the Synology is mounted\nit is ready, it comes first in <code>targets</code>, and the next run goes there (a new\nrepository is initialised there on the first run). The Arise-Home repository\nstays as it is and becomes the second copy below. To keep sending there too,\nthat is a second job, not a setting; to stop, remove <code>arise-home</code> from\n<code>targets</code>.</p>\n<h2 id=\"the-second-copy\">The second copy</h2>\n<p>There is no off-site copy yet (round 4, 28: not now). The plan is\nArise-Home (docs/NODES.md): Bradly's node at his house holds a full second\nrestic copy and runs the same drill. Until that is built the Synology is the\nonly copy, and the restic password lives on the closet card only (round 4,\n30; never in Vaultwarden, never in a chat).</p>\n<h2 id=\"what-is-not-backed-up-here\">What is NOT backed up here</h2>\n<ul>\n<li><strong>The YouTube videos themselves.</strong> They live on YouTube. Nothing on this\n  server holds the recordings; StreamYard and YouTube do. If a local archive\n  of the services is ever wanted, that is a separate job (and terabytes).</li>\n<li><strong>The live website.</strong> Its code is in the <code>arisechurch</code> repo (mirrored, see\n  above) and the CMS exports and audit material are in <code>arise-church-backup</code>\n  (also mirrored). The design-only parts that live in the Wix Editor are\n  Wix's; they are not exportable.</li>\n<li><strong>Mail, Google Drive, Tithe.ly, Canva.</strong> Those are their providers'.</li>\n<li><strong>The Synology's own system settings</strong> — use DSM's Control Panel →\n  Update &amp; Restore → Configuration Backup, and keep that <code>.dss</code> file in the\n  <code>arise</code> share so restic picks it up.</li>\n<li><strong>Anything on a Mac that is not in Desktop, Documents or the share.</strong>\n  The migration doc says what stays local. If it matters, it goes in the\n  share.</li>\n</ul>",
 "demo": true
 },
 "GET /help/BROWSER": {
@@ -12291,7 +13023,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "FINDER",
 "title": "The Finder: Trash, Previous Versions, Get Info, Recents, the editor, Open on my Mac",
-"html": "<h1 id=\"the-finder-trash-previous-versions-get-info-recents-the-editor-open-on-my-mac\">The Finder: Trash, Previous Versions, Get Info, Recents, the editor, Open on my Mac</h1>\n<p>What v0.8 \"Exodus\" added to the Finder (app 01), from Bradly's round 3 answers\n(docs/ANSWERS.md): the everyday things Windows Explorer and the macOS Finder\nhave that the portal did not. Everything here is scoped the same way the\nFinder always was: <code>files.roots(who)</code> decides what a person may reach, so a\nmember only ever sees their own home and the shares their groups allow, and\nan administrator sees everything.</p>\n<h2 id=\"trash-answer-1\">Trash (answer 1)</h2>\n<p>Deleting is no longer a delete. In the portal, <strong>Move to Trash</strong> (the context\nmenu, the File menu, or Delete / ⌘⌫ on a selected item) asks for the item's\nname typed and then moves it into <code>&amp;lt;share&gt;/.Trash/&amp;lt;user&gt;/&amp;lt;its path inside the\nshare&gt;</code>. On a Mac, deleting a file on any share lands in the same folder: every\nshare on this box carries Samba's <code>recycle</code> module\n(<code>config/samba/smb.conf.template</code>, <code>shares.add_share</code> for new ones) with\n<code>recycle:repository = .Trash/%U</code> and <code>recycle:keeptree</code>, so the two Trashes are\none. The Synology's <code>recordings</code> share keeps the Synology's own <code>#recycle</code>\ninstead, and says so in the template.</p>\n<ul>\n<li><strong>Trash</strong> in the Finder sidebar lists your own items (an administrator sees\n  everyone's, with who deleted it and whether it came from a Mac). <strong>Put Back</strong>\n  returns an item to where it was; if that name is taken now, it comes back as\n  <code>name (put back).ext</code> and the toast says so.</li>\n<li><strong>Empty Trash…</strong> is an administrator's click and asks for the share's name\n  typed. It takes every user's items in that share. The nightly backup skips\n  <code>.Trash</code> (<code>config/backups.yaml.example</code>), so emptied is gone.</li>\n<li><code>arise-trash.timer</code> runs <code>arisectl trash sweep --quiet</code> at 04:30 and removes\n  anything that has sat in a Trash for 30 days. <code>arisectl trash list</code> shows\n  what is there; <code>arisectl trash sweep --dry-run</code> shows what the next sweep\n  would take; <code>arisectl trash empty &amp;lt;share&gt;</code> asks for the name again.</li>\n<li>Naming follows Samba's: a second copy of <code>x.pdf</code> in the Trash is\n  <code>Copy #1 of x.pdf</code>, so the Mac's and the portal's deletes never collide.\n  The portal keeps a small manifest per user (<code>.arise-trash.json</code>) with the\n  original path and who deleted what; a Mac's delete has no manifest and is\n  shown with its keeptree path as the original.</li>\n</ul>\n<p>Routes: <code>GET /api/files/trash</code>, <code>POST /api/files/trash</code> (root, path, confirm),\n<code>POST /api/files/trash/restore</code> (base, user, rel), <code>POST /api/files/trash/empty</code>\n(admin; share, confirm).</p>\n<p><strong>smb.conf.</strong> The template is the only thing this changes. On a box that is\nalready installed, the recycle lines are appended by hand to each share block\nin <code>/etc/samba/smb.conf</code> (copy first, <code>testparm -s</code> after, CLAUDE.md rule 4);\n<code>vfs objects</code> inside a share replaces the global list, which is why each block\nrepeats <code>acl_xattr fruit streams_xattr</code> before <code>recycle</code>.</p>\n<h2 id=\"previous-versions-answer-2\">Previous Versions (answer 2)</h2>\n<p>Right-click a file, <strong>Previous Versions…</strong>: every nightly copy the restic\nbackup holds (<code>restic find --json</code>), with the backup time, the file's own date\nand its size. <strong>Restore</strong> brings that copy back <em>beside</em> the live file as\n<code>name (restored 2026-10-27).ext</code>; nothing is ever overwritten, and a second\nrestore of the same day is numbered. The modal names the backup job that\ncovers the file (homes, shares, automator, config) and says plainly when\nnothing does: the recordings on the Synology are not in the restic backup.\nMembers may restore into their own roots; a read-only share (graphics for\nStaff) says to ask the media team.</p>\n<p>Routes: <code>GET /api/files/versions?root&amp;path</code>, <code>POST /api/files/versions/restore</code>\n(root, path, snapshot). <code>backups.versions_of</code>, <code>backups.restore_version</code>,\n<code>backups.restored_name</code>, <code>backups.job_for</code>, <code>backups.parse_find</code>.</p>\n<h2 id=\"get-info-answer-16\">Get Info (answer 16)</h2>\n<p>Kind, size (a folder's size is counted for three seconds and then says \"at\nleast\"), owner and group, created and modified, where it is, the <code>smb://</code>\naddress a Mac opens (with Copy), and <strong>who can open it</strong>: the share's valid\nusers and write list in words, or \"a home folder: only this person\". From\nthere, Previous Versions and, on a Mac, Open on my Mac.\n<code>GET /api/files/info?root&amp;path</code>.</p>\n<h2 id=\"recents-answer-16\">Recents (answer 16)</h2>\n<p><strong>Recents</strong> in the sidebar: every file changed in the last seven days across\nwhat you may browse, newest first, 200 at most, cached a minute. Right-click\nfor Quick Look, Show in folder, Edit, Download, Get Info, Previous Versions,\nShare Link. <code>GET /api/files/recent</code>.</p>\n<h2 id=\"the-text-editor-answer-15\">The text editor (answer 15)</h2>\n<p>Double-click a <code>.txt .md .csv .json .yaml .yml .toml .log</code> file (1 MB or less)\nand it opens in place: a plain editor, ⌘S / Ctrl+S saves, Tab indents, an\nunsaved-changes guard on Close and Escape, and for Markdown a <strong>Preview</strong> tab\nrendered on the server (<code>markdown</code> package; every <code>&amp;lt;</code> in the source is escaped\nfirst and script-ish links are removed, so no HTML from a file ever runs in\nthe dashboard). Saving checks the file has not changed under you since you\nopened it. Other kinds keep Quick Look. Read-only shares open read-only.\n<code>GET /api/files/text</code>, <code>PUT /api/files/text</code> (root, path, text, mtime),\n<code>POST /api/files/text/preview</code>.</p>\n<h2 id=\"compress-answer-16\">Compress (answer 16)</h2>\n<p><strong>Compress</strong> on a file or folder downloads a zip (deflated, built in a temp\nfolder). Over 2 GB it refuses with the size and says to open it on the share.\n<code>GET /api/files/zip?root&amp;path</code>.</p>\n<h2 id=\"open-on-my-mac-answer-18\">Open on my Mac (answer 18)</h2>\n<p>On a Mac, the Finder toolbar and the folder's context menu carry <strong>Open on my\nMac</strong>: the browser opens <code>smb://arise-server.ad.arisecenla.com/&amp;lt;share&gt;/&amp;lt;path&gt;</code>\nand the Mac's own Finder shows the same folder. A home is reached as\n<code>smb://…/&amp;lt;user&gt;</code>, Samba's <code>[homes]</code> answering to the person's name; a path\nunder <code>/srv/arise/shares</code> with no narrower share is reached through <code>shares</code>.\nFolders no share reaches (the automator, the apps) say so. The button is\nhidden on anything that is not a Mac. <code>finder.smb_path</code> is the pure mapping.</p>\n<h2 id=\"fonts-answer-39\">Fonts (answer 39)</h2>\n<p><code>Media/Fonts</code> on the media share (the installer makes it with a README) holds\nthe fonts the Proclaim graphics use. <code>mac/arise-home-sync.sh</code> installs any\n<code>.ttf .otf .ttc</code> there that is newer than the Mac's copy into\n<code>~/Library/Fonts</code> on its run, for anyone in the Media group; a person without\naccess to the share gets one log line, not an error. <code>mac/enroll-mac.sh</code> step\n5b does a first copy into <code>/Library/Fonts</code> for the whole Mac when the share\ncan be mounted during enrolment, and leaves a TODO line when it cannot.</p>\n<h2 id=\"every-home-starts-the-same-bradly-oct-28\">Every home starts the same (Bradly, Oct 28)</h2>\n<p>A home folder is made with <strong>Documents, Photos, Videos, Music, Downloads</strong>\ninside it the first time the person signs in: the dashboard's login calls\n<code>files.ensure_home</code>, and the <code>[homes]</code> share's <code>root preexec</code> makes the same\nfive when a Mac connects first. Nothing that exists is touched.</p>\n<p>For the administrator, the Finder sidebar carries an <strong>Everyone</strong> section:\n<em>All Documents</em>, <em>All Photos</em>, <em>All Videos</em>, <em>All Music</em>, <em>All Downloads</em>.\nEach shows every person's folder of that name side by side, each row labelled\nwith whose it is; double-click opens the item where it lives, and the context\nmenu offers Show in their folder, Get Info, Previous Versions and Move to\nTrash. The route (<code>GET /api/files/all?folder=</code>) is administrator-only; a\nmember's roots never include another person's home, so a member never sees\none (pinned in the tests).</p>\n<h2 id=\"share-links-live-until-removed-bradly-oct-28\">Share links live until removed (Bradly, Oct 28)</h2>\n<p>A share link no longer expires unless a life is picked for it: the Share\ndialog's default is \"never (until removed)\", with 1 day to a year as choices,\nand <code>[links] days = 0</code> in <code>arise.toml</code> is that default (<code>max_days = 365</code> caps a\nchosen life). The Shared Links list shows \"never\" for such a link; Remove\nstill stops it at once. <code>arisectl link sweep</code> only drops links that were given\na date.</p>\n<h2 id=\"uploads-to-10-gb-resumable-bradly-oct-28\">Uploads to 10 GB, resumable (Bradly, Oct 28)</h2>\n<p>Upload in the portal takes files up to <strong>10 GB</strong>. Anything over 8 MB goes up in\n8 MB pieces (<code>POST /api/files/upload/start</code>, <code>PUT /api/files/upload/chunk</code>,\n<code>POST /api/files/upload/finish</code>): each piece lands at the end of a\n<code>.arise-upload-&amp;lt;token&gt;.part</code> file beside the destination, and a toast shows\nthe progress. If the connection drops or the laptop closes, nothing is lost:\nthe browser retries on its own, and picking the <strong>same file again later</strong> (same\nname, size and date, same folder, same person) resumes from where it stopped,\nbecause <code>start</code> finds the part and answers with how much it already has. The\nfinal rename happens only when every byte has arrived and the name is still\nfree. Part files nobody has touched for three days are dropped by the daily\nTrash sweep. Smaller files use the plain upload as before.</p>\n<h2 id=\"what-is-not-verified-here\">What is not verified here</h2>\n<p>No real Samba, restic, Mac or Synology was in the session: the recycle and\npreexec lines were not run through <code>testparm</code>, a 10 GB upload was not sent\n(the chunk path was exercised with a small file against the demo server and\nthe rules are pinned in the tests), <code>restic find</code> and <code>restore</code> were exercised\nonly through their parsers and the demo samples, and the font sync was not run\non a Mac. The portal paths (Trash, Put Back, Empty, Previous Versions, Get\nInfo, Recents, the editor, Compress, Open on my Mac) were walked with\nPlaywright on the demo server as an administrator and as a member.</p>",
+"html": "<h1 id=\"the-finder-trash-previous-versions-get-info-recents-the-editor-open-on-my-mac\">The Finder: Trash, Previous Versions, Get Info, Recents, the editor, Open on my Mac</h1>\n<p>What v0.8 \"Exodus\" added to the Finder (app 01), from Bradly's round 3 answers\n(docs/ANSWERS.md): the everyday things Windows Explorer and the macOS Finder\nhave that the portal did not. Everything here is scoped the same way the\nFinder always was: <code>files.roots(who)</code> decides what a person may reach, so a\nmember only ever sees their own home and the shares their groups allow, and\nan administrator sees everything.</p>\n<h2 id=\"trash-answer-1\">Trash (answer 1)</h2>\n<p>Deleting is no longer a delete. In the portal, <strong>Move to Trash</strong> (the context\nmenu, the File menu, or Delete / ⌘⌫ on a selected item) asks for the item's\nname typed and then moves it into <code>&amp;lt;share&gt;/.Trash/&amp;lt;user&gt;/&amp;lt;its path inside the\nshare&gt;</code>. On a Mac, deleting a file on any share lands in the same folder: every\nshare on this box carries Samba's <code>recycle</code> module\n(<code>config/samba/smb.conf.template</code>, <code>shares.add_share</code> for new ones) with\n<code>recycle:repository = .Trash/%U</code> and <code>recycle:keeptree</code>, so the two Trashes are\none. The Synology's <code>recordings</code> share keeps the Synology's own <code>#recycle</code>\ninstead, and says so in the template.</p>\n<ul>\n<li><strong>Trash</strong> in the Finder sidebar lists your own items (an administrator sees\n  everyone's, with who deleted it and whether it came from a Mac). <strong>Put Back</strong>\n  returns an item to where it was; if that name is taken now, it comes back as\n  <code>name (put back).ext</code> and the toast says so.</li>\n<li><strong>Empty Trash…</strong> is an administrator's click and asks for the share's name\n  typed. It takes every user's items in that share. The nightly backup skips\n  <code>.Trash</code> (<code>config/backups.yaml.example</code>), so emptied is gone.</li>\n<li><code>arise-trash.timer</code> runs <code>arisectl trash sweep --quiet</code> at 04:30 and removes\n  anything that has sat in a Trash for 30 days. <code>arisectl trash list</code> shows\n  what is there; <code>arisectl trash sweep --dry-run</code> shows what the next sweep\n  would take; <code>arisectl trash empty &amp;lt;share&gt;</code> asks for the name again.</li>\n<li>Naming follows Samba's: a second copy of <code>x.pdf</code> in the Trash is\n  <code>Copy #1 of x.pdf</code>, so the Mac's and the portal's deletes never collide.\n  The portal keeps a small manifest per user (<code>.arise-trash.json</code>) with the\n  original path and who deleted what; a Mac's delete has no manifest and is\n  shown with its keeptree path as the original.</li>\n</ul>\n<p>Routes: <code>GET /api/files/trash</code>, <code>POST /api/files/trash</code> (root, path, confirm),\n<code>POST /api/files/trash/restore</code> (base, user, rel), <code>POST /api/files/trash/empty</code>\n(admin; share, confirm).</p>\n<p><strong>smb.conf.</strong> The template is the only thing this changes. On a box that is\nalready installed, the recycle lines are appended by hand to each share block\nin <code>/etc/samba/smb.conf</code> (copy first, <code>testparm -s</code> after, CLAUDE.md rule 4);\n<code>vfs objects</code> inside a share replaces the global list, which is why each block\nrepeats <code>acl_xattr fruit streams_xattr</code> before <code>recycle</code>.</p>\n<h2 id=\"previous-versions-answer-2\">Previous Versions (answer 2)</h2>\n<p>Right-click a file, <strong>Previous Versions…</strong>: every nightly copy the restic\nbackup holds (<code>restic find --json</code>), with the backup time, the file's own date\nand its size. <strong>Restore</strong> brings that copy back <em>beside</em> the live file as\n<code>name (restored 2026-10-27).ext</code>; nothing is ever overwritten, and a second\nrestore of the same day is numbered. The modal names the backup job that\ncovers the file (homes, shares, automator, config) and says plainly when\nnothing does: the recordings on the Synology are not in the restic backup.\nMembers may restore into their own roots; a read-only share (graphics for\nStaff) says to ask the media team.</p>\n<p><strong>They reach 90 days</strong> (round 5, row 14; <code>[storage] versions_days</code>): the\nmodal lists the copies from the last 90 days only. restic itself still keeps\nits 30 daily, 12 weekly and 24 monthly snapshots; anything older than 90 days\nis Bradly's restore (<code>arisectl backup restore</code>, docs/BACKUPS.md). Set\n<code>versions_days = 0</code> to list every snapshot.</p>\n<p>Routes: <code>GET /api/files/versions?root&amp;path</code>, <code>POST /api/files/versions/restore</code>\n(root, path, snapshot). <code>backups.versions_of</code>, <code>backups.restore_version</code>,\n<code>backups.restored_name</code>, <code>backups.job_for</code>, <code>backups.parse_find</code>.</p>\n<h2 id=\"get-info-answer-16\">Get Info (answer 16)</h2>\n<p>Kind, size (a folder's size is counted for three seconds and then says \"at\nleast\"), owner and group, created and modified, where it is, the <code>smb://</code>\naddress a Mac opens (with Copy), and <strong>who can open it</strong>: the share's valid\nusers and write list in words, or \"a home folder: only this person\". From\nthere, Previous Versions and, on a Mac, Open on my Mac.\n<code>GET /api/files/info?root&amp;path</code>.</p>\n<h2 id=\"recents-answer-16\">Recents (answer 16)</h2>\n<p><strong>Recents</strong> in the sidebar: every file changed in the last seven days across\nwhat you may browse, newest first, 200 at most, cached a minute. Right-click\nfor Quick Look, Show in folder, Edit, Download, Get Info, Previous Versions,\nShare Link. <code>GET /api/files/recent</code>.</p>\n<h2 id=\"the-text-editor-answer-15\">The text editor (answer 15)</h2>\n<p>Double-click a <code>.txt .md .csv .json .yaml .yml .toml .log</code> file (1 MB or less)\nand it opens in place: a plain editor, ⌘S / Ctrl+S saves, Tab indents, an\nunsaved-changes guard on Close and Escape, and for Markdown a <strong>Preview</strong> tab\nrendered on the server (<code>markdown</code> package; every <code>&amp;lt;</code> in the source is escaped\nfirst and script-ish links are removed, so no HTML from a file ever runs in\nthe dashboard). Saving checks the file has not changed under you since you\nopened it. Other kinds keep Quick Look. Read-only shares open read-only.\n<code>GET /api/files/text</code>, <code>PUT /api/files/text</code> (root, path, text, mtime),\n<code>POST /api/files/text/preview</code>.</p>\n<h2 id=\"compress-answer-16\">Compress (answer 16)</h2>\n<p><strong>Compress</strong> on a file or folder downloads a zip (deflated, built in a temp\nfolder). Over 2 GB it refuses with the size and says to open it on the share.\n<code>GET /api/files/zip?root&amp;path</code>.</p>\n<h2 id=\"open-on-my-mac-answer-18\">Open on my Mac (answer 18)</h2>\n<p>On a Mac, the Finder toolbar and the folder's context menu carry <strong>Open on my\nMac</strong>: the browser opens <code>smb://arise-server.ad.arisecenla.com/&amp;lt;share&gt;/&amp;lt;path&gt;</code>\nand the Mac's own Finder shows the same folder. A home is reached as\n<code>smb://…/&amp;lt;user&gt;</code>, Samba's <code>[homes]</code> answering to the person's name; a path\nunder <code>/srv/arise/shares</code> with no narrower share is reached through <code>shares</code>.\nFolders no share reaches (the automator, the apps) say so. The button is\nhidden on anything that is not a Mac. <code>finder.smb_path</code> is the pure mapping.</p>\n<h2 id=\"fonts-answer-39\">Fonts (answer 39)</h2>\n<p><code>Media/Fonts</code> on the media share (the installer makes it with a README) holds\nthe fonts the Proclaim graphics use. <code>mac/arise-home-sync.sh</code> installs any\n<code>.ttf .otf .ttc</code> there that is newer than the Mac's copy into\n<code>~/Library/Fonts</code> on its run, for anyone in the Media group; a person without\naccess to the share gets one log line, not an error. <code>mac/enroll-mac.sh</code> step\n5b does a first copy into <code>/Library/Fonts</code> for the whole Mac when the share\ncan be mounted during enrolment, and leaves a TODO line when it cannot.</p>\n<h2 id=\"every-home-starts-the-same-bradly-oct-28\">Every home starts the same (Bradly, Oct 28)</h2>\n<p>A home folder is made with <strong>Documents, Photos, Videos, Music, Downloads</strong>\ninside it the first time the person signs in: the dashboard's login calls\n<code>files.ensure_home</code>, and the <code>[homes]</code> share's <code>root preexec</code> makes the same\nfive when a Mac connects first. Nothing that exists is touched.</p>\n<p>For the administrator, the Finder sidebar carries an <strong>Everyone</strong> section:\n<em>All Documents</em>, <em>All Photos</em>, <em>All Videos</em>, <em>All Music</em>, <em>All Downloads</em>.\nEach shows every person's folder of that name side by side, each row labelled\nwith whose it is; double-click opens the item where it lives, and the context\nmenu offers Show in their folder, Get Info, Previous Versions and Move to\nTrash. The route (<code>GET /api/files/all?folder=</code>) is administrator-only; a\nmember's roots never include another person's home, so a member never sees\none (pinned in the tests).</p>\n<h2 id=\"share-links-live-until-removed-bradly-oct-28\">Share links live until removed (Bradly, Oct 28)</h2>\n<p>A share link no longer expires unless a life is picked for it: the Share\ndialog's default is \"never (until removed)\", with 1 day to a year as choices,\nand <code>[links] days = 0</code> in <code>arise.toml</code> is that default (<code>max_days = 365</code> caps a\nchosen life). The Shared Links list shows \"never\" for such a link; Remove\nstill stops it at once. <code>arisectl link sweep</code> only drops links that were given\na date.</p>\n<h2 id=\"uploads-to-10-gb-resumable-bradly-oct-28\">Uploads to 10 GB, resumable (Bradly, Oct 28)</h2>\n<p>Upload in the portal takes files up to <strong>10 GB</strong>. Anything over 8 MB goes up in\n8 MB pieces (<code>POST /api/files/upload/start</code>, <code>PUT /api/files/upload/chunk</code>,\n<code>POST /api/files/upload/finish</code>): each piece lands at the end of a\n<code>.arise-upload-&amp;lt;token&gt;.part</code> file beside the destination, and a toast shows\nthe progress. If the connection drops or the laptop closes, nothing is lost:\nthe browser retries on its own, and picking the <strong>same file again later</strong> (same\nname, size and date, same folder, same person) resumes from where it stopped,\nbecause <code>start</code> finds the part and answers with how much it already has. The\nfinal rename happens only when every byte has arrived and the name is still\nfree. Part files nobody has touched for three days are dropped by the daily\nTrash sweep. Smaller files use the plain upload as before.</p>\n<h2 id=\"the-home-quota-round-5-row-13\">The home quota (round 5, row 13)</h2>\n<p>Every home gets <strong>50 GB</strong> (<code>[storage] home_quota_gb</code>). Finder's sidebar shows\nthe line under Sharing (\"38.9 GB of 50.0 GB\", a bar, and <em>Nearly full</em> from\n90 %, <code>quota_warn_pct</code>). Storage lists every home against the quota. An\nupload or a new file that would pass 50 GB is refused with the reason, in the\ndashboard, before a byte is written.</p>\n<p>The dashboard's check covers the dashboard. <strong>A Mac copying over SMB is held\nby the filesystem's own quota</strong>, which has to be switched on once on the disk\nthat holds the homes (ext4):</p>\n<pre><code># 1. add usrquota to that filesystem's options in /etc/fstab, e.g.\n#    UUID=...  /srv/arise  ext4  defaults,usrquota  0  2\nsudo mount -o remount /srv/arise\nsudo quotacheck -cum /srv/arise      # builds aquota.user (a few minutes on a full disk)\nsudo quotaon -v /srv/arise\nsudo arisectl quota apply            # setquota for every home: soft = hard = 50 GB\nsudo arisectl quota                  # each home: used, of, percent\n</code></pre>\n<p>The installer runs <code>arisectl quota apply</code> by itself when quotas are already\non, and says how to turn them on when they are not. Run <code>quota apply</code> again\nafter adding people. Two things to know:\n- the filesystem quota counts <strong>every file the person owns on that disk</strong>,\n  their files in the Church and department folders included, not only the\n  home. The dashboard's line counts the home folder only.\n- with <code>homes_on = \"synology\"</code> the homes are on the Synology and its own\n  DSM quota does this job; <code>quota apply</code> has nothing to set on a network mount.</p>\n<h2 id=\"shared-with-me-round-5-row-19\">Shared with me (round 5, row 19)</h2>\n<p><strong>Share with…</strong> on a file or folder, the <strong>Shared with me</strong> section of the\nsidebar and <strong>Shared by me</strong> are described in docs/SHARES.md, with the rules\nfor the Church, department and Pastors folders.</p>\n<h2 id=\"what-is-not-verified-here\">What is not verified here</h2>\n<p>No real Samba, restic, Mac or Synology was in the session: the recycle and\npreexec lines were not run through <code>testparm</code>, a 10 GB upload was not sent\n(the chunk path was exercised with a small file against the demo server and\nthe rules are pinned in the tests), <code>restic find</code> and <code>restore</code> were exercised\nonly through their parsers and the demo samples, and the font sync was not run\non a Mac. The portal paths (Trash, Put Back, Empty, Previous Versions, Get\nInfo, Recents, the editor, Compress, Open on my Mac) were walked with\nPlaywright on the demo server as an administrator and as a member.</p>",
 "demo": true
 },
 "GET /help/FRIDAY-CHECKLIST": {
@@ -12404,6 +13136,13 @@ window.ARISE_DEMO_DATA = {
 "name": "SETUP-GUIDE",
 "title": "The setup guide — from a wiped OptiPlex to three sites",
 "html": "<h1 id=\"the-setup-guide-from-a-wiped-optiplex-to-three-sites\">The setup guide — from a wiped OptiPlex to three sites</h1>\n<p>This is the one page to start from. It says what the system is, who gets\nwhat, and the order to do things in. Every step points at the page that has\nthe commands, so nothing is repeated here twice. Read it once end to end\nbefore you touch the PC.</p>\n<p>Bradly's answers are in <strong>docs/ANSWERS.md</strong> (questions 1 to 7, the\nOptiPlex and the Synology, come Sunday). This guide follows those answers;\nwhere something still waits on Sunday or on a photo, it says so.</p>\n<hr>\n<h2 id=\"1-what-you-are-building-on-one-page\">1. What you are building, on one page</h2>\n<p>One Dell OptiPlex, wiped, running Ubuntu Server 24.04 with Arise Server on\ntop. Four faces, one box:</p>\n<table>\n<thead>\n<tr>\n<th>Face</th>\n<th>What it is</th>\n<th>Who uses it</th>\n<th>From where</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>The OS on the monitor</strong></td>\n<td>the Arise desktop, full screen on the closet monitor from boot (<code>install.sh --kiosk</code>, docs/CONSOLE.md)</td>\n<td>you, standing at the box</td>\n<td>the closet</td>\n</tr>\n<tr>\n<td><strong>The dashboard</strong></td>\n<td>the same desktop in a browser: <code>http://arise-server:4147</code>. Every directory user can sign in. Admins see everything; members see their files, the shares they are allowed, Sermons, Bible, Campuses, a share-link button and a change-password button</td>\n<td>everyone with an account</td>\n<td>the church network, or Tailscale from anywhere. Nothing is exposed to the open internet (answer 36)</td>\n</tr>\n<tr>\n<td><strong>SMB on the network</strong></td>\n<td><code>smb://arise-server/homes/&amp;lt;user&gt;</code> and <code>smb://arise-server/shares/&amp;lt;name&gt;</code>, the same folders the dashboard shows. Church Macs bound to the domain log in with the directory password and keep Desktop and Documents on the server</td>\n<td>staff, media and the department logins at a church computer</td>\n<td>any church site, on the LAN or over Tailscale</td>\n</tr>\n<tr>\n<td><strong>The directory</strong></td>\n<td>a real Active Directory domain, <code>AD.ARISECENLA.COM</code>, run by Samba (docs/DIRECTORY.md). Users, groups, computers, passwords, Kerberos, DNS</td>\n<td>every Mac and PC that joins; every login above</td>\n<td>everywhere the DNS reaches</td>\n</tr>\n</tbody>\n</table>\n<p>Underneath: the YouTube automator at 02:05, restic backups to the Synology\nat 03:00, the GitHub mirror at 04:00 (README § The nightly timetable). The\n07:00 daily note is off by Bradly's choice (answer 49); the dashboard's\n<em>Needs you</em> list is the alarm.</p>\n<p>\"Active Directory, but better\" means: it <strong>is</strong> AD (any Mac or Windows PC\nbinds to it the normal way, Kerberos single sign-on, one password\neverywhere), and on top of AD it has what a church does not get from a\nWindows Server box: a web portal for people who are not on site, share links,\na Finder in the browser, off-site VPN with no port forwarding, nightly\nbackups you can see the history of, and a desktop on the monitor instead of\na login prompt. What it does <strong>not</strong> have is group policy for Macs (AD never\ndid either) and a second domain controller on day one (docs/MULTI-SITE.md\nsays when to add one).</p>\n<p>The three sites:</p>\n<table>\n<thead>\n<tr>\n<th>Site</th>\n<th>Now</th>\n<th>Later</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Arise Church Pineville</strong></td>\n<td>the server lives here, on the LAN</td>\n<td>becomes a remote site when the server moves (docs/MOVING-DAY.md)</td>\n</tr>\n<tr>\n<td><strong>Arise Church Alexandria</strong></td>\n<td>reaches the server over the VPN</td>\n<td>same</td>\n</tr>\n<tr>\n<td><strong>The Apostolic Hub</strong></td>\n<td>being built; people there use the VPN</td>\n<td>the server moves here</td>\n</tr>\n</tbody>\n</table>\n<p>How \"across town\" connects is docs/NETWORK.md. Short version: every Mac\nthat is not on the server's own network runs Tailscale, signed in with the\none church login. Alexandria is a single Mac (answer 19), so that Mac runs\nTailscale itself and there is no route box there (answer 21). After the\nserver moves to the Hub, Pineville's church Macs need the same: Tailscale on\neach, or one small route box for the building (that decision is still open,\ndocs/MOVING-DAY.md).</p>\n<hr>\n<h2 id=\"2-roles-who-can-reach-what-from-where\">2. Roles: who can reach what, from where</h2>\n<p>Groups are in the directory (docs/DIRECTORY.md § Organisational units and\ngroups). The dashboard reads them: a member of <code>Domain Admins</code> (or the\n<code>admin_user</code> in <code>arise.toml</code>) is an <strong>admin</strong>; everyone else is a\n<strong>member</strong>. A share is readable by the groups listed on it.</p>\n<table>\n<thead>\n<tr>\n<th>Role</th>\n<th>Directory group</th>\n<th>Church Mac (bound)</th>\n<th>Personal Mac (not bound)</th>\n<th>Off-site, any device</th>\n<th>Phone</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Admin</strong>: Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly (answer 25)</td>\n<td><code>Domain Admins</code></td>\n<td>everything: all shares, the dashboard as admin, the Terminal</td>\n<td>the dashboard as admin over Tailscale; the home-sync agent if wanted</td>\n<td>same, over Tailscale</td>\n<td>dashboard as admin over Tailscale</td>\n</tr>\n<tr>\n<td><strong>Staff</strong> (pastors, paid staff)</td>\n<td><code>Staff</code></td>\n<td>own home folder on the server, <code>staff</code> share, their own mobile account</td>\n<td>the dashboard portal over Tailscale; the home-sync agent if wanted</td>\n<td>dashboard member portal: own home, <code>staff</code> share, upload, download, share links; Tailscale on the Mac for full SMB</td>\n<td>dashboard member portal</td>\n</tr>\n<tr>\n<td><strong>Leadership</strong></td>\n<td><code>Leadership</code> (+ <code>Staff</code>)</td>\n<td>the above plus the <code>leadership</code> share</td>\n<td>same</td>\n<td>same plus <code>leadership</code> in the portal</td>\n<td>dashboard member portal</td>\n</tr>\n<tr>\n<td><strong>Media</strong></td>\n<td><code>Media</code></td>\n<td>the above plus the <code>media</code>, <code>graphics</code> and <code>recordings</code> shares, the StreamYard and Proclaim Macs</td>\n<td>same</td>\n<td>same plus those shares in the portal</td>\n<td>dashboard member portal</td>\n</tr>\n<tr>\n<td><strong>Department</strong> (one shared login per department: Children's Department, Inedge, Worship, others to come; answer 27)</td>\n<td>one group per department (<code>Childrens-Department</code>, <code>Inedge</code>, <code>Worship</code>)</td>\n<td>the department's share and the department's home folder</td>\n<td>—</td>\n<td>dashboard member portal: the department share</td>\n<td>dashboard member portal</td>\n</tr>\n<tr>\n<td><strong>Guest</strong></td>\n<td>no account</td>\n<td>the guest Wi-Fi, already separate from the staff network (answer 17)</td>\n<td>—</td>\n<td>nothing</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<p>SSH is Bradly's only; the other three admins get the admin desktop in the\ndashboard, not a shell, unless they ask. Volunteers do not get personal\naccounts (answer 24); they use a department login. The <code>Volunteers</code> group\nstays in the directory, empty, for the day that changes.</p>\n<p>What a member <strong>cannot</strong> do anywhere: see another person's home, see a share\ntheir group is not on, delete or move files from the dashboard (that is the\nMac's own Finder over SMB, on purpose), see settings, services, logs, the\nTerminal, backups or the automator. What an admin cannot do from the\ndashboard: delete a home folder, delete a snapshot, delete a share's files\n(all by design; README § Rules it keeps).</p>\n<p>There is no kids check-in station yet (answer 28); the <code>Kids-Check-in</code>\ngroup waits. Before day 5 below, two lists are still needed: the people in\nstaff and media, and every department that gets a login (docs/ANSWERS.md\n§ Still needed).</p>\n<hr>\n<h2 id=\"3-the-order-of-work\">3. The order of work</h2>\n<p>Each day is a block that ends in a state you can leave the box in. Do them\nin order. Nothing in a later block is needed by an earlier one.</p>\n<h3 id=\"day-0-before-the-wipe\">Day 0 — before the wipe</h3>\n<p>docs/PRE-WIPE.md, all of it: what is on the old Windows PC that is worth\nkeeping, the automator's <code>token.json</code> and <code>client_secret.json</code> copied to a\nUSB stick <strong>and</strong> your Mac, the Synology admin password written down, a\nphoto of the back of the PC and the switch port it is in.</p>\n<p>Questions 1 to 7 (the OptiPlex, the Synology) are answered on Sunday; the\nCisco sticker and each router's LAN page still need a photo (answers 10 and\n12). Three decisions have to be made before the installer runs:</p>\n<ul>\n<li><strong>where the server plugs in</strong>: decided. Wired into the switch on Netgear\n  A's network (the router at the modem). <strong>No router, switch or Mesh\n  setting changes, ever, and no IP address changes</strong>: the installer keeps\n  the address the router hands the box and pins it on the server, each Mac\n  gets a per-domain resolver file from <code>bind-mac.sh --dns</code>, and Tailscale\n  covers everything the NATs block. docs/NETWORK.md § The Pineville network\n  as it is;</li>\n<li>whether home folders live on the server's disk or on the Synology\n  (docs/SYNOLOGY.md; the OptiPlex's disk size decides, question 2, Sunday).</li>\n</ul>\n<p>Also needed on day 1: the model of the Pineville UPS (answer 8) and a USB\ncable from the UPS to the server, for the step below.</p>\n<h3 id=\"day-1-the-os\">Day 1 — the OS</h3>\n<p>Bradly installs at home first and carries the box in. Use <code>--staging</code> at\nhome (INSTALL.md § Installing at home first): the domain listens on the\nbox only, no home address is pinned, no scan of the house, no DC port\nopen. At the church, the same command without <code>--staging</code> relocates it in\none run.</p>\n<p>INSTALL.md § Path A, steps 1 to 5: make the USB, install Ubuntu, get the\ncode on it, run the installer, set the fixed address. Run the installer with\nthe flags you will actually use so the box is complete on the first pass:</p>\n<pre><code class=\"language-bash\">sudo bash /opt/arise/installer/install.sh --with-tailscale --with-caddy --kiosk\n</code></pre>\n<p>Plug the server and the Synology into the Pineville UPS (answer 8) and run\nthe UPS's USB cable to the server. Install <code>nut</code> (Network UPS Tools, in\nUbuntu) and point it at the UPS model, so the server shuts itself down\ncleanly before the battery dies; a domain controller that loses power\nmid-write can corrupt its database. The exact <code>nut</code> lines wait on the UPS\nmodel; docs/IDEAS.md § 1 has the shape of it.</p>\n<p>The monitor in the closet shows the Arise desktop as soon as the installer\nfinishes and the box reboots (docs/CONSOLE.md). The Windows keyboard works\nas is: <strong>Ctrl</strong> does what ⌘ does on a Mac, and the Windows key does too\nwhere the browser reports it. The desktop prints shortcut labels as <code>Ctrl</code>\non that keyboard.</p>\n<p>End of day 1: <code>sudo arisectl doctor</code> is green for the OS, the dashboard\nopens on the LAN, the domain exists, nobody is in it yet.</p>\n<h3 id=\"day-2-the-directory-dns-the-first-mac\">Day 2 — the directory, DNS, the first Mac</h3>\n<ol>\n<li>docs/DIRECTORY.md § DNS on the church network. The staff router hands\n   out addresses (answer 14), so its DHCP page is where the server becomes\n   the <strong>only</strong> DNS. This is the step people skip and then nothing binds.\n   Verify with the two <code>dig</code> lines on a Mac.</li>\n<li>Create yourself and the groups (§ 4 below): <code>bradly.dyer</code> in\n   <code>Domain Admins</code>, <code>Staff</code> and <code>Media</code>.</li>\n<li>Bind <strong>one</strong> church Mac, yours, with <code>mac/enroll-mac.sh</code>\n   (docs/MAC-MIGRATION.md). Log out, log in as <code>bradly.dyer</code>, watch Desktop\n   and Documents land in <code>smb://arise-server/homes/bradly.dyer</code>. Make a file on the Mac, see it in the\n   dashboard's Finder within fifteen minutes (that is the home-sync agent).\n   Do not bind a second Mac until this one is boring.</li>\n</ol>\n<h3 id=\"day-3-the-automator-the-synology-backups\">Day 3 — the automator, the Synology, backups</h3>\n<p>INSTALL.md § First boot, steps 2 to 4 and 6, in that order: the automator\ncheckout and its two secret files, the restic password (on paper too), the\nSynology mounted, <code>arisectl doctor</code>. Then Dashboard → Backups → run every\njob once by hand and read the history rows. A backup you have never watched\nsucceed is not a backup.</p>\n<p>The automator keeps running on the old Windows PC until the server's timer\nis enabled, then it stops there (answer 46); never two copies at 02:05.\nBackup history is 30 daily, 12 weekly, 24 monthly (answer 47); how much\nSynology space that takes waits on question 4. The <code>recordings</code> share is\nexcluded from restic on purpose (§ 4, Shares).</p>\n<p>Wait one night. In the morning the 02:05 automator report and the 03:00\nbackup rows are in the dashboard. There is no daily note (answer 49): the\n<em>Needs you</em> list on the Overview is what to read.</p>\n<h3 id=\"day-4-remote-access-the-closet-door-closes\">Day 4 — remote access, the closet door closes</h3>\n<p>docs/REMOTE-ACCESS.md § (f), the checklist. The test that matters: from\nyour phone's hotspot, on your laptop, open <code>http://arise-server:4147</code>,\nsign in, open a file in the Finder. If that works the server no longer\nneeds you in the room.</p>\n<p>Tailscale is signed in with the one shared church Google login on every\ndevice (answers 29 and 42). Everyone with an account may reach the server\nfrom home (answer 43), so each person gets the Tailscale app and the\ndashboard address. Guacamole gets one connection, the media Mac (answer 44).\nNo public door (answer 36; § 9 is off).</p>\n<h3 id=\"day-5-people\">Day 5 — people</h3>\n<p>Accounts for staff and media now (answer 24): the four admins, the staff,\nthe media team, then one login per department (Children's Department,\nInedge, Worship, and the rest of the list when it comes). Groups per § 2. Each person's first login\nsets their own password (<code>arisectl user passwd</code> marks \"must change at next\nlogin\"). Give each person the one-paragraph \"what you do\" from § 6 or § 7.</p>\n<h3 id=\"day-6-the-rest-of-pinevilles-computers\">Day 6 — the rest of Pineville's computers</h3>\n<p><code>mac/enroll-mac.sh</code> on each church Mac, one at a time, the person present\nfor the first login (docs/MAC-MIGRATION.md). Six to ten Macs in all\n(answer 30), so two or three days. There are no Windows PCs (answer 31).\nWhere a Mac's local account name is not <code>first.last</code>, pass\n<code>--map oldname=first.last</code>.</p>\n<p><strong>Personal Macs are not bound.</strong> Apostle Bryant's and Pastor Vanessa's own\nMacs leave the building (answer 34); binding a personal Mac hands its login\nto the church directory, which is the wrong direction for a personal\nmachine. They get the Tailscale app, the dashboard address, and the\nhome-sync agent if they want a folder kept on the server\n(docs/MAC-MIGRATION.md § Personal Macs).</p>\n<p>The media Mac runs Proclaim and sends NDI (answer 50); it is a Mac, so it\nis enrolled like the others, with a shared <code>media</code> login (answer 32). Its\nvideo is small enough to move (answer 33): it goes to the <code>recordings</code>\nshare on the Synology, not into the home-sync list. Proclaim's backgrounds,\nloops and lower thirds get a Syncthing pair with the <code>graphics</code> share\n(answer 38) so they play from local disk and are backed up from the share.\nTwo more Syncthing pairs, and only these (round 2, 25): the automator's\nthumbnails folder to the media Mac, and the office documents share to the\noffice Mac. Every church Mac also backs itself up with Time Machine to a\nshare on the Synology (round 2, 5); space about equal to each Mac's used\ndisk, an estimate, so that waits for the Synology's size (question 4).\nPrinting: the office printer sits behind router B and is not an HP; once\nits brand and model are known the server runs CUPS with AirPrint so every\nMac and phone prints to it (round 2, 6 and 26); nothing on router B changes.</p>\n<h3 id=\"day-7-alexandria\">Day 7 — Alexandria</h3>\n<p>Alexandria is one Mac and there is no place for a route box (answers 19\nand 21), so the Mac is its own tunnel: docs/NETWORK.md § A church across\ntown, option A. The order: the split-DNS rule for <code>ad.arisecenla.com</code> in\nthe Tailscale console (done on day 4), Tailscale installed on that Mac and\nset to start at login, <code>ping arise-server</code> and the two <code>dig</code> lines, then\n<code>mac/enroll-mac.sh</code> exactly like day 2. Drive there for it. Nobody streams\nfrom Alexandria (answer 22), so there is no bandwidth rule there.</p>\n<h3 id=\"day-8-the-hub\">Day 8 — the Hub</h3>\n<p>Until the Hub exists, Hub people are laptops on Tailscale (docs/MULTI-SITE.md\n§ The Apostolic Hub). When the building is ready and the server moves,\ndocs/MOVING-DAY.md is the plan for that day.</p>\n<h3 id=\"then\">Then</h3>\n<p>The care list in § 8. <code>arisectl doctor</code> weekly. The questions in\ndocs/QUESTIONS.md that are not answered yet, as they come up.</p>\n<hr>\n<h2 id=\"4-creating-people-three-doors-one-result\">4. Creating people: three doors, one result</h2>\n<p>All three run the same code. The result is the same user, the same home\nfolder, the same groups.</p>\n<p><strong>From the dashboard, or the desktop on the monitor</strong> (they are the same\nthing): Directory → Users → <strong>Add</strong>. Username, display name, a first\npassword, groups. The row goes green when the home folder exists. Password\nreset, enable, disable and delete are on the same row; delete asks for the\nusername typed back and never removes the home folder.</p>\n<p><strong>Over SSH</strong>, or in the dashboard's Terminal app:</p>\n<pre><code class=\"language-bash\">sudo arisectl user add jane.smith --display &quot;Jane Smith&quot; --groups Staff\nsudo arisectl user passwd jane.smith          # prompts twice\nsudo arisectl group addmember Media jane.smith\nsudo arisectl user list\nsudo arisectl user disable jane.smith         # when someone leaves; files stay\n</code></pre>\n<p>When someone leaves (round 2, 24): the login stays on for 30 days in case\nthey come back, then is disabled; their files move to the next appropriate\nperson or department account, chosen by you. That becomes a \"leaving\"\nbutton in the Directory app (v0.8 \"Exodus\", docs/ROADMAP.md); until then it\nis <code>arisectl user disable</code> after the 30 days and a move in Finder.</p>\n<p>The four admins get two-step sign-in with codes from Microsoft\nAuthenticator (round 2, 11; TOTP, so no Microsoft account is involved),\nenrolled from the flame menu before any member signs in. Also v0.8.</p>\n<p><strong>Usernames are <code>first.last</code></strong> (answer 23): <code>bradly.dyer</code>, <code>bryant.sanders</code>,\n<code>vanessa.sanders</code>, <code>kristina.robinson</code>. Lower case, a dot, no spaces. A\nMac whose local account is called something else is paired by hand:\n<code>mac/enroll-mac.sh --map oldname=first.last</code> (one <code>--map</code> per person).\nDepartment logins are the department name in the same shape where it fits\n(<code>childrens.department</code>, <code>inedge</code>, <code>worship</code>); say the exact names when the\ndepartment list comes.</p>\n<p><strong>Groups</strong>: make them once, by name, exactly as in § 2. <code>install.sh</code> creates\n<code>Staff</code>, <code>Leadership</code>, <code>Media</code>, <code>Volunteers</code>, <code>Kids-Check-in</code>, and one group\nper department: <code>Childrens-Department</code>, <code>Inedge</code>, <code>Worship</code>. Add others\nwith <code>arisectl group add</code> or Directory → Groups → <strong>New group</strong>.</p>\n<p><strong>Shares</strong>, nine of them (answer 37): <code>staff</code>, <code>leadership</code>, <code>media</code>,\n<code>kids</code>, <code>graphics</code>, <code>childrens-department</code>, <code>inedge</code>, <code>worship</code>,\n<code>recordings</code>. <code>install.sh</code> makes them from <code>config/samba/smb.conf.template</code>;\nmore with Directory → Shares → <strong>New share</strong> (name, path, which groups may\nread, which may write), or <code>arisectl share add</code>. A share is a folder under\n<code>/srv/arise/shares/</code> (or on the Synology) with a group on it. The dashboard\nmember portal shows a person the shares whose groups they are in; SMB shows\nthe same ones. <code>recordings</code> lives on the Synology, holds every Sunday's\nvideo (answer 51), and is <strong>excluded from restic</strong>: a file of several GB a\nweek would swallow the backup history. Its protection is the Synology's own\nRAID until an off-site copy exists (answer 48, \"nowhere yet\").</p>\n<p>A person's own password: Dashboard → the flame menu → <strong>Change Password</strong>\n(members and admins alike), or on a bound Mac the normal System Settings\npassword change, which goes to the domain.</p>\n<hr>\n<h2 id=\"5-joining-computers-per-site\">5. Joining computers, per site</h2>\n<table>\n<thead>\n<tr>\n<th>Where</th>\n<th>Church Macs</th>\n<th>Personal Macs</th>\n<th>What it needs first</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Pineville</strong> (server on the LAN)</td>\n<td><code>mac/enroll-mac.sh</code> (docs/MAC-MIGRATION.md)</td>\n<td>not bound: Tailscale + the dashboard</td>\n<td>the server as the only DNS from the staff router's DHCP; the Mac on the server's network (docs/NETWORK.md)</td>\n</tr>\n<tr>\n<td><strong>Alexandria</strong> (one Mac)</td>\n<td>Tailscale on the Mac, signed in, start at login; then the same script</td>\n<td>—</td>\n<td>the split-DNS rule</td>\n</tr>\n<tr>\n<td><strong>The Hub</strong> (before the move)</td>\n<td>Tailscale on the Mac, then the same script</td>\n<td>not bound: Tailscale + the dashboard</td>\n<td>the split-DNS rule</td>\n</tr>\n<tr>\n<td><strong>A church laptop that moves between sites</strong></td>\n<td>bind it at whichever site; it is a mobile account, it works everywhere and offline</td>\n<td>—</td>\n<td>Tailscale on it, so it is \"home\" from anywhere</td>\n</tr>\n</tbody>\n</table>\n<p>There are no Windows PCs today (answer 31); docs/DIRECTORY.md § Joining a\nWindows PC is reference for the day one appears.</p>\n<p>A joined computer appears in Dashboard → Directory → Computers, and in\nCampuses under the site whose subnet its address is in. That is how you\nknow which building a Mac is in.</p>\n<hr>\n<h2 id=\"6-what-a-remote-member-does\">6. What a remote member does</h2>\n<p>Someone on the staff, at home, with a file to drop off and a video to\ncollect:</p>\n<ol>\n<li>Open Tailscale (signed in with the church login), then the dashboard:\n   <code>http://arise-server:4147</code>. There is no public address (answer 36).</li>\n<li>Sign in with their directory username and password. The same one as the\n   church Mac.</li>\n<li>The Finder opens on their home folder. The sidebar shows <strong>Home</strong> and the\n   shares their groups allow (<code>staff</code>, maybe <code>media</code>). Nothing else.</li>\n<li><strong>Upload</strong>: the Upload button, or drag files onto the window. Files land\n   in the folder they are looking at, which is on the server, which is in\n   tonight's backup. 2 GB per file through the browser; bigger than that,\n   use Tailscale and the share over SMB.</li>\n<li><strong>Download</strong>: double-click a file, or select it and press Download.\n   Space previews most things first (Quick Look).</li>\n<li><strong>Share a link</strong>: right-click a file, <strong>Share Link…</strong>. A\n   <code>http://arise-server:4147/s/&amp;lt;token&gt;</code> address goes to the clipboard. Anyone\n   with it downloads that one file, no sign-in, for 7 days by default\n   (answer 39); the link is listed under the flame menu → <strong>Shared Links…</strong>,\n   with a Remove button. Because nothing is exposed to the internet, the\n   link only opens for someone on the church's Tailscale; a link to someone\n   outside the church needs the public door, which is off (answer 36).</li>\n<li><strong>Change Password</strong>: flame menu → Change Password. Old password, new\n   password twice. It changes in the directory, so the Mac at church uses the\n   new one next login.</li>\n<li>Sign out (flame menu) on a shared computer.</li>\n</ol>\n<p>That is the whole portal. It is deliberately small.</p>\n<hr>\n<h2 id=\"7-what-a-staff-mac-does\">7. What a staff Mac does</h2>\n<p>After <code>mac/enroll-mac.sh</code>:</p>\n<ul>\n<li>Login is the directory username and password. The first login at church\n  takes a minute while the mobile account is made. After that the Mac works\n  with the server up or down, on site or at home: the account and password\n  are cached.</li>\n<li>Desktop and Documents are kept on the server (<code>/Volumes/&amp;lt;user&gt;</code> when the\n  share is mounted, synced every 15 minutes by <code>arise-home-sync</code> when the\n  server is reachable). Downloads, Pictures, Movies, Music stay on the Mac.\n  Add folders to the sync list in the script if a person needs more.</li>\n<li>Shares appear under Network in the Finder, or <code>⌘K</code> →\n  <code>smb://arise-server/shares/staff</code>. No password prompt: Kerberos from the\n  login carries it.</li>\n<li>Off site without Tailscale: the Mac works, the sync waits, Desktop and\n  Documents show the last synced copy, the shares are not there. With\n  Tailscale installed and signed in, everything is the same as at church,\n  just slower.</li>\n<li>A Mac that already had local users before enrolment: the script makes a\n  directory user for each local user it finds (<code>first.last</code>, with <code>--map</code>\n  where the local name differs; a one-time password each), copies that\n  person's Desktop and Documents to their server home, and leaves the old\n  local account in place, renamed, until you delete it yourself. Nothing is\n  deleted by the script.</li>\n<li>A personal Mac (Apostle Bryant's, Pastor Vanessa's) does none of this. It\n  is not bound. It runs Tailscale and opens the dashboard; the home-sync\n  agent can be installed on it alone if a folder should be kept on the\n  server (docs/MAC-MIGRATION.md § Personal Macs).</li>\n</ul>\n<hr>\n<h2 id=\"8-care\">8. Care</h2>\n<table>\n<thead>\n<tr>\n<th>When</th>\n<th>What</th>\n<th>Where</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Every morning</strong></td>\n<td>Dashboard → Overview → <em>Needs you</em>. Red rows are last night's failures. (No daily note is sent, answer 49.)</td>\n<td>the dashboard, or the closet monitor</td>\n</tr>\n<tr>\n<td><strong>Weekly</strong></td>\n<td><code>sudo arisectl doctor</code>; Backups → last run per job is green; Updates on System Settings; a glance at the closet monitor</td>\n<td>the dashboard or SSH</td>\n</tr>\n<tr>\n<td><strong>Monthly</strong></td>\n<td>restore one file from a snapshot to prove the backups restore (docs/BACKUPS.md); <code>restic check</code>; Directory → Users, disable anyone who left; Remote → the device list, remove a lost laptop</td>\n<td>Dashboard → Backups → Snapshots</td>\n</tr>\n<tr>\n<td><strong>Quarterly</strong></td>\n<td>a full <code>apt upgrade</code> and a reboot on a weekday morning; the Synology's own update; re-read docs/QUESTIONS.md for anything that changed</td>\n<td>System Settings → Updates → Upgrade packages</td>\n</tr>\n<tr>\n<td><strong>Yearly</strong></td>\n<td>the off-site copy of the restic repository is still \"nowhere\" (answer 48): decide again; the automator's OAuth token re-consent if Google asks; the UPS battery test</td>\n<td>—</td>\n</tr>\n<tr>\n<td><strong>Before every move, every ISP change, every new router</strong></td>\n<td>docs/MOVING-DAY.md, even if the box only moves to another room: the IP and DNS are what everything else points at</td>\n<td>—</td>\n</tr>\n</tbody>\n</table>\n<hr>\n<h2 id=\"9-the-public-door-off-by-bradlys-choice\">9. The public door: off, by Bradly's choice</h2>\n<p>Answer 36: Tailscale only, nothing exposed. Everything above works with\n<strong>nothing</strong> on the internet: off-site people install Tailscale, sign in\nonce with the church login, and the dashboard is just there. The rest of\nthis section is what the other choice would mean, kept for the day it\nchanges.</p>\n<p>The alternative is a public HTTPS address for the dashboard so a member can\nsign in from any browser without installing anything. It means: a real\ndomain name (<code>files.arisecenla.church</code> is the natural one), a port forward\nof 443 on the church router to the server, Caddy with a public certificate\ninstead of <code>tls internal</code> (Caddy does Let's Encrypt by itself once the name\nresolves to your public IP), and fail2ban on the dashboard's login. The\ndashboard's login then stands between the internet and the directory\npasswords. It is a reasonable door for a church, and a bigger one than\nTailscale. I have not opened it in the installer; it is a flag I will add\nthe day you say yes to question 36. Until then the answer to \"I'm at home\nand need a file\" is \"install Tailscale.\"</p>\n<hr>\n<h2 id=\"10-when-something-breaks-where-to-look\">10. When something breaks, where to look</h2>\n<table>\n<thead>\n<tr>\n<th>Symptom</th>\n<th>Look here first</th>\n<th>Then</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>A Mac will not bind, or a login hangs at church</td>\n<td>the Mac is not using the server for DNS: <code>dig +short _ldap._tcp.ad.arisecenla.com SRV</code> on the Mac</td>\n<td>docs/DIRECTORY.md § DNS; the VLAN the Mac is on (docs/NETWORK.md)</td>\n</tr>\n<tr>\n<td>Everything is fine on site, nothing works from Alexandria</td>\n<td>Tailscale on that Mac: signed in, running, the split-DNS rule in the console</td>\n<td>Dashboard → Remote → the device list; docs/NETWORK.md § A church across town</td>\n</tr>\n<tr>\n<td>The dashboard says <em>Sample data</em></td>\n<td>the server has no <code>arise.toml</code> or a tool is missing</td>\n<td><code>sudo arisectl doctor</code></td>\n</tr>\n<tr>\n<td>A backup row is red</td>\n<td>the reason is in the row</td>\n<td>Dashboard → Backups → History; docs/BACKUPS.md</td>\n</tr>\n<tr>\n<td>The automator did not run</td>\n<td>Automator → last run; the token</td>\n<td>docs/AUTOMATOR.md</td>\n</tr>\n<tr>\n<td>The monitor shows a text banner instead of the desktop</td>\n<td><code>arise-kiosk</code> failed to start</td>\n<td><code>journalctl -u arise-kiosk</code>; docs/CONSOLE.md</td>\n</tr>\n<tr>\n<td>A person cannot sign in to the dashboard</td>\n<td>disabled user, wrong password, or not in any group</td>\n<td>Directory → Users; reset the password</td>\n</tr>\n<tr>\n<td>A share link does not open</td>\n<td>expired or revoked; or the person is not on Tailscale (there is no public door, answer 36)</td>\n<td>flame menu → Shared Links</td>\n</tr>\n<tr>\n<td>The server is off and nobody can log in to a Mac</td>\n<td>mobile accounts still log in; new users and password changes wait</td>\n<td>get the server up; then docs/MULTI-SITE.md § A second domain controller is the long-term answer</td>\n</tr>\n<tr>\n<td>You are locked out of SSH</td>\n<td>the closet monitor: Alt+F2 is a text login on tty2</td>\n<td>docs/CONSOLE.md</td>\n</tr>\n</tbody>\n</table>\n<p>Paste <code>arisectl doctor</code> output when you ask me for help. It says more than\na description does.</p>",
+"demo": true
+},
+"GET /help/SHARES": {
+"ok": true,
+"name": "SHARES",
+"title": "Shares: the Church folder, the department folders, Pastors, Shared with me",
+"html": "<h1 id=\"shares-the-church-folder-the-department-folders-pastors-shared-with-me\">Shares: the Church folder, the department folders, Pastors, Shared with me</h1>\n<p>Round 5 (docs/ANSWERS.md, rows 12 to 20, 23 and 36). The staff and volunteers\nwork on their Macs, not on the dashboard, so <strong>every rule here is on the\nserver's disk first</strong>: POSIX ACLs on the folders, and Samba share lines that\nagree with them. A Mac connecting over SMB gets exactly the same yes or no as\nthe dashboard. The dashboard is the administrators' view of the same rules.</p>\n<p>Code: <code>server/arise_server/sharing.py</code>. Settings: <code>[storage]</code> in\n<code>/etc/arise/arise.toml</code> (<code>config/arise.toml.example</code> lists every key).</p>\n<h2 id=\"who-can-do-what\">Who can do what</h2>\n<table>\n<thead>\n<tr>\n<th>Folder</th>\n<th>Path</th>\n<th>Everyone</th>\n<th>Staff</th>\n<th>The department's account</th>\n<th>Department members</th>\n<th>Admins</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Church</strong> (row 16)</td>\n<td><code>/srv/arise/shares/church</code></td>\n<td>read and write</td>\n<td>read and write</td>\n<td>read and write</td>\n<td>read and write</td>\n<td>read and write</td>\n</tr>\n<tr>\n<td><strong>A department</strong> (row 17): <code>childrens-department</code>, <code>inedge</code>, <code>media</code>, <code>worship</code>, <code>kids</code>, <code>alexandria</code></td>\n<td><code>/srv/arise/shares/&amp;lt;name&gt;</code></td>\n<td>nothing</td>\n<td>read and write</td>\n<td>read and write its own</td>\n<td>read only</td>\n<td>read and write</td>\n</tr>\n<tr>\n<td><strong>Pastors</strong> (row 18)</td>\n<td><code>/srv/arise/pastors</code></td>\n<td>nothing, not even its name</td>\n<td>nothing</td>\n<td>nothing</td>\n<td>nothing</td>\n<td><strong>nothing</strong></td>\n</tr>\n<tr>\n<td><strong>Shared with me</strong> (row 19)</td>\n<td><code>/srv/arise/shared/&amp;lt;person&gt;</code></td>\n<td>their own</td>\n<td>their own</td>\n<td>their own</td>\n<td>their own</td>\n<td>their own</td>\n</tr>\n</tbody>\n</table>\n<ul>\n<li><strong>The department's account</strong> is the login named like the folder\n  (<code>media</code>, <code>inedge</code>, <code>childrens-department</code> or <code>childrens.department</code>), plus\n  any extra login in <code>department_accounts</code>. The booth Mac (<code>media-mac</code>) is\n  there for <code>media</code>, so it keeps writing the media folder.</li>\n<li><strong>Members of a department</strong> are the people in its group, which the\n  installer makes title-cased: <code>Childrens-Department</code>, <code>Inedge</code>, <code>Media</code>,\n  <code>Worship</code>, <code>Kids</code>, <code>Alexandria</code>.</li>\n<li><strong>Alexandria</strong> (row 36) is a department from day one: an <code>Alexandria</code>\n  group and an <code>alexandria</code> folder, ready for the third site.</li>\n<li><strong>Pastors</strong> is for Apostle Bryant Sanders and Pastor Vanessa Sanders only\n  (<code>[storage] pastors</code>).</li>\n</ul>\n<h3 id=\"what-a-department-volunteer-notices\">What a department volunteer notices</h3>\n<p>Before round 5 a volunteer in the Media group could write the media share.\nNow <strong>department members read; staff and the department's account write</strong>\n(row 17). A volunteer who should edit has to be in Staff, or use the\ndepartment's account. This is the one rule that takes something away; it\nis what row 17 says.</p>\n<h2 id=\"on-the-server-how-it-is-enforced\">On the server: how it is enforced</h2>\n<p><code>sudo arisectl share folders</code> writes all of it, and the installer runs it\nonce:</p>\n<pre><code>sudo arisectl share folders --dry-run   # print the share lines and the ACL commands, change nothing\nsudo arisectl share folders             # asks, then applies\n</code></pre>\n<p>What that does, in order:</p>\n<ol>\n<li><strong>The ACLs</strong> on each folder (<code>chgrp</code>, <code>chmod 2775</code> or <code>2750</code>, <code>setfacl</code>\n   with default entries so new files inherit them):</li>\n<li>Church: group <code>Domain Users</code>, <code>rwx</code> for the group, inherited.</li>\n<li>Each department: group = the department's group with <code>r-x</code>,\n     <code>g:Staff:rwx</code>, <code>g:Domain Admins:rwx</code>, <code>u:&amp;lt;the account&gt;:rwx</code>, others\n     <code>---</code>.</li>\n<li>Pastors: <code>root:Pastors</code>, <code>u:bryant.sanders:rwx</code>,\n     <code>u:vanessa.sanders:rwx</code>, the group and others <code>---</code>.\n   An account that does not exist yet is left out of the ACL, because\n   <code>setfacl</code> refuses a whole line over one unknown name. <strong>Run it again\n   after you add the pastors' accounts or a department account.</strong></li>\n<li><strong>The share lines</strong> go into <code>/etc/samba/arise-folders.conf</code>, included\n   from <code>smb.conf</code> (a dated <code>.bak</code> copy is made the first time the include is\n   added). Names come from config: the NetBIOS name from <code>[directory]</code>,\n   never typed into the code.</li>\n<li><strong><code>testparm -s</code></strong> checks the result. If it refuses, the old\n   <code>arise-folders.conf</code> is put back and nothing is reloaded.</li>\n<li><code>smbcontrol all reload-config</code>: the Macs see the change at their next\n   connect.</li>\n</ol>\n<p><code>config/samba/smb.conf.template</code> no longer defines the department shares;\nthey all live in <code>arise-folders.conf</code> so there is one place for them.\nDepartment shares use <code>access based share enum</code>, so a Mac lists only the\nshares that person can open.</p>\n<p>The dashboard has the same thing: <strong>Directory → Shares → Folders and\npermissions…</strong> shows the share lines and the ACL commands, and <strong>Apply</strong>\n(asks for your password again) runs them.</p>\n<h2 id=\"the-pastors-folder\">The Pastors folder</h2>\n<ul>\n<li>It lives at <code>/srv/arise/pastors</code>, <strong>outside</strong> <code>/srv/arise/shares</code>, so no\n  share above it reaches it.</li>\n<li>The <code>[pastors]</code> share has <code>browseable = no</code>: no Mac lists it. The pastors\n  connect to <code>smb://arise-server.&amp;lt;your realm&gt;/pastors</code> by typing it once in\n  Finder → Go → Connect to Server, then keep it in the sidebar.</li>\n<li>The dashboard's own root process refuses it to everyone else, admins\n  included: Finder, Spotlight, Recents, the Trash, Storage's file lists, Get\n  Info, Previous Versions, Share Link and Share with… all act as if it does\n  not exist. Storage still counts its size in the disk total.</li>\n<li><strong>Root can technically read any file on the box.</strong> That cannot be\n  prevented; it is logged instead. auditd watches the folder\n  (<code>/etc/audit/rules.d/arise-pastors.rules</code>). Every read or write by anyone,\n  root included, is in the audit log:</li>\n</ul>\n<p><code>sudo ausearch -k arise-pastors -i          # everything\n  sudo ausearch -k arise-pastors -i -ui 0    # root only</code></p>\n<p>The nightly backup reads the folder as root at 03:00 (restic), so those\n  lines are expected every night. Anything else as root is someone looking.\n- Claude on the box never opens it (CLAUDE.md, rule 11c).\n- It is backed up by its own job (<code>pastors</code> in <code>/etc/arise/backups.yaml</code>).</p>\n<h2 id=\"shared-with-me-row-19\">Shared with me (row 19)</h2>\n<p>Right-click a file or folder in Finder → <strong>Share with…</strong> → a person, or a\ngroup (<code>@Worship</code>), and <strong>Open and copy</strong> or <strong>Open and edit</strong>.</p>\n<p>What happens on the server:</p>\n<ol>\n<li><strong>An ACL on the item</strong> for that person or group (<code>setfacl -m</code>; for a\n   folder, recursively and as the default for new files), plus traverse\n   (<code>--x</code>) on each folder above it up to the home or share folder, so they\n   can reach it without seeing the folder's other files. A path where they\n   already had their own entry (a department ACL, say) is left alone.</li>\n<li><strong>A link</strong> in their own folder: <code>/srv/arise/shared/&amp;lt;them&gt;/Setlist (from\n   bradly).pdf</code>. On their Mac that is the <strong>shared</strong> share\n   (<code>smb://arise-server.&amp;lt;realm&gt;/shared</code>); Samba follows the link, and the\n   ACL decides what they can do there. In the dashboard it is the <strong>Shared\n   with me</strong> section of the Finder sidebar.</li>\n<li><strong>A notice</strong>: push to their devices, and an email to their personal email\n   (from their profile) through Resend.</li>\n<li><strong>An audit entry</strong>: <code>files.share</code>.</li>\n</ol>\n<p>The record is <code>/var/lib/arise/shared-with.json</code>. <strong>Shared by me</strong> in the\nFinder sidebar lists what you share, with <strong>Stop sharing</strong>. Admins see every\nshare there and can stop any of them. Stopping takes back exactly what the\nshare added (the ACL entries and the link) and is audited as\n<code>files.share.revoke</code>.</p>\n<p>Rules:\n- <strong>Members share only their own files</strong> (their home). Staff and admins can\n  share from anywhere they can open.\n- Staff and admins pick from a list of people and groups; members type a\n  name.\n- <strong>A group share reaches the people in the group when you share.</strong> The ACL\n  is on the group, so on the server and on a Mac a person added to the group\n  later can open it, but the link in their shared folder and the notice go\n  only to the members at that moment. To give a newcomer the link, share\n  again.</p>\n<h2 id=\"an-admin-opening-someone-elses-home-row-20\">An admin opening someone else's home (row 20)</h2>\n<p>Allowed, and recorded: every time an administrator lists or opens a folder\nin another person's home through the dashboard, the audit log gets\n<code>files.home.open</code> with the owner and the path. It is recorded <strong>at most once\nper folder per 10 minutes per admin</strong>, so browsing does not flood the log.\nYour own home is never recorded.</p>\n<h2 id=\"homes-on-the-server-or-the-synology-row-12\">Homes on the server or the Synology (row 12)</h2>\n<p><code>[storage] homes_on = \"server\"</code> (the default) keeps homes at\n<code>/srv/arise/homes</code>. <code>\"synology\"</code> puts them at\n<code>&amp;lt;nas mount&gt;/arise/homes</code> (<code>/mnt/synology/arise/homes</code>): the dashboard, the\nquota, the backups and the installer's <code>[homes]</code> share line all follow it.\nA <code>[directory] homes_path</code> other than <code>/srv/arise/homes</code> is taken as set by\nhand and wins over <code>homes_on</code>. This waits for Friday's disk sizes.</p>\n<p>Moving existing homes is a copy, not a setting: stop Samba, <code>rsync -aAX</code>\nthe homes across, check, change <code>homes_on</code>, rerun\n<code>sudo bash installer/install.sh</code> for the share line, start Samba. Nothing is\ndeleted from the old place; that is Bradly's click.</p>\n<h2 id=\"the-network-scan-row-23\">The network scan (row 23)</h2>\n<p>The device list (Network, <code>/api/devices*</code>) is for administrators only. A\nmember or staff account gets 403 on every device route\n(<code>tests/test_sharing.py</code>).</p>\n<h2 id=\"what-is-not-verified-here\">What is not verified here</h2>\n<p>The tests (<code>tests/test_sharing.py</code>) pin the share lines, the ACL plan, the\ngrant and revoke plans, the Pastors rule in every listing, the quota, the\nbackup target and the audit throttle. They run real <code>setfacl</code> on a temp\nfolder where it is installed. Not verified on a real domain yet:\n- a Mac opening the <code>shared</code> share and following a link into another home\n  (it depends on <code>wide links</code> and the traverse ACLs above the item);\n- <code>getent</code> seeing domain accounts for the ACL plan (it needs winbind's NSS,\n  which the domain controller has);\n- auditd lines for a real root read.</p>",
 "demo": true
 },
 "GET /help/STACK": {

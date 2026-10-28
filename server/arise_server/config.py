@@ -50,7 +50,29 @@ DEFAULTS = {
         "python": _root("/opt/arise/venv/bin/python", r"C:\Arise\venv\Scripts\python.exe"),
         "schedule": "02:05",
     },
+    # ---- storage (round 5, rows 12-15, 18) ----
+    "storage": {
+        "homes_on": "server",          # "server" (/srv/arise/homes) or "synology" (<nas mount>/arise/homes); decided with Friday's specs
+        "home_quota_gb": 50,           # per home; 0 = no quota
+        "quota_warn_pct": 90,
+        "versions_days": 90,           # how far back Finder's Previous Versions reach (restic keeps its own 30/12/24)
+        "pastors": ["bryant.sanders", "vanessa.sanders"],
+        "pastors_path": "",            # empty: <data_root>/pastors (outside /srv/arise/shares, so no share above it reaches it)
+        # Department folders (rows 16-17): all staff write, the department's own account writes its own,
+        # people in the department read, admins all. The department's account is the user named like its folder.
+        "departments": ["childrens-department", "inedge", "media", "worship", "kids", "alexandria"],
+        # Extra logins that count as a department's own (the media booth's shared login, round 1, 32).
+        "department_accounts": {"media": ["media-mac"]},
+        "church_folder": "church",
+        "staff_group": "Staff",
+        "shared_path": "",             # empty: <data_root>/shared (one folder per person: what others shared with them)
+    },
     "backups": {
+        # Where restic writes, in order; the first one that is ready is live (row 15). "synology" is
+        # synology_repo (else restic_repo) when the Synology is mounted; "arise-home" is arise_home_repo over Tailscale.
+        "targets": ["synology", "arise-home"],
+        "synology_repo": "",
+        "arise_home_repo": "",         # e.g. sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville
         "restic_repo": _root("/mnt/synology/arise-backups/restic", r"Z:\arise-backups\restic"),
         "password_file": _root("/etc/arise/secrets/restic-password", r"C:\Arise\config\secrets\restic-password"),
         "schedule": "03:00",
@@ -61,7 +83,7 @@ DEFAULTS = {
     },
     "nas": {
         "enabled": True,
-        "host": "synology.ad.arisecenla.com",
+        "host": "",   # empty: synology.<realm>, from [directory] realm (round 5: names come from config)
         "mount": _root("/mnt/synology", r"Z:\\"),
         "protocol": "smb",
         "share": "arise",
@@ -112,6 +134,17 @@ class Config:
             merged = dict(defaults)
             merged.update(self.raw.get(name, {}) or {})
             setattr(self, name, Section(merged))
+        # Round 5: host names follow the realm; homes follow [storage] homes_on unless set by hand.
+        if not self.nas.host:
+            self.nas.host = "synology." + str(self.directory.realm).lower()
+        hp = (self.raw.get("directory") or {}).get("homes_path")
+        by_hand = hp and os.path.normpath(str(hp)) != os.path.join(str(self.system.data_root), "homes")
+        if str(self.storage.homes_on).lower() == "synology" and not by_hand:
+            self.directory.homes_path = os.path.join(self.nas.mount, "arise", "homes")
+        if not self.storage.pastors_path:
+            self.storage.pastors_path = os.path.join(self.system.data_root, "pastors")
+        if not self.storage.shared_path:
+            self.storage.shared_path = os.path.join(self.system.data_root, "shared")
 
     # typed helpers -------------------------------------------------------
     @property
