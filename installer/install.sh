@@ -23,7 +23,11 @@
 #    --with-tailscale    (default ON) install Tailscale; --no-tailscale to skip. `tailscale up` is still yours to run
 #    --apps "a,b"        the apps to deploy and start at install (default: the church set below); --no-apps for none
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
-#    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
+#    --with-caddy        (default ON since v0.8; --no-caddy to skip) Caddy in front of the dashboard with the box's own
+#                        certificate authority: the church certificate every enrolled Mac trusts (round 3, 29)
+#    --no-tpm            do not bind the encrypted disk to the TPM (default: if the disk is LUKS and a TPM is there, bind it)
+#    --restore REPO      REINSTALL: on a fresh Ubuntu, pull /etc/arise, /etc/samba, the domain's offline backup and the
+#                        pinned address back from this restic repository first, then install around them (docs/REINSTALL.md)
 #    --with-cockpit      (default ON; --no-cockpit to skip) Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
 #                        into the box when the dashboard is what is broken
 #    --console           show the arisetui text dashboard on the closet monitor (tty1)
@@ -33,8 +37,12 @@
 #                        At the church run install.sh again WITHOUT --staging and it switches over.
 #    --with-claude       (default ON; --no-claude to skip) Claude Code on the box (Node 20 LTS + the npm package),
 #                        signed in with Bradly's claude.ai account: run `claude`, then /login. No API key anywhere.
-#    --no-hardening      skip the care an old PC needs: security updates (no auto-reboot), journald cap,
+#    --no-hardening      skip the care an old PC needs: security updates (no auto-reboot), a year of logs,
 #                        SMART monitoring, needrestart, fstrim, logrotate. Default ON.
+#    --no-safety         skip step 6j, the safety basics: arise-rescue, clamav, timeshift, clevis/TPM, the safe card
+#    --ssh-key "ssh-ed25519 AAAA… name"   the admin's public key, enrolled into the admin user's authorized_keys
+#                        (or --ssh-key-file FILE). SSH is keys only (Bradly): password login is off; the closet
+#                        monitor and arise-rescue are the way in without a key.
 #    --no-splash         skip the ariseOS boot splash (Plymouth theme, quiet kernel, 1 s GRUB menu)
 #    --no-ups            skip NUT (the UPS daemon; shuts the box down cleanly on low battery once the model is set)
 #    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
@@ -66,7 +74,11 @@ WEB_PORT=4147
 ADMIN_PASS=""
 WITH_TAILSCALE=1
 WITH_WIREGUARD=0
-WITH_CADDY=0
+WITH_CADDY=1
+WITH_TPM=1
+WITH_SAFETY=1
+RESTORE_REPO=""
+SSH_KEY=""
 WITH_CONSOLE=0
 WITH_KIOSK=0
 WITH_COCKPIT=1
@@ -98,6 +110,13 @@ while [ $# -gt 0 ]; do
     --with-tailscale) WITH_TAILSCALE=1; shift ;;
     --with-wireguard) WITH_WIREGUARD=1; shift ;;
     --with-caddy)  WITH_CADDY=1; shift ;;
+    --no-caddy)    WITH_CADDY=0; shift ;;
+    --no-tpm)      WITH_TPM=0; shift ;;
+    --no-safety)   WITH_SAFETY=0; shift ;;
+    --restore)     RESTORE_REPO="${2:-}"; shift 2 ;;
+    --restore=*)   RESTORE_REPO="${1#*=}"; shift ;;
+    --ssh-key)     SSH_KEY="${2:-}"; shift 2 ;;
+    --ssh-key-file) SSH_KEY="$(cat "${2:-/dev/null}" 2>/dev/null || true)"; shift 2 ;;
     --with-cockpit) WITH_COCKPIT=1; shift ;;
     --no-cockpit)  WITH_COCKPIT=0; shift ;;
     --with-claude) WITH_CLAUDE=1; shift ;;
@@ -149,7 +168,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY tpm=$WITH_TPM safety=$WITH_SAFETY restore=${RESTORE_REPO:-no} cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -197,6 +216,46 @@ elif [ -f "$STAGING_MARK" ]; then
   note "            address pinned here, domain on the wire, DNS records refreshed, scans on."
 fi
 RELOCATING="${RELOCATING:-0}"
+
+# --- 0b. REINSTALL from the Synology's backup (round 3, 24; docs/REINSTALL.md) ----
+# Before the domain is provisioned or a config written, the box's own files come
+# back from the restic repository: /etc/arise (config + secrets), /etc/samba,
+# the domain's OFFLINE backup (/var/lib/arise/samba-backup), the pinned address.
+# Step 5 then RESTORES the domain from that offline backup instead of
+# provisioning a new one, and the rest of the install finds its config in place.
+RESTORED_DOMAIN=0
+if [ -n "$RESTORE_REPO" ]; then
+  say "0b  Reinstall: restoring this box's own files from $RESTORE_REPO"
+  [ -f /var/lib/samba/private/sam.ldb ] && [ "$DRY_RUN" = 0 ] && die "this box already has a domain database (/var/lib/samba/private/sam.ldb). --restore is for a FRESH Ubuntu. Stop."
+  RESTIC_PW_FILE="$CONF_DIR/secrets/restic-password"
+  if [ ! -s "$RESTIC_PW_FILE" ] && [ "$DRY_RUN" = 0 ]; then
+    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
+    read -r -s -p "    The restic password (from the closet card): " RPW; echo
+    [ -n "$RPW" ] || die "no restic password; nothing can be read from the repository"
+    printf '%s\n' "$RPW" > "$RESTIC_PW_FILE"; chmod 600 "$RESTIC_PW_FILE"; unset RPW
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] apt-get install -y restic"
+    note "[dry-run] restic -r $RESTORE_REPO snapshots --latest 1 --tag system"
+    note "[dry-run] restic -r $RESTORE_REPO restore latest --tag system --target / --include /etc/arise --include /etc/samba --include /var/lib/arise/samba-backup --include /etc/netplan/60-arise-pinned.yaml"
+    note "[dry-run] (the newest /var/lib/arise/samba-backup/samba-backup-*.tar.bz2 is what step 5 restores the domain from)"
+  else
+    command -v restic >/dev/null 2>&1 || apt-get install -y -q restic >>"$LOG_FILE" 2>&1
+    export RESTIC_REPOSITORY="$RESTORE_REPO" RESTIC_PASSWORD_FILE="$RESTIC_PW_FILE"
+    restic snapshots --latest 1 --tag system >>"$LOG_FILE" 2>&1 || die "cannot read $RESTORE_REPO (is the Synology mounted? is the password the one on the safe card?)"
+    restic restore latest --tag system --target / --include /etc/arise --include /etc/samba --include /var/lib/arise/samba-backup --include /etc/netplan/60-arise-pinned.yaml >>"$LOG_FILE" 2>&1 \
+      || die "restic restore failed (see $LOG_FILE)"
+    note "restored: $CONF_DIR, /etc/samba, /var/lib/arise/samba-backup, the pinned address"
+    SAMBA_TAR="$(ls -1t /var/lib/arise/samba-backup/samba-backup-*.tar.bz2 2>/dev/null | head -1 || true)"
+    if [ -n "$SAMBA_TAR" ]; then
+      note "domain backup to restore in step 5: $SAMBA_TAR"
+    else
+      warn "no samba offline backup in the repository; step 5 will PROVISION a new domain (users and passwords will not come back). docs/REINSTALL.md explains the live-copy fallback."
+    fi
+    # The restored smb.conf would make step 5 think the domain exists; step 5 handles it.
+    chmod 700 "$CONF_DIR/secrets" 2>/dev/null || true
+  fi
+fi
 
 # A domain controller must not be on Wi-Fi and must have a fixed address.
 PRIMARY_IF="$(ip -o route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -1 || true)"
@@ -421,10 +480,40 @@ run mkdir -p /mnt/synology
 # 5. Samba Active Directory Domain Controller
 # ----------------------------------------------------------------------------
 say "5/7  Active Directory domain $REALM (NetBIOS $NETBIOS)"
+# REINSTALL (step 0b): a domain comes back from its offline backup, never re-provisioned.
+if [ -n "$RESTORE_REPO" ] && [ "$SKIP_DOMAIN" = 0 ]; then
+  SAMBA_TAR="${SAMBA_TAR:-$(ls -1t /var/lib/arise/samba-backup/samba-backup-*.tar.bz2 2>/dev/null | head -1 || true)}"
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] systemctl stop samba-ad-dc smbd nmbd winbind; mv /var/lib/samba /var/lib/samba.fresh; mv /etc/samba/smb.conf /etc/samba/smb.conf.restored"
+    note "[dry-run] samba-tool domain backup restore --backup-file=<newest samba-backup-*.tar.bz2> --targetdir=/var/lib/samba --newservername=$HOSTNAME_WANTED"
+    note "[dry-run] cp /var/lib/samba/etc/smb.conf /etc/samba/smb.conf; testparm -s; systemctl enable --now samba-ad-dc"
+    RESTORED_DOMAIN=1
+  elif [ -n "$SAMBA_TAR" ]; then
+    systemctl stop samba-ad-dc smbd nmbd winbind >/dev/null 2>&1 || true
+    systemctl disable --now smbd nmbd winbind >/dev/null 2>&1 || true
+    [ -d /var/lib/samba ] && mv /var/lib/samba "/var/lib/samba.fresh.$(date +%s)"
+    [ -f /etc/samba/smb.conf ] && mv /etc/samba/smb.conf /etc/samba/smb.conf.restored
+    if samba-tool domain backup restore --backup-file="$SAMBA_TAR" --targetdir=/var/lib/samba --newservername="$HOSTNAME_WANTED" >>"$LOG_FILE" 2>&1; then
+      # the restore writes its own smb.conf inside the target; put it where Samba reads it, then our shares file beside it
+      [ -f /var/lib/samba/etc/smb.conf ] && cp /var/lib/samba/etc/smb.conf /etc/samba/smb.conf
+      if testparm -s >/dev/null 2>&1; then
+        systemctl unmask samba-ad-dc >/dev/null 2>&1 || true
+        systemctl enable --now samba-ad-dc >/dev/null 2>&1 || warn "samba-ad-dc did not start after the restore: journalctl -u samba-ad-dc"
+        RESTORED_DOMAIN=1
+        note "domain restored from $SAMBA_TAR (every user, group and password came back)"
+      else
+        warn "the restored smb.conf fails testparm; the domain is NOT up. Compare /etc/samba/smb.conf with /etc/samba/smb.conf.restored"
+      fi
+    else
+      warn "samba-tool domain backup restore failed (see $LOG_FILE). The domain will be provisioned fresh below; users will need to be re-created."
+    fi
+  fi
+fi
+
 if [ "$SKIP_DOMAIN" = 1 ]; then
   note "--skip-domain: not touching Samba"
-elif [ -f /var/lib/samba/private/sam.ldb ]; then
-  note "domain already provisioned (sam.ldb exists); not re-provisioning"
+elif [ "$RESTORED_DOMAIN" = 1 ] || [ -f /var/lib/samba/private/sam.ldb ]; then
+  note "domain already $([ "$RESTORED_DOMAIN" = 1 ] && echo restored || echo provisioned) (sam.ldb exists); not re-provisioning"
   note "   to start over: systemctl stop samba-ad-dc; rm -rf /var/lib/samba/* /etc/samba/smb.conf; re-run"
 else
   # On Ubuntu the samba package starts the file-server daemons, which hold
@@ -551,16 +640,17 @@ fi
 # 5b. Password policy, groups and shares (docs/ANSWERS.md 25, 26, 27, 37)
 # ----------------------------------------------------------------------------
 say "5b/7  Password policy, groups and the nine shares"
-# Bradly's policy (answer 26): never expires, 12 characters, lockout after 10 failures.
+# Bradly's policy (answer 26): never expires, 12 characters. NO lockout (round 3, 27):
+# everything is behind Tailscale or inside the building, and a locked-out pastor
+# on a Sunday morning is worse than a guesser who never reaches the box.
 if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
-  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool domain passwordsettings set --max-pwd-age=0 --min-pwd-length=12 --complexity=on --account-lockout-threshold=10 --account-lockout-duration=15"
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool domain passwordsettings set --max-pwd-age=0 --min-pwd-length=12 --complexity=on --account-lockout-threshold=0"
   else
     samba-tool domain passwordsettings set --max-pwd-age=0 >/dev/null 2>&1 && \
     samba-tool domain passwordsettings set --min-pwd-length=12 >/dev/null 2>&1 && \
     samba-tool domain passwordsettings set --complexity=on >/dev/null 2>&1 && \
-    samba-tool domain passwordsettings set --account-lockout-threshold=10 >/dev/null 2>&1 && \
-    samba-tool domain passwordsettings set --account-lockout-duration=15 >/dev/null 2>&1 && \
-    note "password policy: no expiry, 12 characters, lockout after 10 failures for 15 minutes" || warn "password policy not applied (is the DC up?); see docs/DIRECTORY.md § Password policy"
+    samba-tool domain passwordsettings set --account-lockout-threshold=0 >/dev/null 2>&1 && \
+    note "password policy: no expiry, 12 characters, no lockout (round 3, 27)" || warn "password policy not applied (is the DC up?); see docs/DIRECTORY.md § Password policy"
   fi
 fi
 # One security group per share plus the department groups. samba-tool refuses
@@ -789,55 +879,59 @@ fi
 run ufw --force enable
 note "ufw: deny incoming by default; ssh from anywhere (the VPN keeps 'anywhere' small); DC, dashboard and apps from LAN + VPN only"
 
-# --- fail2ban ---------------------------------------------------------------
-if ! command -v fail2ban-client >/dev/null 2>&1; then
-  run apt-get install -y -q fail2ban
-fi
-if [ "$DRY_RUN" = 1 ]; then
-  note "[dry-run] write /etc/fail2ban/jail.d/arise-sshd.local (sshd jail, port $SSH_PORT, 5 tries, 10 min ban)"
+# --- no fail2ban (round 3, 27) ------------------------------------------------
+# Bradly chose no sign-in lockout of any kind. An earlier version installed
+# fail2ban here; this removes it if it is present, so the decision holds.
+if command -v fail2ban-client >/dev/null 2>&1; then
+  run systemctl disable --now fail2ban >/dev/null 2>&1 || true
+  run apt-get remove -y -q fail2ban
+  note "fail2ban removed: no address or account is ever locked out (docs/ANSWERS.md round 3, 27)"
 else
-  mkdir -p /etc/fail2ban/jail.d
-  cat > /etc/fail2ban/jail.d/arise-sshd.local <<F2B
-# Arise Server: ban an address after 5 bad SSH logins for 10 minutes.
-[sshd]
-enabled = true
-port = $SSH_PORT
-maxretry = 5
-findtime = 10m
-bantime = 10m
-backend = systemd
-F2B
+  note "no fail2ban, by Bradly's decision (round 3, 27)"
 fi
-run systemctl enable --now fail2ban >/dev/null 2>&1 || warn "fail2ban did not start — journalctl -u fail2ban"
+[ -f /etc/fail2ban/jail.d/arise-sshd.local ] && run rm -f /etc/fail2ban/jail.d/arise-sshd.local
 
-# --- sshd hardening ---------------------------------------------------------
-# Password login is switched off ONLY when the admin user already has a key on
-# this box. Otherwise a locked-closet server with no monitor would be
-# unreachable the moment this ran.
+# --- sshd: keys only (Bradly, Oct 28) ----------------------------------------
+# Password login over SSH is OFF, always. The admin's key is enrolled here from
+# --ssh-key / --ssh-key-file (or already in authorized_keys from ssh-copy-id).
+# No key yet? SSH is closed until one is added; the closet monitor still signs
+# in, and arise-rescue (round 3, 21) works there too: at the console ONLY,
+# never over SSH (DenyUsers).
 ADMIN_HOME="$(getent passwd "$ADMIN_USER" | cut -d: -f6 || true)"
 KEYS_FILE="${ADMIN_HOME:-/nonexistent}/.ssh/authorized_keys"
+if [ -n "$SSH_KEY" ] && [ -z "$ADMIN_HOME" ]; then
+  warn "--ssh-key given but the admin user $ADMIN_USER has no home on this box yet (step 5 makes it); re-run after the domain is up"
+fi
+if [ -n "$SSH_KEY" ] && [ -n "$ADMIN_HOME" ]; then
+  case "$SSH_KEY" in ssh-ed25519\ *|ssh-rsa\ *|ecdsa-sha2-*|sk-ssh-ed25519*) ;; *) die "--ssh-key does not look like a public key (ssh-ed25519 AAAA… or ssh-rsa AAAA…)";; esac
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] append the --ssh-key to $KEYS_FILE (0600, owned by $ADMIN_USER)"
+  else
+    mkdir -p "$ADMIN_HOME/.ssh"; chmod 700 "$ADMIN_HOME/.ssh"
+    touch "$KEYS_FILE"; grep -qxF "$SSH_KEY" "$KEYS_FILE" || printf '%s\n' "$SSH_KEY" >> "$KEYS_FILE"
+    chmod 600 "$KEYS_FILE"; chown -R "$ADMIN_USER:" "$ADMIN_HOME/.ssh" 2>/dev/null || true
+    note "ssh key enrolled for $ADMIN_USER"
+  fi
+fi
 HAS_KEYS=0
 if [ -s "$KEYS_FILE" ] && grep -qvE '^\s*(#|$)' "$KEYS_FILE"; then HAS_KEYS=1; fi
 if [ "$DRY_RUN" = 1 ]; then
-  note "[dry-run] write /etc/ssh/sshd_config.d/arise.conf (PasswordAuthentication $([ "$HAS_KEYS" = 1 ] && echo no || echo 'yes — no key for '"$ADMIN_USER"' yet'))"
+  note "[dry-run] write /etc/ssh/sshd_config.d/arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
 else
   mkdir -p /etc/ssh/sshd_config.d
   {
-    echo "# Arise Server sshd hardening. Written by installer/install.sh; re-run it after ssh-copy-id."
+    echo "# Arise Server sshd: keys only (Bradly, Oct 28). Written by installer/install.sh."
+    echo "# Add a key: install.sh --ssh-key '...' or ssh-copy-id from the closet monitor's session."
     echo "Port $SSH_PORT"
     echo "PermitRootLogin no"
     echo "PubkeyAuthentication yes"
+    echo "PasswordAuthentication no"
+    echo "KbdInteractiveAuthentication no"
     echo "MaxAuthTries 4"
     echo "X11Forwarding no"
     echo "ClientAliveInterval 120"
     echo "ClientAliveCountMax 3"
-    if [ "$HAS_KEYS" = 1 ]; then
-      echo "PasswordAuthentication no"
-      echo "KbdInteractiveAuthentication no"
-    else
-      echo "# PasswordAuthentication left ON: $KEYS_FILE has no key yet."
-      echo "# From your Mac:  ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   then re-run the installer."
-    fi
+    echo "# The break-glass admin signs in at the closet monitor only (round 3, 21)."
+    echo "DenyUsers arise-rescue"
   } > /etc/ssh/sshd_config.d/arise.conf
   if sshd -t 2>/dev/null; then
     systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
@@ -847,10 +941,10 @@ else
   fi
 fi
 if [ "$HAS_KEYS" = 1 ]; then
-  note "sshd: key-only login for $ADMIN_USER (password login off)"
+  note "sshd: keys only; $ADMIN_USER has a key; arise-rescue is console-only"
 else
-  warn "sshd: PASSWORD LOGIN IS STILL ON because $KEYS_FILE has no key."
-  warn "      From your Mac run:  ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   and then re-run this installer."
+  warn "sshd: keys only and $KEYS_FILE has NO key yet, so SSH is closed until one is added."
+  warn "      Re-run with --ssh-key 'ssh-ed25519 AAAA…' (from your Mac: cat ~/.ssh/id_ed25519.pub), or sign in on the closet monitor."
 fi
 
 # --- the daily notification timer (unit files come from config/systemd) ------
@@ -975,7 +1069,13 @@ if [ "$WITH_CADDY" = 1 ]; then
     if [ -f /etc/caddy/Caddyfile ] && ! grep -q 'Arise Server' /etc/caddy/Caddyfile 2>/dev/null; then
       run cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-arise
     fi
-    run install -m 0644 "$SRC/config/caddy/Caddyfile" /etc/caddy/Caddyfile
+    if [ "$STAGING" = 1 ]; then
+      # Staging: Caddy answers on this box only, like the domain (nothing at Bradly's house sees it).
+      if [ "$DRY_RUN" = 1 ]; then note "[dry-run] write /etc/caddy/Caddyfile = { default_bind 127.0.0.1 } + config/caddy/Caddyfile"
+      else { printf '{\n\tdefault_bind 127.0.0.1\n}\n\n'; cat "$SRC/config/caddy/Caddyfile"; } > /etc/caddy/Caddyfile; chmod 0644 /etc/caddy/Caddyfile; fi
+    else
+      run install -m 0644 "$SRC/config/caddy/Caddyfile" /etc/caddy/Caddyfile
+    fi
   else
     warn "config/caddy/Caddyfile missing from the repo; caddy left with its default config"
   fi
@@ -987,7 +1087,7 @@ if [ "$WITH_CADDY" = 1 ]; then
   else
     run systemctl enable caddy
   fi
-  note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church (internal CA). Trust the root once per device: docs/REMOTE-ACCESS.md (e)"
+  note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
   note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
 fi
 
@@ -1113,11 +1213,11 @@ fi
 # 6f. The care an old PC needs (each line idempotent)
 # ----------------------------------------------------------------------------
 if [ "$WITH_HARDENING" = 1 ]; then
-  say "6f/7  Care: security updates, log caps, disk health"
+  say "6f/7  Care: security updates, a year of logs, disk health"
   run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate
   if [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] unattended-upgrades: security origin only, Automatic-Reboot false, daily timer on"
-    note "[dry-run] journald SystemMaxUse=500M; smartd enabled; needrestart list mode; fstrim.timer on; logrotate for $LOG_DIR/*.log weekly keep 8"
+    note "[dry-run] journald SystemMaxUse=4G MaxRetentionSec=1year; smartd enabled; needrestart list mode; fstrim.timer on; logrotate for $LOG_DIR/*.log weekly keep 52"
   else
     # Security updates only, applied daily, NEVER a reboot by themselves: a
     # domain controller that reboots at 06:00 on a Sunday is a bad morning.
@@ -1132,11 +1232,11 @@ APT::Periodic::Unattended-Upgrade "1";
 APT
     systemctl enable --now unattended-upgrades >/dev/null 2>&1 || true
     note "unattended-upgrades: security only, daily, no automatic reboot"
-    # journald: a 256 GB disk must not fill with logs.
+    # journald: a year of logs (round 3, 26), capped at 4 GB so a 256 GB disk never fills with them.
     mkdir -p /etc/systemd/journald.conf.d
-    printf '[Journal]\nSystemMaxUse=500M\nMaxRetentionSec=3month\n' > /etc/systemd/journald.conf.d/arise.conf
+    printf '[Journal]\nSystemMaxUse=4G\nMaxRetentionSec=1year\nCompress=yes\n' > /etc/systemd/journald.conf.d/arise.conf
     systemctl restart systemd-journald >/dev/null 2>&1 || true
-    note "journald capped at 500 MB / 3 months"
+    note "journald: a year kept, 4 GB cap"
     # SMART: the disk says it is dying before it dies. smartd watches; doctor reports.
     if [ -f /etc/smartd.conf ] && ! grep -q '^# arise' /etc/smartd.conf; then
       printf '# arise: scan every disk, email nothing (no mail here), log to journal\nDEVICESCAN -a -o on -S on -n standby,q -W 4,45,55\n' > /etc/smartd.conf
@@ -1151,7 +1251,7 @@ APT
     cat > /etc/logrotate.d/arise <<LR
 $LOG_DIR/*.log {
     weekly
-    rotate 8
+    rotate 52
     compress
     delaycompress
     missingok
@@ -1159,7 +1259,7 @@ $LOG_DIR/*.log {
     copytruncate
 }
 LR
-    note "logrotate: $LOG_DIR/*.log weekly, keep 8"
+    note "logrotate: $LOG_DIR/*.log weekly, 52 kept (a year)"
   fi
 fi
 
@@ -1235,6 +1335,139 @@ UPS
 fi
 
 # ----------------------------------------------------------------------------
+# 6j. The safety basics (round 3): the break-glass admin, ClamAV, Timeshift,
+#     the TPM binding for an encrypted disk, the safe card. Each line idempotent.
+# ----------------------------------------------------------------------------
+if [ "$WITH_SAFETY" = 1 ]; then
+  say "6j/7  Safety: arise-rescue, virus scan, system snapshots, encryption"
+  run apt-get install -y -q --no-install-recommends clamav clamav-freshclam timeshift
+  # --- the break-glass admin (round 3, 21) ---
+  # A LOCAL account that signs in on the console or over SSH when the domain
+  # itself is down. Never the dashboard: the dashboard checks the domain only.
+  # Its password lives in /etc/arise/secrets/rescue-password (root) and on the
+  # SAFE card (/etc/arise/SAFE-CARD.txt, printed by `arisectl rescue card`),
+  # which goes in the safe, never on the closet door. Every sign-in is pushed.
+  if id arise-rescue >/dev/null 2>&1; then
+    note "arise-rescue exists"
+  elif [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] useradd -m -s /bin/bash -G sudo -c 'ariseOS break-glass admin' arise-rescue; a 24-character password into $CONF_DIR/secrets/rescue-password (0600)"
+  else
+    useradd -m -s /bin/bash -G sudo -c "ariseOS break-glass admin (round 3, 21): console only" arise-rescue
+    RESCUE_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
+    echo "arise-rescue:$RESCUE_PW" | chpasswd
+    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
+    printf '%s\n' "$RESCUE_PW" > "$CONF_DIR/secrets/rescue-password"; chmod 600 "$CONF_DIR/secrets/rescue-password"; unset RESCUE_PW
+    note "arise-rescue created; password in $CONF_DIR/secrets/rescue-password (root only) and on the safe card"
+  fi
+  # --- the weekly virus scan (round 3, 28): Sunday 23:30, quarantine, a report ---
+  if [ "$DRY_RUN" = 0 ]; then
+    systemctl stop clamav-freshclam >/dev/null 2>&1 || true
+    freshclam >>"$LOG_FILE" 2>&1 || warn "freshclam could not fetch signatures yet (no internet?); the timer retries"
+    systemctl enable --now clamav-freshclam >/dev/null 2>&1 || true
+    mkdir -p /srv/arise/.quarantine; chmod 700 /srv/arise/.quarantine
+  else
+    note "[dry-run] freshclam; systemctl enable --now clamav-freshclam; mkdir /srv/arise/.quarantine (0700)"
+  fi
+  if [ -f "$UNIT_SRC/arise-clamscan.timer" ]; then
+    run install -m 0644 "$UNIT_SRC/arise-clamscan.service" "$UNIT_SRC/arise-clamscan.timer" /etc/systemd/system/
+    run systemctl daemon-reload
+    if [ "$NO_START" = 0 ]; then run systemctl enable --now arise-clamscan.timer || warn "arise-clamscan.timer failed to start"; else run systemctl enable arise-clamscan.timer; fi
+    note "arise-clamscan.timer: Sunday 23:30, the shares scanned, video skipped, found files to /srv/arise/.quarantine, a push to Bradly"
+  fi
+  # --- system snapshots before updates (round 3, 23): Timeshift, rsync mode, 5 kept ---
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] write /etc/timeshift/timeshift.json (rsync mode, schedule off, exclude /srv/arise /mnt /var/lib/docker /var/lib/arise /var/log); timeshift --create --comments 'install' --tags O"
+  else
+    ROOT_UUID="$(findmnt -no UUID / 2>/dev/null || true)"
+    mkdir -p /etc/timeshift
+    cat > /etc/timeshift/timeshift.json <<TS
+{
+  "backup_device_uuid" : "$ROOT_UUID",
+  "parent_device_uuid" : "",
+  "do_first_run" : "false",
+  "btrfs_mode" : "false",
+  "include_btrfs_home_for_backup" : "false",
+  "include_btrfs_home_for_restore" : "false",
+  "stop_cron_emails" : "true",
+  "schedule_monthly" : "false",
+  "schedule_weekly" : "false",
+  "schedule_daily" : "false",
+  "schedule_hourly" : "false",
+  "schedule_boot" : "false",
+  "count_monthly" : "2",
+  "count_weekly" : "3",
+  "count_daily" : "5",
+  "count_hourly" : "6",
+  "count_boot" : "5",
+  "snapshot_size" : "0",
+  "snapshot_count" : "0",
+  "date_format" : "%Y-%m-%d %H:%M:%S",
+  "exclude" : [ "/srv/arise/**", "/mnt/**", "/var/lib/docker/**", "/var/lib/arise/**", "/var/log/**", "/home/*/.cache/**", "/root/.cache/**", "/var/cache/apt/archives/**" ],
+  "exclude-apps" : []
+}
+TS
+    if command -v timeshift >/dev/null 2>&1 && [ "$NO_START" = 0 ]; then
+      timeshift --create --comments "install $(date +%F)" --tags O --scripted >>"$LOG_FILE" 2>&1 && note "first system snapshot taken (timeshift, rsync mode; church files excluded, they are in the backup)" || warn "timeshift could not take the first snapshot (see $LOG_FILE); arisectl snapshot create to retry"
+    fi
+  fi
+  # --- encryption: bind the LUKS disk to the TPM so the box boots alone (round 3, 22) ---
+  LUKS_DEV="$(lsblk -rno NAME,FSTYPE 2>/dev/null | awk '$2=="crypto_LUKS"{print "/dev/"$1; exit}' || true)"
+  if [ -z "$LUKS_DEV" ]; then
+    warn "the disk is NOT encrypted (no LUKS volume). Bradly chose encryption (round 3, 22); it is picked in the Ubuntu installer, not later. docs/SECURITY.md"
+  elif [ "$WITH_TPM" = 0 ]; then
+    note "LUKS on $LUKS_DEV; --no-tpm: the passphrase is typed at every boot"
+  elif [ ! -e /dev/tpmrm0 ] && [ ! -e /dev/tpm0 ] && [ "$DRY_RUN" = 0 ]; then
+    warn "LUKS on $LUKS_DEV but no TPM 2.0 found: enable it in the Dell's BIOS (Security > TPM 2.0 / PTT), then: sudo arisectl encrypt tpm. Until then the passphrase is typed at every boot."
+  else
+    run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools
+    if [ "$DRY_RUN" = 1 ]; then
+      note "[dry-run] clevis luks bind -d $LUKS_DEV tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}' (asks the disk passphrase once); update-initramfs -u"
+    elif clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2; then
+      note "$LUKS_DEV is already bound to the TPM"
+    else
+      echo
+      echo "    The disk is encrypted. To let the TPM unlock it at boot, clevis needs the"
+      echo "    disk passphrase ONCE now (it is not stored). Leave empty to skip; later: sudo arisectl encrypt tpm"
+      read -r -s -p "    Disk passphrase: " LUKS_PW; echo
+      if [ -n "$LUKS_PW" ]; then
+        if printf '%s' "$LUKS_PW" | clevis luks bind -d "$LUKS_DEV" -k - tpm2 '{"pcr_bank":"sha256","pcr_ids":"7"}' >>"$LOG_FILE" 2>&1 && update-initramfs -u >>"$LOG_FILE" 2>&1; then
+          note "$LUKS_DEV bound to the TPM (PCR 7): the box boots alone; the passphrase on the safe card still works"
+        else
+          warn "clevis bind failed (see $LOG_FILE); the passphrase is typed at boot until: sudo arisectl encrypt tpm"
+        fi
+      else
+        note "skipped; the passphrase is typed at every boot until: sudo arisectl encrypt tpm"
+      fi
+      unset LUKS_PW
+    fi
+  fi
+  # --- the safe card: the two things that must never be on the closet door ---
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] write $CONF_DIR/SAFE-CARD.txt (0600): the arise-rescue password and the disk passphrase line to fill in by hand (the restic password goes on the closet card, by hand)"
+  else
+    {
+      echo "ariseOS SAFE CARD  -  Arise Church, Pineville LA  -  printed $(date '+%Y-%m-%d')"
+      echo "Keep this in the safe. It is NOT the closet card. Print again: sudo arisectl rescue card"
+      echo
+      echo "Break-glass admin (works when the domain is down; at the closet monitor ONLY: never SSH, never the dashboard)"
+      echo "  user      arise-rescue"
+      echo "  password  $(cat "$CONF_DIR/secrets/rescue-password" 2>/dev/null || echo '(not set: sudo arisectl rescue rotate)')"
+      echo "  rotate    sudo arisectl rescue rotate     (every use is logged and pushed to Bradly)"
+      echo
+      echo "Backups (restic on the Synology)"
+      echo "  password  NOT here. Bradly's rule: the restic password lives on the CLOSET card only (written by hand) and in /etc/arise/secrets/restic-password."
+      echo "  rebuild   sudo arisectl reinstall /mnt/synology/arise-backups/restic     (docs/REINSTALL.md)"
+      echo
+      echo "Disk encryption (LUKS)"
+      echo "  passphrase  ________________________________   (write it here by hand; the TPM unlocks the disk at boot, this is the fallback)"
+      echo "  bound to TPM: $(command -v clevis >/dev/null 2>&1 && [ -n "$LUKS_DEV" ] && clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2 && echo yes || echo no)"
+    } > "$CONF_DIR/SAFE-CARD.txt"
+    chmod 600 "$CONF_DIR/SAFE-CARD.txt"
+    note "safe card written: $CONF_DIR/SAFE-CARD.txt (root only). Print it: sudo arisectl rescue card. In the safe, not on the door."
+  fi
+fi
+
+# ----------------------------------------------------------------------------
 # 6i. The closet card: one printable page for the closet door (answer 46)
 # ----------------------------------------------------------------------------
 say "6i/7  The closet card"
@@ -1252,6 +1485,9 @@ code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padd
 <h2>Three commands (Alt+F2 for a text login, or SSH)</h2><table><tr><td>What is wrong?</td><td><code>sudo arisectl doctor</code></td></tr><tr><td>Dashboard stuck</td><td><code>sudo systemctl restart arise-web</code> &nbsp;(logins and shares keep working meanwhile)</td></tr><tr><td>Everything stuck</td><td><code>sudo reboot</code> &nbsp;about a minute; the desktop comes back by itself; Macs keep working on cached accounts</td></tr></table>
 <h2>Where things are</h2><table><tr><td>Backups</td><td>restic on the Synology: <code>$(grep -E '^restic_repo' "$CONF_DIR/arise.toml" 2>/dev/null | sed 's/.*= *"\(.*\)"/\1/' || echo /mnt/synology/arise-backups/restic)</code> &nbsp;nightly 03:00; restore: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
 <tr><td>Passwords and keys</td><td><code>/etc/arise/secrets/</code> &nbsp;root only: restic, Resend, the apps' generated passwords (<code>apps/</code>). Never on this card.</td></tr>
+<tr><td>Domain down?</td><td>The break-glass login <code>arise-rescue</code> works on this monitor (Alt+F2), never over SSH. Its password is on the <b>safe card</b> (in the safe; <code>sudo arisectl rescue card</code> prints it again). Every use is logged.</td></tr>
+<tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;This card is its only paper copy (Bradly's rule); on the box it is <code>/etc/arise/secrets/restic-password</code>, root only.</td></tr>
+<tr><td>Disk encrypted</td><td>The TPM unlocks it at boot. If the box asks for a passphrase, it is on the safe card too. Rebuild from the Synology: <code>sudo arisectl reinstall</code> (docs/REINSTALL.md).</td></tr>
 <tr><td>Config</td><td><code>/etc/arise/arise.toml</code> &nbsp;·&nbsp; code <code>/opt/arise</code> &nbsp;·&nbsp; data <code>/srv/arise</code> &nbsp;·&nbsp; logs <code>/var/log/arise</code>, <code>journalctl -u arise-web</code></td></tr>
 <tr><td>The docs</td><td><code>/opt/arise/docs/</code>, start with SETUP-GUIDE.md; MOVING-DAY.md for the move to the Hub</td></tr>
 <tr><td>Staging marker</td><td>If <code>/etc/arise/staging</code> exists the box thinks it is NOT at the church (domain on loopback, nothing scanned). Fix: <code>sudo bash /opt/arise/installer/install.sh --kiosk</code></td></tr></table>
@@ -1291,10 +1527,12 @@ cat <<SUMMARY
                                   sudo chmod 0600 $CONF_DIR/secrets/synology.cred ; sudo arisectl nas mount
     5. Then:                      sudo arisectl doctor
     6. Remote access (docs/REMOTE-ACCESS.md):
-       ssh key from your Mac:     ssh-copy-id $ADMIN_USER@$HOSTNAME_WANTED   then re-run this installer (turns password login off)
+       ssh is keys only: no key yet? re-run with --ssh-key 'ssh-ed25519 AAAA…' (cat ~/.ssh/id_ed25519.pub on your Mac)
 $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET" || echo "       VPN not installed yet: re-run with --with-tailscale (recommended) or --with-wireguard" )
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
-$( [ "$WITH_CADDY" = 1 ] && echo "       https: trust the Caddy root on each Mac; add the vault/remote DNS records (config/caddy/Caddyfile)" )
+$( [ "$WITH_CADDY" = 1 ] && echo "       https: every Mac enrolled with enroll-mac.sh / bind-mac.sh --dns trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
+$( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The SAFE card:              sudo arisectl rescue card   (print it, put it in the safe: arise-rescue's password, the restic password)" )
+$( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS + TPM; docs/SECURITY.md if the disk is not encrypted)" )
     7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384

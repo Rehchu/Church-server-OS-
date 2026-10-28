@@ -64,7 +64,7 @@ async function api(path, opts = {}) {
   }
   if (r.status === 401) { const j = await r.json().catch(() => ({})); throw Object.assign(new Error(j.error?.message || 'Sign in'), { status: 401, setup: j.error?.setup }); }
   const j = await r.json();
-  if (!r.ok) throw new Error(j.error?.message || j.err || `HTTP ${r.status}`);
+  if (!r.ok) throw Object.assign(new Error(j.error?.message || j.err || `HTTP ${r.status}`), { status: r.status, reauth: !!j.error?.reauth });
   return j;
 }
 function setDemoOnly() {
@@ -92,6 +92,24 @@ function confirmType(title, word, text, onYes) {
     go.onclick = async () => { go.classList.add('busy'); try { await onYes(); m.close(); } catch (e) { toast(e.message, 'bad'); } finally { go.classList.remove('busy'); } };
     i.focus();
   });
+}
+/* The dangerous clicks (delete a user, empty a Trash, shut down) ask for the
+   password again; the server remembers a yes for five minutes. withReauth(fn)
+   runs fn, and when the server answers 403 reauth, asks, posts, and runs fn again. */
+function reauth() {
+  return new Promise((resolve, reject) => {
+    const m = modal(`<h2>Your password, again</h2><p class="muted">This is one of the clicks that asks twice. A yes is remembered for five minutes.</p>
+      <form id="raf" style="display:grid;gap:8px;margin-top:12px"><input type="password" id="raPw" placeholder="Password" autocomplete="current-password">
+      <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">Continue</button></div></form>`, mm => {
+      $('#raPw', mm).focus();
+      $('#raf', mm).onsubmit = async e => { e.preventDefault(); try { await api('/auth/reauth', { method: 'POST', body: { password: $('#raPw', mm).value } }); mm.close(); resolve(true); } catch (er) { toast(er.message, 'bad'); $('#raPw', mm).value = ''; $('#raPw', mm).focus(); } };
+    });
+    m.addEventListener('close', () => reject(new Error('cancelled')), { once: true });
+  });
+}
+async function withReauth(fn) {
+  try { return await fn(); }
+  catch (e) { if (!e.reauth) throw e; await reauth(); return await fn(); }
 }
 async function act(btn, fn, okMsg) {
   btn.classList.add('busy'); btn.disabled = true;
@@ -218,8 +236,8 @@ V.overview = async () => {
 };
 
 V.directory = async () => {
-  const [st, us, gs, cs] = await Promise.all([api('/directory/status'), api('/directory/users'), api('/directory/groups'), api('/directory/computers')]);
-  const users = us.users || [], groups = gs.groups || [], comps = cs.computers || [];
+  const [st, us, gs, cs, tf] = await Promise.all([api('/directory/status'), api('/directory/users'), api('/directory/groups'), api('/directory/computers'), api('/directory/2fa').catch(() => ({ users: [] }))]);
+  const users = us.users || [], groups = gs.groups || [], comps = cs.computers || []; const twofaOn = new Set(tf.users || []);
   const kind = k => ({ mac: '', windows: '⊞', nas: '▤', pc: '▣' })[k] || '▣';
   return `
   <div class="fade">
@@ -233,7 +251,7 @@ V.directory = async () => {
     <div data-tab="users">
       <div class="toolbar"><input class="search" placeholder="Find a user" id="uq"><span class="spacer"></span><button class="btn btn--sm" id="addUser">+ New user</button></div>
       <div class="panel panel--flat tbl-wrap"><table class="tbl" id="uTable"><thead><tr><th>User</th><th>Name</th><th>Groups</th><th>Last login</th><th>Home</th><th></th></tr></thead><tbody>
-      ${users.map(u => `<tr data-q="${esc((u.name + ' ' + u.display).toLowerCase())}"><td><b>${esc(u.name)}</b> ${u.enabled ? '' : '<span class="pill warn">disabled</span>'}</td><td>${esc(u.display)}</td><td>${(u.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td class="dim">${u.last_logon ? fmtT(u.last_logon) : 'never'}</td><td class="mono dim" style="font-size:12px">${esc(u.home || '')}</td>
+      ${users.map(u => `<tr data-q="${esc((u.name + ' ' + u.display).toLowerCase())}"><td><b>${esc(u.name)}</b> ${u.enabled ? '' : '<span class="pill warn">disabled</span>'}${twofaOn.has(u.name) ? ' <span class="pill info" title="Two-step sign-in is on">two-step</span>' : ''}</td><td>${esc(u.display)}</td><td>${(u.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td class="dim">${u.last_logon ? fmtT(u.last_logon) : 'never'}</td><td class="mono dim" style="font-size:12px">${esc(u.home || '')}</td>
         <td class="acts"><button class="btn btn--ghost btn--xs" data-pw="${esc(u.name)}">Password</button><button class="btn btn--ghost btn--xs" data-tog="${esc(u.name)}" data-en="${u.enabled ? 0 : 1}">${u.enabled ? 'Disable' : 'Enable'}</button><button class="btn btn--danger btn--xs" data-del="${esc(u.name)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No users yet</td></tr>'}
       </tbody></table></div>
     </div>
@@ -262,7 +280,7 @@ V.directory.after = () => {
   });
   $$('[data-pw]').forEach(b => b.onclick = () => modal(`<h2>Reset password</h2><p class="note" style="margin-bottom:14px">For <b>${esc(b.dataset.pw)}</b>. Their Mac asks for the new one at next login; the cached mobile account updates then.</p><div class="field"><label>New password</label><input id="rpPw" type="password"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="rpGo">Set</button></div>`, m => { $('#rpGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(b.dataset.pw)}/reset-password`, { method: 'POST', body: { password: $('#rpPw', m).value } }), 'Password set'); if (r && r.ok !== false) m.close(); }; }));
   $$('[data-tog]').forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/directory/users/${encodeURIComponent(b.dataset.tog)}/${b.dataset.en === '1' ? 'enable' : 'disable'}`, { method: 'POST' }), b.dataset.en === '1' ? 'Enabled' : 'Disabled'); if (r && r.ok !== false) rerender('directory'); });
-  $$('[data-del]').forEach(b => b.onclick = () => confirmType('Delete user', b.dataset.del, `This removes the account from the domain. <b>The home folder stays on disk</b> - nothing in it is deleted. Deleting is your click, not the server's.`, async () => { const r = await api(`/directory/users/${encodeURIComponent(b.dataset.del)}`, { method: 'DELETE', body: { confirm: b.dataset.del } }); if (r.ok === false) throw new Error(r.err); toast('User deleted'); rerender('directory'); }));
+  $$('[data-del]').forEach(b => b.onclick = () => confirmType('Delete user', b.dataset.del, `This removes the account from the domain. <b>The home folder stays on disk</b> - nothing in it is deleted. Deleting is your click, not the server's.`, async () => { const r = await withReauth(() => api(`/directory/users/${encodeURIComponent(b.dataset.del)}`, { method: 'DELETE', body: { confirm: b.dataset.del } })); if (r.ok === false) throw new Error(r.err); toast('User deleted'); rerender('directory'); }));
   $('#addGroup').onclick = () => modal(`<h2>New group</h2><div class="field"><label>Name</label><input id="ngName" placeholder="Praise-Team"></div><div class="field"><label>Description</label><input id="ngDesc"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="ngGo">Create</button></div>`, m => { $('#ngGo', m).onclick = async e => { const r = await act(e.target, () => api('/directory/groups', { method: 'POST', body: { name: $('#ngName', m).value.trim(), description: $('#ngDesc', m).value.trim() } }), 'Group created'); if (r && r.ok !== false) { m.close(); rerender('directory'); } }; });
   $$('[data-addm]').forEach(b => b.onclick = () => modal(`<h2>Add to ${esc(b.dataset.addm)}</h2><div class="field"><label>User name</label><input id="amUser"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="amGo">Add</button></div>`, m => { $('#amGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/groups/${encodeURIComponent(b.dataset.addm)}/members`, { method: 'POST', body: { user: $('#amUser', m).value.trim() } }), 'Added'); if (r && r.ok !== false) { m.close(); rerender('directory'); } }; }));
 };
@@ -799,6 +817,7 @@ const I = {
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
   assist: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2zM19 16l1 2.6 2.6 1-2.6 1L19 23l-1-2.4-2.6-1 2.6-1z"/></svg>',
   mail: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 5h20v14H2zm2 2v.5l8 5 8-5V7zm0 3v7h16v-7l-8 5z"/></svg>',
+  security: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3.5V11c0 5.2-3.4 9.6-8 11-4.6-1.4-8-5.8-8-11V5.5zm0 2.2L6 6.8V11c0 4 2.5 7.6 6 8.9 3.5-1.3 6-4.9 6-8.9V6.8zm-1 4.8h2v2.3l1.6 1.6-1.4 1.4L11 12.1z"/></svg>',
   sunday: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v10h12V8zm2 3l2 2 4-4 1.4 1.4L10 15.8l-3.4-3.4z"/></svg>',
   devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
@@ -824,6 +843,7 @@ const APPS = [
   { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
   { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
   { id: 'mail', n: '19', name: 'Mail', what: 'The church family list, newsletters (Resend)', w: 980, h: 640 },
+  { id: 'security', n: '31', name: 'Security', what: 'Encryption, the virus scan, the certificate, two-step', w: 940, h: 640 },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
 const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday'];
@@ -844,6 +864,68 @@ V.about = async () => {
     ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div></div>`;
 };
 V.about.after = root => $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
+
+/* ---------------- Security (31): the safety basics, round 3 ---------------- */
+V.security = async () => {
+  const o = await api('/security');
+  const rows = o.rows || []; const n = { ok: 0, warn: 0, bad: 0 }; rows.forEach(r => n[r.level] = (n[r.level] || 0) + 1);
+  const sc = o.scan || {}; const q = sc.quarantined || [];
+  return `<div class="fade">
+    <div class="grid" style="margin-bottom:14px">
+      <div class="c3 panel ${o.worst === 'bad' ? 'panel--bad' : o.worst === 'warn' ? 'panel--warn' : 'panel--ok'}"><div class="stat"><span class="stat__l">Overall</span><span class="stat__v" style="font-size:22px">${o.worst === 'ok' ? 'All good' : o.worst === 'warn' ? 'Look' : 'Act'}</span><span class="stat__n">${n.ok} green · ${n.warn} amber · ${n.bad} red</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Two-step</span><span class="stat__v">${(o.twofa || []).length}<small>on</small></span><span class="stat__n">optional; Microsoft Authenticator</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Virus scan</span><span class="stat__v" style="font-size:22px">${sc.last ? (sc.last.found?.length ? sc.last.found.length + ' found' : 'clean') : 'not yet'}</span><span class="stat__n">${sc.last ? fmtT(sc.last.when) + ' · ' + fmtN(sc.last.scanned) + ' files' : 'first run Sunday 23:30'}</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Padlock</span><span class="stat__v" style="font-size:22px">${o.ca?.present ? 'on' : 'off'}</span><span class="stat__n">${o.ca?.present ? 'the church certificate, expires ' + esc(o.ca.not_after || '') : 'no certificate yet'}</span></div></div>
+    </div>
+    <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>What keeps the box safe</h3><span class="sub">each line: what it is, and the command that fixes it</span></div>
+      <div class="sec">${rows.map(r => `<div class="sec__row ${r.level}"><span class="pill ${r.level}">${esc(r.label)}</span><div><div>${esc(r.text)}</div>${r.fix ? `<code class="sec__fix">${esc(r.fix)}</code>` : ''}</div></div>`).join('')}</div></div>
+    <div class="grid">
+      <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Virus scan</h3><span class="sub">ClamAV · Sunday 23:30 · video and audio skipped</span></div>
+        <p class="muted" style="font-size:13px">A found file is moved to <code>${esc(sc.quarantine || '/srv/arise/.quarantine')}</code>, never deleted. Putting one back is a typed name.</p>
+        <div class="row" style="gap:8px;margin:10px 0"><button class="btn btn--sm" id="secScan">Scan now</button><span class="muted" style="font-size:12px">refused during a service; takes a while</span></div>
+        ${q.length ? `<table class="tbl"><thead><tr><th>Quarantined</th><th>Signature</th><th></th></tr></thead><tbody>${q.map(x => `<tr><td class="mono" style="font-size:12px">${esc(x.file)}</td><td class="dim">${esc(x.sig)}</td><td class="acts"><button class="btn btn--ghost btn--xs" data-restore="${esc(x.file.split('/').pop())}">Put back…</button></td></tr>`).join('')}</tbody></table>` : '<p class="muted" style="font-size:13px">Quarantine is empty.</p>'}
+      </div>
+      <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Break-glass admin</h3><span class="sub">arise-rescue · the closet monitor only</span></div>
+        <p class="muted" style="font-size:13px">For when the domain itself is down. It signs in at the closet monitor (Alt+F2), never over SSH (keys only, and it has none) and never here. Its password is on the safe card. Every sign-in is logged and pushed to Bradly.</p>
+        <dl class="kv" style="margin-top:8px"><dt>Exists</dt><dd>${o.rescue?.exists ? 'yes' : 'no'}</dd><dt>Last use</dt><dd>${o.rescue?.last ? esc(o.rescue.last.when + ' · ' + o.rescue.last.via + ' from ' + o.rescue.last.from) : 'never'}</dd><dt>Rotate</dt><dd><code>sudo arisectl rescue rotate</code></dd></dl>
+        <div class="panel__hd" style="margin-top:16px"><h3>Two-step sign-in</h3><span class="sub">optional, per person</span></div>
+        <p class="muted" style="font-size:13px">${(o.twofa || []).length ? 'On for: ' + (o.twofa || []).map(esc).join(', ') + '.' : 'Nobody has it on yet.'} Anyone turns it on from the flame menu; Microsoft Authenticator scans the code. Lost phone: <code>sudo arisectl twofa reset &lt;user&gt;</code>.</p>
+        <div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--xs" id="secTwofa">Two-step for me…</button></div>
+      </div>
+    </div>
+    ${o.demo ? '<p class="note" style="margin-top:14px">Sample data.</p>' : ''}
+  </div>`;
+};
+V.security.after = root => {
+  const sc = $('#secScan', root); if (sc) sc.onclick = async () => { const r = await act(sc, () => api('/security/scan/run', { method: 'POST' }), 'Scan started; the result lands here when it finishes'); if (r && r.ok === false) toast(r.err, 'warn'); };
+  $$('[data-restore]', root).forEach(b => b.onclick = () => confirmType('Put a quarantined file back', b.dataset.restore, 'The scanner flagged this file. Putting it back means you have looked at it and want it where it was.', async () => { const r = await api('/security/scan/restore', { method: 'POST', body: { name: b.dataset.restore, confirm: b.dataset.restore } }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample mode: nothing changed' : r.out || 'Put back'); rerender('security'); }));
+  const tf = $('#secTwofa', root); if (tf) tf.onclick = () => twofaModal();
+};
+
+/* ---------------- Two-step sign-in, optional (round 2, 11; Oct 28) ---------------- */
+async function twofaModal() {
+  let st; try { st = await api('/me/2fa'); } catch (e) { return toast(e.message, 'bad'); }
+  if (!st.available) return modal(`<h2>Two-step sign-in</h2><p class="note">${esc(st.note || 'Not available on this server yet.')}</p><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`);
+  if (st.on) {
+    return modal(`<h2>Two-step sign-in is on</h2><p class="muted">Since ${esc(st.since || '')}. Every sign-in asks for the six digits from Microsoft Authenticator after your password.</p>
+      <form id="tfOff" style="display:grid;gap:8px;margin-top:12px"><input type="password" id="tfPw" placeholder="Your password" autocomplete="current-password"><input id="tfCode" inputmode="numeric" pattern="[0-9 ]*" placeholder="Code from Microsoft Authenticator" autocomplete="one-time-code">
+      <div class="acts"><button type="button" class="btn btn--ghost" data-close>Keep it on</button><button class="btn btn--danger" type="submit">Turn it off</button></div></form>`, m => {
+      $('#tfOff', m).onsubmit = async e => { e.preventDefault(); const r = await api('/me/2fa/disable', { method: 'POST', body: { password: $('#tfPw', m).value, code: $('#tfCode', m).value } }).catch(er => ({ ok: false, err: er.message })); if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : 'Two-step is off'); m.close(); };
+    });
+  }
+  modal(`<h2>Two-step sign-in</h2><p class="muted">Optional. After your password, a six-digit code from your phone. Nobody is made to use it; if you lose the phone, Bradly turns it off for you on the server.</p>
+    <ol class="twofa__steps"><li>Install <b>Microsoft Authenticator</b> on your phone (App Store or Google Play).</li><li>In it: <b>+</b> → <b>Other account</b> → scan this code.</li><li>Type the six digits it shows, below.</li></ol>
+    <div class="twofa__qr" id="tfQr"><div class="skeleton" style="width:160px;height:160px"></div></div>
+    <p class="muted" style="font-size:12px;text-align:center">Can't scan? Type this key in the app instead: <code id="tfSecret">…</code><br>Shown once. It is not stored anywhere you can see it again.</p>
+    <form id="tfOn" style="display:grid;gap:8px;margin-top:10px"><input id="tfCode" inputmode="numeric" pattern="[0-9 ]*" placeholder="The six digits" autocomplete="one-time-code" maxlength="7">
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Not now</button><button class="btn" type="submit">Turn it on</button></div></form>`, async m => {
+    const r = await api('/me/2fa/setup', { method: 'POST' }).catch(er => ({ ok: false, err: er.message }));
+    if (r.ok === false) { toast(r.err, 'bad'); return m.close(); }
+    $('#tfQr', m).innerHTML = r.qr || `<div class="none">no QR; type the key</div>`; $('#tfSecret', m).textContent = (r.secret || '').replace(/(.{4})/g, '$1 ').trim();
+    $('#tfCode', m).focus();
+    $('#tfOn', m).onsubmit = async e => { e.preventDefault(); const x = await api('/me/2fa/enable', { method: 'POST', body: { code: $('#tfCode', m).value } }).catch(er => ({ ok: false, err: er.message })); if (x.ok === false) return toast(x.err, 'warn'); tone('done'); toast(x.demo ? 'Sample mode: nothing changed' : 'Two-step is on. Next sign-in asks for a code.'); m.close(); };
+  });
+}
 
 /* ---------------- window manager ---------------- */
 function tabs(sel) {
@@ -925,8 +1007,8 @@ function menuItems(id) {
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'ariseOS', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
 }
-const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['Change Password…', () => changePassword()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()]]
-  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
+const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()]]
+  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Security', () => openApp('security')], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
@@ -1104,7 +1186,7 @@ function ccFeel() {
     <button data-act="walk"><b>Show me around</b><span>the five-step tour</span></button>`;
 }
 async function runAllBackups() { const jobs = (await api('/backups/jobs')).jobs || []; for (const j of jobs) await api(`/backups/run/${encodeURIComponent(j.id)}`, { method: 'POST' }); toast(`Started ${jobs.length} backup jobs; rows appear in Backups as they finish`); }
-function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Everything stops for about a minute. Logged-in Macs keep working on cached accounts. The desktop comes back by itself.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await api('/system/power', { method: 'POST', body: { action, confirm: action } }); if (r.ok === false) throw new Error(r.err); toast(action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
+function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Everything stops for about a minute. Logged-in Macs keep working on cached accounts. The desktop comes back by itself.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await withReauth(() => api('/system/power', { method: 'POST', body: { action, confirm: action } })); if (r.ok === false) throw new Error(r.err); toast(action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
 
 /* ---------------- dock + launchpad + desktop icons ---------------- */
 function buildDock() {
@@ -1174,12 +1256,34 @@ $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw
   try { await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } }); $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
 async function signOut() { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); }
 function showLogin(err) {
+  const remembered = (() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })();
+  const codeStep = !!(err && err.code);
   document.body.innerHTML = `<div class="login"><div class="login__box">
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
-    ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>` : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
-    <form id="lf" class="lock__form"><input id="lu" value="${esc((() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })())}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
+    ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>`
+    : codeStep ? `<p>Two-step sign-in is on for <b>${esc(err.user || remembered)}</b>. Open <b>Microsoft Authenticator</b> and type the six digits it shows for ariseOS.</p>
+    <form id="lf" class="lock__form"><input id="lc" inputmode="numeric" pattern="[0-9 ]*" placeholder="6 digits" autocomplete="one-time-code" maxlength="7" style="width:160px;text-align:center;letter-spacing:.3em"><button type="submit" aria-label="Continue">→</button></form><button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`
+    : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
+    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
     <div class="lock__hint">arise-server · AD.ARISECENLA.CHURCH</div></div></div>`;
-  const f = $('#lf'); if (f) { $('#lp').focus(); f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy'); try { await api('/auth/login', { method: 'POST', body: { user: $('#lu').value, password: $('#lp').value } }); location.reload(); } catch (er) { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = er.message; } finally { b.classList.remove('busy'); } }; }
+  const f = $('#lf'); if (!f) return;
+  const fail = msg => { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = msg; };
+  if (codeStep) {
+    $('#lc').focus(); $('#lback').onclick = () => showLogin(null);
+    f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
+      try { await api('/auth/login/code', { method: 'POST', body: { pending: err.pending, code: $('#lc').value } }); location.reload(); }
+      catch (er) { if (/Sign in again|more than five|Three wrong/.test(er.message)) { showLogin({ message: er.message }); return; } fail(er.message); $('#lc').value = ''; $('#lc').focus(); }
+      finally { b.classList.remove('busy'); } };
+    return;
+  }
+  $('#lp').focus();
+  f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
+    try { const user = $('#lu').value; try { localStorage.setItem('arise.user', user); } catch {}
+      const r = await api('/auth/login', { method: 'POST', body: { user, password: $('#lp').value } });
+      if (r && r.need_code) { showLogin({ code: true, pending: r.pending, user: r.user || user }); return; }
+      location.reload(); }
+    catch (er) { fail(er.message); }
+    finally { b.classList.remove('busy'); } };
 }
 function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
 
@@ -1258,5 +1362,5 @@ async function boot() {
 }
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
-window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, S, APPS };
+window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, twofaModal, reauth, withReauth, S, APPS };
 })();

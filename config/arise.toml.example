@@ -28,7 +28,7 @@ port = 4147
 # Empty = nobody can log in until it is set.
 admin_user = "bradly"
 admin_password_hash = ""
-session_hours = 12
+session_hours = 8760   # a year: a browser or phone stays signed in until they sign out (round 3, 38). The closet monitor still locks at ten minutes.
 # Everyone in the directory may sign in with their domain password. Members get
 # their own files, the shares their groups allow, share links, Sermons, Bible.
 member_login = true

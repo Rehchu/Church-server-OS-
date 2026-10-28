@@ -111,6 +111,54 @@ def _check_path(request: Request, who: dict):
         raise HTTPException(403, {"message": "That part of the dashboard is for the administrator"})
 
 
+REAUTH_SECONDS = 300
+
+
+def reauth_token(request: Request) -> str | None:
+    """A fresh session token with a 'recently typed the password' stamp (ra)."""
+    tok = request.cookies.get(COOKIE)
+    if not tok:
+        return None
+    try:
+        d = _serializer().loads(tok, max_age=int(load().web.session_hours) * 3600)
+    except BadSignature:
+        return None
+    d["ra"] = int(__import__("time").time())
+    return _serializer().dumps(d)
+
+
+def recent_auth_ok(token_data: dict, now: float, within: int = REAUTH_SECONDS) -> bool:
+    """Pure: was the password typed again within the last five minutes?"""
+    ra = token_data.get("ra")
+    return bool(ra) and 0 <= now - float(ra) <= within
+
+
+def require_recent_auth(request: Request) -> dict:
+    """A signed-in person who typed their password again in the last five minutes.
+    For the dangerous clicks: delete a user, empty a Trash, shut the box down.
+    Otherwise 403 with reauth: true, which the dashboard turns into a password box."""
+    who = current_user(request)
+    cfg = load()
+    if cfg.demo:
+        return who
+    try:
+        d = _serializer().loads(request.cookies.get(COOKIE) or "", max_age=int(cfg.web.session_hours) * 3600)
+    except BadSignature:
+        raise HTTPException(401, {"message": "Sign in"})
+    if not recent_auth_ok(d, __import__("time").time()):
+        raise HTTPException(403, {"reauth": True, "message": "Type your password again for this"})
+    return who
+
+
+def check_password_for(user: str, password: str) -> bool:
+    """The same check the sign-in uses, for one person: the local admin hash or the directory."""
+    cfg = load()
+    if user == cfg.web.admin_user and cfg.web.admin_password_hash and verify_password(password, cfg.web.admin_password_hash):
+        return True
+    from . import directory
+    return bool(password) and directory.authenticate(user, password)
+
+
 def require_admin(request: Request) -> dict:
     who = current_user(request)
     if who.get("role") != "admin":

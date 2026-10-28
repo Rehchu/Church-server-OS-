@@ -18,9 +18,9 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
 from . import links
-from .auth import COOKIE, current_user, login, require_admin
+from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
 from .config import load
 from .util import human_bytes
 
@@ -30,9 +30,11 @@ metrics.start()
 _started = time.time()
 if not cfg.demo:
     push.watch(lambda: overview.__wrapped__() if hasattr(overview, "__wrapped__") else _attention_now())
+    security.rescue_watch()  # a push the moment the break-glass account signs in
 
 auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
 admin = Depends(require_admin)    # the administrator only
+recent = Depends(require_recent_auth)  # typed the password again within five minutes (delete a user, empty a Trash, shut down)
 
 
 @app.exception_handler(HTTPException)
@@ -60,9 +62,51 @@ def api_login(body: Login, response: Response):
             time.sleep(0.8)  # slow down guessing
             raise HTTPException(401, {"message": "Wrong user or password"})
     tok, who = got
+    if tok and not c.demo and twofa.enrolled(who["user"]):
+        # Two-step is on for this person: the session token waits behind a code (five minutes, three tries).
+        return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
     return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
+
+
+class LoginCode(BaseModel):
+    pending: str
+    code: str
+
+
+@app.post("/api/auth/login/code")
+def api_login_code(body: LoginCode, response: Response):
+    """The second step: the six digits from Microsoft Authenticator."""
+    c = load()
+    if c.demo:
+        return {"ok": True, "demo": True, "user": "demo", "role": "admin"}
+    r = twofa.finish(body.pending, body.code)
+    if not r.get("ok"):
+        time.sleep(0.5)
+        raise HTTPException(401, {"message": r.get("err", "wrong code"), "left": r.get("left", 0), "expired": r.get("expired", False)})
+    response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    return {"ok": True, "user": r["user"]}
+
+
+class Reauth(BaseModel):
+    password: str
+
+
+@app.post("/api/auth/reauth")
+def api_reauth(body: Reauth, request: Request, response: Response, who=auth):
+    """The dangerous clicks ask for the password again; a yes is remembered five minutes (the 'ra' stamp in the cookie)."""
+    c = load()
+    if c.demo:
+        return {"ok": True, "demo": True, "until": 300}
+    if not check_password_for(who["user"], body.password):
+        time.sleep(0.8)
+        raise HTTPException(401, {"message": "That is not your password"})
+    tok = reauth_token(request)
+    if not tok:
+        raise HTTPException(401, {"message": "Sign in again"})
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    return {"ok": True, "until": 300}
 
 
 @app.post("/api/auth/logout")
@@ -103,6 +147,39 @@ def api_me_password(body: PasswordChange, who=auth):
         time.sleep(0.8)
         return {"ok": False, "err": "current password is wrong"}
     return directory.set_password(who["user"], body.new)
+
+
+# ----- two-step sign-in, optional per person (round 2, 11; Oct 28) -----------------
+class Code(BaseModel):
+    code: str = ""
+    password: str = ""
+
+
+@app.get("/api/me/2fa")
+def api_2fa_status(who=auth):
+    return twofa.status(who["user"])
+
+
+@app.post("/api/me/2fa/setup")
+def api_2fa_setup(who=auth):
+    """A fresh secret, shown once as a QR and as text. Not on until a code confirms it."""
+    return twofa.setup(who["user"])
+
+
+@app.post("/api/me/2fa/enable")
+def api_2fa_enable(body: Code, who=auth):
+    return twofa.enable(who["user"], body.code)
+
+
+@app.post("/api/me/2fa/disable")
+def api_2fa_disable(body: Code, who=auth):
+    return twofa.disable(who["user"], body.password, body.code)
+
+
+@app.get("/api/directory/2fa")
+def api_dir_2fa(_=admin):
+    """Who has two-step on. Names only."""
+    return {"users": twofa.who_has(), "demo": load().demo}
 
 
 # ----- overview + stats --------------------------------------------------------
@@ -250,7 +327,7 @@ def dir_user_disable(name: str, _=auth):
 
 
 @app.delete("/api/directory/users/{name}")
-def dir_user_del(name: str, body: Confirm, _=auth):
+def dir_user_del(name: str, body: Confirm, _=recent):
     return directory.delete_user(name, body.confirm)
 
 
@@ -788,6 +865,56 @@ def api_devices_forget(mac: str, _=auth):
     return devices.forget(mac)
 
 
+# ----- the safety basics (round 3) ----------------------------------------------------
+@app.get("/api/security")
+def api_security(_=admin):
+    return security.overview()
+
+
+@app.get("/api/security/scan")
+def api_security_scan(_=admin):
+    return security.scan_status()
+
+
+@app.post("/api/security/scan/run")
+def api_security_scan_run(_=admin):
+    """The weekly ClamAV scan, now. Refused during a service. Takes a while; runs in a thread."""
+    import threading
+    c = load()
+    if c.demo:
+        return {"ok": True, "demo": True, "started": True}
+    bad = security._refuse_in_service("The virus scan")
+    if bad:
+        return bad
+    threading.Thread(target=security.scan_run, daemon=True).start()
+    return {"ok": True, "started": True}
+
+
+class Named(BaseModel):
+    name: str
+    confirm: str = ""
+
+
+@app.post("/api/security/scan/restore")
+def api_security_scan_restore(body: Named, _=admin):
+    return security.scan_restore(body.name, body.confirm)
+
+
+@app.get("/api/security/snapshots")
+def api_security_snapshots(_=admin):
+    return security.snapshot_list()
+
+
+@app.get("/api/public/ca.crt")
+@app.get("/ca.crt")
+def api_ca_crt():
+    """The church root certificate (Caddy's internal CA), for a Mac or phone to trust once. Public: a root certificate is not a secret."""
+    pem = security.ca_cert()
+    if not pem:
+        return JSONResponse({"error": {"message": "No certificate yet: Caddy has not run on this box (install.sh puts it in front of the dashboard)."}}, status_code=404)
+    return Response(pem, media_type="application/x-pem-file", headers={"Content-Disposition": 'attachment; filename="arise-church-root.crt"'})
+
+
 @app.get("/api/system/updates")
 def api_updates(_=auth):
     return system.updates()
@@ -809,7 +936,7 @@ class Power(BaseModel):
 
 
 @app.post("/api/system/power")
-def api_power(body: Power, _=auth):
+def api_power(body: Power, _=recent):
     return system.power(body.action, body.confirm)
 
 

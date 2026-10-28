@@ -23,6 +23,13 @@
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
+    arisectl security                   the Security app's rows: encryption, scan, certificate, two-step, rescue
+    arisectl twofa list|reset <user>    who has two-step sign-in on; reset = turn it off for someone who lost the phone
+    arisectl rescue status|rotate|card  the break-glass admin arise-rescue (console and SSH only)
+    arisectl encrypt status|tpm         LUKS and the TPM: is the disk encrypted, does the TPM unlock it (clevis)
+    arisectl snapshot create "<note>"|list|restore <name>|prune   system snapshots (Timeshift), 5 kept, never during a service
+    arisectl scan status|run|restore <file>   the weekly ClamAV scan of the shares; restore puts a quarantined file back
+    arisectl reinstall <restic-repo>    rebuild this box from the Synology's backup (docs/REINSTALL.md)
 
 Reads /etc/arise/arise.toml (or $ARISE_CONFIG). Talks to the same Python
 modules the dashboard uses, so the two never disagree.
@@ -181,6 +188,24 @@ def cmd_doctor(a):
         for u in ("arise-web.service", "arise-automator.timer", "arise-backup.timer", "arise-mirror.timer"):
             r = run(["systemctl", "is-active", u], timeout=5)
             (ok if r["ok"] else warn)(f"{u} {r['out'].strip() or 'inactive'}")
+    # Round 3: the safety basics, one line each.
+    try:
+        from arise_server import security as _sec
+        est = _sec.encrypt_status()
+        if est.get("luks"):
+            (ok if est.get("tpm_bound") else warn)("disk encryption: LUKS " + ("+ TPM unlock (boots alone)" if est.get("tpm_bound") else "but no TPM binding: sudo arisectl encrypt tpm (a reboot waits for the passphrase until then)"))
+        else:
+            warn("disk not encrypted (LUKS is picked in the Ubuntu installer; docs/SECURITY.md)")
+        import pwd as _pwd
+        try:
+            _pwd.getpwnam(_sec.RESCUE_USER); ok(f"break-glass admin {_sec.RESCUE_USER} exists")
+        except KeyError:
+            warn(f"no {_sec.RESCUE_USER} account (install.sh step 6j makes it)")
+        (ok if which("clamscan") else warn)("clamav " + ("installed; arise-clamscan.timer Sunday 23:30" if which("clamscan") else "missing (install.sh step 6j)"))
+        (ok if which("timeshift") else warn)("timeshift " + ("installed; a snapshot before each update" if which("timeshift") else "missing (install.sh step 6j)"))
+        (ok if Path(_sec.CADDY_ROOT).exists() else warn)("church certificate " + ("present (Caddy)" if Path(_sec.CADDY_ROOT).exists() else "absent: Caddy has not run; the LAN dashboard is plain http"))
+    except Exception as _e:  # doctor must finish
+        warn(f"safety checks skipped: {_e}")
     if which("timedatectl"):
         r = run(["timedatectl", "show", "-p", "NTPSynchronized", "--value"], timeout=5)
         (ok if r["out"].strip() == "yes" else warn)("clock " + ("synchronised" if r["out"].strip() == "yes" else "NOT synchronised - Kerberos breaks past 5 minutes of drift"))
@@ -642,6 +667,140 @@ def cmd_notify(a):
         (ok if r["sent"] else warn)("sent" if r["sent"] else f"not sent: {r.get('error') or 'nothing needs you, or no webhook'}")
 
 
+# ---- the safety basics (round 3) ------------------------------------------------
+def _levels(rows):
+    for r in rows:
+        f = {"ok": ok, "warn": warn, "bad": bad}[r["level"]]
+        f(f"{r['label']}: {r['text']}" + (f"   -> {r['fix']}" if r.get("fix") else ""))
+
+
+def cmd_security(a):
+    from arise_server import security
+    o = security.overview()
+    head("arisectl security")
+    _levels(o["rows"])
+    if o.get("demo"): warn("sample data")
+
+
+def cmd_twofa(a):
+    from arise_server import twofa
+    if a.sub == "list":
+        who = twofa.who_has()
+        head("two-step sign-in (optional; Microsoft Authenticator)")
+        if not who: warn("nobody has it on")
+        for u in who: ok(u)
+    elif a.sub == "reset":
+        need_root()
+        if not a.name: sys.exit("arisectl twofa reset <user>")
+        typed = input(f"Turn two-step OFF for {a.name}? Type the user name to confirm: ").strip()
+        if typed != a.name: sys.exit("names differ; nothing changed")
+        show(twofa.disable(a.name, "", "", by_admin=True))
+
+
+def cmd_rescue(a):
+    from arise_server import security
+    if a.sub == "status":
+        st = security.rescue_status()
+        head(f"break-glass admin {security.RESCUE_USER}")
+        (ok if st.get("exists") else bad)("account " + ("exists" if st.get("exists") else "does not exist (install.sh step 6j makes it)"))
+        print(f"  {st.get('note')}")
+        for u in st.get("uses", [])[-10:]:
+            print(f"  {u.get('when')}  {u.get('via')}  from {u.get('from')}")
+        if st.get("demo"): warn("sample data")
+    elif a.sub == "rotate":
+        need_root(); show(security.rescue_rotate())
+    elif a.sub == "card":
+        need_root()
+        p_ = Path("/etc/arise/SAFE-CARD.txt")
+        if not p_.exists():
+            sys.exit("no safe card yet: install.sh step 6j writes /etc/arise/SAFE-CARD.txt")
+        print(p_.read_text())
+        print("\n  (print this, put it in the safe, never on the closet door)")
+
+
+def cmd_encrypt(a):
+    from arise_server import security
+    if a.sub == "status":
+        st = security.encrypt_status()
+        head("disk encryption")
+        (ok if st.get("luks") else warn)("LUKS volumes: " + (", ".join(st["luks"]) if st.get("luks") else "none"))
+        (ok if st.get("tpm") else warn)("TPM 2.0 " + ("present" if st.get("tpm") else "not found"))
+        (ok if st.get("tpm_bound") else warn)("TPM binding (clevis) " + ("yes: boots alone" if st.get("tpm_bound") else "no"))
+        print(f"  {st.get('note', '')}")
+        if st.get("demo"): warn("sample data")
+    elif a.sub == "tpm":
+        need_root()
+        st = security.encrypt_status()
+        pw = None
+        if st.get("luks") and not st.get("tpm_bound"):
+            pw = getpass.getpass("The disk's passphrase (clevis needs it once to add the TPM key; it is not stored): ")
+        show(security.encrypt_tpm(pw))
+
+
+def cmd_snapshot(a):
+    from arise_server import security
+    if a.sub == "list":
+        r = security.snapshot_list()
+        head("system snapshots (Timeshift, rsync mode)")
+        table([{"name": x["name"], "tags": x["tags"], "note": x["note"]} for x in r.get("snapshots", [])], ["name", "tags", "note"])
+        if r.get("error"): bad(r["error"])
+        if r.get("demo"): warn("sample: timeshift not installed here")
+    elif a.sub == "create":
+        need_root(); show(security.snapshot_create(a.name or "arisectl snapshot"))
+    elif a.sub == "restore":
+        need_root()
+        if not a.name: sys.exit("arisectl snapshot restore <name as listed>")
+        typed = input(f"Roll the SYSTEM back to {a.name}? Church files are untouched (they are not in the snapshot). Type the name to confirm: ").strip()
+        if typed != a.name: sys.exit("names differ; nothing changed")
+        show(security.snapshot_restore(a.name))
+    elif a.sub == "prune":
+        need_root(); show(security.snapshot_prune())
+
+
+def cmd_scan(a):
+    from arise_server import security
+    if a.sub == "status":
+        st = security.scan_status()
+        head("virus scan (ClamAV)")
+        (ok if st.get("installed") else bad)("clamscan " + ("installed" if st.get("installed") else "missing"))
+        last = st.get("last")
+        if last:
+            (ok if not last.get("found") else bad)(f"last scan {last.get('when', '')[:16]}: {last.get('scanned', 0):,} files, {len(last.get('found', []))} found")
+            for f_ in last.get("found", []):
+                print(f"    {f_['file']}  ({f_['sig']})  -> {f_.get('moved_to', '')}")
+        else:
+            warn("no scan yet; next Sunday 23:30")
+        q = st.get("quarantined", [])
+        print(f"  quarantine {st.get('quarantine')}: {len(q)} file(s)")
+        if st.get("demo"): warn("sample data")
+    elif a.sub == "run":
+        need_root()
+        r = security.scan_run()
+        if r.get("ok") is False and r.get("err"): bad(r["err"]); sys.exit(1)
+        (ok if not r.get("found") else bad)(f"scanned {r.get('scanned', 0):,} files, {len(r.get('found', []))} found" + (" (sample)" if r.get("demo") else ""))
+        for f_ in r.get("found", []):
+            print(f"    {f_['file']}  ({f_['sig']})  moved to {f_.get('moved_to', '')}")
+        sys.exit(0 if r.get("ok", True) else 1)
+    elif a.sub == "restore":
+        need_root()
+        if not a.name: sys.exit("arisectl scan restore <file name as listed>")
+        typed = input(f"Put {a.name} back where it was? Type the name to confirm: ").strip()
+        show(security.scan_restore(a.name, typed))
+
+
+def cmd_reinstall(a):
+    """Rebuild from the Synology's backup: this is installer/install.sh --restore <repo>, with the runbook on screen first."""
+    need_root()
+    if not a.name: sys.exit("arisectl reinstall <restic-repo>   e.g. /mnt/synology/arise-backups/restic   (docs/REINSTALL.md)")
+    here = HOME / "installer" / "install.sh"
+    print(f"  This runs:  sudo bash {here} --restore {a.name}")
+    print("  It restores /etc/arise, /etc/samba, the domain's offline backup, the pinned address, then installs everything around them.")
+    print("  You need: the Synology mounted or the repo path reachable, and the restic password (closet card) in /etc/arise/secrets/restic-password.")
+    typed = input("  Type REINSTALL to continue: ").strip()
+    if typed != "REINSTALL": sys.exit("nothing done")
+    os.execvp("bash", ["bash", str(here), "--restore", a.name])
+
+
 def cmd_update(a):
     from arise_server import system
     u = system.updates()
@@ -690,6 +849,13 @@ def build():
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)
+    sp.add_parser("security").set_defaults(f=cmd_security)
+    p = sp.add_parser("twofa"); p.add_argument("sub", choices=["list", "reset"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_twofa)
+    p = sp.add_parser("rescue"); p.add_argument("sub", choices=["status", "rotate", "card"]); p.set_defaults(f=cmd_rescue)
+    p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm"]); p.set_defaults(f=cmd_encrypt)
+    p = sp.add_parser("snapshot"); p.add_argument("sub", choices=["create", "list", "restore", "prune"]); p.add_argument("name", nargs="?", help="a note for create, the snapshot name for restore"); p.set_defaults(f=cmd_snapshot)
+    p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
+    p = sp.add_parser("reinstall"); p.add_argument("name", nargs="?", help="the restic repository, e.g. /mnt/synology/arise-backups/restic"); p.set_defaults(f=cmd_reinstall)
     return ap
 
 

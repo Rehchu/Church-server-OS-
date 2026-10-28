@@ -1,0 +1,20 @@
+# Arise Server — clamscan over /srv/arise/homes and /srv/arise/shares, video and
+# audio skipped, found files moved to /srv/arise/.quarantine/<date>/ with a
+# manifest, a JSON report to /var/log/arise/clamscan-<date>.json, a push to
+# Bradly when anything is found. Nothing is deleted. `arisectl scan status` reads it.
+[Unit]
+Description=Arise virus scan (ClamAV) of the shares
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/arise
+ExecStart=/usr/local/bin/arisectl scan run
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+TimeoutStartSec=8h
+Nice=15
+IOSchedulingClass=idle
+StandardOutput=append:/var/log/arise/clamscan.log
+StandardError=append:/var/log/arise/clamscan.log
