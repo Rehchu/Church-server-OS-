@@ -153,6 +153,8 @@ def load(path: str | None = None, force: bool = False) -> Config:
         with open(p, "rb") as f:
             raw = tomllib.load(f)
         found = True
+    except PermissionError:
+        raise SystemExit(f"arise: cannot read {p}: this user is not in the arise-conf group (sudo usermod -aG arise-conf $USER), or run as root")
     except FileNotFoundError:
         pass
     demo = os.environ.get("ARISE_DEMO", "") not in ("", "0", "false") or not found

@@ -5,6 +5,7 @@ written are what is pinned.
 """
 import json
 import os
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -472,6 +473,106 @@ class ClaudeDesktop(unittest.TestCase):
         launcher = (root / "scripts" / "arise-claude-desktop").read_text()
         self.assertIn("sudo -u arise-kiosk", launcher)     # never as root: the app refuses root without --no-sandbox
         self.assertNotIn("--no-sandbox", launcher)
+
+
+class Repos(unittest.TestCase):
+    """The Arise repos on the server, two-way with GitHub (docs/REPOS.md)."""
+
+    def test_plan(self):
+        from arise_server.repos import plan
+        self.assertEqual(plan(2, 0, False, "main", "main", "all", True)["do"], "push")
+        self.assertEqual(plan(2, 0, False, "main", "main", "none", True)["do"], "hold")
+        self.assertEqual(plan(2, 0, False, "main", "main", "branches", True)["do"], "hold")
+        self.assertEqual(plan(2, 0, False, "fix-x", "main", "branches", True)["do"], "push")
+        self.assertEqual(plan(0, 3, True, "main", "main", "none", True)["do"], "pull")          # pull-only repos still pull
+        self.assertEqual(plan(1, 1, False, "main", "main", "all", True)["do"], "stop")          # diverged: never merged for you
+        self.assertEqual(plan(0, 0, False, "", "main", "all", True)["do"], "stop")              # detached HEAD
+        self.assertEqual(plan(3, 0, False, "new", "main", "all", False)["do"], "push-new")
+        self.assertEqual(plan(3, 0, False, "new", "main", "none", False)["do"], "hold")
+        self.assertEqual(plan(0, 0, False, "new", "main", "all", False)["do"], "none")
+
+    def test_policy_defaults_protect_the_live_site_and_the_automators_main(self):
+        from arise_server.repos import DEFAULT_POLICY, policy_for
+        self.assertEqual(policy_for("arisehub", DEFAULT_POLICY), "none")
+        self.assertEqual(policy_for("Arise-Youtube-Automation", DEFAULT_POLICY), "branches")
+        self.assertEqual(policy_for("ProjectBackups", DEFAULT_POLICY), "all")
+        self.assertEqual(policy_for("x", {"x": "nonsense"}), "none")      # an unknown word fails safe
+
+    def test_outgoing_scan(self):
+        from arise_server.repos import scan_outgoing
+        fake = "1//0" + "a" * 40
+        self.assertEqual(scan_outgoing([("a.txt", 10)], "+++ b/notes.md\n+scan for 1// and GOCSPX- before a push\n"), [])
+        r = scan_outgoing([("big.mp4", 150 * 1024 * 1024), ("token.json", 10)], f"+++ b/x.py\n+T = '{fake}'\n")
+        self.assertEqual(len(r), 3)
+        self.assertTrue(all(fake not in x for x in r))           # the match itself is never repeated
+
+    def _origin_and_clone(self, d):
+        import subprocess
+        run = lambda *a, cwd=None: subprocess.run(a, cwd=cwd, check=True, capture_output=True, text=True)  # noqa: E731
+        origin = os.path.join(d, "origin.git"); root = os.path.join(d, "repos"); os.makedirs(root)
+        run("git", "init", "-q", "--bare", "-b", "main", origin)
+        seed = os.path.join(d, "seed"); run("git", "clone", "-q", origin, seed)
+        for c in (seed,):
+            run("git", "-C", c, "config", "user.email", "t@t"); run("git", "-C", c, "config", "user.name", "t")
+        open(os.path.join(seed, "a.txt"), "w").write("1\n"); run("git", "-C", seed, "add", "."); run("git", "-C", seed, "commit", "-qm", "one")
+        run("git", "-C", seed, "push", "-q", "origin", "main")
+        work = os.path.join(root, "work"); run("git", "clone", "-q", origin, work)
+        run("git", "-C", work, "config", "user.email", "t@t"); run("git", "-C", work, "config", "user.name", "t")
+        return run, origin, seed, work, root
+
+    def test_real_git_flow(self):
+        import tempfile
+        from arise_server import repos
+        with tempfile.TemporaryDirectory() as d:
+            run, origin, seed, work, root = self._origin_and_clone(d)
+            c = {"root": root, "policy": {}, "repos": ["X/work"]}
+            head = lambda r: run("git", "-C", origin, "rev-parse", r).stdout.strip()  # noqa: E731
+            # a commit here is pushed
+            open(os.path.join(work, "b.txt"), "w").write("2\n"); run("git", "-C", work, "add", "."); run("git", "-C", work, "commit", "-qm", "two")
+            r = repos._one("X/work", c, "", False)
+            self.assertEqual((r["do"], r["ok"]), ("push", True), r)
+            self.assertEqual(head("main"), run("git", "-C", work, "rev-parse", "HEAD").stdout.strip())
+            # pull-only: a commit here is held, not pushed
+            open(os.path.join(work, "c.txt"), "w").write("3\n"); run("git", "-C", work, "add", "."); run("git", "-C", work, "commit", "-qm", "three")
+            r = repos._one("X/work", {**c, "policy": {"work": "none"}}, "", False)
+            self.assertEqual(r["do"], "hold")
+            # GitHub moved too: diverged, nothing merged, nothing pushed
+            run("git", "-C", seed, "pull", "-q", "--ff-only"); open(os.path.join(seed, "d.txt"), "w").write("4\n")
+            run("git", "-C", seed, "add", "."); run("git", "-C", seed, "commit", "-qm", "four"); run("git", "-C", seed, "push", "-q", "origin", "main")
+            before = head("main")
+            r = repos._one("X/work", c, "", False)
+            self.assertEqual((r["do"], r["ok"]), ("stop", False)); self.assertIn("diverged", r["why"])
+            self.assertEqual(head("main"), before)
+            # put the local commit aside; now only behind: pulled
+            run("git", "-C", work, "reset", "-q", "--hard", "HEAD~1")
+            r = repos._one("X/work", c, "", False)
+            self.assertEqual((r["do"], r["ok"]), ("pull", True), r)
+            self.assertTrue(os.path.exists(os.path.join(work, "d.txt")))
+            # a commit carrying a credential, even one removed again in the next commit, is refused
+            fake = "ya29." + "b" * 40
+            open(os.path.join(work, "cfg.py"), "w").write(f"T='{fake}'\n"); run("git", "-C", work, "add", "."); run("git", "-C", work, "commit", "-qm", "oops")
+            open(os.path.join(work, "cfg.py"), "w").write("T=''\n"); run("git", "-C", work, "add", "."); run("git", "-C", work, "commit", "-qm", "fix")
+            before = head("main")
+            r = repos._one("X/work", c, "", False)
+            self.assertEqual((r["do"], r["ok"]), ("refused", False), r)
+            self.assertNotIn(fake, r["why"]); self.assertEqual(head("main"), before)
+            # a new branch: pushed under "all", held under "branches" only when it is the default
+            run("git", "-C", work, "reset", "-q", "--hard", "origin/main"); run("git", "-C", work, "checkout", "-qb", "idea")
+            open(os.path.join(work, "e.txt"), "w").write("5\n"); run("git", "-C", work, "add", "."); run("git", "-C", work, "commit", "-qm", "idea")
+            r = repos._one("X/work", {**c, "policy": {"work": "branches"}}, "", False)
+            self.assertEqual((r["do"], r["ok"]), ("push-new", True), r)
+            self.assertTrue(head("idea"))
+
+    def test_unit_is_unprivileged_and_never_during_a_service(self):
+        root = Path(__file__).resolve().parents[1]
+        u = (root / "config" / "systemd" / "arise-repos.service").read_text()
+        for need in ("User=arise-git", "ExecCondition=+/usr/local/bin/arisectl service-now --quiet",
+                     "LoadCredential=github-token:/etc/arise/secrets/github-token", "InaccessiblePaths=/etc/arise/secrets", "ProtectSystem=strict"):
+            self.assertIn(need, u)
+        for unit in (root / "config" / "systemd").glob("*.service"):
+            t = unit.read_text()
+            if re.search(r"^User=(?!root)", t, re.M) and "ExecCondition=" in t:
+                self.assertIn("ExecCondition=+", t, unit.name)    # a non-root unit cannot read arise.toml for the service times
 
 if __name__ == "__main__":
     unittest.main()

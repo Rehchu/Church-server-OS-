@@ -213,3 +213,12 @@ note = "Office and leadership computers: VPN clients, no site router needed."
 [browser]
 open_web = false        # false: only the built-in list (the box, the Assistants, YouTube, StreamYard, the church site) plus `allow`
 allow = []              # extra sites, e.g. ["bible.com", "*.planningcenteronline.com"]
+
+# The Arise repos on the server, two-way with GitHub (docs/REPOS.md). The list is [github] repos.
+# policy per repo: "all" (pull and push), "branches" (push branches but not the default one), "none" (pull only).
+[repos]
+enabled = true
+root = "/srv/arise/repos"
+[repos.policy]
+AriseHub = "none"                      # a push to main deploys the live site; a branch push blocks Cloudflare secret changes
+Arise-Youtube-Automation = "branches"  # its main is edited on the PC (SERVER_HANDOFF.md)

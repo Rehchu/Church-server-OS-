@@ -27,9 +27,11 @@ from . import help as helpdocs
 from . import weather
 from . import finder
 from . import audit, offboard
+from . import repos as arise_repos
 from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
 from .config import load
 from .util import human_bytes
+from .util import run as system_run
 
 cfg = load()
 app = FastAPI(title="Arise Server", version=VERSION, docs_url="/api/docs", redoc_url=None, openapi_url="/api/openapi.json")
@@ -1537,6 +1539,21 @@ def _read_fd(fd):
         return os.read(fd, 65536)
     except OSError:
         return b""
+
+# ----- the Arise repos, two-way with GitHub (docs/REPOS.md) ----------------------
+@app.get("/api/repos")
+def api_repos(_=admin):
+    return arise_repos.status()
+
+
+@app.post("/api/repos/sync")
+def api_repos_sync(_=admin):
+    """Runs the unit (as arise-git, with the token as a systemd credential), never git as root here."""
+    if load().demo:
+        return {"ok": True, "demo": True, "started": True}
+    r = system_run(["systemctl", "start", "--no-block", "arise-repos.service"])
+    return {"ok": r["ok"], "started": r["ok"], **({} if r["ok"] else {"err": (r.get("err") or r.get("out") or "").strip()[-300:]})}
+
 
 # ----- audit log and offboarding (round 2, 23 and 24) ----------------------------
 @app.get("/api/audit")

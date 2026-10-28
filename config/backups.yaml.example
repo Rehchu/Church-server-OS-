@@ -79,3 +79,11 @@ jobs:
     paths: ["/mnt/synology/arise/media"]
     exclude: ["**/.DS_Store", "**/@eaDir"]
     tags: [media]
+
+  - id: repos
+    name: The Arise repos (working folders)
+    # /srv/arise/repos (docs/REPOS.md). GitHub holds everything committed and pushed;
+    # this keeps what is not there yet: uncommitted edits and commits a policy holds back.
+    paths: ["/srv/arise/repos"]
+    exclude: ["**/node_modules", "**/.next", "**/.open-next", "**/__pycache__", "**/token*.json", "**/client_secret*.json", "**/.env"]
+    tags: [repos]

@@ -14,6 +14,7 @@
     arisectl trash list|sweep [--dry-run]|empty <share>          the Trash on every share (30 days, then the sweep)
     arisectl offboard list|mark <user> --to <user>|cancel <user>|sweep [--dry-run]   someone leaving: 30 days, then disabled, files to the next person
     arisectl browser [status|apply|policy]                      Firefox on the closet monitor: what is installed, rewrite the policy and theme, print the policy
+    arisectl repos [status|sync [name] [--dry-run]|setup]       the 8 Arise repos in /srv/arise/repos, two-way with GitHub every 15 minutes
     arisectl audit [words] [--who U] [--failed] [--limit N]      the audit log, newest first (kept forever)
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
     arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|cutover|unblock
@@ -799,6 +800,31 @@ def cmd_browser(a):
         r = _sp.run([sys.executable, str(gen), "--config", "/etc/arise/arise.toml"], capture_output=True, text=True)
         print(r.stdout or r.stderr)
 
+
+def cmd_repos(a):
+    """The Arise repos on the server, two-way with GitHub (docs/REPOS.md)."""
+    from arise_server import repos
+    if a.sub == "status":
+        st = repos.status()
+        head(f"repos in {st['root']} (last sync {st.get('last') or 'never'}; token {'present' if st.get('token') else 'MISSING'})")
+        for r in st["repos"]:
+            (ok if r.get("ok") else bad)(f"{r['name']:26s} {r.get('policy','?'):8s} {r.get('branch','-'):14s} +{r.get('ahead',0)} -{r.get('behind',0)}{' dirty' if r.get('dirty') else ''}  {r.get('why','')}")
+        if st.get("demo"): warn("sample data")
+    elif a.sub == "sync":
+        if not a.dry_run and os.geteuid() == 0 and not os.environ.get("CREDENTIALS_DIRECTORY"):
+            # As root, run it the way the timer does: as arise-git, with the token as a credential.
+            sys.exit(subprocess.call(["systemctl", "start", "arise-repos.service"]))
+        r = repos.sync(only=a.name, dry_run=a.dry_run)
+        if a.quiet and r["ok"]:
+            return
+        head("repos sync" + (" (dry run)" if a.dry_run else ""))
+        for x in r["repos"]:
+            (ok if x.get("ok") else bad)(f"{x['name']:26s} {x.get('do','')}: {x.get('why','')}")
+        if not r["ok"]: sys.exit(1)
+    elif a.sub == "setup":
+        need_root()
+        sys.exit(subprocess.call(["bash", str(HOME / "scripts" / "arise-repos-setup"), "--src", str(HOME)]))
+
 def cmd_offboard(a):
     """Someone leaving (round 2, 24): 30 days, then the login is disabled and the files move on."""
     from arise_server import offboard
@@ -1238,6 +1264,7 @@ def build():
     sp.add_parser("ups").set_defaults(f=cmd_ups)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
     p = sp.add_parser("browser"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply", "policy"]); p.set_defaults(f=cmd_browser)
+    p = sp.add_parser("repos"); p.add_argument("sub", nargs="?", default="status", choices=["status", "sync", "setup"]); p.add_argument("name", nargs="?", help="sync: one repo only"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_repos)
     p = sp.add_parser("offboard"); p.add_argument("sub", choices=["list", "mark", "cancel", "sweep"]); p.add_argument("name", nargs="?"); p.add_argument("--to", help="mark: who takes the files"); p.add_argument("--days", type=int, default=30); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_offboard)
     p = sp.add_parser("audit"); p.add_argument("q", nargs="?", help="words to match"); p.add_argument("--who"); p.add_argument("--failed", action="store_true"); p.add_argument("--limit", type=int, default=50); p.set_defaults(f=cmd_audit)
     p = sp.add_parser("trash"); p.add_argument("sub", choices=["list", "sweep", "empty"]); p.add_argument("share", nargs="?", help="empty: the share whose Trash goes (typed again to confirm)"); p.add_argument("--dry-run", action="store_true", help="sweep: show what would go"); p.add_argument("--quiet", action="store_true", help="sweep: print nothing (the daily timer)"); p.set_defaults(f=cmd_trash)

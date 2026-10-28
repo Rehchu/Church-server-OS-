@@ -483,6 +483,10 @@ else
   note "$CONF_DIR/backups.yaml exists, left alone"
 fi
 run chmod 0640 "$CONF_DIR/arise.toml" "$CONF_DIR/backups.yaml"
+# arise.toml holds no secrets, but stays closed: root, plus the group arise-conf, which the
+# service users join (arise-yt, arise-git, arise-kb) so their arisectl calls can read it.
+getent group arise-conf >/dev/null 2>&1 || run groupadd -g 1504 arise-conf 2>/dev/null || run groupadd arise-conf
+run chgrp arise-conf "$CONF_DIR/arise.toml"
 run mkdir -p /mnt/synology
 
 # ----------------------------------------------------------------------------
@@ -761,7 +765,14 @@ else
   bash "$SRC/scripts/arise-automator-setup" --src "$SRC" || warn "automator setup did not finish (above): sudo arisectl automator setup"
 fi
 
-ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer)
+# The Arise repos, two-way with GitHub every 15 minutes (docs/REPOS.md).
+if [ "$DRY_RUN" = 1 ]; then
+  bash "$SRC/scripts/arise-repos-setup" --dry-run --src "$SRC" || warn "repos setup (dry run) reported a problem"
+else
+  bash "$SRC/scripts/arise-repos-setup" --src "$SRC" || warn "repos setup did not finish (above): sudo arisectl repos setup"
+fi
+
+ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer arise-repos.timer)
 for u in "${ENABLE_UNITS[@]}"; do
   if [ -f "/etc/systemd/system/$u" ] || [ -f "$UNIT_SRC/$u" ]; then
     if [ "$NO_START" = 0 ]; then

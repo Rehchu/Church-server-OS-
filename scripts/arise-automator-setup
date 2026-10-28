@@ -55,6 +55,7 @@ if id -u "$U" >/dev/null 2>&1; then say "user $U exists"; else
   run useradd -u "$UID_WANTED" -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS YouTube automator" "$U" \
     || run useradd -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS YouTube automator" "$U"
 fi
+getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-yt   # may read arise.toml (no secrets in it)
 run install -d -m 0750 -o "$U" -g "$U" "$STATE" "$STATE/reports"
 run install -d -m 0700 -o root -g root /etc/arise/secrets
 run install -d -m 0700 -o "$U" -g "$U" "$SECRETS"

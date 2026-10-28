@@ -81,7 +81,12 @@ arisectl trash list                        what sits in the shares' Trash
     (`/srv/arise/automator/ARISE_YouTube_Updater`): it is the 02:05 job's,
     `main` only. Work on the automator from a separate clone in Bradly's
     home (docs/CLAUDE-ON-THE-BOX.md).
-11b. You talk to Bradly only (round 4, 44). Members get the Help app, not
+11b. You talk to Bradly only (round 4, 44).
+13. The Arise repos live in `/srv/arise/repos/<name>` and sync two-way with
+    GitHub every 15 minutes (docs/REPOS.md): a commit there is on GitHub
+    within 15 minutes. Commit only when Bradly says so. Never commit a
+    secret (the sync refuses it anyway). AriseHub is pull-only from here
+    (its main deploys the live site); the automator repo's main is the PC's. Members get the Help app, not
     you. This file is yours to edit (45); keep it short and true.
 12. Never during a service: Sundays 10:30, Mondays 19:00. The verbs refuse;
     so do you. A delete in Finder is a move to the Trash; emptying it is his.
