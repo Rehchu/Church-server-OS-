@@ -992,6 +992,10 @@ else
     echo "# The break-glass admin signs in at the closet monitor only (round 3, 21)."
     echo "DenyUsers arise-rescue"
   } > /etc/ssh/sshd_config.d/00-arise.conf
+  # Ubuntu 24.04 starts sshd by socket activation, so /run/sshd only exists once
+  # sshd has run; without it 'sshd -t' fails and the keys-only file was removed as
+  # "rejected" (found by the rehearsal). ssh.service makes it the same way.
+  mkdir -p /run/sshd && chmod 0755 /run/sshd
   if sshd -t 2>/dev/null; then
     systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
   else
