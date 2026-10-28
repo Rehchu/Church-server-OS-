@@ -299,6 +299,7 @@ PKGS=(
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
   restic rsync git curl jq arp-scan nmap ffmpeg bind9-host
+  openssh-server
   ca-certificates gnupg
   python3 python3-venv python3-pip
   chrony
