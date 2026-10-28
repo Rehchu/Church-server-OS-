@@ -218,6 +218,20 @@ bypass the normal firewall, so a small unit (`arise-docker-firewall`)
 rewrites the chain Docker honours at every boot; in staging the allowed
 list is empty and nothing at home can reach a container.
 
+## Also installed: the splash, the UPS daemon, the drill, the closet card
+
+- **Boot splash** (`--no-splash` to skip): the ariseOS Plymouth theme and a
+  quiet kernel; docs/CONSOLE.md § The boot splash.
+- **UPS** (`--no-ups` to skip): NUT is installed and set to shut the box down
+  cleanly when the UPS reports low battery (answer 48). The driver stanza
+  in `/etc/nut/ups.conf` stays commented until the UPS model is known;
+  `sudo arisectl ups` says what to do and, once set, shows charge and runtime.
+- **Restore drill**: `arise-drill.timer`, monthly; docs/BACKUPS.md § The restore drill.
+- **The closet card**: `/srv/arise/shares/staff/CLOSET-CARD.html` (also in
+  `/etc/arise/`): the box's addresses, the three commands, where the backups
+  and the secrets are, who to call (write the phone numbers by hand). Print
+  it, tape it to the closet door.
+
 ## Installing at home first, then carrying it to the church
 
 Bradly's plan: install at home, check it, carry it in. The box must not

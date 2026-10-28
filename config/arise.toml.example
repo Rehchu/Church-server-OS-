@@ -65,6 +65,11 @@ from_email = ""           # e.g. "news@arisecenla.church" once the domain is ver
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
 
+# Push notifications to phones (answer 10: Bradly only). The admin_user always
+# may subscribe; add more names here to widen it. Keys are made on the box.
+[push]
+users = []
+
 [links]
 # Share links (a public download address for one file or folder).
 days = 7        # default life

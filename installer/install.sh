@@ -35,6 +35,8 @@
 #                        signed in with Bradly's claude.ai account: run `claude`, then /login. No API key anywhere.
 #    --no-hardening      skip the care an old PC needs: security updates (no auto-reboot), journald cap,
 #                        SMART monitoring, needrestart, fstrim, logrotate. Default ON.
+#    --no-splash         skip the ariseOS boot splash (Plymouth theme, quiet kernel, 1 s GRUB menu)
+#    --no-ups            skip NUT (the UPS daemon; shuts the box down cleanly on low battery once the model is set)
 #    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
 #                        nothing on any router changes, Bradly's rule)
 #    --dry-run           print every step, change nothing
@@ -70,6 +72,8 @@ WITH_KIOSK=0
 WITH_COCKPIT=1
 WITH_CLAUDE=1
 WITH_HARDENING=1
+WITH_SPLASH=1
+WITH_UPS=1
 PIN_IP=1
 # The church set: installed, started and ready after the OS install (Bradly).
 # Everything else in templates/ stays one `arisectl app deploy` away.
@@ -99,6 +103,8 @@ while [ $# -gt 0 ]; do
     --with-claude) WITH_CLAUDE=1; shift ;;
     --no-claude)   WITH_CLAUDE=0; shift ;;
     --no-hardening) WITH_HARDENING=0; shift ;;
+    --no-splash)   WITH_SPLASH=0; shift ;;
+    --no-ups)      WITH_UPS=0; shift ;;
     --no-tailscale) WITH_TAILSCALE=0; shift ;;
     --apps)        APPS="${2//,/ }"; shift 2 ;;
     --no-apps)     APPS=""; shift ;;
@@ -143,7 +149,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -858,6 +864,14 @@ elif [ -f "$UNIT_SRC/arise-devices.timer" ]; then
     run systemctl enable arise-devices.timer
   fi
 fi
+if [ -f "$UNIT_SRC/arise-drill.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-drill.timer || warn "arise-drill.timer failed to start"
+  else
+    run systemctl enable arise-drill.timer
+  fi
+  note "arise-drill.timer: once a month one file comes back from last night's backup and is compared (arisectl backup drill)"
+fi
 if [ -f /etc/systemd/system/arise-notify.timer ] || [ -f "$UNIT_SRC/arise-notify.timer" ]; then
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now arise-notify.timer || warn "arise-notify.timer failed to start"
@@ -1149,6 +1163,112 @@ LR
   fi
 fi
 
+# ----------------------------------------------------------------------------
+# 6g. The boot splash: ariseOS boots like a product (answer 1: splash, no sound)
+# ----------------------------------------------------------------------------
+if [ "$WITH_SPLASH" = 1 ]; then
+  say "6g/7  Boot splash: ariseOS"
+  THEME_DIR="/usr/share/plymouth/themes/ariseos"
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] apt-get install plymouth plymouth-themes; copy $SRC/config/plymouth/ariseos -> $THEME_DIR; python3 $SRC/scripts/gen-plymouth-art.py $THEME_DIR"
+    note "[dry-run] plymouth-set-default-theme -R ariseos; /etc/default/grub.d/60-ariseos.cfg: quiet splash loglevel=3, GRUB_TIMEOUT=1, GRUB_GFXPAYLOAD_LINUX=keep; update-grub"
+  else
+    apt-get install -y -q --no-install-recommends plymouth plymouth-themes plymouth-label >/dev/null 2>&1 || warn "plymouth did not install; the box boots with text"
+    if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+      mkdir -p "$THEME_DIR"
+      cp "$SRC/config/plymouth/ariseos/ariseos.plymouth" "$SRC/config/plymouth/ariseos/ariseos.script" "$THEME_DIR/"
+      python3 "$SRC/scripts/gen-plymouth-art.py" "$THEME_DIR" >/dev/null 2>&1 || warn "could not draw the splash pictures (python3 zlib?)"
+      mkdir -p /etc/default/grub.d
+      cat > /etc/default/grub.d/60-ariseos.cfg <<GRUB
+# ariseOS: a quiet boot with the splash, a one-second menu, the framebuffer kept
+# for Plymouth. Delete this file and run update-grub to see the text again.
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=3"
+GRUB_TIMEOUT=1
+GRUB_TIMEOUT_STYLE=hidden
+GRUB_GFXPAYLOAD_LINUX=keep
+GRUB
+      if [ "$(plymouth-set-default-theme 2>/dev/null)" = "ariseos" ]; then
+        note "plymouth theme already ariseos"
+      else
+        plymouth-set-default-theme -R ariseos >/dev/null 2>&1 && note "plymouth theme: ariseos (initramfs rebuilt)" || warn "plymouth-set-default-theme failed; run it by hand: sudo plymouth-set-default-theme -R ariseos"
+      fi
+      update-grub >/dev/null 2>&1 && note "grub: quiet splash, 1 s menu" || warn "update-grub failed; the splash shows once grub is updated"
+    fi
+  fi
+fi
+
+# ----------------------------------------------------------------------------
+# 6h. The UPS: NUT, shutting down cleanly on LOW BATTERY (answer 48: when nearly flat)
+# ----------------------------------------------------------------------------
+if [ "$WITH_UPS" = 1 ]; then
+  say "6h/7  UPS: NUT installed; the driver waits for the model"
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] apt-get install nut; /etc/nut/{nut.conf MODE=none until the model is known, ups.conf [arise] usbhid-ups commented, upsd.users, upsmon.conf MONITOR ... SHUTDOWNCMD}"
+  else
+    apt-get install -y -q --no-install-recommends nut >/dev/null 2>&1 || warn "nut did not install"
+    if [ -d /etc/nut ]; then
+      UPS_PW="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20 || echo change-me)"
+      [ -f /etc/nut/ups.conf ] && grep -q '^# arise' /etc/nut/ups.conf || cat > /etc/nut/ups.conf <<UPS
+# arise: the Pineville UPS. The model is not known yet (docs/ANSWERS.md 8), so
+# the stanza is commented. Most USB UPSes (APC, CyberPower, Eaton, Tripp Lite)
+# work with usbhid-ups and port = auto. Uncomment, set MODE=standalone in
+# nut.conf, then: sudo systemctl restart nut-server nut-monitor; sudo arisectl ups
+#[arise]
+#  driver = usbhid-ups
+#  port = auto
+#  desc = "Pineville closet UPS"
+UPS
+      if ! grep -q '^MODE=standalone' /etc/nut/nut.conf 2>/dev/null; then
+        sed -i 's/^MODE=.*/MODE=none/' /etc/nut/nut.conf 2>/dev/null || true
+        grep -q '^MODE=' /etc/nut/nut.conf 2>/dev/null || echo "MODE=none" >> /etc/nut/nut.conf
+      fi
+      if ! grep -q '^\[monuser\]' /etc/nut/upsd.users 2>/dev/null; then
+        printf '\n# arise: upsmon login\n[monuser]\n  password = %s\n  upsmon primary\n' "$UPS_PW" >> /etc/nut/upsd.users
+        if ! grep -q '^MONITOR arise@localhost' /etc/nut/upsmon.conf 2>/dev/null; then
+          printf '\n# arise: shut down cleanly when the UPS says LOW BATTERY (its own threshold); nothing earlier (answer 48)\nMONITOR arise@localhost 1 monuser %s primary\nSHUTDOWNCMD "/sbin/shutdown -h +0"\nPOWERDOWNFLAG /etc/killpower\n' "$UPS_PW" >> /etc/nut/upsmon.conf
+        fi
+        chmod 640 /etc/nut/upsd.users /etc/nut/upsmon.conf 2>/dev/null || true
+      fi
+      note "nut: installed, MODE=none until the UPS model is known; then uncomment /etc/nut/ups.conf [arise], MODE=standalone, restart nut-server nut-monitor"
+    fi
+  fi
+fi
+
+# ----------------------------------------------------------------------------
+# 6i. The closet card: one printable page for the closet door (answer 46)
+# ----------------------------------------------------------------------------
+say "6i/7  The closet card"
+CARD_BODY="$(cat <<CARD
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ariseOS: if the server dies</title>
+<style>@page{margin:14mm}body{font-family:Oswald,"Helvetica Neue",Arial,sans-serif;color:#0A0A0C;margin:0;max-width:760px}
+.hd{background:#0A0A0C;color:#fff;padding:18px 24px;border-top:6px solid #D6222D}.hd h1{font-family:Anton,Impact,"Arial Black",sans-serif;font-size:30px;margin:0;letter-spacing:.04em;text-transform:uppercase}
+.hd p{margin:4px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#bbb}h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#D6222D;margin:22px 24px 6px;border-bottom:2px solid #D6222D;padding-bottom:4px}
+table{border-collapse:collapse;margin:0 24px;width:calc(100% - 48px)}td{padding:6px 0;border-bottom:1px solid #e4e1dd;font-size:14px;vertical-align:top}td:first-child{width:200px;color:#6A6A6E;text-transform:uppercase;letter-spacing:.08em;font-size:11px;padding-top:9px}
+code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padding:1px 5px}.ft{margin:26px 24px 0;font-size:11px;color:#6A6A6E}</style></head><body>
+<div class="hd"><h1>ariseOS: if the server dies</h1><p>Tape this to the closet door. Nothing here is secret; the passwords are not on it.</p></div>
+<h2>This box</h2><table><tr><td>Name</td><td>$HOSTNAME_WANTED &nbsp;(<code>$FQDN</code>)</td></tr><tr><td>Address on the wire</td><td><code>${PRIMARY_IP:-see arisectl info}</code> &nbsp;pinned on the box, not on the router</td></tr>
+<tr><td>Dashboard</td><td><code>http://$HOSTNAME_WANTED:4147</code> &nbsp;and the desktop on this monitor</td></tr><tr><td>Over Tailscale</td><td><code>http://$HOSTNAME_WANTED:4147</code> from any signed-in laptop, anywhere</td></tr>
+<tr><td>Cockpit (second door)</td><td><code>https://$HOSTNAME_WANTED:9090</code> &nbsp;sign in as $ADMIN_USER</td></tr></table>
+<h2>Three commands (Alt+F2 for a text login, or SSH)</h2><table><tr><td>What is wrong?</td><td><code>sudo arisectl doctor</code></td></tr><tr><td>Dashboard stuck</td><td><code>sudo systemctl restart arise-web</code> &nbsp;(logins and shares keep working meanwhile)</td></tr><tr><td>Everything stuck</td><td><code>sudo reboot</code> &nbsp;about a minute; the desktop comes back by itself; Macs keep working on cached accounts</td></tr></table>
+<h2>Where things are</h2><table><tr><td>Backups</td><td>restic on the Synology: <code>$(grep -E '^restic_repo' "$CONF_DIR/arise.toml" 2>/dev/null | sed 's/.*= *"\(.*\)"/\1/' || echo /mnt/synology/arise-backups/restic)</code> &nbsp;nightly 03:00; restore: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
+<tr><td>Passwords and keys</td><td><code>/etc/arise/secrets/</code> &nbsp;root only: restic, Resend, the apps' generated passwords (<code>apps/</code>). Never on this card.</td></tr>
+<tr><td>Config</td><td><code>/etc/arise/arise.toml</code> &nbsp;·&nbsp; code <code>/opt/arise</code> &nbsp;·&nbsp; data <code>/srv/arise</code> &nbsp;·&nbsp; logs <code>/var/log/arise</code>, <code>journalctl -u arise-web</code></td></tr>
+<tr><td>The docs</td><td><code>/opt/arise/docs/</code>, start with SETUP-GUIDE.md; MOVING-DAY.md for the move to the Hub</td></tr>
+<tr><td>Staging marker</td><td>If <code>/etc/arise/staging</code> exists the box thinks it is NOT at the church (domain on loopback, nothing scanned). Fix: <code>sudo bash /opt/arise/installer/install.sh --kiosk</code></td></tr></table>
+<h2>Who to call</h2><table><tr><td>Bradly Dyer</td><td>media and IT &nbsp;·&nbsp; phone: ______________________</td></tr><tr><td>Second person</td><td>none yet (docs/ANSWERS.md 52) &nbsp;·&nbsp; name: ______________________ &nbsp;phone: ______________________</td></tr></table>
+<p class="ft">Printed by install.sh on $(date '+%Y-%m-%d'). Nothing on this page changes a router. Arise Church · Pineville, LA.</p></body></html>
+CARD
+)"
+if [ "$DRY_RUN" = 1 ]; then
+  note "[dry-run] write $CONF_DIR/CLOSET-CARD.html and $DATA_ROOT/shares/staff/CLOSET-CARD.html (print and tape to the closet door)"
+else
+  mkdir -p "$CONF_DIR" "$DATA_ROOT/shares/staff"
+  printf '%s\n' "$CARD_BODY" > "$CONF_DIR/CLOSET-CARD.html"
+  printf '%s\n' "$CARD_BODY" > "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
+  chmod 644 "$CONF_DIR/CLOSET-CARD.html" "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
+  note "closet card: $DATA_ROOT/shares/staff/CLOSET-CARD.html (open from any Mac on the staff share, print, tape it up)"
+fi
+
 say "7/7  Done. What still needs you"
 AUTOMATOR_DIR="$DATA_ROOT/automator/ARISE_YouTube_Updater"
 cat <<SUMMARY
@@ -1180,6 +1300,9 @@ $( [ "$WITH_CADDY" = 1 ] && echo "       https: trust the Caddy root on each Mac
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
        Apps page in the dashboard: start, stop, logs, update, remove. More templates: arisectl app templates
+    8. The closet card: print $DATA_ROOT/shares/staff/CLOSET-CARD.html and tape it to the door; write the phone numbers on it by hand
+    9. The UPS: when the model is known, uncomment [arise] in /etc/nut/ups.conf, MODE=standalone in nut.conf, restart nut-server nut-monitor; sudo arisectl ups
+   10. The restore drill runs monthly by itself (arise-drill.timer); try it once now: sudo arisectl backup drill
 $( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "    8. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )

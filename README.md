@@ -1,6 +1,6 @@
 # Arise Server
 
-**The church server for Arise Church, Pineville LA. One box. One login. Nothing silent.**
+**The church server for Arise Church, Pineville LA. One box. One login. Nothing silent.** The OS it becomes is called **ariseOS**; Arise Server is the service inside it (docs/ROADMAP.md).
 
 Arise Server turns an old PC into the church's own server:
 
@@ -23,7 +23,7 @@ Plain Python 3.11+ and plain HTML/CSS/JS. No Node build step. The whole thing ru
 
 ## Status
 
-**v0.6.0 "Pineville" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, and eleven apps ready to use (INSTALL.md § What is running). Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
+**v0.7.0 "Genesis" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, and eleven apps ready to use (INSTALL.md § What is running). Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
 
 What has **not** been run against a real Samba domain, a real Synology, a real restic repository, a real Tailscale or WireGuard tunnel or a real Guacamole: every call is written against the tools' documented interfaces, and `arisectl doctor` is there to find the first thing that disagrees.
 

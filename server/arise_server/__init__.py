@@ -1,3 +1,3 @@
 """Arise Server - the JSON API and dashboard host for Arise Church's server."""
-VERSION = "0.6.0"
-CODENAME = "Pineville"
+VERSION = "0.7.0"
+CODENAME = "Genesis"

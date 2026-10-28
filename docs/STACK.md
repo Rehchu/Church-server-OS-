@@ -6,6 +6,9 @@ adding (and are now one-click templates), which wait, and which would fight
 the design or the hardware. Every memory figure is a typical idle number
 from the projects' own docs or common experience, labelled as an estimate;
 the Dell's real RAM (question 1, Sunday) decides how many run at once.
+The OS is called **ariseOS** (round 2, 19); Arise Server stays the name of
+the service and the repo. Releases are named after books of the Bible from
+the next one on: v0.7 "Genesis" (docs/ROADMAP.md).
 
 ## The shape of the machine
 

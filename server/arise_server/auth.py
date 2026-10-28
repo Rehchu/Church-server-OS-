@@ -57,7 +57,7 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
-MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/")
+MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/", "/api/push/", "/api/about/week")
 
 
 def login(user: str, password: str) -> tuple[str, dict] | None:

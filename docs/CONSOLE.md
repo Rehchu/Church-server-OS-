@@ -6,6 +6,20 @@ shows a browser (Finder, menu bar, dock, widgets, Spotlight), full screen on
 tty1 from the moment the box has booted. Everything below the next section is
 the text fallback.
 
+## The boot splash
+
+ariseOS boots like a product: ink, the flame breathing in, a thin red
+progress bar, the name in small caps, no Linux text (answer 1: a splash,
+no sound). It is a Plymouth theme, `config/plymouth/ariseos`, whose
+pictures are drawn by `scripts/gen-plymouth-art.py` with no image library;
+the installer sets it as the default, rebuilds the initramfs, and tells the
+kernel `quiet splash loglevel=3` with a one-second GRUB menu
+(`/etc/default/grub.d/60-ariseos.cfg`). Boot messages that matter (a disk
+check, a slow unit) appear in small bone text under the bar instead of
+scrolling. `install.sh --no-splash` leaves the text boot; deleting the
+grub.d file and running `update-grub` brings it back later. Hold Shift at
+power-on for the GRUB menu when something has to be chosen.
+
 ## The desktop on the monitor (`--kiosk`)
 
 `arise-kiosk.service` starts `cage` (a one-window Wayland compositor, no

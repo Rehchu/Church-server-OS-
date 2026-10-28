@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, remote, routers, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, push, remote, routers, sermons, services, shares, sites, system
 from . import links
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
@@ -28,6 +28,8 @@ cfg = load()
 app = FastAPI(title="Arise Server", version=VERSION, docs_url="/api/docs", redoc_url=None, openapi_url="/api/openapi.json")
 metrics.start()
 _started = time.time()
+if not cfg.demo:
+    push.watch(lambda: overview.__wrapped__() if hasattr(overview, "__wrapped__") else _attention_now())
 
 auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
 admin = Depends(require_admin)    # the administrator only
@@ -130,6 +132,15 @@ def overview(_=auth):
         "nas": {"mounted": n.get("mounted"), "free": n.get("free"), "total": n.get("total"), "reachable": n.get("reachable", n.get("mounted"))},
         "attention": _attention(c, bad, auto, failed_backups, n, d),
     }
+
+
+def _attention_now() -> list[dict]:
+    """The Needs You list, computed without a request (for the push watcher)."""
+    c = load()
+    svc = services.list_services()
+    bad = [s["unit"] for s in svc["services"] if s["active"] not in ("active", "activating")]
+    hist = backups.history(limit=20)
+    return _attention(c, bad, automator.overview(), [r for r in hist["rows"][:10] if not r.get("ok")], nas.status(), directory.status())
 
 
 def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
@@ -572,6 +583,59 @@ def public_link(token: str):
             raise HTTPException(413, {"message": "That folder is too big to zip; ask for the files another way"})
         return FileResponse(z, filename=got["name"] + ".zip", media_type="application/zip")
     return FileResponse(got["path"], filename=got["name"])
+
+
+# ----- the phone: manifest, service worker, push -----------------------------------
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse(str(cfg.web_dir / "manifest.webmanifest"), media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def service_worker():
+    return FileResponse(str(cfg.web_dir / "sw.js"), media_type="application/javascript", headers={"Service-Worker-Allowed": "/"})
+
+
+class PushSub(BaseModel):
+    subscription: dict
+    label: str = ""
+
+
+@app.get("/api/push/key")
+def api_push_key(who=auth):
+    k = push.public_key()
+    k["enabled_for_me"] = who["user"] in push.who_gets()
+    return k
+
+
+@app.post("/api/push/subscribe")
+def api_push_subscribe(body: PushSub, who=auth):
+    if who["user"] not in push.who_gets():
+        return {"ok": False, "err": "push goes to the administrator only (answer 10); add names under [push] users to widen it"}
+    return push.subscribe(who["user"], body.subscription, body.label)
+
+
+@app.post("/api/push/test")
+def api_push_test(who=auth):
+    return push.send("ariseOS", "This is what a push from the server looks like.", "/#overview", tag="test", throttle_s=0)
+
+
+@app.get("/api/about/week")
+def api_about_week(_=auth):
+    """The About window's week: the verse, the services, what the channel did (from the inventory, nothing invented)."""
+    from datetime import datetime, timedelta
+    c = church.info()
+    vids = sermons.videos(40).get("videos", [])
+    since = (datetime.now() - timedelta(days=7)).date().isoformat()
+    week = [v for v in vids if (v.get("published") or "") >= since]
+    def mins(d):
+        try:
+            parts = [int(x) for x in str(d).split(":")]
+            return parts[0] * 60 + parts[1] if len(parts) == 3 else (parts[0] if len(parts) == 2 else 0)
+        except (ValueError, TypeError):
+            return 0
+    return {"verse": church.verse_of_day(), "services": len(c["services"]), "published_this_week": len(week), "minutes_this_week": sum(mins(v.get("duration")) for v in week),
+            "latest": (vids[0]["title"] if vids else ""), "latest_date": (vids[0].get("published") if vids else ""), "name": "ariseOS", "codename": CODENAME, "version": VERSION}
 
 
 # ----- the church: services, verse, the Sunday checklist, the monitor, signage ---

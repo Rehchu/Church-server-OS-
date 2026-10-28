@@ -119,6 +119,65 @@ file it points to. Nothing in this file is assumed; every line is his answer.
 
 | Mass email to the church family through Resend; contacts exported from Wix; "emails will come from Arisenow.church@gmail.com or something like that"; Proclaim does the lobby signage | the **Mail** app (19) and `arisectl mail`: Wix CSV import into a Resend audience (unsubscribes handled by Resend), the house template, a test send, broadcasts with a typed `send`. Resend cannot send FROM gmail.com: `from_email` must be at a domain verified in Resend (arisecenla.church, or arisenow.church if the church owns it); the Gmail is the reply-to. Proclaim has no Linux version; it stays on its Mac, and `/signage` is for a screen with no Mac behind it |
 
+## Round 2 (Oct 28, the same night): fifty more
+
+Fifty pop-up questions about what to add, improve and polish. His words are
+quoted where he typed them. The build order is his (50): Feel first.
+docs/ROADMAP.md turns these into releases.
+
+| # | Question, in a few words | Answer | What it decides |
+|---|---|---|---|
+| 1 | Boot like a product? | Splash, no sound | a Plymouth theme in the house style; silent boot |
+| 2 | YouTube Partner progress widget? | Yes, desktop only | subscribers toward 1,000 and watch hours toward 4,000 from the automator's numbers; not on the lobby sign |
+| 3 | House Lights Down mode on Sunday morning? | Yes, automatic | from an hour before a service the desktop dims admin noise and shows stream, checklist, countdown, one-tap doors; off after |
+| 4 | A sermon podcast feed? | Yes, build it | ffmpeg pulls audio from each recording, an RSS feed for Spotify and Apple, the 16:9 art; episodes automatic, titles approved by Bradly |
+| 5 | Time Machine backups of the Macs? | Yes, every church Mac | a Time Machine share on the Synology; needs space about equal to each Mac's used disk (estimate) |
+| 6 | A print server? | "It's not an HP printer. It's a different one. But I'd like all devices to be able to print from it" | CUPS with AirPrint on the server once the model is known; the printer sits behind router B, which the server can reach |
+| 7 | A morning report written by Claude? | Yes, every morning | a 06:00 run on the box's own data; summarises, never invents |
+| 8 | A clip cutter for Shorts? | No | nothing built; cutting stays on the Mac |
+| 9 | The portal as a phone home-screen app? | Yes | a web app manifest; Add to Home Screen on iPhone and Android |
+| 10 | Push notifications? | Yes, to me only | web push to Bradly's phone: failed backup, stream down, new device |
+| 11 | Two-step sign-in for admins? | "2 step authentication using Microsoft Authenticator" | TOTP codes for the four admins; Microsoft Authenticator does TOTP, so no Microsoft account is needed |
+| 12 | Who ticks the Sunday checklist? | Anyone signed in | members included; the audit log says who |
+| 13 | Jellyfin for whom? | Staff only for now | no lobby channel, no family access yet |
+| 14 | Recordings kept how long? | Forever (YouTube is also the archive) | nothing is ever deleted; the Synology's size is the only limit |
+| 15 | Transcript pages per sermon? | Yes, for admins and staff | a cleaned, searchable, printable page under Sermons; no sung words |
+| 16 | The website pulling from the server? | Not from the server; the site stays separate | no public feed is built for the site |
+| 17 | What may Claude do on its own? | Draft YouTube titles and descriptions for approval; explain any failure in plain English; answer staff questions in the portal | three Claude features, all read-only on the box, nothing live without Bradly's approval |
+| 18 | Where does the morning report land? | Dashboard only | a widget and a page; no email, no push for it |
+| 19 | A name for the OS? | ariseOS | the splash, the About window, the docs say ariseOS; "Arise Server" stays the name of the service and the repo |
+| 20 | Codenames? | Books of the Bible | the next release is "Genesis"; docs/ROADMAP.md |
+| 21 | Guest speakers' accounts? | "They email the media team everything they need" | no guest accounts, no expiry feature |
+| 22 | Who makes share links to outsiders? | Everyone, as now | 7 days, revocable; unchanged |
+| 23 | An audit trail? | Yes, admins see it | sign-ins, shares, user changes, checklist ticks, kept a year, nothing deleted from the dashboard |
+| 24 | When someone leaves? | "Disable the login after 30 days just in case they come back. Move the files to the next appropriate member or account." | an offboarding step in Directory: a 30-day grace timer, then disable; a "move files to" picker |
+| 25 | Which folders mirror with Syncthing? | The thumbnails folder (the automator's output) and the office documents share, plus Proclaim assets | three Syncthing pairs; nothing else |
+| 26 | The printer? | On router B; "it's a weird brand"; info coming | CUPS waits for the model |
+| 27 | Kids check-in? | Not planned | nothing built |
+| 28 | A volunteer rota? | Keep what we use now | nothing built |
+| 29 | When is the Hub built? | No date yet | the move is written up, not scheduled |
+| 30 | Pineville's VPN after the move? | Decide at the move | both options stay in MOVING-DAY |
+| 31 | A second domain controller later? | Yes, plan for it | a "second DC" installer mode goes on the roadmap |
+| 32 | Hardware purchases? | None of these yet | no PoE switch, second SSD or Coral stick for now |
+| 33 | The wallpaper? | The ink and red stage, as now | unchanged |
+| 34 | Desktop sounds? | All of them, quiet | dock click, checklist chime, failure tone, all low |
+| 35 | About-window flair? | Fun, do it | the week's verse, service count, hours streamed, the latest title, from real data |
+| 36 | A light "Bone" theme? | Yes, a switch in Control Center | per browser; the monitor stays House Lights Down |
+| 37 | Newsletter rhythm? | Only when there is news | no reminder, no schedule |
+| 38 | SMS alerts? | Not now | nothing built |
+| 39 | Members edit their own contact details? | No, staff keep the list | one source: the Mail app's contacts |
+| 40 | Discord posts? | Yes, failures and the Sunday "all green" | a webhook; the daily note stays off |
+| 41 | Channel stats in the dashboard? | Yes, a Channel page under Sermons | views, top video, Shorts count from the automator's data; no extra quota |
+| 42 | Thumbnails and podcast art made on the server? | Yes, on the server | pick a frame in Sermons; the house layout rendered in both sizes; Bradly approves before anything is set |
+| 43 | The hold list editable in the dashboard? | Yes | add, remove, a note and a name per hold; holds.json stays the source |
+| 44 | Stream watch on Sundays? | Yes | Uptime Kuma pings the live page and StreamYard every 30 s; push, Discord and a red monitor if it drops |
+| 45 | Training? | A built-in walkthrough on first sign-in | five steps in the portal, once per person |
+| 46 | A closet-door card? | Yes | a one-page PDF the installer writes: the commands, the Tailscale address, the backups, who to call |
+| 47 | A restore drill? | Yes, monthly, automatic | one random file restored from last night's backup to a scratch folder and compared; the result in the dashboard |
+| 48 | UPS shutdown timing? | When the battery is nearly flat | nut shuts the box down on the low-battery signal, not on a timer |
+| 49 | The showpiece? | The desktop on the monitor | polish goes there first: the shell, the screensaver, Sunday mode |
+| 50 | Build order? | Feel first | v0.7 "Genesis" is the Feel block; docs/ROADMAP.md |
+
 ## Still needed
 
 - Sunday: questions 1 to 7.
@@ -126,3 +185,5 @@ file it points to. Nothing in this file is assumed; every line is his answer.
 - The full list of department accounts (27) and the people in staff and media (24).
 - The UPS model (8), for `nut`.
 - Friday: the Resend account, the domain to verify in it, the API key into `/etc/arise/secrets/resend-api-key`, the Wix contacts export.
+- The printer's brand and model (round 2, 6 and 26), for CUPS.
+- A Discord webhook URL for the failures and the Sunday all-green (round 2, 40).

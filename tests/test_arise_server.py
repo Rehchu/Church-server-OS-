@@ -378,3 +378,23 @@ class Mail(unittest.TestCase):
         from arise_server import mail
         self.assertFalse(mail.send_broadcast("x", "yes")["ok"]); self.assertTrue(mail.send_broadcast("x", "send")["ok"])
         self.assertFalse(mail.send_test("nope", "s", "b")["ok"])
+
+
+class Feel(unittest.TestCase):
+    def test_push_subscription_shape_and_recipients(self):
+        from arise_server import push
+        self.assertTrue(push.valid_subscription({"endpoint": "https://p/x", "keys": {"p256dh": "a", "auth": "b"}}))
+        self.assertFalse(push.valid_subscription({"endpoint": "http://p/x", "keys": {"p256dh": "a", "auth": "b"}}))
+        self.assertFalse(push.valid_subscription({"endpoint": "https://p/x"}))
+        self.assertEqual(push.who_gets()[0], config.load(force=True).web.admin_user)   # answer 10: Bradly only
+        self.assertFalse(push.subscribe("bradly", {"endpoint": "nope"})["ok"])
+        self.assertEqual(push.send("a", "b", tag="t", throttle_s=3600)["ok"], True)
+        self.assertEqual(push.send("a", "b", tag="t", throttle_s=3600).get("skipped"), "throttled")
+
+    def test_manifest_and_icons_exist(self):
+        import json as _j
+        m = _j.loads((ROOT / "web" / "manifest.webmanifest").read_text())
+        self.assertEqual(m["name"], "ariseOS"); self.assertEqual(m["display"], "standalone")
+        for ic in m["icons"]:
+            self.assertTrue((ROOT / "web" / ic["src"].replace("/assets/", "")).exists(), ic["src"])
+        self.assertTrue((ROOT / "web" / "sw.js").exists())

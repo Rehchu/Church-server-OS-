@@ -227,6 +227,14 @@ video is small enough to move (answer 33): it goes to the `recordings`
 share on the Synology, not into the home-sync list. Proclaim's backgrounds,
 loops and lower thirds get a Syncthing pair with the `graphics` share
 (answer 38) so they play from local disk and are backed up from the share.
+Two more Syncthing pairs, and only these (round 2, 25): the automator's
+thumbnails folder to the media Mac, and the office documents share to the
+office Mac. Every church Mac also backs itself up with Time Machine to a
+share on the Synology (round 2, 5); space about equal to each Mac's used
+disk, an estimate, so that waits for the Synology's size (question 4).
+Printing: the office printer sits behind router B and is not an HP; once
+its brand and model are known the server runs CUPS with AirPrint so every
+Mac and phone prints to it (round 2, 6 and 26); nothing on router B changes.
 
 ### Day 7 — Alexandria
 
@@ -271,6 +279,16 @@ sudo arisectl group addmember Media jane.smith
 sudo arisectl user list
 sudo arisectl user disable jane.smith         # when someone leaves; files stay
 ```
+
+When someone leaves (round 2, 24): the login stays on for 30 days in case
+they come back, then is disabled; their files move to the next appropriate
+person or department account, chosen by you. That becomes a "leaving"
+button in the Directory app (v0.8 "Exodus", docs/ROADMAP.md); until then it
+is `arisectl user disable` after the 30 days and a move in Finder.
+
+The four admins get two-step sign-in with codes from Microsoft
+Authenticator (round 2, 11; TOTP, so no Microsoft account is involved),
+enrolled from the flame menu before any member signs in. Also v0.8.
 
 **Usernames are `first.last`** (answer 23): `bradly.dyer`, `bryant.sanders`,
 `vanessa.sanders`, `kristina.robinson`. Lower case, a dot, no spaces. A

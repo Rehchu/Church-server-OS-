@@ -63,6 +63,30 @@ closes whatever is on top.
 | 19 | **Mail** | the church family list and newsletters through Resend: Compose (plain text with bold, links, headings, lists; live preview in the house template; "Hi {first name}," and an unsubscribe link Resend manages), Contacts (import the Wix CSV export; dedupe and bad-address check before anything is added), Sent (every broadcast and its status) | send a test to one address, send to everyone (type `send`), import. Admin only |
 | — | **About This Server** | version, host, domain, kernel, processor, memory, uptime, profile | from the flame menu |
 
+### The feel (v0.7 Genesis)
+
+- **ariseOS** is the name on the boot splash, the login, the lock screen and
+  About; "Arise Server" is the project and the service. Codenames are books
+  of the Bible from here on.
+- **Sounds**, quiet: a click on the dock, a three-note chime when the Sunday
+  checklist completes, a low tone when a red item appears. Off in Control
+  Center.
+- **The Bone theme**: the website's light paper look, for laptops in
+  daylight. A switch in Control Center, per browser. The closet monitor
+  never goes light.
+- **About This Server** carries the week: the verse, the services on the
+  calendar, what the channel published this week and how many hours of it,
+  the latest title. All from the box's own data.
+- **A phone app**: open the dashboard in Safari or Chrome and Add to Home
+  Screen; it runs full screen with its own icon, and offline it says so.
+- **Push** to Bradly's phone (answer 10): Control Center → Push on. A new
+  red item in Needs You sends one short notification with a link; the same
+  item is not repeated for six hours. Needs `pywebpush` and `py-vapid` on
+  the box (in requirements); the keys are made there, root-only.
+- **The walkthrough**: five steps the first time each person signs in
+  (different for admins and members), and "Show me around" in Control
+  Center any time.
+
 ### The screensaver and the lobby screen
 
 After five idle minutes the closet monitor shows a screensaver: the time,

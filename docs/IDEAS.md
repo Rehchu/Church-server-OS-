@@ -8,7 +8,7 @@ estimates from memory and will have moved; check before buying.
 | 1 | A UPS with automatic shutdown | Pineville has one (answer 8) | **doing it**: SETUP-GUIDE day 1, once the UPS model is known |
 | 2 | A second copy of the backups off-site | USB disk or ~$6/TB/month | not built; Bradly chose "nowhere yet" (answer 48) |
 | 3 | Free Mac management (MDM) | free | not built |
-| 4 | Printers through the server | free | not built |
+| 4 | Printers through the server | free | **chosen** (round 2, 6): CUPS with AirPrint once the printer's model is known; docs/ROADMAP.md § Later |
 | 5 | A church password manager | free | **template exists** (Vaultwarden) |
 | 19 | Claude on the box | free with his claude.ai account | **built**: `install.sh` installs Claude Code; `claude` then `/login`; CLAUDE.md carries the house rules |
 | 20 | A local, private AI with no account | free; slow on a CPU | **templates**: `ollama` + `open-webui`, off by default (docs/STACK.md § AI on the box) |
@@ -17,16 +17,16 @@ estimates from memory and will have moved; check before buying.
 | 6 | A public status page | free | **template exists** (Uptime Kuma) |
 | 7 | The check-in station as a locked kiosk | free | not built; there is no check-in station yet (answer 28) |
 | 8 | Guest Wi-Fi with a welcome page, not on the server | depends on the router | not built, on purpose |
-| 9 | Search the sermon transcripts from Spotlight | free | not built |
+| 9 | Search the sermon transcripts from Spotlight | free | **built** (v0.6); transcript pages per sermon are next (round 2, 15) |
 | 10 | Proclaim and StreamYard assets synced to the media Mac | free | **chosen** (answer 38); template exists (Syncthing) |
-| 11 | A shared church calendar and mail | free | not built |
+| 11 | A shared church calendar and mail | free | not built; the Mail app does newsletters (Resend); Nextcloud is a template for the calendar |
 | 12 | A label printer for check-in | ~$100 | hardware |
 | 13 | Old Macs donated to the church, re-enrolled in an hour | free | **the enrol script does it** |
-| 14 | Password reset by text message | cents per text | not built |
-| 15 | Digital signage from the server | a TV and a $40 stick | not built |
+| 14 | Password reset by text message | cents per text | not built; no SMS at all for now (round 2, 38) |
+| 15 | Digital signage from the server | a TV and a $40 stick | **built** (v0.6): `/signage`; Proclaim keeps the lobby for now |
 | 16 | The daily note to Discord or Slack | free | built; **off by Bradly's choice** (answer 49) |
-| 17 | A second domain controller at Alexandria | an old PC | documented, not built |
-| 18 | Sermon audio to Spotify from the server | free | not built |
+| 17 | A second domain controller at Alexandria | an old PC | documented; **planned** (round 2, 31), docs/ROADMAP.md § Later |
+| 18 | Sermon audio to Spotify from the server | free | **chosen** (round 2, 4): the podcast feed, v1.0 "Numbers" |
 
 ---
 
@@ -141,3 +141,12 @@ automator's host moves to the server; the audio extract and the art could
 run on the same 02:05 timer and drop into a `podcast` share for upload.
 Free; it is the automator's work, not the server's, so it follows the
 automator.
+
+Round 2 (Oct 28) added its own list of yes and no: docs/ANSWERS.md § Round 2
+and docs/ROADMAP.md. The ones he said yes to there: a boot splash, sounds, a
+light theme, About flair, a phone app, push, a walkthrough, 2FA, an audit
+log, offboarding with a 30-day grace, a restore drill, a closet card, House
+Lights Down mode, stream watch, Discord failures and all-green, the YouTube
+Partner widget, a podcast feed, transcript pages, thumbnails made on the
+server, a Channel page, editable holds, Claude's drafts and morning report,
+Time Machine, printing, three Syncthing mirrors, a second domain controller.

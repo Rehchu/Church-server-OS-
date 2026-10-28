@@ -47,6 +47,19 @@ Edit the file to add a job. It is read fresh on every run.
 | 04:00 | `arise-mirror.timer`: refresh the GitHub mirror (the 03:00 run of the next night snapshots it) |
 | 04:30 | the Synology's own Hyper Backup to the off-site copy (set on the NAS) |
 
+## The restore drill
+
+A backup nobody has restored from is a hope, not a backup. Once a month
+(`arise-drill.timer`, a random hour on the first of the month) the server
+picks one random file under 50 MB from the latest snapshot, restores it
+into a scratch folder, compares it byte for byte with the live file when
+that file still exists, writes the verdict to
+`/var/lib/arise/drill-history.json` (the last 24), and wipes the scratch
+folder. `sudo arisectl backup drill` runs it now and says what happened:
+restored and identical, restored but the live file has changed since (normal
+for a working file), or a failure with the reason. The dashboard reads the
+same history. Bradly's choice, answer 47: monthly, automatic.
+
 Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)
 per job. A file deleted on a Tuesday is in last night's snapshot for two weeks,
 in a weekly for two months, in a monthly for a year.

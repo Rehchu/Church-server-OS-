@@ -228,3 +228,90 @@ def mirror_github() -> dict:
     if not cfg.demo:
         _append_history(row)
     return {"ok": row["ok"], "repos": results}
+
+
+# ---- the restore drill -----------------------------------------------------------
+def drill(quiet: bool = False) -> dict:
+    """Restore one random file from the latest snapshot into a scratch folder and
+    compare it with the live file. A backup nobody has restored from is a hope,
+    not a backup. Result shape: {when, snapshot, file, bytes, matched, ok, note};
+    kept in <state_dir>/drill-history.json (last 24). The scratch folder is wiped."""
+    import hashlib
+    import random
+    import shutil
+    cfg = load()
+    hist_p = cfg.state_dir / "drill-history.json"
+    if not available():
+        row = {"when": now_iso(), "snapshot": "a1b2c3d4", "file": "/srv/arise/homes/bradly.dyer/Documents/Sunday setlist 2026-10-26.pdf", "bytes": 182_000, "matched": True, "ok": True, "note": "sample drill", "demo": True}
+        return {**row, "history": [row]}
+    row = {"when": now_iso(), "snapshot": "", "file": "", "bytes": 0, "matched": None, "ok": False, "note": ""}
+    scratch = cfg.state_dir / "drill"
+    try:
+        snaps = _restic(["snapshots", "--json", "--latest", "1"], 60)
+        if not snaps["ok"]:
+            row["note"] = "could not list snapshots: " + (snaps["err"] or snaps["out"])[:200]
+            return _drill_done(hist_p, row)
+        try:
+            latest = json.loads(snaps["out"] or "[]")
+        except json.JSONDecodeError:
+            latest = []
+        if not latest:
+            row["note"] = "no snapshots yet"
+            return _drill_done(hist_p, row)
+        snap = latest[-1]["short_id"] if "short_id" in latest[-1] else latest[-1]["id"][:8]
+        row["snapshot"] = snap
+        ls = _restic(["ls", "--json", snap], 600)
+        if not ls["ok"]:
+            row["note"] = "could not list the snapshot: " + (ls["err"] or ls["out"])[:200]
+            return _drill_done(hist_p, row)
+        files = []
+        for line in ls["out"].splitlines():
+            try:
+                e = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if e.get("struct_type") == "node" and e.get("type") == "file" and 0 < int(e.get("size") or 0) < 50 * 1024 * 1024:
+                files.append(e)
+        if not files:
+            row["note"] = "no regular file under 50 MB in the snapshot"
+            return _drill_done(hist_p, row)
+        pick = random.choice(files)
+        row["file"] = pick["path"]; row["bytes"] = int(pick["size"])
+        shutil.rmtree(scratch, ignore_errors=True)
+        scratch.mkdir(parents=True, exist_ok=True)
+        r = _restic(["restore", snap, "--target", str(scratch), "--include", pick["path"]], 1800)
+        if not r["ok"]:
+            row["note"] = "restore failed: " + (r["err"] or r["out"])[:200]
+            return _drill_done(hist_p, row)
+        restored = scratch / pick["path"].lstrip("/")
+        if not restored.exists():
+            row["note"] = "restic said ok but the file is not in the scratch folder"
+            return _drill_done(hist_p, row)
+        got = hashlib.sha256(restored.read_bytes()).hexdigest()
+        row["ok"] = True
+        live = pick["path"]
+        if os.path.isfile(live):
+            same = hashlib.sha256(open(live, "rb").read()).hexdigest() == got
+            row["matched"] = same
+            row["note"] = "restored and identical to the live file" if same else "restored; the live file has changed since the snapshot (normal for a working file)"
+        else:
+            row["matched"] = None
+            row["note"] = f"restored {row['bytes']} bytes; the live file no longer exists, nothing to compare"
+    except Exception as e:  # the drill must never take the box down
+        row["note"] = f"drill error: {e}"[:200]
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+    return _drill_done(hist_p, row)
+
+
+def _drill_done(hist_p, row: dict) -> dict:
+    hist = read_json(hist_p, default=[]) or []
+    hist = ([row] + hist)[:24]
+    write_json(hist_p, hist)
+    return {**row, "history": hist}
+
+
+def drill_history() -> list[dict]:
+    if not available():
+        return [drill()] if False else [{"when": now_iso(), "snapshot": "a1b2c3d4", "file": "/srv/arise/homes/bradly.dyer/Documents/Sunday setlist 2026-10-26.pdf", "bytes": 182_000, "matched": True, "ok": True, "note": "sample drill", "demo": True}]
+    return read_json(load().state_dir / "drill-history.json", default=[]) or []

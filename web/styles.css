@@ -521,3 +521,32 @@ button.widget__row:last-child{border-bottom:0}
 .sun__big{font-family:Anton,Impact,sans-serif;font-size:44px;line-height:1;letter-spacing:.02em}
 .widget--verse blockquote{margin:0;font-family:Oswald,sans-serif;font-weight:300;font-size:14px;line-height:1.5;color:#F4F2F0}
 .widget--verse cite{display:block;margin-top:6px;font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--redL)}
+
+/* ---- v0.7 Genesis: the Bone theme (a switch in Control Center; the monitor stays dark) ---- */
+body.bone{--ink:#F4F2F0;--scrim:#ECE9E5;--panel:#FFFFFF;--panel2:#F7F5F2;--panel3:#EFECE8;--line:rgba(10,10,12,.14);--line2:rgba(10,10,12,.08);--muted:#6A6A6E;--muted2:#8A8A90;--text:rgba(10,10,12,.9);--text2:rgba(10,10,12,.62);color-scheme:light}
+body.bone .wall{background:radial-gradient(1200px 600px at 80% 110%,rgba(214,34,45,.16),transparent 60%),linear-gradient(180deg,#F4F2F0,#E9E6E1)}
+body.bone .wall::after{opacity:.5}
+body.bone .bar{background:rgba(244,242,240,.86);color:#0A0A0C;border-bottom:1px solid rgba(10,10,12,.12)}
+body.bone .bar button,body.bone .bar .menus button,body.bone .bar__clock,body.bone .bar__item b,body.bone .bar__stat b{color:#0A0A0C}
+body.bone .win{background:#FFFFFF;color:#0A0A0C;box-shadow:0 20px 60px rgba(10,10,12,.22),0 0 0 1px rgba(10,10,12,.1)}
+body.bone .win__bar{background:#F7F5F2;color:#0A0A0C;border-bottom:1px solid rgba(10,10,12,.1)}
+body.bone .widget{background:rgba(255,255,255,.72);color:#0A0A0C;border-color:rgba(10,10,12,.1)}
+body.bone .widget__row b,body.bone .widget__title,body.bone .widget--verse blockquote{color:#0A0A0C}
+body.bone .dock{background:rgba(255,255,255,.78);border-color:rgba(10,10,12,.12)}
+body.bone .dock__icon{background:#0A0A0C}
+body.bone .menu__drop,body.bone .ctx,body.bone .cc,body.bone .nc,body.bone .spot__box{background:#FFFFFF;color:#0A0A0C;border-color:rgba(10,10,12,.12)}
+body.bone .tbl th{color:#6A6A6E}
+body.bone input,body.bone select,body.bone textarea{background:#FFFFFF;color:#0A0A0C;border-color:rgba(10,10,12,.2)}
+body.bone .ico span{color:#0A0A0C;text-shadow:none}
+body.bone .finder__side{background:#F7F5F2}
+body.bone .note,body.bone .card{background:#F7F5F2;color:#0A0A0C}
+body.kiosk.bone{--ink:#0A0A0C}  /* the monitor never goes light; the class is ignored there */
+/* walkthrough */
+.walk{position:fixed;inset:0;z-index:97;background:rgba(6,6,8,.72);display:flex;align-items:center;justify-content:center;padding:20px}
+.walk__box{background:var(--panel);border-top:4px solid var(--red);max-width:520px;width:100%;padding:26px 28px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.walk__box h2{margin:0 0 6px;font-family:Anton,Impact,sans-serif;font-size:26px;letter-spacing:.02em;text-transform:uppercase}
+.walk__box p{margin:0 0 16px;line-height:1.5;color:var(--text2)}
+.walk__dots{display:flex;gap:6px;margin-bottom:14px}.walk__dots i{width:22px;height:3px;background:var(--line)}.walk__dots i.on{background:var(--red)}
+.walk__k{display:inline-block;background:var(--panel3);padding:2px 7px;border:1px solid var(--line);font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.about__week{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--text2)}
+.about__week b{color:var(--text)}
