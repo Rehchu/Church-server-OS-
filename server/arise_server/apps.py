@@ -507,7 +507,7 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     with open(os.path.join(dest, ".env"), "w", encoding="utf-8") as f:
         f.write(f"APP_NAME={name}\nDATA={dest}/data\nSHARES={cfg.system.data_root}/shares\n")
         for k, v in values.items():
-            if re.match(r"^[A-Z_][A-Z0-9_]*$", k):
+            if re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", k):   # mixed case too: Gitea's GITEA__server__ROOT_URL
                 f.write(f"{k}={v}\n")
     os.chmod(os.path.join(dest, ".env"), 0o600)
     if made:

@@ -16,7 +16,7 @@
     arisectl browser [status|apply|policy]                      Firefox on the closet monitor: what is installed, rewrite the policy and theme, print the policy
     arisectl audit [words] [--who U] [--failed] [--limit N]      the audit log, newest first (kept forever)
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
-    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|cutover
+    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|cutover|unblock
     arisectl app list|templates|catalog|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
     arisectl app install-all                 every template deployed, started within the memory budget (the installer's 6a)
     arisectl app autostart <name> on|off     whether an app starts with the box
@@ -530,6 +530,23 @@ def cmd_automator(a):
         envargs = [f"{k}={v}" for k, v in env.items()]
         cmd = ["runuser", "-u", "arise-yt", "--", "env", *envargs, env.get("ARISE_PYTHON", "/opt/arise/venv/bin/python"), "authorize_headless.py"] + (["--force"] if a.name == "--force" or getattr(a, "force", False) else [])
         sys.exit(subprocess.call(cmd, cwd=repo))
+    elif a.sub == "unblock":
+        # The revised handoff, section 3: a file the server wrote (a Whisper transcript) that the PC later
+        # committed stops the nightly fast-forward. Move the server's copy aside; the next pull goes through.
+        need_root()
+        files = automator.pull_blocked()
+        if not files:
+            ok("last-run.log shows no blocked pull"); return
+        head("files blocking the nightly pull (untracked here, committed on the PC)")
+        for f in files: print(f"  {f}")
+        typed = input("  Type 'move' to move these out of the checkout (to the state folder, not deleted): ").strip()
+        if typed != "move":
+            sys.exit("nothing moved")
+        r = automator.unblock(files)
+        for m in r["moved"]: ok(f"moved {m['file']} -> {m['to']}")
+        for f in r["refused"]: bad(f"left alone (tracked, missing or outside the checkout): {f}")
+        if r["moved"]:
+            run(["chown", "-R", "arise-yt:", r["folder"]], timeout=20)
     elif a.sub == "cutover":
         c = automator.cutover()
         head(f"handing the nightly job to this server (runner now: {c.get('runner')}; this machine: {c.get('machine')})")
@@ -1210,7 +1227,7 @@ def build():
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)
     p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
-    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
+    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover", "unblock"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
     p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "catalog", "install-all", "autostart", "idle-sweep", "theme", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("value", nargs="?", help="autostart: on|off"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
     p = sp.add_parser("automations"); p.add_argument("sub", choices=["list", "pause", "resume"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_automations)
     p = sp.add_parser("storage"); p.add_argument("sub", nargs="?", default="status", choices=["status", "scan"]); p.set_defaults(f=cmd_storage)

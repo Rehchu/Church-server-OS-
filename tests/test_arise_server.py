@@ -401,6 +401,58 @@ class AutomatorHandoff(unittest.TestCase):
         e = automator.read_env(f.name)
         self.assertEqual(e, {"ARISE_RUNNER_NAME": "ariseOS", "ARISE_STATE_DIR": "/x/y"})
 
+
+class AutomatorRevision(unittest.TestCase):
+    """The revised handoff (Oct 28): 6,000 cap, job state in ARISE_STATE_DIR, a blocked pull moved aside."""
+
+    def test_blocked_pull_files_from_the_last_run_only(self):
+        from arise_server import automator
+        log = ("============\n Arise automator - started 2026-10-29 02:05\n"
+               "error: The following untracked working tree files would be overwritten by merge:\n"
+               "\ttranscripts/old1.json\nPlease move or remove them before you merge.\nAborting\n"
+               "============\n Arise automator - started 2026-10-30 02:05\n"
+               "error: The following untracked working tree files would be overwritten by merge:\n"
+               "\ttranscripts/abcDEF12345.json\n\ttranscripts/xyzXYZ98765.json\n"
+               "Please move or remove them before you merge.\nAborting\n WARNING: could not fast-forward\n")
+        self.assertEqual(automator.pull_blocked_files(log), ["transcripts/abcDEF12345.json", "transcripts/xyzXYZ98765.json"])
+        self.assertEqual(automator.pull_blocked_files(log + "============\n Arise automator - started 2026-10-31\n repo at abc\n"), [])
+
+    def test_unblock_moves_never_deletes_and_never_touches_tracked_files(self):
+        import subprocess, tempfile
+        from unittest import mock
+        from arise_server import automator
+        with tempfile.TemporaryDirectory() as d:
+            repo, state = os.path.join(d, "repo"), os.path.join(d, "state")
+            os.makedirs(os.path.join(repo, "transcripts")); os.makedirs(state)
+            subprocess.run(["git", "init", "-q", repo], check=True)
+            open(os.path.join(repo, "transcripts", "tracked.json"), "w").write("{}")
+            subprocess.run(["git", "-C", repo, "add", "."], check=True)
+            open(os.path.join(repo, "transcripts", "mine.json"), "w").write("{}")
+            fake = {"root": repo, "state": state}
+            with mock.patch.object(automator, "_paths", return_value=fake):
+                r = automator.unblock(["transcripts/mine.json", "transcripts/tracked.json", "../etc/passwd"])
+            self.assertEqual([m["file"] for m in r["moved"]], ["transcripts/mine.json"])
+            self.assertEqual(sorted(r["refused"]), ["../etc/passwd", "transcripts/tracked.json"])
+            self.assertTrue(os.path.exists(r["moved"][0]["to"]))
+            self.assertTrue(os.path.exists(os.path.join(repo, "transcripts", "tracked.json")))
+            self.assertFalse(os.path.exists(os.path.join(repo, "transcripts", "mine.json")))
+
+    def test_six_thousand_every_day(self):
+        from arise_server import automator
+        doc = {"runner": "pc", "budgets": {"pc": {"default": 10000}, "ariseOS": {"default": 6000}}}
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        for day in (25, 26, 27):     # Sun, Mon, Tue
+            self.assertEqual(automator.runner_info(doc, "ariseOS", datetime(2026, 10, day, 12, tzinfo=ZoneInfo("America/Chicago")))["budget"], 6000)
+
+
+class SshdAndEnv(unittest.TestCase):
+    def test_first_value_wins_in_name_order(self):
+        from arise_server import remote
+        self.assertFalse(remote.sshd_password_auth("PasswordAuthentication yes\n", ["PasswordAuthentication no\n", "PasswordAuthentication yes\n"]))
+        self.assertTrue(remote.sshd_password_auth("", ["# nothing\n"]))
+        self.assertTrue(remote.sshd_password_auth("PasswordAuthentication no\n", [], {"ok": True, "out": "port 22\npasswordauthentication yes\n"}))
+
 if __name__ == "__main__":
     unittest.main()
 

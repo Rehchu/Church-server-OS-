@@ -4,8 +4,17 @@ The Arise YouTube nightly job (`automator/arise_daily.py` in
 `Rehchu/arise-youtube-automation`) moves from the church PC to ariseOS. The
 session that maintains the automator wrote the brief for it:
 **SERVER_HANDOFF.md** in that repo, commit "Server-ready automator"
-(8326b4a, Oct 28 2026). This page is how ariseOS carries it out. Where this page
-and the handoff disagree on the automator's own rules, **the handoff wins**.
+(8326b4a, Oct 28 2026), revised the same day after ariseOS's build report with
+Bradly's decisions (commit "Per-machine job state, server cap 6,000"). The
+revision accepts ariseOS's placements below. This page is how ariseOS carries
+it out. Where this page and the handoff disagree on the automator's own rules,
+**the handoff wins**.
+
+> **As of Oct 28, evening: the revision commit is not on GitHub yet.** `main` is
+> still at 8326b4a, so the repo still says 4,000 (2,000 Sun/Mon), still has
+> `sunday-playlist-reassign` enabled and still tracks the four state files.
+> ariseOS reads all three from the repo at run time, so nothing on the server
+> changes when it lands: **push it from the PC** and the next pull carries it.
 
 ## Where things stand
 
@@ -94,9 +103,9 @@ this order, the parts only Bradly can do:
 5. **The first check**: `sudo arisectl automator preview` (it asks, because the
    reads spend quota), then `arisectl automator report`. Expected:
    `this machine: ariseOS · designated runner: pc`, "plan-only… continuing",
-   `signed in as Arise Church`, a budget of 4000 (2000 on a Pacific Sunday or
-   Monday), **the same hold count as the PC's LATEST_REPORT.md**, and each
-   enabled job's dry run.
+   `signed in as Arise Church`, a budget of 6000, **the same hold count as
+   the PC's LATEST_REPORT.md** (8 on hold, 6 standing rules), and each enabled
+   job's dry run.
 
 ## The timer
 
@@ -113,22 +122,17 @@ A lock stops two runs at once. `last-run.log` rotates monthly.
 One project, 10,000 units a day, shared by the PC's token, the server's and
 Bradly's chat sessions on Sunday and Monday. The 02:05 run spends from the same
 quota day as that day's service work. Caps per machine are in `runner.json`:
-the PC 10,000; ariseOS 4,000, and 2,000 on a Pacific Sunday or Monday. A job
-whose estimate does not fit (with a 300-unit reserve) is not started. The
-ledger books estimates; the true figure is in Cloud Console → YouTube Data API
-v3 → Quotas.
+the PC 10,000; **ariseOS 6,000 every day** (Bradly, Oct 28; weekday keys still
+work if he wants them later). A job whose estimate does not fit (with a
+300-unit reserve) is not started. The ledger books estimates; the true figure
+is in Cloud Console → YouTube Data API v3 → Quotas.
 
-What that means for tonight's worklist (Oct 28), on the server's cap:
-
-| Job | Enabled | Books | Fits under 4,000? | Under 2,000 (Sun/Mon)? |
-|---|---|---|---|---|
-| sunday-playlist-reassign | yes | 3,500 | alone, then nothing else fits | no, skipped |
-| vertical-twin-titles | yes | 400 | only if the first is off | yes |
-| pull-transcripts | yes | 2,500 | only if the first is off | no |
-| strip-markdown-stars | yes | 2,000 | no, after the two above | no |
-
-**Bradly decides** whether `sunday-playlist-reassign` (its work is done: last
-night added 0, already there 109) is set `"enabled": false` on the PC.
+`sunday-playlist-reassign` is **parked** (Bradly, Oct 28: its work was done and
+it booked 3,500 a night). With it parked, tonight's enabled jobs fit inside
+6,000: preflight 1, then `vertical-twin-titles` 400, `pull-transcripts` 2,500
+and `strip-markdown-stars` 2,000, each passing the reserve. That leaves at least
+4,000 for Sunday and Monday chat work, which uses about 1,000 to 1,500 on a
+service day.
 
 ## Cutover
 
@@ -139,16 +143,18 @@ section 9 list, ticking what the server can see:
 2. The server's own client and token are here, 0600, arise-yt.
 3. The timer has written a "not the runner" report.
 4. A plan-only run shows "signed in as Arise Church" and the hold count.
-5. The in-checkout state files question is answered. **As of Oct 28 all four
-   are tracked in git**: `_starfix_state.json`, `_tx_run.json`,
-   `_retitle_report.txt`, `_ss_fix_report.txt`, and 162 files in
-   `transcripts/`. Once the server writes to one, the PC's next push to it
-   makes the server's fast-forward fail, and that night runs plan-only. Safe,
-   but the night is lost. Untracking them is Bradly's call, on the PC; ariseOS
-   never untracks anything on `main`.
-6. `sunday-playlist-reassign` is decided.
-7. The PC's `_starfix_state.json` is copied into the server's checkout, so the
-   star cleanup resumes where the PC stopped.
+5. The job's state files. **Decided Oct 28**: `_starfix_state.json`,
+   `_tx_run.json`, `_retitle_report.txt` and `_ss_fix_report.txt` move to
+   `ARISE_STATE_DIR` through `arise_paths.job_state()` and are untracked on
+   `main`. When the server pulls that commit, git deletes its unmodified
+   checkout copies; that is expected. The check turns green when the pulled
+   repo no longer tracks them.
+6. `sunday-playlist-reassign` is parked; the server's cap is 6,000 (decided
+   Oct 28). A server plan-only report shows budget 6000 and the three
+   remaining jobs planned.
+7. The PC's `_starfix_state.json` is copied into **`/var/lib/arise/automator`**
+   (the state folder, not the checkout), owned by arise-yt, so the star
+   cleanup resumes where the PC stopped.
 8. The PC is clean and pushed (`origin/main` has the latest holds and worklist).
 
 **The switch**, by day and not on a Sunday or Monday: on the PC set
@@ -166,6 +172,18 @@ Church`, `0 failed`; `last-run.log` shows `repo at <sha>` matching the PC's
 push and no WARNING; the PC's report says "not the runner"; the Cloud quota
 graph shows one run; `token.json` was modified overnight and is still 0600;
 `git status` on the server is clean; one changed video looks right.
+
+## `transcripts/` and a blocked pull
+
+`transcripts/` stays tracked (162 files): the PC uses it too. The server never
+pushes, so a transcript it writes (Whisper, later) stays untracked in its
+checkout. If the PC then commits a transcript for the same video, the
+server's fast-forward stops with "untracked working tree files would be
+overwritten" and that night runs plan-only. The cutover check and the
+Automator app show it (item 9). `sudo arisectl automator unblock` lists the
+files git named in last night's log and, after you type `move`, moves the
+server's copies into `/var/lib/arise/automator/displaced/<date>/`. It never
+deletes them and never touches a tracked file. The next pull goes through.
 
 ## If the server's token leaks (the handoff's section 10)
 
@@ -201,9 +219,12 @@ the channel's video; StreamYard or a local capture).
 
 - Publish the OAuth app; create the "ariseOS server" client.
 - Add the server's read-only deploy key on GitHub.
-- The four tracked state files and `transcripts/` (Cutover, item 5).
-- `sunday-playlist-reassign`.
-- The recording source for Whisper.
+- **Push the revision commit** ("Per-machine job state, server cap 6,000")
+  from the PC; GitHub's `main` is still at 8326b4a.
+- The recording source for Whisper, and how its transcripts should reach the PC.
+- Decided Oct 28: state files moved and untracked; `sunday-playlist-reassign`
+  parked; the server's cap 6,000 every day; both repos on the server as a
+  searchable archive for Claude (docs/ARCHIVE.md).
 - Later, maybe: the server pushing reports and transcripts to a `server-out`
   branch (a separate write key; never `main`).
 

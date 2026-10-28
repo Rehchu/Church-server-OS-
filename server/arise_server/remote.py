@@ -38,8 +38,7 @@ def ssh_status() -> dict:
             {"user": "bradly", "from": "100.101.102.5 (tailscale)", "when": datetime.now().isoformat(timespec="minutes")},
             {"user": "bradly", "from": "192.168.1.41", "when": "2026-10-26T21:14"}]}
     act = run(["systemctl", "is-active", "ssh"], timeout=5)
-    conf = read_text("/etc/ssh/sshd_config", "") + "\n" + "\n".join(read_text(os.path.join("/etc/ssh/sshd_config.d", f), "") for f in (os.listdir("/etc/ssh/sshd_config.d") if os.path.isdir("/etc/ssh/sshd_config.d") else []))
-    pw = re.search(r"^\s*PasswordAuthentication\s+(\S+)", conf, re.M | re.I)
+    pw_value = sshd_password_auth(read_text("/etc/ssh/sshd_config", ""), _dropins(), run(["sshd", "-T"], timeout=10) if which("sshd") else None)
     keys = 0
     for home in ("/root", *[os.path.join("/home", u) for u in (os.listdir("/home") if os.path.isdir("/home") else [])]):
         keys += len([l for l in read_text(os.path.join(home, ".ssh", "authorized_keys"), "").splitlines() if l.strip() and not l.startswith("#")])
@@ -49,7 +48,7 @@ def ssh_status() -> dict:
         parts = line.split()
         if len(parts) >= 4 and parts[1].startswith("pts"):
             logins.append({"user": parts[0], "from": parts[2], "when": parts[3][:16]})
-    return {"active": act["out"].strip() == "active", "port": rc["ssh_port"], "password_auth": (pw.group(1).lower() == "yes") if pw else True, "keys": keys, "last_logins": logins[:8]}
+    return {"active": act["out"].strip() == "active", "port": rc["ssh_port"], "password_auth": pw_value, "keys": keys, "last_logins": logins[:8]}
 
 
 def tailscale_status() -> dict | None:
@@ -201,3 +200,27 @@ def overview() -> dict:
     out["tailscale"] = tailscale_status()
     out["wireguard"] = wireguard_status()
     return out
+
+
+def _dropins() -> list[str]:
+    d = "/etc/ssh/sshd_config.d"
+    if not os.path.isdir(d):
+        return []
+    return [read_text(os.path.join(d, f), "") for f in sorted(os.listdir(d)) if f.endswith(".conf")]
+
+
+def sshd_password_auth(main: str, dropins: list[str], effective: dict | None = None) -> bool:
+    """Is password login on? sshd's own answer (`sshd -T`) when it can give one; otherwise the files
+    read the way sshd does: the Include of sshd_config.d/*.conf sits at the top of Ubuntu's
+    sshd_config, the drop-ins are read in name order, and the FIRST value found wins
+    (so 00-arise.conf beats 50-cloud-init.conf)."""
+    if effective and effective.get("ok"):
+        m = re.search(r"^passwordauthentication\s+(\S+)", effective.get("out", ""), re.M | re.I)
+        if m:
+            return m.group(1).lower() == "yes"
+    for text in [*dropins, main]:
+        m = re.search(r"^\s*PasswordAuthentication\s+(\S+)", text, re.M | re.I)
+        if m:
+            return m.group(1).lower() == "yes"
+    return True   # sshd's default
+

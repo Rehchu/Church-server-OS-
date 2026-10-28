@@ -130,7 +130,7 @@ def overview() -> dict:
         d["schedule"] = cfg.automator.schedule
         d["manual"] = dict(_last_manual)
         d["timer_enabled"] = timer_enabled()
-        d["runner"] = runner_info({"runner": "pc", "budgets": {"pc": {"default": 10000}, "ariseOS": {"default": 4000, "sun": 2000, "mon": 2000}}}, "ariseOS")
+        d["runner"] = runner_info({"runner": "pc", "budgets": {"pc": {"default": 10000}, "ariseOS": {"default": 6000}}}, "ariseOS")
         if not cfg.demo:
             d["error"] = f"the automator is not on this server yet ({_paths()['script']} is missing)"
         return d
@@ -295,9 +295,9 @@ def cutover(now: datetime | None = None) -> dict:
             {"n": 2, "level": "warn", "text": "Sample: no server token yet", "fix": "sudo arisectl automator signin"},
             {"n": 3, "level": "warn", "text": "Sample: no 'not the runner' report yet", "fix": "wait for 02:05, or: sudo systemctl start arise-automator.service"},
             {"n": 4, "level": "warn", "text": "Sample: no plan-only report yet", "fix": "sudo arisectl automator preview"},
-            {"n": 5, "level": "warn", "text": "4 state files are tracked in git (_starfix_state.json, _tx_run.json, _retitle_report.txt, _ss_fix_report.txt) and 162 transcripts", "fix": "Bradly decides on the PC"},
-            {"n": 6, "level": "warn", "text": "sunday-playlist-reassign is enabled and books 3,500 a night", "fix": "Bradly decides on the PC"},
-            {"n": 7, "level": "you", "text": "The PC's _starfix_state.json copied to the server checkout", "fix": ""},
+            {"n": 5, "level": "ok", "text": "The job's state files are untracked and live in the state folder (decided Oct 28)", "fix": ""},
+            {"n": 6, "level": "ok", "text": "sunday-playlist-reassign is parked; the cap here is 6,000 (decided Oct 28)", "fix": ""},
+            {"n": 7, "level": "warn", "text": "The PC's _starfix_state.json is not in /var/lib/arise/automator yet", "fix": "copy it there at cutover, owned by arise-yt"},
             {"n": 8, "level": "you", "text": "The PC is clean and pushed", "fix": ""}],
             "runner": "pc", "machine": "ariseOS"}
     ri = runner_info(read_json(p["runner"], default=None), p["machine"], now)
@@ -346,7 +346,58 @@ def cutover(now: datetime | None = None) -> dict:
         add(6, "warn", f"sunday-playlist-reassign is enabled and books {est} units a night against a {ri.get('budget')} cap here", "Bradly decides on the PC")
     else:
         add(6, "ok", "sunday-playlist-reassign is off (or gone)")
-    sf = os.path.join(p["root"], "_starfix_state.json")
-    add(7, "you", "Copy the PC's _starfix_state.json into the server checkout at cutover" + (f" (the server's copy is from {datetime.fromtimestamp(os.path.getmtime(sf)).date()})" if os.path.exists(sf) else ""))
+    sf = os.path.join(p["state"], "_starfix_state.json")   # the revised handoff: job state lives in ARISE_STATE_DIR
+    if os.path.exists(sf):
+        add(7, "ok", f"_starfix_state.json is in the state folder (from {datetime.fromtimestamp(os.path.getmtime(sf)).date()}); check it is the PC's latest at cutover")
+    else:
+        add(7, "warn", "The PC's _starfix_state.json is not in " + p["state"] + " yet", "copy it there at cutover (scp), then: sudo chown arise-yt: " + sf)
+    blocked = pull_blocked()
+    if blocked:
+        add(9, "bad", "Last night's pull was blocked by untracked files the PC has since committed: " + ", ".join(blocked[:5]),
+            "sudo arisectl automator unblock   (moves them aside; the next pull goes through)")
     rows.sort(key=lambda r: r["n"])
     return {"demo": False, "rows": rows, "runner": ri["runner"], "machine": ri["machine"], "is_runner": ri["is_runner"], "budget": ri["budget"]}
+
+
+_BLOCK_RE = re.compile(r"untracked working tree files would be overwritten by merge:\s*\n((?:\s+\S.*\n)+)", re.M)
+
+
+def pull_blocked_files(log_text: str) -> list[str]:
+    """Pure: the files git named in the LAST 'untracked working tree files would be overwritten' error.
+    The revised handoff, section 3: a Whisper transcript the server wrote, which the PC later committed,
+    stops the fast-forward and the night runs plan-only."""
+    runs = log_text.split("Arise automator - started")
+    last = runs[-1] if runs else ""
+    m = None
+    for m in _BLOCK_RE.finditer(last):
+        pass
+    if not m:
+        return []
+    return [ln.strip() for ln in m.group(1).splitlines() if ln.strip() and not ln.strip().startswith(("Please", "Aborting"))]
+
+
+def pull_blocked() -> list[str]:
+    if load().demo:
+        return []
+    return pull_blocked_files(read_text(_paths()["last_run_log"], ""))
+
+
+def unblock(files: list[str], now: datetime | None = None) -> dict:
+    """Move (never delete) the named untracked files out of the checkout into the state folder."""
+    p = _paths()
+    stamp = (now or datetime.now()).strftime("%Y-%m-%d_%H%M%S")
+    dest_root = os.path.join(p["state"], "displaced", stamp)
+    moved, refused = [], []
+    for f in files:
+        rel = os.path.normpath(f)
+        if rel.startswith("..") or os.path.isabs(rel):
+            refused.append(f); continue
+        src = os.path.join(p["root"], rel)
+        tracked = run(["git", "-C", p["root"], "ls-files", "--error-unmatch", "--", rel], timeout=10)
+        if tracked.get("ok") or not os.path.isfile(src):
+            refused.append(f); continue      # tracked files and missing files are never touched
+        dst = os.path.join(dest_root, rel)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        os.replace(src, dst)
+        moved.append({"file": rel, "to": dst})
+    return {"ok": not refused, "moved": moved, "refused": refused, "folder": dest_root}
