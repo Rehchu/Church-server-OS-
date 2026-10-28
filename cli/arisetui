@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+"""arisetui - the Arise Server console dashboard, for the monitor in the closet.
+
+A curses screen like Monolith's mntui: live CPU, memory, disks, the services,
+tonight's jobs and what needs you, in the church's red on black. Read only.
+
+    arisetui            run it in any terminal (q quits)
+    arisetui --kiosk    what arise-console.service runs on tty1: never exits
+                        to a shell; q just re-draws. Alt+F2 is the real login.
+
+Keys: 1 overview · 2 services · 3 backups · 4 automator · 5 directory · q quit
+"""
+import curses
+import os
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve()
+CANDIDATES = [os.environ.get("ARISE_HOME", ""), str(HERE.parent.parent), "/opt/arise"]
+HOME = next((Path(c) for c in CANDIDATES if c and (Path(c) / "server" / "arise_server").is_dir()), None)
+if HOME is None:
+    sys.exit("arisetui: cannot find the server package; set ARISE_HOME")
+VENV_PY = HOME / "venv" / "bin" / "python"
+if VENV_PY.exists() and Path(sys.executable).resolve() != VENV_PY.resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
+    os.environ["ARISECTL_NO_REEXEC"] = "1"
+    os.execv(str(VENV_PY), [str(VENV_PY), str(HERE), *sys.argv[1:]])
+sys.path.insert(0, str(HOME / "server"))
+
+from arise_server import VERSION, CODENAME, automator, backups, directory, metrics, services  # noqa: E402
+from arise_server.config import load  # noqa: E402
+from arise_server.util import human_bytes  # noqa: E402
+
+KIOSK = "--kiosk" in sys.argv
+TABS = ["overview", "services", "backups", "automator", "directory"]
+FLAME = [
+    "      ▄▄      ",
+    "     ▟██▙     ",
+    "    ▟████▙    ",
+    "   ▟██▛▜██▙   ",
+    "  ▟██▛  ▜██▙  ",
+    "  ▜██▙▄▄▟██▛  ",
+    "   ▜██████▛   ",
+    "     ▀▀▀▀     ",
+]
+
+
+def bar(win, y, x, w, pct, attr):
+    n = max(0, min(w, int(round(w * pct / 100.0))))
+    win.addstr(y, x, "█" * n, attr)
+    win.addstr(y, x + n, "░" * (w - n), curses.color_pair(4))
+
+
+def safe(win, y, x, s, attr=0):
+    h, w = win.getmaxyx()
+    if 0 <= y < h and x < w:
+        try:
+            win.addstr(y, x, str(s)[: max(0, w - x - 1)], attr)
+        except curses.error:
+            pass
+
+
+class Cache:
+    def __init__(self):
+        self.t = {}
+        self.v = {}
+
+    def get(self, key, fn, ttl):
+        now = time.time()
+        if key not in self.t or now - self.t[key] > ttl:
+            try:
+                self.v[key] = fn()
+            except Exception as e:  # never let a module failure kill the console
+                self.v[key] = {"error": str(e)}
+            self.t[key] = now
+        return self.v[key]
+
+
+def main(stdscr):
+    curses.curs_set(0)
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    curses.init_pair(2, curses.COLOR_WHITE, -1)
+    curses.init_pair(3, curses.COLOR_GREEN, -1)
+    curses.init_pair(4, 8 if curses.COLORS >= 16 else curses.COLOR_BLUE, -1)
+    curses.init_pair(5, curses.COLOR_YELLOW, -1)
+    curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_RED)
+    RED, WHITE, GREEN, DIM, YEL, BADGE = (curses.color_pair(i) for i in range(1, 7))
+    stdscr.nodelay(True)
+    stdscr.timeout(1000)
+    metrics.start()
+    cfg = load()
+    cache = Cache()
+    tab = 0
+    while True:
+        stdscr.erase()
+        h, w = stdscr.getmaxyx()
+        s = metrics.latest() or {}
+        # header: flame + name + clock
+        for i, line in enumerate(FLAME[:min(8, h - 2)]):
+            safe(stdscr, i, 1, line, RED | curses.A_BOLD)
+        safe(stdscr, 1, 17, "ARISE SERVER", WHITE | curses.A_BOLD)
+        safe(stdscr, 2, 17, f"v{VERSION} “{CODENAME}”  ·  {cfg.system.hostname}  ·  {cfg.directory.realm}", DIM)
+        safe(stdscr, 3, 17, time.strftime("%a %b %d  %I:%M:%S %p"), WHITE)
+        safe(stdscr, 5, 17, f"up {_up(s.get('uptime'))}   load {' '.join(f'{x:.2f}' for x in s.get('load', []))}   {('%.0f°C' % s['temp']) if s.get('temp') else ''}", DIM)
+        if cfg.demo:
+            safe(stdscr, 6, 17, " SAMPLE DATA ", BADGE)
+        # tab strap
+        x = 1
+        for i, name in enumerate(TABS):
+            label = f" {i + 1} {name.upper()} "
+            safe(stdscr, 9, x, label, (BADGE if i == tab else DIM | curses.A_BOLD))
+            x += len(label) + 1
+        safe(stdscr, 9, w - 28, "q quit" if not KIOSK else "Alt+F2 to log in", DIM)
+        safe(stdscr, 10, 0, "─" * (w - 1), RED)
+        body = stdscr.derwin(h - 12, w, 11, 0)
+        try:
+            [draw_overview, draw_services, draw_backups, draw_automator, draw_directory][tab](body, s, cache, cfg, (RED, WHITE, GREEN, DIM, YEL, BADGE))
+        except curses.error:
+            pass
+        # footlight
+        safe(stdscr, h - 1, 0, "▄" * (w - 1), RED)
+        stdscr.refresh()
+        ch = stdscr.getch()
+        if ch == -1:
+            continue
+        if ch in (ord("q"), ord("Q")) and not KIOSK:
+            return
+        if ord("1") <= ch <= ord("5"):
+            tab = ch - ord("1")
+        elif ch in (curses.KEY_RIGHT, ord("\t")):
+            tab = (tab + 1) % len(TABS)
+        elif ch == curses.KEY_LEFT:
+            tab = (tab - 1) % len(TABS)
+
+
+def _up(sec):
+    if not sec:
+        return "—"
+    d, r = divmod(int(sec), 86400)
+    hh, r = divmod(r, 3600)
+    return f"{d}d {hh}h {r // 60}m"
+
+
+def draw_overview(win, s, cache, cfg, C):
+    RED, WHITE, GREEN, DIM, YEL, BADGE = C
+    h, w = win.getmaxyx()
+    colw = max(30, (w - 4) // 2)
+    cpu = s.get("cpu", 0) or 0
+    ram = (s.get("ram") or {}).get("pct", 0) or 0
+    safe(win, 0, 1, "CPU", DIM); safe(win, 0, 6, f"{cpu:5.1f}%", WHITE | curses.A_BOLD)
+    bar(win, 1, 1, colw - 2, cpu, RED)
+    cores = s.get("cores") or []
+    if cores:
+        safe(win, 2, 1, " ".join("▁▂▃▄▅▆▇█"[min(7, int(c // 12.5))] for c in cores), RED)
+    safe(win, 4, 1, "MEMORY", DIM); safe(win, 4, 9, f"{human_bytes((s.get('ram') or {}).get('used'))} of {human_bytes((s.get('ram') or {}).get('total'))}  {ram:.0f}%", WHITE | curses.A_BOLD)
+    bar(win, 5, 1, colw - 2, ram, YEL)
+    net = s.get("net") or {}
+    safe(win, 7, 1, "NETWORK", DIM); safe(win, 7, 10, f"↓ {human_bytes(net.get('rx'))}/s   ↑ {human_bytes(net.get('tx'))}/s", WHITE)
+    y = 9
+    safe(win, y, 1, "DISKS", DIM); y += 1
+    for d in (s.get("disks") or [])[: max(0, h - y - 1)]:
+        safe(win, y, 1, f"{d['mount'][:18]:<18} {human_bytes(d['used']):>9} / {human_bytes(d['total']):<9}", WHITE)
+        bar(win, y + 1, 1, colw - 2, d["pct"], GREEN if d["pct"] < 75 else YEL if d["pct"] < 90 else RED)
+        y += 2
+    # right column: needs you + tonight
+    x = colw + 3
+    ov = cache.get("overview", _overview, 30)
+    att = ov.get("attention", [])
+    safe(win, 0, x, "NEEDS YOU" if att else "ALL CLEAR", (RED if att else GREEN) | curses.A_BOLD)
+    y = 1
+    if not att:
+        safe(win, y, x, "services up · automator clean · backups ok · NAS mounted", DIM); y += 1
+    for a in att[:6]:
+        safe(win, y, x, ("✗ " if a["level"] == "bad" else "! ") + a["text"][: w - x - 3], RED if a["level"] == "bad" else YEL); y += 1
+    y += 1
+    safe(win, y, x, "THE BOX", DIM); y += 1
+    a, b = ov.get("automator", {}), ov.get("backup", {})
+    rows = [("directory", f"{'online' if ov.get('directory_ok') else 'DOWN'} · {ov.get('counts', {}).get('users', 0)} users"),
+            ("automator", f"{(a.get('last_summary') or 'no run yet')[:40]}"),
+            ("quota", f"{a.get('quota_today') or 0} / {a.get('quota_daily') or 10000} units"),
+            ("backups", (f"{b['last']['name']} · {'ok' if b['last']['ok'] else 'FAILED'}" if b.get("last") else "none yet")),
+            ("synology", f"{'mounted · ' + human_bytes(ov.get('nas', {}).get('free')) + ' free' if ov.get('nas', {}).get('mounted') else 'NOT MOUNTED'}")]
+    for k, v in rows:
+        safe(win, y, x, f"{k:<10}", DIM); safe(win, y, x + 11, v, WHITE); y += 1
+    y += 1
+    safe(win, y, x, "TONIGHT  (America/Chicago)", DIM); y += 1
+    for t, what in [("02:00", "YouTube quota resets"), ("02:05", "automator"), ("03:00", "backups → Synology"), ("04:00", "GitHub mirror"), ("07:00", "daily note")]:
+        safe(win, y, x, t, RED | curses.A_BOLD); safe(win, y, x + 7, what, WHITE); y += 1
+
+
+def _overview():
+    from arise_server.main import overview
+    return overview(None)
+
+
+def draw_services(win, s, cache, cfg, C):
+    RED, WHITE, GREEN, DIM, YEL, BADGE = C
+    data = cache.get("services", services.list_services, 10)
+    safe(win, 0, 1, f"{'UNIT':<30} {'SERVICE':<30} STATE", DIM)
+    for i, u in enumerate(data.get("services", [])[: win.getmaxyx()[0] - 2]):
+        ok = u["active"] == "active"
+        safe(win, i + 1, 1, f"{u['unit']:<30} {u['name']:<30}", WHITE)
+        safe(win, i + 1, 63, ("● " if ok else "○ ") + f"{u['active']} {u['sub']}", GREEN if ok else RED)
+
+
+def draw_backups(win, s, cache, cfg, C):
+    RED, WHITE, GREEN, DIM, YEL, BADGE = C
+    repo = cache.get("repo", backups.repo, 60)
+    hist = cache.get("hist", lambda: backups.history(limit=200), 30)
+    safe(win, 0, 1, f"REPOSITORY {repo.get('repo', '')}", DIM)
+    safe(win, 1, 1, f"{repo.get('snapshots', 0)} snapshots · {human_bytes(repo.get('total_size'))} stored · keep {repo.get('keep', {}).get('daily')}/{repo.get('keep', {}).get('weekly')}/{repo.get('keep', {}).get('monthly')}", WHITE | curses.A_BOLD)
+    if repo.get("error"):
+        safe(win, 2, 1, repo["error"], RED)
+    safe(win, 4, 1, f"{'JOB':<22} {'LAST RUN':<18} {'RESULT':<8} {'ADDED':>10}  NOTE", DIM)
+    rows = hist.get("rows", [])
+    y = 5
+    for j in backups.jobs().get("jobs", [])[: win.getmaxyx()[0] - 6]:
+        last = next((r for r in rows if r["job"] == j["id"]), None)
+        safe(win, y, 1, f"{j.get('name', j['id'])[:22]:<22} {(last['started'][:16] if last else 'never'):<18}", WHITE)
+        if last:
+            safe(win, y, 42, "ok" if last["ok"] else "FAILED", GREEN if last["ok"] else RED)
+            safe(win, y, 51, f"{human_bytes(last['bytes_added']) if last['ok'] else '—':>10}  {(last.get('error') or last.get('warning') or '')[:40]}", WHITE if last["ok"] else RED)
+        y += 1
+
+
+def draw_automator(win, s, cache, cfg, C):
+    RED, WHITE, GREEN, DIM, YEL, BADGE = C
+    a = cache.get("auto", automator.overview, 30)
+    safe(win, 0, 1, "LAST RUN", DIM); safe(win, 0, 12, f"{a.get('last_run') or 'never'}   {a.get('last_summary') or ''}", WHITE | curses.A_BOLD)
+    safe(win, 1, 1, "NEXT", DIM); safe(win, 1, 12, f"{a.get('next_run')}  ({a.get('schedule')} America/Chicago)", WHITE)
+    q, qd = a.get("quota_today") or 0, a.get("quota_daily") or 10000
+    safe(win, 2, 1, "QUOTA", DIM); safe(win, 2, 12, f"{q:,} / {qd:,} units", WHITE)
+    bar(win, 3, 12, 40, 100.0 * q / qd, YEL if q / qd > .75 else GREEN)
+    tok = a.get("token_ok")
+    safe(win, 4, 1, "TOKEN", DIM); safe(win, 4, 12, ("ok" + (f" · ~{a['token_days_left']} days left" if a.get("token_days_left") is not None else "")) if tok else "MISSING", GREEN if tok else RED)
+    if a.get("token_note"):
+        safe(win, 5, 12, a["token_note"][: win.getmaxyx()[1] - 14], YEL)
+    safe(win, 6, 1, "HOLDS", DIM); safe(win, 6, 12, f"{a.get('holds')} videos · {a.get('rules')} rules · worklist {a.get('worklist_enabled')}/{a.get('worklist_total')} enabled", WHITE)
+    safe(win, 8, 1, "LATEST REPORT", DIM)
+    for i, line in enumerate((a.get("latest_report") or "").splitlines()[: win.getmaxyx()[0] - 10]):
+        safe(win, 9 + i, 1, line.replace("**", ""), RED | curses.A_BOLD if line.startswith("#") else WHITE)
+
+
+def draw_directory(win, s, cache, cfg, C):
+    RED, WHITE, GREEN, DIM, YEL, BADGE = C
+    st = cache.get("dir", directory.status, 60)
+    us = cache.get("users", directory.list_users, 60)
+    cs = cache.get("comps", directory.list_computers, 60)
+    safe(win, 0, 1, f"{st.get('realm')}  ·  {st.get('netbios')}  ·  {st.get('dc') or ''}", WHITE | curses.A_BOLD)
+    for i, (k, v) in enumerate([("LDAP", st.get("ldap_ok")), ("KERBEROS", st.get("kerberos_ok")), ("DNS", st.get("dns_ok"))]):
+        safe(win, 1, 1 + i * 16, ("● " if v else "○ ") + k, GREEN if v else RED)
+    safe(win, 3, 1, f"{'USER':<16} {'NAME':<24} {'GROUPS':<34} LAST LOGIN", DIM)
+    y = 4
+    for u in us.get("users", [])[: max(0, (win.getmaxyx()[0] - 8) // 2)]:
+        safe(win, y, 1, f"{u['name']:<16} {u['display'][:24]:<24} {', '.join(u['groups'])[:34]:<34} {u['last_logon'] or 'never'}", WHITE if u["enabled"] else DIM); y += 1
+    y += 1
+    safe(win, y, 1, f"{'COMPUTER':<16} {'TYPE':<10} {'OS':<20} LAST SEEN", DIM); y += 1
+    for c in cs.get("computers", [])[: win.getmaxyx()[0] - y - 1]:
+        safe(win, y, 1, f"{c['name']:<16} {c['kind']:<10} {(c['os'] or '')[:20]:<20} {c.get('last_seen') or '—'}", WHITE); y += 1
+
+
+if __name__ == "__main__":
+    try:
+        curses.wrapper(main)
+    except KeyboardInterrupt:
+        pass

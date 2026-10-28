@@ -13,7 +13,7 @@ Arise Server turns an old PC into the church's own server:
 - **remote access for a server in a locked closet**: key-only SSH, a VPN (Tailscale recommended, native WireGuard or wg-easy as the self-hosted option), Guacamole remote desktop to any church computer from a browser tab, HTTPS with the server's own CA, a Terminal app in the dashboard
 - **three sites on one server**: Pineville (main), Arise Church Alexandria and the Apostolic Hub reach it over the VPN; a Campuses app watches each one
 - **a daily report** to a Discord or Slack webhook when something needs you
-- **one dashboard** on port 4147, laid out like a desktop (menu bar, windows, a dock, a launchpad), and **one CLI**, `arisectl`, in the look of arisecenla.church
+- **one dashboard** on port 4147, laid out like a desktop (menu bar, windows, a dock, a launchpad), **one CLI**, `arisectl`, and **a console dashboard**, `arisetui`, for the monitor in the closet, all in the look of arisecenla.church
 
 Three things shaped it: [Monolith OS](https://github.com/shirou-eh/Monolith) (one CLI, one config, a web dashboard, an installer, profiles, restic backups, a landing page), [HomeDock OS](https://github.com/BansheeTech/HomeDockOS) (a Python backend, a browser desktop that streams live stats, apps as Docker Compose stacks), and the [Arise Church website](https://arisecenla.church) (Anton + Oswald, ink `#0A0A0C`, Arise red `#D6222D`, square corners, the two red dashes).
 
@@ -230,7 +230,7 @@ Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-
 
 ## Docs
 
-[INSTALL.md](INSTALL.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [DIRECTORY](docs/DIRECTORY.md) · [MAC-MIGRATION](docs/MAC-MIGRATION.md) · [SYNOLOGY](docs/SYNOLOGY.md) · [BACKUPS](docs/BACKUPS.md) · [AUTOMATOR](docs/AUTOMATOR.md) · [HARDWARE](docs/HARDWARE.md) · [DASHBOARD](docs/DASHBOARD.md) · [CLI](docs/CLI.md) · [REMOTE-ACCESS](docs/REMOTE-ACCESS.md) · [MULTI-SITE](docs/MULTI-SITE.md) · [templates](templates/README.md) · [mac checklist](mac/CHECKLIST.md)
+[INSTALL.md](INSTALL.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [DIRECTORY](docs/DIRECTORY.md) · [MAC-MIGRATION](docs/MAC-MIGRATION.md) · [SYNOLOGY](docs/SYNOLOGY.md) · [BACKUPS](docs/BACKUPS.md) · [AUTOMATOR](docs/AUTOMATOR.md) · [HARDWARE](docs/HARDWARE.md) · [DASHBOARD](docs/DASHBOARD.md) · [CONSOLE](docs/CONSOLE.md) · [CLI](docs/CLI.md) · [REMOTE-ACCESS](docs/REMOTE-ACCESS.md) · [MULTI-SITE](docs/MULTI-SITE.md) · [templates](templates/README.md) · [mac checklist](mac/CHECKLIST.md)
 
 ## Licence
 

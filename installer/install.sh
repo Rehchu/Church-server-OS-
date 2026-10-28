@@ -23,6 +23,7 @@
 #    --with-tailscale    install Tailscale (prints the `tailscale up` line to run yourself)
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        Caddy HTTPS reverse proxy with an internal CA (config/caddy/Caddyfile)
+#    --console           show the arisetui dashboard on the closet monitor (tty1) instead of a login prompt
 #    --dry-run           print every step, change nothing
 #    -h | --help
 #
@@ -51,6 +52,7 @@ ADMIN_PASS=""
 WITH_TAILSCALE=0
 WITH_WIREGUARD=0
 WITH_CADDY=0
+WITH_CONSOLE=0
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
 NO_START=0
@@ -68,6 +70,7 @@ while [ $# -gt 0 ]; do
     --with-tailscale) WITH_TAILSCALE=1; shift ;;
     --with-wireguard) WITH_WIREGUARD=1; shift ;;
     --with-caddy)  WITH_CADDY=1; shift ;;
+    --console)     WITH_CONSOLE=1; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     -h|--help)     usage 0 ;;
     *) echo "unknown flag: $1" >&2; usage 2 ;;
@@ -105,7 +108,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY console=$WITH_CONSOLE dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -259,6 +262,7 @@ SRC="$INSTALL_ROOT"
 # arisectl on the PATH
 if [ -f "$SRC/cli/arisectl" ]; then
   run install -m 0755 "$SRC/cli/arisectl" /usr/local/bin/arisectl
+  [ -f "$SRC/cli/arisetui" ] && run install -m 0755 "$SRC/cli/arisetui" /usr/local/bin/arisetui
 else
   warn "cli/arisectl not in the repo yet; /usr/local/bin/arisectl not installed"
 fi
@@ -696,6 +700,37 @@ if [ "$WITH_CADDY" = 1 ]; then
   fi
   note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.church (internal CA). Trust the root once per device: docs/REMOTE-ACCESS.md (e)"
   note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.church vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
+fi
+
+# ----------------------------------------------------------------------------
+# 6c. The closet monitor: pre-login banner, login message, optional tty1 dashboard
+# ----------------------------------------------------------------------------
+say "6c/7  Console: banner, login message$( [ "$WITH_CONSOLE" = 1 ] && echo ', arisetui on tty1' )"
+if [ -f "$SRC/config/console/issue" ]; then
+  run install -m 0644 "$SRC/config/console/issue" /etc/issue
+  note "/etc/issue: the Arise banner before login"
+fi
+if [ -f "$SRC/config/console/50-arise-motd" ] && [ -d /etc/update-motd.d ]; then
+  run install -m 0755 "$SRC/config/console/50-arise-motd" /etc/update-motd.d/50-arise-motd
+  # Ubuntu's own ad lines have no place on a church server's login
+  for f in 10-help-text 50-motd-news 90-updates-available 91-contract-ua-esm-status; do
+    [ -x "/etc/update-motd.d/$f" ] && run chmod -x "/etc/update-motd.d/$f"
+  done
+  note "login message: the Arise flame + arisectl info"
+fi
+if [ "$WITH_CONSOLE" = 1 ]; then
+  if [ -f "$SRC/config/systemd/arise-console.service" ]; then
+    run install -m 0644 "$SRC/config/systemd/arise-console.service" /etc/systemd/system/arise-console.service
+    run systemctl daemon-reload
+    if [ "$NO_START" = 0 ]; then
+      run systemctl enable --now arise-console.service
+      note "tty1 now shows arisetui (read only). Alt+F2 is a normal login."
+    else
+      run systemctl enable arise-console.service
+    fi
+  else
+    warn "config/systemd/arise-console.service not in the repo; tty1 left as a login prompt"
+  fi
 fi
 
 # ----------------------------------------------------------------------------
