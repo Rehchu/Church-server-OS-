@@ -340,6 +340,7 @@ means below.
 | 92 | Reboot with people signed in? | not answered | assumed: a five-minute warning on every screen, then reboot |
 | 93 | A prayer-request box? | not answered | assumed: off the server, like counselling records |
 | 94 | Birthdays in the weekly? | not answered | assumed: yes, only if the Wix export carries a birthday field |
+| 95 | (unprompted) The automator's backups? | "The Arise Automator will need to keep backups on my personal PC like it does now! i'll make sure the automator has the Repo up to date as well so it syncs to the Synology or wherever correctly!" | the PC stays the automator's working copy and keeps its own backups; the server pulls the automator from the GitHub repo Bradly keeps current (the 04:00 mirror), runs the nightly job from that copy, and restic backs it up to the Synology; nothing on the server overwrites the PC |
 
 ## Still needed
 
