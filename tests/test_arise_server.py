@@ -356,3 +356,25 @@ class Church(unittest.TestCase):
         from arise_server import files
         self.assertEqual(files.search_transcripts("ab"), [])
         self.assertTrue(files.search_transcripts("faith")[0]["id"])
+
+
+class Mail(unittest.TestCase):
+    def test_wix_csv_parses_dedupes_and_validates(self):
+        from arise_server import mail
+        r = mail.parse_contacts("\ufeffFirst Name,Last Name,Email,Phone\nJane,Doe,Jane@Example.com,555\nBad,,notanemail,\nJane,Again,jane@example.com,\n,,who@example.com,\n")
+        self.assertEqual([c["email"] for c in r["contacts"]], ["jane@example.com", "who@example.com"]); self.assertEqual(r["skipped"], 2)
+        self.assertEqual(r["contacts"][0]["first_name"], "Jane")
+        self.assertIn("err", mail.parse_contacts("name,phone\nx,1\n"))
+        full = mail.parse_contacts("Name;Email\nJohn Smith;john@x.org\n")
+        self.assertEqual((full["contacts"][0]["first_name"], full["contacts"][0]["last_name"]), ("John", "Smith"))
+
+    def test_template_has_unsubscribe_and_first_name_and_escapes(self):
+        from arise_server import mail
+        h = mail.render("Hi", "Hello <b>world</b> **bold** [site](https://arisecenla.church)\n\n## Head\n- one\n- two")
+        self.assertIn("{{{RESEND_UNSUBSCRIBE_URL}}}", h); self.assertIn("{{{FIRST_NAME|there}}}", h)
+        self.assertIn("&lt;b&gt;world&lt;/b&gt;", h); self.assertIn("<strong>bold</strong>", h); self.assertIn('href="https://arisecenla.church"', h); self.assertIn("<li", h)
+
+    def test_sending_to_everyone_needs_the_word(self):
+        from arise_server import mail
+        self.assertFalse(mail.send_broadcast("x", "yes")["ok"]); self.assertTrue(mail.send_broadcast("x", "send")["ok"])
+        self.assertFalse(mail.send_test("nope", "s", "b")["ok"])

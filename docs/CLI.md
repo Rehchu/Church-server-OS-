@@ -79,3 +79,13 @@ arisectl devices cameras           ONVIF discovery: which cameras answer, and wh
 arisectl devices behind            what the office Netgear reports as attached ([[routers]])
 arisectl devices name <mac> <name> give a device a name that sticks to its MAC
 ```
+
+## arisectl mail
+
+```
+arisectl mail status                    Resend set up? from, reply-to, the audience
+arisectl mail contacts                  the list
+arisectl mail import <wix.csv>          parse, show the count, ask, then add (about a second per contact)
+arisectl mail test <to> <subject>       send one test email; the body comes from stdin
+```
+Sending to everyone is the dashboard's job (it asks for the word `send`).

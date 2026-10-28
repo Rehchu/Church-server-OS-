@@ -53,6 +53,18 @@ services = [
 # Leave it out to get the default list (server/arise_server/church.py).
 # sunday_checklist = ["Streaming Mac on", "Cameras answering", "Slides updated"]
 
+# Mass email to the church family, through Resend (resend.com). The API key is
+# a root-only file. from_email must be at a domain VERIFIED in Resend: not
+# gmail.com. reply_to may be the Gmail inbox. audience_id is created on first
+# use and remembered in /var/lib/arise/mail.json; set it here to pin one.
+[mail]
+provider = "resend"
+api_key_file = "/etc/arise/secrets/resend-api-key"
+from_name = "Arise Church"
+from_email = ""           # e.g. "news@arisecenla.church" once the domain is verified in Resend
+reply_to = ""             # e.g. the church Gmail
+audience_name = "Arise Church family"
+
 [links]
 # Share links (a public download address for one file or folder).
 days = 7        # default life

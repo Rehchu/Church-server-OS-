@@ -709,6 +709,44 @@ V.sunday.after = root => {
   $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
 };
 
+V.mail = async () => {
+  const [st, bc] = await Promise.all([api('/mail'), api('/mail/broadcasts')]); S.mail = st;
+  const tab = S.mailTab || 'compose';
+  const head = `<div class="row row--between" style="margin-bottom:12px"><div><div class="kicker">Resend · ${st.configured ? '<span style="color:var(--ok)">ready</span>' : '<span style="color:var(--warn)">not set up</span>'}${st.demo ? ' · sample' : ''}</div>
+      <h2 style="margin:0">${esc(st.from_name)} &lt;${esc(st.from_email || 'from_email not set')}&gt;</h2><p class="note" style="margin:6px 0 0">Reply-to ${esc(st.reply_to || 'none')}${st.gmail_warning ? ' · <b style="color:var(--bad)">from_email is a gmail.com address: Resend cannot send from a domain you do not verify. Use an address at the church domain and keep the Gmail as reply-to.</b>' : ''}</p></div>
+      <div class="tabs">${['compose', 'contacts', 'sent'].map(t => `<button class="${tab === t ? 'on' : ''}" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>`;
+  let body = '';
+  if (tab === 'compose') body = `<div class="sun"><div><label class="lbl">Subject</label><input id="mlSubj" value="${esc(S.mailDraft?.subject || '')}" placeholder="This week at Arise" style="width:100%">
+      <label class="lbl" style="margin-top:10px">Body <small class="muted">(plain text; **bold**, [links](https://…), ## headings, - lists)</small></label><textarea id="mlBody" rows="14" style="width:100%;font:inherit" placeholder="Hi church,&#10;&#10;## This Sunday&#10;- 10:30 at Pineville&#10;- 10:00 at Alexandria">${esc(S.mailDraft?.body || '')}</textarea>
+      <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn btn--ghost" id="mlPrev">Preview</button><input id="mlTestTo" placeholder="you@…" style="width:200px"><button class="btn btn--ghost" id="mlTest">Send test</button><span style="flex:1"></span><button class="btn" id="mlSend">Send to everyone…</button></div>
+      <p class="note" style="margin-top:10px">Every email starts "Hi {first name}," and ends with the church footer and an unsubscribe link Resend manages. Sending to everyone asks you to type <b>send</b>.</p></div>
+      <div><div class="card"><div class="kicker">Preview</div><iframe id="mlFrame" style="width:100%;height:520px;border:0;background:#F4F2F0;margin-top:8px" sandbox=""></iframe></div></div></div>`;
+  else if (tab === 'contacts') { const c = await api('/mail/contacts'); const im = st.import || {};
+    body = `<div class="row row--between" style="margin-bottom:10px"><div><b>${c.count ?? 0}</b> contacts in the list${c.err ? ` · <span style="color:var(--bad)">${esc(c.err)}</span>` : ''}</div><div class="row" style="gap:8px"><label class="btn btn--ghost btn--xs" for="mlCsv">Import CSV (Wix export)</label><input id="mlCsv" type="file" accept=".csv,text/csv" hidden></div></div>
+      ${im.total ? `<p class="note">Import: ${im.done}/${im.total} added, ${im.failed} failed${im.running ? ', running…' : ', done ' + esc(im.finished || '')}${(im.errors || []).length ? '<br>' + im.errors.map(esc).join('<br>') : ''}</p>` : ''}
+      <div id="mlImportOut"></div>
+      <table class="tbl"><thead><tr><th>Email</th><th>Name</th><th>Added</th><th>Status</th></tr></thead><tbody>${(c.contacts || []).map(x => `<tr class="${x.unsubscribed ? 'dim' : ''}"><td class="mono" style="font-size:12.5px">${esc(x.email)}</td><td>${esc([x.first_name, x.last_name].filter(Boolean).join(' '))}</td><td>${esc((x.created_at || '').slice(0, 10))}</td><td>${x.unsubscribed ? 'unsubscribed' : 'subscribed'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No contacts yet. Export from Wix (Contacts → Export → CSV) and import it here.</td></tr>'}</tbody></table>
+      <p class="note" style="margin-top:10px">Contacts live in a Resend audience so unsubscribes are honoured automatically. Wix's export keeps its "Email", "First Name" and "Last Name" columns; anything with an email column works.</p>`; }
+  else body = `<table class="tbl"><thead><tr><th>Newsletter</th><th>Status</th><th>Created</th><th>Sent</th></tr></thead><tbody>${(bc.broadcasts || []).map(b => `<tr><td><b>${esc(b.subject || b.name)}</b></td><td>${esc(b.status)}</td><td>${esc((b.created_at || '').slice(0, 16).replace('T', ' '))}</td><td>${esc((b.sent_at || '').slice(0, 16).replace('T', ' ') || '—')}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Nothing sent yet.</td></tr>'}</tbody></table>${bc.err ? `<p class="note" style="color:var(--bad)">${esc(bc.err)}</p>` : ''}`;
+  return `<div class="fade">${head}${body}${st.configured ? '' : `<div class="card" style="margin-top:14px;border-left:3px solid var(--warn)"><b>To set up (Friday):</b> 1. Resend account, add and verify the church's domain (DNS records at the domain host). 2. API key → <code>/etc/arise/secrets/resend-api-key</code> (root only). 3. In arise.toml <code>[mail]</code>: from_email at that domain, reply_to the Gmail. 4. Import the Wix CSV. 5. Send yourself a test.</div>`}</div>`;
+};
+V.mail.after = root => {
+  $$('[data-tab]', root).forEach(b => b.onclick = () => { S.mailTab = b.dataset.tab; rerender('mail'); });
+  const draft = () => ({ subject: $('#mlSubj', root)?.value || '', body: $('#mlBody', root)?.value || '' });
+  const keep = () => { S.mailDraft = draft(); };
+  ['#mlSubj', '#mlBody'].forEach(sel => { const el = $(sel, root); if (el) el.oninput = keep; });
+  const prev = async () => { const d = draft(); keep(); const r = await api('/mail/preview', { method: 'POST', body: d }); const f = $('#mlFrame', root); if (f) f.srcdoc = r.html; };
+  const bp = $('#mlPrev', root); if (bp) { bp.onclick = prev; if (S.mailDraft?.body) prev(); }
+  const bt = $('#mlTest', root); if (bt) bt.onclick = async () => { const d = draft(); const to = $('#mlTestTo', root).value.trim(); if (!to) return toast('Type the address to send the test to', 'warn'); const r = await api('/mail/test', { method: 'POST', body: { ...d, to } }); if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample: would send a test' : 'Test sent to ' + to); };
+  const bs = $('#mlSend', root); if (bs) bs.onclick = () => { const d = draft(); if (!d.subject || !d.body) return toast('Subject and body first', 'warn');
+    confirmType('Send to everyone on the list', 'send', `Subject: <b>${esc(d.subject)}</b>. Resend makes a broadcast and sends it to every subscribed contact. There is no un-send.`, async () => { const c = await api('/mail/broadcasts', { method: 'POST', body: d }); if (c.ok === false) throw new Error(c.err); const r = await api(`/mail/broadcasts/${encodeURIComponent(c.id || c.data?.id || '')}/send`, { method: 'POST', body: { confirm: 'send' } }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample: would send to everyone' : 'Sent. Resend delivers over the next minutes.'); S.mailDraft = null; S.mailTab = 'sent'; rerender('mail'); }); };
+  const csv = $('#mlCsv', root); if (csv) csv.onchange = async () => { const f = csv.files[0]; if (!f) return; const text = await f.text(); const out = $('#mlImportOut', root);
+    const pv = await api('/mail/import/preview', { method: 'POST', body: { csv: text } }); if (pv.err) { out.innerHTML = `<p class="note" style="color:var(--bad)">${esc(pv.err)}</p>`; return; }
+    out.innerHTML = `<div class="card" style="margin:10px 0"><b>${pv.count}</b> good addresses, ${pv.skipped} skipped (bad or duplicate). Columns: ${esc(JSON.stringify(pv.columns))}.<br><small class="muted">${pv.sample.map(x => esc(x.email + (x.first_name ? ' · ' + x.first_name + ' ' + x.last_name : ''))).join(', ')}…</small><div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="mlGo">Add ${pv.count} to the list</button><button class="btn btn--ghost" id="mlNo">Cancel</button></div></div>`;
+    $('#mlGo', root).onclick = async () => { const r = await api('/mail/import', { method: 'POST', body: { csv: text } }); if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample: would import' : `Importing ${r.queued}; this takes about a second each`); setTimeout(() => rerender('mail'), 1500); };
+    $('#mlNo', root).onclick = () => { out.innerHTML = ''; csv.value = ''; }; };
+};
+
 V.terminal = async () => `<div class="term" id="termMount"></div>`;
 V.terminal.after = root => {
   const mount = $('#termMount'); if (!mount || !window.Terminal) { if (mount) mount.innerHTML = '<p class="note">xterm.js did not load.</p>'; return; }
@@ -760,6 +798,7 @@ const I = {
   services: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 5l-2 .4a7 7 0 0 1-.8 2l1.2 1.7-1.4 1.4-1.7-1.2a7 7 0 0 1-2 .8L14 21h-4l-.4-2a7 7 0 0 1-2-.8l-1.7 1.2-1.4-1.4 1.2-1.7a7 7 0 0 1-.8-2L3 14v-4l2-.4a7 7 0 0 1 .8-2L4.6 5.9 6 4.5l1.7 1.2a7 7 0 0 1 2-.8L10 3h4l.4 2a7 7 0 0 1 2 .8l1.7-1.2 1.4 1.4-1.2 1.7a7 7 0 0 1 .8 2l2 .4z"/></svg>',
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
   assist: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2zM19 16l1 2.6 2.6 1-2.6 1L19 23l-1-2.4-2.6-1 2.6-1z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 5h20v14H2zm2 2v.5l8 5 8-5V7zm0 3v7h16v-7l-8 5z"/></svg>',
   sunday: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v10h12V8zm2 3l2 2 4-4 1.4 1.4L10 15.8l-3.4-3.4z"/></svg>',
   devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
@@ -784,6 +823,7 @@ const APPS = [
   { id: 'devices', n: '16', name: 'Network', what: 'Everything on the switch', w: 980, h: 600 },
   { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
   { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
+  { id: 'mail', n: '19', name: 'Mail', what: 'The church family list, newsletters (Resend)', w: 980, h: 640 },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
 const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday'];
@@ -877,6 +917,7 @@ function menuItems(id) {
     terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
     devices: [['Scan now', () => $('#devScan')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
     sunday: [['Refresh', () => rerender('sunday'), '⌘R'], null, ['Close Window', () => closeApp(id), '⌘W']],
+    mail: [['Compose', () => { S.mailTab = 'compose'; rerender('mail'); }], ['Contacts', () => { S.mailTab = 'contacts'; rerender('mail'); }], ['Sent', () => { S.mailTab = 'sent'; rerender('mail'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
     assist: [['Open Claude', () => $$('[data-url]').find(b => b.dataset.url.includes('claude'))?.click()], ['Claude Code in Terminal', () => $('[data-claude-code]')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
   }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];

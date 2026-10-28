@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, metrics, nas, remote, routers, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, mail, metrics, nas, remote, routers, sermons, services, shares, sites, system
 from . import links
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
@@ -613,6 +613,75 @@ def api_signage():
 @app.get("/signage")
 def signage_page():
     return FileResponse(str(cfg.web_dir / "signage.html"))
+
+
+# ----- mail: the church family list, through Resend --------------------------------
+class MailDraft(BaseModel):
+    subject: str
+    body: str
+    name: str = ""
+
+
+class MailTest(MailDraft):
+    to: str
+
+
+class MailSend(BaseModel):
+    confirm: str = ""
+
+
+class MailImport(BaseModel):
+    csv: str
+
+
+@app.get("/api/mail")
+def api_mail(_=auth):
+    return {**mail.status(), "import": mail.import_status()}
+
+
+@app.get("/api/mail/contacts")
+def api_mail_contacts(_=auth):
+    return mail.contacts()
+
+
+@app.post("/api/mail/import/preview")
+def api_mail_import_preview(body: MailImport, _=auth):
+    r = mail.parse_contacts(body.csv)
+    return {"count": len(r["contacts"]), "skipped": r["skipped"], "columns": r.get("columns"), "err": r.get("err"), "sample": r["contacts"][:5]}
+
+
+@app.post("/api/mail/import")
+def api_mail_import(body: MailImport, _=auth):
+    r = mail.parse_contacts(body.csv)
+    if r.get("err"):
+        return {"ok": False, "err": r["err"]}
+    return mail.import_contacts(r["contacts"])
+
+
+@app.post("/api/mail/preview")
+def api_mail_preview(body: MailDraft, _=auth):
+    c = church.info()
+    return {"html": mail.render(body.subject, body.body, c["name"], c["city"])}
+
+
+@app.post("/api/mail/test")
+def api_mail_test(body: MailTest, _=auth):
+    return mail.send_test(body.to, body.subject, body.body)
+
+
+@app.post("/api/mail/broadcasts")
+def api_mail_broadcast(body: MailDraft, _=auth):
+    return mail.create_broadcast(body.subject, body.body, body.name)
+
+
+@app.post("/api/mail/broadcasts/{bc_id}/send")
+def api_mail_broadcast_send(bc_id: str, body: MailSend, _=auth):
+    return mail.send_broadcast(bc_id, body.confirm)
+
+
+@app.get("/api/mail/broadcasts")
+def api_mail_broadcasts(_=auth):
+    return mail.broadcasts()
 
 
 # ----- everything on the switch --------------------------------------------------

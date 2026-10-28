@@ -232,3 +232,14 @@ CAMERAS = [
     {"ip": "192.168.0.64", "xaddrs": ["http://192.168.0.64/onvif/device_service"], "name": "FRONT-DOOR", "hardware": "DS-2CD2043G2", "scopes": [], "reachable": False},
     {"ip": "192.168.0.65", "xaddrs": ["http://192.168.0.65/onvif/device_service"], "name": "PARKING", "hardware": "DS-2CD2043G2", "scopes": [], "reachable": False},
 ]
+
+# Mail (sample): a few contacts and two broadcasts. Not real people.
+MAIL_CONTACTS = [
+    {"id": "c1", "email": "sample.one@example.com", "first_name": "Sample", "last_name": "One", "created_at": "2026-10-20T14:00:00Z", "unsubscribed": False},
+    {"id": "c2", "email": "sample.two@example.com", "first_name": "Sample", "last_name": "Two", "created_at": "2026-10-20T14:00:00Z", "unsubscribed": False},
+    {"id": "c3", "email": "sample.three@example.com", "first_name": "", "last_name": "", "created_at": "2026-10-21T09:10:00Z", "unsubscribed": True},
+]
+MAIL_BROADCASTS = [
+    {"id": "bc-1", "name": "This week at Arise", "subject": "This week at Arise", "status": "sent", "created_at": "2026-10-21T15:00:00Z", "sent_at": "2026-10-21T15:05:00Z", "audience_id": "demo-audience"},
+    {"id": "bc-2", "name": "Glory Night reminder", "subject": "Glory Night is tonight at 7", "status": "draft", "created_at": "2026-10-27T10:00:00Z", "sent_at": None, "audience_id": "demo-audience"},
+]

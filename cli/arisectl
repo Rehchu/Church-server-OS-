@@ -18,6 +18,7 @@
     arisectl sites
     arisectl link list|revoke <token>|sweep
     arisectl devices list|scan [--wide]|behind|cameras|name <mac> <name>   everything on the switch, strays, cameras
+    arisectl mail status|contacts|import <wix.csv>|test <to> <subject>       the church family list (Resend)
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
@@ -452,6 +453,32 @@ def cmd_nas(a):
         need_root(); show(nas.unmount())
 
 
+def cmd_mail(a):
+    from arise_server import mail
+    if a.sub == "status":
+        st = mail.status()
+        for k in ("provider", "configured", "from_name", "from_email", "reply_to", "audience_id"):
+            print(f"  {k:12} {st.get(k)}")
+        if st.get("gmail_warning"): warn("from_email is gmail.com: Resend cannot send from a domain you do not verify")
+        if st.get("demo"): warn("sample data")
+    elif a.sub == "contacts":
+        c = mail.contacts()
+        table([{"email": x["email"], "name": (x.get("first_name", "") + " " + x.get("last_name", "")).strip(), "status": "unsubscribed" if x.get("unsubscribed") else "ok"} for x in c["contacts"]], ["email", "name", "status"])
+        if c.get("err"): bad(c["err"])
+    elif a.sub == "import":
+        if not a.arg1: sys.exit("arisectl mail import <wix.csv>")
+        r = mail.parse_contacts(open(a.arg1, encoding="utf-8", errors="replace").read())
+        if r.get("err"): sys.exit(r["err"])
+        print(f"{len(r['contacts'])} addresses, {r['skipped']} skipped; columns {r['columns']}")
+        if input("add them to the list? [y/N] ").lower() != "y": return
+        show(mail.import_contacts(r["contacts"]))
+    elif a.sub == "test":
+        if not a.arg1 or not a.arg2: sys.exit("arisectl mail test <to> <subject>  (body from stdin)")
+        show(mail.send_test(a.arg1, a.arg2, sys.stdin.read()))
+    else:
+        sys.exit("arisectl mail status|contacts|import <csv>|test <to> <subject>")
+
+
 def cmd_devices(a):
     from arise_server import devices
     if a.sub == "cameras":
@@ -607,6 +634,7 @@ def build():
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
+    p = sp.add_parser("mail"); p.add_argument("sub", choices=["status", "contacts", "import", "test"]); p.add_argument("arg1", nargs="?"); p.add_argument("arg2", nargs="?"); p.set_defaults(f=cmd_mail)
     p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "cameras", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.add_argument("--wide", action="store_true", help="also scan the common ranges a device may be parked on"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
