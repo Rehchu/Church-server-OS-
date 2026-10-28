@@ -29,3 +29,6 @@ backup-history.json
 
 # Claude Code worker worktrees (local only)
 .claude/worktrees/
+
+# generated on the box by scripts/arise-archive-setup (docs/ARCHIVE.md)
+/.mcp.json

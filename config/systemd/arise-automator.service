@@ -17,7 +17,7 @@ User=arise-yt
 Group=arise-yt
 EnvironmentFile=/etc/arise/arise.env
 # Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]): skipped, not failed.
-ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
 ExecStart=/opt/arise/scripts/arise-nightly.sh
 TimeoutStartSec=3h
 NoNewPrivileges=yes

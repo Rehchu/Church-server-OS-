@@ -41,6 +41,7 @@
     arisectl snapshot create "<note>"|list|restore <name>|prune   system snapshots (Timeshift), 5 kept, never during a service
     arisectl scan status|run|restore <file>   the weekly ClamAV scan of the shares; restore puts a quarantined file back
     arisectl reinstall <restic-repo>    rebuild this box from the Synology's backup (docs/REINSTALL.md)
+    arisectl archive status|build [--full]|search <words>|setup   the searchable archive of both repos (read-only, docs/ARCHIVE.md)
     arisectl service-now [--quiet]      exit 0 = no service on, 1 = a service is on (the timers' ExecCondition)
     arisectl update [check|refresh|queue|apply|apt]   Software Update: what waits, what Bradly queued, the Saturday 03:30 apply
     arisectl update apply [--now] [--no-snapshot] [--quiet]   install the queue (refuses during a service; snapshot first)
@@ -1168,6 +1169,68 @@ def cmd_mirror(a):
     sys.exit(0 if r["ok"] else 1)
 
 
+def cmd_archive(a):
+    """The searchable archive of both repos (docs/ARCHIVE.md). Read-only reference for Claude.
+
+    status and search read the index (members of arise-claude, or root); build and setup
+    need root. build goes through the units so it runs as arise-kb, never as root, and
+    the service gate applies.
+    """
+    sys.path.insert(0, str(HOME / "archive"))
+    from arise_archive import query
+    from arise_archive.config import Config
+    acfg = Config()
+    if a.sub == "setup":
+        need_root()
+        sys.exit(subprocess.call(["bash", str(HOME / "scripts" / "arise-archive-setup"), "--src", str(HOME)]))
+    if a.sub == "build":
+        need_root()
+        unit = "arise-archive-rebuild.service" if a.full else "arise-archive.service"
+        r = subprocess.run(["systemctl", "start", "--no-block", unit], capture_output=True, text=True)
+        if r.returncode != 0:
+            bad(f"{unit} did not start: {(r.stderr or r.stdout).strip()}"); sys.exit(1)
+        ok(f"{unit} started (as arise-kb); follow it with: journalctl -fu {unit}   then: arisectl archive status")
+        return
+    try:
+        if a.sub == "status":
+            st = query.status(acfg)
+            head("archive")
+            print(f"  index      {acfg.index}  built {st.get('built_at') or 'never'}")
+            for repo, c in (st.get("indexed_commits") or {}).items():
+                sha = c.get("sha", "") if isinstance(c, dict) else str(c)
+                print(f"  {repo:<26} {sha[:10]}")
+            print("  documents  " + ", ".join(f"{k} {n}" for k, n in sorted((st.get("documents_by_kind") or {}).items())))
+            print(f"  songs      {st.get('songs')}")
+            sk = st.get("skipped") or []
+            print(f"  skipped    {len(sk)} files (paths in {acfg.build_log})")
+            last = {}
+            try:
+                last = json.loads(acfg.status_file.read_text())
+            except (OSError, ValueError):
+                pass
+            if last and not last.get("ok", True):
+                bad(f"last build failed: {last.get('error')}")
+            return
+        if a.sub == "search":
+            words = " ".join(a.words or [])
+            if not words:
+                sys.exit("arisectl archive search needs words")
+            r = query.search(acfg, words, kind=a.kind, repo=a.repo, include_history=a.history, limit=a.limit)
+            for it in r["results"]:
+                pv = it["provenance"]
+                where = it.get("link") or (f"lines {pv['lines'][0]}-{pv['lines'][1]}" if pv.get("lines") else "")
+                print(f"  [{it['kind']}] {it['title']}" + ("  (past state)" if it.get("history") else ""))
+                print(f"      {pv['repo']}/{pv['path']} @ {pv['commit'][:10]} {where}")
+                print(f"      {it['snippet']}")
+            if not r["results"]:
+                print("  no results")
+            print(f"  {DIM}the archive is evidence, not authority (docs/ARCHIVE.md){END}")
+    except FileNotFoundError as e:
+        sys.exit(str(e))
+    except PermissionError:
+        sys.exit(f"cannot read {acfg.index}: the archive is readable by the group arise-claude and root (sudo arisectl archive setup adds you)")
+
+
 def cmd_service_now(a):
     """The scheduled jobs' gate (ExecCondition=): nothing runs during a service.
 
@@ -1236,6 +1299,7 @@ def build():
     p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm"]); p.set_defaults(f=cmd_encrypt)
     p = sp.add_parser("snapshot"); p.add_argument("sub", choices=["create", "list", "restore", "prune"]); p.add_argument("name", nargs="?", help="a note for create, the snapshot name for restore"); p.set_defaults(f=cmd_snapshot)
     p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
+    p = sp.add_parser("archive"); p.add_argument("sub", choices=["status", "build", "search", "setup"]); p.add_argument("words", nargs="*", help="search: the words (\"quoted phrase\" kept)"); p.add_argument("--full", action="store_true", help="build: the full rebuild (the Wednesday one)"); p.add_argument("--kind"); p.add_argument("--repo"); p.add_argument("--history", action="store_true", help="search: include past states"); p.add_argument("--limit", type=int, default=10); p.set_defaults(f=cmd_archive)
     p = sp.add_parser("service-now"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_service_now)
     p = sp.add_parser("reinstall"); p.add_argument("name", nargs="?", help="the restic repository, e.g. /mnt/synology/arise-backups/restic"); p.set_defaults(f=cmd_reinstall)
     return ap

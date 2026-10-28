@@ -62,7 +62,11 @@ jobs:
     paths: ["/etc/arise", "/etc/samba", "/var/lib/arise/samba-backup", "/var/lib/samba/private", "/etc/netplan/60-arise-pinned.yaml"]
     # The YouTube token, its OAuth client and the deploy key stay out of every archive
     # (the automator's rule 1). After a reinstall the server signs in again (5 minutes).
-    exclude: ["/etc/arise/secrets/youtube"]
+    # The archive's two read-only deploy keys stay out the same way: after a reinstall
+    # `arisectl archive setup` makes new ones. No job takes the archive itself
+    # (/srv/arise/archive, /var/lib/arise/archive): it is a copy of two GitHub repos,
+    # rebuilt from GitHub in about an hour (docs/ARCHIVE.md).
+    exclude: ["/etc/arise/secrets/youtube", "/etc/arise/secrets/archive"]
     tags: [system, config]
 
   - id: apps
