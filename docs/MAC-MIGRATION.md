@@ -11,6 +11,9 @@ Nothing in this document deletes a local account. The old account stays on the
 Mac until Bradly removes it himself, after the person has used the new one for
 a while.
 
+This is for **church** Macs. Personal Macs are a different case: see
+§ Personal Macs below before running anything on one.
+
 ## The automatic way
 
 One command does both jobs for a Mac that already has people on it:
@@ -24,8 +27,8 @@ sudo ./enroll-mac.sh --computer-name MEDIA-MAC-01             # do it
 
 `enroll-mac.sh` binds the Mac (it runs `bind-mac.sh`), lists the local
 accounts that are real people (uid 501 and up, a home under `/Users`, not
-`admin` or `guest`), creates each one in the directory with the same short
-name and their full name, copies each one's files into their server home
+`admin` or `guest`), creates each one in the directory as `first.last`
+(answer 23) with their full name, copies each one's files into their server home
 (`migrate-mac-user.sh`), installs the two LaunchAgents, and ends with a
 report: what it did, the one-time passwords to hand over, and anything it left
 for a human. Run it twice and the second run skips everything already done.
@@ -37,10 +40,12 @@ password from that Mac (`ssh-copy-id bradly@arise-server` once). The fallback
 is `--via api`: it logs into the dashboard as the admin and posts to
 `/api/directory/users`, which is the same call the Directory app makes.
 
-Flags worth knowing: `--only alice,bob` to enrol some people and not others,
-`--skip name` to leave an account alone, `--no-migrate` to bind and install the
-agents without copying anything (a new Mac, or one where you will migrate by
-hand later). The by-hand steps below are what the script runs, for when one of
+Flags worth knowing: `--map vanessa=vanessa.sanders` to pair a local
+account whose name is not already `first.last` with its directory name (one
+`--map` per person; the parent script gains this flag), `--only alice,bob`
+to enrol some people and not others, `--skip name` to leave an account
+alone, `--no-migrate` to bind and install the agents without copying
+anything (a new Mac, or one where you will migrate by hand later). The by-hand steps below are what the script runs, for when one of
 them needs doing alone.
 
 ## What "files saved to their profile on the server" means on a Mac
@@ -82,6 +87,38 @@ the Mac, never on the share.
 Check it is working on any Mac: `tail ~/Library/Logs/arise-home-sync.log`
 shows a `sync done` line with a file count. `/Volumes/<name>` in Finder is the
 server's copy.
+
+## Personal Macs
+
+Apostle Bryant's and Pastor Vanessa's own Macs leave the building (answer
+34). A personal Mac is **not bound** to the domain: binding hands the
+machine's login to the church directory, which is the wrong direction for a
+computer the church does not own. What a personal Mac gets instead:
+
+- the Tailscale app, signed in with the church login, so the dashboard and
+  the shares are reachable from anywhere;
+- the dashboard address, where they sign in as `bryant.sanders` or
+  `vanessa.sanders` and see their home folder and the shares their groups
+  allow (both are admins, answer 25, so they see everything);
+- optionally, `arise-home-sync.sh` alone, installed by hand with
+  `sync-folders.txt` naming the one or two folders they want kept on the
+  server. It works for a local account whose name matches the directory
+  name, or the Keychain holds the share password after the first mount.
+
+Nothing is migrated from a personal Mac and no local account is renamed.
+
+## The media Mac
+
+The media Mac runs Proclaim and sends NDI lower thirds to the stream
+(answer 50); it is a Mac, so it is enrolled like the others, keeping its
+shared `media` login (answer 32). Two things are different about it:
+
+- its video is small enough to move (answer 33): it goes to the
+  `recordings` share on the Synology, by hand or with a Syncthing folder,
+  and is **not** added to the home-sync list;
+- Proclaim's backgrounds, loops and lower thirds get a Syncthing pair with
+  the `graphics` share (answer 38; `templates/syncthing`), so they play
+  from local disk and the share is the backed-up master.
 
 ## Before you start: the rules
 
@@ -141,9 +178,9 @@ and prints `dsconfigad -show`, then tests `id <user>` for a domain account.
 5. OK. Then **Login Options** in Users & Groups: set "Display login window
    as: Name and password" so a domain user can type their name.
 
-Log out, log in as `jsmith` (short name is fine; `ARISE\jsmith` also works).
-The first login makes the mobile account and a local home at
-`/Users/jsmith`. That is expected and correct, see the next section.
+Log out, log in as `jane.smith` (short name is fine; `ARISE\jane.smith` also
+works). The first login makes the mobile account and a local home at
+`/Users/jane.smith`. That is expected and correct, see the next section.
 
 ## Mobile account vs network home — the decision
 
@@ -190,14 +227,14 @@ check on the Mac's version, and do not worry if the box is missing.
 
 ```bash
 # on the Mac, logged in as a local admin, with the old user logged OUT
-sudo ./migrate-mac-user.sh --from oldbradly --to bdyer --dry-run   # look first
-sudo ./migrate-mac-user.sh --from oldbradly --to bdyer             # do it
+sudo ./migrate-mac-user.sh --from bradly --to bradly.dyer --dry-run   # look first
+sudo ./migrate-mac-user.sh --from bradly --to bradly.dyer             # do it
 ```
 
 What happens:
 
-1. Mounts `smb://arise-server/homes/bdyer` (prompts for the domain password)
-   at `/Volumes/bdyer`.
+1. Mounts `smb://arise-server/homes/bradly.dyer` (prompts for the domain
+   password) at `/Volumes/bradly.dyer`.
 2. Writes a **before** manifest to the old user's Desktop:
    `ARISE-MIGRATION-<date>.txt` with file count and bytes per top-level folder.
 3. `rsync -aHX --progress` each folder into the share, with the skip list.

@@ -6,8 +6,8 @@ Print one of these per Mac. Keep it in the Media folder on the server when done.
 |---|---|
 | Computer name (label on the Mac) | `________________` (15 chars max, letters/digits/dashes) |
 | macOS version (Apple menu → About This Mac) | `________________` |
-| Which kind | ☐ new / empty Mac   ☐ Mac with people already on it |
-| Local accounts on it | `________________  ________________  ________________` |
+| Which kind | ☐ new / empty church Mac   ☐ church Mac with people already on it   ☐ personal Mac (do NOT bind: Tailscale + the dashboard only; docs/MAC-MIGRATION.md § Personal Macs) |
+| Local accounts on it, and each one's `first.last` directory name | `________________ → ________________`   `________________ → ________________` |
 | Date | `____ / ____ / 2026` |
 | Done by | `________________` |
 
@@ -33,7 +33,7 @@ Print one of these per Mac. Keep it in the Media folder on the server when done.
 - [ ] Each person's data size noted: `du -sh /Users/<name>` → `________ GB`
 - [ ] Photos Library present? size `________ GB` (it stays local afterwards)
 - [ ] Anything in Keychain they need (Wi‑Fi passwords, app logins) written down or exported
-- [ ] `sudo ./enroll-mac.sh --computer-name <NAME> --dry-run` reviewed: the right people listed, nobody missing
+- [ ] `sudo ./enroll-mac.sh --computer-name <NAME> --dry-run` reviewed: the right people listed, nobody missing; a `--map old=first.last` for every local name that is not already `first.last`
 - [ ] `sudo ./enroll-mac.sh --computer-name <NAME>` finished with "Done"
 - [ ] One-time passwords written down and handed over in person; `/var/root/arise-enrol-passwords-*.txt` deleted
 - [ ] Each migration manifest (`ARISE-MIGRATION-<date>.txt` on the old Desktop) compared: before vs after counts match, allowing for the skip list
@@ -47,7 +47,7 @@ Print one of these per Mac. Keep it in the Media folder on the server when done.
 - [ ] Changed the one-time password: dashboard → flame menu → Change Password
 - [ ] Proclaim / StreamYard / OBS / whatever this Mac is for opens its data
 - [ ] Mail signed in again
-- [ ] A test file saved on the Desktop appears on the server under `/srv/arise/homes/<user>/Desktop`
+- [ ] A test file saved on the Desktop appears on the server under `/srv/arise/homes/<first.last>/Desktop`
 - [ ] `~/Library/Logs/arise-home-sync.log` has a "sync done" line
 - [ ] Logged out and back in **on Wi‑Fi** — login still works (mobile account cached)
 - [ ] Person shown where their files are, shown the dashboard address, and told the old account stays for two weeks

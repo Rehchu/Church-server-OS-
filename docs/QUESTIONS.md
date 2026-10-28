@@ -1,5 +1,8 @@
 # Questions for Bradly
 
+**Answered Oct 28 2026 (8 to 52): docs/ANSWERS.md is the record and the
+plan follows it. Questions 1 to 7 are due Sunday.**
+
 Fifty-two questions, multiple choice. Pick a letter; add a word if none fits.
 The letter marked *(assumed)* is what the plan uses until you answer. The
 questions marked **(before wipe)** change what the installer does on day 1

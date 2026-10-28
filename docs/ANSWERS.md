@@ -101,9 +101,20 @@ file it points to. Nothing in this file is assumed; every line is his answer.
 |---|---|---|
 | 52 | No second person yet | the printed checklists in docs/MOVING-DAY.md and docs/SETUP-GUIDE.md matter more; a second admin exists (25), so at least the dashboard is not single-person |
 
+## The Pineville equipment (Oct 28, later the same day)
+
+| Fact | What it decides |
+|---|---|
+| Modem → Netgear router A → the switch → Netgear router B in the office; the Google Mesh (2 or 3 points) hangs off Netgear A; the switch is unmanaged and may be a Netgear, not a Cisco | three stacked networks (double NAT behind A). The server goes wired on the switch, on A's network, with a DHCP reservation. B and the Mesh hand out the server as DNS. docs/NETWORK.md § The Pineville network as it is |
+| The office user is wired to Netgear B | the office Mac joins the domain through B's NAT; it works because every directory and share connection is started by the Mac |
+| The media / streaming Mac is on the Mesh Wi-Fi; the NDI cameras are split between the Mesh and the switch | NDI discovery does not cross the NAT; sources are added by address. Guacamole cannot reach that Mac through the NAT, so the media Mac runs Tailscale and Guacamole uses its Tailscale address |
+| **Bradly: leave the network as it is; leave the streaming Mac on Wi-Fi** | no re-wiring, no AP mode, no VLANs. The plan works with the stack; the two things it cannot do are listed in NETWORK.md |
+| Alexandria's equipment: unknown | one Mac with Tailscale needs nothing from the router there |
+
 ## Still needed
 
 - Sunday: questions 1 to 7.
-- A photo of the Cisco's sticker (10) and of each router's LAN page (12).
+- A photo of Netgear A's LAN page (its subnet and DHCP range), and of Netgear B's and the Mesh's, so nothing clashes with the Hub later. The switch model no longer matters: it is unmanaged.
+- Where the Synology is plugged in: it must be on the switch (Netgear A's network).
 - The full list of department accounts (27) and the people in staff and media (24).
 - The UPS model (8), for `nut`.

@@ -5,35 +5,36 @@ estimates from memory and will have moved; check before buying.
 
 | # | Idea | Cost | Status |
 |---|---|---|---|
-| 1 | A UPS with automatic shutdown | ~$150 | not built; a config step |
-| 2 | A second copy of the backups off-site | USB disk or ~$6/TB/month | not built; a `backups.yaml` job |
+| 1 | A UPS with automatic shutdown | Pineville has one (answer 8) | **doing it**: SETUP-GUIDE day 1, once the UPS model is known |
+| 2 | A second copy of the backups off-site | USB disk or ~$6/TB/month | not built; Bradly chose "nowhere yet" (answer 48) |
 | 3 | Free Mac management (MDM) | free | not built |
 | 4 | Printers through the server | free | not built |
 | 5 | A church password manager | free | **template exists** (Vaultwarden) |
 | 6 | A public status page | free | **template exists** (Uptime Kuma) |
-| 7 | The check-in station as a locked kiosk | free | not built |
+| 7 | The check-in station as a locked kiosk | free | not built; there is no check-in station yet (answer 28) |
 | 8 | Guest Wi-Fi with a welcome page, not on the server | depends on the router | not built, on purpose |
 | 9 | Search the sermon transcripts from Spotlight | free | not built |
-| 10 | Proclaim and StreamYard assets synced to the media Mac | free | **template exists** (Syncthing) |
+| 10 | Proclaim and StreamYard assets synced to the media Mac | free | **chosen** (answer 38); template exists (Syncthing) |
 | 11 | A shared church calendar and mail | free | not built |
 | 12 | A label printer for check-in | ~$100 | hardware |
 | 13 | Old Macs donated to the church, re-enrolled in an hour | free | **the enrol script does it** |
 | 14 | Password reset by text message | cents per text | not built |
 | 15 | Digital signage from the server | a TV and a $40 stick | not built |
-| 16 | The daily note to Discord or Slack | free | **done** |
+| 16 | The daily note to Discord or Slack | free | built; **off by Bradly's choice** (answer 49) |
 | 17 | A second domain controller at Alexandria | an old PC | documented, not built |
 | 18 | Sermon audio to Spotify from the server | free | not built |
 
 ---
 
-**1. A UPS with automatic shutdown.** A domain controller that loses power
-mid-write can corrupt its database; a 600 VA UPS (APC or CyberPower, around
-$100 to $150) gives ten minutes, and `nut` (Network UPS Tools, in Ubuntu)
-reads the USB cable and shuts the server down cleanly before the battery
-dies. The Synology plugs into the same UPS and can be told by the server
-(DSM supports a network UPS master). One package, one config file, one
-line in `install.sh` when you have the UPS model. Do this before the move
-to the Hub; it is in the moving-day checklist.
+**1. A UPS with automatic shutdown.** Doing it: Pineville already has a
+UPS (answer 8), so this is a day-1 step in docs/SETUP-GUIDE.md, not an
+idea. A domain controller that loses power mid-write can corrupt its
+database; `nut` (Network UPS Tools, in Ubuntu) reads the UPS's USB cable
+and shuts the server down cleanly before the battery dies. The Synology
+plugs into the same UPS and can be told by the server (DSM supports a
+network UPS master). One package, one config file, one line in
+`install.sh` once the UPS model is known. The Hub has no UPS yet; that is
+in the moving-day checklist.
 
 **2. A second copy of the backups off-site.** The Synology sits next to the
 server; a fire, a flood or a theft takes both. restic can keep a second
@@ -41,7 +42,9 @@ repository anywhere: a USB disk you take home once a month (free), or
 Backblaze B2 (an estimate: around $6 per TB per month, and restic talks to
 it natively). One more job in `backups.yaml` pointed at a `b2:` repository,
 a key in `/etc/arise/secrets/`, the same 03:00 timer. The dashboard shows it
-as one more row. Question 48.
+as one more row. Answer 48 was "nowhere yet"; until that changes, a fire
+takes the server and the Synology together, and the `recordings` share has
+no copy at all.
 
 **3. Free Mac management.** Apple Business Manager is free for a church
 (a D-U-N-S number and a letter on letterhead), and with it Macs the church
@@ -118,9 +121,10 @@ the week, the YouTube latest, served from the server as one more kiosk
 page (a $40 stick running the same `cage` + browser). Free apart from the
 screen; a page to design in the church's style.
 
-**16. The daily note.** Already built: `arise-notify.timer` at 07:00 sends
-what needs you (or "all clear") to a Discord or Slack webhook. Put the
-webhook in `arise.toml` and it is on. Question 49.
+**16. The daily note.** Built: `arise-notify.timer` at 07:00 sends what
+needs you (or "all clear") to a Discord or Slack webhook. Bradly chose none
+(answer 49), so the webhook stays empty and nothing is sent; the Overview's
+*Needs you* list is the alarm. Put a webhook in `arise.toml` and it is on.
 
 **17. A second domain controller.** docs/MULTI-SITE.md § A second domain
 controller at Alexandria: an old PC running Samba as a second DC so

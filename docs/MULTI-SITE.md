@@ -7,9 +7,9 @@ is what each site is and what runs where.
 
 | Site | What it is | What is there | How it reaches the server |
 |---|---|---|---|
-| **Arise Church Pineville** (`pineville`, kind `main`) | the main campus, 501 Ates Road | the server, the domain controller, the Synology, the media Mac, the lobby PC, the LAN `192.168.1.0/24` (**for now**: the server moves to the Hub once it is built, docs/MOVING-DAY.md) | it is the LAN |
-| **Arise Church Alexandria** (`alexandria`, kind `campus`) | the second campus | the Macs that run the service there, a router | the VPN: always-on on each Mac, or one site-to-site tunnel at the router |
-| **The Apostolic Hub** (`hub`, kind `office`) | office and leadership, being built | laptops and office PCs, people who move between sites; **later, the server** | the VPN, one client per computer, until the server moves there |
+| **Arise Church Pineville** (`pineville`, kind `main`) | the main campus, 501 Ates Road | the server, the domain controller, the Synology, the media Mac (Proclaim, NDI), the staff Macs, behind the staff router (**for now**: the server moves to the Hub once it is built, docs/MOVING-DAY.md). Several routers, each its own network; the subnet is still to be photographed (docs/ANSWERS.md 12) | it is the LAN |
+| **Arise Church Alexandria** (`alexandria`, kind `campus`) | the second campus | one Mac (answer 19), a router | Tailscale on that Mac (answers 19 and 21) |
+| **The Apostolic Hub** (`hub`, kind `office`) | office and leadership, being built | laptops, people who move between sites; **later, the server** | Tailscale, one client per computer, until the server moves there |
 
 Each site is a `[[sites]]` block in `arise.toml` (id, name, kind, address,
 subnet, probe, services, note). The dashboard's **Campuses** app pings each
@@ -26,19 +26,21 @@ automator and its token, the backups. The server's LAN address should be
 **fixed** (a DHCP reservation on the router, or a static address; see
 INSTALL.md § Fixed address), because the other sites' DNS points at it.
 
-## Alexandria: a campus
+## Alexandria: a campus with one Mac
 
-Macs in Alexandria can be full members of the domain. Two ways to get them
-"on the network":
+Alexandria is one Mac today (answer 19), nobody streams from there (answer
+22), and there is no place for an always-on box (answer 21). So that Mac is
+its own tunnel, and that is the whole Alexandria setup:
 
-- **Always-on VPN on each Mac.** Tailscale installed on the Mac, signed in,
-  set to start at login. The Mac binds to `AD.ARISECENLA.CHURCH` over the
-  tunnel (the split-DNS rule in docs/REMOTE-ACCESS.md is what makes the realm
-  resolve). Simplest; nothing to do at the Alexandria router. Each Mac is
-  its own tunnel, so if one Mac's Tailscale is signed out, only that Mac is
-  off the network. docs/NETWORK.md § A church across town compares the
-  options and recommends this for laptops plus one route box for the site.
-- **A site-to-site tunnel at the router.** WireGuard on the Alexandria
+- **Always-on VPN on the Mac.** Tailscale installed, signed in with the
+  church login, set to start at login. The Mac binds to
+  `AD.ARISECENLA.CHURCH` over the tunnel (the split-DNS rule in
+  docs/REMOTE-ACCESS.md is what makes the realm resolve). Nothing to do at
+  the Alexandria router. If its Tailscale is signed out, that Mac is off
+  the church network until someone signs it in; the mobile account still
+  logs in. docs/NETWORK.md § A church across town has the steps.
+- **A site-to-site tunnel at the router**, for the day Alexandria has more
+  than one device. WireGuard on the Alexandria
   router (or a small box behind it) with the whole `192.168.2.0/24` routed
   through it, and `192.168.1.0/24` routed back. Every device at Alexandria is
   then on the church network with nothing installed; printers and the
@@ -65,11 +67,12 @@ media work local and let Syncthing move the finished pieces overnight.
 
 ## The Apostolic Hub: office clients (until the server moves there)
 
-No site infrastructure yet: each laptop and office PC runs the VPN client and
-signs in. Windows PCs join the domain the same way as in Pineville (Settings
-→ System → Domain or workgroup), over the tunnel; the first join needs the
-tunnel up. People who move between the Hub and Pineville keep one account and
-one home folder either way.
+No site infrastructure yet: each laptop runs Tailscale and signs in with
+the church login. There are no Windows PCs (answer 31). A church Mac binds
+over the tunnel; the first bind needs the tunnel up. Personal Macs (answer
+34) are not bound: Tailscale and the dashboard only. People who move
+between the Hub and Pineville keep one account and one home folder either
+way.
 
 ## What runs where
 
@@ -79,8 +82,8 @@ one home folder either way.
 | home folders, shares | the server / the Synology | cached copies on each Mac | cached copies on each laptop |
 | the dashboard, `arisectl`, the Terminal | the server | over the VPN | over the VPN |
 | the automator, backups | the server | — | — |
-| Guacamole | the server | reaches the Alexandria Macs over VNC | reaches the Hub PCs over RDP |
-| VPN endpoint | the server (Tailscale node / WireGuard server) | router or Pi (site-to-site) or each Mac | each computer |
+| Guacamole | the server; one connection, the media Mac over VNC (answer 44) | — | — |
+| VPN endpoint | the server (Tailscale node) | the one Mac | each computer |
 | Uptime Kuma monitors | the server | Alexandria's probe host | — |
 
 ## DNS at each site
@@ -94,9 +97,9 @@ controller. At Pineville the router hands out the server as the DNS server
 - WireGuard: the client config carries `DNS = 10.47.0.1`, which is the
   server through the tunnel, so the device uses the DC for everything while
   the tunnel is up.
-- Site-to-site at the Alexandria router: set the Alexandria router's DHCP to
-  hand out the Pineville server as DNS (with `1.1.1.1` as a second entry for
-  when the tunnel is down).
+- Site-to-site at a router (not used today): set that router's DHCP to
+  hand out the server as DNS (with `1.1.1.1` as a second entry for when the
+  tunnel is down).
 
 Public names (`arisecenla.church`, `www`) are unaffected: the DC forwards
 everything it is not authoritative for to the forwarder in `arise.toml`.

@@ -422,9 +422,21 @@ RESOLVED
 fi
 
 # ----------------------------------------------------------------------------
-# 5b. Groups and shares (docs/ANSWERS.md 25, 27, 37)
+# 5b. Password policy, groups and shares (docs/ANSWERS.md 25, 26, 27, 37)
 # ----------------------------------------------------------------------------
-say "5b/7  Groups and the nine shares"
+say "5b/7  Password policy, groups and the nine shares"
+# Bradly's policy (answer 26): never expires, 12 characters, lockout after 10 failures.
+if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool domain passwordsettings set --max-pwd-age=0 --min-pwd-length=12 --complexity=on --account-lockout-threshold=10 --account-lockout-duration=15"
+  else
+    samba-tool domain passwordsettings set --max-pwd-age=0 >/dev/null 2>&1 && \
+    samba-tool domain passwordsettings set --min-pwd-length=12 >/dev/null 2>&1 && \
+    samba-tool domain passwordsettings set --complexity=on >/dev/null 2>&1 && \
+    samba-tool domain passwordsettings set --account-lockout-threshold=10 >/dev/null 2>&1 && \
+    samba-tool domain passwordsettings set --account-lockout-duration=15 >/dev/null 2>&1 && \
+    note "password policy: no expiry, 12 characters, lockout after 10 failures for 15 minutes" || warn "password policy not applied (is the DC up?); see docs/DIRECTORY.md § Password policy"
+  fi
+fi
 # One security group per share plus the department groups. samba-tool refuses
 # to add a group that exists, so every line is safe to run again.
 if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then

@@ -52,8 +52,8 @@ All three end in the same `samba-tool user create` and the same home folder;
 pick whichever is in front of you.
 
 **1. The dashboard, from anywhere** (`http://arise-server:4147`, or over the
-VPN): Directory → Users → **Add**. Username (short, lower case, letters and
-digits: `jsmith`), full name, a first password, groups. The row shows green
+VPN): Directory → Users → **Add**. Username (`first.last`, lower case:
+`jane.smith`; answer 23), full name, a first password, groups. The row shows green
 when the home folder exists. Members can then change their own password under
 flame menu → Change Password.
 
@@ -64,17 +64,18 @@ the Windows keyboard) → type `directory` → Enter → Users → Add.
 **3. SSH, from any Mac or PC**:
 
 ```bash
-ssh bradly@arise-server
-sudo arisectl user add jsmith --display "Jane Smith" --groups Staff,Media
+ssh bradly.dyer@arise-server
+sudo arisectl user add jane.smith --display "Jane Smith" --groups Staff,Media
 #   prompts for the first password; add --password P to give it on the line
-sudo arisectl user passwd jsmith          # change it later
-sudo arisectl group addmember Leadership jsmith
+sudo arisectl user passwd jane.smith      # change it later
+sudo arisectl group addmember Leadership jane.smith
 sudo arisectl user list
 ```
 
-A Mac with people already on it does not need any of this: `mac/enroll-mac.sh`
-creates every local account's twin in the directory for you
-(docs/MAC-MIGRATION.md, "The automatic way").
+A church Mac with people already on it does not need any of this:
+`mac/enroll-mac.sh` creates every local account's twin in the directory for
+you, as `first.last`, with `--map oldname=first.last` where the Mac's name
+differs (docs/MAC-MIGRATION.md, "The automatic way").
 
 ## The names, and why not `.local`
 
@@ -143,19 +144,29 @@ DC=ad,DC=arisecenla,DC=church
 └── OU=Groups
 ```
 
-Groups (security groups, created by `install.sh`):
+Groups (security groups, created by `install.sh`) and the share each one
+opens (answers 25, 27 and 37):
 
 | Group | Who | What it unlocks |
 |---|---|---|
+| `Domain Admins` | Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly | everything in the dashboard; also the account that binds Macs. SSH is Bradly's only |
 | `Staff` | paid staff and pastors | the `staff` share, their own home share |
 | `Leadership` | the senior pastors and whoever they name | the `leadership` share |
-| `Media` | Bradly and the media team | `media` share (graphics, loops, thumbnails), the StreamYard/Proclaim Macs |
-| `Volunteers` | everyone else with a login | their home share only |
-| `Kids-Check-in` | people who may run the check-in iPad/PC | the check-in machine login |
-| `Domain Admins` | **Bradly only** | everything; also the account that binds Macs |
+| `Media` | Bradly and the media team; the shared `media` login on the media Mac | the `media`, `graphics` and `recordings` shares, the StreamYard and Proclaim Macs |
+| `Childrens-Department` | the Children's Department login | the `childrens-department` share, and `kids` |
+| `Inedge` | the Inedge login | the `inedge` share |
+| `Worship` | the worship / music login | the `worship` share |
+| `Volunteers` | nobody today: volunteers use a department login (answer 24) | kept for the day that changes |
+| `Kids-Check-in` | nobody today: there is no check-in station yet (answer 28) | the check-in machine login, later |
 
-The pastors in `CLAUDE.md` get accounts when Bradly makes them. The
-examples below use a made-up person on purpose.
+Other departments get the same shape when their names come: one group, one
+shared login, one share. Nine shares in all today: `staff`, `leadership`,
+`media`, `kids`, `graphics`, `childrens-department`, `inedge`, `worship`,
+`recordings`. `recordings` is on the Synology, holds every Sunday's video
+(answer 51), and is excluded from restic because a file of several GB a
+week would swallow the backup history; the Synology's RAID is its
+protection until there is an off-site copy. The examples below use a
+made-up person on purpose.
 
 ## Password policy
 
@@ -168,16 +179,17 @@ Samba's defaults after `samba-tool domain provision`:
 | Maximum age | 42 days | **too short for a church** — people forget, Bradly gets the call |
 | Lockout | off | |
 
-The installer sets these once:
+Bradly's choice (answer 26): never expires, 12 characters minimum, lockout
+after 10 failures. The settings:
 
 ```bash
 samba-tool domain passwordsettings set --max-pwd-age=0        # never expires
-samba-tool domain passwordsettings set --min-pwd-length=10
+samba-tool domain passwordsettings set --min-pwd-length=12
 samba-tool domain passwordsettings set --complexity=on
+samba-tool domain passwordsettings set --account-lockout-threshold=10
 ```
 
-If you later turn lockout on (`--account-lockout-threshold=10`) and someone
-locks themselves out, unlock them with:
+When someone locks themselves out, unlock them with:
 
 ```bash
 arisectl user enable <name>
@@ -192,14 +204,14 @@ See the current policy any time with `samba-tool domain passwordsettings show`.
 **From the CLI**, on the server (or over SSH):
 
 ```bash
-sudo arisectl user add jsmith --display "Jane Smith" --groups Staff,Media
-sudo arisectl user passwd jsmith       # prompts; the person can also change it in the dashboard
-sudo arisectl group addmember Leadership jsmith
+sudo arisectl user add jane.smith --display "Jane Smith" --groups Staff,Media
+sudo arisectl user passwd jane.smith   # prompts; the person can also change it in the dashboard
+sudo arisectl group addmember Leadership jane.smith
 sudo arisectl user list
 ```
 
 Under the hood that is `samba-tool user create`, `samba-tool group addmembers`
-and a `mkdir` + `chown` of `/srv/arise/homes/jsmith` (or the NAS home when
+and a `mkdir` + `chown` of `/srv/arise/homes/jane.smith` (or the NAS home when
 `homes_path` points there).
 
 **From the dashboard**: Directory → Users → **Add**. Same fields, same result,
@@ -212,13 +224,15 @@ stay readable to Domain Admins.
 
 ## Joining a Windows PC
 
-Windows 10/11 **Pro** or better (Home edition cannot join a domain):
+There are no Windows PCs at the church today (answer 31); the Proclaim
+machine is a Mac. This is reference for the day one appears. Windows 10/11
+**Pro** or better (Home edition cannot join a domain):
 
 1. Make sure the PC's DNS is the server (it will be, from DHCP).
 2. Settings → System → About → **Domain or workgroup** → Change → Domain:
    `ad.arisecenla.church`.
 3. Credentials: `ARISE\administrator` (or Bradly's Domain Admin account).
-4. Reboot. Log in as `ARISE\jsmith`.
+4. Reboot. Log in as `ARISE\jane.smith`.
 
 Macs: see `docs/MAC-MIGRATION.md`. The Synology: `docs/SYNOLOGY.md`.
 
