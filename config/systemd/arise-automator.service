@@ -11,6 +11,9 @@ ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_d
 [Service]
 Type=oneshot
 WorkingDirectory=/srv/arise/automator/ARISE_YouTube_Updater/automator
+# Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]): a firing or a
+# Persistent= catch-up inside that window is skipped, not failed. arisectl service-now.
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
 ExecStart=/opt/arise/venv/bin/python /srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
 Environment=PYTHONUTF8=1
 Environment=PYTHONIOENCODING=utf-8

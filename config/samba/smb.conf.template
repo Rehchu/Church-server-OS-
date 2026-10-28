@@ -22,7 +22,8 @@
         # Macs store resource forks, Finder tags and extended attributes on
         # every file. Without `fruit` Samba drops or mangles them, Finder
         # copies fail with -36 / -43 errors, and Time Machine refuses the share.
-        vfs objects = acl_xattr fruit streams_xattr
+        # On a domain controller dfs_samba4 must stay in the [global] list (sysvol, netlogon).
+        vfs objects = dfs_samba4 acl_xattr fruit streams_xattr
         # Keep the Mac metadata inside NTFS-style alternate streams (the
         # Windows-compatible way), not as ._AppleDouble sidecar files.
         fruit:metadata = stream
@@ -61,7 +62,7 @@
         directory mask = 0700
         # Make the folder the first time the user connects.
         # ... with Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28).
-        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; mkdir -p "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chown -R "%U" "$h" && chmod 0700 "$h"'
+        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; mkdir -p "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chown "%U" "$h" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chmod 0700 "$h"'
         # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
         # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
         # Put Back returns it and arise-trash.timer removes it after 30 days.

@@ -4,4 +4,7 @@ After=docker.service
 
 [Service]
 Type=oneshot
+# Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]): a firing or a
+# Persistent= catch-up inside that window is skipped, not failed. arisectl service-now.
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
 ExecStart=/usr/local/bin/arisectl app idle-sweep

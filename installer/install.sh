@@ -171,7 +171,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY tpm=$WITH_TPM safety=$WITH_SAFETY restore=${RESTORE_REPO:-no} cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY tpm=$WITH_TPM safety=$WITH_SAFETY restore=${RESTORE_REPO:-no} cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps=[$APPS] console=$WITH_CONSOLE kiosk=$WITH_KIOSK splash=$WITH_SPLASH ups=$WITH_UPS pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -290,7 +290,8 @@ if [ "$DRY_RUN" = 0 ]; then
 fi
 
 PKGS=(
-  samba winbind krb5-user krb5-config libnss-winbind libpam-winbind
+  samba samba-ad-dc samba-ad-provision samba-dsdb-modules samba-vfs-modules
+  winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
   restic rsync git curl jq arp-scan nmap ffmpeg
@@ -561,7 +562,7 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
         awk '/^# >>> arise-server shares/{p=1} p' "$TEMPLATE" >> /etc/samba/smb.conf
         # The Mac (vfs fruit) lines belong in [global]; insert them once.
         if ! grep -q 'fruit:model' /etc/samba/smb.conf; then
-          sed -i '/^\[global\]/a\        # arise-server: macOS over SMB (see config/samba/smb.conf.template)\n        vfs objects = acl_xattr fruit streams_xattr\n        fruit:metadata = stream\n        fruit:model = MacSamba\n        fruit:posix_rename = yes\n        fruit:veto_appledouble = no\n        fruit:wipe_intentionally_left_blank_rfork = yes\n        fruit:delete_empty_adfiles = yes' /etc/samba/smb.conf
+          sed -i '/^\[global\]/a\        # arise-server: macOS over SMB (see config/samba/smb.conf.template)\n        vfs objects = dfs_samba4 acl_xattr fruit streams_xattr\n        fruit:metadata = stream\n        fruit:model = MacSamba\n        fruit:posix_rename = yes\n        fruit:veto_appledouble = no\n        fruit:wipe_intentionally_left_blank_rfork = yes\n        fruit:delete_empty_adfiles = yes' /etc/samba/smb.conf
         fi
         testparm -s >/dev/null 2>&1 || die "smb.conf failed testparm after the merge; restore /etc/samba/smb.conf.bak.* and look at the template"
         note "merged the Arise share block into /etc/samba/smb.conf"
@@ -936,9 +937,10 @@ fi
 HAS_KEYS=0
 if [ -s "$KEYS_FILE" ] && grep -qvE '^\s*(#|$)' "$KEYS_FILE"; then HAS_KEYS=1; fi
 if [ "$DRY_RUN" = 1 ]; then
-  note "[dry-run] write /etc/ssh/sshd_config.d/arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
+  note "[dry-run] write /etc/ssh/sshd_config.d/00-arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
 else
   mkdir -p /etc/ssh/sshd_config.d
+  rm -f /etc/ssh/sshd_config.d/arise.conf   # the old name (sorted after 50-cloud-init.conf, so it lost)
   {
     echo "# Arise Server sshd: keys only (Bradly, Oct 28). Written by installer/install.sh."
     echo "# Add a key: install.sh --ssh-key '...' or ssh-copy-id from the closet monitor's session."
@@ -953,12 +955,12 @@ else
     echo "ClientAliveCountMax 3"
     echo "# The break-glass admin signs in at the closet monitor only (round 3, 21)."
     echo "DenyUsers arise-rescue"
-  } > /etc/ssh/sshd_config.d/arise.conf
+  } > /etc/ssh/sshd_config.d/00-arise.conf
   if sshd -t 2>/dev/null; then
     systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
   else
     warn "sshd rejected the new config; removing it so SSH keeps working"
-    rm -f /etc/ssh/sshd_config.d/arise.conf
+    rm -f /etc/ssh/sshd_config.d/00-arise.conf
   fi
 fi
 if [ "$HAS_KEYS" = 1 ]; then
@@ -1245,16 +1247,16 @@ if [ "$WITH_CLAUDE" = 1 ]; then
   # which Claude Code has already moved past; NodeSource tracks the 20 LTS line
   # and updates with apt like everything else. The setup script only adds a
   # signed apt source; the package itself comes through apt.
-  if command -v node >/dev/null 2>&1 && [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -ge 20 ] 2>/dev/null; then
+  if command -v node >/dev/null 2>&1 && [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -ge 22 ] 2>/dev/null; then
     note "node $(node -v) already present"
   elif [ "$DRY_RUN" = 1 ]; then
-    note "[dry-run] curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; apt-get install -y nodejs"
+    note "[dry-run] curl -fsSL https://deb.nodesource.com/setup_22.x | bash -; apt-get install -y nodejs"
   else
-    if curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >>"$LOG_FILE" 2>&1 && apt-get install -y -q nodejs >>"$LOG_FILE" 2>&1; then
+    if curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >>"$LOG_FILE" 2>&1 && apt-get install -y -q nodejs >>"$LOG_FILE" 2>&1; then
       note "node $(node -v) installed from NodeSource"
     else
       warn "NodeSource failed (no internet, or the proxy); trying Ubuntu's nodejs"
-      apt-get install -y -q nodejs npm >>"$LOG_FILE" 2>&1 || warn "no Node at all; Claude Code skipped. Later: install Node 20 and 'npm install -g @anthropic-ai/claude-code'"
+      apt-get install -y -q nodejs npm >>"$LOG_FILE" 2>&1 || warn "no Node at all; Claude Code skipped. Later: install Node 22 and 'npm install -g @anthropic-ai/claude-code'"
     fi
   fi
   if command -v npm >/dev/null 2>&1; then
