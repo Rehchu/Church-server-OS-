@@ -1,0 +1,17 @@
+name: synapse
+title: Synapse (Matrix)
+description: Encrypted messaging between ministry leads with the Element apps, on the church's own server. Fussier than Mattermost; pick one. Registration closed; the admin makes accounts.
+category: communication
+icon: lock
+version: "1.113.0"
+ports:
+  - 8008:8008
+volumes:
+  - /srv/arise/apps/synapse/data:/data
+  - /srv/arise/apps/synapse/db:/var/lib/postgresql/data
+env:
+  DB_PASSWORD: CHANGE-ME
+notes: |
+  Run the one-time generate command in compose.yaml first. Make users with
+  register_new_matrix_user inside the container. Federation stays off (no
+  public address). Memory 400 MB+ (an estimate).

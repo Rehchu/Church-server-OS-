@@ -1,0 +1,17 @@
+name: phplist
+title: phpList
+description: Newsletters to the families with lists, templates and bounce handling. Only with an SMTP relay (Google Workspace for Nonprofits or a sender's free tier); mail straight from a church IP lands in spam.
+category: communication
+icon: folder
+version: "latest"
+ports:
+  - 8093:80
+volumes:
+  - /srv/arise/apps/phplist/config:/var/www/html/config
+  - /srv/arise/apps/phplist/db:/var/lib/mysql
+env:
+  DB_PASSWORD: CHANGE-ME
+notes: |
+  Set the SMTP relay in config/config.php before the first send. Memory
+  around 250 MB for both (an estimate). Mailchimp's free tier is the
+  simpler answer until the list is past a couple of thousand addresses.

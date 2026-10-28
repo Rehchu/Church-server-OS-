@@ -1,0 +1,38 @@
+# Nextcloud: the full self-hosted cloud: files, calendars, contacts, office
+# documents in the browser, phone apps with photo upload. The member portal
+# and SMB already do files, so this is for calendars and shared documents.
+# Two containers. DB password in /srv/arise/apps/nextcloud/.env as DB_PASSWORD=...
+# External storage: point a Nextcloud "Local" external storage at /shares to
+# show the SMB shares inside it, instead of copying anything.
+services:
+  db:
+    image: mariadb:10.11
+    container_name: arise-app-nextcloud-db
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/nextcloud/db:/var/lib/mysql
+
+  nextcloud:
+    image: nextcloud:29-apache
+    container_name: arise-app-nextcloud
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8091:80"
+    environment:
+      - TZ=America/Chicago
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - NEXTCLOUD_TRUSTED_DOMAINS=arise-server arise-server.ad.arisecenla.church localhost
+    volumes:
+      - /srv/arise/apps/nextcloud/html:/var/www/html
+      - /srv/arise/shares:/shares

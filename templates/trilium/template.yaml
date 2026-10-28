@@ -1,0 +1,16 @@
+name: trilium
+title: Trilium Notes
+description: A hierarchical research notebook for sermon study, with links between notes, full search, and a desktop app that syncs to this server. One notebook per deployment.
+category: knowledge
+icon: folder
+version: "0.63.7"
+ports:
+  - 8090:8080
+volumes:
+  - /srv/arise/apps/trilium/data:/home/node/trilium-data
+env: {}
+notes: |
+  First visit sets the password. For a second person's private notebook,
+  deploy again with another --name (each gets its own folder and port in
+  the Apps page). The newer fork is TriliumNext; this tag is the last stable
+  of the original and is what the desktop app 0.63 matches.

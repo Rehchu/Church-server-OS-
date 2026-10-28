@@ -42,7 +42,7 @@ question somebody at the church actually asks.
 | Patchman | System Settings → Updates (packages, security count, Arise itself) | Patchman is for a fleet; this is one box |
 | Portainer | the Apps app for daily work | kept as an optional template for the hard days, below |
 | OpenLP headless | Proclaim runs the slides, on the media Mac | nothing to serve |
-| Nextcloud | the member portal: sign in from anywhere, own files, shares, upload, download, share links; Syncthing for folders that must mirror | Nextcloud is a second user database, a second login, and 1 GB of memory, to get what the portal and SMB already give. Revisit only if someone needs shared calendars or online document editing |
+| Nextcloud | the member portal: sign in from anywhere, own files, shares, upload, download, share links; Syncthing for folders that must mirror | for files, the portal and SMB already do it; Nextcloud is a template below for the calendar and documents side |
 
 ### Worth adding, and now templates (`arisectl app deploy <name>`)
 
@@ -57,31 +57,35 @@ question somebody at the church actually asks.
 | **FFmpeg** (apt) | the automator's thumbnails and the podcast audio | 0 idle | now in the package list |
 | `frigate`, `netalertx` | cameras and "who is on my network" | see templates/README.md | added earlier for the switch question |
 
-### Worth it only if asked for by name
+### Also templates now, off until somebody wants them (Bradly: "use what you can")
 
-| On the list | When it earns a place | Memory (estimate) |
-|---|---|---|
-| Mattermost | leadership wants its own chat instead of what they use now (text, Discord). A real product, 500 MB+, and a second place to check | 500 MB to 1 GB |
-| Synapse (Matrix) | same question as Mattermost with encryption; harder to run well | 500 MB+ |
-| Owncast | the church wants its own live page off YouTube (a backup destination for StreamYard, chat included). Cheap to run, but another thing to watch on a Sunday | 200 MB |
-| Nginx RTMP | one stream in, many out. StreamYard already does the fan-out; Owncast does it with a page | 50 MB |
-| Icecast | live translation or nursery audio to phones. Niche, cheap, fine when someone needs it | 50 MB |
-| Kimai | hourly staff want timesheets on the server | 200 MB |
-| Trilium | one pastor wants a personal research notebook on the box; otherwise Apple Notes and the home folder do it | 150 MB |
-| Ansible | when there are enough Macs or a second server to push the same change to; today `enroll-mac.sh` and the installer are the automation | 0 (a tool) |
-| CiviCRM | ChurchCRM outgrown; CiviCRM is a bigger, heavier CRM | 500 MB+ |
+Carrying a template costs nothing; deploying one costs the memory in the
+table. Deploy the day the question is asked, not before.
+
+| Template | The question it answers | Memory (estimate) | Note |
+|---|---|---|---|
+| `owncast` | "we want our own live page" or "YouTube is down, where do we stream" | 200 MB | a second StreamYard/OBS output; shares 1935 with nginx-rtmp, so one or the other |
+| `nginx-rtmp` | "OBS should push once and the server sends it everywhere" | 50 MB | only for an OBS setup; StreamYard already fans out |
+| `icecast` | "the nursery / translation / hearing-assist audio on phones" | 50 MB | one laptop sends, phones listen in a browser |
+| `mattermost` | "leadership wants its own chat" | 500 MB to 1 GB | the one app to think twice about on 8 GB |
+| `synapse` | the same question, encrypted, with the Element apps | 400 MB+ | Mattermost or this, never both |
+| `kimai` | "timesheets for the hourly staff" | under 200 MB | SQLite, one container |
+| `trilium` | "a study notebook that is not Apple Notes" | 150 MB | one notebook per deployment; deploy twice for two people |
+| `nextcloud` | "a shared calendar, documents in the browser, phone photo upload" | 1 GB | the shares are mounted into it, not copied; its LDAP app ties it to the domain; needs 16 GB to sit beside the rest |
+| `moodle` | "a new-members course with a quiz" | 1 GB+ | heavy; deploy when someone will build the course |
+| `phplist` | "the weekly email to the families" | 250 MB | only through an SMTP relay; Mailchimp's free tier is simpler until the list is big |
+| Ansible | not a service: a tool for the day there is a second server or a dozen Macs to push one change to | 0 | today `install.sh` and `enroll-mac.sh` are the automation; an Ansible playbook would wrap them, not replace them |
+| CiviCRM | ChurchCRM outgrown | 500 MB+ | not a template; it wants a CMS underneath (Drupal, WordPress) and a real sysadmin |
 
 ### Not on this box
 
 | On the list | Why |
 |---|---|
 | Pi-hole | it wants port 53, which is the domain controller's. Bradly's rule is no router changes, so only domain Macs would use it anyway. The DC already forwards to 1.1.1.1; a filtering upstream (Cloudflare 1.1.1.2 or Quad9) gives most of the benefit with one line in `arise.toml` and no new daemon |
-| Moodle | a learning platform is a large PHP stack with its own users; a church course track is better on a hosted LMS or a shared folder of PDFs until someone runs one |
 | Discourse | needs its own Docker host by the project's own rules, 2 GB+, and a public address, which this box does not have |
-| phpList | high-volume mail from a church IP gets blocked; Mailchimp's free tier or Google Workspace for Nonprofits does it with deliverability |
-| MediaGoblin | unmaintained for years; Jellyfin or the website's own media page covers photos |
+| MediaGoblin | unmaintained for years; Jellyfin (a photo library works too) or the website's own media page covers photos |
 | ChurchInfo | ChurchCRM is its descendant |
-| CiviCRM, Nextcloud, Webmin, Patchman, ShellInABox, Nginx Proxy Manager, OpenLP | see the first table |
+| Webmin, Patchman, ShellInABox, Nginx Proxy Manager, OpenLP | see the first table |
 
 ## How it is all wired
 
@@ -123,6 +127,8 @@ for a in netdata bookstack jellyfin; do sudo arisectl app deploy $a; done
 ```
 
 Add `portainer`, `churchcrm`, `frigate`, `netalertx`, `uptime-kuma`,
-`syncthing`, `vaultwarden`, `guacamole` the same way, when and if each one
-is wanted. Remove one with `arisectl app remove <name>`; its folder stays
+`syncthing`, `vaultwarden`, `guacamole`, `owncast`, `nginx-rtmp`, `icecast`,
+`mattermost`, `synapse`, `kimai`, `trilium`, `nextcloud`, `moodle`,
+`phplist` the same way, when and if each one is wanted. Twenty-two
+templates; the box runs the ones somebody asked for. Remove one with `arisectl app remove <name>`; its folder stays
 until a person deletes it.

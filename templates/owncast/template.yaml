@@ -1,0 +1,18 @@
+name: owncast
+title: Owncast
+description: The church's own live-stream page with chat, fed by a second output from StreamYard or OBS. A backup destination when YouTube misbehaves, or a private stream for leadership.
+category: streaming
+icon: screen
+version: "0.1.3"
+ports:
+  - 8087:8080
+  - 1935:1935
+volumes:
+  - /srv/arise/apps/owncast/data:/app/data
+env: {}
+notes: |
+  Admin at http://arise-server:8087/admin (admin / abc123 the first time;
+  change it). Stream key is in the admin. Memory under 200 MB idle (an
+  estimate); transcoding to several qualities costs a core each: keep one
+  quality unless the Dell has spare cores. Shares port 1935 with the
+  nginx-rtmp template, so run one or the other.

@@ -1,0 +1,36 @@
+# phpList: newsletters to the families, lists, templates, bounce handling.
+# Honest warning: mail sent from a church IP address lands in spam at Gmail
+# and Outlook unless SPF/DKIM are right and the IP has a reputation. Use it
+# with an SMTP relay (Google Workspace for Nonprofits, or a transactional
+# sender's free tier) set in config, never direct. Two containers.
+# Verify the image tag before the first deploy.
+services:
+  db:
+    image: mariadb:10.11
+    container_name: arise-app-phplist-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MYSQL_DATABASE=phplist
+      - MYSQL_USER=phplist
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/phplist/db:/var/lib/mysql
+
+  phplist:
+    image: phplist/phplist:latest
+    container_name: arise-app-phplist
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8093:80"
+    environment:
+      - TZ=America/Chicago
+      - PHPLIST_DATABASE_HOST=db
+      - PHPLIST_DATABASE_NAME=phplist
+      - PHPLIST_DATABASE_USER=phplist
+      - PHPLIST_DATABASE_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/phplist/config:/var/www/html/config
+      - /srv/arise/apps/phplist/uploads:/var/www/html/uploadimages

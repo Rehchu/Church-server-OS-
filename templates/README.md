@@ -24,6 +24,16 @@ or Dashboard → Apps → Templates → **Deploy**. Data for every app lives und
 | `bookstack` | the church handbook as a wiki: runbooks, checklists, policies, who to call | 8085 |
 | `churchcrm` | members, families, groups, attendance, printable directory; only if nothing is paid for already | 8086 |
 | `portainer` | every container with logs and a console, for when the Apps page is not enough | 9443 |
+| `owncast` | the church's own live page with chat, fed by a second StreamYard/OBS output | 8087, 1935 |
+| `nginx-rtmp` | one OBS stream in, relayed to YouTube, Facebook and Owncast from the server's wire | 1936, 8088 |
+| `icecast` | live audio to phones on the Wi-Fi: translation, nursery, assisted listening | 8000 |
+| `mattermost` | the church's own team chat with phone apps; only if leadership wants off the free plans | 8065 |
+| `kimai` | timesheets for hourly staff and volunteer hours; one container, SQLite | 8089 |
+| `trilium` | a hierarchical research notebook for sermon study, synced to a desktop app | 8090 |
+| `nextcloud` | shared calendars, contacts and browser office documents; the shares mounted in, not copied; the heaviest app here | 8091 |
+| `moodle` | courses with quizzes and completion: new-members track, volunteer onboarding; heavy | 8092 |
+| `phplist` | newsletters to the families, only through an SMTP relay | 8093 |
+| `synapse` | encrypted Matrix messaging with the Element apps; Mattermost's fussier sibling | 8008 |
 | `wg-easy` | self-hosted WireGuard VPN with a web page and QR codes; the alternative to native WireGuard (`install.sh --with-wireguard`) and to Tailscale. Never both on 51820 | 51820/udp, 51821 |
 
 Image tags are pinned to versions that existed when this was written. Update

@@ -1,0 +1,17 @@
+name: mattermost
+title: Mattermost
+description: The church's own team chat, a channel per ministry, file drops and calls, with phone apps. A second place to check, so only if leadership wants off the free plans.
+category: communication
+icon: folder
+version: "9.11.2"
+ports:
+  - 8065:8065
+volumes:
+  - /srv/arise/apps/mattermost/data:/mattermost/data
+  - /srv/arise/apps/mattermost/db:/var/lib/postgresql/data
+env:
+  DB_PASSWORD: CHANGE-ME
+notes: |
+  First visit http://arise-server:8065 makes the admin. The phone apps need
+  the server address over Tailscale. Memory about 500 MB to 1 GB for both
+  (an estimate); on an 8 GB Dell this is the one app to think twice about.

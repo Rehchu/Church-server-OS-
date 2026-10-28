@@ -1,0 +1,18 @@
+name: nextcloud
+title: Nextcloud
+description: Shared calendars, contacts, office documents in the browser and phone apps with photo upload. Files are already the portal's and SMB's job; deploy this for the calendar and documents, and mount the shares into it rather than copying.
+category: collaboration
+icon: folder
+version: "29"
+ports:
+  - 8091:80
+volumes:
+  - /srv/arise/apps/nextcloud/html:/var/www/html
+  - /srv/arise/apps/nextcloud/db:/var/lib/mysql
+env:
+  DB_PASSWORD: CHANGE-ME
+notes: |
+  Memory about 1 GB for both (an estimate): the heaviest app here. Its users
+  are its own; the "LDAP user and group backend" app connects it to the
+  domain so people use their church password (bind DN and base DN from
+  docs/DIRECTORY.md). Needs the Dell to have 16 GB to sit beside the rest.

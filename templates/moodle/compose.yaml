@@ -1,0 +1,42 @@
+# Moodle: courses with lessons, quizzes, completion tracking: a new-members
+# track, a volunteer onboarding course, a Bible study series. Heavy (PHP +
+# MariaDB, 1 GB+). Only when someone will actually build a course.
+# Passwords in /srv/arise/apps/moodle/.env (DB_PASSWORD, MOODLE_PASSWORD).
+# Verify the image tag before the first deploy; Bitnami re-tags often.
+services:
+  db:
+    image: bitnami/mariadb:11.4
+    container_name: arise-app-moodle-db
+    restart: unless-stopped
+    environment:
+      - MARIADB_USER=bn_moodle
+      - MARIADB_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MARIADB_DATABASE=bitnami_moodle
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - /srv/arise/apps/moodle/db:/bitnami/mariadb
+
+  moodle:
+    image: bitnami/moodle:4.4
+    container_name: arise-app-moodle
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8092:8080"
+    environment:
+      - TZ=America/Chicago
+      - MOODLE_DATABASE_HOST=db
+      - MOODLE_DATABASE_USER=bn_moodle
+      - MOODLE_DATABASE_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MOODLE_DATABASE_NAME=bitnami_moodle
+      - MOODLE_USERNAME=admin
+      - MOODLE_PASSWORD=${MOODLE_PASSWORD:-CHANGE-ME}
+      - MOODLE_SITE_NAME=Arise Church
+      - MOODLE_HOST=arise-server:8092
+      - MOODLE_REVERSEPROXY=no
+    volumes:
+      - /srv/arise/apps/moodle/moodle:/bitnami/moodle
+      - /srv/arise/apps/moodle/moodledata:/bitnami/moodledata
