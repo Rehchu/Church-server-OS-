@@ -203,7 +203,7 @@ LOGS = {
 
 
 # Everything on the switch (sample). MACs are locally administered (02:...), so none is a real device.
-DEVICES_META = {"last_scan": "2026-10-28T06:00", "tool": "arp-scan", "subnet": "192.168.1.0/24", "iface": "eno1", "found": 9, "new": 1}
+DEVICES_META = {"last_scan": "2026-10-28T06:00", "tool": "arp-scan", "subnet": "192.168.1.0/24", "iface": "eno1", "found": 11, "new": 3, "wide": True}
 DEVICES = [
     {"mac": "02:a1:00:00:00:01", "ip": "192.168.1.1", "ips": ["192.168.1.1"], "vendor": "Netgear", "guess": "router", "kind": "router", "hostname": "", "name": "Netgear A (the router at the modem)", "note": "hands out the addresses on this wire", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "router"},
     {"mac": "02:a1:00:00:00:57", "ip": "192.168.1.57", "ips": ["192.168.1.57"], "vendor": "Dell", "guess": "server", "kind": "server", "hostname": "arise-server.ad.arisecenla.church", "name": "arise-server (this box)", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": True, "online": True, "kind_final": "server"},
@@ -212,6 +212,8 @@ DEVICES = [
     {"mac": "02:a1:00:00:00:03", "ip": "192.168.1.3", "ips": ["192.168.1.3"], "vendor": "Google", "guess": "router", "kind": "router", "hostname": "", "name": "Google Mesh - its own network behind it", "note": "the media Mac and the NDI cameras' switch are behind this", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "router"},
     {"mac": "02:a1:00:00:00:21", "ip": "192.168.1.21", "ips": ["192.168.1.21", "192.168.1.34"], "vendor": "Apple", "guess": "mac", "kind": "", "hostname": "MEDIA-MAC-01.ad.arisecenla.church", "name": "", "note": "", "first_seen": "2026-10-27T09:10", "last_seen": "2026-10-28T06:00", "joined": True, "online": True, "kind_final": "mac"},
     {"mac": "02:a1:00:00:00:40", "ip": "192.168.1.40", "ips": ["192.168.1.40"], "vendor": "HP", "guess": "printer", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "printer"},
+    {"mac": "02:a1:00:00:00:64", "ip": "192.168.0.64", "ips": ["192.168.0.64"], "vendor": "Hikvision", "guess": "camera", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-28T06:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "camera", "stray": "192.168.0.0/24"},
+    {"mac": "02:a1:00:00:00:65", "ip": "192.168.0.65", "ips": ["192.168.0.65"], "vendor": "Hikvision", "guess": "camera", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-28T06:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "camera", "stray": "192.168.0.0/24"},
     {"mac": "02:a1:00:00:00:88", "ip": "192.168.1.88", "ips": ["192.168.1.88"], "vendor": "", "guess": "unknown", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-28T06:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "unknown"},
     {"mac": "02:a1:00:00:00:60", "ip": "192.168.1.60", "ips": ["192.168.1.60"], "vendor": "Apple", "guess": "mac", "kind": "", "hostname": "", "name": "Loaner MacBook", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-27T17:40", "joined": False, "online": False, "kind_final": "mac"},
 ]
@@ -223,4 +225,10 @@ ROUTERS_BEHIND = [
         {"mac": "02:b2:00:00:00:08", "ip": "10.0.0.8", "hostname": "HP-office-printer", "name": "", "vendor": "", "kind_final": "wired", "signal": None, "link_rate": 100, "online": True, "behind": True},
     ]},
     {"id": "google-mesh", "name": "Google Mesh", "host": "", "kind": "google", "ok": False, "err": "Google Mesh has no local device-list API; its clients are in the Google Home app", "devices": []},
+]
+
+# ONVIF discovery (sample): two cameras answered, both parked on 192.168.0.x by the installer.
+CAMERAS = [
+    {"ip": "192.168.0.64", "xaddrs": ["http://192.168.0.64/onvif/device_service"], "name": "FRONT-DOOR", "hardware": "DS-2CD2043G2", "scopes": [], "reachable": False},
+    {"ip": "192.168.0.65", "xaddrs": ["http://192.168.0.65/onvif/device_service"], "name": "PARKING", "hardware": "DS-2CD2043G2", "scopes": [], "reachable": False},
 ]

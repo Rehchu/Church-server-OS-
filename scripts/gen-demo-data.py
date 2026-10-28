@@ -24,7 +24,7 @@ GETS = [
     "/shares", "/backups/jobs", "/backups/history", "/backups/snapshots", "/backups/repo",
     "/automator", "/automator/worklist", "/automator/holds", "/automator/quota", "/automator/reports",
     "/apps", "/apps/templates", "/nas", "/settings", "/auth/me", "/health",
-    "/sites", "/remote", "/sermons", "/files/roots", "/links", "/devices", "/devices/behind", "/bible/translations", "/system/updates", "/notify",
+    "/sites", "/remote", "/sermons", "/files/roots", "/links", "/devices", "/devices/behind", "/devices/cameras", "/bible/translations", "/system/updates", "/notify",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]
 c = TestClient(app)

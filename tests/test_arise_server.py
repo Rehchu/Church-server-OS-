@@ -291,3 +291,13 @@ class Devices(unittest.TestCase):
         self.assertEqual(d["mac"], "02:b2:00:00:00:12"); self.assertEqual(d["kind_final"], "wired"); self.assertTrue(d["behind"])
         self.assertEqual(routers.attached({"kind": "google"})["ok"], False)
         b = routers.behind(); self.assertTrue(b["demo"]); self.assertTrue(any(not x["ok"] for x in b["routers"]))  # the Mesh says so honestly
+
+    def test_onvif_parse_and_sample_cameras(self):
+        from arise_server import devices
+        x = '<d:ProbeMatch><d:Scopes>onvif://www.onvif.org/name/FRONT%20DOOR onvif://www.onvif.org/hardware/DS-2CD2043</d:Scopes><d:XAddrs>http://192.168.0.64/onvif/device_service http://[fe80::1]/onvif</d:XAddrs></d:ProbeMatch>'
+        c = devices.parse_onvif(x, "192.168.0.64")
+        self.assertEqual(c["name"], "FRONT DOOR"); self.assertEqual(c["hardware"], "DS-2CD2043"); self.assertEqual(c["xaddrs"][0], "http://192.168.0.64/onvif/device_service")
+        r = devices.find_cameras(); self.assertTrue(r["demo"]); self.assertTrue(all(not c["reachable"] for c in r["cameras"]))
+        self.assertTrue(devices.scan(wide=True)["wide"])
+        self.assertTrue(any(d.get("stray") for d in devices.list_devices()["devices"]))
+        self.assertIn("192.168.0.0/24", devices.WIDE_RANGES)

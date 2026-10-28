@@ -127,7 +127,41 @@ from the server. Google offers no local device-list API; the Mesh's
 clients are in the Google Home app on your phone, and that stays the way to
 see them. The Mesh shows on the wire as one device.
 
-**The cameras** sit on their own unmanaged switch, which plugs into the
+**The security cameras on the switch (PoE, not working, invisible to
+Router A).** Three causes, in the order to check them, and the server
+tests two of them:
+
+1. **No power.** A PoE camera draws its power from the switch port. A
+   switch that is not a PoE switch (most unmanaged ones are not) gives it
+   nothing, and a camera with no power is invisible to every tool there is.
+   Check: the switch's label says PoE or 802.3af/at, and the port LED comes
+   on when the camera is plugged in; the camera has its own LED too. No
+   PoE: a PoE switch for the cameras (an estimate: $60 to $150 for 8 ports)
+   or one PoE injector per camera. That is new hardware next to the
+   switch, not a change to any router.
+2. **Parked on another address range.** Installers leave cameras on their
+   factory address (Hikvision 192.168.0.64, Dahua 192.168.1.108, and so
+   on) or on whatever network the NVR they came with used. The camera is
+   powered and on the wire but has an address Netgear A's network cannot
+   reach, so the router never lists it. The Network app's **Wide scan**
+   ARPs the common ranges and marks such devices *stray*, and **Find
+   cameras** (ONVIF discovery, which ignores addresses) lists every powered
+   ONVIF camera with a *reachable / not from this network* flag. The fix is
+   on the camera: from a laptop temporarily set to the camera's range, open
+   the camera's web page and give it an address in Netgear A's network
+   (DHCP is fine; the Network app then names it by MAC). Still nothing on
+   any router.
+3. **They belong to an NVR.** Cameras that came with a recorder are often
+   plugged into the recorder's own PoE ports, on the recorder's private
+   network, and are meant to be seen only through it. Then the recorder is
+   the device on the switch, not the cameras.
+
+Once a camera is powered and reachable, **Frigate** (Apps → Templates)
+records it to the Synology, shows live views in a browser, and detects
+people and cars; `arisectl devices cameras` and `nmap -p 554 <ip>` are the
+by-hand checks.
+
+**The NDI cameras** sit on their own unmanaged switch, which plugs into the
 Mesh. So the NDI cameras and the streaming Mac are on the Mesh's network
 together, which is the one thing NDI needs (discovery works between them).
 The server is on a different network, which does not matter: nothing on

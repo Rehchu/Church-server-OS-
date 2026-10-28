@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:02:58",
+"last_run": "2026-10-28T02:06:23",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:02:58"
+"since": "2026-10-14T01:06:23"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T03:02:58",
+"last_logon": "2026-10-28T03:06:23",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T04:02:58",
+"last_logon": "2026-10-27T04:06:23",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T01:02:58",
+"last_logon": "2026-10-26T01:06:23",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T04:02:58",
+"last_logon": "2026-10-22T04:06:23",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T04:02:58",
+"last_logon": "2026-10-25T04:06:23",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T04:02:58",
+"last_logon": "2026-10-19T04:06:23",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T03:02:58",
+"last_seen": "2026-10-28T03:06:23",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T04:02:58",
+"last_seen": "2026-10-27T04:06:23",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T04:02:58",
+"last_seen": "2026-10-26T04:06:23",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T03:58:58",
+"last_seen": "2026-10-28T04:02:23",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T04:02:58",
+"last_check": "2026-10-19T04:06:23",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:02:58",
+"last_run": "2026-10-28T02:06:23",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1873,17 +1873,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T23:02:58",
+"when": "2026-10-27T23:06:23",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T23:02:58",
+"when": "2026-10-27T23:06:23",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T23:02:58",
+"when": "2026-10-27T23:06:23",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1918,7 +1918,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T04:02:58",
+"updated": "2026-10-25T04:06:23",
 "mem_h": "36.2 MB"
 },
 {
@@ -1931,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T04:02:58",
+"updated": "2026-10-25T04:06:23",
 "mem_h": "135.4 MB"
 },
 {
@@ -1944,7 +1944,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T04:02:58",
+"updated": "2026-10-27T04:06:23",
 "mem_h": "0 B"
 }
 ],
@@ -1964,6 +1964,19 @@ window.ARISE_DEMO_DATA = {
 "icon": "folder",
 "data": "/srv/arise/apps/filebrowser",
 "notes": "First login is admin / admin. Change it immediately (Settings > User Management).\nIt runs as the 'arise' user (uid 1500) so it can only touch what that user can.\n"
+},
+{
+"id": "frigate",
+"name": "Frigate NVR",
+"description": "Records the security cameras (ONVIF / RTSP) to the Synology, live views in a browser, motion and person detection, 24/7 or on events. Open source. The cameras must first have an address on the server's network (Network app > Find cameras says whether they do).",
+"category": "cameras",
+"ports": [
+"8971:8971",
+"8554:8554"
+],
+"icon": "screen",
+"data": "/srv/arise/apps/frigate",
+"notes": "Before deploying: every camera needs an address on the server's network and\nan RTSP user. Network app > Find cameras lists what answers and whether it is\nreachable. Then write /srv/arise/apps/frigate/config/config.yml:\n  mqtt: { enabled: false }\n  cameras:\n    front-door:\n      ffmpeg:\n        inputs:\n          - path: rtsp://user:pass@192.168.x.y:554/Streaming/Channels/101\n            roles: [record, detect]\n      record: { enabled: true, retain: { days: 14, mode: motion } }\nClips land on the Synology under arise/cameras; keep them out of the restic\nbackup (they are big and the Synology's RAID holds them). Detection on CPU\nis slow with more than two cameras; a Coral USB accelerator (about $60, an\nestimate) fixes that.\n"
 },
 {
 "id": "guacamole",
@@ -2063,7 +2076,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T02:02:58",
+"last": "2026-10-27T02:06:23",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -2246,7 +2259,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T04:02"
+"when": "2026-10-28T04:06"
 },
 {
 "user": "bradly",
@@ -2480,8 +2493,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T04:02",
-"expires": "2026-11-02T04:02",
+"created": "2026-10-26T04:06",
+"expires": "2026-11-02T04:06",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -2498,8 +2511,9 @@ window.ARISE_DEMO_DATA = {
 "tool": "arp-scan",
 "subnet": "192.168.1.0/24",
 "iface": "eno1",
-"found": 9,
-"new": 1
+"found": 11,
+"new": 3,
+"wide": true
 },
 "devices": [
 {
@@ -2630,6 +2644,44 @@ window.ARISE_DEMO_DATA = {
 "kind_final": "printer"
 },
 {
+"mac": "02:a1:00:00:00:64",
+"ip": "192.168.0.64",
+"ips": [
+"192.168.0.64"
+],
+"vendor": "Hikvision",
+"guess": "camera",
+"kind": "",
+"hostname": "",
+"name": "",
+"note": "",
+"first_seen": "2026-10-28T06:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "camera",
+"stray": "192.168.0.0/24"
+},
+{
+"mac": "02:a1:00:00:00:65",
+"ip": "192.168.0.65",
+"ips": [
+"192.168.0.65"
+],
+"vendor": "Hikvision",
+"guess": "camera",
+"kind": "",
+"hostname": "",
+"name": "",
+"note": "",
+"first_seen": "2026-10-28T06:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "camera",
+"stray": "192.168.0.0/24"
+},
+{
 "mac": "02:a1:00:00:00:88",
 "ip": "192.168.1.88",
 "ips": [
@@ -2720,6 +2772,32 @@ window.ARISE_DEMO_DATA = {
 }
 ]
 },
+"GET /devices/cameras": {
+"demo": true,
+"cameras": [
+{
+"ip": "192.168.0.64",
+"xaddrs": [
+"http://192.168.0.64/onvif/device_service"
+],
+"name": "FRONT-DOOR",
+"hardware": "DS-2CD2043G2",
+"scopes": [],
+"reachable": false
+},
+{
+"ip": "192.168.0.65",
+"xaddrs": [
+"http://192.168.0.65/onvif/device_service"
+],
+"name": "PARKING",
+"hardware": "DS-2CD2043G2",
+"scopes": [],
+"reachable": false
+}
+],
+"seconds": 3.0
+},
 "GET /bible/translations": {
 "translations": [
 {
@@ -2752,7 +2830,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T04:02:58+00:00",
+"last_check": "2026-10-28T04:06:24+00:00",
 "security": 1
 },
 "GET /notify": {

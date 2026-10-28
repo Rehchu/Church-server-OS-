@@ -17,7 +17,7 @@
     arisectl mirror run
     arisectl sites
     arisectl link list|revoke <token>|sweep
-    arisectl devices list|scan|behind|name <mac> <name>   everything on the switch, and behind the other routers
+    arisectl devices list|scan [--wide]|behind|cameras|name <mac> <name>   everything on the switch, strays, cameras
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
@@ -438,8 +438,16 @@ def cmd_nas(a):
 
 def cmd_devices(a):
     from arise_server import devices
+    if a.sub == "cameras":
+        r = devices.find_cameras()
+        if r.get("ok") is False: sys.exit(r["err"])
+        cams = r["cameras"]
+        if not cams: print("no ONVIF camera answered in 3 s: unpowered (not a PoE switch?), not ONVIF, or discovery blocked"); return
+        table([{"camera": c.get("name") or "?", "model": c.get("hardware", ""), "ip": c["ip"], "reachable": "yes" if c.get("reachable") else "NO: other network", "address": (c.get("xaddrs") or [""])[0]} for c in cams], ["camera", "model", "ip", "reachable", "address"])
+        if r.get("demo"): warn("sample data")
+        return
     if a.sub == "scan":
-        r = devices.scan()
+        r = devices.scan(wide=a.wide)
         if r.get("ok") is False:
             sys.exit(r["err"])
         if not a.quiet:
@@ -449,7 +457,7 @@ def cmd_devices(a):
             return
     if a.sub == "list":
         r = devices.list_devices()
-        rows = [{"device": d.get("name") or (d.get("hostname") or "").split(".")[0] or d.get("vendor") or "?", "ip": d.get("ip", ""), "mac": d["mac"], "maker": d.get("vendor", ""), "kind": d.get("kind_final", ""), "seen": "on" if d.get("online") else (d.get("last_seen") or "")} for d in r["devices"]]
+        rows = [{"device": d.get("name") or (d.get("hostname") or "").split(".")[0] or d.get("vendor") or "?", "ip": d.get("ip", "") + (" (STRAY " + d["stray"] + ")" if d.get("stray") else ""), "mac": d["mac"], "maker": d.get("vendor", ""), "kind": d.get("kind_final", ""), "seen": "on" if d.get("online") else (d.get("last_seen") or "")} for d in r["devices"]]
         table(rows, ["device", "ip", "mac", "maker", "kind", "seen"])
         m = r.get("meta", {})
         print(f"  {m.get('subnet', '')} · last scan {m.get('last_scan', 'never')} · the office Netgear and the Mesh are one row each; their networks are behind them")
@@ -583,7 +591,7 @@ def build():
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
-    p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_devices)
+    p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "cameras", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.add_argument("--wide", action="store_true", help="also scan the common ranges a device may be parked on"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)

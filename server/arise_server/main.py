@@ -590,8 +590,14 @@ def api_devices_behind(_=auth):
 
 
 @app.post("/api/devices/scan")
-def api_devices_scan(_=auth):
-    return devices.scan()
+def api_devices_scan(wide: int = 0, _=auth):
+    return devices.scan(wide=bool(wide))
+
+
+@app.get("/api/devices/cameras")
+def api_devices_cameras(_=auth):
+    """ONVIF discovery: which cameras answer on the wire, and whether this network can reach them."""
+    return devices.find_cameras()
 
 
 @app.post("/api/devices/{mac}")

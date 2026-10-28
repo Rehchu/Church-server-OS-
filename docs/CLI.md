@@ -73,5 +73,8 @@ commands through `C:\Arise\venv\Scripts\python.exe cli\arisectl`.
 ```
 arisectl devices list              everything on the switch, from the last scan
 arisectl devices scan [--quiet]    scan now (arp-scan, else a ping sweep); --quiet is what the hourly timer runs
+arisectl devices scan --wide        also the common ranges an installer parks devices on (marked stray)
+arisectl devices cameras           ONVIF discovery: which cameras answer, and whether this network can reach them
+arisectl devices behind            what the office Netgear reports as attached ([[routers]])
 arisectl devices name <mac> <name> give a device a name that sticks to its MAC
 ```
