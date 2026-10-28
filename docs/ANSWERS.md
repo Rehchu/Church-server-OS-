@@ -300,6 +300,46 @@ means below.
 | 52 | A Songs app for the CCLI report? | Yes | every song per service from the automator's credits; a count per song; an export in CCLI's shape; numbers only from the song bank |
 | 53 | Where ariseOS updates come from? | GitHub releases, checked daily, installed on his click in the window | What's New shown before the click |
 | 54 | Password again for dangerous clicks? | Yes, password again, remembered for five minutes | on top of typing the name |
+| 55 | The Synology's four drives? | "Probably will just have 3 as one big drive, and 1 for backups of documents or something. Need to have important items backed up on there only. The other 3 drives are one big drive." | three drives as one volume (recordings, media, Time Machine); the fourth drive alone holds the server's restic backups and the documents; the layout proposal waits for the model |
+| 56 | Drive size? | 4 TB each | about 8 TB usable on the three-drive volume with one-drive protection, 4 TB on the backup drive |
+| 57 | Where files live? | "Depends on the files. But the server disk should be utilized too!" | homes, shares and the apps on the server's disk; recordings, photos and backups on the Synology; Storage shows both |
+| 58 | Time Machine space? | "Time Machine set to hold 2 Mac backups at a time per device" | the share keeps the two newest backups per Mac and thins older ones |
+| 59 | The install itself? | A short on-screen wizard, flags still work | church or staging, admin password, Synology, Tailscale, encrypt; then it runs |
+| 60 | First thing on the monitor after install? | The sign-in screen only | no QR on screen; the closet card carries it |
+| 61 | Power back after a cut? | Yes, auto power-on; the installer tells you the BIOS setting | the box comes back on its own; the TPM unlocks the disk |
+| 62 | Internet down? | Everything inside keeps working; YouTube, mail, weather and Claude wait | an "offline" chip; the automator skips the night with a note |
+| 63 | The per-campus screen? | The same desktop, signed in as a campus account, badge in the bar | a kiosk image that boots, joins Tailscale, opens the dashboard |
+| 64 | What campuses can do? | Everything an admin or member can, by who signs in | same rules everywhere |
+| 65 | Move day? | "I'll probably move everything on a day nobody is there. So there should only be Down time for maintenance that day." | no Pineville cache box; MOVING-DAY.md plans one quiet day |
+| 66 | The Campuses app? | Each campus: online, its screen, its devices, who signed in there | live from Tailscale and the sign-ins |
+| 67 | What the server gives a Windows PC? | A join script, drive letters, and the church certificate; nothing else | one PowerShell file from the dashboard; no group policy |
+| 68 | Mail attachments? | Larger attachments, 100 MB | |
+| 69 | Who may send internal mail? | "anybody with an account that was registered." | every domain account may send; delivery is inside and to personal addresses only |
+| 70 | Two people in one document? | They edit together, live | OnlyOffice co-editing; saved to the share when the last closes |
+| 71 | Window chrome? | Mac-style, top-left | |
+| 72 | Where Store apps open? | In a window on the desktop, with a pop-out to a tab | |
+| 73 | What Spotlight searches? | Also inside documents, the calendar, mail subjects, the Bible, and sums | a nightly text index of the shares |
+| 74 | Quick Look previews? | Images, PDFs, video with scrubbing, audio, text, Office files | Office files through OnlyOffice; video streamed, not downloaded |
+| 75 | Songs per service? | The automator's credited songs, confirmed by you per service | tick "reported"; export in CCLI's shape |
+| 76 | Thumbnail approval? | "Option A, Even though i'll still probably do everything Sunday and Monday night through Claude Web." | a push with the image, Approve or Change; the Sermons app too |
+| 77 | Post the live link to Discord? | Yes, to a channel you name | the watcher posts once when the stream starts |
+| 78 | A checklist nudge? | Yes, one push at 9:30 | names the open items |
+| 79 | Audit log kept? | Forever | |
+| 80 | Who exports the mail list? | Admins only, and the export is logged | |
+| 81 | Immich and faces? | Staff only can see Immich; no sharing links from it | public sharing off |
+| 82 | A leaver's mailbox? | Mailbox deleted with the account | files still move to the next person (round 2, 24) |
+| 83 | Easter eggs? | Yes, a few quiet ones | the Konami code lights the flame; a verse typed in Spotlight shows it; the About flame flickers on the anniversary |
+| 84 | A founding date? | "All i know is 2018" | the year only; no day is invented; the flicker waits for a date |
+| 85 | Which events make a sound? | Checklist tick, a failure, the lock, a finished import, the greeting | |
+| 86 | A startup sound? | No, silent | |
+| 87 | Scanning? | "Scans land in the Signed-in person's documents, the Local mac, and an Option to Share." | scan-to-share when the printer can; a copy to the Mac; a share link offered |
+| 88 | Jellyfin libraries? | Service recordings, worship, graphics loops, podcast audio | read from the Synology |
+| 89 | Internal chat? | "Church doesn't use Discord, I'll be using it for Server monitoring and Alerts. As well as Anything Else that i can do with it. The Church doesn't have a Groupchat app or anything." | Discord is Bradly's monitoring channel, not the church's chat; no chat server runs; Mattermost and Element stay stopped in the Store |
+| 90 | Nextcloud? | In the Store, stopped, for whoever wants it | |
+| 91 | One disk: split it? | not answered (a message came in) | assumed: one disk, OS and data together, the 75% alert and Storage watch it; say so before install |
+| 92 | Reboot with people signed in? | not answered | assumed: a five-minute warning on every screen, then reboot |
+| 93 | A prayer-request box? | not answered | assumed: off the server, like counselling records |
+| 94 | Birthdays in the weekly? | not answered | assumed: yes, only if the Wix export carries a birthday field |
 
 ## Still needed
 
