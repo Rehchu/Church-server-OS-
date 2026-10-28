@@ -134,8 +134,12 @@ def info(root_id: str, rel: str, who=None) -> dict:
     out = {"name": name, "root": root_id, "path": rel, "smb": smb_path(root_id, rel, who)}
     out["access"] = _access(root_id, rel, who)
     if cfg.demo:
-        d = not ("." in name and not name.startswith("."))
-        sample = next((e for es in files.DEMO_TREE.values() for e in es if e[0] == name and len(e) > 2), None)
+        key = files._demo_rel(root_id, rel, who)
+        hit = files.demo_find(key) if key and key != "/" else None
+        if key and key != "/" and not hit:
+            return {"error": "no such file", **out}
+        d = bool(hit[1]) if hit else not ("." in name and not name.startswith("."))
+        sample = hit if hit and len(hit) > 2 and hit[2] is not None else None
         out.update({"demo": True, "dir": d, "kind": "Folder" if d else None, "size": 4_600_000_000 if d else (sample[2] if sample else 182_000), "files": 1240 if d else None,
                     "size_complete": not d, "owner": who["user"] if who else "bradly", "group": "Domain Users",
                     "created": "2026-09-14T10:02:00", "modified": "2026-10-26T14:02:00", "abs": None})
@@ -188,15 +192,17 @@ def recent(who=None, days: int = 7, limit: int = 200) -> dict:
     key = (who or {}).get("user", "admin")
     now = time.time()
     c = _recent_cache.get(key)
-    if c and now - c["t"] < 60:
+    if c and now - c["t"] < 60 and not cfg.demo:
         return c["out"]
     since = now - days * 86400
     hits = []
     if cfg.demo:
-        for path, entries in files.DEMO_TREE.items():
+        for path, entries in files.tree().items():
             for e in entries:
                 if not e[1] and len(e) > 2:
-                    hits.append({"root": "data", "path": path.rstrip("/") + "/" + e[0], "name": e[0], "size": e[2], "mtime": "2026-10-26T14:02", "where": path})
+                    ed = files.entry_dict(e)
+                    hits.append({"root": "data", "path": path.rstrip("/") + "/" + e[0], "name": e[0], "size": ed["size"], "mtime": ed["mtime"], "where": path})
+        hits.sort(key=lambda h: h["mtime"], reverse=True)
         if who and who.get("role") != "admin":
             out = []
             for h in hits:
@@ -239,8 +245,14 @@ def read_text(root_id: str, rel: str, who=None) -> dict:
     if not is_text(name):
         return {"ok": False, "err": "only text files open in the editor: " + " ".join(TEXT_EXT)}
     if cfg.demo:
-        sample = files.DEMO_TEXT.get(name) or f"# {name}\n\nSample text. On the server this is the real file, editable in place.\n"
-        return {"ok": True, "demo": True, "name": name, "text": sample, "bytes": len(sample), "mtime": "2026-10-26T14:02"}
+        from . import demo_state
+        key = files._demo_rel(root_id, "/" + rel.strip("/"), who)
+        hit = files.demo_find(key) if key else None
+        if key and not hit:
+            return {"ok": False, "err": "no such file"}
+        saved = demo_state.get("files.text", dict).get(key)
+        sample = saved if saved is not None else (files.DEMO_TEXT.get(name) or f"# {name}\n\nSample text. On the server this is the real file, editable in place.\n")
+        return {"ok": True, "demo": True, "name": name, "text": sample, "bytes": len(sample.encode("utf-8")), "mtime": files.entry_dict(hit)["mtime"] if hit else "2026-10-26T14:02"}
     got = _abs(root_id, rel, who)
     if not got or not os.path.isfile(got[1]):
         return {"ok": False, "err": "no such file"}
@@ -264,8 +276,19 @@ def write_text(root_id: str, rel: str, text: str, who=None, expect_mtime: str | 
     rs = _rs(who)
     if root_id in rs and not files._writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
-    if cfg.demo or root_id not in rs:
-        return {"ok": True, "demo": True}
+    if root_id not in rs:
+        return {"ok": False, "err": "not a place you can save to"}
+    if cfg.demo:
+        from . import demo_state
+        key = files._demo_rel(root_id, "/" + rel.strip("/"), who)
+        hit = files.demo_find(key) if key else None
+        if not hit:
+            return {"ok": False, "err": "no such file"}
+        demo_state.get("files.text", dict)[key] = text
+        parent, _n = files._split(key)
+        es = files.tree()[parent]
+        es[es.index(hit)] = (hit[0], False, len(text.encode("utf-8")), files._now_min())
+        return {"ok": True, "demo": True, "bytes": len(text.encode("utf-8")), "mtime": files._now_min()}
     got = _abs(root_id, rel, who)
     if not got or not os.path.isfile(got[1]):
         return {"ok": False, "err": "no such file"}
@@ -420,19 +443,70 @@ def _label_for(base: str, who) -> str:
     return os.path.basename(base)
 
 
+def _sample_trash(user: str = "bradly") -> list[dict]:
+    from . import demo_state
+    return demo_state.get("files.trash", lambda: [
+        {"base": "/srv/arise/shares/media", "label": "media", "user": "bradly", "rel": "loops/old intro loop.mov", "name": "old intro loop.mov", "original": "loops/old intro loop.mov", "dir": False, "size": 412_000_000, "when": (datetime.now() - timedelta(days=2)).isoformat(timespec="minutes"), "from": "portal"},
+        {"base": "/srv/arise/shares/staff", "label": "staff", "user": "bradly", "rel": "Forms/Copy #1 of Visitor card 2025.docx", "name": "Copy #1 of Visitor card 2025.docx", "original": "Forms/Visitor card 2025.docx", "dir": False, "size": 38_000, "when": (datetime.now() - timedelta(days=12)).isoformat(timespec="minutes"), "from": "mac"},
+        {"base": "/srv/arise/shares/graphics", "label": "graphics", "user": "media-mac", "rel": "lower-thirds/draft", "name": "draft", "original": "lower-thirds/draft", "dir": True, "size": None, "when": (datetime.now() - timedelta(days=27)).isoformat(timespec="minutes"), "from": "mac"},
+    ])
+
+
+def _demo_trash_put(root_id: str, rel: str, who, name: str) -> dict:
+    cfg = load()
+    key = files._demo_rel(root_id, rel, who)
+    if not key or key == "/":
+        return {"ok": False, "err": "pick a file or folder, not the whole place"}
+    taken = files.demo_take(key)
+    if not taken:
+        return {"ok": False, "err": "no such file"}
+    data = cfg.system.data_root.rstrip("/")
+    parts = key.strip("/").split("/")
+    if root_id == "data":
+        if len(parts) >= 3 and parts[0] in ("homes", "shares"):
+            base, inner, label = f"{data}/{parts[0]}/{parts[1]}", "/".join(parts[2:]), (parts[1] if parts[0] == "shares" else "home of " + parts[1])
+        else:
+            base, inner, label = data, key.strip("/"), "server"
+    else:
+        r = _rs(who)[root_id]
+        base, inner, label = r["path"].rstrip("/"), rel.strip("/"), r["name"]
+    e = taken["entry"]
+    row = {"base": base, "label": label, "user": (who or {}).get("user", "bradly"), "rel": inner, "name": name, "original": inner,
+           "dir": bool(e[1]), "size": e[2] if len(e) > 2 else None, "when": datetime.now().isoformat(timespec="minutes"), "from": "portal",
+           "_taken": taken, "_parent": files._split(key)[0]}
+    _sample_trash().append(row)
+    return {"ok": True, "demo": True, "trash": f".Trash/{row['user']}/{inner}", "base": base, "expires_in_days": TRASH_DAYS}
+
+
+def _demo_trash_restore(base: str, user: str, rel: str) -> dict:
+    cfg = load()
+    rows = _sample_trash()
+    row = next((r for r in rows if r["base"] == base and r["user"] == user and r["rel"] == rel), None)
+    if not row:
+        return {"ok": False, "err": "that item is not in the Trash any more"}
+    if row.get("_taken"):
+        parent, taken = row["_parent"], row["_taken"]
+    else:   # a seeded sample row: put a plain entry back where it came from
+        data = cfg.system.data_root.rstrip("/")
+        root_key = base[len(data):] if base.startswith(data) else "/" + os.path.basename(base)
+        parent = (root_key.rstrip("/") + "/" + os.path.dirname(row["original"])).rstrip("/") or "/"
+        taken = {"key": parent.rstrip("/") + "/" + os.path.basename(row["original"]), "entry": (os.path.basename(row["original"]), row["dir"], row["size"], files._now_min()), "sub": {}, "texts": {}}
+    have = {e[0] for e in files.tree().get(parent, [])}
+    final = put_back_name(taken["entry"][0], lambda n: n in have)
+    files.demo_put(parent, taken, final)
+    rows.remove(row)
+    return {"ok": True, "demo": True, "restored": os.path.join(os.path.dirname(row["original"]), final), "renamed": final != taken["entry"][0]}
+
+
 def trash_list(who=None) -> dict:
     cfg = load()
     admin = who is None or who.get("role", "admin") == "admin"
     user = (who or {}).get("user", "bradly")
     if cfg.demo:
-        rows = [
-            {"base": "/srv/arise/shares/media", "label": "media", "user": user, "rel": "loops/old intro loop.mov", "name": "old intro loop.mov", "original": "loops/old intro loop.mov", "dir": False, "size": 412_000_000, "when": (datetime.now() - timedelta(days=2)).isoformat(timespec="minutes"), "from": "portal"},
-            {"base": "/srv/arise/shares/staff", "label": "staff", "user": user, "rel": "Forms/Copy #1 of Visitor card 2025.docx", "name": "Copy #1 of Visitor card 2025.docx", "original": "Forms/Visitor card 2025.docx", "dir": False, "size": 38_000, "when": (datetime.now() - timedelta(days=12)).isoformat(timespec="minutes"), "from": "mac"},
-            {"base": "/srv/arise/shares/graphics", "label": "graphics", "user": "media-mac", "rel": "lower-thirds/draft", "name": "draft", "original": "lower-thirds/draft", "dir": True, "size": None, "when": (datetime.now() - timedelta(days=27)).isoformat(timespec="minutes"), "from": "mac"},
-        ]
+        rows = list(_sample_trash(user))
         if not admin:
             rows = [r for r in rows if r["user"] == user and any(r["base"] == b for _l, b in _bases_for(who))]
-        return {"demo": True, "days": TRASH_DAYS, "items": rows, "admin": admin}
+        return {"demo": True, "days": TRASH_DAYS, "items": [{k: v for k, v in r.items() if not k.startswith("_")} for r in rows], "admin": admin}
     rows = []
     now = datetime.now()
     for label, base in _bases_for(who):
@@ -481,8 +555,10 @@ def trash_put(root_id: str, rel: str, who=None, confirm: str = "") -> dict:
     rs = _rs(who)
     if root_id in rs and not files._writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
-    if cfg.demo or root_id not in rs:
-        return {"ok": True, "demo": True, "trash": f".Trash/{(who or {}).get('user', 'bradly')}/{name}"}
+    if root_id not in rs:
+        return {"ok": False, "err": "not a place you can delete from"}
+    if cfg.demo:
+        return _demo_trash_put(root_id, rel, who, name)
     got = _abs(root_id, rel, who)
     if not got or not os.path.lexists(got[1]):
         return {"ok": False, "err": "no such file"}
@@ -526,7 +602,7 @@ def trash_restore(base: str, user: str, rel: str, who=None) -> dict:
     if not admin and user != me:
         return {"ok": False, "err": "not your file"}
     if cfg.demo:
-        return {"ok": True, "demo": True, "restored": put_back_name(os.path.basename(rel), lambda n: False)}
+        return _demo_trash_restore(base, user, rel)
     if not _check_base(base, who):
         return {"ok": False, "err": "no Trash there for you"}
     udir = os.path.join(base, ".Trash", user)
@@ -613,7 +689,13 @@ def trash_empty(share: str, confirm: str, who=None) -> dict:
     if who is not None and who.get("role", "admin") != "admin":
         return {"ok": False, "err": "emptying the Trash is an administrator's click"}
     if cfg.demo:
-        return {"ok": True, "demo": True, "removed": 2}
+        rows = _sample_trash()
+        gone = [r for r in rows if r["label"] == share]
+        if not gone and share not in {r["label"] for r in rows} and share not in {lb for lb, _b in _bases_for(None)}:
+            return {"ok": False, "err": f"no share called {share}"}
+        for r in gone:
+            rows.remove(r)
+        return {"ok": True, "demo": True, "removed": len(gone)}
     base = next((b for label, b in _bases_for(None) if label == share), None)
     if not base:
         return {"ok": False, "err": f"no share called {share}"}
@@ -664,7 +746,19 @@ def upload_start(root_id: str, rel: str, name: str, size: int, fingerprint: str,
     if not files._writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
     if cfg.demo:
-        return {"ok": True, "demo": True, "token": "demo-upload", "offset": 0, "chunk": UPLOAD_CHUNK, "size": size}
+        from . import demo_state
+        key = files._demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
+        if key is None:
+            return {"ok": False, "err": "the sample has nothing there"}
+        if files.demo_find(files._join(key, name)):
+            return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
+        ups = demo_state.get("files.uploads", dict)
+        for tok, u in ups.items():
+            if u["fingerprint"] == fingerprint and u["key"] == key and u["name"] == name:
+                return {"ok": True, "demo": True, "token": tok, "offset": u["have"], "chunk": UPLOAD_CHUNK, "size": size, "resumed": True}
+        tok = f"demo-{len(ups) + 1}-{abs(hash((key, name, fingerprint))) % 10 ** 8}"
+        ups[tok] = {"key": key, "name": name, "size": size, "fingerprint": fingerprint, "have": 0, "user": (who or {}).get("user", "admin")}
+        return {"ok": True, "demo": True, "token": tok, "offset": 0, "chunk": UPLOAD_CHUNK, "size": size}
     folder = files._resolve(rs[root_id]["path"], rel)
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
@@ -688,8 +782,15 @@ def upload_start(root_id: str, rel: str, name: str, size: int, fingerprint: str,
 
 
 def upload_chunk(token: str, offset: int, data: bytes, who=None) -> dict:
-    if load().demo or token == "demo-upload":
-        return {"ok": True, "demo": True, "offset": offset + len(data)}
+    if load().demo:
+        from . import demo_state
+        u = demo_state.get("files.uploads", dict).get(token)
+        if not u:
+            return {"ok": False, "err": "that upload is not open any more; start it again"}
+        if offset != u["have"]:
+            return {"ok": False, "err": "offset mismatch", "offset": u["have"]}
+        u["have"] += len(data)
+        return {"ok": True, "demo": True, "offset": u["have"]}
     m = _upload_meta(token)
     if not m or m.get("user") != (who or {}).get("user", "admin"):
         return {"ok": False, "err": "no such upload; start it again"}
@@ -707,8 +808,10 @@ def upload_chunk(token: str, offset: int, data: bytes, who=None) -> dict:
 
 
 def upload_status(token: str, who=None) -> dict:
-    if load().demo or token == "demo-upload":
-        return {"ok": True, "demo": True, "offset": 0}
+    if load().demo:
+        from . import demo_state
+        u = demo_state.get("files.uploads", dict).get(token)
+        return {"ok": True, "demo": True, "offset": u["have"]} if u else {"ok": False, "err": "no such upload"}
     m = _upload_meta(token)
     if not m or m.get("user") != (who or {}).get("user", "admin") or not os.path.isfile(m.get("part", "")):
         return {"ok": False, "err": "no such upload"}
@@ -716,8 +819,19 @@ def upload_status(token: str, who=None) -> dict:
 
 
 def upload_finish(token: str, who=None) -> dict:
-    if load().demo or token == "demo-upload":
-        return {"ok": True, "demo": True}
+    if load().demo:
+        from . import demo_state
+        ups = demo_state.get("files.uploads", dict)
+        u = ups.get(token)
+        if not u:
+            return {"ok": False, "err": "no such upload"}
+        if u["have"] < (u["size"] or 0):
+            return {"ok": False, "err": f"only {u['have']:,} of {u['size']:,} bytes arrived; resume the upload"}
+        r = files.demo_add(u["key"], u["name"], False, u["have"])
+        if not r["ok"]:
+            return r
+        ups.pop(token, None)
+        return {"ok": True, "demo": True, "bytes": u["have"], "path": files._join(u["key"], u["name"])}
     m = _upload_meta(token)
     if not m or m.get("user") != (who or {}).get("user", "admin"):
         return {"ok": False, "err": "no such upload"}

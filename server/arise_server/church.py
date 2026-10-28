@@ -186,9 +186,12 @@ def allowed_url(url: str) -> bool:
 
 
 def open_on_kiosk(url: str) -> dict:
-    """Open a site in its own window on the closet monitor, on top of the desktop.
-    A second Epiphany in application mode with its own profile, run as the kiosk
-    user on cage's Wayland display. Closing that window returns to the desktop."""
+    """The fallback for the Epiphany browser: open a site in its own window on the
+    closet monitor, on top of the desktop. The desktop now opens sites itself, as
+    Firefox tabs (docs/BROWSER.md); this route is only for a monitor still running
+    Epiphany. It starts a second Epiphany in application mode with its own profile,
+    run as the kiosk user on cage's Wayland display. Closing that window returns to
+    the desktop."""
     import subprocess
     if not allowed_url(url):
         return {"ok": False, "err": "that site is not on the list the monitor may open"}

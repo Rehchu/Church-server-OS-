@@ -13,7 +13,18 @@ sys.path.insert(0, str(ROOT / "server"))
 os.environ["ARISE_DEMO"] = "1"
 os.environ["ARISE_CONFIG"] = str(ROOT / "config" / "arise.toml.example")
 
-from arise_server import apps, automator, backups, config, directory, shares, util  # noqa: E402
+from arise_server import apps, automator, backups, config, demo_state, directory, shares, util  # noqa: E402
+
+# The sample server now remembers clicks (demo_state). Every test starts from the seed.
+_plain_setup = unittest.TestCase.setUp
+
+
+def _fresh_sample(self):
+    demo_state.reset()
+    _plain_setup(self)
+
+
+unittest.TestCase.setUp = _fresh_sample
 
 
 class Config(unittest.TestCase):
@@ -49,7 +60,8 @@ class Directory(unittest.TestCase):
         self.assertFalse(directory.add_user("bad name", "password123")["ok"])
         self.assertFalse(directory.add_user("1abc", "password123")["ok"])
         self.assertFalse(directory.add_user("ok", "short")["ok"])
-        self.assertTrue(directory.add_user("media-mac", "password123")["ok"])
+        self.assertFalse(directory.add_user("media-mac", "password123")["ok"])   # already in the sample
+        self.assertTrue(directory.add_user("jane.doe", "password123")["ok"])
 
 
 class Shares(unittest.TestCase):
@@ -187,7 +199,10 @@ class V02(unittest.TestCase):
     def test_wireguard_peer_name_validated(self):
         from arise_server import remote
         self.assertFalse(remote.add_wireguard_peer("bad name!")["ok"])
-        self.assertTrue(remote.add_wireguard_peer("hub-laptop")["ok"])
+        self.assertFalse(remote.add_wireguard_peer("hub-laptop")["ok"])    # that name already has a key
+        r = remote.add_wireguard_peer("bradly-phone")
+        self.assertTrue(r["ok"]); self.assertIn(r["ip"], r["config"])
+        self.assertIn("bradly-phone", [p["name"] for p in remote.wireguard_status()["peers"]])
 
     def test_power_needs_typed_confirmation(self):
         from arise_server import system
@@ -242,11 +257,12 @@ class V04(unittest.TestCase):
     def test_share_links_create_list_revoke(self):
         from arise_server import links
         me = {"user": "office", "role": "member"}; other = {"user": "media-mac", "role": "member"}; admin = {"user": "bradly", "role": "admin"}
-        r = links.create("home", "/Documents/x.pdf", me, days=99)
+        r = links.create("home", "/Documents/Bulletin 2026-11-01.docx", me, days=99)
         self.assertTrue(r["ok"]); tok = r["token"]
         self.assertEqual(r["link"]["user"], "office")
         self.assertLess(r["link"]["expires"], links._iso(100 * 86400))  # a chosen life is kept (max_days 365)
-        forever = links.create("home", "/Documents/y.pdf", me)             # no life picked: never expires (Bradly, Oct 28)
+        self.assertFalse(links.create("home", "/Documents/not-there.pdf", me)["ok"])   # the file has to exist
+        forever = links.create("home", "/Documents/Visitor cards October.xlsx", me)   # no life picked: never expires (Bradly, Oct 28)
         self.assertIsNone(forever["link"]["expires"])
         self.assertFalse(next(l for l in links.mine(me)["links"] if l["token"] == forever["token"])["expired"])
         self.assertIsNotNone(links.resolve(forever["token"]))
@@ -288,7 +304,9 @@ class Devices(unittest.TestCase):
         r = devices.list_devices()
         self.assertTrue(r["demo"]); self.assertGreaterEqual(len(r["devices"]), 5)
         self.assertTrue(all(d["mac"].startswith("02:") for d in r["devices"]))  # sample MACs are never real ones
-        self.assertEqual(devices.label("02:a1:00:00:00:01", kind="toaster").get("ok"), True)  # demo: nothing written
+        self.assertFalse(devices.label("02:a1:00:00:00:01", kind="toaster").get("ok"))   # not a kind, in the sample too
+        self.assertTrue(devices.label("02:a1:00:00:00:01", name="Netgear A").get("ok"))
+        self.assertEqual(next(d for d in devices.list_devices()["devices"] if d["mac"] == "02:a1:00:00:00:01")["name"], "Netgear A")
 
     def test_router_attached_devices_normalize_and_sample(self):
         from arise_server import routers
@@ -381,7 +399,10 @@ class Mail(unittest.TestCase):
 
     def test_sending_to_everyone_needs_the_word(self):
         from arise_server import mail
-        self.assertFalse(mail.send_broadcast("x", "yes")["ok"]); self.assertTrue(mail.send_broadcast("x", "send")["ok"])
+        bc = mail.create_broadcast("Hello", "Body")["id"]
+        self.assertFalse(mail.send_broadcast(bc, "yes")["ok"]); self.assertTrue(mail.send_broadcast(bc, "send")["ok"])
+        self.assertFalse(mail.send_broadcast(bc, "send")["ok"])            # it has gone; never twice
+        self.assertEqual(next(b for b in mail.broadcasts()["broadcasts"] if b["id"] == bc)["status"], "sent")
         self.assertFalse(mail.send_test("nope", "s", "b")["ok"])
 
 
@@ -682,8 +703,13 @@ class Finder(unittest.TestCase):
     def test_trash_put_needs_the_name_typed_and_members_stay_in_their_roots(self):
         from arise_server import finder
         office = {"user": "office", "role": "member"}
-        self.assertFalse(finder.trash_put("home", "/Documents/x.docx", office, confirm="wrong")["ok"])
-        self.assertTrue(finder.trash_put("home", "/Documents/x.docx", office, confirm="x.docx")["ok"])
+        doc = "Bulletin 2026-11-01.docx"
+        self.assertFalse(finder.trash_put("home", f"/Documents/{doc}", office, confirm="wrong")["ok"])
+        self.assertTrue(finder.trash_put("home", f"/Documents/{doc}", office, confirm=doc)["ok"])
+        self.assertNotIn(doc, [e["name"] for e in files_listing("home", "/Documents", office)])   # gone from the folder
+        row = next(t for t in finder.trash_list(office)["items"] if t["name"] == doc)                # into the Trash
+        self.assertTrue(finder.trash_restore(row["base"], row["user"], row["rel"], office)["ok"])     # and back
+        self.assertIn(doc, [e["name"] for e in files_listing("home", "/Documents", office)])
         self.assertFalse(finder.trash_put("share:media", "/loops/a.mov", office, confirm="a.mov")["ok"])  # read-only for office
         self.assertFalse(finder.trash_restore("/srv/arise/shares/staff", "bradly", "Forms/x", office)["ok"])  # not their file
         self.assertFalse(finder.trash_empty("staff", "staff", office)["ok"])  # not an admin
@@ -715,7 +741,11 @@ class Finder(unittest.TestCase):
         self.assertTrue(finder.read_text("data", "/shares/graphics/ARISE_BRAND_KIT.md", who)["ok"])
         office = {"user": "office", "role": "member"}
         self.assertFalse(finder.write_text("share:media", "/x.md", "hi", office)["ok"])  # read-only share
+        self.assertFalse(finder.write_text("home", "/x.md", "hi", office)["ok"])        # no such file: the editor saves, it does not create
+        from arise_server import files as _f
+        self.assertTrue(_f.save_upload("home", "/", "x.md", b"# x\n", office)["ok"])
         self.assertTrue(finder.write_text("home", "/x.md", "hi", office)["ok"])
+        self.assertEqual(finder.read_text("home", "/x.md", office)["text"], "hi")
         html = finder.render_markdown("# T <script>alert(1)</script>\n\n[go](javascript:alert(1))\n\n> q")
         self.assertNotIn("<script>", html); self.assertIn("&lt;script&gt;", html)
         self.assertNotIn("javascript:", html); self.assertIn("<blockquote>", html)
@@ -775,10 +805,14 @@ class Finder(unittest.TestCase):
         self.assertFalse(finder.upload_start("home", "/", "big.mov", 11 * 1024 ** 3, "x", office)["ok"])
         self.assertFalse(finder.upload_start("share:media", "/", "a.mov", 10, "x", office)["ok"])   # read-only for office
         self.assertFalse(finder.upload_start("data", "/", "a.mov", 10, "x", office)["ok"])          # not a member root
-        st = finder.upload_start("home", "/Downloads", "a.mov", 100 * 1024 ** 2, "a.mov|104857600|1", office)
+        st = finder.upload_start("home", "/Downloads", "a.mov", 6, "a.mov|6|1", office)
         self.assertTrue(st["ok"]); self.assertEqual(st["offset"], 0); self.assertEqual(st["chunk"], 8 * 1024 ** 2)
         self.assertEqual(finder.upload_chunk(st["token"], 0, b"abc", office)["offset"], 3)
+        self.assertFalse(finder.upload_finish(st["token"], office)["ok"])                        # half a file is not a file
+        self.assertEqual(finder.upload_start("home", "/Downloads", "a.mov", 6, "a.mov|6|1", office)["offset"], 3)   # resumes
+        self.assertEqual(finder.upload_chunk(st["token"], 3, b"def", office)["offset"], 6)
         self.assertTrue(finder.upload_finish(st["token"], office)["ok"])
+        self.assertIn("a.mov", [e["name"] for e in files_listing("home", "/Downloads", office)])
         self.assertEqual(finder.UPLOAD_MAX, 10 * 1024 ** 3)
 class SystemApps(unittest.TestCase):
     """v0.8 Exodus (round 3): Software Update, the Store's caps and budget, the catalogue,
@@ -900,3 +934,8 @@ class SystemApps(unittest.TestCase):
         items = storage.disk_alerts([{"mount": "/srv/arise", "pct": 76, "free": 1e9}, {"mount": "/", "pct": 40, "free": 1e11}, {"mount": "/mnt/synology", "pct": 92, "free": 1e10}])
         self.assertEqual([(i["level"], i["text"].split()[0]) for i in items], [("warn", "/srv/arise"), ("bad", "/mnt/synology")])
         self.assertEqual(storage.DISK_ALERT_PCT, 75)
+
+
+def files_listing(root, path, who):
+    from arise_server import files
+    return files.listing(root, path, who).get("entries", [])

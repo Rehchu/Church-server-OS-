@@ -39,12 +39,17 @@ def jobs() -> dict:
         js = data.get("jobs", [])
         return {"demo": False, "jobs": js, "file": cfg.backups.jobs_file}
     except FileNotFoundError:
-        return {"demo": True, "jobs": demo.BACKUP_JOBS, "file": cfg.backups.jobs_file}
+        if cfg.demo:
+            return {"demo": True, "jobs": demo.BACKUP_JOBS, "file": cfg.backups.jobs_file}
+        return {"demo": False, "jobs": [], "file": cfg.backups.jobs_file, "error": f"{cfg.backups.jobs_file} is missing (copy config/backups.yaml.example there)"}
+    except yaml.YAMLError as e:
+        return {"demo": cfg.demo, "jobs": [], "file": cfg.backups.jobs_file, "error": f"{cfg.backups.jobs_file} does not parse: {str(e)[:200]}"}
 
 
 def history(limit: int = 200) -> dict:
     if load().demo:
-        rows = demo.BACKUP_HISTORY
+        from . import demo_state
+        rows = demo_state.get("backups.history", demo.BACKUP_HISTORY)
     else:
         rows = read_json(_hist_path(), default=[])
     rows = sorted(rows, key=lambda r: r.get("started", ""), reverse=True)[:limit]
@@ -144,9 +149,12 @@ def _execute(job: dict) -> dict:
     row = {"job": job["id"], "name": job.get("name", job["id"]), "started": started, "finished": None, "ok": False,
            "snapshot_id": None, "bytes_added": 0, "files_new": 0, "error": None}
     try:
-        if not available():
-            time.sleep(1.5)
-            row.update({"ok": True, "snapshot_id": "demo0000", "bytes_added": 1234567, "files_new": 3, "demo": True})
+        if load().demo:
+            time.sleep(0.3)
+            import secrets as _s
+            row.update({"ok": True, "snapshot_id": _s.token_hex(4), "bytes_added": 1234567, "files_new": 3, "demo": True})
+        elif not available():
+            raise RuntimeError("restic is not installed (install.sh step 6 installs it); nothing was backed up")
         else:
             args = ["backup", "--json", "--host", load().system.hostname]
             for t in job.get("tags", []):
@@ -183,6 +191,9 @@ def _execute(job: dict) -> dict:
     row["finished"] = now_iso()
     if not load().demo:
         _append_history(row)
+    else:
+        from . import demo_state
+        demo_state.get("backups.history", demo.BACKUP_HISTORY).append(row)
     with _lock:
         _running.pop(job["id"], None)
     return {"ok": row["ok"], **row}
@@ -216,15 +227,19 @@ def samba_offline_backup(keep: int = 2) -> dict:
 
 def forget_prune() -> dict:
     cfg = load()
-    if not available():
+    if cfg.demo:
         return {"ok": True, "demo": True}
+    if not available():
+        return {"ok": False, "err": "restic is not installed; nothing was pruned"}
     return _restic(["forget", "--prune", "--keep-daily", str(cfg.backups.keep_daily), "--keep-weekly", str(cfg.backups.keep_weekly),
                     "--keep-monthly", str(cfg.backups.keep_monthly)], timeout=3600)
 
 
 def check() -> dict:
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) no errors were found"}
     if not available():
-        return {"ok": True, "demo": True}
+        return {"ok": False, "err": "restic is not installed; the repository was not checked"}
     r = _restic(["check"], timeout=3600)
     state_p = load().state_dir / "state.json"
     st = read_json(state_p, default={})
@@ -237,6 +252,14 @@ def check() -> dict:
 def mirror_github() -> dict:
     """git clone --mirror / remote update for every repo in arise.toml."""
     cfg = load()
+    if cfg.demo:
+        from . import demo_state
+        row = {"job": "github-mirror", "name": "GitHub mirror", "started": now_iso(), "finished": now_iso(), "ok": True, "snapshot_id": None,
+               "bytes_added": 0, "files_new": 0, "error": None, "demo": True}
+        demo_state.get("backups.history", demo.BACKUP_HISTORY).append(row)
+        return {"ok": True, "demo": True, "repos": [{"repo": r, "ok": True, "error": None} for r in cfg.github.repos]}
+    if not which("git"):
+        return {"ok": False, "err": "git is not installed; nothing was mirrored"}
     base = cfg.github.mirror_path
     token = ""
     try:
@@ -244,22 +267,48 @@ def mirror_github() -> dict:
     except OSError:
         pass
     results = []
-    os.makedirs(base, exist_ok=True)
+    try:
+        os.makedirs(base, exist_ok=True)
+    except OSError as e:
+        return {"ok": False, "err": f"could not make {base}: {e}"}
     for full in cfg.github.repos:
         name = full.split("/")[-1]
         dest = os.path.join(base, name + ".git")
-        url = f"https://{token + '@' if token else ''}github.com/{full}.git"
+        url = f"https://github.com/{full}.git"   # never the token in the URL: it would be saved in the mirror's config and backed up
         if os.path.isdir(dest):
-            r = run(["git", "-C", dest, "remote", "update", "--prune"], timeout=600)
+            run(["git", "-C", dest, "remote", "set-url", "origin", url], timeout=30)   # scrub a token an older version put there
+            r = _git(["-C", dest, "remote", "update", "--prune"], token, timeout=600)
         else:
-            r = run(["git", "clone", "--mirror", url, dest], timeout=1200)
-        results.append({"repo": full, "ok": r["ok"], "error": None if r["ok"] else (r["err"] or r["out"]).replace(token, "***")[-300:]})
+            r = _git(["clone", "--mirror", url, dest], token, timeout=1200)
+        results.append({"repo": full, "ok": r["ok"], "error": None if r["ok"] else ((r["err"] or r["out"]).replace(token, "***") if token else (r["err"] or r["out"]))[-300:]})
     row = {"job": "github-mirror", "name": "GitHub mirror", "started": now_iso(), "finished": now_iso(),
            "ok": all(x["ok"] for x in results), "snapshot_id": None, "bytes_added": 0, "files_new": 0,
            "error": "; ".join(f"{x['repo']}: {x['error']}" for x in results if not x["ok"]) or None}
     if not cfg.demo:
         _append_history(row)
     return {"ok": row["ok"], "repos": results}
+
+
+def git_auth_args(token: str) -> list[str]:
+    """Pure: the -c options that hand git the token through the environment (GH_TOKEN), never argv or the URL."""
+    if not token:
+        return []
+    return ["-c", "credential.helper=", "-c", "credential.helper=!f() { echo username=x-access-token; echo \"password=$GH_TOKEN\"; }; f"]
+
+
+def _git(args: list[str], token: str, timeout: int = 600) -> dict:
+    import subprocess
+    env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
+    if token:
+        env["GH_TOKEN"] = token
+    cmd = ["git", *git_auth_args(token), *args]
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
+        return {"ok": p.returncode == 0, "code": p.returncode, "out": p.stdout, "err": p.stderr, "cmd": " ".join(["git", *args])}
+    except FileNotFoundError:
+        return {"ok": False, "code": 127, "out": "", "err": "git: not installed", "cmd": "git"}
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "code": 124, "out": "", "err": f"timed out after {timeout}s", "cmd": "git"}
 
 
 # ---- the restore drill -----------------------------------------------------------

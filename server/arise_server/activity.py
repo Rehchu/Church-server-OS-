@@ -104,7 +104,11 @@ def _containers() -> list[dict]:
 def snapshot(limit: int = 60) -> dict:
     cfg = load()
     if cfg.demo:
-        return _demo()
+        from . import demo_state
+        gone = demo_state.get("activity.ended", set)
+        d = _demo()
+        d["processes"] = [p for p in d["processes"] if p["pid"] not in gone]
+        return d
     with _lock:
         if _cache["data"] and time.time() - _cache["t"] < 3:
             return _cache["data"]
@@ -122,8 +126,15 @@ def kill(pid: int, confirm: str) -> dict:
         return {"ok": False, "err": "type the PID to confirm"}
     if load().demo:
         row = next((p for p in _demo()["processes"] if p["pid"] == pid), None)
-        okk, why = may_kill(pid, row["name"] if row else "", row["cmd"] if row else "")
-        return {"ok": okk, "demo": True, "out": f"(sample) would end PID {pid}"} if okk else {"ok": False, "err": why}
+        from . import demo_state
+        gone = demo_state.get("activity.ended", set)
+        if not row or pid in gone:
+            return {"ok": False, "err": f"no process {pid} (it already ended)"}
+        okk, why = may_kill(pid, row["name"], row["cmd"])
+        if not okk:
+            return {"ok": False, "err": why}
+        gone.add(pid)
+        return {"ok": True, "demo": True, "out": f"(sample) {row['name']} ({pid}) ended"}
     try:
         p = psutil.Process(pid)
         name, cmd = p.name(), " ".join(p.cmdline())

@@ -58,7 +58,8 @@ def parse_wlr_randr(text: str) -> list[dict]:
 
 def outputs() -> dict:
     if load().demo:
-        return {"demo": True, "outputs": [{"name": "HDMI-A-1", "description": "Dell E2216H", "enabled": True}], "display": "wayland-0"}
+        from . import demo_state
+        return {"demo": True, "outputs": demo_state.get("monitor.outputs", [{"name": "HDMI-A-1", "description": "Dell E2216H", "enabled": True}]), "display": "wayland-0"}
     if not which("wlr-randr"):
         return {"demo": False, "outputs": [], "error": "wlr-randr is not installed (install.sh --kiosk installs it)", "display": display()}
     r = _as_kiosk(["wlr-randr"])
@@ -71,7 +72,9 @@ def power(on: bool) -> dict:
     """Panel on or off. Off means the output is disabled in cage; a key does not
     bring it back by itself - the 06:00 timer or `arisectl monitor on` does."""
     if load().demo:
-        return {"ok": True, "demo": True, "out": f"(sample) monitor {'on' if on else 'off'}"}
+        for o in outputs()["outputs"]:
+            o["enabled"] = bool(on)
+        return {"ok": True, "demo": True, "on": bool(on), "out": f"(sample) monitor {'on' if on else 'off'}"}
     o = outputs()
     if o.get("error"):
         return {"ok": False, "err": o["error"]}
@@ -147,7 +150,9 @@ def guac_gateway() -> str | None:
 
 def share_status() -> dict:
     if load().demo:
-        return {"demo": True, "on": True, "address": "172.18.0.1", "port": VNC_PORT, "user": "bradly.dyer", "connection": "Closet monitor", "guacamole": "http://arise-server:8084/guacamole"}
+        from . import demo_state
+        on = demo_state.get("monitor.share", {"on": True})["on"]
+        return {"demo": True, "on": on, "address": "172.18.0.1", "port": VNC_PORT, "user": "bradly.dyer", "connection": "Closet monitor", "guacamole": "http://arise-server:8084/guacamole"}
     on = os.path.exists(WAYVNC_CONF)
     addr = ""
     if on:
@@ -173,7 +178,9 @@ def share(on: bool, user: str | None = None) -> dict:
     cfg = load()
     user = user or cfg.web.admin_user
     if cfg.demo:
-        return {"ok": True, "demo": True, "out": f"(sample) screen sharing {'on' if on else 'off'} for {user}"}
+        from . import demo_state
+        demo_state.get("monitor.share", {"on": True})["on"] = bool(on)
+        return {"ok": True, "demo": True, "on": bool(on), "out": f"(sample) screen sharing {'on' if on else 'off'} for {user}"}
     if not on:
         run(["systemctl", "disable", "--now", "arise-wayvnc.service"], timeout=30)
         return {"ok": True, "out": "wayvnc stopped. The Guacamole connection stays but has nothing to connect to; `arisectl monitor share on` brings it back."}

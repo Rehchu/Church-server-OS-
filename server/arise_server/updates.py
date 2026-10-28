@@ -86,7 +86,14 @@ def _queue_path():
     return load().state_dir / "updates-queue.json"
 
 
+def _sample_queue() -> dict:
+    from . import demo_state
+    return demo_state.get("updates.queue", lambda: {"packages": ["samba", "tzdata"], "apps": ["uptime-kuma"], "reboot": True, "queued_at": now_iso(), "by": "bradly"})
+
+
 def queue() -> dict:
+    if load().demo:
+        return _sample_queue()
     q = read_json(_queue_path(), default=None) or {}
     q.setdefault("packages", [])
     q.setdefault("apps", [])
@@ -105,7 +112,7 @@ def set_queue(packages: list[str] | None = None, app_names: list[str] | None = N
     q["queued_at"] = now_iso()
     q["by"] = who
     if load().demo:
-        return {"ok": True, "demo": True, "queue": q}
+        return {"ok": True, "demo": True, "queue": q}   # q is the sample's own queue (queue() returned it)
     from .util import write_json
     write_json(_queue_path(), q)
     return {"ok": True, "queue": q}
@@ -204,8 +211,8 @@ def _status_uncached() -> dict:
             "tzdata/noble-updates 2024b-0ubuntu0.24.04 all [upgradable from: 2024a-3ubuntu1.1]\n")
         return {"demo": True, "window": WINDOW, "security": pend["security"], "other": pend["other"], "reboot_required": True,
                 "reboot_pkgs": ["linux-image-6.8.0-47-generic"], "apps": {"checked_at": now_iso(), "apps": [{"name": "uptime-kuma", "update": True, "services": ["uptime-kuma"]}, {"name": "netdata", "update": False, "services": []}]},
-                "queue": {"packages": ["samba", "tzdata"], "apps": ["uptime-kuma"], "reboot": True, "queued_at": now_iso(), "by": "bradly"},
-                "arise": {"behind": 0, "version": _version()}, "last_apply": {"when": (datetime.now() - timedelta(days=5)).isoformat(timespec="minutes"), "ok": True, "summary": "2 packages, 1 app, no reboot needed"},
+                "queue": _sample_queue(),
+                "arise": {"behind": 0, "version": _version()}, "last_apply": _sample_last(),
                 "in_service": in_service_window(), "last_check": now_iso()}
     pend = _apt_pending()
     reboot_pkgs = []
@@ -222,6 +229,11 @@ def _status_uncached() -> dict:
             "in_service": _in_service(), "last_check": now_iso()}
 
 
+def _sample_last() -> dict:
+    from . import demo_state
+    return demo_state.get("updates.last", lambda: {"when": (datetime.now() - timedelta(days=5)).isoformat(timespec="minutes"), "ok": True, "summary": "2 packages, 1 app, no reboot needed"})
+
+
 def _version():
     from . import VERSION
     return VERSION
@@ -229,8 +241,10 @@ def _version():
 
 def refresh() -> dict:
     """`apt-get update`: the package lists, nothing installed."""
-    if load().demo or not which("apt-get"):
-        return {"ok": True, "demo": True}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) apt-get update"}
+    if not which("apt-get"):
+        return {"ok": False, "err": "apt-get is not here; this is not an Ubuntu box"}
     env = dict(os.environ, DEBIAN_FRONTEND="noninteractive")
     import subprocess
     p = subprocess.run(["apt-get", "update", "-q"], capture_output=True, text=True, timeout=600, env=env)
@@ -262,8 +276,11 @@ def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> 
         log(result["summary"])
         return _finish(cfg, result)
     if cfg.demo:
-        result["summary"] = f"(sample) would install {len(q['packages'])} packages and update {len(q['apps'])} apps" + (", then reboot" if q["reboot"] else "")
+        from . import demo_state
+        result["summary"] = f"(sample) installed {len(q['packages'])} packages and updated {len(q['apps'])} apps" + (", then rebooted" if q["reboot"] else "")
         result["demo"] = True
+        demo_state.put("updates.last", {"when": result["when"][:16], "ok": True, "summary": result["summary"]})
+        q.update({"packages": [], "apps": [], "reboot": False})
         log(result["summary"])
         return result
     if not _lock.acquire(blocking=False):

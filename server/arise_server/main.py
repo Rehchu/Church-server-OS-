@@ -38,6 +38,23 @@ if not cfg.demo:
     push.watch(lambda: overview.__wrapped__() if hasattr(overview, "__wrapped__") else _attention_now())
     security.rescue_watch()  # a push the moment the break-glass account signs in
 
+from . import demo_state
+
+
+def _demo_hooks():
+    """Modules that keep their own sample dicts clear them on a reset."""
+    from . import calendar as _cal, links as _links, mail as _mail
+    demo_state.on_reset(_links._DEMO.clear)
+    demo_state.on_reset(_cal._DEMO.clear)
+    demo_state.on_reset(church._DEMO_STATE.clear)
+    demo_state.on_reset(lambda: (_mail._import_state.clear(), _mail._import_state.update({"running": False})))
+    demo_state.on_reset(automator._last_manual.clear)
+    demo_state.on_reset(finder._recent_cache.clear)
+    demo_state.on_reset(files._search_cache.clear)
+
+
+_demo_hooks()
+
 auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
 admin = Depends(require_admin)    # the administrator only
 recent = Depends(require_recent_auth)  # typed the password again within five minutes (delete a user, empty a Trash, shut down)
@@ -47,6 +64,15 @@ recent = Depends(require_recent_auth)  # typed the password again within five mi
 async def _http_exc(_req, exc: HTTPException):
     detail = exc.detail if isinstance(exc.detail, dict) else {"message": str(exc.detail)}
     return JSONResponse({"error": detail}, status_code=exc.status_code)
+
+
+# ----- the sample server (demo mode only) -------------------------------------
+@app.post("/api/demo/reset")
+def api_demo_reset(_=Depends(require_admin)):
+    """Put the sample back the way it started. Refused on a real server."""
+    if not load().demo:
+        raise HTTPException(404, {"message": "Not found"})
+    return demo_state.reset()
 
 
 # ----- auth ------------------------------------------------------------------
@@ -61,8 +87,10 @@ def api_login(body: Login, response: Response):
     if not c.demo and not c.web.admin_password_hash:
         raise HTTPException(401, {"setup": True, "message": "No admin password yet. On the server run: sudo arisectl admin set-password"})
     got = login(body.user, body.password)
+    if not got and c.demo and directory._u((body.user or "").strip().lower()):
+        raise HTTPException(401, {"message": "Wrong user or password (or the account is disabled)"})
     if not got:
-        if c.demo:  # sample mode: unknown names become the admin, as before
+        if c.demo:  # sample mode: names the sample does not know become the admin, as before
             got = (None, {"user": "demo", "role": "admin", "via": "demo"})
         else:
             time.sleep(0.8)  # slow down guessing
@@ -147,7 +175,11 @@ def api_me_password(body: PasswordChange, who=auth):
     if len(body.new) < 8:
         return {"ok": False, "err": "at least 8 characters"}
     if c.demo:
-        return {"ok": True, "demo": True}
+        if not directory._u(who["user"]):
+            return {"ok": True, "demo": True, "out": "(sample) the sample admin has no directory password"}
+        if not directory.authenticate(who["user"], body.old):
+            return {"ok": False, "err": "current password is wrong"}
+        return directory.set_password(who["user"], body.new)
     if who["user"] == c.web.admin_user and not directory.authenticate(who["user"], body.old):
         if c.web.admin_password_hash and __import__("arise_server.auth", fromlist=["verify_password"]).verify_password(body.old, c.web.admin_password_hash):
             return {"ok": False, "err": "That is the local dashboard password: change it on the server with sudo arisectl admin set-password"}
@@ -196,7 +228,7 @@ def api_password_rules(_=auth):
 
 # ----- overview + stats --------------------------------------------------------
 @app.get("/api/overview")
-def overview(_=auth):
+def overview(_=admin):
     c = load()
     st = metrics.static_info()
     svc = services.list_services()
@@ -264,23 +296,23 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
 
 
 @app.get("/api/stats/stream")
-async def stats_stream(_=auth):
+async def stats_stream(_=admin):
     return StreamingResponse(metrics.sse(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.get("/api/stats/history")
-def stats_history(_=auth):
+def stats_history(_=admin):
     return {"history": metrics.history(), "latest": metrics.latest(), "machine": metrics.static_info()}
 
 
 # ----- services + logs -------------------------------------------------------
 @app.get("/api/services")
-def api_services(_=auth):
+def api_services(_=admin):
     return services.list_services()
 
 
 @app.post("/api/services/{unit}/{action}")
-def api_service_act(unit: str, action: str, _=auth):
+def api_service_act(unit: str, action: str, _=admin):
     if unit.startswith("samba-ad-dc") and action != "status":
         svc = church.in_service_now()
         if svc:
@@ -289,17 +321,17 @@ def api_service_act(unit: str, action: str, _=auth):
 
 
 @app.get("/api/logs/sources")
-def api_log_sources(_=auth):
+def api_log_sources(_=admin):
     return services.log_sources()
 
 
 @app.get("/api/logs/file/{name}")
-def api_log_file(name: str, lines: int = 300, _=auth):
+def api_log_file(name: str, lines: int = 300, _=admin):
     return services.log_file(name, lines)
 
 
 @app.get("/api/logs/{unit}")
-def api_logs(unit: str, lines: int = 200, _=auth):
+def api_logs(unit: str, lines: int = 200, _=admin):
     return services.journal(unit, lines)
 
 
@@ -316,36 +348,36 @@ class ApplyBody(BaseModel):
 
 
 @app.get("/api/updates")
-def api_updates_status(_=auth):
+def api_updates_status(_=admin):
     return updates.status()
 
 
 @app.post("/api/updates/refresh")
-def api_updates_refresh(_=auth):
+def api_updates_refresh(_=admin):
     r = updates.refresh()
     r["status"] = updates.status()
     return r
 
 
 @app.post("/api/updates/check-apps")
-def api_updates_check_apps(_=auth):
+def api_updates_check_apps(_=admin):
     return updates.check_apps()
 
 
 @app.post("/api/updates/queue")
-def api_updates_queue(body: QueueBody, who=auth):
+def api_updates_queue(body: QueueBody, who=admin):
     return updates.set_queue(body.packages, body.apps, body.reboot, who.get("user", ""))
 
 
 @app.post("/api/updates/apply")
-def api_updates_apply(body: ApplyBody, _=auth):
+def api_updates_apply(body: ApplyBody, _=admin):
     if body.confirm != "install":
         return {"ok": False, "err": "type install to confirm"}
     return updates.apply(no_snapshot=body.no_snapshot, log=lambda *_a: None)
 
 
 @app.get("/api/activity")
-def api_activity(_=auth):
+def api_activity(_=admin):
     return activity.snapshot()
 
 
@@ -355,12 +387,12 @@ class KillBody(BaseModel):
 
 
 @app.post("/api/activity/kill")
-def api_activity_kill(body: KillBody, _=auth):
+def api_activity_kill(body: KillBody, _=admin):
     return activity.kill(body.pid, body.confirm)
 
 
 @app.get("/api/automations")
-def api_automations(_=auth):
+def api_automations(_=admin):
     return automations.list_automations()
 
 
@@ -369,14 +401,14 @@ class TimerBody(BaseModel):
 
 
 @app.post("/api/automations/{timer}/{action}")
-def api_automations_act(timer: str, action: str, body: TimerBody, _=auth):
+def api_automations_act(timer: str, action: str, body: TimerBody, _=admin):
     if action not in ("pause", "resume"):
         return {"ok": False, "err": "action must be pause or resume"}
     return automations.pause(timer, action == "resume", body.confirm)
 
 
 @app.get("/api/storage")
-def api_storage(_=auth):
+def api_storage(_=admin):
     r = storage.status()
     for m in r.get("mounts", []):
         m["total_h"], m["used_h"], m["free_h"] = human_bytes(m.get("total")), human_bytes(m.get("used")), human_bytes(m.get("free"))
@@ -384,12 +416,12 @@ def api_storage(_=auth):
 
 
 @app.post("/api/storage/scan")
-def api_storage_scan(_=auth):
+def api_storage_scan(_=admin):
     return storage.scan()
 
 
 @app.get("/api/monitor")
-def api_monitor(_=auth):
+def api_monitor(_=admin):
     return monitor.status()
 
 
@@ -398,7 +430,7 @@ class MonitorBody(BaseModel):
 
 
 @app.post("/api/monitor/power")
-def api_monitor_power(body: MonitorBody, _=auth):
+def api_monitor_power(body: MonitorBody, _=admin):
     return monitor.power(body.on)
 
 
@@ -428,62 +460,64 @@ class Member(BaseModel):
 
 
 @app.get("/api/directory/status")
-def dir_status(_=auth):
+def dir_status(_=admin):
     return directory.status()
 
 
 @app.get("/api/directory/users")
-def dir_users(_=auth):
+def dir_users(_=admin):
     return directory.list_users()
 
 
 @app.post("/api/directory/users")
-def dir_user_add(body: NewUser, _=auth):
+def dir_user_add(body: NewUser, _=admin):
     return directory.add_user(body.name, body.password, body.display, body.groups)
 
 
 @app.post("/api/directory/users/{name}/reset-password")
-def dir_user_pw(name: str, body: Password, _=auth):
+def dir_user_pw(name: str, body: Password, _=admin):
     return directory.set_password(name, body.password)
 
 
 @app.post("/api/directory/users/{name}/enable")
-def dir_user_enable(name: str, _=auth):
+def dir_user_enable(name: str, _=admin):
     return directory.enable_user(name, True)
 
 
 @app.post("/api/directory/users/{name}/disable")
-def dir_user_disable(name: str, _=auth):
+def dir_user_disable(name: str, _=admin):
     return directory.enable_user(name, False)
 
 
 @app.delete("/api/directory/users/{name}")
-def dir_user_del(name: str, body: Confirm, _=recent):
+def dir_user_del(name: str, body: Confirm, who=recent):
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
     return directory.delete_user(name, body.confirm)
 
 
 @app.get("/api/directory/groups")
-def dir_groups(_=auth):
+def dir_groups(_=admin):
     return directory.list_groups()
 
 
 @app.post("/api/directory/groups")
-def dir_group_add(body: NewGroup, _=auth):
+def dir_group_add(body: NewGroup, _=admin):
     return directory.add_group(body.name, body.description)
 
 
 @app.post("/api/directory/groups/{group}/members")
-def dir_group_member(group: str, body: Member, _=auth):
+def dir_group_member(group: str, body: Member, _=admin):
     return directory.add_member(group, body.user)
 
 
 @app.delete("/api/directory/groups/{group}/members/{user}")
-def dir_group_member_del(group: str, user: str, _=auth):
+def dir_group_member_del(group: str, user: str, _=admin):
     return directory.remove_member(group, user)
 
 
 @app.get("/api/directory/computers")
-def dir_computers(_=auth):
+def dir_computers(_=admin):
     return directory.list_computers()
 
 
@@ -497,7 +531,7 @@ class NewShare(BaseModel):
 
 
 @app.get("/api/shares")
-def api_shares(_=auth):
+def api_shares(_=admin):
     r = shares.list_shares()
     for s in r["shares"]:
         s["used_h"] = human_bytes(s.get("used"))
@@ -505,89 +539,89 @@ def api_shares(_=auth):
 
 
 @app.post("/api/shares")
-def api_share_add(body: NewShare, _=auth):
+def api_share_add(body: NewShare, _=admin):
     return shares.add_share(body.name, body.path, body.comment, body.group, body.mac)
 
 
 @app.delete("/api/shares/{name}")
-def api_share_del(name: str, body: Confirm, _=auth):
+def api_share_del(name: str, body: Confirm, _=admin):
     return shares.remove_share(name, body.confirm)
 
 
 # ----- backups -----------------------------------------------------------------
 @app.get("/api/backups/jobs")
-def bk_jobs(_=auth):
+def bk_jobs(_=admin):
     return backups.jobs()
 
 
 @app.get("/api/backups/history")
-def bk_history(limit: int = 200, _=auth):
+def bk_history(limit: int = 200, _=admin):
     return backups.history(limit)
 
 
 @app.get("/api/backups/snapshots")
-def bk_snapshots(limit: int = 100, _=auth):
+def bk_snapshots(limit: int = 100, _=admin):
     return backups.snapshots(limit)
 
 
 @app.get("/api/backups/repo")
-def bk_repo(_=auth):
+def bk_repo(_=admin):
     return backups.repo()
 
 
 @app.post("/api/backups/run/{job}")
-def bk_run(job: str, _=auth):
+def bk_run(job: str, _=admin):
     return backups.run_job(job)
 
 
 @app.post("/api/backups/mirror")
-def bk_mirror(_=auth):
+def bk_mirror(_=admin):
     return backups.mirror_github()
 
 
 @app.post("/api/backups/check")
-def bk_check(_=auth):
+def bk_check(_=admin):
     return backups.check()
 
 
 # ----- automator ---------------------------------------------------------------
 @app.get("/api/automator")
-def auto_overview(_=auth):
+def auto_overview(_=admin):
     return automator.overview()
 
 
 @app.get("/api/automator/reports")
-def auto_reports(_=auth):
+def auto_reports(_=admin):
     return {"reports": automator.overview().get("reports", [])}
 
 
 @app.get("/api/automator/reports/{name}")
-def auto_report(name: str, _=auth):
+def auto_report(name: str, _=admin):
     return automator.report(name)
 
 
 @app.get("/api/automator/worklist")
-def auto_worklist(_=auth):
+def auto_worklist(_=admin):
     return automator.worklist()
 
 
 @app.get("/api/automator/holds")
-def auto_holds(_=auth):
+def auto_holds(_=admin):
     return automator.holds()
 
 
 @app.get("/api/automator/quota")
-def auto_quota(_=auth):
+def auto_quota(_=admin):
     return automator.quota()
 
 
 @app.post("/api/automator/run")
-def auto_run(_=auth):
+def auto_run(_=admin):
     return automator.start("run")
 
 
 @app.post("/api/automator/preview")
-def auto_preview(_=auth):
+def auto_preview(_=admin):
     return automator.start("preview")
 
 
@@ -599,7 +633,7 @@ class Deploy(BaseModel):
 
 
 @app.get("/api/apps")
-def api_apps(_=auth):
+def api_apps(_=admin):
     r = apps.list_apps()
     for a in r["apps"]:
         a["mem_h"] = human_bytes(a.get("mem"))
@@ -607,17 +641,17 @@ def api_apps(_=auth):
 
 
 @app.get("/api/apps/templates")
-def api_templates(_=auth):
+def api_templates(_=admin):
     return apps.templates()
 
 
 @app.get("/api/apps/catalog")
-def api_catalog(_=auth):
+def api_catalog(_=admin):
     return apps.catalog()
 
 
 @app.get("/api/apps/theme/{name}")
-def api_app_theme(name: str, _=auth):
+def api_app_theme(name: str, _=admin):
     return apps.theme_for(name)
 
 
@@ -633,7 +667,7 @@ def api_app_open(name: str, _=auth):
 
 
 @app.post("/api/apps/deploy")
-def api_deploy(body: Deploy, _=auth):
+def api_deploy(body: Deploy, _=admin):
     return apps.deploy(body.template, body.name, body.env)
 
 
@@ -642,23 +676,23 @@ class AutostartBody(BaseModel):
 
 
 @app.post("/api/apps/{name}/autostart")
-def api_app_autostart(name: str, body: AutostartBody, _=auth):
+def api_app_autostart(name: str, body: AutostartBody, _=admin):
     return apps.set_autostart(name, body.on)
 
 
 @app.post("/api/apps/{name}/{action}")
-def api_app_act(name: str, action: str, body: Confirm | None = None, _=auth):
+def api_app_act(name: str, action: str, body: Confirm | None = None, _=admin):
     return apps.act(name, action, (body.confirm if body else ""))
 
 
 @app.get("/api/apps/{name}/logs")
-def api_app_logs(name: str, lines: int = 200, _=auth):
+def api_app_logs(name: str, lines: int = 200, _=admin):
     return apps.logs(name, lines)
 
 
 # ----- nas + settings ----------------------------------------------------------
 @app.get("/api/nas")
-def api_nas(_=auth):
+def api_nas(_=admin):
     r = nas.status()
     for k in ("total", "used", "free"):
         r[k + "_h"] = human_bytes(r.get(k))
@@ -666,17 +700,17 @@ def api_nas(_=auth):
 
 
 @app.post("/api/nas/mount")
-def api_nas_mount(_=auth):
+def api_nas_mount(_=admin):
     return nas.mount()
 
 
 @app.post("/api/nas/unmount")
-def api_nas_unmount(_=auth):
+def api_nas_unmount(_=admin):
     return nas.unmount()
 
 
 @app.get("/api/settings")
-def api_settings(_=auth):
+def api_settings(_=admin):
     return load().public()
 
 
@@ -693,7 +727,7 @@ def api_sites(_=auth):
 
 
 @app.get("/api/remote")
-def api_remote(_=auth):
+def api_remote(_=admin):
     return remote.overview()
 
 
@@ -702,7 +736,7 @@ class PeerName(BaseModel):
 
 
 @app.post("/api/remote/wireguard/peers")
-def api_remote_peer(body: PeerName, _=auth):
+def api_remote_peer(body: PeerName, _=admin):
     return remote.add_wireguard_peer(body.name)
 
 
@@ -929,7 +963,16 @@ def api_files_versions_restore(body: VersionRestore, who=auth):
     if body.root in rs and not files._writable(rs, body.root):
         return {"ok": False, "err": "that share is read-only for you; ask the media team to put it back"}
     if load().demo:
-        return backups.restore_version("/srv/arise" + body.path, body.snapshot, who)
+        key = files._demo_rel(body.root, "/" + body.path.strip("/"), who)
+        hit = files.demo_find(key) if key else None
+        if not hit:
+            return {"ok": False, "err": "not a file you can reach"}
+        parent, name = files._split(key)
+        have = {e[0] for e in files.tree().get(parent, [])}
+        from datetime import datetime as _dt
+        final = backups.restored_name(name, _dt.now().strftime("%Y-%m-%d"), lambda n: n in have)
+        files.demo_add(parent, final, bool(hit[1]), hit[2] if len(hit) > 2 else None)
+        return {"ok": True, "demo": True, "restored": final}
     if not got:
         return {"ok": False, "err": "not a file you can reach"}
     return backups.restore_version(got[1], body.snapshot, who)
@@ -1186,23 +1229,23 @@ class MailImport(BaseModel):
 
 
 @app.get("/api/mail")
-def api_mail(_=auth):
+def api_mail(_=admin):
     return {**mail.status(), "import": mail.import_status()}
 
 
 @app.get("/api/mail/contacts")
-def api_mail_contacts(_=auth):
+def api_mail_contacts(_=admin):
     return mail.contacts()
 
 
 @app.post("/api/mail/import/preview")
-def api_mail_import_preview(body: MailImport, _=auth):
+def api_mail_import_preview(body: MailImport, _=admin):
     r = mail.parse_contacts(body.csv)
     return {"count": len(r["contacts"]), "skipped": r["skipped"], "columns": r.get("columns"), "err": r.get("err"), "sample": r["contacts"][:5]}
 
 
 @app.post("/api/mail/import")
-def api_mail_import(body: MailImport, _=auth):
+def api_mail_import(body: MailImport, _=admin):
     r = mail.parse_contacts(body.csv)
     if r.get("err"):
         return {"ok": False, "err": r["err"]}
@@ -1210,29 +1253,29 @@ def api_mail_import(body: MailImport, _=auth):
 
 
 @app.post("/api/mail/preview")
-def api_mail_preview(body: MailDraft, _=auth):
+def api_mail_preview(body: MailDraft, _=admin):
     c = church.info()
     # the merge tags are Resend's; show the preview the way a reader named nobody sees it
     return {"html": mail.render(body.subject, body.body, c["name"], c["city"]).replace("{{{FIRST_NAME|there}}}", "there").replace("{{{RESEND_UNSUBSCRIBE_URL}}}", "#")}
 
 
 @app.post("/api/mail/test")
-def api_mail_test(body: MailTest, _=auth):
+def api_mail_test(body: MailTest, _=admin):
     return mail.send_test(body.to, body.subject, body.body)
 
 
 @app.post("/api/mail/broadcasts")
-def api_mail_broadcast(body: MailDraft, _=auth):
+def api_mail_broadcast(body: MailDraft, _=admin):
     return mail.create_broadcast(body.subject, body.body, body.name)
 
 
 @app.post("/api/mail/broadcasts/{bc_id}/send")
-def api_mail_broadcast_send(bc_id: str, body: MailSend, _=auth):
+def api_mail_broadcast_send(bc_id: str, body: MailSend, _=admin):
     return mail.send_broadcast(bc_id, body.confirm)
 
 
 @app.get("/api/mail/broadcasts")
-def api_mail_broadcasts(_=auth):
+def api_mail_broadcasts(_=admin):
     return mail.broadcasts()
 
 
@@ -1244,34 +1287,34 @@ class DeviceLabel(BaseModel):
 
 
 @app.get("/api/devices")
-def api_devices(_=auth):
+def api_devices(_=admin):
     return devices.list_devices()
 
 
 @app.get("/api/devices/behind")
-def api_devices_behind(_=auth):
+def api_devices_behind(_=admin):
     """What the other routers report as attached, read from them (never written)."""
     return routers.behind()
 
 
 @app.post("/api/devices/scan")
-def api_devices_scan(wide: int = 0, _=auth):
+def api_devices_scan(wide: int = 0, _=admin):
     return devices.scan(wide=bool(wide))
 
 
 @app.get("/api/devices/cameras")
-def api_devices_cameras(_=auth):
+def api_devices_cameras(_=admin):
     """ONVIF discovery: which cameras answer on the wire, and whether this network can reach them."""
     return devices.find_cameras()
 
 
 @app.post("/api/devices/{mac}")
-def api_devices_label(mac: str, body: DeviceLabel, _=auth):
+def api_devices_label(mac: str, body: DeviceLabel, _=admin):
     return devices.label(mac, body.name, body.note, body.kind)
 
 
 @app.delete("/api/devices/{mac}")
-def api_devices_forget(mac: str, _=auth):
+def api_devices_forget(mac: str, _=admin):
     return devices.forget(mac)
 
 
@@ -1326,17 +1369,17 @@ def api_ca_crt():
 
 
 @app.get("/api/system/updates")
-def api_updates(_=auth):
+def api_updates(_=admin):
     return system.updates()
 
 
 @app.post("/api/system/update")
-def api_update(_=auth):
+def api_update(_=admin):
     return system.update_arise()
 
 
 @app.post("/api/system/apt-upgrade")
-def api_apt_upgrade(_=auth):
+def api_apt_upgrade(_=admin):
     return system.apt_upgrade()
 
 
@@ -1354,7 +1397,7 @@ def api_power(body: Power, _=recent):
 
 
 @app.post("/api/notify/test")
-def api_notify_test(_=auth):
+def api_notify_test(_=admin):
     c = load()
     if c.demo:
         return {"ok": True, "demo": True}
@@ -1362,7 +1405,7 @@ def api_notify_test(_=auth):
 
 
 @app.get("/api/notify")
-def api_notify(_=auth):
+def api_notify(_=admin):
     from .util import read_json
     n = system.notify_config()
     st = read_json(load().state_dir / "state.json", default={}) or {}

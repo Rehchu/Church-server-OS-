@@ -483,6 +483,10 @@ def cmd_automator(a):
     elif a.sub in ("preview", "run"):
         if not automator.available():
             sys.exit(f"automator not found at {o['path']}")
+        if a.sub == "run":
+            why = automator.run_refusal()   # CLAUDE.md rule 3: never by hand while the timer is on, never twice a night
+            if why:
+                bad(why); sys.exit(1)
         cfg = load()
         p = Path(cfg.automator.path) / "automator"
         cmd = [cfg.automator.python, str(p / "arise_daily.py")] + (["--dry-run"] if a.sub == "preview" else [])

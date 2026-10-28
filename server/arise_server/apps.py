@@ -15,9 +15,9 @@ import shutil
 
 import yaml
 
-from . import demo
+from . import demo, demo_state
 from .config import load
-from .util import read_json, run, which, write_json
+from .util import now_iso, read_json, run, which, write_json
 
 NAME_RE = re.compile(r"^[a-z][a-z0-9-]{1,31}$")
 RESERVE_MB = 2048          # what the domain, Samba, the dashboard and the kiosk keep for themselves
@@ -271,7 +271,11 @@ def set_autostart(name: str, on: bool) -> dict:
         return {"ok": False, "err": "bad app name"}
     cfg = load()
     if cfg.demo:
-        return {"ok": True, "demo": True, "out": f"(sample) autostart {'on' if on else 'off'} for {name}"}
+        a = _sample_app(name)
+        if not a:
+            return {"ok": False, "err": f"{name} is not installed"}
+        a["autostart"] = bool(on)
+        return {"ok": True, "demo": True, "autostart": bool(on), "out": f"(sample) autostart {'on' if on else 'off'} for {name}"}
     p = os.path.join(cfg.apps.root, name, "arise.json")
     if not os.path.isdir(os.path.dirname(p)):
         return {"ok": False, "err": f"{name} is not installed"}
@@ -283,19 +287,27 @@ def set_autostart(name: str, on: bool) -> dict:
     return {"ok": True, "autostart": bool(on)}
 
 
+def _sample_apps() -> list[dict]:
+    return demo_state.get("apps", lambda: [dict(a, autostart=a["status"] == "running", ram_mb=a.get("ram_mb", 150), limit_mb=a.get("limit_mb", 512), source="template") for a in demo.APPS])
+
+
+def _sample_app(name: str) -> dict | None:
+    return next((a for a in _sample_apps() if a["name"] == name), None)
+
+
 def list_apps() -> dict:
     cfg = load()
     if not available():
-        rows = []
-        for a in demo.APPS:
-            rows.append(dict(a, autostart=a["status"] == "running", ram_mb=a.get("ram_mb", 150), limit_mb=a.get("limit_mb", 512), source="template"))
-        return {"demo": True, "apps": rows, "docker": False, "ram_total_mb": 16384, "reserve_mb": RESERVE_MB}
+        return {"demo": True, "apps": _sample_apps(), "docker": False, "ram_total_mb": 16384, "reserve_mb": RESERVE_MB}
     r = run(["docker", "compose", "ls", "--all", "--format", "json"], timeout=20)
     rows = []
     try:
         rows = json.loads(r["out"] or "[]")
     except json.JSONDecodeError:
         pass
+    if not r["ok"]:
+        return {"demo": False, "apps": [], "docker": True, "error": "docker compose ls: " + ((r["err"] or r["out"]).strip()[:200] or "failed"),
+                "ram_total_mb": ram_total_mb(), "reserve_mb": RESERVE_MB}
     apps = []
     stats = _stats()
     for s in rows:
@@ -451,7 +463,16 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     lim.update({k: v for k, v in (meta.get("limits") or {}).items() if k in lim})
     autostart = bool(meta.get("autostart", True)) if start is None else bool(start)
     if not available():
-        return {"ok": True, "demo": True, "out": f"(demo) would deploy {template} as {name}" + ("" if autostart else " (left stopped)")}
+        if _sample_app(name):
+            return {"ok": False, "err": f"{name} is already installed"}
+        ports = [str(p) for p in (meta.get("ports") or [])]
+        host = load().system.hostname
+        url = f"http://{host}:{ports[0].split(':')[0]}" if ports and ":" in ports[0] else ""
+        row = {"name": name, "template": template, "source": "template" if entry is None else "catalog", "status": "running" if autostart else "exited",
+               "ports": ports, "cpu": 0.0, "mem": 0, "url": url, "updated": now_iso(), "autostart": autostart,
+               "ram_mb": meta.get("ram_mb", 200), "limit_mb": lim.get("mem_mb")}
+        _sample_apps().append(row)
+        return {"ok": True, "demo": True, "app": row, "out": f"(sample) deployed {template} as {name}" + ("" if autostart else " (left stopped)")}
     dest = os.path.join(cfg.apps.root, name)
     os.makedirs(dest, exist_ok=True)
     if entry is None:
@@ -509,7 +530,6 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     pre = _pre_deploy(template, dest, values)
     if pre and not pre.get("ok", True):
         return pre
-    from .util import now_iso
     old = _app_meta(name)
     write_json(os.path.join(dest, "arise.json"), {"template": template, "source": "template" if entry is None else "catalog", "autostart": old.get("autostart", autostart) if old else autostart,
                                                    "ram_mb": int(meta.get("ram_mb") or lim["mem_mb"]), "limits": lim, "deployed": now_iso(), "version": str(meta.get("version") or meta.get("image") or ""),
@@ -612,8 +632,23 @@ def act(name: str, action: str, confirm: str = "") -> dict:
     if action == "remove" and confirm != name:
         return {"ok": False, "err": "type the app name to confirm; the data folder is kept"}
     if not available():
-        return {"ok": True, "demo": True, "out": f"(demo) docker compose {action} {name}"}
+        a = _sample_app(name)
+        if not a:
+            return {"ok": False, "err": f"{name} is not installed"}
+        if action == "remove":
+            _sample_apps().remove(a)
+            return {"ok": True, "demo": True, "out": f"(sample) removed the containers of {name}; its data folder is kept"}
+        if action in ("start", "restart", "update"):
+            a["status"] = "running"
+            if action == "update":
+                a["updated"] = now_iso()
+        else:
+            a["status"] = "exited"
+            a["cpu"], a["mem"] = 0.0, 0
+        return {"ok": True, "demo": True, "status": a["status"], "out": f"(sample) docker compose {action} {name}"}
     dest = os.path.join(cfg.apps.root, name)
+    if not os.path.exists(os.path.join(dest, "compose.yaml")):
+        return {"ok": False, "err": f"{name} is not installed (no {dest}/compose.yaml)"}
     base = ["docker", "compose", "-p", name, "-f", os.path.join(dest, "compose.yaml"), "--env-file", os.path.join(dest, ".env")]
     if action == "remove":
         r = run(base + ["down"], timeout=300)
