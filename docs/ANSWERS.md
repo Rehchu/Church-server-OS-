@@ -336,11 +336,21 @@ means below.
 | 88 | Jellyfin libraries? | Service recordings, worship, graphics loops, podcast audio | read from the Synology |
 | 89 | Internal chat? | "Church doesn't use Discord, I'll be using it for Server monitoring and Alerts. As well as Anything Else that i can do with it. The Church doesn't have a Groupchat app or anything." | Discord is Bradly's monitoring channel, not the church's chat; no chat server runs; Mattermost and Element stay stopped in the Store |
 | 90 | Nextcloud? | In the Store, stopped, for whoever wants it | |
-| 91 | One disk: split it? | not answered (a message came in) | assumed: one disk, OS and data together, the 75% alert and Storage watch it; say so before install |
-| 92 | Reboot with people signed in? | not answered | assumed: a five-minute warning on every screen, then reboot |
-| 93 | A prayer-request box? | not answered | assumed: off the server, like counselling records |
-| 94 | Birthdays in the weekly? | not answered | assumed: yes, only if the Wix export carries a birthday field |
+| 91 | One disk: split it? | "It depends on the Storage of the Optiplex. I'll have FULL specs for you Friday." | the partition plan waits for the Dell's disk size; both shapes are in INSTALL.md |
+| 92 | Reboot with people signed in? | "Reboot after everybody is signed out, but there's never anybody at the church saturday anyway, so it should be fine!" | the Saturday reboot waits until nobody is signed in, then goes; a note in the weekly if it had to wait |
+| 93 | A prayer-request box? | No; prayer requests stay off the server | like counselling records |
+| 94 | Birthdays in the weekly? | Yes, in the weekly, if the field exists | never guessed; staff only |
 | 95 | (unprompted) The automator's backups? | "The Arise Automator will need to keep backups on my personal PC like it does now! i'll make sure the automator has the Repo up to date as well so it syncs to the Synology or wherever correctly!" | the PC stays the automator's working copy and keeps its own backups; the server pulls the automator from the GitHub repo Bradly keeps current (the 04:00 mirror), runs the nightly job from that copy, and restic backs it up to the Synology; nothing on the server overwrites the PC |
+| 96 | Which machine runs the real 02:05 job? | The server runs it; the PC keeps the copy and the dev work | the PC's timer goes off at the move; the server's timer is the only writer; holds.json lives in the repo |
+| 97 | How the server gets YouTube access? | "Give me a markdown on what to ask that specific chat about how we can do it since it handles ALL the automations, and i'll let you know." | docs/ASK-THE-AUTOMATOR-CHAT.md is that markdown; the decision waits for the automator chat's answer |
+| 98 | Trash on the media share? | 7 days on the media share | 30 days everywhere else; the Storage pane shows the Trash's size |
+| 99 | A staff tier? | Yes: admin, staff, member, by group | staff = anyone in Staff or Media; Photos, Notes, transcripts, calendar events, internal mail are theirs |
+| 100 | Transcripts from where? | Whisper on the server overnight; YouTube captions as the fallback | one recording a night after the backup; never during a service; sung words never written |
+| 101 | Discord channels? | "Add a #daily to option 1 and then it's approved so 4 channels total! i'll get discord setup right now if you'd like!" | four webhooks: #alerts, #sunday, #weekly, #daily (the morning report goes to #daily); docs/DISCORD.md says what to set up |
+| 102 | The monitor when nobody is signed in? | Yes, the glance view when idle; sign in for anything else | next service, backups, attention, stream; nothing clickable, no names or files |
+| 103 | Immich's library? | Watch Media/Photos and every staff member's Photos folder | external, read-only; deleting in Immich never deletes a file |
+| 104 | Department accounts? | "Staff can be assigned individual accounts, but they're also assigned to a department or multiple departments. when they log in with their individual login, they get access to the department account stuff as well!" | everyone has their own account; departments are groups with their own share folder; membership grants the department's files and mail; a shared department login is not needed |
+| 105 | A rehearsal at home? | Yes, rehearse the install and the reinstall at home first | REINSTALL.md gets the rehearsal checklist |
 
 ## Still needed
 
