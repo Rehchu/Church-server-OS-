@@ -34,6 +34,8 @@ or Dashboard → Apps → Templates → **Deploy**. Data for every app lives und
 | `moodle` | courses with quizzes and completion: new-members track, volunteer onboarding; heavy | 8092 |
 | `phplist` | newsletters to the families, only through an SMTP relay | 8093 |
 | `synapse` | encrypted Matrix messaging with the Element apps; Mattermost's fussier sibling | 8008 |
+| `ollama` | a local, private language model server; CPU only here, small models, no account | 11434 |
+| `open-webui` | a ChatGPT-style chat page over Ollama with logins and history; deploy ollama first | 8094 |
 | `wg-easy` | self-hosted WireGuard VPN with a web page and QR codes; the alternative to native WireGuard (`install.sh --with-wireguard`) and to Tailscale. Never both on 51820 | 51820/udp, 51821 |
 
 Image tags are pinned to versions that existed when this was written. Update

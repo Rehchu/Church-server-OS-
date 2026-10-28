@@ -9,7 +9,8 @@ Anything that changes the box needs `sudo`. Anything that only reads does not.
 
 ```
 arisectl info                       what this box is and whether it is well
-arisectl doctor                     check everything, print what to fix
+arisectl doctor                     check everything, print what to fix (config, password, pinned address,
+                                    SMART verdict per disk, services, domain, DNS, time, automator, backups)
 arisectl admin set-password         set the dashboard password (prompts twice)
 
 arisectl service list

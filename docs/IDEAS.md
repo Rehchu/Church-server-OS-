@@ -10,6 +10,10 @@ estimates from memory and will have moved; check before buying.
 | 3 | Free Mac management (MDM) | free | not built |
 | 4 | Printers through the server | free | not built |
 | 5 | A church password manager | free | **template exists** (Vaultwarden) |
+| 19 | Claude on the box | free with his claude.ai account | **built**: `install.sh` installs Claude Code; `claude` then `/login`; CLAUDE.md carries the house rules |
+| 20 | A local, private AI with no account | free; slow on a CPU | **templates**: `ollama` + `open-webui`, off by default (docs/STACK.md § AI on the box) |
+| 21 | The disk warning before the disk dies | free | **built**: smartd watches; `arisectl doctor` prints PASSED or FAILED per disk |
+| 22 | Security updates without a surprise reboot | free | **built**: unattended-upgrades, security only, Automatic-Reboot off; needrestart lists what waits |
 | 6 | A public status page | free | **template exists** (Uptime Kuma) |
 | 7 | The check-in station as a locked kiosk | free | not built; there is no check-in station yet (answer 28) |
 | 8 | Guest Wi-Fi with a welcome page, not on the server | depends on the router | not built, on purpose |

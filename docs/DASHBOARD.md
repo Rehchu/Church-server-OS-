@@ -58,7 +58,22 @@ closes whatever is on top.
 | 14 | **Logs** | the last 300 journal lines of any unit | pick a unit, refresh |
 | 15 | **System Settings** | updates (packages, Arise Server itself), the daily note, power (reboot, shut down), every non-secret value of `arise.toml` | update, upgrade, test the note, reboot/shut down with the word typed |
 | 16 | **Network** | everything on the switch: every device on Netgear A's wire with address, MAC, maker, a guessed kind, whether it is joined to the domain, first and last seen; the office Netgear and the Google Mesh appear as one device each (their networks are behind them). An hourly scan by itself (`arise-devices.timer`); new devices are flagged. Below the list, *Behind the other routers*: what the office Netgear reports as attached, read from the router with its admin password (`[[routers]]` in arise.toml), never written; the Google Mesh says plainly that it has no such list outside the Google Home app. **Wide scan** also looks on the common address ranges an installer parks devices on and marks those *stray*; **Find cameras** asks the wire for ONVIF cameras and says whether each is reachable from this network | Scan now, name a device (the name sticks to its MAC whatever address it gets), note, kind, forget an offline one |
+| 17 | **Assistants** | Claude, ChatGPT, Grok, YouTube Studio, StreamYard, each with your own account: on the monitor each opens in its own window on top of the desktop (close it to come back); in a browser, a new tab. Plus Claude Code on the box itself, in the Terminal | open; no keys stored |
+| 18 | **Sunday** | the service checklist (ticks reset weekly, who ticked what), the next service with a countdown, the service times, the verse of the day, quick doors | tick, untick |
 | — | **About This Server** | version, host, domain, kernel, processor, memory, uptime, profile | from the flame menu |
+
+### The screensaver and the lobby screen
+
+After five idle minutes the closet monitor shows a screensaver: the time,
+the next service and how long until it, the verse of the day, the church's
+name, and the channel's thumbnails slowly behind it. Any key or touch
+brings the desktop back; at ten minutes the lock screen goes on top.
+
+The same screen is a **lobby sign**: any old Mac mini, Raspberry Pi or TV
+browser opens `http://arise-server:4147/signage`, no login, and shows the
+service times, the next service, the verse and the latest titles. Service
+times come from `[church]` in `arise.toml`; the verse is one of a fixed
+list of references, text from the Bible app's source.
 
 ## Who can sign in, and what they see
 

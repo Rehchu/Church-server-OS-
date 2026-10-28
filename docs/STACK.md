@@ -96,6 +96,26 @@ table. Deploy the day the question is asked, not before.
 | ChurchInfo | ChurchCRM is its descendant |
 | Webmin, Patchman, ShellInABox, Nginx Proxy Manager, OpenLP | see the first table |
 
+## AI on the box
+
+Bradly: "it has to have Claude installed on it, using this account; ChatGPT
+and Grok too if there is anything open source; normal accounts, no API
+credits." What that means in practice:
+
+| | What it is | Account | Status |
+|---|---|---|---|
+| **Claude Code** | Anthropic's agent in the terminal, on the server itself. It reads `/opt/arise/CLAUDE.md` (the house rules) and can run `arisectl`, read logs, fix config, write code in `/opt/arise`. | Bradly's claude.ai account: `claude`, then `/login`, open the address it prints on a phone or Mac, paste the code back. No API key. | **installed by `install.sh`** (Node 20 LTS from NodeSource plus the npm package; `--no-claude` to skip) |
+| **Assistants app** in the desktop | one window with claude.ai, chatgpt.com and grok.com, on the monitor and in any browser, signed in with his normal accounts | his own | being built in the desktop (the parent of this change) |
+| **ChatGPT, Grok "open source"** | there is none. OpenAI and xAI publish no self-hostable version of their chat products; what exists are web wrappers (which are just the website) and separate open-weight models (gpt-oss, Grok-1 weights, which need a GPU this box does not have) | | not applicable; the Assistants app is the honest answer |
+| **Ollama** + **Open WebUI** | a local, private model with a ChatGPT-style page, no account at all. On an OptiPlex CPU a 3b model answers at a few words a second (an estimate): fine for a question about a passage or a draft paragraph, not for long jobs | none | templates, off by default |
+
+What Claude Code on the box is for: "why did last night's backup fail",
+"add a share for the youth team", "the office Mac cannot see the domain",
+answered on the box with the logs in front of it, under the rules in
+CLAUDE.md (never deletes without a typed name, never touches a router,
+never runs the automator twice). It is not a service; it runs when Bradly
+runs it, over SSH or in the dashboard's Terminal app.
+
 ## How it is all wired
 
 ```
@@ -127,7 +147,9 @@ table. Deploy the day the question is asked, not before.
 
 There is no second installer. `install.sh` already does the box (one flag
 per optional piece: `--with-tailscale`, `--with-caddy`, `--with-cockpit`,
-`--kiosk`), and every service is a compose stack deployed by `arisectl app
+`--with-claude`, `--kiosk`, and the care steps on by default: security
+updates with no automatic reboot, journald capped, SMART monitoring,
+needrestart in list mode, fstrim, logrotate), and every service is a compose stack deployed by `arisectl app
 deploy <template>`. A whole environment is therefore one line per app:
 
 ```bash

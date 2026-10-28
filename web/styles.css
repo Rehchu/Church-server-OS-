@@ -494,3 +494,30 @@ button.widget__row:hover span{color:#fff}
 button.widget__row:last-child{border-bottom:0}
 .tbl tr.dim td{opacity:.45}
 .muted{color:var(--text2)}
+
+/* ---- v0.6: screensaver (kiosk idle), signage, Assistants, Sunday ---- */
+.saver{position:fixed;inset:0;z-index:95;background:#050507;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none}
+.saver__art{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.22;filter:saturate(.8) blur(0px);transition:opacity 1.2s}
+.saver__in{position:relative;z-index:1;text-align:center;max-width:900px;padding:40px}
+.saver__time{font-family:Anton,Impact,sans-serif;font-size:min(22vw,180px);line-height:.9;letter-spacing:.02em}
+.saver__next{font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:14px;color:var(--redL);margin:18px 0 28px}
+.saver__verse{font-family:Oswald,sans-serif;font-weight:300;font-size:min(3.2vw,26px);line-height:1.45;margin:0;color:#F4F2F0}
+.saver__verse cite{display:block;margin-top:12px;font-style:normal;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2)}
+.saver__verse cite::before{content:"";display:inline-block;width:22px;height:2px;background:var(--red);vertical-align:middle;margin-right:10px}
+.saver__foot{margin-top:34px;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--text2);display:flex;gap:10px;align-items:center;justify-content:center}
+.saver__flame{width:14px;height:14px;background:var(--red);clip-path:polygon(50% 0,80% 35%,100% 70%,70% 100%,30% 100%,0 70%,20% 35%)}
+.assist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.assist__t{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--red);padding:18px;text-align:left;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-height:140px}
+.assist__t:hover{background:var(--panel2,#17171c)}
+.assist__t b{font-family:Anton,Impact,sans-serif;font-size:22px;letter-spacing:.02em;text-transform:uppercase}
+.assist__t span{font-size:12.5px;color:var(--text2);line-height:1.45}
+.assist__t i{font-family:Oswald,sans-serif;font-style:normal;text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--redL)}
+.sun{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media(max-width:800px){.sun{grid-template-columns:1fr}}
+.sun__item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line2);cursor:pointer}
+.sun__item input{margin-top:3px;accent-color:var(--red);width:18px;height:18px}
+.sun__item.done span{text-decoration:line-through;color:var(--text2)}
+.sun__item small{display:block;color:var(--text2);font-size:11.5px;margin-top:2px}
+.sun__big{font-family:Anton,Impact,sans-serif;font-size:44px;line-height:1;letter-spacing:.02em}
+.widget--verse blockquote{margin:0;font-family:Oswald,sans-serif;font-weight:300;font-size:14px;line-height:1.5;color:#F4F2F0}
+.widget--verse cite{display:block;margin-top:6px;font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--redL)}

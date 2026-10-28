@@ -31,6 +31,13 @@ shortcut takes **Ctrl** where a Mac takes ⌘ (Ctrl+Space Spotlight, Ctrl+W
 close, Ctrl+Alt+Q lock), the menus print those labels, and the Windows key
 also works where the browser reports it as ⌘.
 
+After five idle minutes the monitor shows the screensaver (clock, next
+service, verse of the day, the channel's art); ten minutes, the lock. The
+Assistants app opens Claude, ChatGPT, Grok, YouTube Studio or StreamYard
+in their own windows on the monitor, signed in with your own accounts; close
+the window to return to the desktop. A lobby screen anywhere shows
+`http://arise-server:4147/signage` with no login.
+
 **Alt+F2** is a normal text login at any time; **Alt+F1** goes back to the
 desktop. `--kiosk` and `--console` conflict on tty1 (both units declare it);
 the installer enables whichever was asked for last, and `arisetui` still works

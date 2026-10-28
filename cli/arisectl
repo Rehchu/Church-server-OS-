@@ -110,6 +110,20 @@ def cmd_doctor(a):
     head("arisectl doctor")
     (ok if cfg.found else bad)(f"config {cfg.path}" + ("" if cfg.found else " is missing - copy config/arise.toml.example there"))
     (ok if cfg.web.admin_password_hash else bad)("dashboard password " + ("set" if cfg.web.admin_password_hash else "not set - run: sudo arisectl admin set-password"))
+    # Disk health: SMART says a disk is dying before it dies. smartd watches; this prints the verdict.
+    if which("smartctl"):
+        disks = [l.split()[0] for l in run(["lsblk", "-dno", "NAME,TYPE"], timeout=5)["out"].splitlines() if l.split()[-1:] == ["disk"]]
+        for dname in disks:
+            r = run(["smartctl", "-H", f"/dev/{dname}"], timeout=20)
+            out = r["out"] + r["err"]
+            if "PASSED" in out or "OK" in out and "FAILED" not in out:
+                ok(f"SMART /dev/{dname}: PASSED")
+            elif "FAILED" in out:
+                bad(f"SMART /dev/{dname}: FAILED - back up now and replace the disk")
+            else:
+                warn(f"SMART /dev/{dname}: no SMART verdict (a VM, a USB bridge, or an unsupported disk)")
+    else:
+        warn("smartctl missing (install.sh step 6f installs smartmontools); disk health not checked")
     if Path("/etc/arise/staging").exists():
         warn("STAGING: not at the church yet; the domain is on loopback only, no scan runs. At the church: sudo bash /opt/arise/installer/install.sh")
     # The address install.sh pinned (the one DHCP gave the box) must still be the box's address.

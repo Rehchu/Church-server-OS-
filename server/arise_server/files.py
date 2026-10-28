@@ -159,6 +159,44 @@ def make_folder(root_id: str, rel: str, name: str, who: dict | None = None) -> d
 _search_cache: dict = {}
 
 
+def search_transcripts(q: str, limit: int = 8) -> list[dict]:
+    """Sermon transcripts the automator keeps (<automator>/transcripts/*.txt|*.json|*.srt):
+    a case-insensitive phrase search with a short snippet. Spotlight shows these
+    under Sermons. No sung words are ever returned: lines in [brackets] are skipped."""
+    q = (q or "").strip().lower()
+    if len(q) < 3:
+        return []
+    cfg = load()
+    if cfg.demo:
+        return [{"id": "dhy1VW5ZnpQ", "title": "Glory Night | October 5, 2026", "snippet": "…the kind of faith that moves when it cannot see, " + q + " is where it starts…", "file": "transcripts/dhy1VW5ZnpQ.txt"}] if q in "faith moves see starts the kind of" else []
+    root = os.path.join(cfg.automator.path, "transcripts")
+    if not os.path.isdir(root):
+        return []
+    hits = []
+    for name in sorted(os.listdir(root)):
+        if not name.endswith((".txt", ".srt", ".json")):
+            continue
+        p = os.path.join(root, name)
+        try:
+            if os.path.getsize(p) > 5_000_000:
+                continue
+            text = open(p, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        low = text.lower()
+        i = low.find(q)
+        if i < 0:
+            continue
+        start = max(0, i - 80); end = min(len(text), i + len(q) + 80)
+        snippet = " ".join(text[start:end].split())
+        if "[" in snippet and "]" in snippet:
+            snippet = snippet.split("]")[-1].strip() or "(match inside a bracketed line)"
+        hits.append({"id": name.rsplit(".", 1)[0], "title": name.rsplit(".", 1)[0], "snippet": "…" + snippet + "…", "file": "transcripts/" + name})
+        if len(hits) >= limit:
+            break
+    return hits
+
+
 def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
     """Name search over what this person may browse, bounded and cached (admin: the whole index)."""
     import time

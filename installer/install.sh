@@ -31,6 +31,10 @@
 #    --staging           installing somewhere that is NOT the church (Bradly's house): the domain listens
 #                        on this box only, no address is pinned, no network scan, no DC ports open.
 #                        At the church run install.sh again WITHOUT --staging and it switches over.
+#    --with-claude       (default ON; --no-claude to skip) Claude Code on the box (Node 20 LTS + the npm package),
+#                        signed in with Bradly's claude.ai account: run `claude`, then /login. No API key anywhere.
+#    --no-hardening      skip the care an old PC needs: security updates (no auto-reboot), journald cap,
+#                        SMART monitoring, needrestart, fstrim, logrotate. Default ON.
 #    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
 #                        nothing on any router changes, Bradly's rule)
 #    --dry-run           print every step, change nothing
@@ -64,6 +68,8 @@ WITH_CADDY=0
 WITH_CONSOLE=0
 WITH_KIOSK=0
 WITH_COCKPIT=1
+WITH_CLAUDE=1
+WITH_HARDENING=1
 PIN_IP=1
 # The church set: installed, started and ready after the OS install (Bradly).
 # Everything else in templates/ stays one `arisectl app deploy` away.
@@ -90,6 +96,9 @@ while [ $# -gt 0 ]; do
     --with-caddy)  WITH_CADDY=1; shift ;;
     --with-cockpit) WITH_COCKPIT=1; shift ;;
     --no-cockpit)  WITH_COCKPIT=0; shift ;;
+    --with-claude) WITH_CLAUDE=1; shift ;;
+    --no-claude)   WITH_CLAUDE=0; shift ;;
+    --no-hardening) WITH_HARDENING=0; shift ;;
     --no-tailscale) WITH_TAILSCALE=0; shift ;;
     --apps)        APPS="${2//,/ }"; shift 2 ;;
     --no-apps)     APPS=""; shift ;;
@@ -134,7 +143,7 @@ trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
 echo " Arise Server install — started $(date '+%Y-%m-%d %H:%M:%S %Z')"
-echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
+echo " flags: admin-pass=$([ -n "$ADMIN_PASS" ] && echo set || echo unset) skip-domain=$SKIP_DOMAIN skip-docker=$SKIP_DOCKER no-start=$NO_START tailscale=$WITH_TAILSCALE wireguard=$WITH_WIREGUARD caddy=$WITH_CADDY cockpit=$WITH_COCKPIT claude=$WITH_CLAUDE hardening=$WITH_HARDENING apps="$APPS" console=$WITH_CONSOLE kiosk=$WITH_KIOSK pin-ip=$PIN_IP staging=$STAGING dry-run=$DRY_RUN"
 echo "============================================================="
 
 # ----------------------------------------------------------------------------
@@ -217,6 +226,7 @@ PKGS=(
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
   restic rsync git curl jq arp-scan nmap ffmpeg
+  ca-certificates gnupg
   python3 python3-venv python3-pip
   chrony
 )
@@ -1045,6 +1055,100 @@ elif [ "$RELOCATING" = 1 ] && [ "$DRY_RUN" = 0 ]; then
   note "relocation done: staging marker removed"
 fi
 
+# ----------------------------------------------------------------------------
+# 6e. Claude Code on the box (Bradly's claude.ai account; no API key)
+# ----------------------------------------------------------------------------
+if [ "$WITH_CLAUDE" = 1 ]; then
+  say "6e/7  Claude Code"
+  # Node from NodeSource, not Ubuntu's archive: Ubuntu 24.04 ships Node 18,
+  # which Claude Code has already moved past; NodeSource tracks the 20 LTS line
+  # and updates with apt like everything else. The setup script only adds a
+  # signed apt source; the package itself comes through apt.
+  if command -v node >/dev/null 2>&1 && [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -ge 20 ] 2>/dev/null; then
+    note "node $(node -v) already present"
+  elif [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; apt-get install -y nodejs"
+  else
+    if curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >>"$LOG_FILE" 2>&1 && apt-get install -y -q nodejs >>"$LOG_FILE" 2>&1; then
+      note "node $(node -v) installed from NodeSource"
+    else
+      warn "NodeSource failed (no internet, or the proxy); trying Ubuntu's nodejs"
+      apt-get install -y -q nodejs npm >>"$LOG_FILE" 2>&1 || warn "no Node at all; Claude Code skipped. Later: install Node 20 and 'npm install -g @anthropic-ai/claude-code'"
+    fi
+  fi
+  if command -v npm >/dev/null 2>&1; then
+    if [ "$DRY_RUN" = 1 ]; then
+      note "[dry-run] npm install -g @anthropic-ai/claude-code"
+    elif command -v claude >/dev/null 2>&1; then
+      note "claude $(claude --version 2>/dev/null | head -1) already installed; npm update -g @anthropic-ai/claude-code to move it"
+    elif npm install -g @anthropic-ai/claude-code >>"$LOG_FILE" 2>&1; then
+      note "claude installed: $(claude --version 2>/dev/null | head -1 || echo ok)"
+    else
+      warn "npm install of @anthropic-ai/claude-code failed (see $LOG_FILE)"
+    fi
+    # The global npm bin is on root's PATH; make sure bradly's login shell sees it too.
+    NPM_BIN="$(npm bin -g 2>/dev/null || npm prefix -g 2>/dev/null | sed 's|$|/bin|')"
+    if [ -n "$NPM_BIN" ] && [ "$NPM_BIN" != "/usr/bin" ] && [ "$NPM_BIN" != "/usr/local/bin" ] && [ "$DRY_RUN" = 0 ]; then
+      printf 'PATH="%s:$PATH"\n' "$NPM_BIN" > /etc/profile.d/arise-npm.sh
+    fi
+  fi
+  note "sign in later, as bradly: claude   then type /login (opens a claude.ai page on your phone or Mac; paste the code back). Works over SSH and in the dashboard's Terminal."
+fi
+
+# ----------------------------------------------------------------------------
+# 6f. The care an old PC needs (each line idempotent)
+# ----------------------------------------------------------------------------
+if [ "$WITH_HARDENING" = 1 ]; then
+  say "6f/7  Care: security updates, log caps, disk health"
+  run apt-get install -y -q --no-install-recommends unattended-upgrades smartmontools needrestart logrotate
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] unattended-upgrades: security origin only, Automatic-Reboot false, daily timer on"
+    note "[dry-run] journald SystemMaxUse=500M; smartd enabled; needrestart list mode; fstrim.timer on; logrotate for $LOG_DIR/*.log weekly keep 8"
+  else
+    # Security updates only, applied daily, NEVER a reboot by themselves: a
+    # domain controller that reboots at 06:00 on a Sunday is a bad morning.
+    cat > /etc/apt/apt.conf.d/52-arise-unattended <<'APT'
+// Arise Server: security updates only, no automatic reboot. Kernel updates
+// wait for a person (needrestart lists what wants a restart; arisectl doctor says so).
+Unattended-Upgrade::Allowed-Origins { "${distro_id}:${distro_codename}-security"; "${distro_id}ESMApps:${distro_codename}-apps-security"; "${distro_id}ESM:${distro_codename}-infra-security"; };
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT
+    systemctl enable --now unattended-upgrades >/dev/null 2>&1 || true
+    note "unattended-upgrades: security only, daily, no automatic reboot"
+    # journald: a 256 GB disk must not fill with logs.
+    mkdir -p /etc/systemd/journald.conf.d
+    printf '[Journal]\nSystemMaxUse=500M\nMaxRetentionSec=3month\n' > /etc/systemd/journald.conf.d/arise.conf
+    systemctl restart systemd-journald >/dev/null 2>&1 || true
+    note "journald capped at 500 MB / 3 months"
+    # SMART: the disk says it is dying before it dies. smartd watches; doctor reports.
+    if [ -f /etc/smartd.conf ] && ! grep -q '^# arise' /etc/smartd.conf; then
+      printf '# arise: scan every disk, email nothing (no mail here), log to journal\nDEVICESCAN -a -o on -S on -n standby,q -W 4,45,55\n' > /etc/smartd.conf
+    fi
+    systemctl enable --now smartmontools >/dev/null 2>&1 || systemctl enable --now smartd >/dev/null 2>&1 || warn "smartd did not start (a VM, or no SMART-capable disk)"
+    note "smartd watching the disks; arisectl doctor shows the SMART verdict"
+    # needrestart: never a prompt on this box; it lists, it does not ask.
+    mkdir -p /etc/needrestart/conf.d
+    printf "# arise: list, never prompt\n\$nrconf{restart} = 'l';\n\$nrconf{kernelhints} = -1;\n" > /etc/needrestart/conf.d/arise.conf
+    note "needrestart in list mode"
+    systemctl enable --now fstrim.timer >/dev/null 2>&1 && note "fstrim weekly (SSD care)" || true
+    cat > /etc/logrotate.d/arise <<LR
+$LOG_DIR/*.log {
+    weekly
+    rotate 8
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
+LR
+    note "logrotate: $LOG_DIR/*.log weekly, keep 8"
+  fi
+fi
+
 say "7/7  Done. What still needs you"
 AUTOMATOR_DIR="$DATA_ROOT/automator/ARISE_YouTube_Updater"
 cat <<SUMMARY
@@ -1076,6 +1180,7 @@ $( [ "$WITH_CADDY" = 1 ] && echo "       https: trust the Caddy root on each Mac
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
        Apps page in the dashboard: start, stop, logs, update, remove. More templates: arisectl app templates
+$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "    8. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )

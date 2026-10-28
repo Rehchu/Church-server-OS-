@@ -2,7 +2,7 @@
 window.ARISE_DEMO_DATA = {
 "GET /overview": {
 "demo": true,
-"version": "0.5.0",
+"version": "0.6.0",
 "codename": "Pineville",
 "profile": "server",
 "hostname": "arise-server",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:22:58",
+"last_run": "2026-10-28T02:31:15",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T01:22:58"
+"since": "2026-10-14T01:31:15"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T03:22:58",
+"last_logon": "2026-10-28T03:31:15",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T04:22:58",
+"last_logon": "2026-10-27T04:31:15",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T01:22:58",
+"last_logon": "2026-10-26T01:31:15",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T04:22:58",
+"last_logon": "2026-10-22T04:31:15",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T04:22:58",
+"last_logon": "2026-10-25T04:31:15",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T04:22:58",
+"last_logon": "2026-10-19T04:31:15",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T03:22:58",
+"last_seen": "2026-10-28T03:31:15",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T04:22:58",
+"last_seen": "2026-10-27T04:31:15",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T04:22:58",
+"last_seen": "2026-10-26T04:31:15",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T04:18:58",
+"last_seen": "2026-10-28T04:27:15",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T04:22:58",
+"last_check": "2026-10-19T04:31:15",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:22:58",
+"last_run": "2026-10-28T02:31:15",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1873,17 +1873,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T23:22:58",
+"when": "2026-10-27T23:31:15",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T23:22:58",
+"when": "2026-10-27T23:31:15",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T23:22:58",
+"when": "2026-10-27T23:31:15",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1918,7 +1918,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T04:22:58",
+"updated": "2026-10-25T04:31:15",
 "mem_h": "36.2 MB"
 },
 {
@@ -1931,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T04:22:58",
+"updated": "2026-10-25T04:31:15",
 "mem_h": "135.4 MB"
 },
 {
@@ -1944,7 +1944,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T04:22:58",
+"updated": "2026-10-27T04:31:15",
 "mem_h": "0 B"
 }
 ],
@@ -2112,6 +2112,30 @@ window.ARISE_DEMO_DATA = {
 "notes": "Before the first deploy write nginx.conf with an rtmp { server { application live\n{ live on; push rtmp://a.rtmp.youtube.com/live2/KEY; push rtmp://...; } } } block.\nOBS sends to rtmp://arise-server:1936/live. Listens on 1936 so it can live\nbeside Owncast. Verify the image before the first deploy.\n"
 },
 {
+"id": "ollama",
+"name": "Ollama",
+"description": "A local, private language model server with no account and no internet once the model is pulled. CPU only on this box, so small models only; slow but entirely the church's own.",
+"category": "ai",
+"ports": [
+"11434:11434"
+],
+"icon": "pulse",
+"data": "/srv/arise/apps/ollama",
+"notes": "After deploy:  docker exec arise-app-ollama ollama pull llama3.2:3b\nMemory: the model plus about 500 MB, so 3 GB for a 3b model while it answers\n(an estimate); it unloads after 10 idle minutes. Pair it with open-webui for\na chat page. Verify the image tag before the first deploy; Ollama releases weekly.\n"
+},
+{
+"id": "open-webui",
+"name": "Open WebUI",
+"description": "A ChatGPT-style chat page over the local Ollama model, with logins, history and document upload. Private to the building; deploy ollama first.",
+"category": "ai",
+"ports": [
+"8094:8080"
+],
+"icon": "folder",
+"data": "/srv/arise/apps/open-webui",
+"notes": "First visit http://arise-server:8094 makes the admin; signups are off after\nthat (the admin adds people). Needs the ollama app running with a model\npulled. Memory about 400 MB (an estimate) on top of Ollama's. Verify the\nimage tag before the first deploy; it moves fast.\n"
+},
+{
 "id": "owncast",
 "name": "Owncast",
 "description": "The church's own live-stream page with chat, fed by a second output from StreamYard or OBS. A backup destination when YouTube misbehaves, or a private stream for leadership.",
@@ -2246,7 +2270,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T02:22:58",
+"last": "2026-10-27T02:31:15",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -2322,6 +2346,11 @@ window.ARISE_DEMO_DATA = {
 "max_days": 30,
 "max_zip_bytes": 2147483648
 },
+"church": {
+"name": "Arise Church",
+"city": "Pineville, LA",
+"tagline": ""
+},
 "paths": {
 "state_dir": "/var/lib/arise",
 "log_dir": "/var/log/arise",
@@ -2356,7 +2385,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /health": {
 "ok": true,
-"version": "0.5.0",
+"version": "0.6.0",
 "demo": true
 },
 "GET /sites": {
@@ -2429,7 +2458,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T04:22"
+"when": "2026-10-28T04:31"
 },
 {
 "user": "bradly",
@@ -2663,8 +2692,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T04:22",
-"expires": "2026-11-02T04:22",
+"created": "2026-10-26T04:31",
+"expires": "2026-11-02T04:31",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -2968,6 +2997,229 @@ window.ARISE_DEMO_DATA = {
 ],
 "seconds": 3.0
 },
+"GET /church": {
+"name": "Arise Church",
+"city": "Pineville, LA",
+"tagline": "",
+"services": [
+{
+"name": "Sunday Service",
+"day": "Sunday",
+"time": "10:30",
+"site": "Pineville"
+},
+{
+"name": "Sunday Service",
+"day": "Sunday",
+"time": "10:00",
+"site": "Alexandria"
+},
+{
+"name": "Glory Night",
+"day": "Monday",
+"time": "19:00",
+"site": "Pineville"
+}
+],
+"checklist": [
+"Streaming Mac on, StreamYard signed in, OBS virtual camera running",
+"NDI cameras answering in StreamYard; lower thirds from Proclaim showing",
+"Proclaim slides updated; graphics share synced to the media Mac",
+"YouTube live page scheduled with tonight's title (the automator writes the description)",
+"Owncast backup stream key in StreamYard's second destination (if used)",
+"Sound check done; Icecast feed up if the nursery or translation needs it",
+"Recording to the recordings share started",
+"After service: stop the recording, end the YouTube stream, leave the automator to run at 02:05"
+],
+"next": {
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-01T10:00",
+"in_minutes": 6088,
+"in_words": "4 days"
+},
+"verse": {
+"ref": "Romans 8:28",
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+"translation": "King James Version",
+"demo": true
+},
+"assistants": [
+{
+"id": "claude",
+"name": "Claude",
+"url": "https://claude.ai/new",
+"what": "Bradly's account. Also on this box as the `claude` command (Terminal)."
+},
+{
+"id": "chatgpt",
+"name": "ChatGPT",
+"url": "https://chatgpt.com/",
+"what": "Your normal account; nothing is stored here."
+},
+{
+"id": "grok",
+"name": "Grok",
+"url": "https://grok.com/",
+"what": "Your normal account; nothing is stored here."
+},
+{
+"id": "studio",
+"name": "YouTube Studio",
+"url": "https://studio.youtube.com/",
+"what": "The channel, signed in as the church."
+},
+{
+"id": "streamyard",
+"name": "StreamYard",
+"url": "https://streamyard.com/",
+"what": "The stream's control room."
+}
+]
+},
+"GET /sunday": {
+"sunday": "2026-11-01",
+"items": [
+{
+"i": 0,
+"text": "Streaming Mac on, StreamYard signed in, OBS virtual camera running",
+"done": true,
+"by": "bradly.dyer",
+"at": "2026-10-25T09:40"
+},
+{
+"i": 1,
+"text": "NDI cameras answering in StreamYard; lower thirds from Proclaim showing",
+"done": false,
+"by": "",
+"at": ""
+},
+{
+"i": 2,
+"text": "Proclaim slides updated; graphics share synced to the media Mac",
+"done": true,
+"by": "media",
+"at": "2026-10-25T09:52"
+},
+{
+"i": 3,
+"text": "YouTube live page scheduled with tonight's title (the automator writes the description)",
+"done": false,
+"by": "",
+"at": ""
+},
+{
+"i": 4,
+"text": "Owncast backup stream key in StreamYard's second destination (if used)",
+"done": false,
+"by": "",
+"at": ""
+},
+{
+"i": 5,
+"text": "Sound check done; Icecast feed up if the nursery or translation needs it",
+"done": false,
+"by": "",
+"at": ""
+},
+{
+"i": 6,
+"text": "Recording to the recordings share started",
+"done": false,
+"by": "",
+"at": ""
+},
+{
+"i": 7,
+"text": "After service: stop the recording, end the YouTube stream, leave the automator to run at 02:05",
+"done": false,
+"by": "",
+"at": ""
+}
+],
+"demo": true
+},
+"GET /public/signage": {
+"name": "Arise Church",
+"city": "Pineville, LA",
+"tagline": "",
+"services": [
+{
+"name": "Sunday Service",
+"day": "Sunday",
+"time": "10:30",
+"site": "Pineville"
+},
+{
+"name": "Sunday Service",
+"day": "Sunday",
+"time": "10:00",
+"site": "Alexandria"
+},
+{
+"name": "Glory Night",
+"day": "Monday",
+"time": "19:00",
+"site": "Pineville"
+}
+],
+"next": {
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-01T10:00",
+"in_minutes": 6088,
+"in_words": "4 days"
+},
+"verse": {
+"ref": "Romans 8:28",
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+"translation": "King James Version",
+"demo": true
+},
+"latest": [
+{
+"title": "WHOSE HAND IS IT IN? | Minister Herbert Perry",
+"date": "2026-10-26",
+"thumb": "",
+"kind": "Sunday Service"
+},
+{
+"title": "GLORY NIGHT | October 20, 2026",
+"date": "2026-10-20",
+"thumb": "",
+"kind": "Glory Night"
+},
+{
+"title": "EXERCISING OUR SPIRITUAL SENSES | Apostle Bryant Sanders",
+"date": "2026-10-04",
+"thumb": "",
+"kind": "Sunday Service"
+},
+{
+"title": "GLORY NIGHT | October 5, 2026",
+"date": "2026-10-05",
+"thumb": "",
+"kind": "Glory Night"
+},
+{
+"title": "THE GOD KIND OF FAITH | Apostle Bryant Sanders",
+"date": "2026-09-27",
+"thumb": "",
+"kind": "Sunday Service"
+},
+{
+"title": "GLORY NIGHT | September 28, 2026",
+"date": "2026-09-28",
+"thumb": "",
+"kind": "Glory Night"
+}
+],
+"now": "2026-10-28T04:31"
+},
 "GET /bible/translations": {
 "translations": [
 {
@@ -3000,7 +3252,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T04:22:58+00:00",
+"last_check": "2026-10-28T04:31:15+00:00",
 "security": 1
 },
 "GET /notify": {

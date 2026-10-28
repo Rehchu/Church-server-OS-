@@ -1,0 +1,16 @@
+name: open-webui
+title: Open WebUI
+description: A ChatGPT-style chat page over the local Ollama model, with logins, history and document upload. Private to the building; deploy ollama first.
+category: ai
+icon: folder
+version: "0.3.35"
+ports:
+  - 8094:8080
+volumes:
+  - /srv/arise/apps/open-webui/data:/app/backend/data
+env: {}
+notes: |
+  First visit http://arise-server:8094 makes the admin; signups are off after
+  that (the admin adds people). Needs the ollama app running with a model
+  pulled. Memory about 400 MB (an estimate) on top of Ollama's. Verify the
+  image tag before the first deploy; it moves fast.

@@ -318,3 +318,41 @@ class AppSecrets(unittest.TestCase):
             for k, v in env.items():
                 if any(w in k for w in ("PASS", "TOKEN", "SECRET")) and "HASH" not in k:
                     self.assertTrue(v.startswith("CHANGE-ME"), f"{t['id']}.{k} should be CHANGE-ME so the deploy generates it")
+
+
+class Church(unittest.TestCase):
+    def test_next_service_and_week_rollover(self):
+        from arise_server import church
+        from datetime import datetime
+        svcs = [{"name": "Sunday Service", "day": "Sunday", "time": "10:30", "site": "Pineville"}, {"name": "Glory Night", "day": "Monday", "time": "19:00", "site": "Pineville"}]
+        n = church.next_service(datetime(2026, 10, 28, 15, 0), svcs)   # a Wednesday
+        self.assertEqual((n["name"], n["day"]), ("Sunday Service", "Sunday")); self.assertEqual(n["at"], "2026-11-01T10:30")
+        n = church.next_service(datetime(2026, 11, 1, 10, 31), svcs)   # a minute after Sunday's start
+        self.assertEqual(n["name"], "Glory Night")
+        n = church.next_service(datetime(2026, 11, 2, 19, 1), svcs)    # after Glory Night: next Sunday
+        self.assertEqual(n["at"], "2026-11-08T10:30")
+
+    def test_verse_of_day_is_a_real_reference_with_text(self):
+        from arise_server import church
+        v = church.verse_of_day()
+        self.assertIn(v["ref"], church.VERSES); self.assertTrue(v["text"]); self.assertNotIn("(Preview)", v["text"])
+
+    def test_sunday_checklist_toggles_and_keys_by_sunday(self):
+        from arise_server import church
+        from datetime import datetime
+        self.assertEqual(church._sunday_key(datetime(2026, 10, 28)), "2026-11-01")
+        self.assertEqual(church._sunday_key(datetime(2026, 11, 1)), "2026-11-01")
+        r = church.toggle(3, "media"); self.assertTrue(r["ok"]); self.assertTrue(r["items"][3]["done"]); self.assertEqual(r["items"][3]["by"], "media")
+        r = church.toggle(3, "media"); self.assertFalse(r["items"][3]["done"])
+        self.assertFalse(church.toggle(99, "x")["ok"])
+
+    def test_kiosk_opens_only_listed_https_sites(self):
+        from arise_server import church
+        self.assertTrue(church.allowed_url("https://claude.ai/new")); self.assertTrue(church.allowed_url("https://chatgpt.com/"))
+        self.assertFalse(church.allowed_url("http://claude.ai/")); self.assertFalse(church.allowed_url("https://example.com/"))
+        self.assertTrue(church.open_on_kiosk("https://grok.com/")["ok"])
+
+    def test_transcript_search_sample(self):
+        from arise_server import files
+        self.assertEqual(files.search_transcripts("ab"), [])
+        self.assertTrue(files.search_transcripts("faith")[0]["id"])

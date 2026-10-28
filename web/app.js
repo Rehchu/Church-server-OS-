@@ -680,6 +680,35 @@ V.devices.after = root => {
     }); });
 };
 
+V.assist = async () => {
+  const c = await api('/church'); S.church = c;
+  const tiles = (c.assistants || []).map(a => `<button class="assist__t" data-url="${esc(a.url)}"><i>${a.id === 'claude' ? 'Anthropic' : a.id === 'chatgpt' ? 'OpenAI' : a.id === 'grok' ? 'xAI' : 'Google'}</i><b>${esc(a.name)}</b><span>${esc(a.what)}</span></button>`).join('');
+  return `<div class="fade"><div class="kicker">Your assistants, your accounts</div><p class="note" style="margin:6px 0 14px">${S.kiosk ? 'On the monitor each one opens in its own window on top of the desktop; close that window to come back.' : 'Each opens in a new tab, signed in as you. Nothing is stored on the server.'} No API keys anywhere.</p>
+    <div class="assist">${tiles}<button class="assist__t" data-claude-code><i>On this box</i><b>Claude Code</b><span>The <code>claude</code> command in the Terminal: ask it about this server, let it read the logs, fix a config. Signed in with the church's claude.ai account via <code>/login</code>.</span></button></div></div>`;
+};
+V.assist.after = root => {
+  $$('[data-url]', root).forEach(b => b.onclick = async () => {
+    if (S.kiosk) { const r = await api('/kiosk/open', { method: 'POST', body: { url: b.dataset.url } }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) toast(r.err, 'bad'); else toast(r.demo ? 'Sample: would open on the monitor' : 'Opening on the monitor…'); }
+    else window.open(b.dataset.url, '_blank', 'noopener');
+  });
+  const cc = $('[data-claude-code]', root); if (cc) cc.onclick = () => { openApp('terminal'); setTimeout(() => { const ws = S.termWs; if (ws && ws.readyState === 1) ws.send('claude\r'); else toast('Terminal is opening; type: claude'); }, 1500); };
+};
+V.sunday = async () => {
+  const [c, s] = await Promise.all([api('/church'), api('/sunday')]); S.church = c;
+  const n = c.next; const items = s.items || []; const done = items.filter(i => i.done).length;
+  return `<div class="fade sun"><div><div class="kicker">Sunday ${esc(s.sunday)}</div><h2 style="margin:0 0 10px">Checklist · ${done} of ${items.length}</h2>
+      ${items.map(i => `<label class="sun__item ${i.done ? 'done' : ''}"><input type="checkbox" data-i="${i.i}" ${i.done ? 'checked' : ''}><div><span>${esc(i.text)}</span>${i.done ? `<small>${esc(i.by)} · ${esc(i.at.replace('T', ' '))}</small>` : ''}</div></label>`).join('')}
+      <p class="note" style="margin-top:12px">Ticks reset every week. The list is <code>[church] sunday_checklist</code> in arise.toml.${s.demo ? ' Sample.' : ''}</p></div>
+    <div><div class="card"><div class="kicker">Next</div>${n ? `<div class="sun__big">${esc(n.in_words)}</div><div style="margin-top:6px">${esc(n.name)} · ${esc(n.site)}<br><small class="muted">${esc(n.day)} ${esc(n.time)}</small></div>` : '<div class="muted">no services configured</div>'}</div>
+      <div class="card" style="margin-top:12px"><div class="kicker">Services</div><div class="widget__rows">${(c.services || []).map(x => `<div class="widget__row"><span>${esc(x.name)} · ${esc(x.site)}</span><b>${esc(x.day)} ${esc(x.time)}</b></div>`).join('')}</div></div>
+      <div class="card widget--verse" style="margin-top:12px"><div class="kicker">Verse of the day</div><blockquote>${esc(c.verse?.text || '')}<cite>${esc(c.verse?.ref || '')}</cite></blockquote></div>
+      <div class="card" style="margin-top:12px"><div class="kicker">Quick doors</div><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn--ghost btn--xs" data-open="sermons">Sermons</button><button class="btn btn--ghost btn--xs" data-open="assist">Studio / StreamYard</button>${isMember() ? '' : '<button class="btn btn--ghost btn--xs" data-open="automator">Automator</button><button class="btn btn--ghost btn--xs" data-open="devices">Network</button>'}</div></div></div></div>`;
+};
+V.sunday.after = root => {
+  $$('input[data-i]', root).forEach(cb => cb.onchange = async () => { const r = await api('/sunday/' + cb.dataset.i, { method: 'POST' }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) return toast(r.err, 'bad'); rerender('sunday'); });
+  $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
+};
+
 V.terminal = async () => `<div class="term" id="termMount"></div>`;
 V.terminal.after = root => {
   const mount = $('#termMount'); if (!mount || !window.Terminal) { if (mount) mount.innerHTML = '<p class="note">xterm.js did not load.</p>'; return; }
@@ -699,12 +728,12 @@ V.terminal.after = root => {
 function demoShell(term) {
   const P = '\x1b[31marise-server\x1b[0m:~# ';
   const CMD = { help: 'arisectl info · arisectl doctor · arisectl backup status · arisectl user list · uptime · df -h · clear',
-    'arisectl info': 'Arise Server v0.5.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
+    'arisectl info': 'Arise Server v0.6.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
     'arisectl doctor': '  \x1b[32m✓\x1b[0m config /etc/arise/arise.toml\r\n  \x1b[32m✓\x1b[0m Samba AD DC answers\r\n  \x1b[32m✓\x1b[0m DNS SRV for ad.arisecenla.church resolves\r\n  \x1b[32m✓\x1b[0m token.json present\r\n  \x1b[32m✓\x1b[0m restic installed\r\n  \x1b[32m✓\x1b[0m Synology /mnt/synology mounted\r\n  \x1b[33m!\x1b[0m 3 apt packages upgradable (1 security)\r\n  \x1b[32m✓\x1b[0m clock synchronised',
     'arisectl backup status': 'repository /mnt/synology/arise-backups/restic\r\n  \x1b[32m✓\x1b[0m 53 snapshots, 296.2 GB stored\r\n  JOB        LAST              RESULT  ADDED\r\n  automator  2026-10-27T03:00  ok      797.1 MB\r\n  homes      2026-10-27T03:04  ok      451.3 MB\r\n  config     2026-10-27T03:16  ok      739.5 MB',
     'arisectl user list': '  USER          NAME             ENABLED  GROUPS\r\n  bradly        Bradly Dyer      yes      Domain Admins, Media, Staff\r\n  media-mac     Media Booth Mac  yes      Media\r\n  office        Church Office    yes      Staff',
     uptime: ' 09:41:12 up 14 days,  3:07,  1 user,  load average: 0.42, 0.58, 0.61', 'df -h': 'Filesystem      Size  Used Avail Use% Mounted on\r\n/dev/sda2       224G   66G  147G  31% /\r\n/dev/sdb1       894G  242G  607G  29% /srv/arise\r\n//synology/arise  15T  4.5T   10T  31% /mnt/synology', whoami: 'root', hostname: 'arise-server' };
-  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.5.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
+  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.6.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
   let buf = '';
   term.onData(d => { for (const ch of d) {
     if (ch === '\r') { const c = buf.trim(); buf = ''; if (c === 'clear') { term.clear(); term.write('\r' + P); continue; } const out = c ? (CMD[c] ?? `bash: ${c}: not in the preview (type help)`) : ''; term.write('\r\n' + (out ? out + '\r\n' : '') + P); }
@@ -730,6 +759,8 @@ const I = {
   nas: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v7H3zm0 9h18v7H3zm3 2h3v3H6zm0-9h3v3H6z"/></svg>',
   services: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 5l-2 .4a7 7 0 0 1-.8 2l1.2 1.7-1.4 1.4-1.7-1.2a7 7 0 0 1-2 .8L14 21h-4l-.4-2a7 7 0 0 1-2-.8l-1.7 1.2-1.4-1.4 1.2-1.7a7 7 0 0 1-.8-2L3 14v-4l2-.4a7 7 0 0 1 .8-2L4.6 5.9 6 4.5l1.7 1.2a7 7 0 0 1 2-.8L10 3h4l.4 2a7 7 0 0 1 2 .8l1.7-1.2 1.4 1.4-1.2 1.7a7 7 0 0 1 .8 2l2 .4z"/></svg>',
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
+  assist: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2zM19 16l1 2.6 2.6 1-2.6 1L19 23l-1-2.4-2.6-1 2.6-1z"/></svg>',
+  sunday: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v10h12V8zm2 3l2 2 4-4 1.4 1.4L10 15.8l-3.4-3.4z"/></svg>',
   devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
@@ -751,9 +782,11 @@ const APPS = [
   { id: 'logs', n: '14', name: 'Logs', what: 'journalctl, last 300 lines' },
   { id: 'settings', n: '15', name: 'System Settings', what: 'arise.toml, updates, power' },
   { id: 'devices', n: '16', name: 'Network', what: 'Everything on the switch', w: 980, h: 600 },
+  { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
+  { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
-const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about'];
+const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday'];
 const isMember = () => S.role === 'member';
 const visibleApps = () => isMember() ? APPS.filter(a => MEMBER_APPS.includes(a.id)) : APPS;
 const appOf = id => APPS.find(a => a.id === id);
@@ -843,6 +876,8 @@ function menuItems(id) {
     automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
     devices: [['Scan now', () => $('#devScan')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
+    sunday: [['Refresh', () => rerender('sunday'), '⌘R'], null, ['Close Window', () => closeApp(id), '⌘W']],
+    assist: [['Open Claude', () => $$('[data-url]').find(b => b.dataset.url.includes('claude'))?.click()], ['Claude Code in Terminal', () => $('[data-claude-code]')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
   }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'Arise Server', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
@@ -903,6 +938,7 @@ function spotResults(q, remote) {
   if (remote) {
     if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
     if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
+    if (remote.transcripts?.length) out += `<div class="h">Sermons · transcripts</div>` + remote.transcripts.map(t => row(I.sermons, t.title, t.snippet, { app: 'sermons' })).join('');
     if (remote.hits?.length) out += `<div class="h">Files</div>` + remote.hits.slice(0, 10).map(h => row(I.files, h.name, h.path, { file: h })).join('');
   }
   if (!out) out = `<div class="h">Nothing for “${esc(q)}”</div>`;
@@ -917,6 +953,14 @@ function spotGo(data) {
 }
 
 /* Notification Center widgets */
+function fmtSvc(t) { const [h, m] = String(t).split(':').map(Number); const d = new Date(); d.setHours(h, m || 0); return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function weekWidget() {
+  const c = S.church; const n = c?.next;
+  const rows = (c?.services || [{ name: 'Sunday Service', site: 'Pineville', day: 'Sunday', time: '10:30' }, { name: 'Sunday Service', site: 'Alexandria', day: 'Sunday', time: '10:00' }, { name: 'Glory Night', site: 'Pineville', day: 'Monday', time: '19:00' }]);
+  return `<div class="widget"><div class="widget__kicker">This week${n ? ` · next in ${esc(n.in_words)}` : ''}</div><div class="widget__rows">${rows.map(x => `<div class="widget__row"><span>${esc(x.name === 'Sunday Service' ? 'Sunday · ' + x.site : x.name + ' · ' + x.day)}</span><b>${esc(fmtSvc(x.time))}</b></div>`).join('')}</div></div>`;
+}
+function verseWidget() { const v = S.church?.verse; if (!v || !v.text) return ''; return `<div class="widget widget--verse"><div class="widget__kicker">Verse of the day</div><blockquote>${esc(v.text)}<cite>${esc(v.ref)}</cite></blockquote></div>`; }
+async function loadChurch() { try { S.church = await api('/church'); } catch { S.church = S.church || null; } }
 async function buildMemberWidgets() {
   const w = $('#widgets'); const roots = S.me?.roots || []; let links = [];
   try { links = (await api('/links')).links || []; } catch {}
@@ -924,7 +968,7 @@ async function buildMemberWidgets() {
   w.innerHTML = `<div class="widget widget--clear"><div class="widget__kicker">Signed in</div><div class="widget__title" style="font-size:18px">${esc(S.user)}</div><div class="widget__sub">${(S.me?.groups || []).join(' · ') || 'member'}</div></div>
     <div class="widget"><div class="widget__kicker">Your places</div><div class="widget__rows">${roots.map(r => `<button class="widget__row" data-root="${esc(r.id)}"><span>${esc(r.name)}</span><b>${r.home ? 'your home folder' : r.writable === false ? 'read only' : 'share'}</b></button>`).join('')}</div></div>
     <div class="widget"><div class="widget__kicker">Shared links</div><div class="widget__rows"><div class="widget__row"><span>Live</span><b>${live.length}</b></div><div class="widget__row"><span>Downloads</span><b>${links.reduce((a, l) => a + (l.downloads || 0), 0)}</b></div></div><button class="btn btn--ghost btn--xs" data-act="links" style="margin-top:8px">Manage</button></div>
-    <div class="widget"><div class="widget__kicker">This week</div><div class="widget__rows"><div class="widget__row"><span>Sunday · Pineville</span><b>10:30 AM</b></div><div class="widget__row"><span>Sunday · Alexandria</span><b>10:00 AM</b></div><div class="widget__row"><span>Glory Night · Monday</span><b>7:00 PM</b></div></div></div>`;
+    ${weekWidget()}${verseWidget()}`;
   $$('[data-root]', w).forEach(b => b.onclick = () => { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: b.dataset.root, path: '/', sel: null }); openApp('files'); if (S.wins.files) rerender('files'); });
   $$('[data-act="links"]', w).forEach(b => b.onclick = () => linksModal());
 }
@@ -935,7 +979,7 @@ async function buildNC() {
   let cal = `<div class="widget__kicker">${d.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div><div class="cal">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<b>${x}</b>`).join('')}`;
   for (let i = 0; i < first; i++) cal += '<span class="dim"></span>';
   for (let i = 1; i <= days; i++) { const wd = new Date(y, m, i).getDay(); cal += `<span class="${wd === 0 || wd === 1 ? 'svc' : ''} ${i === d.getDate() ? 'today' : ''}">${i}</span>`; }
-  cal += '</div><div class="widget__sub" style="margin-top:8px">● Sundays 10:30 Pineville · 10:00 Alexandria · Mondays 7 PM Glory Night</div>';
+  cal += `</div><div class="widget__sub" style="margin-top:8px">● ${(S.church?.services || []).map(x => `${x.day}s ${fmtSvc(x.time)} ${x.name === 'Sunday Service' ? x.site : x.name}`).join(' · ') || 'Sundays 10:30 Pineville · 10:00 Alexandria · Mondays 7 PM Glory Night'}</div>`;
   $('#ncCal').innerHTML = cal;
   try { const s = await api('/sermons?limit=1'); const v = (s.videos || [])[0]; if (v) $('#ncSermon').innerHTML = `<div class="widget__kicker">Latest on the channel</div><div class="widget__title" style="font-size:15px">${esc(v.title)}</div><div class="widget__sub">${esc(v.kind)} · ${esc(v.published)}${v.views ? ' · ' + fmtN(v.views) + ' views' : ''}</div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--xs" data-open="sermons">Sermons</button></div>`; $$('[data-open]', $('#ncSermon')).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); }); } catch {}
 }
@@ -1014,14 +1058,14 @@ async function buildWidgets() {
       <div class="widget__row"><span>Backups</span><b>${b.last ? (b.last.ok ? 'ok' : '<span style="color:var(--redL)">failed</span>') + ' · ' + ago(b.last.started) : 'none'}</b></div>
       <div class="widget__row"><span>Synology</span><b>${n.mounted ? fmtB(n.free) + ' free' : '<span style="color:var(--warn)">not mounted</span>'}</b></div>
       <div class="widget__row"><span>Next</span><b>${esc(next)}</b></div></div>
-    <div class="widget"><div class="widget__kicker">This week</div>
-      <div class="widget__row"><span>Sunday · Pineville</span><b>10:30 AM</b></div><div class="widget__row"><span>Sunday · Alexandria</span><b>10:00 AM</b></div><div class="widget__row"><span>Glory Night · Monday</span><b>7:00 PM</b></div></div>`;
+    ${weekWidget()}${verseWidget()}`;
   $$('[data-open]', w).forEach(x => x.onclick = () => openApp(x.dataset.open));
   if (S.stats) paintWidgetLive(S.stats);
 }
 
 /* ---------------- lock, login, sign out ---------------- */
 function lockScreen(idle) {
+  saver(false);
   const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
@@ -1067,12 +1111,27 @@ $('#ccBtn').onclick = e => { e.stopPropagation(); toggleCC(); };
 $('#barClock').onclick = () => toggleNC();
 $('#barAtt').onclick = () => openApp('overview');
 $('#barLogo').onclick = e => { e.stopPropagation(); const b = $('#barLogo'); if (menuOpen === b) { closeMenu(); return; } openMenu(b, FLAME_MENU()); };
+function saver(on) {
+  const sv = $('#saver'); if (!sv) return;
+  if (!on) { sv.hidden = true; clearInterval(S.saverT); return; }
+  if (!sv.hidden) return;
+  sv.hidden = false;
+  const paint = () => { const d = new Date(); $('#saverTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); const c = S.church; const n = c?.next;
+    $('#saverNext').textContent = n ? `${n.name} · ${n.site} · ${n.day} ${fmtSvc(n.time)} · in ${n.in_words}` : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    $('#saverVerse').innerHTML = c?.verse?.text ? `${esc(c.verse.text)}<cite>${esc(c.verse.ref)}</cite>` : ''; $('#saverName').textContent = (c?.name || 'Arise Church') + ' · ' + (c?.city || ''); };
+  paint(); S.saverT = setInterval(paint, 30000);
+  // a slow slideshow of the channel's thumbnails behind the clock
+  api('/sermons?limit=12').then(r => { const th = (r.videos || []).map(v => v.thumbnail).filter(Boolean); if (!th.length) return; let i = 0; const art = $('#saverArt'); const step = () => { if (sv.hidden) return; art.style.backgroundImage = `url(${th[i % th.length]})`; i++; }; step(); S.saverA = setInterval(step, 20000); }).catch(() => {});
+}
 function kioskSetup() {
-  if (!new URLSearchParams(location.search).has('kiosk')) return;
+  const q = new URLSearchParams(location.search);
+  if (q.has('signage')) { document.body.classList.add('kiosk', 'signage'); S.kiosk = true; S.signage = true; loadChurch().then(() => saver(true)); setInterval(() => loadChurch(), 10 * 60000); return; }
+  if (!q.has('kiosk')) return;
   document.body.classList.add('kiosk'); S.kiosk = true;
-  let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); };
+  let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); if (!$('#saver').hidden) saver(false); };
   ['pointermove', 'keydown', 'pointerdown', 'wheel'].forEach(ev => document.addEventListener(ev, reset, { passive: true }));
-  setInterval(() => { idle += 5; if (idle >= 5) document.body.classList.add('idle'); if (idle >= 600 && $('#lock').hidden) lockScreen(true); }, 5000);
+  // 5 minutes idle: the screensaver (clock, next service, the verse, the channel's art); 10: the lock on top of it.
+  setInterval(() => { idle += 5; if (idle >= 5) document.body.classList.add('idle'); if (idle >= 300 && $('#lock').hidden) saver(true); if (idle >= 600 && $('#lock').hidden) lockScreen(true); }, 5000);
 }
 async function boot() {
   if (window.ARISE_FORCE_DEMO) setDemoOnly();
@@ -1087,7 +1146,9 @@ async function boot() {
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
   } catch (e) { if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
   if (!isMember()) startStats();
+  await loadChurch();
   await Promise.all([buildWidgets(), isMember() ? Promise.resolve() : buildIcons()]);
+  setInterval(loadChurch, 15 * 60000);
   setInterval(buildWidgets, 60000);
   const first = (location.hash || '').replace('#', '').split('/')[0];
   if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('files');
@@ -1095,5 +1156,5 @@ async function boot() {
 }
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
-window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, toast, S, APPS };
+window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, S, APPS };
 })();

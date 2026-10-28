@@ -38,6 +38,21 @@ admins_group = "Domain Admins"
 # used to open the dashboard. Set it once Caddy/HTTPS is up, e.g. "https://arise.arisecenla.church".
 public_url = ""
 
+# The church itself: the widgets, the lock screen, the lobby signage and the
+# Sunday app read this. Times are 24-hour, local (America/Chicago).
+[church]
+name = "Arise Church"
+city = "Pineville, LA"
+tagline = ""
+services = [
+  { name = "Sunday Service", day = "Sunday", time = "10:30", site = "Pineville" },
+  { name = "Sunday Service", day = "Sunday", time = "10:00", site = "Alexandria" },
+  { name = "Glory Night",    day = "Monday", time = "19:00", site = "Pineville" },
+]
+# The Sunday app's checklist, one line per item; ticks reset each week.
+# Leave it out to get the default list (server/arise_server/church.py).
+# sunday_checklist = ["Streaming Mac on", "Cameras answering", "Slides updated"]
+
 [links]
 # Share links (a public download address for one file or folder).
 days = 7        # default life

@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, devices, directory, files, metrics, nas, remote, routers, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, church, devices, directory, files, metrics, nas, remote, routers, sermons, services, shares, sites, system
 from . import links
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
@@ -513,6 +513,7 @@ def api_files_mkdir(body: NewFolder, who=auth):
 @app.get("/api/search")
 def api_search(q: str = "", who=auth):
     out = files.search(q, who=who)
+    out["transcripts"] = files.search_transcripts(q)
     ql = q.strip().lower()
     if who.get("role") == "admin":
         out["users"] = [u for u in directory.list_users()["users"] if ql and (ql in u["name"].lower() or ql in (u.get("display") or "").lower())][:8]
@@ -571,6 +572,47 @@ def public_link(token: str):
             raise HTTPException(413, {"message": "That folder is too big to zip; ask for the files another way"})
         return FileResponse(z, filename=got["name"] + ".zip", media_type="application/zip")
     return FileResponse(got["path"], filename=got["name"])
+
+
+# ----- the church: services, verse, the Sunday checklist, the monitor, signage ---
+@app.get("/api/church")
+def api_church(_=auth):
+    i = church.info()
+    return {**i, "next": church.next_service(), "verse": church.verse_of_day(), "assistants": church.ASSISTANTS}
+
+
+@app.get("/api/sunday")
+def api_sunday(_=auth):
+    return church.checklist()
+
+
+@app.post("/api/sunday/{i}")
+def api_sunday_toggle(i: int, who=auth):
+    return church.toggle(i, who["user"])
+
+
+class OpenUrl(BaseModel):
+    url: str
+
+
+@app.post("/api/kiosk/open")
+def api_kiosk_open(body: OpenUrl, request: Request, who=auth):
+    """Only the kiosk itself (localhost) may ask the monitor to open a site."""
+    host = (request.client.host if request.client else "") or ""
+    if host not in ("127.0.0.1", "::1") and not load().demo:
+        return {"ok": False, "err": "only the closet monitor can open windows on itself; from a browser the site opens in a new tab"}
+    return church.open_on_kiosk(body.url)
+
+
+@app.get("/api/public/signage")
+def api_signage():
+    """No login: the lobby screen's feed (service times, the next one, the verse, the latest titles)."""
+    return church.signage()
+
+
+@app.get("/signage")
+def signage_page():
+    return FileResponse(str(cfg.web_dir / "signage.html"))
 
 
 # ----- everything on the switch --------------------------------------------------

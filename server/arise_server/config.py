@@ -78,6 +78,7 @@ DEFAULTS = {
         ],
     },
     "links": {"days": 7, "max_days": 30, "max_zip_bytes": 2 * 1024 ** 3},
+    "church": {"name": "Arise Church", "city": "Pineville, LA", "tagline": ""},   # services and sunday_checklist: see arise.toml.example
     "paths": {
         "state_dir": _root("/var/lib/arise", r"C:\Arise\state"),
         "log_dir": _root("/var/log/arise", r"C:\Arise\logs"),
