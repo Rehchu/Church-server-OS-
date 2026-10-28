@@ -47,10 +47,14 @@ arisectl trash list                        what sits in the shares' Trash
    suggest it as a fix. The network stays as it is (docs/ANSWERS.md). The
    server adapts: `/etc/netplan/60-arise-pinned.yaml` on this box, resolver
    files on the Macs, Tailscale for the rest.
-3. Never run the automator by hand while its timer is enabled, and never
-   twice in a night: `arise-automator.timer` fires at 02:05 America/Chicago.
-   `arisectl automator preview` is the dry run; `run` is real and writes to
-   YouTube. Never invent a CCLI number, a speaker or a sermon title.
+3. Never run the automator in apply mode by hand: `arise-automator.timer`
+   fires at 02:05 America/Chicago, as `arise-yt`, and `automator/runner.json`
+   in its repo decides whether this box is the runner (the PC is, until
+   Bradly switches it on the PC; never edit runner.json, holds.json or
+   worklist.json here). `arisectl automator preview` is the plan-only run;
+   its reads still spend the shared quota. Never run arise_daily.py as root.
+   Never invent a CCLI number, a speaker or a sermon title. docs/AUTOMATOR.md
+   and the automator repo's SERVER_HANDOFF.md are the rules.
 4. `/etc/samba/smb.conf`: edit only with a backup copy made first and
    `testparm -s` run after; a bad smb.conf takes the domain down. Prefer
    `arisectl share add` / `remove`, which write `arise-shares.conf` instead.
@@ -58,7 +62,8 @@ arisectl trash list                        what sits in the shares' Trash
    dangerous shapes, and the dashboard agrees with them.
 6. Secrets stay where they are: `/etc/arise/secrets/` (the restic password,
    `vapid.json`, `apps/*.env`, `totp/<user>.json`, `rescue-password`,
-   `wayvnc`, `discord.toml`), the apps' `.env` files, `token.json`, and
+   `wayvnc`, `discord.toml`, and `youtube/`: the automator's `token.json`,
+   `client_secret.json` and deploy key), the apps' `.env` files, and
    `/etc/arise/SAFE-CARD.txt`. Never print one into the conversation, never
    move one into git, never paste one into a doc.
 7. Nothing on this box is reachable from the internet, by Bradly's choice.

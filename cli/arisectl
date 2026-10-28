@@ -16,7 +16,7 @@
     arisectl browser [status|apply|policy]                      Firefox on the closet monitor: what is installed, rewrite the policy and theme, print the policy
     arisectl audit [words] [--who U] [--failed] [--limit N]      the audit log, newest first (kept forever)
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
-    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM
+    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|cutover
     arisectl app list|templates|catalog|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
     arisectl app install-all                 every template deployed, started within the memory budget (the installer's 6a)
     arisectl app autostart <name> on|off     whether an app starts with the box
@@ -482,19 +482,55 @@ def cmd_automator(a):
         print(f"  token      {'ok' if o.get('token_ok') else 'MISSING'}" + (f", ~{o['token_days_left']} days left" if o.get("token_days_left") is not None else ""))
         if o.get("token_note"): warn(o["token_note"])
         print(f"  holds      {o.get('holds')} videos, {o.get('rules')} rules; worklist {o.get('worklist_enabled')}/{o.get('worklist_total')} enabled")
+        ri = o.get("runner") or {}
+        print(f"  runner     {ri.get('runner')} (this machine: {ri.get('machine')}; cap here today, {ri.get('day')}: {ri.get('budget')} units) - {ri.get('note', '')}")
         if o.get("demo"): warn("sample data (automator folder not found)")
     elif a.sub in ("preview", "run"):
+        # Through the units only: as arise-yt, with /etc/arise/arise.env, behind the wrapper's lock.
+        # Running arise_daily.py as root would write the token's refresh back as a root-owned file.
         if not automator.available():
-            sys.exit(f"automator not found at {o['path']}")
+            sys.exit(f"automator not found at {o['path']}: sudo arisectl automator setup")
+        need_root()
         if a.sub == "run":
-            why = automator.run_refusal()   # CLAUDE.md rule 3: never by hand while the timer is on, never twice a night
+            why = automator.run_refusal()   # CLAUDE.md rule 3 and the handoff's rule 6: no apply run by hand
             if why:
                 bad(why); sys.exit(1)
-        cfg = load()
-        p = Path(cfg.automator.path) / "automator"
-        cmd = [cfg.automator.python, str(p / "arise_daily.py")] + (["--dry-run"] if a.sub == "preview" else [])
-        env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-        sys.exit(subprocess.call(cmd, cwd=str(p), env=env))
+        else:
+            warn("plan only: nothing changes on YouTube, but its reads spend real quota on the shared 10,000-unit project")
+            if input("  go ahead? [y/N] ").strip().lower() != "y":
+                sys.exit("nothing run")
+        r = automator.start(a.sub)
+        if not r.get("ok"):
+            bad(r.get("err", "did not start")); sys.exit(1)
+        ok(f"{r['unit']} started; follow it with: journalctl -fu {r['unit']}   then: arisectl automator report")
+    elif a.sub == "setup":
+        need_root()
+        sys.exit(subprocess.call(["bash", str(HOME / "scripts" / "arise-automator-setup"), "--src", str(HOME)]))
+    elif a.sub == "signin":
+        # The handoff's section 5: authorize_headless.py as the automator's user, with its environment.
+        need_root()
+        env = automator.read_env()
+        repo = env.get("ARISE_REPO") or o["path"]
+        if not Path(repo, "authorize_headless.py").exists():
+            sys.exit(f"{repo}/authorize_headless.py is missing: sudo arisectl automator setup (the checkout must be at 'Server-ready automator' or later)")
+        if not Path(env.get("ARISE_CLIENT_SECRET", "/etc/arise/secrets/youtube/client_secret.json")).exists():
+            sys.exit("the server's own OAuth client is not here yet: copy the 'ariseOS server' JSON (Desktop app) to "
+                     + env.get("ARISE_CLIENT_SECRET", "/etc/arise/secrets/youtube/client_secret.json") + " with scp, chown arise-yt, chmod 600")
+        head("sign the server in to YouTube (once)")
+        print("  A Google link follows. Open it on any computer or phone, sign in as the owner of the Arise Church channel,")
+        print("  pass the 'Google hasn't verified this app' warning (Advanced -> Go to ...), approve, then copy the whole")
+        print("  http://localhost:8765/?state=...&code=... address the browser fails to load, and paste it here. Paste promptly.")
+        envargs = [f"{k}={v}" for k, v in env.items()]
+        cmd = ["runuser", "-u", "arise-yt", "--", "env", *envargs, env.get("ARISE_PYTHON", "/opt/arise/venv/bin/python"), "authorize_headless.py"] + (["--force"] if a.name == "--force" or getattr(a, "force", False) else [])
+        sys.exit(subprocess.call(cmd, cwd=repo))
+    elif a.sub == "cutover":
+        c = automator.cutover()
+        head(f"handing the nightly job to this server (runner now: {c.get('runner')}; this machine: {c.get('machine')})")
+        marks = {"ok": ok, "warn": warn, "bad": bad, "you": lambda t: print(f"  ? {t}")}
+        for r in c["rows"]:
+            marks[r["level"]](f"{r['n']}. {r['text']}" + (f"   -> {r['fix']}" if r.get("fix") else ""))
+        print("  ? = only Bradly can confirm it. The switch itself is runner.json on the PC, his change (docs/AUTOMATOR.md, Cutover).")
+        if c.get("demo"): warn("sample data")
     elif a.sub == "report":
         if a.name:
             print(automator.report(a.name)["text"])
@@ -1129,7 +1165,7 @@ def build():
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)
     p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
-    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule"]); p.add_argument("name", nargs="?", help="report file name, or HH:MM for schedule"); p.set_defaults(f=cmd_automator)
+    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
     p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "catalog", "install-all", "autostart", "idle-sweep", "theme", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("value", nargs="?", help="autostart: on|off"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
     p = sp.add_parser("automations"); p.add_argument("sub", choices=["list", "pause", "resume"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_automations)
     p = sp.add_parser("storage"); p.add_argument("sub", nargs="?", default="status", choices=["status", "scan"]); p.set_defaults(f=cmd_storage)

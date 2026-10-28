@@ -13,9 +13,13 @@
 jobs:
   - id: automator
     name: YouTube automator
-    # The whole toolkit: scripts, song bank, transcripts, reports, token.json.
-    paths: ["/srv/arise/automator"]
-    exclude: ["**/__pycache__", "**/*.zip"]
+    # The checkout (scripts, song bank, transcripts, the job's in-checkout state)
+    # and the job's own state dir (reports, the quota ledger, last-run.log).
+    # Never a credential (the automator's rule 1): token.json and client_secret*.json
+    # live in /etc/arise/secrets/youtube, which no job backs up; the excludes below
+    # catch an old PC-layout copy that lands in the checkout by mistake.
+    paths: ["/srv/arise/automator", "/var/lib/arise/automator"]
+    exclude: ["**/__pycache__", "**/*.zip", "**/token.json", "**/client_secret*.json", "**/deploy_key*", "**/.nightly.lock"]
     tags: [automator]
 
   - id: homes
@@ -56,6 +60,9 @@ jobs:
     # /var/lib/samba/private still rides along for a quick single-file look.
     samba_offline: true
     paths: ["/etc/arise", "/etc/samba", "/var/lib/arise/samba-backup", "/var/lib/samba/private", "/etc/netplan/60-arise-pinned.yaml"]
+    # The YouTube token, its OAuth client and the deploy key stay out of every archive
+    # (the automator's rule 1). After a reinstall the server signs in again (5 minutes).
+    exclude: ["/etc/arise/secrets/youtube"]
     tags: [system, config]
 
   - id: apps

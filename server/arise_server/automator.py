@@ -21,22 +21,88 @@ _run_lock = threading.Lock()
 _last_manual: dict = {}
 
 
+ENV_FILE = "/etc/arise/arise.env"
+UNIT, PREVIEW_UNIT, TIMER = "arise-automator.service", "arise-automator-preview.service", "arise-automator.timer"
+STATE_FILES = ("_starfix_state.json", "_tx_run.json", "_retitle_report.txt", "_ss_fix_report.txt")  # handoff section 3
+
+
+def read_env(path: str = ENV_FILE) -> dict:
+    """Pure-ish: KEY=VALUE lines of /etc/arise/arise.env (the automator units' environment)."""
+    out = {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            for ln in f:
+                ln = ln.strip()
+                if ln and not ln.startswith("#") and "=" in ln:
+                    k, v = ln.split("=", 1)
+                    out[k.strip()] = v.strip().strip('"')
+    except OSError:
+        pass
+    return out
+
+
 def _paths():
+    """Where the automator lives on this box. The checkout from [automator] path; the token,
+    the client and the state dir from /etc/arise/arise.env, as the units see them
+    (the handoff's ARISE_TOKEN / ARISE_CLIENT_SECRET / ARISE_STATE_DIR)."""
     cfg = load()
-    root = cfg.automator.path
+    env = read_env()
+    root = env.get("ARISE_REPO") or cfg.automator.path
     auto = os.path.join(root, "automator")
+    state = env.get("ARISE_STATE_DIR") or "/var/lib/arise/automator"
     return {
-        "root": root, "automator": auto,
+        "root": root, "automator": auto, "state": state,
         "script": os.path.join(auto, "arise_daily.py"),
-        "latest": os.path.join(auto, "LATEST_REPORT.md"),
-        "reports": os.path.join(auto, "reports"),
+        "latest": os.path.join(state, "LATEST_REPORT.md"),
+        "reports": os.path.join(state, "reports"),
+        "ledger": os.path.join(state, "quota_ledger.json"),
+        "last_run_log": os.path.join(state, "last-run.log"),
         "holds": os.path.join(auto, "holds.json"),
         "worklist": os.path.join(auto, "worklist.json"),
-        "ledger": os.path.join(auto, "quota_ledger.json"),
-        "token": os.path.join(root, "token.json"),
-        "secret": os.path.join(root, "client_secret.json"),
-        "last_run_log": os.path.join(auto, "last-run.log"),
+        "runner": os.path.join(auto, "runner.json"),
+        "token": env.get("ARISE_TOKEN") or "/etc/arise/secrets/youtube/token.json",
+        "secret": env.get("ARISE_CLIENT_SECRET") or "/etc/arise/secrets/youtube/client_secret.json",
+        "machine": env.get("ARISE_RUNNER_NAME") or "ariseOS",
     }
+
+
+def pacific_day(now: datetime | None = None) -> str:
+    """The Google quota day's weekday key (mon..sun): midnight Pacific is 02:00 Central."""
+    from zoneinfo import ZoneInfo
+    now = now or datetime.now(ZoneInfo("America/Chicago"))
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=ZoneInfo("America/Chicago"))
+    return ("mon", "tue", "wed", "thu", "fri", "sat", "sun")[now.astimezone(ZoneInfo("America/Los_Angeles")).weekday()]
+
+
+def runner_info(runner_doc: dict | None, machine: str, now: datetime | None = None) -> dict:
+    """Pure: who runs tonight and this machine's cap today, from automator/runner.json (the repo's, Bradly's)."""
+    if not isinstance(runner_doc, dict) or not runner_doc.get("runner"):
+        return {"runner": None, "machine": machine, "is_runner": False, "budget": None, "day": pacific_day(now),
+                "note": "runner.json is missing or unreadable: every machine stops (it fails closed)"}
+    runner = str(runner_doc["runner"])
+    b = (runner_doc.get("budgets") or {}).get(machine) or {}
+    day = pacific_day(now)
+    budget = b.get(day, b.get("default"))
+    is_runner = runner.lower() == machine.lower()
+    return {"runner": runner, "machine": machine, "is_runner": is_runner, "budget": budget, "day": day,
+            "note": "this server runs the 02:05 job" if is_runner else f"{runner} runs the 02:05 job; this server writes a 'not the runner' report and changes nothing"}
+
+
+def file_mode_ok(path: str, owner: str = "arise-yt") -> dict:
+    """Is a secret file there, 0600, owned by the automator's user? Never reads its content."""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return {"present": False, "ok": False}
+    mode = st.st_mode & 0o777
+    try:
+        import pwd
+        who = pwd.getpwuid(st.st_uid).pw_name
+    except (KeyError, ImportError):
+        who = str(st.st_uid)
+    return {"present": True, "mode": oct(mode), "owner": who, "ok": mode == 0o600 and who == owner,
+            "modified": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="seconds")}
 
 
 def available() -> bool:
@@ -64,6 +130,7 @@ def overview() -> dict:
         d["schedule"] = cfg.automator.schedule
         d["manual"] = dict(_last_manual)
         d["timer_enabled"] = timer_enabled()
+        d["runner"] = runner_info({"runner": "pc", "budgets": {"pc": {"default": 10000}, "ariseOS": {"default": 4000, "sun": 2000, "mon": 2000}}}, "ariseOS")
         if not cfg.demo:
             d["error"] = f"the automator is not on this server yet ({_paths()['script']} is missing)"
         return d
@@ -98,14 +165,11 @@ def overview() -> dict:
         reports = sorted(os.listdir(p["reports"]), reverse=True)[:60]
     except OSError:
         pass
-    token_ok = os.path.exists(p["token"])
-    token_days_left = None
-    if token_ok:
-        try:
-            age = time.time() - os.path.getmtime(p["token"])
-            token_days_left = max(0, int(7 - age / 86400))
-        except OSError:
-            pass
+    tok = file_mode_ok(p["token"])
+    sec = file_mode_ok(p["secret"])
+    token_ok = tok["present"]
+    token_days_left = None   # a Published OAuth app's refresh token does not expire after 7 days (handoff 4.1)
+    runner = runner_info(read_json(p["runner"], default=None), p["machine"])
     signed = ""
     m2 = re.search(r"signed in as \*\*(.+?)\*\*", latest)
     if m2:
@@ -117,9 +181,10 @@ def overview() -> dict:
         "quota_today": spent_today if spent_today is not None else spent, "quota_daily": daily, "quota_reset": "2:00 AM Central",
         "holds": len(holds.get("videos", [])), "rules": len(holds.get("rules", [])),
         "worklist_enabled": sum(1 for j in jobs if isinstance(j, dict) and j.get("enabled", True)), "worklist_total": len(jobs),
-        "token_ok": token_ok, "token_days_left": token_days_left,
-        "token_note": None if token_ok else f"token.json is missing from {p['root']} - run authorize.py on a machine signed in as the channel owner and copy it here.",
-        "client_secret_ok": os.path.exists(p["secret"]),
+        "token_ok": token_ok, "token_days_left": token_days_left, "token": tok, "client_secret": sec,
+        "token_note": None if tok["ok"] else (f"{p['token']} is {tok.get('mode')} owned by {tok.get('owner')}; it must be 0600 and owned by arise-yt" if tok["present"]
+                       else "the server is not signed in to YouTube yet: sudo arisectl automator signin (docs/AUTOMATOR.md)"),
+        "client_secret_ok": sec["present"], "runner": runner, "state_dir": p["state"],
         "signed_in_as": signed, "latest_report": latest or "(no report yet - the automator has not run on this server)",
         "reports": reports, "manual": _last_manual,
     }
@@ -204,27 +269,84 @@ def start(mode: str) -> dict:
         _last_manual.update({"mode": mode, "started": now_iso(), "finished": now_iso(), "ok": True, "demo": True, "out": f"(sample) {mode} of arise_daily.py"})
         return {"ok": True, "demo": True, "mode": mode, "started": True}
     if not available():
-        return {"ok": False, "err": f"the automator is not here ({_paths()['script']} is missing); the 04:00 mirror or a copy from the PC puts it there"}
-    if not _run_lock.acquire(blocking=False):
-        return {"ok": False, "err": "the automator is already running"}
-    p = _paths()
-    cfg = load()
-    args = [cfg.automator.python, p["script"]] + (["--dry-run"] if mode == "preview" else [])
+        return {"ok": False, "err": f"the automator is not here ({_paths()['script']} is missing): sudo arisectl automator setup"}
+    unit = UNIT if mode == "run" else PREVIEW_UNIT
+    if not which("systemctl"):
+        return {"ok": False, "err": "systemd is not here; the automator runs only through its units (as arise-yt, with /etc/arise/arise.env)"}
+    r = run(["systemctl", "start", "--no-block", unit], timeout=20)
+    if not r["ok"]:
+        return {"ok": False, "err": f"{unit} did not start: " + (r.get("err") or r.get("out") or "").strip()[-300:]}
     _last_manual.clear()
-    _last_manual.update({"mode": mode, "started": now_iso(), "finished": None, "ok": None})
+    _last_manual.update({"mode": mode, "started": now_iso(), "unit": unit})
+    note = "Plan only: nothing changes on YouTube, but its reads spend real quota on the shared 10,000-unit project." if mode == "preview" else ""
+    return {"ok": True, "mode": mode, "started": True, "unit": unit, "note": note,
+            "watch": f"{_paths()['state']}/LATEST_REPORT.md and last-run.log"}
 
-    def go():
-        try:
-            env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-            with open(p["last_run_log"], "a", encoding="utf-8") as log:
-                log.write(f"\n=== {mode} started from the dashboard {now_iso()} ===\n")
-                log.flush()
-                r = subprocess.run(args, cwd=p["automator"], stdout=log, stderr=subprocess.STDOUT, env=env, timeout=3 * 3600)
-            _last_manual.update({"finished": now_iso(), "ok": r.returncode == 0, "code": r.returncode})
-        except Exception as e:
-            _last_manual.update({"finished": now_iso(), "ok": False, "error": str(e)})
-        finally:
-            _run_lock.release()
 
-    threading.Thread(target=go, daemon=True).start()
-    return {"ok": True, "mode": mode, "started": True}
+def cutover(now: datetime | None = None) -> dict:
+    """The handoff's section 9 checklist, as far as the server can see it. Each row: ok / warn / bad / you.
+    'you' means only Bradly can confirm it (on the PC or in the Cloud Console)."""
+    p = _paths()
+    rows = []
+    add = lambda n, level, text, fix="": rows.append({"n": n, "level": level, "text": text, "fix": fix})  # noqa: E731
+    if load().demo:
+        return {"demo": True, "rows": [
+            {"n": 1, "level": "you", "text": "The OAuth app is Published (Cloud Console, Audience)", "fix": ""},
+            {"n": 2, "level": "warn", "text": "Sample: no server token yet", "fix": "sudo arisectl automator signin"},
+            {"n": 3, "level": "warn", "text": "Sample: no 'not the runner' report yet", "fix": "wait for 02:05, or: sudo systemctl start arise-automator.service"},
+            {"n": 4, "level": "warn", "text": "Sample: no plan-only report yet", "fix": "sudo arisectl automator preview"},
+            {"n": 5, "level": "warn", "text": "4 state files are tracked in git (_starfix_state.json, _tx_run.json, _retitle_report.txt, _ss_fix_report.txt) and 162 transcripts", "fix": "Bradly decides on the PC"},
+            {"n": 6, "level": "warn", "text": "sunday-playlist-reassign is enabled and books 3,500 a night", "fix": "Bradly decides on the PC"},
+            {"n": 7, "level": "you", "text": "The PC's _starfix_state.json copied to the server checkout", "fix": ""},
+            {"n": 8, "level": "you", "text": "The PC is clean and pushed", "fix": ""}],
+            "runner": "pc", "machine": "ariseOS"}
+    ri = runner_info(read_json(p["runner"], default=None), p["machine"], now)
+    add(1, "you", "The OAuth app is Published (Cloud Console → OAuth consent screen → Audience). In Testing, tokens die after 7 days.")
+    sec, tok = file_mode_ok(p["secret"]), file_mode_ok(p["token"])
+    if tok["ok"] and sec["present"]:
+        add(2, "ok", f"The server's own client and token are here (token {tok['mode']}, {tok['owner']}, refreshed {tok['modified']})")
+    else:
+        add(2, "bad", "The server's own OAuth client and/or token are missing or not 0600 arise-yt",
+            "copy the 'ariseOS server' client JSON to " + p["secret"] + ", then: sudo arisectl automator signin")
+    reports = []
+    try:
+        reports = sorted(os.listdir(p["reports"]))
+    except OSError:
+        pass
+    nr = [r for r in reports if "not the runner" in read_text(os.path.join(p["reports"], r), "")[:4000].lower()]
+    add(3, "ok" if nr else "warn", f"The timer has written a 'not the runner' report ({nr[-1]})" if nr else "No 'not the runner' report yet",
+        "" if nr else "it appears after the first 02:05 run, or: sudo systemctl start arise-automator.service")
+    latest = read_text(p["latest"], "")
+    signed = "signed in as arise church" in latest.lower()
+    m = re.search(r"(\d+) videos? on hold, (\d+) standing rules?", latest)
+    add(4, "ok" if signed and m else "warn",
+        (f"A plan-only run signed in as Arise Church; {m.group(1)} on hold, {m.group(2)} rules (compare with the PC's LATEST_REPORT.md)" if signed and m
+         else "No plan-only report that shows 'signed in as Arise Church' yet"),
+        "" if signed and m else "sudo arisectl automator preview   (its reads spend real quota)")
+    tracked = []
+    if os.path.isdir(os.path.join(p["root"], ".git")):
+        r = run(["git", "-C", p["root"], "ls-files", "--", *STATE_FILES], timeout=20)
+        tracked = [x for x in (r.get("out") or "").split() if x]
+        tr = run(["git", "-C", p["root"], "ls-files", "--", "transcripts"], timeout=20)
+        ntx = len([x for x in (tr.get("out") or "").splitlines() if x])
+        add(5, "warn" if tracked or ntx else "ok",
+            (f"Tracked in git, so the server's writes to them will block the next pull: {', '.join(tracked)}" + (f"; and {ntx} files in transcripts/" if ntx else "")) if tracked or ntx
+            else "None of the job's state files are tracked in git", "Bradly decides on the PC (the handoff says: don't untrack them from the server)" if tracked or ntx else "")
+        st = run(["git", "-C", p["root"], "status", "--porcelain", "--untracked-files=no"], timeout=20)
+        dirty = (st.get("out") or "").strip()
+        add(8, "warn" if dirty else "you", ("The server's checkout has modified tracked files: " + dirty.replace("\n", ", ")[:200]) if dirty
+            else "The server's checkout is clean; the PC must also be clean and pushed (git status on the PC)")
+    else:
+        add(5, "bad", "No checkout here yet", "sudo arisectl automator setup")
+    w = read_json(p["worklist"], default={}) or {}
+    jobs = w.get("jobs", w) if isinstance(w, dict) else w
+    reassign = next((j for j in (jobs or []) if isinstance(j, dict) and j.get("id") == "sunday-playlist-reassign"), None)
+    if reassign and reassign.get("enabled", True):
+        est = reassign.get("estimate_units") or reassign.get("estimate") or reassign.get("units")
+        add(6, "warn", f"sunday-playlist-reassign is enabled and books {est} units a night against a {ri.get('budget')} cap here", "Bradly decides on the PC")
+    else:
+        add(6, "ok", "sunday-playlist-reassign is off (or gone)")
+    sf = os.path.join(p["root"], "_starfix_state.json")
+    add(7, "you", "Copy the PC's _starfix_state.json into the server checkout at cutover" + (f" (the server's copy is from {datetime.fromtimestamp(os.path.getmtime(sf)).date()})" if os.path.exists(sf) else ""))
+    rows.sort(key=lambda r: r["n"])
+    return {"demo": False, "rows": rows, "runner": ri["runner"], "machine": ri["machine"], "is_runner": ri["is_runner"], "budget": ri["budget"]}

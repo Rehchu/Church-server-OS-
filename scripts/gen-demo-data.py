@@ -22,7 +22,7 @@ from arise_server.main import app  # noqa: E402
 GETS = [
     "/overview", "/services", "/directory/status", "/directory/users", "/directory/groups", "/directory/computers",
     "/shares", "/backups/jobs", "/backups/history", "/backups/snapshots", "/backups/repo",
-    "/automator", "/automator/worklist", "/automator/holds", "/automator/quota", "/automator/reports",
+    "/automator", "/automator/worklist", "/automator/holds", "/automator/quota", "/automator/cutover", "/automator/reports",
     "/apps", "/apps/templates", "/nas", "/settings", "/auth/me", "/health",
     "/sites", "/remote", "/sermons", "/files/roots", "/links", "/devices", "/devices/behind", "/devices/cameras", "/church", "/sunday", "/public/signage", "/mail", "/mail/contacts", "/mail/broadcasts", "/bible/translations", "/system/updates", "/notify",
     "/audit?limit=60", "/directory/leaving", "/calendar", "/calendar/subscribe", "/weather", "/help", "/help/PORTAL-GUIDE", "/help/README", "/about/whatsnew", "/me/password/rules",

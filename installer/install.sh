@@ -714,6 +714,16 @@ else
   die "config/systemd is missing from $SRC"
 fi
 
+# The YouTube automator: ready, never the runner (SERVER_HANDOFF.md in the automator
+# repo; docs/AUTOMATOR.md). Its user, folders, env file, read-only deploy key and
+# checkout; the timer below may run from day one, because while runner.json names
+# the PC each night only writes a "not the runner" report.
+if [ "$DRY_RUN" = 1 ]; then
+  bash "$SRC/scripts/arise-automator-setup" --dry-run --src "$SRC" || warn "automator setup (dry run) reported a problem"
+else
+  bash "$SRC/scripts/arise-automator-setup" --src "$SRC" || warn "automator setup did not finish (above): sudo arisectl automator setup"
+fi
+
 ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer)
 for u in "${ENABLE_UNITS[@]}"; do
   if [ -f "/etc/systemd/system/$u" ] || [ -f "$UNIT_SRC/$u" ]; then
@@ -1601,9 +1611,14 @@ cat <<SUMMARY
     Still needs a human — in this order:
 
     1. Dashboard password:        sudo arisectl admin set-password
-    2. The automator checkout:    git clone https://github.com/Rehchu/arise-youtube-automation.git "$AUTOMATOR_DIR"
-       then copy token.json and client_secret.json into "$AUTOMATOR_DIR/"
-       (they are never in git — bring them from the old PC or run authorize.py there)
+    2. The YouTube automator (docs/AUTOMATOR.md; the PC stays the runner until you switch runner.json there):
+       a. GitHub: add the deploy key printed above to Rehchu/arise-youtube-automation, READ-ONLY;
+          then: sudo arisectl automator setup
+       b. Cloud Console (project iconic-vine-505702-i5): OAuth consent screen -> Audience -> Publish app;
+          Credentials -> Create OAuth client ID -> Desktop app, named "ariseOS server"; download the JSON
+       c. scp it to /etc/arise/secrets/youtube/client_secret.json; chown arise-yt; chmod 600
+       d. sudo arisectl automator signin        (once; paste the localhost address back)
+       e. sudo arisectl automator cutover       (what is left before you hand the job over)
     3. restic password:           openssl rand -base64 32 | sudo tee $CONF_DIR/secrets/restic-password >/dev/null
                                   sudo chmod 0600 $CONF_DIR/secrets/restic-password
        KEEP A COPY OF THAT PASSWORD OFF THE SERVER. Without it the backups cannot be read.

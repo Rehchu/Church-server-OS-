@@ -160,7 +160,7 @@ class Units(unittest.TestCase):
     def test_timers_match_the_contract(self):
         t = (ROOT / "config" / "systemd" / "arise-automator.timer").read_text()
         self.assertIn("02:05:00 America/Chicago", t)
-        self.assertIn("Persistent=true", t)
+        self.assertIn("Persistent=false", t)   # the automator handoff, section 7: a missed night never fires on a Sunday morning
         b = (ROOT / "config" / "systemd" / "arise-backup.timer").read_text()
         self.assertIn("03:00:00 America/Chicago", b)
         w = (ROOT / "config" / "systemd" / "arise-web.service").read_text()
@@ -318,6 +318,88 @@ class Browser(unittest.TestCase):
         self.assertIn("/usr/local/bin/arise-browser", unit)
         launcher = (self.ROOT / "scripts" / "arise-browser").read_text()
         self.assertIn("/usr/bin/firefox", launcher); self.assertIn("epiphany", launcher)   # Firefox, with Epiphany as the fallback
+
+
+class AutomatorHandoff(unittest.TestCase):
+    """SERVER_HANDOFF.md (Rehchu/arise-youtube-automation, 'Server-ready automator'), as ariseOS carries it out."""
+    ROOT = Path(__file__).resolve().parents[1]
+
+    def test_no_google_credential_in_this_repo(self):
+        # The automator's rule 1: scan for 1//, GOCSPX- and ya29. before any commit. Real token shapes only,
+        # so the docs may name the prefixes.
+        import re, subprocess
+        files = subprocess.run(["git", "-C", str(self.ROOT), "ls-files"], capture_output=True, text=True).stdout.split()
+        pat = re.compile(r"(GOCSPX-[A-Za-z0-9_-]{10,}|ya29\.[A-Za-z0-9_-]{20,}|1//0[A-Za-z0-9_-]{20,})")
+        hits = []
+        for f in files:
+            pth = self.ROOT / f
+            if pth.suffix in (".png", ".jpg", ".ico", ".ttf", ".woff2") or not pth.is_file():
+                continue
+            try:
+                if pat.search(pth.read_text(errors="ignore")):
+                    hits.append(f)
+            except OSError:
+                pass
+        self.assertEqual(hits, [])
+
+    def test_units_follow_the_handoff(self):
+        svc = (self.ROOT / "config" / "systemd" / "arise-automator.service").read_text()
+        for need in ("User=arise-yt", "EnvironmentFile=/etc/arise/arise.env", "ExecStart=/opt/arise/scripts/arise-nightly.sh",
+                     "NoNewPrivileges=yes", "ProtectSystem=strict", "ProtectHome=read-only", "TimeoutStartSec=3h",
+                     "ReadWritePaths=/srv/arise/automator/ARISE_YouTube_Updater /var/lib/arise/automator /etc/arise/secrets/youtube"):
+            self.assertIn(need, svc)
+        self.assertNotIn("User=root", svc)
+        prev = (self.ROOT / "config" / "systemd" / "arise-automator-preview.service").read_text()
+        self.assertIn("arise-nightly.sh --plan-only", prev)
+        tim = (self.ROOT / "config" / "systemd" / "arise-automator.timer").read_text()
+        self.assertIn("OnCalendar=*-*-* 02:05:00 America/Chicago", tim); self.assertIn("Persistent=false", tim)
+        env = (self.ROOT / "config" / "automator" / "arise.env").read_text()
+        for k in ("ARISE_RUNNER_NAME=ariseOS", "ARISE_TOKEN=/etc/arise/secrets/youtube/token.json", "ARISE_STATE_DIR=/var/lib/arise/automator", "TZ=America/Chicago"):
+            self.assertIn(k, env)
+        self.assertNotRegex(env, r"(?i)(secret|token|password)\s*=\s*[A-Za-z0-9_-]{16,}")   # paths only
+        wrap = (self.ROOT / "scripts" / "arise-nightly.sh").read_text()
+        for need in ("flock -n 9", "git merge --ff-only", "MODE=(--plan-only)", "LATEST_REPORT.md\" -nt"):
+            self.assertIn(need, wrap)
+        kh = (self.ROOT / "config" / "automator" / "github_known_hosts").read_text()
+        self.assertIn("AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl", kh)   # GitHub's published Ed25519 key
+
+    def test_credentials_stay_out_of_the_backups(self):
+        import yaml
+        jobs = {j["id"]: j for j in yaml.safe_load((self.ROOT / "config" / "backups.yaml.example").read_text())["jobs"]}
+        self.assertIn("/etc/arise/secrets/youtube", jobs["config"].get("exclude", []))
+        for pat in ("**/token.json", "**/client_secret*.json", "**/deploy_key*"):
+            self.assertIn(pat, jobs["automator"]["exclude"])
+        self.assertIn("/var/lib/arise/automator", jobs["automator"]["paths"])
+
+    def test_runner_and_budget(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        from arise_server import automator
+        doc = {"runner": "pc", "budgets": {"pc": {"default": 10000}, "ariseOS": {"default": 4000, "sun": 2000, "mon": 2000}}}
+        tue = datetime(2026, 10, 27, 2, 5, tzinfo=ZoneInfo("America/Chicago"))      # Tuesday 02:05 CDT = Tuesday 00:05 PDT
+        r = automator.runner_info(doc, "ariseOS", tue)
+        self.assertFalse(r["is_runner"]); self.assertEqual((r["day"], r["budget"]), ("tue", 4000))
+        mon_0130 = datetime(2026, 10, 27, 1, 30, tzinfo=ZoneInfo("America/Chicago"))  # Tuesday 01:30 Central is still Monday in Pacific
+        self.assertEqual(automator.runner_info(doc, "ariseOS", mon_0130)["budget"], 2000)
+        self.assertTrue(automator.runner_info({**doc, "runner": "ARISEOS"}, "ariseOS", tue)["is_runner"])   # case-insensitive, as runner.py
+        miss = automator.runner_info(None, "ariseOS", tue)
+        self.assertFalse(miss["is_runner"]); self.assertIn("fails closed", miss["note"])
+
+    def test_previews_and_runs_go_through_the_units_never_as_root(self):
+        src = (self.ROOT / "server" / "arise_server" / "automator.py").read_text()
+        self.assertIn('run(["systemctl", "start", "--no-block", unit]', src)
+        self.assertNotIn("--dry-run", src)          # the job's flag is --plan-only, and the unit passes it
+        cli = (self.ROOT / "cli" / "arisectl").read_text()
+        self.assertIn('"runuser", "-u", "arise-yt"', cli)   # signin runs as the automator's user
+        self.assertNotIn('["--dry-run"] if a.sub == "preview"', cli)
+
+    def test_env_file_reader(self):
+        import tempfile
+        from arise_server import automator
+        with tempfile.NamedTemporaryFile("w", delete=False) as f:
+            f.write("# c\nARISE_RUNNER_NAME=ariseOS\nARISE_STATE_DIR=\"/x/y\"\n\nbad line\n")
+        e = automator.read_env(f.name)
+        self.assertEqual(e, {"ARISE_RUNNER_NAME": "ariseOS", "ARISE_STATE_DIR": "/x/y"})
 
 if __name__ == "__main__":
     unittest.main()

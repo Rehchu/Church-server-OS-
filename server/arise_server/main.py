@@ -640,6 +640,12 @@ def auto_holds(_=admin):
     return automator.holds()
 
 
+@app.get("/api/automator/cutover")
+def api_automator_cutover(_=admin):
+    """The handoff's section 9: what must be true before Bradly hands the job to this server."""
+    return automator.cutover()
+
+
 @app.get("/api/automator/quota")
 def auto_quota(_=admin):
     return automator.quota()
