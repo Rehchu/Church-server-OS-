@@ -197,6 +197,20 @@ done
 say "installed; they start at the next login of each person"
 REPORT+=("launch agents: installed")
 
+# ---- 5b. fonts: a first copy of Media/Fonts into /Library/Fonts (every account on this Mac) ----
+# The hourly sync keeps each person's own ~/Library/Fonts current afterwards.
+step "5b   Fonts from the media share"
+if [ $DRY -eq 1 ]; then say "would copy smb://$SERVER/media/Fonts -> /Library/Fonts"; else
+  if ! mount | grep -q " on /Volumes/media "; then open "smb://$SERVER/media" >/dev/null 2>&1; t=0; until mount | grep -q " on /Volumes/media "; do t=$((t+1)); [ $t -gt 6 ] && break; sleep 3; done; fi
+  if [ -d /Volumes/media/Fonts ]; then
+    n=$(rsync -rlt --update --no-perms --no-owner --no-group --include='*/' --include='*.ttf' --include='*.otf' --include='*.ttc' --include='*.TTF' --include='*.OTF' --exclude='*' --stats /Volumes/media/Fonts/ /Library/Fonts/ 2>&1 | awk '/Number of regular files transferred/{print $NF}')
+    say "fonts: ${n:-0} installed into /Library/Fonts"; REPORT+=("fonts: ${n:-0} from media/Fonts")
+  else
+    say "media/Fonts not reachable from this Mac (mount smb://$SERVER/media as someone in the Media group and re-run, or let the hourly sync do it per person)"
+    TODO+=("fonts: open smb://$SERVER/media once as a Media member; the hourly sync then installs Media/Fonts for that person")
+  fi
+fi
+
 # ---- 6. report ----------------------------------------------------------------
 step "6/6  Done"
 for r in "${REPORT[@]}"; do say "$r"; done

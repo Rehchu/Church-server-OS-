@@ -245,7 +245,12 @@ class V04(unittest.TestCase):
         r = links.create("home", "/Documents/x.pdf", me, days=99)
         self.assertTrue(r["ok"]); tok = r["token"]
         self.assertEqual(r["link"]["user"], "office")
-        self.assertLess(r["link"]["expires"], links._iso(31 * 86400))  # clamped to max_days
+        self.assertLess(r["link"]["expires"], links._iso(100 * 86400))  # a chosen life is kept (max_days 365)
+        forever = links.create("home", "/Documents/y.pdf", me)             # no life picked: never expires (Bradly, Oct 28)
+        self.assertIsNone(forever["link"]["expires"])
+        self.assertFalse(next(l for l in links.mine(me)["links"] if l["token"] == forever["token"])["expired"])
+        self.assertIsNotNone(links.resolve(forever["token"]))
+        links.revoke(forever["token"], me)
         self.assertFalse(links.create("data", "/", me)["ok"])  # not a member root
         self.assertIn(tok, [l["token"] for l in links.mine(me)["links"]])
         self.assertNotIn(tok, [l["token"] for l in links.mine(other)["links"]])
@@ -645,3 +650,133 @@ class Everyday(unittest.TestCase):
         for p in ("/api/calendar", "/api/calendar/subscribe", "/api/weather", "/api/help", "/api/help/PORTAL-GUIDE", "/api/about/whatsnew", "/api/me/password/rules"):
             self.assertTrue(auth.member_ok(p, "member"), p)
         self.assertFalse(auth.member_ok("/api/system/power", "member"))
+class Finder(unittest.TestCase):
+    """v0.8: Trash, Previous Versions, Get Info, Recents, the text editor, Open on my Mac."""
+
+    def test_trash_names_follow_samba_recycle_and_put_back_never_overwrites(self):
+        from arise_server import finder
+        taken = {"x.pdf", "Copy #1 of x.pdf"}
+        self.assertEqual(finder.versioned_name("x.pdf", lambda n: n in taken), "Copy #2 of x.pdf")
+        self.assertEqual(finder.versioned_name("y.pdf", lambda n: n in taken), "y.pdf")
+        self.assertEqual(finder.put_back_name("Copy #2 of x.pdf", lambda n: False), "x.pdf")
+        self.assertEqual(finder.put_back_name("x.pdf", lambda n: n == "x.pdf"), "x (put back).pdf")
+        self.assertEqual(finder.put_back_name("x.pdf", lambda n: n in ("x.pdf", "x (put back).pdf")), "x (put back 2).pdf")
+        self.assertEqual(finder.trash_rel("/srv/arise/shares/media", "/srv/arise/shares/media/loops/a.mov"), "loops/a.mov")
+
+    def test_trash_base_is_the_enclosing_share_then_home_then_root(self):
+        from arise_server import finder
+        self.assertEqual(finder.trash_base("/srv/arise/shares/staff/Forms/a.pdf"), "/srv/arise/shares/staff")
+        self.assertEqual(finder.trash_base("/srv/arise/shares/other/a.pdf"), "/srv/arise/shares")  # no narrower share: the shares share
+        self.assertEqual(finder.trash_base("/srv/arise/homes/office/Documents/b.docx"), "/srv/arise/homes/office")
+        self.assertEqual(finder.trash_base("/srv/arise/automator/x.json"), "/srv/arise")
+        self.assertIsNone(finder.trash_base("/etc/passwd"))
+
+    def test_sweep_age_is_thirty_days(self):
+        from datetime import datetime
+        from arise_server import finder
+        now = datetime(2026, 10, 28, 4, 30)
+        self.assertTrue(finder.expired("2026-09-27T10:00:00", now))
+        self.assertFalse(finder.expired("2026-09-29T10:00:00", now))
+        self.assertFalse(finder.expired(None, now)); self.assertFalse(finder.expired("garbage", now))
+
+    def test_trash_put_needs_the_name_typed_and_members_stay_in_their_roots(self):
+        from arise_server import finder
+        office = {"user": "office", "role": "member"}
+        self.assertFalse(finder.trash_put("home", "/Documents/x.docx", office, confirm="wrong")["ok"])
+        self.assertTrue(finder.trash_put("home", "/Documents/x.docx", office, confirm="x.docx")["ok"])
+        self.assertFalse(finder.trash_put("share:media", "/loops/a.mov", office, confirm="a.mov")["ok"])  # read-only for office
+        self.assertFalse(finder.trash_restore("/srv/arise/shares/staff", "bradly", "Forms/x", office)["ok"])  # not their file
+        self.assertFalse(finder.trash_empty("staff", "staff", office)["ok"])  # not an admin
+        self.assertFalse(finder.trash_empty("staff", "nope", {"user": "bradly", "role": "admin"})["ok"])  # not typed
+        mine = finder.trash_list(office)["items"]
+        self.assertTrue(all(t["user"] == "office" for t in mine))
+        self.assertGreater(len(finder.trash_list({"user": "bradly", "role": "admin"})["items"]), len(mine))
+
+    def test_previous_versions_parse_and_restored_name(self):
+        from arise_server import backups
+        out = '''[{"matches":[{"path":"/srv/arise/shares/staff/a.pdf","size":10,"mtime":"2026-10-20T10:00:00Z","type":"file"}],"hits":1,"snapshot":"abcdef1234"},
+                  {"matches":[{"path":"/srv/arise/shares/staff/a.pdf","size":12,"mtime":"2026-10-25T10:00:00Z","type":"file"}],"hits":1,"snapshot":"0123456789"}]'''
+        rows = backups.parse_find(out, {"abcdef12": "2026-10-21T03:00:00", "01234567": "2026-10-26T03:00:00"})
+        self.assertEqual([r["snapshot"] for r in rows], ["01234567", "abcdef12"])  # newest first
+        self.assertEqual(rows[0]["size"], 12)
+        self.assertEqual(backups.restored_name("setlist.pdf", "2026-10-27", lambda n: False), "setlist (restored 2026-10-27).pdf")
+        self.assertEqual(backups.restored_name("setlist.pdf", "2026-10-27", lambda n: n == "setlist (restored 2026-10-27).pdf"), "setlist (restored 2026-10-27 2).pdf")
+        self.assertEqual(backups.job_for("/srv/arise/shares/staff/a.pdf")["id"], "shares")
+        self.assertIsNone(backups.job_for("/mnt/synology/arise/recordings/x.mp4"))
+        self.assertFalse(backups.versions_of("/mnt/synology/arise/recordings/x.mp4")["backed_up"])
+        self.assertTrue(backups.versions_of("/srv/arise/homes/office/Documents/b.docx")["versions"])
+
+    def test_text_editor_allowlist_and_markdown_never_passes_html(self):
+        from arise_server import finder
+        self.assertTrue(finder.is_text("notes.MD")); self.assertTrue(finder.is_text("a.yaml"))
+        self.assertFalse(finder.is_text("movie.mp4")); self.assertFalse(finder.is_text("sheet.xlsx"))
+        who = {"user": "bradly", "role": "admin"}
+        self.assertFalse(finder.read_text("data", "/shares/media/Sunday 2026-10-26 program.mp4", who)["ok"])
+        self.assertTrue(finder.read_text("data", "/shares/graphics/ARISE_BRAND_KIT.md", who)["ok"])
+        office = {"user": "office", "role": "member"}
+        self.assertFalse(finder.write_text("share:media", "/x.md", "hi", office)["ok"])  # read-only share
+        self.assertTrue(finder.write_text("home", "/x.md", "hi", office)["ok"])
+        html = finder.render_markdown("# T <script>alert(1)</script>\n\n[go](javascript:alert(1))\n\n> q")
+        self.assertNotIn("<script>", html); self.assertIn("&lt;script&gt;", html)
+        self.assertNotIn("javascript:", html); self.assertIn("<blockquote>", html)
+
+    def test_smb_address_and_who_can_open_it(self):
+        from arise_server import finder
+        office = {"user": "office", "role": "member"}; admin = {"user": "bradly", "role": "admin"}
+        self.assertEqual(finder.smb_path("home", "/Documents", office), "smb://arise-server.ad.arisecenla.church/office/Documents")
+        self.assertEqual(finder.smb_path("share:staff", "/Forms", office), "smb://arise-server.ad.arisecenla.church/staff/Forms")
+        self.assertEqual(finder.smb_path("data", "/homes/bradly/Desktop", admin), "smb://arise-server.ad.arisecenla.church/bradly/Desktop")
+        self.assertEqual(finder.smb_path("data", "/shares/media/loops", admin), "smb://arise-server.ad.arisecenla.church/shares/media/loops")
+        self.assertIsNone(finder.smb_path("data", "/automator", admin))
+        info = finder.info("data", "/shares/staff/Phone list.xlsx", admin)
+        self.assertEqual(info["access"]["share"], "staff")
+        self.assertIn("Staff", info["access"]["who"])
+        self.assertEqual(finder.info("home", "/Documents/x.docx", office)["access"]["who"], ["office"])
+
+    def test_recents_are_scoped_like_the_roots(self):
+        from arise_server import finder
+        hits = finder.recent({"user": "office", "role": "member"})["hits"]
+        self.assertTrue(hits)
+        self.assertTrue(all(h["root"] in ("home", "share:media", "share:staff", "share:graphics") for h in hits), {h["root"] for h in hits})
+        self.assertTrue(all(h["root"] == "data" for h in finder.recent({"user": "bradly", "role": "admin"})["hits"]))
+
+    def test_shares_template_and_new_shares_carry_the_recycle_trash(self):
+        tpl = (ROOT / "config" / "samba" / "smb.conf.template").read_text()
+        for name in ("homes", "shares", "staff", "media", "graphics", "worship"):
+            block = tpl.split(f"[{name}]")[1].split("\n[")[0]
+            self.assertIn("recycle:repository = .Trash/%U", block, name)
+            self.assertIn("fruit", block.split("vfs objects =")[1].split("\n")[0], name)
+        self.assertNotIn("recycle:repository", tpl.split("[recordings]")[1].split("\n[")[0])
+        self.assertIn("**/.Trash", (ROOT / "config" / "backups.yaml.example").read_text().split("id: shares")[1].split("id:")[0])
+        self.assertTrue((ROOT / "config" / "systemd" / "arise-trash.timer").exists())
+
+    def test_home_folders_and_the_admin_merged_views(self):
+        from arise_server import files
+        self.assertEqual(files.HOME_FOLDERS, ("Documents", "Photos", "Videos", "Music", "Downloads"))
+        self.assertTrue(files.ensure_home("office")["ok"])  # demo: nothing written
+        admin = {"user": "bradly", "role": "admin"}; office = {"user": "office", "role": "member"}
+        r = files.all_of("Documents", admin)
+        self.assertEqual(set(r["owners"]), {"bradly", "office"})  # the sample homes that have folders
+        owners = {e["owner"] for e in r["entries"]}
+        self.assertEqual(owners, {"bradly", "office"})
+        self.assertTrue(all(e["path"].startswith(f"/homes/{e['owner']}/Documents/") for e in r["entries"]))
+        self.assertEqual(files.all_of("Documents", office).get("error"), "administrator only")
+        self.assertEqual(files.all_of("Desktop", admin).get("error"), "not one of the home folders")
+        self.assertFalse(any(e["owner"] != "office" for e in []))  # a member's roots never include another home: pinned by test_admin_and_member_roots
+        tpl = (ROOT / "config" / "samba" / "smb.conf.template").read_text()
+        pre = tpl.split("[homes]")[1].split("root preexec")[1].split("\n")[0]
+        for f in files.HOME_FOLDERS:
+            self.assertIn(f, pre)
+
+    def test_resumable_upload_rules(self):
+        from arise_server import finder
+        office = {"user": "office", "role": "member"}
+        self.assertFalse(finder.upload_start("home", "/", ".hidden", 10, "x", office)["ok"])
+        self.assertFalse(finder.upload_start("home", "/", "big.mov", 11 * 1024 ** 3, "x", office)["ok"])
+        self.assertFalse(finder.upload_start("share:media", "/", "a.mov", 10, "x", office)["ok"])   # read-only for office
+        self.assertFalse(finder.upload_start("data", "/", "a.mov", 10, "x", office)["ok"])          # not a member root
+        st = finder.upload_start("home", "/Downloads", "a.mov", 100 * 1024 ** 2, "a.mov|104857600|1", office)
+        self.assertTrue(st["ok"]); self.assertEqual(st["offset"], 0); self.assertEqual(st["chunk"], 8 * 1024 ** 2)
+        self.assertEqual(finder.upload_chunk(st["token"], 0, b"abc", office)["offset"], 3)
+        self.assertTrue(finder.upload_finish(st["token"], office)["ok"])
+        self.assertEqual(finder.UPLOAD_MAX, 10 * 1024 ** 3)

@@ -7,10 +7,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import os
+import re
 import subprocess
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import yaml
 
@@ -365,3 +366,105 @@ def drill_history() -> list[dict]:
     if not available():
         return [drill()] if False else [{"when": now_iso(), "snapshot": "a1b2c3d4", "file": "/srv/arise/homes/bradly.dyer/Documents/Sunday setlist 2026-10-26.pdf", "bytes": 182_000, "matched": True, "ok": True, "note": "sample drill", "demo": True}]
     return read_json(load().state_dir / "drill-history.json", default=[]) or []
+
+
+# ---- Previous Versions (v0.8, docs/ANSWERS.md round 3, 2) --------------------------
+def job_for(path: str) -> dict | None:
+    """The backup job whose paths cover this file, or None (then it is not backed up)."""
+    path = os.path.normpath(path)
+    for j in jobs()["jobs"]:
+        for p in j.get("paths", []):
+            p = p.rstrip("/")
+            if path == p or path.startswith(p + "/"):
+                return j
+    return None
+
+
+def parse_find(out: str, snap_times: dict) -> list[dict]:
+    """`restic find --json <path>` output -> [{snapshot, time, size, mtime, dir}], newest first.
+    One row per snapshot that holds the file."""
+    try:
+        groups = json.loads(out or "[]")
+    except json.JSONDecodeError:
+        return []
+    rows = []
+    for g in groups:
+        sid = (g.get("snapshot") or "")[:8]
+        for m in g.get("matches", []):
+            is_dir = m.get("type") == "dir"
+            rows.append({"snapshot": sid, "time": snap_times.get(sid), "size": None if is_dir else m.get("size"), "mtime": m.get("mtime"), "dir": is_dir})
+    rows.sort(key=lambda r: r.get("time") or "", reverse=True)
+    return rows
+
+
+def versions_of(path: str) -> dict:
+    """Every nightly copy of a file the backup holds."""
+    job = job_for(path)
+    if not available():
+        rows = [{"snapshot": f"{(abs(hash(path)) + i * 7919) % 16 ** 8:08x}", "time": (datetime.now().replace(hour=3, minute=0, second=0, microsecond=0) - timedelta(days=d)).isoformat(timespec="seconds"),
+                 "size": 182_000 - d * 1_200, "mtime": (datetime.now() - timedelta(days=d + 1)).isoformat(timespec="seconds"), "dir": False} for i, d in enumerate((0, 1, 2, 6, 13))]
+        return {"demo": True, "path": path, "job": job["id"] if job else None, "job_name": job.get("name") if job else None, "versions": rows if job else [], "backed_up": bool(job)}
+    if not job:
+        return {"demo": False, "path": path, "job": None, "job_name": None, "versions": [], "backed_up": False}
+    snaps = _restic(["snapshots", "--json"], 60)
+    times = {}
+    if snaps["ok"]:
+        try:
+            for sn in json.loads(snaps["out"] or "[]"):
+                times[(sn.get("short_id") or sn.get("id", ""))[:8]] = sn.get("time")
+        except json.JSONDecodeError:
+            pass
+    r = _restic(["find", "--json", path], 300)
+    if not r["ok"]:
+        return {"demo": False, "path": path, "job": job["id"], "job_name": job.get("name"), "versions": [], "backed_up": True, "error": (r["err"] or r["out"])[:300]}
+    return {"demo": False, "path": path, "job": job["id"], "job_name": job.get("name"), "versions": parse_find(r["out"], times)[:60], "backed_up": True}
+
+
+def restored_name(name: str, date: str, taken) -> str:
+    """'setlist.pdf' + '2026-10-27' -> 'setlist (restored 2026-10-27).pdf', numbered if that is taken."""
+    stem, ext = os.path.splitext(name)
+    cand = f"{stem} (restored {date}){ext}"
+    n = 2
+    while taken(cand):
+        cand = f"{stem} (restored {date} {n}){ext}"; n += 1
+    return cand
+
+
+def restore_version(path: str, snapshot: str, who: dict | None = None) -> dict:
+    """Bring one snapshot's copy of a file back BESIDE the live one; never over it."""
+    import shutil
+    cfg = load()
+    name = os.path.basename(path)
+    if not available():
+        return {"ok": True, "demo": True, "restored": restored_name(name, datetime.now().strftime("%Y-%m-%d"), lambda n: False)}
+    if not re.fullmatch(r"[0-9a-f]{8,64}|latest", snapshot or ""):
+        return {"ok": False, "err": "bad snapshot id"}
+    scratch = cfg.state_dir / "restore-scratch" / f"{int(time.time())}-{os.getpid()}"
+    scratch.mkdir(parents=True, exist_ok=True)
+    try:
+        r = _restic(["restore", snapshot, "--target", str(scratch), "--include", path], 1800)
+        if not r["ok"]:
+            return {"ok": False, "err": "restore failed: " + (r["err"] or r["out"])[:300]}
+        got = scratch / path.lstrip("/")
+        if not got.exists():
+            return {"ok": False, "err": "restic said ok but the file was not in that snapshot"}
+        folder = os.path.dirname(path)
+        os.makedirs(folder, exist_ok=True)
+        snap_date = snapshot[:8]
+        try:
+            for sn in json.loads(_restic(["snapshots", "--json", snapshot], 60)["out"] or "[]"):
+                snap_date = (sn.get("time") or "")[:10] or snap_date
+        except (json.JSONDecodeError, KeyError):
+            pass
+        final = restored_name(name, snap_date, lambda n: os.path.lexists(os.path.join(folder, n)))
+        dest = os.path.join(folder, final)
+        shutil.move(str(got), dest)
+        if who and who.get("user"):
+            try:
+                import pwd
+                pw = pwd.getpwnam(who["user"]); os.chown(dest, pw.pw_uid, pw.pw_gid)
+            except (KeyError, OSError):
+                pass
+        return {"ok": True, "demo": False, "restored": final, "path": dest}
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)

@@ -1,4 +1,4 @@
-"""Share links: a time-limited public URL for one file or folder.
+"""Share links: a public URL for one file or folder, living until removed (or until a chosen date).
 
 Stored in <state_dir>/links.json as {token: {root, path, name, user, created, expires, note, downloads}}.
 The link serves the file (or a zip of the folder) at GET /s/<token> with no login.
@@ -56,8 +56,9 @@ def _iso(offset_s: float = 0) -> str:
 
 def create(root: str, rel: str, who: dict, days: int | None = None, note: str = "") -> dict:
     cfg = load()
-    days = int(days or cfg.links.days)
-    days = max(1, min(days, int(cfg.links.max_days)))
+    # Bradly (Oct 28): a link lives until it is removed unless a life is picked for it.
+    days = int(cfg.links.days) if days is None else int(days)
+    expires = None if days <= 0 else _iso(max(1, min(days, int(cfg.links.max_days))) * 86400)
     rs = {r["id"]: r for r in files.roots(who)}
     if root not in rs:
         return {"ok": False, "err": "not a place you can share from"}
@@ -71,7 +72,7 @@ def create(root: str, rel: str, who: dict, days: int | None = None, note: str = 
         is_dir = os.path.isdir(target)
     tok = secrets.token_urlsafe(9)
     d = _load()
-    d[tok] = {"root": root, "path": rel, "name": name, "user": who["user"], "created": _iso(), "expires": _iso(days * 86400), "note": note[:120], "downloads": 0, "dir": is_dir}
+    d[tok] = {"root": root, "path": rel, "name": name, "user": who["user"], "created": _iso(), "expires": expires, "note": note[:120], "downloads": 0, "dir": is_dir}
     _save(d)
     return {"ok": True, "token": tok, "link": d[tok], "demo": cfg.demo}
 
@@ -82,7 +83,7 @@ def mine(who: dict) -> dict:
     out = []
     for tok, l in d.items():
         if who.get("role") == "admin" or l["user"] == who["user"]:
-            out.append(dict(l, token=tok, expired=l["expires"] < now))
+            out.append(dict(l, token=tok, expired=bool(l.get("expires")) and l["expires"] < now))
     out.sort(key=lambda l: l["created"], reverse=True)
     return {"links": out, "demo": load().demo}
 
@@ -103,7 +104,7 @@ def resolve(token: str) -> dict | None:
     """The file behind a live token, as {"path", "name", "dir"}; None if unknown or expired."""
     d = _load()
     l = d.get(token)
-    if not l or l["expires"] < _iso():
+    if not l or (l.get("expires") and l["expires"] < _iso()):
         return None
     if load().demo:
         return {"path": None, "name": l["name"], "dir": l["dir"], "demo": True}
@@ -145,7 +146,7 @@ def sweep() -> int:
     """Drop expired links; returns how many."""
     d = _load()
     now = _iso()
-    dead = [t for t, l in d.items() if l["expires"] < now]
+    dead = [t for t, l in d.items() if l.get("expires") and l["expires"] < now]
     for t in dead:
         del d[t]
     if dead:

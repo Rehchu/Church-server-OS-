@@ -460,28 +460,51 @@ const FICO = { d: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 V.files = async () => {
   S.fs = S.fs || { root: (S.me?.roots?.[0]?.id) || 'data', path: '/', view: 'icon', hist: [], fwd: [], sel: null, q: '' };
   const fs = S.fs;
-  if (S.me?.roots?.length && !S.me.roots.some(r => r.id === fs.root)) Object.assign(fs, { root: S.me.roots[0].id, path: '/', hist: [], fwd: [] });
-  const [roots, list] = await Promise.all([api('/files/roots'), api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
-  S.roots = roots.roots || []; S.fsDemo = !!list.demo;
-  const entries = (list.entries || []).filter(e => !fs.q || e.name.toLowerCase().includes(fs.q.toLowerCase()));
-  const parts = fs.path.split('/').filter(Boolean);
-  const rootName = S.roots.find(r => r.id === fs.root)?.name || fs.root;
+  const allOf = fs.root.startsWith('@all:') ? fs.root.slice(5) : null;   // the admin's "All Documents" and friends
+  const special = fs.root === '@recent' || fs.root === '@trash' || !!allOf;   // places, not folders
+  if (!special && S.me?.roots?.length && !S.me.roots.some(r => r.id === fs.root)) Object.assign(fs, { root: S.me.roots[0].id, path: '/', hist: [], fwd: [] });
+  const [roots, list] = await Promise.all([api('/files/roots'), allOf ? api(`/files/all?folder=${encodeURIComponent(allOf)}`) : special ? api(fs.root === '@recent' ? '/files/recent' : '/files/trash') : api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
+  S.roots = roots.roots || []; S.fsDemo = !!list.demo; S.trashItems = fs.root === '@trash' ? (list.items || []) : null;
+  const ql = fs.q.toLowerCase();
+  const entries = (list.entries || []).filter(e => !ql || e.name.toLowerCase().includes(ql));
+  const parts = special ? [] : fs.path.split('/').filter(Boolean);
+  const rootName = allOf ? 'All ' + allOf : special ? (fs.root === '@recent' ? 'Recents' : 'Trash') : (S.roots.find(r => r.id === fs.root)?.name || fs.root);
   const title = parts.length ? parts[parts.length - 1] : rootName;
   const FAV = isMember() ? [] : [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
   const side = `<div class="finder__side"><h4>Favorites</h4>${FAV.map(f => `<button data-go="${f[1]}|${f[2]}" class="${fs.root === f[1] && fs.path === f[2] ? 'on' : ''}"><i style="--i:${ICONURL[f[3]]}"></i>${esc(f[0])}</button>`).join('')}
     <h4>${isMember() ? 'Your places' : 'Locations'}</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : r.home ? 'users' : r.share ? 'folder' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
+    <h4>Places</h4><button data-go="@recent|/" class="${fs.root === '@recent' ? 'on' : ''}"><i style="--i:${ICONURL.recent}"></i>Recents</button><button data-go="@trash|/" class="${fs.root === '@trash' ? 'on' : ''}"><i style="--i:${ICONURL.trash}"></i>Trash</button>
+    ${isMember() ? '' : `<h4>Everyone</h4>` + ['Documents', 'Photos', 'Videos', 'Music', 'Downloads'].map(f => `<button data-go="@all:${f}|/" class="${fs.root === '@all:' + f ? 'on' : ''}" title="Every person's ${f} folder, side by side"><i style="--i:${ICONURL.folder}"></i>All ${f}</button>`).join('')}
     <h4>Sharing</h4><button id="fLinks"><i style="--i:${ICONURL.backups}"></i>Shared links</button></div>`;
+  const tools = special
+    ? (fs.root === '@trash' && !isMember() ? `<button class="btn btn--ghost btn--xs" id="fEmpty">Empty Trash…</button>` : '')
+    : `<label class="btn btn--ghost btn--xs" for="fsUp">Upload</label><input id="fsUp" type="file" hidden><button class="btn btn--ghost btn--xs" id="fNew">New folder</button>${IS_MAC ? `<button class="btn btn--ghost btn--xs" id="fMac" title="Open this folder in the Mac's Finder, over the share">Open on my Mac</button>` : ''}`;
   const tb = `<div class="finder__tb"><span class="nav"><button id="fBack" ${fs.hist.length ? '' : 'disabled'} title="Back">‹</button><button id="fFwd" ${fs.fwd.length ? '' : 'disabled'} title="Forward">›</button></span><span class="title">${esc(title)}</span>
-    <span class="views"><button id="fIcon" class="${fs.view === 'icon' ? 'on' : ''}" title="Icons">▦</button><button id="fList" class="${fs.view === 'list' ? 'on' : ''}" title="List">☰</button></span>
-    <input class="search" id="fQ" placeholder="Filter this folder" value="${esc(fs.q)}"><label class="btn btn--ghost btn--xs" for="fsUp">Upload</label><input id="fsUp" type="file" hidden><button class="btn btn--ghost btn--xs" id="fNew">New folder</button></div>`;
+    <span class="views"><button id="fIcon" class="${fs.view === 'icon' ? 'on' : ''}" title="Icons" ${special ? 'disabled' : ''}>▦</button><button id="fList" class="${fs.view === 'list' || special ? 'on' : ''}" title="List">☰</button></span>
+    <input class="search" id="fQ" placeholder="${special ? 'Filter by name' : 'Filter this folder'}" value="${esc(fs.q)}">${tools}</div>`;
   const icon = e => e.dir ? ICONURL.folder : fileIcon(e.name);
-  let main;
-  if (list.error) main = `<div class="finder__main empty">${esc(list.error)}</div>`;
+  let main, status;
+  if (allOf) {
+    const es = (list.entries || []).filter(e => !ql || e.name.toLowerCase().includes(ql) || e.owner.toLowerCase().includes(ql));
+    status = `${es.length} item${es.length === 1 ? '' : 's'} in ${(list.owners || []).length} ${allOf} folder${(list.owners || []).length === 1 ? '' : 's'}`;
+    main = list.error ? `<div class="finder__main empty">${esc(list.error)}</div>` : !es.length ? `<div class="finder__main empty">Nobody has anything in ${esc(allOf)} yet</div>`
+      : `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Whose</th><th>Date modified</th><th class="num">Size</th><th>Kind</th></tr></thead><tbody>${es.map(e => `<tr data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" data-r="${esc(e.root)}" data-p="${esc(e.path)}" tabindex="0"><td class="fname"><i style="--i:${icon(e)}"></i>${esc(e.name)}</td><td><span class="owner">${esc(e.owner)}</span></td><td class="dim">${fmtT(e.mtime)}</td><td class="num dim">${e.dir ? '—' : fmtB(e.size)}</td><td class="dim">${e.dir ? 'Folder' : kindOf(e.name)}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (fs.root === '@recent') {
+    const hits = (list.hits || []).filter(h => !ql || h.name.toLowerCase().includes(ql));
+    status = `${hits.length} file${hits.length === 1 ? '' : 's'} changed in the last ${list.days || 7} days${list.truncated ? ' (the newest 200)' : ''}`;
+    main = !hits.length ? `<div class="finder__main empty">${list.error ? esc(list.error) : 'Nothing has changed this week'}</div>`
+      : `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Where</th><th>Modified</th><th class="num">Size</th></tr></thead><tbody>${hits.map(h => `<tr data-n="${esc(h.name)}" data-dir="0" data-r="${esc(h.root)}" data-p="${esc(h.path)}" tabindex="0"><td class="fname"><i style="--i:${fileIcon(h.name)}"></i>${esc(h.name)}</td><td class="dim">${esc(h.where || '')}</td><td class="dim">${fmtT(h.mtime)}</td><td class="num dim">${fmtB(h.size)}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (fs.root === '@trash') {
+    const items = (list.items || []).filter(t => !ql || t.name.toLowerCase().includes(ql));
+    status = `${items.length} item${items.length === 1 ? '' : 's'} · gone for good after ${list.days || 30} days`;
+    main = !items.length ? `<div class="finder__main empty">The Trash is empty</div>`
+      : `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Was in</th>${list.admin ? '<th>By</th>' : ''}<th>Deleted</th><th class="num">Size</th><th></th></tr></thead><tbody>${items.map(t => { const i = (list.items || []).indexOf(t); return `<tr data-t="${i}" tabindex="0"><td class="fname"><i style="--i:${t.dir ? ICONURL.folder : fileIcon(t.name)}"></i>${esc(t.name)}</td><td class="dim">${esc(t.label)}/${esc(t.original.split('/').slice(0, -1).join('/'))}</td>${list.admin ? `<td class="dim">${esc(t.user)}${t.from === 'mac' ? ' <small>(Mac)</small>' : ''}</td>` : ''}<td class="dim">${fmtT(t.when)}</td><td class="num dim">${t.dir ? '—' : fmtB(t.size)}</td><td class="acts"><button class="btn btn--ghost btn--xs" data-back="${i}">Put Back</button></td></tr>`; }).join('')}</tbody></table></div>`;
+  } else if (list.error) main = `<div class="finder__main empty">${esc(list.error)}</div>`;
   else if (!entries.length) main = `<div class="finder__main empty">${fs.q ? 'Nothing matches' : 'Empty folder'}</div>`;
   else if (fs.view === 'icon') main = `<div class="finder__main" id="fMain">${entries.map((e, i) => `<div class="fi ${fs.sel === e.name ? 'sel' : ''}" data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" tabindex="0"><i class="fico" style="--i:${icon(e)}"></i><span>${esc(e.name)}</span></div>`).join('')}</div>`;
   else main = `<div class="finder__main" id="fMain" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Date modified</th><th class="num">Size</th><th>Kind</th></tr></thead><tbody>${entries.map(e => `<tr class="${fs.sel === e.name ? 'sel' : ''}" data-n="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" tabindex="0"><td class="fname"><i style="--i:${icon(e)}"></i>${esc(e.name)}</td><td class="dim">${fmtT(e.mtime)}</td><td class="num dim">${e.dir ? '—' : fmtB(e.size)}</td><td class="dim">${e.dir ? 'Folder' : kindOf(e.name)}</td></tr>`).join('')}</tbody></table></div>`;
-  const crumbs = [`<button data-go="${fs.root}|/">${esc(rootName)}</button>`].concat(parts.map((p, i) => `<span>›</span><button data-go="${fs.root}|/${parts.slice(0, i + 1).join('/')}">${esc(p)}</button>`)).join('');
-  const path = `<div class="finder__path">${crumbs}<span class="st">${entries.length} item${entries.length === 1 ? '' : 's'}${list.demo ? ' · sample' : ''}</span></div>`;
+  const crumbs = special ? `<button data-go="${fs.root}|/">${esc(rootName)}</button>` : [`<button data-go="${fs.root}|/">${esc(rootName)}</button>`].concat(parts.map((p, i) => `<span>›</span><button data-go="${fs.root}|/${parts.slice(0, i + 1).join('/')}">${esc(p)}</button>`)).join('');
+  const path = `<div class="finder__path">${crumbs}<span class="st">${status || `${entries.length} item${entries.length === 1 ? '' : 's'}`}${list.demo ? ' · sample' : ''}</span></div>`;
   return `<div class="finder">${side}${tb}${main}${path}</div>`;
 };
 const ICONURL = {
@@ -499,6 +522,8 @@ const ICONURL = {
   automator: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3l15 9-15 9z'/%3E%3C/svg%3E\")",
   apps: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 10h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 17h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5z'/%3E%3C/svg%3E\")",
   backups: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z'/%3E%3C/svg%3E\")",
+  recent: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm-1 3h2v5.6l3.5 2-1 1.7L11 13.2z'/%3E%3C/svg%3E\")",
+  trash: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 2h6l1 2h5v2H3V4h5zM5 7h14l-1.2 14H6.2zm4 2v10h2V9zm4 0v10h2V9z'/%3E%3C/svg%3E\")",
 };
 // Data URIs land inside double-quoted style="" attributes, so they must carry single quotes only.
 const _sq = u => u.replace(/'/g, '%27').replace(/"/g, "'");
@@ -509,33 +534,197 @@ function fileIcon(n) { const e = (n.split('.').pop() || '').toLowerCase(); if ([
 function fsNav(root, path, pushHist = true) { const fs = S.fs; if (pushHist) { fs.hist.push({ root: fs.root, path: fs.path }); fs.fwd = []; } fs.root = root; fs.path = (path || '/').replace(/\/+/g, '/') || '/'; fs.sel = null; fs.q = ''; rerender('files'); }
 V.files.after = root => {
   const fs = S.fs;
+  const special = fs.root === '@recent' || fs.root === '@trash';
   $$('[data-go]', root).forEach(b => b.onclick = () => { const [r, p] = b.dataset.go.split('|'); fsNav(r, p); });
   const fl = $('#fLinks', root); if (fl) fl.onclick = () => linksModal();
   $('#fBack', root).onclick = () => { const h = fs.hist.pop(); if (!h) return; fs.fwd.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fFwd', root).onclick = () => { const h = fs.fwd.pop(); if (!h) return; fs.hist.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fIcon', root).onclick = () => { fs.view = 'icon'; rerender('files'); }; $('#fList', root).onclick = () => { fs.view = 'list'; rerender('files'); };
   const q = $('#fQ', root); q.oninput = () => { fs.q = q.value; clearTimeout(S.fqT); S.fqT = setTimeout(() => rerender('files'), 250); };
-  $('#fsUp', root).onchange = async e => { const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append('root', fs.root); fd.append('path', fs.path); fd.append('file', f); const r = await act($('label[for=fsUp]', root), () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
-  $('#fNew', root).onclick = () => modal(`<h2>New folder</h2><div class="field"><label>Name</label><input id="nfName" placeholder="untitled folder"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nfGo">Create</button></div>`, m => { $('#nfGo', m).onclick = async e => { const r = await act(e.target, () => api('/files/mkdir', { method: 'POST', body: { root: fs.root, path: fs.path, name: $('#nfName', m).value.trim() } }), 'Folder created'); if (r && r.ok !== false) { m.close(); rerender('files'); } }; $('#nfName', m).focus(); });
+  const up = $('#fsUp', root); if (up) up.onchange = async e => { const f = e.target.files[0]; if (!f) return;
+    if (f.size > 8 * 1024 * 1024) { const ok = await uploadBig(f, fs.root, fs.path); if (ok) rerender('files'); return; }
+    const fd = new FormData(); fd.append('root', fs.root); fd.append('path', fs.path); fd.append('file', f); const r = await act($('label[for=fsUp]', root), () => api('/files/upload', { method: 'POST', body: fd }), `Uploaded ${f.name}`); if (r) rerender('files'); };
+  const nf = $('#fNew', root); if (nf) nf.onclick = () => modal(`<h2>New folder</h2><div class="field"><label>Name</label><input id="nfName" placeholder="untitled folder"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nfGo">Create</button></div>`, m => { $('#nfGo', m).onclick = async e => { const r = await act(e.target, () => api('/files/mkdir', { method: 'POST', body: { root: fs.root, path: fs.path, name: $('#nfName', m).value.trim() } }), 'Folder created'); if (r && r.ok !== false) { m.close(); rerender('files'); } }; $('#nfName', m).focus(); });
+  const mac = $('#fMac', root); if (mac) mac.onclick = () => openOnMac(fs.root, fs.path);
+  const emp = $('#fEmpty', root); if (emp) emp.onclick = () => emptyTrash();
+  if (fs.root === '@trash') {
+    $$('[data-back]', root).forEach(b => b.onclick = async () => { const t = S.trashItems[+b.dataset.back]; if (!t) return; const r = await act(b, () => api('/files/trash/restore', { method: 'POST', body: { base: t.base, user: t.user, rel: t.rel } }), `${t.name} is back in ${t.label}/${t.original.split('/').slice(0, -1).join('/') || ''}`); if (r && r.ok !== false) { if (r.renamed) toast(`Put back as “${r.restored.split('/').pop()}”: the old name was taken`, 'warn', 6000); rerender('files'); } });
+    $$('[data-t]', root).forEach(el => el.oncontextmenu = e => { e.preventDefault(); const t = S.trashItems[+el.dataset.t]; ctxMenu(e.clientX, e.clientY, [['Put Back', () => $(`[data-back="${el.dataset.t}"]`, root).click()], null, ['Copy original path', () => copyText(t.label + '/' + t.original)]]); });
+    return;
+  }
+  if (fs.root.startsWith('@all:')) {
+    $$('[data-p]', root).forEach(el => {
+      const r = el.dataset.r, p = el.dataset.p, n = el.dataset.n, dir = el.dataset.dir === '1';
+      const go = () => dir ? fsNav(r, p) : isText(n) ? editText(r, p, n) : quickLook(r, p, n);
+      el.ondblclick = go; el.onkeydown = e => { if (e.key === 'Enter') go(); };
+      el.oncontextmenu = e => { e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['Open', go], ['Show in their folder', () => fsNav(r, p.split('/').slice(0, -1).join('/') || '/')], dir ? null : ['Download', () => finderDownload(r, p)], null, ['Get Info', () => getInfo(n, dir, p, r)], ['Previous Versions…', () => versionsModal(r, p, n)], null, ['Move to Trash', () => trashIt(r, p, n)]]); };
+    });
+    return;
+  }
+  if (fs.root === '@recent') {
+    $$('[data-p]', root).forEach(el => {
+      const r = el.dataset.r, p = el.dataset.p, n = el.dataset.n;
+      el.ondblclick = () => quickLook(r, p, n);
+      el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); quickLook(r, p, n); } };
+      el.oncontextmenu = e => { e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['Quick Look', () => quickLook(r, p, n)], ['Show in folder', () => fsNav(r, p.split('/').slice(0, -1).join('/') || '/')], isText(n) ? ['Edit', () => editText(r, p, n)] : null, ['Download', () => finderDownload(r, p)], null, ['Get Info', () => getInfo(n, false, p, r)], ['Previous Versions…', () => versionsModal(r, p, n)], null, ['Share Link…', () => shareLink(r, p, n)]]); };
+    });
+    return;
+  }
   const items = $$('[data-n]', root);
-  const open = el => { const n = el.dataset.n; if (el.dataset.dir === '1') fsNav(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + n); else quickLook(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + n, n); };
+  const pathOf = el => (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n;
+  const open = el => { const n = el.dataset.n; if (el.dataset.dir === '1') fsNav(fs.root, pathOf(el)); else if (isText(n)) editText(fs.root, pathOf(el), n); else quickLook(fs.root, pathOf(el), n); };
   items.forEach(el => {
     el.onclick = e => { items.forEach(x => x.classList.remove('sel')); el.classList.add('sel'); fs.sel = el.dataset.n; };
     el.ondblclick = () => open(el);
-    el.onkeydown = e => { if (e.key === 'Enter') open(el); if (e.key === ' ' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); if (el.dataset.dir !== '1') quickLook(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n, el.dataset.n); } };
-    el.oncontextmenu = e => { e.preventDefault(); el.click(); const p = (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n; const dl = `/api/files/download?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(p)}`;
-      ctxMenu(e.clientX, e.clientY, [['Open', () => open(el)], el.dataset.dir === '1' ? null : ['Quick Look', () => quickLook(fs.root, p, el.dataset.n)], el.dataset.dir === '1' ? null : ['Download', () => { if (!S.demoOnly) location.href = dl; else toast('Preview: nothing to download'); }], ['Get Info', () => getInfo(el.dataset.n, el.dataset.dir === '1', p)], null, ['Share Link…', () => shareLink(fs.root, p, el.dataset.n)], null, ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)], ['Copy smb:// address', () => copyText(`smb://arise-server/${fs.root === 'nas' ? 'synology' : p.split('/')[1] || ''}${p.split('/').slice(fs.root === 'nas' ? 1 : 2).map(x => '/' + x).join('')}`)]]); };
+    el.onkeydown = e => {
+      if (e.key === 'Enter') open(el);
+      if (e.key === ' ' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); if (el.dataset.dir !== '1') quickLook(fs.root, pathOf(el), el.dataset.n); }
+      if ((e.key === 'Backspace' && (e.metaKey || e.ctrlKey)) || e.key === 'Delete') { e.preventDefault(); trashIt(fs.root, pathOf(el), el.dataset.n); }
+    };
+    el.oncontextmenu = e => { e.preventDefault(); el.click(); const p = pathOf(el), n = el.dataset.n, dir = el.dataset.dir === '1';
+      ctxMenu(e.clientX, e.clientY, [
+        ['Open', () => open(el)],
+        dir ? null : ['Quick Look', () => quickLook(fs.root, p, n)],
+        !dir && isText(n) ? ['Edit', () => editText(fs.root, p, n)] : null,
+        dir ? null : ['Download', () => finderDownload(fs.root, p)],
+        ['Compress', () => finderZip(fs.root, p, n)],
+        null,
+        ['Get Info', () => getInfo(n, dir, p, fs.root)],
+        ['Previous Versions…', () => versionsModal(fs.root, p, n)],
+        IS_MAC && dir ? ['Open on my Mac', () => openOnMac(fs.root, p)] : null,
+        null,
+        ['Share Link…', () => shareLink(fs.root, p, n)],
+        null,
+        ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)],
+        null,
+        ['Move to Trash', () => trashIt(fs.root, p, n)],
+      ]); };
   });
-  const main = $('#fMain', root); if (main) main.oncontextmenu = e => { if (e.target !== main) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New folder', () => $('#fNew', root).click()], ['Upload here', () => $('#fsUp', root).click()], null, ['Show as icons', () => { fs.view = 'icon'; rerender('files'); }], ['Show as list', () => { fs.view = 'list'; rerender('files'); }], null, ['Refresh', () => rerender('files')]]); };
+  const main = $('#fMain', root); if (main) main.oncontextmenu = e => { if (e.target !== main) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New folder', () => $('#fNew', root).click()], ['Upload here', () => $('#fsUp', root).click()], IS_MAC ? ['Open on my Mac', () => openOnMac(fs.root, fs.path)] : null, null, ['Get Info', () => getInfo(fs.path.split('/').pop() || (S.roots.find(r => r.id === fs.root)?.name || ''), true, fs.path, fs.root)], null, ['Show as icons', () => { fs.view = 'icon'; rerender('files'); }], ['Show as list', () => { fs.view = 'list'; rerender('files'); }], null, ['Refresh', () => rerender('files')]]); };
 };
+const isText = n => /\.(txt|md|csv|json|ya?ml|toml|log)$/i.test(n || '');
+// A big upload goes up in 8 MB pieces and survives a dropped connection or a closed
+// laptop: start again with the same file and the server says where it left off.
+async function uploadBig(f, root, path) {
+  if (f.size > 10 * 1024 ** 3) { toast(`${f.name} is over the 10 GB limit; copy it onto the share from a Mac`, 'bad', 8000); return false; }
+  const fp = `${f.name}|${f.size}|${f.lastModified}`;
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<b>${esc(f.name)}</b><br><span class="up__pct">starting…</span><div class="up__bar"><i style="width:0"></i></div>`; $('#toasts').appendChild(t);
+  const say = (pct, msg) => { $('.up__pct', t).textContent = msg; $('.up__bar i', t).style.width = pct + '%'; };
+  const done = (ok, msg) => { t.className = 'toast ' + (ok ? 'ok' : 'bad'); say(ok ? 100 : 0, msg); setTimeout(() => t.remove(), ok ? 5000 : 12000); };
+  let st;
+  try { st = await api('/files/upload/start', { method: 'POST', body: { root, path, name: f.name, size: f.size, fingerprint: fp } }); } catch (e) { done(false, e.message); return false; }
+  if (st.ok === false) { done(false, st.err); return false; }
+  if (st.demo) { for (let i = 1; i <= 5; i++) { await new Promise(r => setTimeout(r, 120)); say(i * 20, `sample mode: pretending to send ${fmtB(f.size * i / 5)} of ${fmtB(f.size)}`); } done(true, 'sample mode: nothing was stored'); return true; }
+  let offset = st.offset || 0; const chunk = st.chunk || 8 * 1024 * 1024; let fails = 0;
+  if (st.resumed) say(Math.round(offset / f.size * 100), `resuming from ${fmtB(offset)}`);
+  while (offset < f.size) {
+    const piece = f.slice(offset, Math.min(f.size, offset + chunk));
+    try {
+      const r = await fetch(`/api/files/upload/chunk?token=${encodeURIComponent(st.token)}&offset=${offset}`, { method: 'PUT', body: piece, credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.ok === false) { done(false, j.err); return false; }
+      offset = j.offset; fails = 0;
+      say(Math.round(offset / f.size * 100), `${fmtB(offset)} of ${fmtB(f.size)}`);
+    } catch (e) {
+      if (++fails > 30) { done(false, `Lost the connection; pick the same file again to resume from ${fmtB(offset)}`); return false; }
+      say(Math.round(offset / f.size * 100), `connection dropped, retrying (${fails})…`); await new Promise(r => setTimeout(r, Math.min(15000, 1500 * fails)));
+      try { const q = await api(`/files/upload/status?token=${encodeURIComponent(st.token)}`); if (q.ok !== false) offset = q.offset; } catch {}
+    }
+  }
+  let fin; try { fin = await api('/files/upload/finish', { method: 'POST', body: { token: st.token } }); } catch (e) { done(false, e.message); return false; }
+  if (fin.ok === false) { done(false, fin.err); return false; }
+  done(true, `Uploaded ${fmtB(f.size)}`); return true;
+}
+function finderDownload(root, p) { if (S.demoOnly || S.fsDemo) return toast('Preview: nothing to download'); location.href = `/api/files/download?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; }
+function finderZip(root, p, name) { if (S.demoOnly || S.fsDemo) return toast(`Preview: on the server this downloads ${name}.zip`); toast(`Zipping ${name}… the download starts when it is ready`); location.href = `/api/files/zip?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; }
+async function openOnMac(root, p) {
+  let r; try { r = await api(`/files/info?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`); } catch (e) { return toast(e.message, 'bad'); }
+  if (!r.smb) return toast('No share reaches that folder from a Mac', 'warn');
+  if (S.demoOnly) return toast(`Preview: on a Mac this opens ${r.smb}`);
+  location.href = r.smb;
+}
+function trashIt(root, p, name) {
+  const r = S.roots.find(x => x.id === root); if (r && r.writable === false) return toast('That share is read-only for you', 'warn');
+  confirmType(`Move “${name}” to the Trash`, name, `It sits in the Trash for 30 days, where Put Back brings it home; after that it is gone. A Mac's delete on the share lands in the same Trash.`, async () => {
+    const x = await api('/files/trash', { method: 'POST', body: { root, path: p, confirm: name } });
+    if (x.ok === false) throw new Error(x.err);
+    toast(x.demo ? 'Sample mode: nothing moved' : `${name} is in the Trash`); S.fs.sel = null; rerender('files');
+  });
+}
+async function emptyTrash() {
+  const items = S.trashItems || []; const labels = [...new Set(items.map(t => t.label))];
+  if (!labels.length) return toast('The Trash is already empty');
+  modal(`<h2>Empty Trash</h2><p class="muted">Everyone's deleted items in one share go for good. The nightly backup does not keep the Trash.</p>
+    <div class="field" style="margin-top:12px"><label>Which share</label><select id="etShare">${labels.map(l => `<option>${esc(l)}</option>`).join('')}</select></div>
+    <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn btn--danger" id="etGo">Continue…</button></div>`, m => {
+    $('#etGo', m).onclick = () => { const share = $('#etShare', m).value; m.close();
+      confirmType(`Empty the Trash of “${share}”`, share, `${items.filter(t => t.label === share).length} item(s) from every user. There is no undo.`, async () => {
+        const x = await api('/files/trash/empty', { method: 'POST', body: { share, confirm: share } });
+        if (x.ok === false) throw new Error(x.err);
+        toast(x.demo ? 'Sample mode: nothing removed' : `Emptied: ${x.removed} item(s) gone`); rerender('files');
+      }); };
+  });
+}
+async function getInfo(name, dir, p, root) {
+  root = root || S.fs.root;
+  let r; try { r = await api(`/files/info?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`); } catch (e) { return toast(e.message, 'bad'); }
+  if (r.error) return toast(r.error, 'bad');
+  const isDir = r.dir ?? dir; const n = r.name || name;
+  const size = isDir ? `${r.size_complete ? '' : 'at least '}${fmtB(r.size)}${r.files != null ? ` · ${r.files.toLocaleString()} files${r.size_complete ? '' : ' counted so far'}` : ''}` : fmtB(r.size);
+  const acc = r.access || {};
+  const who = (acc.who || []).join(', ') || '—'; const write = (acc.write || []).join(', ');
+  modal(`<div class="about"><div class="flame" style="background:${isDir ? ICONURL.folder : fileIcon(n)} center/70% no-repeat #000"></div><div><h2 style="font-size:20px;word-break:break-word">${esc(n)}</h2>
+    <dl class="kv"><dt>Kind</dt><dd>${isDir ? 'Folder' : kindOf(n)}</dd><dt>Size</dt><dd>${size}</dd><dt>Owner</dt><dd>${esc(r.owner || '—')}${r.group ? ` <span class="muted">(${esc(r.group)})</span>` : ''}</dd><dt>Created</dt><dd>${fmtT(r.created)}</dd><dt>Modified</dt><dd>${fmtT(r.modified)}</dd>
+    <dt>Where</dt><dd class="mono" style="font-size:12px;word-break:break-all">${esc(r.abs || ((S.roots.find(x => x.id === root)?.name || root) + p))}</dd>
+    <dt>On a Mac</dt><dd class="mono" style="font-size:12px;word-break:break-all">${r.smb ? esc(r.smb) + ` <button class="btn btn--ghost btn--xs" id="giCopy">Copy</button>` : 'not on a share'}</dd>
+    <dt>Who can open it</dt><dd>${esc(who)}${write && write !== who ? `<br><span class="muted">can change it: ${esc(write)}</span>` : acc.read_only ? '<br><span class="muted">read only for everyone but the write list</span>' : ''}${acc.note ? `<br><small class="muted">${esc(acc.note)}</small>` : ''}</dd></dl></div></div>
+    <div class="acts"><button class="btn btn--ghost btn--xs" id="giVers">Previous Versions…</button>${IS_MAC && r.smb && isDir ? `<button class="btn btn--ghost btn--xs" id="giMac">Open on my Mac</button>` : ''}<span class="spacer"></span><button class="btn btn--ghost" data-close>Close</button></div>`, m => {
+    const c = $('#giCopy', m); if (c) c.onclick = e => copyText(r.smb, e.target);
+    $('#giVers', m).onclick = () => { m.close(); versionsModal(root, p, n); };
+    const mb = $('#giMac', m); if (mb) mb.onclick = () => openOnMac(root, p);
+  });
+}
+async function versionsModal(root, p, name) {
+  let r; try { r = await api(`/files/versions?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`); } catch (e) { return toast(e.message, 'bad'); }
+  const vs = r.versions || [];
+  const body = !r.backed_up ? `<p class="note">Not backed up: nothing covers this place. ${/synology|recordings/i.test(p + (r.path || '')) ? 'The recordings live on the Synology and its RAID is their protection (docs/BACKUPS.md).' : 'Only the shares, the homes, the automator and the server config are in the nightly backup.'}</p>`
+    : r.error ? `<p class="note">Could not read the backup: ${esc(r.error)}</p>`
+    : !vs.length ? `<p class="muted">The backup has no copy of this yet. New files appear after tonight's 03:00 run.</p>`
+    : `<p class="muted">From the nightly “${esc(r.job_name || r.job)}” backup. A restore lands <b>beside</b> the file as “${esc(name.replace(/(\.[^.]+)?$/, ' (restored DATE)$1'))}”; nothing is overwritten.</p>
+       <table class="tbl" style="margin-top:10px"><thead><tr><th>Backed up</th><th>File dated</th><th class="num">Size</th><th></th></tr></thead><tbody>${vs.map(v => `<tr><td>${fmtT(v.time)}</td><td class="dim">${fmtT(v.mtime)}</td><td class="num dim">${v.dir ? 'folder' : fmtB(v.size)}</td><td class="acts"><button class="btn btn--ghost btn--xs" data-snap="${esc(v.snapshot)}">Restore</button></td></tr>`).join('')}</tbody></table>`;
+  modal(`<h2>Previous versions of “${esc(name)}”</h2>${body}${r.demo ? '<p class="muted" style="margin-top:8px">Sample data.</p>' : ''}<div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, m => {
+    $$('[data-snap]', m).forEach(b => b.onclick = async () => { const x = await act(b, () => api('/files/versions/restore', { method: 'POST', body: { root, path: p, snapshot: b.dataset.snap } })); if (x && x.ok !== false) { toast(x.demo ? `Sample mode: would restore as “${x.restored}”` : `Restored as “${x.restored}” beside the original`, 'ok', 7000); m.close(); rerender('files'); } });
+  });
+}
+async function editText(root, p, name) {
+  let r; try { r = await api(`/files/text?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`); } catch (e) { return toast(e.message, 'bad'); }
+  if (r.ok === false) return toast(r.err, 'bad', 7000);
+  const md = /\.md$/i.test(name); const ro = S.roots.find(x => x.id === root)?.writable === false;
+  let dirty = false, mtime = r.mtime;
+  const m = modal(`<div class="edit"><div class="edit__hd"><h2 style="margin:0;font-size:18px">${esc(name)}</h2>${md ? `<span class="tabs edit__tabs" id="edTabs"><button class="active" data-t="edit">Edit</button><button data-t="prev">Preview</button></span>` : ''}<span class="spacer"></span><small class="muted" id="edSt">${fmtB(r.bytes)}${ro ? ' · read only' : ''}${r.demo ? ' · sample' : ''}</small></div>
+    <div data-tab="edit"><textarea id="edText" spellcheck="false" ${ro ? 'readonly' : ''}>${esc(r.text)}</textarea></div><div data-tab="prev" hidden><div class="md" id="edPrev"></div></div>
+    <div class="acts"><span class="muted" style="margin-right:auto">${kbd('⌘S')} saves</span><button class="btn btn--ghost" id="edClose">Close</button>${ro ? '' : '<button class="btn" id="edSave">Save</button>'}</div></div>`, async m => {
+    const ta = $('#edText', m);
+    ta.oninput = () => { dirty = true; $('#edSt', m).textContent = 'unsaved changes'; };
+    const save = async () => { if (ro) return; const b = $('#edSave', m); const x = await act(b, () => api('/files/text', { method: 'PUT', body: { root, path: p, text: ta.value, mtime } })); if (x && x.ok !== false) { dirty = false; mtime = x.mtime || mtime; $('#edSt', m).textContent = x.demo ? 'sample mode: not saved on a server' : `saved · ${fmtB(x.bytes)}`; } };
+    const sb = $('#edSave', m); if (sb) sb.onclick = save;
+    ta.onkeydown = e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(); } if (e.key === 'Tab') { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); dirty = true; } };
+    const tabs = $('#edTabs', m); if (tabs) $$('button', tabs).forEach(b => b.onclick = async () => { $$('button', tabs).forEach(x => x.classList.toggle('active', x === b)); $$('[data-tab]', m).forEach(pn => pn.hidden = pn.dataset.tab !== b.dataset.t); if (b.dataset.t === 'prev') { $('#edPrev', m).innerHTML = '<p class="muted">rendering…</p>'; try { const x = await api('/files/text/preview', { method: 'POST', body: { text: ta.value } }); $('#edPrev', m).innerHTML = x.html || '<p class="muted">(the preview renders on the server)</p>'; } catch (e) { $('#edPrev', m).innerHTML = `<p class="note">${esc(e.message)}</p>`; } } });
+    const guard = ev => { if (dirty && !confirm(`Discard the unsaved changes to ${name}?`)) { ev.preventDefault(); return false; } return true; };
+    m.addEventListener('cancel', ev => { if (!guard(ev)) ev.preventDefault(); }, { once: false });
+    $('#edClose', m).onclick = () => { if (guard({ preventDefault() {} })) m.close(); };
+    m.classList.add('modal--wide'); m.addEventListener('close', () => m.classList.remove('modal--wide'), { once: true });
+    ta.focus();
+  });
+}
 function shareLink(root, p, name) {
-  const days = S.me?.links_days || 7;
-  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until it expires. Folders arrive as a zip.</p>
-    <div class="row" style="gap:10px;margin:12px 0"><label>Expires in <select id="slDays"><option value="1">1 day</option><option value="3">3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>7 days</option><option value="14">14 days</option><option value="30">30 days</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
+  const days = S.me?.links_days ?? 0;
+  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until you remove it (or until the date you pick). Folders arrive as a zip.</p>
+    <div class="row" style="gap:10px;margin:12px 0"><label>Expires <select id="slDays"><option value="0" ${days === 0 ? 'selected' : ''}>never (until removed)</option><option value="1">in 1 day</option><option value="3">in 3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>in 7 days</option><option value="14">in 14 days</option><option value="30" ${days === 30 ? 'selected' : ''}>in 30 days</option><option value="90">in 90 days</option><option value="365">in a year</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
     <div id="slOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="slGo">Make link</button></div>`, () => {
     $('#slGo').onclick = async () => { const b = $('#slGo'); b.disabled = true; try { const r = await api('/links', { method: 'POST', body: { root, path: p, days: +$('#slDays').value, note: $('#slNote').value } });
       if (r.ok === false) throw new Error(r.err); const url = r.url || (location.origin + '/s/' + r.token);
-      $('#slOut').innerHTML = `<div class="log pre" style="user-select:all;word-break:break-all">${esc(url)}</div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--xs" id="slCopy">Copy link</button><span class="muted">${r.demo ? 'sample: this link is not real' : 'until ' + esc(r.link.expires)}</span></div>`;
+      $('#slOut').innerHTML = `<div class="log pre" style="user-select:all;word-break:break-all">${esc(url)}</div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--xs" id="slCopy">Copy link</button><span class="muted">${r.demo ? 'sample: this link is not real' : r.link.expires ? 'until ' + esc(r.link.expires) : 'until you remove it'}</span></div>`;
       $('#slCopy').onclick = e => copyText(url, e.target); b.textContent = 'Made'; } catch (e) { toast(e.message, 'bad'); b.disabled = false; } };
   });
 }
@@ -543,7 +732,7 @@ async function linksModal() {
   let r; try { r = await api('/links'); } catch (e) { return toast(e.message, 'bad'); }
   const rows = r.links || [];
   modal(`<h2>Shared links</h2><p class="muted">${rows.length ? 'Remove a link and it stops working at once.' : 'Nothing shared yet. Right-click a file in Finder and pick Share Link.'}</p>
-    <table class="tbl" style="margin-top:10px"><thead><tr><th>File</th><th>Until</th><th class="num">Downloads</th>${S.role === 'admin' ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(l => `<tr class="${l.expired ? 'dim' : ''}"><td>${esc(l.name)}<br><small class="muted">${esc(l.note || l.root + l.path)}</small></td><td>${l.expired ? 'expired' : esc(l.expires.replace('T', ' '))}</td><td class="num">${l.downloads || 0}</td>${S.role === 'admin' ? `<td>${esc(l.user)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-copy="${esc(l.token)}">Copy</button> <button class="btn btn--ghost btn--xs" data-rm="${esc(l.token)}">Remove</button></td></tr>`).join('')}</tbody></table>
+    <table class="tbl" style="margin-top:10px"><thead><tr><th>File</th><th>Until</th><th class="num">Downloads</th>${S.role === 'admin' ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(l => `<tr class="${l.expired ? 'dim' : ''}"><td>${esc(l.name)}<br><small class="muted">${esc(l.note || l.root + l.path)}</small></td><td>${l.expired ? 'expired' : l.expires ? esc(l.expires.replace('T', ' ')) : 'never'}</td><td class="num">${l.downloads || 0}</td>${S.role === 'admin' ? `<td>${esc(l.user)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-copy="${esc(l.token)}">Copy</button> <button class="btn btn--ghost btn--xs" data-rm="${esc(l.token)}">Remove</button></td></tr>`).join('')}</tbody></table>
     <div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, () => {
     $$('[data-copy]').forEach(b => b.onclick = e => copyText(location.origin + '/s/' + b.dataset.copy, e.target));
     $$('[data-rm]').forEach(b => b.onclick = async () => { const x = await api('/links/' + b.dataset.rm, { method: 'DELETE' }); if (x.ok === false) return toast(x.err, 'bad'); toast('Link removed'); linksModal(); });
@@ -562,7 +751,6 @@ async function changePassword() {
       if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : 'Password changed'); $('[data-close]').click(); };
   });
 }
-function getInfo(name, dir, p) { modal(`<div class="about"><div class="flame" style="background:${dir ? ICONURL.folder : fileIcon(name)} center/70% no-repeat #000"></div><div><h2 style="font-size:20px">${esc(name)}</h2><dl class="kv"><dt>Kind</dt><dd>${dir ? 'Folder' : kindOf(name)}</dd><dt>Where</dt><dd class="mono" style="font-size:12px">${esc((S.roots.find(r => r.id === S.fs.root)?.path || '') + p)}</dd><dt>Share</dt><dd class="mono" style="font-size:12px">smb://arise-server${esc(p)}</dd></dl></div></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`); }
 async function quickLook(root, p, name) {
   const ql = $('#ql'); $('#qlTitle').textContent = name; const url = `/api/files/view?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`;
   $('#qlDl').href = `/api/files/download?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`; $('#qlDl').onclick = e => { if (S.demoOnly || S.fsDemo) { e.preventDefault(); toast('Preview: nothing to download'); } };
@@ -1267,7 +1455,7 @@ function menuItems(id) {
   const a = id ? appOf(id) : null;
   const win = [['Minimise', () => id && minApp(id), '⌘M'], ['Zoom', () => id && $('.z', S.wins[id].el).click()], ['Close Window', () => id && closeApp(id), '⌘W'], null, ['Mission Control', () => missionControl(true), 'F3'], ['Launchpad', () => toggleLaunchpad(true)], null, { h: 'Open' }, ...Object.keys(S.wins).map(k => [appOf(k).name + (S.wins[k].min ? ' (minimised)' : ''), () => openApp(k, true)])];
   const help = [['ariseOS Help', () => openApp('help'), 'F1'], ['Keyboard Shortcuts', () => shortcutsSheet(), '⌘/'], ['Show me around', () => walkthrough(true)], null, ...(isMember() ? [] : [['Dashboard guide', () => { S.help = { name: 'DASHBOARD', q: '' }; openApp('help'); }], ['Remote access guide', () => { S.help = { name: 'REMOTE-ACCESS', q: '' }; openApp('help'); }], ['Install guide', () => { S.help = { name: 'INSTALL', q: '' }; openApp('help'); }], ['On GitHub', () => window.open('https://github.com/Rehchu/Church-server-OS-')], null]), ['About This Server', () => openApp('about')]];
-  const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Share Link…', () => { const el = $('#fMain .sel'); if (el) shareLink(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }], ['Shared Links…', () => linksModal()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }, '⌘I'], null, ['Close Window', () => closeApp('files'), '⌘W']],
+  const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Share Link…', () => { const el = $('#fMain .sel'); if (el) shareLink(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }], ['Shared Links…', () => linksModal()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, S.fs.root); else toast('Select a file or folder first', 'warn'); }, '⌘I'], ['Previous Versions…', () => { const el = $('#fMain .sel'); if (el) versionsModal(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file first', 'warn'); }], ['Compress', () => { const el = $('#fMain .sel'); if (el) finderZip(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }], ...(IS_MAC ? [['Open on my Mac', () => openOnMac(S.fs.root, S.fs.path)]] : []), null, ['Recents', () => fsNav('@recent', '/')], ['Trash', () => fsNav('@trash', '/')], null, ['Move to Trash', () => { const el = $('#fMain .sel'); if (el) trashIt(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }, '⌘⌫'], null, ['Close Window', () => closeApp('files'), '⌘W']],
     backups: [['Run all jobs now', () => act($('#next') || document.body, () => api('/backups/run/automator', { method: 'POST' }), 'Started the automator job')], ['Refresh GitHub mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],

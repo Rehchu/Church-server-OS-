@@ -72,8 +72,8 @@ users = []
 
 [links]
 # Share links (a public download address for one file or folder).
-days = 7        # default life
-max_days = 30
+days = 0        # default life in days; 0 = never expires, it lives until removed (Bradly, Oct 28)
+max_days = 365  # the longest life a link may be given when one is picked
 max_zip_bytes = 2147483648   # folders bigger than this are not zipped
 
 

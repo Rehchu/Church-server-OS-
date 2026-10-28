@@ -93,8 +93,12 @@ def add_share(name: str, path: str, comment: str = "", group: str = "Domain User
     os.makedirs(path, exist_ok=True)
     block = [f"\n[{name}]", f"  path = {path}", f"  comment = {comment}", f"  valid users = @\"{group}\"",
              "  read only = no", "  browseable = yes", "  create mask = 0664", "  directory mask = 0775"]
+    # Every share gets the Trash (recycle): a Mac's delete lands in .Trash/<user>/ for 30 days.
+    block += ["  vfs objects = acl_xattr " + ("fruit streams_xattr " if mac else "") + "recycle",
+              "  recycle:repository = .Trash/%U", "  recycle:keeptree = yes", "  recycle:versions = yes", "  recycle:touch = yes",
+              "  recycle:directory_mode = 0770", "  recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload", "  recycle:exclude_dir = .Trash,/tmp"]
     if mac:
-        block += ["  vfs objects = fruit streams_xattr", "  fruit:metadata = stream", "  fruit:model = MacSamba",
+        block += ["  fruit:metadata = stream", "  fruit:model = MacSamba",
                   "  fruit:posix_rename = yes", "  fruit:veto_appledouble = no", "  fruit:delete_empty_adfiles = yes"]
     with open(ARISE_CONF, "a", encoding="utf-8") as f:
         f.write("\n".join(block) + "\n")

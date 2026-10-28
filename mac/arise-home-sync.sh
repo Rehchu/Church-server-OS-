@@ -172,5 +172,25 @@ done
 # Drop an empty conflicts folder so the person only sees ones that hold something.
 rmdir "$CONFLICTS" 2>/dev/null
 [ -d "$CONFLICTS" ] && log "  older server copies kept in: $CONFLICTS"
+
+# ---- fonts: Media/Fonts on the share -> ~/Library/Fonts (docs/ANSWERS.md round 3, 39) -----
+# Every Mac ends up with the same fonts the Proclaim graphics use. Only what is
+# newer than this Mac's copy is copied; nothing is ever removed from the Mac.
+# A person outside the Media group cannot open that share; that is logged, not an error.
+FONTS_MOUNT="/Volumes/media"
+if [ $DRY -eq 0 ] && ! mount | grep -q " on $FONTS_MOUNT "; then
+  open "smb://${SERVER}/media" >/dev/null 2>&1
+  tries=0; until mount | grep -q " on $FONTS_MOUNT "; do tries=$((tries+1)); [ $tries -gt 6 ] && break; sleep 3; done
+fi
+if [ -d "$FONTS_MOUNT/Fonts" ]; then
+  mkdir -p "$HOME_DIR/Library/Fonts"
+  fout=$(rsync -rlt --update --no-perms --no-owner --no-group --include='*/' --include='*.ttf' --include='*.otf' --include='*.ttc' --include='*.TTF' --include='*.OTF' --exclude='*' \
+         --stats "$FONTS_MOUNT/Fonts/" "$HOME_DIR/Library/Fonts/" 2>&1)
+  fn=$(printf '%s\n' "$fout" | awk '/Number of regular files transferred/{print $NF}')
+  log "  fonts: ${fn:-0} new or updated from media/Fonts"
+else
+  log "  fonts: media/Fonts not reachable for $USER_NAME (not in the Media group, or the share is not mounted); skipped"
+fi
+
 log "sync done: $TOTAL files$([ $FAIL -eq 1 ] && echo ' WITH ERRORS')"
 exit $FAIL

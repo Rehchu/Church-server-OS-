@@ -60,7 +60,20 @@
         create mask = 0600
         directory mask = 0700
         # Make the folder the first time the user connects.
-        root preexec = /bin/sh -c 'mkdir -p "/srv/arise/homes/%U" && chown "%U" "/srv/arise/homes/%U" && chmod 0700 "/srv/arise/homes/%U"'
+        # ... with Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28).
+        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; mkdir -p "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && chown -R "%U" "$h" && chmod 0700 "$h"'
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [shares]
         # The church's shared folders: media, graphics, documents. Anyone in the
@@ -81,6 +94,18 @@
 # group and the share appears for them; nothing else to touch.
 # recordings lives on the Synology because of its size, and restic does not
 # back it up (docs/ANSWERS.md 51); the Synology's RAID is its protection.
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [staff]
         comment = Staff: pastors and paid staff
@@ -91,6 +116,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Staff"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [leadership]
         comment = Leadership only
@@ -101,6 +138,18 @@
         create mask = 0660
         directory mask = 0770
         force group = "Leadership"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [media]
         comment = Media team: livestream, YouTube, projector
@@ -111,6 +160,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Media"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [graphics]
         comment = Proclaim backgrounds, loops, lower thirds (synced to the media Mac)
@@ -122,6 +183,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Media"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [kids]
         comment = Kids ministry
@@ -132,6 +205,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Kids"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [childrens-department]
         comment = Children's Department
@@ -142,6 +227,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Childrens-Department"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [inedge]
         comment = Inedge
@@ -152,6 +249,18 @@
         create mask = 0664
         directory mask = 0775
         force group = "Inedge"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [worship]
         comment = Worship and music: charts, setlists, tracks
@@ -162,8 +271,21 @@
         create mask = 0664
         directory mask = 0775
         force group = "Worship"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
 
 [recordings]
+        # No recycle here: the Synology keeps its own #recycle for this folder.
         comment = Sunday recordings (on the Synology; not in the restic backup)
         path = /mnt/synology/arise/recordings
         valid users = @"ARISE\Media" @"ARISE\Domain Admins"
