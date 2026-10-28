@@ -49,10 +49,10 @@ DIRECTORY_STATUS = {
 }
 
 SHARES = [
-    {"name": "homes", "path": "/srv/arise/homes", "comment": "One folder per user, Mac-friendly", "writable": True, "browseable": False, "used": 48_700_000_000, "mac": True},
-    {"name": "shares", "path": "/srv/arise/shares", "comment": "Everyone in Domain Users", "writable": True, "browseable": True, "used": 212_000_000_000, "mac": True},
-    {"name": "media", "path": "/mnt/synology/media", "comment": "On the Synology - service recordings, graphics", "writable": True, "browseable": True, "used": 1_380_000_000_000, "mac": True},
-    {"name": "sysvol", "path": "/var/lib/samba/sysvol", "comment": "Domain policies (system)", "writable": False, "browseable": False, "used": 2_100_000, "mac": False},
+    {"name": "homes", "path": "/srv/arise/homes", "comment": "One folder per user, Mac-friendly", "writable": True, "browseable": False, "used": 48_700_000_000, "mac": True, "valid_users": ["%S"], "write_list": []},
+    {"name": "shares", "path": "/srv/arise/shares", "comment": "Everyone in Domain Users", "writable": True, "browseable": True, "used": 212_000_000_000, "mac": True, "valid_users": [], "write_list": []},
+    {"name": "media", "path": "/mnt/synology/media", "comment": "On the Synology - service recordings, graphics", "writable": True, "browseable": True, "used": 1_380_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff"], "write_list": ["@Media"]},
+    {"name": "sysvol", "path": "/var/lib/samba/sysvol", "comment": "Domain policies (system)", "writable": False, "browseable": False, "used": 2_100_000, "mac": False, "valid_users": ["@Domain Admins"], "write_list": []},
 ]
 
 SERVICES = [

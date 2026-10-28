@@ -1,10 +1,15 @@
 # Three sites, one server
 
+The network plan (subnets, VLANs, the Cisco, how Alexandria connects) is
+**docs/NETWORK.md**; the setup order is **docs/SETUP-GUIDE.md**; the day the
+server moves from Pineville to the Hub is **docs/MOVING-DAY.md**. This page
+is what each site is and what runs where.
+
 | Site | What it is | What is there | How it reaches the server |
 |---|---|---|---|
-| **Arise Church Pineville** (`pineville`, kind `main`) | the main campus, 501 Ates Road | the server, the domain controller, the Synology, the media Mac, the lobby PC, the LAN `192.168.1.0/24` | it is the LAN |
+| **Arise Church Pineville** (`pineville`, kind `main`) | the main campus, 501 Ates Road | the server, the domain controller, the Synology, the media Mac, the lobby PC, the LAN `192.168.1.0/24` (**for now**: the server moves to the Hub once it is built, docs/MOVING-DAY.md) | it is the LAN |
 | **Arise Church Alexandria** (`alexandria`, kind `campus`) | the second campus | the Macs that run the service there, a router | the VPN: always-on on each Mac, or one site-to-site tunnel at the router |
-| **The Apostolic Hub** (`hub`, kind `office`) | office and leadership | laptops and office PCs, people who move between sites | the VPN, one client per computer |
+| **The Apostolic Hub** (`hub`, kind `office`) | office and leadership, being built | laptops and office PCs, people who move between sites; **later, the server** | the VPN, one client per computer, until the server moves there |
 
 Each site is a `[[sites]]` block in `arise.toml` (id, name, kind, address,
 subnet, probe, services, note). The dashboard's **Campuses** app pings each
@@ -13,9 +18,9 @@ that site's subnet. Pick as the probe the one device at that site that is
 always on: the router, or the Mac at the sound desk. Leave it blank and the
 site just shows as "not monitored".
 
-## Pineville: the main site
+## Pineville: the main site (for now)
 
-Everything that is a single copy of something lives here: the directory
+Everything that is a single copy of something lives here until the move: the directory
 (`samba-ad-dc`), the home folders or the Synology that holds them, the
 automator and its token, the backups. The server's LAN address should be
 **fixed** (a DHCP reservation on the router, or a static address; see
@@ -31,7 +36,8 @@ Macs in Alexandria can be full members of the domain. Two ways to get them
   tunnel (the split-DNS rule in docs/REMOTE-ACCESS.md is what makes the realm
   resolve). Simplest; nothing to do at the Alexandria router. Each Mac is
   its own tunnel, so if one Mac's Tailscale is signed out, only that Mac is
-  off the network.
+  off the network. docs/NETWORK.md § A church across town compares the
+  options and recommends this for laptops plus one route box for the site.
 - **A site-to-site tunnel at the router.** WireGuard on the Alexandria
   router (or a small box behind it) with the whole `192.168.2.0/24` routed
   through it, and `192.168.1.0/24` routed back. Every device at Alexandria is
@@ -57,9 +63,9 @@ dashboard, files of a few hundred MB, Guacamole. Not fine for editing a
 40 GB service recording that lives in Pineville: copy it over, or keep the
 media work local and let Syncthing move the finished pieces overnight.
 
-## The Apostolic Hub: office clients
+## The Apostolic Hub: office clients (until the server moves there)
 
-No site infrastructure: each laptop and office PC runs the VPN client and
+No site infrastructure yet: each laptop and office PC runs the VPN client and
 signs in. Windows PCs join the domain the same way as in Pineville (Settings
 → System → Domain or workgroup), over the tunnel; the first join needs the
 tunnel up. People who move between the Hub and Pineville keep one account and
@@ -69,7 +75,7 @@ one home folder either way.
 
 | Thing | Pineville | Alexandria | Hub |
 |---|---|---|---|
-| domain controller, DNS, Kerberos | **the server** | (a second DC, later, optional) | — |
+| domain controller, DNS, Kerberos | **the server** (until the move) | (a second DC, later, optional) | the server, after the move |
 | home folders, shares | the server / the Synology | cached copies on each Mac | cached copies on each laptop |
 | the dashboard, `arisectl`, the Terminal | the server | over the VPN | over the VPN |
 | the automator, backups | the server | — | — |

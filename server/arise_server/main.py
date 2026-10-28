@@ -19,7 +19,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import VERSION, CODENAME, apps, automator, backups, bible, directory, files, metrics, nas, remote, sermons, services, shares, sites, system
-from .auth import COOKIE, current_user, login
+from . import links
+from .auth import COOKIE, current_user, login, require_admin
 from .config import load
 from .util import human_bytes
 
@@ -28,7 +29,8 @@ app = FastAPI(title="Arise Server", version=VERSION, docs_url="/api/docs", redoc
 metrics.start()
 _started = time.time()
 
-auth = Depends(current_user)
+auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
+admin = Depends(require_admin)    # the administrator only
 
 
 @app.exception_handler(HTTPException)
@@ -46,16 +48,19 @@ class Login(BaseModel):
 @app.post("/api/auth/login")
 def api_login(body: Login, response: Response):
     c = load()
-    if c.demo:
-        return {"ok": True, "user": "demo", "demo": True}
-    if not c.web.admin_password_hash:
+    if not c.demo and not c.web.admin_password_hash:
         raise HTTPException(401, {"setup": True, "message": "No admin password yet. On the server run: sudo arisectl admin set-password"})
-    tok = login(body.user, body.password)
-    if not tok:
-        time.sleep(0.8)  # slow down guessing
-        raise HTTPException(401, {"message": "Wrong user or password"})
-    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
-    return {"ok": True, "user": body.user, "demo": False}
+    got = login(body.user, body.password)
+    if not got:
+        if c.demo:  # sample mode: unknown names become the admin, as before
+            got = (None, {"user": "demo", "role": "admin", "via": "demo"})
+        else:
+            time.sleep(0.8)  # slow down guessing
+            raise HTTPException(401, {"message": "Wrong user or password"})
+    tok, who = got
+    if tok:
+        response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
 
 
 @app.post("/api/auth/logout")
@@ -67,9 +72,35 @@ def api_logout(response: Response):
 @app.get("/api/auth/me")
 def api_me(request: Request):
     try:
-        return current_user(request)
+        who = dict(current_user(request))
     except HTTPException as e:
         return JSONResponse({"error": e.detail}, status_code=e.status_code)
+    who["groups"] = directory.user_groups(who["user"]) if who["user"] != "demo" else ["Domain Admins"]
+    who["roots"] = files.roots(who)
+    who["links_days"] = load().links.days
+    return who
+
+
+class PasswordChange(BaseModel):
+    old: str
+    new: str
+
+
+@app.post("/api/me/password")
+def api_me_password(body: PasswordChange, who=auth):
+    """Anyone changes their own directory password; the local admin password is arisectl's."""
+    c = load()
+    if len(body.new) < 8:
+        return {"ok": False, "err": "at least 8 characters"}
+    if c.demo:
+        return {"ok": True, "demo": True}
+    if who["user"] == c.web.admin_user and not directory.authenticate(who["user"], body.old):
+        if c.web.admin_password_hash and __import__("arise_server.auth", fromlist=["verify_password"]).verify_password(body.old, c.web.admin_password_hash):
+            return {"ok": False, "err": "That is the local dashboard password: change it on the server with sudo arisectl admin set-password"}
+    if not directory.authenticate(who["user"], body.old):
+        time.sleep(0.8)
+        return {"ok": False, "err": "current password is wrong"}
+    return directory.set_password(who["user"], body.new)
 
 
 # ----- overview + stats --------------------------------------------------------
@@ -440,27 +471,27 @@ def api_sermons(limit: int = 60, _=auth):
 
 
 @app.get("/api/files/roots")
-def api_files_roots(_=auth):
-    return {"roots": files.roots()}
+def api_files_roots(who=auth):
+    return {"roots": files.roots(who)}
 
 
 @app.get("/api/files/list")
-def api_files_list(root: str = "data", path: str = "/", _=auth):
-    return files.listing(root, path)
+def api_files_list(root: str = "data", path: str = "/", who=auth):
+    return files.listing(root, path, who)
 
 
 @app.get("/api/files/download")
-def api_files_download(root: str, path: str, _=auth):
-    p = files.file_path(root, path)
+def api_files_download(root: str, path: str, who=auth):
+    p = files.file_path(root, path, who)
     if not p:
         raise HTTPException(404, {"message": "no such file"})
     return FileResponse(p, filename=os.path.basename(p))
 
 
 @app.get("/api/files/view")
-def api_files_view(root: str, path: str, _=auth):
+def api_files_view(root: str, path: str, who=auth):
     """Inline (for Quick Look); download sets an attachment header, this does not."""
-    p = files.file_path(root, path)
+    p = files.file_path(root, path, who)
     if not p:
         raise HTTPException(404, {"message": "no such file"})
     return FileResponse(p)
@@ -473,25 +504,71 @@ class NewFolder(BaseModel):
 
 
 @app.post("/api/files/mkdir")
-def api_files_mkdir(body: NewFolder, _=auth):
-    return files.make_folder(body.root, body.path, body.name)
+def api_files_mkdir(body: NewFolder, who=auth):
+    return files.make_folder(body.root, body.path, body.name, who)
 
 
 @app.get("/api/search")
-def api_search(q: str = "", _=auth):
-    out = files.search(q)
+def api_search(q: str = "", who=auth):
+    out = files.search(q, who=who)
     ql = q.strip().lower()
-    out["users"] = [u for u in directory.list_users()["users"] if ql and (ql in u["name"].lower() or ql in (u.get("display") or "").lower())][:8]
-    out["computers"] = [c for c in directory.list_computers()["computers"] if ql and ql in c["name"].lower()][:8]
+    if who.get("role") == "admin":
+        out["users"] = [u for u in directory.list_users()["users"] if ql and (ql in u["name"].lower() or ql in (u.get("display") or "").lower())][:8]
+        out["computers"] = [c for c in directory.list_computers()["computers"] if ql and ql in c["name"].lower()][:8]
+    else:
+        out["users"], out["computers"] = [], []
     return out
 
 
 @app.post("/api/files/upload")
-async def api_files_upload(root: str = Form("data"), path: str = Form("/"), file: UploadFile = File(...), _=auth):
+async def api_files_upload(root: str = Form("data"), path: str = Form("/"), file: UploadFile = File(...), who=auth):
     data = await file.read()
     if len(data) > 2 * 1024 ** 3:
         return {"ok": False, "err": "2 GB limit here; use the share for bigger files"}
-    return files.save_upload(root, path, file.filename or "", data)
+    return files.save_upload(root, path, file.filename or "", data, who)
+
+
+# ----- share links -------------------------------------------------------------
+class NewLink(BaseModel):
+    root: str
+    path: str
+    days: Optional[int] = None
+    note: str = ""
+
+
+@app.get("/api/links")
+def api_links(who=auth):
+    return links.mine(who)
+
+
+@app.post("/api/links")
+def api_links_new(body: NewLink, request: Request, who=auth):
+    r = links.create(body.root, body.path, who, body.days, body.note)
+    if r.get("ok"):
+        base = (load().web.get("public_url") or "").rstrip("/") or f"{request.url.scheme}://{request.headers.get('host', request.url.netloc)}"
+        r["url"] = f"{base}/s/{r['token']}"
+    return r
+
+
+@app.delete("/api/links/{token}")
+def api_links_revoke(token: str, who=auth):
+    return links.revoke(token, who)
+
+
+@app.get("/s/{token}")
+def public_link(token: str):
+    """No login: the file behind a live share link, or a zip of the folder."""
+    got = links.resolve(token)
+    if not got:
+        raise HTTPException(404, {"message": "That link has expired or was removed"})
+    if got.get("demo"):
+        return JSONResponse({"ok": True, "demo": True, "message": f"(sample) would download {got['name']}"})
+    if got["dir"]:
+        z = links.zip_folder(got["path"])
+        if not z:
+            raise HTTPException(413, {"message": "That folder is too big to zip; ask for the files another way"})
+        return FileResponse(z, filename=got["name"] + ".zip", media_type="application/zip")
+    return FileResponse(got["path"], filename=got["name"])
 
 
 @app.get("/api/system/updates")

@@ -485,3 +485,12 @@ pre.log{background:var(--scrim);border:1px solid var(--line2);padding:14px 16px;
 .about h2{color:#fff;font-size:28px}.about .kv{margin-top:12px}
 body.kiosk{cursor:default}
 body.kiosk.idle{cursor:none}
+
+/* ---- v0.4: members (any directory user) see the portal, not the admin's instruments ---- */
+body.member #barAtt,body.member #stVpn,body.member #stBk,body.member .bar__stat,body.member .bar__live,body.member #sideLive,body.member #icons{display:none!important}
+.widget__rows{display:flex;flex-direction:column}
+button.widget__row{background:none;border:0;border-bottom:1px solid var(--line2);width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer;padding:6px 0}
+button.widget__row:hover span{color:#fff}
+button.widget__row:last-child{border-bottom:0}
+.tbl tr.dim td{opacity:.45}
+.muted{color:var(--text2)}

@@ -59,6 +59,37 @@ closes whatever is on top.
 | 15 | **System Settings** | updates (packages, Arise Server itself), the daily note, power (reboot, shut down), every non-secret value of `arise.toml` | update, upgrade, test the note, reboot/shut down with the word typed |
 | — | **About This Server** | version, host, domain, kernel, processor, memory, uptime, profile | from the flame menu |
 
+## Who can sign in, and what they see
+
+| Who | Signs in with | Sees |
+|---|---|---|
+| **The administrator** (`admin_user` in `arise.toml`, or anyone in `admins_group`, default *Domain Admins*) | the local dashboard password from `arisectl admin set-password`, or their directory password | everything above |
+| **Any directory user** (`member_login = true`) | their domain password, the same one the Macs and the shares use | the **portal**: Finder with *My files* (their home folder) and the shares their groups allow (read-only where the share's write list leaves them out), Upload, New Folder, Quick Look, Get Info, Download, **Share Link**, Sermons, Bible, Campuses, Spotlight over their own places, **Change Password**, Lock, Sign Out |
+
+A member who opens an admin app by its address gets *That part of the
+dashboard is for the administrator* (HTTP 403); the server enforces it, not
+the page. Login is a Kerberos check against the domain controller itself
+(`kinit`), so a disabled or expired account cannot sign in here either.
+
+### Share links
+
+Right-click a file or folder → **Share Link…** (or File → Share Link…). Pick
+how long it lives (1 to 30 days, 7 by default) and the dashboard makes
+`https://<server>/s/<token>`: anyone with it downloads the file with no
+sign-in, a folder arrives as a zip (up to 2 GB). **Shared Links…** in the
+flame menu, the Finder sidebar or Control Center lists yours with the
+download count; *Remove* kills a link at once. The administrator sees
+everyone's. Links live in `/var/lib/arise/links.json`; `arisectl link list`,
+`arisectl link revoke <token>`, `arisectl link sweep`. Set `public_url` in
+`[web]` once HTTPS is up so links carry the public address.
+
+### A Windows keyboard
+
+The closet monitor has a Windows keyboard. Every shortcut takes **Ctrl**
+where a Mac takes ⌘, and the menus say so: Ctrl+Space Spotlight, Ctrl+W
+close, Ctrl+Shift+N new folder, Ctrl+Alt+Q lock. The Windows key works too
+where the browser reports it as ⌘.
+
 ## Rules it keeps
 
 - **Nothing is deleted without typing its name.** Users, shares and apps ask
@@ -69,10 +100,12 @@ closes whatever is on top.
 - **Sample data is labelled.** When a tool is missing or there is no config,
   the response carries `"demo": true` and the menu bar shows an amber *Sample
   data* badge. The published preview shows *Preview · sample data*.
-- **One admin login.** `arisectl admin set-password` writes a bcrypt hash into
-  `arise.toml`; the session is a signed cookie that expires after
-  `session_hours`. The Terminal uses the same cookie. With no hash set the page
-  refuses to show anything and tells you the command.
+- **Two kinds of login, one cookie.** `arisectl admin set-password` writes a
+  bcrypt hash into `arise.toml` for the administrator; every directory user
+  signs in with their domain password. The session is a signed cookie that
+  carries the role and expires after `session_hours`. The Terminal uses the
+  same cookie and is admin-only. With no admin hash set the page refuses to
+  show anything and tells you the command.
 
 ## Live stats
 

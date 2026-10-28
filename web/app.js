@@ -440,18 +440,19 @@ const ICO = {
 const FICO = { d: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 5h8l2 2h10v13H2z'/%3E%3C/svg%3E\")", f: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 2h9l5 5v15H5z'/%3E%3C/svg%3E\")" };
 
 V.files = async () => {
-  S.fs = S.fs || { root: 'data', path: '/', view: 'icon', hist: [], fwd: [], sel: null, q: '' };
+  S.fs = S.fs || { root: (S.me?.roots?.[0]?.id) || 'data', path: '/', view: 'icon', hist: [], fwd: [], sel: null, q: '' };
   const fs = S.fs;
+  if (S.me?.roots?.length && !S.me.roots.some(r => r.id === fs.root)) Object.assign(fs, { root: S.me.roots[0].id, path: '/', hist: [], fwd: [] });
   const [roots, list] = await Promise.all([api('/files/roots'), api(`/files/list?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(fs.path)}`)]);
   S.roots = roots.roots || []; S.fsDemo = !!list.demo;
   const entries = (list.entries || []).filter(e => !fs.q || e.name.toLowerCase().includes(fs.q.toLowerCase()));
   const parts = fs.path.split('/').filter(Boolean);
   const rootName = S.roots.find(r => r.id === fs.root)?.name || fs.root;
   const title = parts.length ? parts[parts.length - 1] : rootName;
-  const FAV = [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
+  const FAV = isMember() ? [] : [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
   const side = `<div class="finder__side"><h4>Favorites</h4>${FAV.map(f => `<button data-go="${f[1]}|${f[2]}" class="${fs.root === f[1] && fs.path === f[2] ? 'on' : ''}"><i style="--i:${ICONURL[f[3]]}"></i>${esc(f[0])}</button>`).join('')}
-    <h4>Locations</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
-    <h4>Tags</h4><button disabled style="opacity:.5"><i style="--i:${ICONURL.folder};background:var(--muted)"></i>none yet</button></div>`;
+    <h4>${isMember() ? 'Your places' : 'Locations'}</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : r.home ? 'users' : r.share ? 'folder' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
+    <h4>Sharing</h4><button id="fLinks"><i style="--i:${ICONURL.backups}"></i>Shared links</button></div>`;
   const tb = `<div class="finder__tb"><span class="nav"><button id="fBack" ${fs.hist.length ? '' : 'disabled'} title="Back">‹</button><button id="fFwd" ${fs.fwd.length ? '' : 'disabled'} title="Forward">›</button></span><span class="title">${esc(title)}</span>
     <span class="views"><button id="fIcon" class="${fs.view === 'icon' ? 'on' : ''}" title="Icons">▦</button><button id="fList" class="${fs.view === 'list' ? 'on' : ''}" title="List">☰</button></span>
     <input class="search" id="fQ" placeholder="Filter this folder" value="${esc(fs.q)}"><label class="btn btn--ghost btn--xs" for="fsUp">Upload</label><input id="fsUp" type="file" hidden><button class="btn btn--ghost btn--xs" id="fNew">New folder</button></div>`;
@@ -491,6 +492,7 @@ function fsNav(root, path, pushHist = true) { const fs = S.fs; if (pushHist) { f
 V.files.after = root => {
   const fs = S.fs;
   $$('[data-go]', root).forEach(b => b.onclick = () => { const [r, p] = b.dataset.go.split('|'); fsNav(r, p); });
+  const fl = $('#fLinks', root); if (fl) fl.onclick = () => linksModal();
   $('#fBack', root).onclick = () => { const h = fs.hist.pop(); if (!h) return; fs.fwd.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fFwd', root).onclick = () => { const h = fs.fwd.pop(); if (!h) return; fs.hist.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fIcon', root).onclick = () => { fs.view = 'icon'; rerender('files'); }; $('#fList', root).onclick = () => { fs.view = 'list'; rerender('files'); };
@@ -504,10 +506,40 @@ V.files.after = root => {
     el.ondblclick = () => open(el);
     el.onkeydown = e => { if (e.key === 'Enter') open(el); if (e.key === ' ' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); if (el.dataset.dir !== '1') quickLook(fs.root, (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n, el.dataset.n); } };
     el.oncontextmenu = e => { e.preventDefault(); el.click(); const p = (fs.path === '/' ? '' : fs.path) + '/' + el.dataset.n; const dl = `/api/files/download?root=${encodeURIComponent(fs.root)}&path=${encodeURIComponent(p)}`;
-      ctxMenu(e.clientX, e.clientY, [['Open', () => open(el)], el.dataset.dir === '1' ? null : ['Quick Look', () => quickLook(fs.root, p, el.dataset.n)], el.dataset.dir === '1' ? null : ['Download', () => { if (!S.demoOnly) location.href = dl; else toast('Preview: nothing to download'); }], ['Get Info', () => getInfo(el.dataset.n, el.dataset.dir === '1', p)], null, ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)], ['Copy smb:// address', () => copyText(`smb://arise-server/${fs.root === 'nas' ? 'synology' : p.split('/')[1] || ''}${p.split('/').slice(fs.root === 'nas' ? 1 : 2).map(x => '/' + x).join('')}`)]]); };
+      ctxMenu(e.clientX, e.clientY, [['Open', () => open(el)], el.dataset.dir === '1' ? null : ['Quick Look', () => quickLook(fs.root, p, el.dataset.n)], el.dataset.dir === '1' ? null : ['Download', () => { if (!S.demoOnly) location.href = dl; else toast('Preview: nothing to download'); }], ['Get Info', () => getInfo(el.dataset.n, el.dataset.dir === '1', p)], null, ['Share Link…', () => shareLink(fs.root, p, el.dataset.n)], null, ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)], ['Copy smb:// address', () => copyText(`smb://arise-server/${fs.root === 'nas' ? 'synology' : p.split('/')[1] || ''}${p.split('/').slice(fs.root === 'nas' ? 1 : 2).map(x => '/' + x).join('')}`)]]); };
   });
   const main = $('#fMain', root); if (main) main.oncontextmenu = e => { if (e.target !== main) return; e.preventDefault(); ctxMenu(e.clientX, e.clientY, [['New folder', () => $('#fNew', root).click()], ['Upload here', () => $('#fsUp', root).click()], null, ['Show as icons', () => { fs.view = 'icon'; rerender('files'); }], ['Show as list', () => { fs.view = 'list'; rerender('files'); }], null, ['Refresh', () => rerender('files')]]); };
 };
+function shareLink(root, p, name) {
+  const days = S.me?.links_days || 7;
+  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until it expires. Folders arrive as a zip.</p>
+    <div class="row" style="gap:10px;margin:12px 0"><label>Expires in <select id="slDays"><option value="1">1 day</option><option value="3">3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>7 days</option><option value="14">14 days</option><option value="30">30 days</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
+    <div id="slOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="slGo">Make link</button></div>`, () => {
+    $('#slGo').onclick = async () => { const b = $('#slGo'); b.disabled = true; try { const r = await api('/links', { method: 'POST', body: { root, path: p, days: +$('#slDays').value, note: $('#slNote').value } });
+      if (r.ok === false) throw new Error(r.err); const url = r.url || (location.origin + '/s/' + r.token);
+      $('#slOut').innerHTML = `<div class="log pre" style="user-select:all;word-break:break-all">${esc(url)}</div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--xs" id="slCopy">Copy link</button><span class="muted">${r.demo ? 'sample: this link is not real' : 'until ' + esc(r.link.expires)}</span></div>`;
+      $('#slCopy').onclick = e => copyText(url, e.target); b.textContent = 'Made'; } catch (e) { toast(e.message, 'bad'); b.disabled = false; } };
+  });
+}
+async function linksModal() {
+  let r; try { r = await api('/links'); } catch (e) { return toast(e.message, 'bad'); }
+  const rows = r.links || [];
+  modal(`<h2>Shared links</h2><p class="muted">${rows.length ? 'Remove a link and it stops working at once.' : 'Nothing shared yet. Right-click a file in Finder and pick Share Link.'}</p>
+    <table class="tbl" style="margin-top:10px"><thead><tr><th>File</th><th>Until</th><th class="num">Downloads</th>${S.role === 'admin' ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(l => `<tr class="${l.expired ? 'dim' : ''}"><td>${esc(l.name)}<br><small class="muted">${esc(l.note || l.root + l.path)}</small></td><td>${l.expired ? 'expired' : esc(l.expires.replace('T', ' '))}</td><td class="num">${l.downloads || 0}</td>${S.role === 'admin' ? `<td>${esc(l.user)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-copy="${esc(l.token)}">Copy</button> <button class="btn btn--ghost btn--xs" data-rm="${esc(l.token)}">Remove</button></td></tr>`).join('')}</tbody></table>
+    <div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, () => {
+    $$('[data-copy]').forEach(b => b.onclick = e => copyText(location.origin + '/s/' + b.dataset.copy, e.target));
+    $$('[data-rm]').forEach(b => b.onclick = async () => { const x = await api('/links/' + b.dataset.rm, { method: 'DELETE' }); if (x.ok === false) return toast(x.err, 'bad'); toast('Link removed'); linksModal(); });
+  });
+}
+function changePassword() {
+  modal(`<h2>Change your password</h2><p class="muted">This is your directory password: the same one for the Macs, the shares and this dashboard.</p>
+    <form id="pwf" style="display:grid;gap:8px;margin-top:12px"><input type="password" id="pwOld" placeholder="Current password" autocomplete="current-password"><input type="password" id="pwNew" placeholder="New password (8 or more)" autocomplete="new-password"><input type="password" id="pwNew2" placeholder="New password again" autocomplete="new-password">
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">Change</button></div></form>`, () => {
+    $('#pwf').onsubmit = async e => { e.preventDefault(); if ($('#pwNew').value !== $('#pwNew2').value) return toast('The two new passwords differ', 'warn');
+      const r = await api('/me/password', { method: 'POST', body: { old: $('#pwOld').value, new: $('#pwNew').value } }).catch(er => ({ ok: false, err: er.message }));
+      if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : 'Password changed'); $('[data-close]').click(); };
+  });
+}
 function getInfo(name, dir, p) { modal(`<div class="about"><div class="flame" style="background:${dir ? ICONURL.folder : fileIcon(name)} center/70% no-repeat #000"></div><div><h2 style="font-size:20px">${esc(name)}</h2><dl class="kv"><dt>Kind</dt><dd>${dir ? 'Folder' : kindOf(name)}</dd><dt>Where</dt><dd class="mono" style="font-size:12px">${esc((S.roots.find(r => r.id === S.fs.root)?.path || '') + p)}</dd><dt>Share</dt><dd class="mono" style="font-size:12px">smb://arise-server${esc(p)}</dd></dl></div></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`); }
 async function quickLook(root, p, name) {
   const ql = $('#ql'); $('#qlTitle').textContent = name; const url = `/api/files/view?root=${encodeURIComponent(root)}&path=${encodeURIComponent(p)}`;
@@ -625,12 +657,12 @@ V.terminal.after = root => {
 function demoShell(term) {
   const P = '\x1b[31marise-server\x1b[0m:~# ';
   const CMD = { help: 'arisectl info · arisectl doctor · arisectl backup status · arisectl user list · uptime · df -h · clear',
-    'arisectl info': 'Arise Server v0.3.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
+    'arisectl info': 'Arise Server v0.4.0 “Pineville”\r\n  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)\r\n  realm     AD.ARISECENLA.CHURCH / ARISE   directory on\r\n  web       http://arise-server:4147   password set\r\n  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05\r\n  backups   /mnt/synology/arise-backups/restic  at 03:00',
     'arisectl doctor': '  \x1b[32m✓\x1b[0m config /etc/arise/arise.toml\r\n  \x1b[32m✓\x1b[0m Samba AD DC answers\r\n  \x1b[32m✓\x1b[0m DNS SRV for ad.arisecenla.church resolves\r\n  \x1b[32m✓\x1b[0m token.json present\r\n  \x1b[32m✓\x1b[0m restic installed\r\n  \x1b[32m✓\x1b[0m Synology /mnt/synology mounted\r\n  \x1b[33m!\x1b[0m 3 apt packages upgradable (1 security)\r\n  \x1b[32m✓\x1b[0m clock synchronised',
     'arisectl backup status': 'repository /mnt/synology/arise-backups/restic\r\n  \x1b[32m✓\x1b[0m 53 snapshots, 296.2 GB stored\r\n  JOB        LAST              RESULT  ADDED\r\n  automator  2026-10-27T03:00  ok      797.1 MB\r\n  homes      2026-10-27T03:04  ok      451.3 MB\r\n  config     2026-10-27T03:16  ok      739.5 MB',
     'arisectl user list': '  USER          NAME             ENABLED  GROUPS\r\n  bradly        Bradly Dyer      yes      Domain Admins, Media, Staff\r\n  media-mac     Media Booth Mac  yes      Media\r\n  office        Church Office    yes      Staff',
     uptime: ' 09:41:12 up 14 days,  3:07,  1 user,  load average: 0.42, 0.58, 0.61', 'df -h': 'Filesystem      Size  Used Avail Use% Mounted on\r\n/dev/sda2       224G   66G  147G  31% /\r\n/dev/sdb1       894G  242G  607G  29% /srv/arise\r\n//synology/arise  15T  4.5T   10T  31% /mnt/synology', whoami: 'root', hostname: 'arise-server' };
-  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.3.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
+  term.write('\x1b[31m   ▲\x1b[0m  Arise Server \x1b[2mv0.4.0 “Pineville”\x1b[0m  ·  preview terminal\r\n   A sample shell. On the real server this is a root shell on the box. Type help.\r\n\r\n' + P);
   let buf = '';
   term.onData(d => { for (const ch of d) {
     if (ch === '\r') { const c = buf.trim(); buf = ''; if (c === 'clear') { term.clear(); term.write('\r' + P); continue; } const out = c ? (CMD[c] ?? `bash: ${c}: not in the preview (type help)`) : ''; term.write('\r\n' + (out ? out + '\r\n' : '') + P); }
@@ -660,7 +692,7 @@ const I = {
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
 const APPS = [
-  { id: 'files', n: '01', name: 'Finder', what: 'The server, the Synology, the shares', tone: 'bone', dock: true, w: 900, h: 560 },
+  { id: 'files', n: '01', name: 'Finder', what: 'The server, the Synology, the shares', whatMember: 'Your files, your shares, your links', tone: 'bone', dock: true, w: 900, h: 560 },
   { id: 'overview', n: '02', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true },
   { id: 'directory', n: '03', name: 'Directory', what: 'Users, groups, joined computers', dock: true },
   { id: 'backups', n: '04', name: 'Backups', what: 'restic jobs, history, snapshots', dock: true },
@@ -677,7 +709,13 @@ const APPS = [
   { id: 'settings', n: '15', name: 'System Settings', what: 'arise.toml, updates, power' },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
+const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about'];
+const isMember = () => S.role === 'member';
+const visibleApps = () => isMember() ? APPS.filter(a => MEMBER_APPS.includes(a.id)) : APPS;
 const appOf = id => APPS.find(a => a.id === id);
+// Shortcut labels: a Windows keyboard on the closet monitor has no ⌘. Ctrl does the same job in every handler.
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
+const kbd = h => !h || IS_MAC ? h : h.replace('⌃⌘', 'Ctrl+Alt+').replace('⇧⌘', 'Ctrl+Shift+').replace('⌘', 'Ctrl+').replace('⌃', 'Ctrl+');
 const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span>`;
 
 V.about = async () => {
@@ -696,11 +734,12 @@ function tabs(sel) {
 let cascade = 0;
 function openApp(id, focusOnly) {
   const a = appOf(id); if (!a) return;
+  if (isMember() && !MEMBER_APPS.includes(id)) { toast('That app is for the administrator', 'warn'); return; }
   closeOverlays();
   let w = S.wins[id];
   if (w) { w.min = false; w.el.classList.remove('min'); focusWin(id); if (!focusOnly) rerender(id); return; }
   const el = document.createElement('section'); el.className = 'win' + (a.flush ? ' win--term' : ''); el.dataset.app = id;
-  el.innerHTML = `<div class="win__bar"><div class="win__dots"><button class="x" title="Close ⌘W" aria-label="Close"></button><button class="m" title="Minimise ⌘M" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
+  el.innerHTML = `<div class="win__bar"><div class="win__dots"><button class="x" title="Close ${kbd('⌘W')}" aria-label="Close"></button><button class="m" title="Minimise ${kbd('⌘M')}" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
   const stage = $('#stage');
   if (!isPhone()) { const n = cascade++ % 6; const W = Math.min(a.w || 980, stage.clientWidth - 36), H = Math.min(a.h || 680, stage.clientHeight - 110); el.style.width = W + 'px'; el.style.height = H + 'px'; el.style.left = Math.max(20, Math.min(stage.clientWidth - W - 20, 330 + n * 28)) + 'px'; el.style.top = (20 + n * 24) + 'px'; }
   stage.appendChild(el);
@@ -755,7 +794,7 @@ function menuItems(id) {
   const a = id ? appOf(id) : null;
   const win = [['Minimise', () => id && minApp(id), '⌘M'], ['Zoom', () => id && $('.z', S.wins[id].el).click()], ['Close Window', () => id && closeApp(id), '⌘W'], null, ['Mission Control', () => missionControl(true), 'F3'], ['Launchpad', () => toggleLaunchpad(true)], null, { h: 'Open' }, ...Object.keys(S.wins).map(k => [appOf(k).name + (S.wins[k].min ? ' (minimised)' : ''), () => openApp(k, true)])];
   const help = [['Dashboard guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DASHBOARD.md')], ['Remote access guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/REMOTE-ACCESS.md')], ['Install guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md')], null, ['About This Server', () => openApp('about')]];
-  const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }, '⌘I'], null, ['Close Window', () => closeApp('files'), '⌘W']],
+  const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Share Link…', () => { const el = $('#fMain .sel'); if (el) shareLink(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }], ['Shared Links…', () => linksModal()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }, '⌘I'], null, ['Close Window', () => closeApp('files'), '⌘W']],
     backups: [['Run all jobs now', () => act($('#next') || document.body, () => api('/backups/run/automator', { method: 'POST' }), 'Started the automator job')], ['Refresh GitHub mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
@@ -763,7 +802,8 @@ function menuItems(id) {
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'Arise Server', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
 }
-const FLAME_MENU = () => [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
+const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['Change Password…', () => changePassword()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()]]
+  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
@@ -773,7 +813,7 @@ function openMenu(btn, items) {
   const d = $('#menuDrop');
   if (menuOpen === btn) { closeMenu(); return; }
   closeMenu(); menuOpen = btn; btn.classList.add('open');
-  d.innerHTML = items.map(it => it === null ? '<hr>' : it.h ? `<div class="h">${esc(it.h)}</div>` : `<button>${esc(it[0])}${it[2] ? `<kbd>${esc(it[2])}</kbd>` : ''}</button>`).join('');
+  d.innerHTML = items.map(it => it === null ? '<hr>' : it.h ? `<div class="h">${esc(it.h)}</div>` : `<button>${esc(it[0])}${it[2] ? `<kbd>${esc(kbd(it[2]))}</kbd>` : ''}</button>`).join('');
   const fns = items.filter(it => Array.isArray(it)); $$('button', d).forEach((b, i) => b.onclick = () => { closeMenu(); fns[i][1](); });
   const r = btn.getBoundingClientRect(); d.style.left = Math.min(r.left, innerWidth - 240) + 'px'; d.style.top = r.bottom + 'px'; d.hidden = false;
 }
@@ -806,14 +846,15 @@ function switcher(step) {
 }
 
 /* Spotlight */
-const ACTIONS = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about']];
+const ACTIONS_ALL = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about']];
+const actions = () => isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL;
 function spotResults(q, remote) {
   q = q.trim(); const ql = q.toLowerCase(); let out = ''; const row = (icon, label, small, data) => `<button data-s='${esc(JSON.stringify(data))}'><span class="dock__icon">${icon}</span>${esc(label)}${small ? `<small>${esc(small)}</small>` : ''}</button>`;
   const bible = q.match(/^([1-3]?\s?[a-z]{2,20})\s?(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/i);
   if (bible) out += `<div class="h">Bible</div>` + row(I.bible, `Read ${q}`, 'Bible', { bible: q });
-  const apps = APPS.filter(a => !a.hidden && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
+  const apps = visibleApps().filter(a => !a.hidden && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
   if (apps.length) out += `<div class="h">Apps</div>` + apps.slice(0, ql ? 6 : 8).map(a => row(I[a.id], a.name, a.what, { app: a.id })).join('');
-  const acts = ACTIONS.filter(a => ql && a[0].toLowerCase().includes(ql)); if (acts.length) out += `<div class="h">Actions</div>` + acts.map((a, i) => row(I[a[2]], a[0], 'Action', { act: ACTIONS.indexOf(a) })).join('');
+  const acts = actions().filter(a => ql && a[0].toLowerCase().includes(ql)); if (acts.length) out += `<div class="h">Actions</div>` + acts.map((a, i) => row(I[a[2]], a[0], 'Action', { act: actions().indexOf(a) })).join('');
   if (remote) {
     if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
     if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
@@ -826,11 +867,22 @@ function spotGo(data) {
   toggleSpot(false);
   if (data.app) openApp(data.app);
   else if (data.bible) { S.bible = { ref: data.bible, tr: S.bible?.tr || 'web' }; openApp('bible'); }
-  else if (data.act != null) ACTIONS[data.act][1]();
+  else if (data.act != null) actions()[data.act][1]();
   else if (data.file) { const f = data.file; const dir = f.dir ? f.path : f.path.replace(/\/[^/]*$/, '') || '/'; S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: f.root, path: dir, sel: f.dir ? null : f.name, q: '' }); openApp('files'); }
 }
 
 /* Notification Center widgets */
+async function buildMemberWidgets() {
+  const w = $('#widgets'); const roots = S.me?.roots || []; let links = [];
+  try { links = (await api('/links')).links || []; } catch {}
+  const live = links.filter(l => !l.expired);
+  w.innerHTML = `<div class="widget widget--clear"><div class="widget__kicker">Signed in</div><div class="widget__title" style="font-size:18px">${esc(S.user)}</div><div class="widget__sub">${(S.me?.groups || []).join(' · ') || 'member'}</div></div>
+    <div class="widget"><div class="widget__kicker">Your places</div><div class="widget__rows">${roots.map(r => `<button class="widget__row" data-root="${esc(r.id)}"><span>${esc(r.name)}</span><b>${r.home ? 'your home folder' : r.writable === false ? 'read only' : 'share'}</b></button>`).join('')}</div></div>
+    <div class="widget"><div class="widget__kicker">Shared links</div><div class="widget__rows"><div class="widget__row"><span>Live</span><b>${live.length}</b></div><div class="widget__row"><span>Downloads</span><b>${links.reduce((a, l) => a + (l.downloads || 0), 0)}</b></div></div><button class="btn btn--ghost btn--xs" data-act="links" style="margin-top:8px">Manage</button></div>
+    <div class="widget"><div class="widget__kicker">This week</div><div class="widget__rows"><div class="widget__row"><span>Sunday · Pineville</span><b>10:30 AM</b></div><div class="widget__row"><span>Sunday · Alexandria</span><b>10:00 AM</b></div><div class="widget__row"><span>Glory Night · Monday</span><b>7:00 PM</b></div></div></div>`;
+  $$('[data-root]', w).forEach(b => b.onclick = () => { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: b.dataset.root, path: '/', sel: null }); openApp('files'); if (S.wins.files) rerender('files'); });
+  $$('[data-act="links"]', w).forEach(b => b.onclick = () => linksModal());
+}
 async function buildNC() {
   const body = $('#ncBody'); body.innerHTML = $('#widgets').innerHTML + '<div class="widget" id="ncCal"></div><div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
   $$('[data-open]', body).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); });
@@ -845,13 +897,21 @@ async function buildNC() {
 /* Control Center */
 function buildCC() {
   const o = S.overview || {}; const r = S.remoteCache || {};
+  if (isMember()) {
+    $('#cc').innerHTML = `<button class="wide" data-open="files"><b>My files</b><span>${(S.me?.roots || []).map(x => esc(x.name)).join(' · ')}</span></button>
+    <button data-act="links"><b>Shared links</b><span>what you have shared</span></button><button data-act="pw"><b>Change password</b><span>your directory password</span></button>
+    <button data-act="mc"><b>Mission Control</b><span>all windows</span></button><button data-act="lock"><b>Lock screen</b><span>${kbd('⌃⌘Q')}</span></button>`;
+    $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
+    $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); ({ links: linksModal, pw: changePassword, mc: () => missionControl(true), lock: lockScreen })[b.dataset.act](); });
+    return;
+  }
   const vpnOn = r.tailscale?.up || r.wireguard?.up;
   $('#cc').innerHTML = `<button class="${vpnOn ? 'ok' : 'bad'}" data-open="remote"><b>VPN</b><span>${vpnOn ? (r.tailscale?.up ? 'Tailscale connected' : 'WireGuard up') : 'not connected'}</span></button>
     <button class="${o.backup?.failed_recent ? 'bad' : 'ok'}" data-open="backups"><b>Backups</b><span>${o.backup?.last ? (o.backup.last.ok ? 'last ok · ' : 'FAILED · ') + ago(o.backup.last.started) : 'none yet'}</span></button>
     <button data-act="backup"><b>Back up now</b><span>every job, then prune</span></button>
     <button data-act="preview"><b>Preview tonight</b><span>automator dry run</span></button>
     <button data-act="mc"><b>Mission Control</b><span>all windows</span></button>
-    <button data-act="lock"><b>Lock screen</b><span>⌃⌘Q</span></button>
+    <button data-act="lock"><b>Lock screen</b><span>${kbd('⌃⌘Q')}</span></button>
     <button class="wide" data-open="settings"><b>System Settings</b><span>updates · power · note</span></button>`;
   $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
   $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); ({ backup: runAllBackups, preview: () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), mc: () => missionControl(true), lock: lockScreen })[b.dataset.act](); });
@@ -862,7 +922,7 @@ function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the serve
 /* ---------------- dock + launchpad + desktop icons ---------------- */
 function buildDock() {
   const d = $('#dock');
-  d.innerHTML = APPS.filter(a => a.dock).map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
+  d.innerHTML = visibleApps().filter(a => a.dock).map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
     `<span class="dock__sep"></span><button class="dock__i" id="dockLp" aria-label="Launchpad"><span class="dock__icon">${I.apps}</span><span class="lbl">Launchpad</span></button>`;
   $$('[data-app]', d).forEach(b => b.onclick = () => { const id = b.dataset.app; const w = S.wins[id]; if (w && !w.min && w.el.classList.contains('focus') && !isPhone()) minApp(id); else openApp(id, true); });
   $('#dockLp').onclick = () => toggleLaunchpad();
@@ -870,7 +930,7 @@ function buildDock() {
   const items = $$('.dock__i', d);
   d.addEventListener('mousemove', e => { if (isPhone() || matchMedia('(prefers-reduced-motion: reduce)').matches) return; items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
   d.addEventListener('mouseleave', () => items.forEach(it => it.style.transform = ''));
-  const lp = $('#lpGrid'); lp.innerHTML = APPS.filter(a => !a.hidden).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(a.what)}</span></button>`).join('');
+  const lp = $('#lpGrid'); lp.innerHTML = visibleApps().filter(a => !a.hidden).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></button>`).join('');
   $$('[data-lp]', lp).forEach(b => b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); });
   $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); };
   $('#launchpad').onclick = e => { if (e.target.id === 'launchpad') toggleLaunchpad(false); };
@@ -886,6 +946,7 @@ async function buildIcons() {
 
 /* ---------------- desktop widgets ---------------- */
 async function buildWidgets() {
+  if (isMember()) return buildMemberWidgets();
   let o; try { o = await api('/overview'); } catch (e) { if (e.status === 401) return showLogin(e); o = null; }
   S.overview = o;
   const w = $('#widgets'); if (!o) { w.innerHTML = ''; return; }
@@ -928,7 +989,7 @@ function showLogin(err) {
   document.body.innerHTML = `<div class="login"><div class="login__box">
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>Arise Server</h1>
     ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>` : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
-    <form id="lf" class="lock__form"><input id="lu" value="bradly" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
+    <form id="lf" class="lock__form"><input id="lu" value="${esc((() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })())}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
     <div class="lock__hint">arise-server · AD.ARISECENLA.CHURCH</div></div></div>`;
   const f = $('#lf'); if (f) { $('#lp').focus(); f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy'); try { await api('/auth/login', { method: 'POST', body: { user: $('#lu').value, password: $('#lp').value } }); location.reload(); } catch (er) { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = er.message; } finally { b.classList.remove('busy'); } }; }
 }
@@ -949,7 +1010,7 @@ document.addEventListener('keydown', e => {
   else if (cmd && e.key === 'r' && id) { e.preventDefault(); rerender(id); }
   else if (cmd && e.key === 'i' && id === 'files') { e.preventDefault(); const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }
   else if (cmd && e.shiftKey && e.key.toLowerCase() === 'n' && id === 'files') { e.preventDefault(); $('#fNew')?.click(); }
-  else if (cmd && e.ctrlKey && e.key === 'q') { lockScreen(); }
+  else if (cmd && (e.ctrlKey || e.altKey) && e.key === 'q') { lockScreen(); }
 });
 $('#spotQ').addEventListener('input', () => { const q = $('#spotQ').value; $('#spotRes').innerHTML = spotResults(q); clearTimeout(S.spT); if (q.trim().length >= 2) S.spT = setTimeout(async () => { try { const r = await api(`/search?q=${encodeURIComponent(q.trim())}`); if ($('#spotQ').value === q) $('#spotRes').innerHTML = spotResults(q, r); bindSpot(); } catch {} }, 250); bindSpot(); });
 function bindSpot() { const bs = $$('#spotRes button'); bs.forEach((b, i) => { b.onclick = () => spotGo(JSON.parse(b.dataset.s)); }); if (bs[0]) bs[0].classList.add('on'); }
@@ -975,11 +1036,13 @@ async function boot() {
   try {
     const me = await api('/auth/me');
     if (me.error) { if (me.error.setup) return showLogin({ setup: true }); return showLogin(me.error); }
-    S.authed = true; S.user = me.user || 'bradly';
+    S.authed = true; S.user = me.user || 'bradly'; S.role = me.role || 'admin'; S.me = me;
+    try { if (!me.demo) localStorage.setItem('arise.user', S.user); } catch {}
+    if (isMember()) { document.body.classList.add('member'); buildDock(); setAppMenus(null); }
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
   } catch (e) { if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
-  startStats();
-  await Promise.all([buildWidgets(), buildIcons()]);
+  if (!isMember()) startStats();
+  await Promise.all([buildWidgets(), isMember() ? Promise.resolve() : buildIcons()]);
   setInterval(buildWidgets, 60000);
   const first = (location.hash || '').replace('#', '').split('/')[0];
   if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('files');

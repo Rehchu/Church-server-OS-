@@ -35,6 +35,31 @@ def _parse(text: str) -> dict:
     return sections
 
 
+def _names(v: str) -> list[str]:
+    """'@"Media", @Staff, bradly' -> ['@Media', '@Staff', 'bradly']"""
+    out = []
+    for tok in re.split(r"[,\s]+", v or ""):
+        tok = tok.strip().strip('"')
+        if tok:
+            out.append(("@" + tok.lstrip("@+&").strip('"')) if tok[0] in "@+&" else tok)
+    return out
+
+
+def can_use(share: dict, user: str, groups: list[str]) -> bool:
+    """Does this user reach this share? Empty valid users = everyone in the domain."""
+    vu = share.get("valid_users") or []
+    if not vu:
+        return True
+    gs = {g.lower() for g in groups}
+    for v in vu:
+        if v.startswith("@"):
+            if v[1:].lower() in gs or v[1:].lower() == "domain users":
+                return True
+        elif v.lower() == user.lower():
+            return True
+    return False
+
+
 def list_shares() -> dict:
     if not available():
         return {"demo": True, "shares": demo.SHARES}
@@ -52,6 +77,8 @@ def list_shares() -> dict:
             "browseable": yes("browseable", "yes"),
             "used": dir_size(path) if path and os.path.isdir(path) else None,
             "mac": "fruit" in opts.get("vfs objects", ""),
+            "valid_users": _names(opts.get("valid users", "")),
+            "write_list": _names(opts.get("write list", "")),
         })
     return {"demo": False, "shares": shares}
 

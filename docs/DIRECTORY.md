@@ -15,6 +15,67 @@ AD. One account per person, one password, every device.
 | **Group Policy (GPO)** | Rules pushed to Windows PCs (wallpaper, drive maps, password rules). Macs ignore GPO; they get settings from the bind options instead. |
 | **Home shares** | Each user has `\\arise-server\homes\<user>` (or the same folder on the Synology once it is joined). |
 
+## Active Directory, and what makes this one better
+
+First the honest part. This **is** Active Directory: Samba 4 implements the
+same Kerberos, LDAP, DNS and SMB that a Windows Server domain controller
+does. A Mac binds to it with Apple's own Directory Utility. A Windows 10 or 11
+Pro PC joins it from the System dialog. The Synology joins it as an AD member.
+Group Policy objects can be stored and applied to Windows PCs. One account,
+one password, every device, and when someone leaves one click disables them
+everywhere.
+
+What a Windows Server domain does not give a church of this size, and this
+does:
+
+| | Windows Server AD | Arise Server |
+|---|---|---|
+| Where people see their files when they are not at church | nowhere without extra products | the **dashboard**: any member signs in from anywhere, browses their own home and the shares they belong to, uploads, downloads, shares a file with a link, changes their password |
+| Creating a person | Active Directory Users and Computers on a Windows PC | three ways: the Directory app in the dashboard, the same desktop on the closet monitor, `arisectl user add` over SSH |
+| Reaching it from Alexandria or the Hub | a site-to-site VPN appliance | Tailscale (or WireGuard) built in; the server is the same name from every campus |
+| Backups of the domain itself | a separate backup product | restic nightly at 03:00, plus a weekly `samba-tool domain backup offline` |
+| Where the Macs' work ends up | nowhere unless you buy into folder redirection scripts | the server home share at login and a fifteen-minute sync (docs/MAC-MIGRATION.md) |
+| Which computer sits at which campus | not a concept | the Campuses app |
+| Cost | a Windows Server licence plus CALs per person | the old OptiPlex |
+
+What it does **not** do, so nobody expects it later: no Microsoft Entra ID
+(Azure AD) sync, no Microsoft 365 accounts, no Intune or any other MDM (device
+management, pushing settings and apps to Macs). If the church ever wants MDM,
+the free option to look at is a self-hosted **MicroMDM** or **NanoMDM**; both
+are an idea only, nothing here depends on them. Group Policy editing still
+needs the RSAT tools on one Windows PC. See the full list at the end of this
+document.
+
+## Creating people, three ways
+
+All three end in the same `samba-tool user create` and the same home folder;
+pick whichever is in front of you.
+
+**1. The dashboard, from anywhere** (`http://arise-server:4147`, or over the
+VPN): Directory → Users → **Add**. Username (short, lower case, letters and
+digits: `jsmith`), full name, a first password, groups. The row shows green
+when the home folder exists. Members can then change their own password under
+flame menu → Change Password.
+
+**2. The desktop on the closet monitor**: it is the same dashboard, full
+screen, so it is the same Directory app. Spotlight (⌘Space, or Ctrl+Space on
+the Windows keyboard) → type `directory` → Enter → Users → Add.
+
+**3. SSH, from any Mac or PC**:
+
+```bash
+ssh bradly@arise-server
+sudo arisectl user add jsmith --display "Jane Smith" --groups Staff,Media
+#   prompts for the first password; add --password P to give it on the line
+sudo arisectl user passwd jsmith          # change it later
+sudo arisectl group addmember Leadership jsmith
+sudo arisectl user list
+```
+
+A Mac with people already on it does not need any of this: `mac/enroll-mac.sh`
+creates every local account's twin in the directory for you
+(docs/MAC-MIGRATION.md, "The automatic way").
+
 ## The names, and why not `.local`
 
 | | |
@@ -131,10 +192,10 @@ See the current policy any time with `samba-tool domain passwordsettings show`.
 **From the CLI**, on the server (or over SSH):
 
 ```bash
-arisectl user add jsmith --given "Jane" --surname "Smith" --groups Staff,Media
-arisectl user passwd jsmith            # prompts twice, sets "must change at next login"
-arisectl group addmember Leadership jsmith
-arisectl user list
+sudo arisectl user add jsmith --display "Jane Smith" --groups Staff,Media
+sudo arisectl user passwd jsmith       # prompts; the person can also change it in the dashboard
+sudo arisectl group addmember Leadership jsmith
+sudo arisectl user list
 ```
 
 Under the hood that is `samba-tool user create`, `samba-tool group addmembers`

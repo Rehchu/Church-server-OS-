@@ -5,6 +5,9 @@ and the home folder is never removed by this module.
 """
 from __future__ import annotations
 
+import os
+import subprocess
+
 import re
 
 from . import demo
@@ -210,3 +213,48 @@ def list_computers() -> dict:
                 d["last_seen"] = v
         out.append(d)
     return {"demo": False, "computers": out}
+
+
+def user_groups(name: str) -> list[str]:
+    """Group names the user belongs to (direct and nested)."""
+    if not _ok_name(name):
+        return []
+    if not available():
+        u = next((x for x in demo.USERS if x["name"] == name), None)
+        return list(u["groups"]) if u else []
+    r = run(["samba-tool", "user", "getgroups", name], timeout=20)
+    if not r["ok"]:
+        return []
+    return [g.strip() for g in r["out"].splitlines() if g.strip()]
+
+
+def authenticate(name: str, password: str) -> bool:
+    """Is this the directory password for this user? A Kerberos login against the
+    local KDC, which is the same check a Mac or PC makes at its login window.
+    No LDAP library, no bind account: kinit is on every domain controller."""
+    if not _ok_name(name) or not password:
+        return False
+    if not available():
+        # sample mode: any listed, enabled user with any password
+        u = next((x for x in demo.USERS if x["name"] == name), None)
+        return bool(u and u["enabled"])
+    realm = load().directory.realm.upper()
+    if which("kinit"):
+        env = dict(os.environ, KRB5CCNAME="MEMORY:arise-login")
+        try:
+            p = subprocess.run(["kinit", f"{name}@{realm}"], input=password + "\n", capture_output=True, text=True, timeout=15, env=env)
+            return p.returncode == 0
+        except (subprocess.TimeoutExpired, OSError):
+            return False
+    if which("smbclient"):  # fallback: an SMB session against ourselves
+        r = run(["smbclient", "-L", "127.0.0.1", "-U", f"{name}%{password}"], timeout=15)
+        return r["ok"]
+    return False
+
+
+def is_admin(name: str) -> bool:
+    cfg = load()
+    if name == cfg.web.admin_user:
+        return True
+    admins = cfg.web.get("admins_group", "Domain Admins")
+    return admins in user_groups(name)

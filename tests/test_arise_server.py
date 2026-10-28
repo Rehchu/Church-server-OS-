@@ -200,3 +200,63 @@ class V02(unittest.TestCase):
         self.assertEqual(sermons._kind("GLORY NIGHT | Oct 20", "1:30:00"), "Glory Night")
         self.assertEqual(sermons._kind("Declare it", "0:48"), "Short")
         self.assertEqual(sermons._kind("THE GOD KIND OF FAITH", "1:55:18"), "Sunday Service")
+
+
+class V04(unittest.TestCase):
+    """Per-user logins, scoped files, share links."""
+
+    def test_member_paths_are_the_portal_only(self):
+        from arise_server import auth
+        for p in ("/api/files/list", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/me/password", "/api/auth/me"):
+            self.assertTrue(auth.member_ok(p, "member"), p)
+        for p in ("/api/overview", "/api/directory/users", "/api/services", "/api/terminal", "/api/settings", "/api/system/power", "/api/backups/run/x"):
+            self.assertFalse(auth.member_ok(p, "member"), p)
+            self.assertTrue(auth.member_ok(p, "admin"), p)
+
+    def test_share_valid_users_parse_and_match(self):
+        self.assertEqual(shares._names('@"Media", @Staff, bradly'), ["@Media", "@Staff", "bradly"])
+        self.assertTrue(shares.can_use({"valid_users": ["@Media"]}, "office", ["Media", "Staff"]))
+        self.assertFalse(shares.can_use({"valid_users": ["@Media"]}, "office", ["Staff"]))
+        self.assertTrue(shares.can_use({"valid_users": []}, "anyone", []))
+        self.assertTrue(shares.can_use({"valid_users": ["office"]}, "Office", []))
+
+    def test_admin_and_member_roots(self):
+        from arise_server import files
+        admin = [r["id"] for r in files.roots({"user": "bradly", "role": "admin"})]
+        self.assertEqual(admin[0], "data")
+        member = files.roots({"user": "office", "role": "member"})
+        ids = [r["id"] for r in member]
+        self.assertEqual(ids[0], "home")
+        self.assertIn("share:media", ids)
+        self.assertNotIn("data", ids)
+        self.assertNotIn("share:sysvol", ids)
+        media = next(r for r in member if r["id"] == "share:media")
+        self.assertFalse(media["writable"])  # write list is Media only; office is Staff
+
+    def test_member_cannot_reach_another_root(self):
+        from arise_server import files
+        who = {"user": "office", "role": "member"}
+        self.assertEqual(files.listing("data", "/", who).get("error"), "unknown root")
+        self.assertEqual(files.make_folder("share:media", "/", "x", who)["ok"], False)
+
+    def test_share_links_create_list_revoke(self):
+        from arise_server import links
+        me = {"user": "office", "role": "member"}; other = {"user": "media-mac", "role": "member"}; admin = {"user": "bradly", "role": "admin"}
+        r = links.create("home", "/Documents/x.pdf", me, days=99)
+        self.assertTrue(r["ok"]); tok = r["token"]
+        self.assertEqual(r["link"]["user"], "office")
+        self.assertLess(r["link"]["expires"], links._iso(31 * 86400))  # clamped to max_days
+        self.assertFalse(links.create("data", "/", me)["ok"])  # not a member root
+        self.assertIn(tok, [l["token"] for l in links.mine(me)["links"]])
+        self.assertNotIn(tok, [l["token"] for l in links.mine(other)["links"]])
+        self.assertIn(tok, [l["token"] for l in links.mine(admin)["links"]])
+        self.assertFalse(links.revoke(tok, other)["ok"])
+        self.assertTrue(links.revoke(tok, me)["ok"])
+        self.assertIsNone(links.resolve(tok))
+
+    def test_directory_sample_auth_and_roles(self):
+        self.assertTrue(directory.authenticate("office", "anything"))
+        self.assertFalse(directory.authenticate("guest-speaker", "anything"))  # disabled
+        self.assertFalse(directory.authenticate("office", ""))
+        self.assertTrue(directory.is_admin("bradly"))
+        self.assertFalse(directory.is_admin("office"))

@@ -26,6 +26,11 @@ sudo systemctl status arise-kiosk                       # is it up
 sudo systemctl disable --now arise-kiosk; sudo systemctl start getty@tty1   # back to a text login
 ```
 
+The keyboard on the closet monitor is a Windows one. The desktop knows: every
+shortcut takes **Ctrl** where a Mac takes ⌘ (Ctrl+Space Spotlight, Ctrl+W
+close, Ctrl+Alt+Q lock), the menus print those labels, and the Windows key
+also works where the browser reports it as ⌘.
+
 **Alt+F2** is a normal text login at any time; **Alt+F1** goes back to the
 desktop. `--kiosk` and `--console` conflict on tty1 (both units declare it);
 the installer enables whichever was asked for last, and `arisetui` still works

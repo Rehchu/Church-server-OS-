@@ -30,6 +30,9 @@ DEFAULTS = {
         "admin_user": "bradly",
         "admin_password_hash": "",
         "session_hours": 12,
+        "member_login": True,            # any directory user may sign in (members see their own files)
+        "admins_group": "Domain Admins", # members of this group get the admin desktop
+        "public_url": "",                # e.g. https://arise.arisecenla.church - used in share links; empty = the request's host
         "secret_file": _root("/etc/arise/secrets/web-secret", r"C:\Arise\config\secrets\web-secret"),
     },
     "directory": {
@@ -74,6 +77,7 @@ DEFAULTS = {
             "Rehchu/projectbackups", "Rehchu/ai-chat-backups",
         ],
     },
+    "links": {"days": 7, "max_days": 30, "max_zip_bytes": 2 * 1024 ** 3},
     "paths": {
         "state_dir": _root("/var/lib/arise", r"C:\Arise\state"),
         "log_dir": _root("/var/log/arise", r"C:\Arise\logs"),

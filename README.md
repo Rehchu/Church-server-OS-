@@ -23,7 +23,7 @@ Plain Python 3.11+ and plain HTML/CSS/JS. No Node build step. The whole thing ru
 
 ## Status
 
-**v0.3.0 "Pineville" — built, not yet installed on the church PC.** The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
+**v0.4.0 "Pineville" — built, not yet installed on the church PC.** Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
 
 What has **not** been run against a real Samba domain, a real Synology, a real restic repository, a real Tailscale or WireGuard tunnel or a real Guacamole: every call is written against the tools' documented interfaces, and `arisectl doctor` is there to find the first thing that disagrees.
 
@@ -107,7 +107,7 @@ Full guide: [INSTALL.md](INSTALL.md).
 
 ## The three surfaces
 
-**The dashboard** — `arise-web.service`, port 4147. A macOS-style desktop themed for Arise: a Finder, a menu bar with real menus, windows, a floating dock, Spotlight, Mission Control, ⌘Tab, a widgets panel, Control Center, a lock screen. With `install.sh --kiosk` it is also what the closet monitor shows. Apps: Finder · Overview · Directory · Backups · Automator · Sermons · Bible · Apps · Remote · Campuses · Terminal · Synology · Services · Logs · System Settings. One admin login (bcrypt hash in `arise.toml`). Every destructive action asks for the name typed. Secrets never reach the browser.
+**The dashboard** — `arise-web.service`, port 4147. A macOS-style desktop themed for Arise: a Finder, a menu bar with real menus, windows, a floating dock, Spotlight, Mission Control, ⌘Tab, a widgets panel, Control Center, a lock screen. With `install.sh --kiosk` it is also what the closet monitor shows. **Everyone in the directory signs in** with their domain password: members get their own files, the shares their groups allow, upload/download, share links, Sermons, Bible and Change Password from anywhere; the administrator gets everything. Apps: Finder · Overview · Directory · Backups · Automator · Sermons · Bible · Apps · Remote · Campuses · Terminal · Synology · Services · Logs · System Settings. One admin login (bcrypt hash in `arise.toml`). Every destructive action asks for the name typed. Secrets never reach the browser.
 
 **`arisectl`** — the same Python modules from the terminal:
 
@@ -229,6 +229,8 @@ Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-
 ---
 
 ## Docs
+
+**Start here:** [SETUP-GUIDE](docs/SETUP-GUIDE.md) · [QUESTIONS](docs/QUESTIONS.md) · [NETWORK](docs/NETWORK.md) · [MOVING-DAY](docs/MOVING-DAY.md) · [IDEAS](docs/IDEAS.md)
 
 [INSTALL.md](INSTALL.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [DIRECTORY](docs/DIRECTORY.md) · [MAC-MIGRATION](docs/MAC-MIGRATION.md) · [SYNOLOGY](docs/SYNOLOGY.md) · [BACKUPS](docs/BACKUPS.md) · [AUTOMATOR](docs/AUTOMATOR.md) · [HARDWARE](docs/HARDWARE.md) · [DASHBOARD](docs/DASHBOARD.md) · [CONSOLE](docs/CONSOLE.md) · [CLI](docs/CLI.md) · [REMOTE-ACCESS](docs/REMOTE-ACCESS.md) · [MULTI-SITE](docs/MULTI-SITE.md) · [templates](templates/README.md) · [mac checklist](mac/CHECKLIST.md)
 

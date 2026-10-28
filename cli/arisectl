@@ -6,7 +6,7 @@
     arisectl admin set-password         set the dashboard password
 
     arisectl service list|status|start|stop|restart <unit>
-    arisectl user list|add|remove|passwd|enable|disable|homefix <name>
+    arisectl user list|add|remove|passwd|enable|disable|homefix <name>   (add: --display, --password, --groups)
     arisectl group list|add <group>|addmember <group> <user>|removemember <group> <user>
     arisectl computer list|remove <name>
     arisectl share list|add <name> <path> [--group G] [--comment C]|remove <name>
@@ -16,6 +16,7 @@
     arisectl nas status|mount|unmount
     arisectl mirror run
     arisectl sites
+    arisectl link list|revoke <token>|sweep
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
@@ -424,6 +425,23 @@ def cmd_nas(a):
         need_root(); show(nas.unmount())
 
 
+def cmd_link(a):
+    from arise_server import links
+    who = {"user": "arisectl", "role": "admin"}
+    if a.sub == "list":
+        rows = links.mine(who)["links"]
+        if not rows:
+            print("no share links"); return
+        for l in rows:
+            print(f"{l['token']:14} {'expired' if l['expired'] else 'until ' + l['expires']:24} {l['user']:12} {l['downloads']:>3}x  {l['name']}  ({l['root']}{l['path']})")
+    elif a.sub == "revoke":
+        show(links.revoke(a.token, who))
+    elif a.sub == "sweep":
+        print(f"removed {links.sweep()} expired links")
+    else:
+        sys.exit("arisectl link list|revoke <token>|sweep")
+
+
 def cmd_sites(a):
     from arise_server import directory, sites
     r = sites.status(directory.list_computers()["computers"])
@@ -517,6 +535,7 @@ def build():
     p = sp.add_parser("nas"); p.add_argument("sub", choices=["status", "mount", "unmount"]); p.set_defaults(f=cmd_nas)
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
+    p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)

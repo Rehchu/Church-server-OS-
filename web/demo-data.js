@@ -2,7 +2,7 @@
 window.ARISE_DEMO_DATA = {
 "GET /overview": {
 "demo": true,
-"version": "0.3.0",
+"version": "0.4.0",
 "codename": "Pineville",
 "profile": "server",
 "hostname": "arise-server",
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:51:54",
+"last_run": "2026-10-28T02:08:33",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-13T23:51:54"
+"since": "2026-10-14T00:08:33"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T01:51:54",
+"last_logon": "2026-10-28T02:08:33",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T02:51:54",
+"last_logon": "2026-10-27T03:08:33",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T23:51:54",
+"last_logon": "2026-10-26T00:08:33",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T02:51:54",
+"last_logon": "2026-10-22T03:08:33",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -256,28 +256,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T01:51:54",
+"last_seen": "2026-10-28T02:08:33",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T02:51:54",
+"last_seen": "2026-10-27T03:08:33",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T02:51:54",
+"last_seen": "2026-10-26T03:08:33",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T02:47:54",
+"last_seen": "2026-10-28T03:04:33",
 "ip": "192.168.1.20"
 }
 ]
@@ -293,6 +293,10 @@ window.ARISE_DEMO_DATA = {
 "browseable": false,
 "used": 48700000000,
 "mac": true,
+"valid_users": [
+"%S"
+],
+"write_list": [],
 "used_h": "45.4 GB"
 },
 {
@@ -303,6 +307,8 @@ window.ARISE_DEMO_DATA = {
 "browseable": true,
 "used": 212000000000,
 "mac": true,
+"valid_users": [],
+"write_list": [],
 "used_h": "197.4 GB"
 },
 {
@@ -313,6 +319,13 @@ window.ARISE_DEMO_DATA = {
 "browseable": true,
 "used": 1380000000000,
 "mac": true,
+"valid_users": [
+"@Media",
+"@Staff"
+],
+"write_list": [
+"@Media"
+],
 "used_h": "1.3 TB"
 },
 {
@@ -323,6 +336,10 @@ window.ARISE_DEMO_DATA = {
 "browseable": false,
 "used": 2100000,
 "mac": false,
+"valid_users": [
+"@Domain Admins"
+],
+"write_list": [],
 "used_h": "2.0 MB"
 }
 ]
@@ -1570,7 +1587,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T02:51:54",
+"last_check": "2026-10-19T03:08:33",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1579,7 +1596,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:51:54",
+"last_run": "2026-10-28T02:08:33",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1691,17 +1708,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T21:51:54",
+"when": "2026-10-27T22:08:33",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T21:51:54",
+"when": "2026-10-27T22:08:33",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T21:51:54",
+"when": "2026-10-27T22:08:33",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1736,7 +1753,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T02:51:54",
+"updated": "2026-10-25T03:08:33",
 "mem_h": "36.2 MB"
 },
 {
@@ -1749,7 +1766,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T02:51:54",
+"updated": "2026-10-25T03:08:33",
 "mem_h": "135.4 MB"
 },
 {
@@ -1762,7 +1779,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T02:51:54",
+"updated": "2026-10-27T03:08:33",
 "mem_h": "0 B"
 }
 ],
@@ -1869,7 +1886,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T00:51:54",
+"last": "2026-10-27T01:08:33",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -1887,7 +1904,10 @@ window.ARISE_DEMO_DATA = {
 "bind": "0.0.0.0",
 "port": 4147,
 "admin_user": "bradly",
-"session_hours": 12
+"session_hours": 12,
+"member_login": true,
+"admins_group": "Domain Admins",
+"public_url": ""
 },
 "directory": {
 "enabled": true,
@@ -1937,6 +1957,11 @@ window.ARISE_DEMO_DATA = {
 "Rehchu/ai-chat-backups"
 ]
 },
+"links": {
+"days": 7,
+"max_days": 30,
+"max_zip_bytes": 2147483648
+},
 "paths": {
 "state_dir": "/var/lib/arise",
 "log_dir": "/var/log/arise",
@@ -1950,11 +1975,28 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /auth/me": {
 "user": "demo",
-"demo": true
+"role": "admin",
+"demo": true,
+"groups": [
+"Domain Admins"
+],
+"roots": [
+{
+"id": "data",
+"name": "Server",
+"path": "/srv/arise"
+},
+{
+"id": "nas",
+"name": "Synology",
+"path": "/mnt/synology"
+}
+],
+"links_days": 7
 },
 "GET /health": {
 "ok": true,
-"version": "0.3.0",
+"version": "0.4.0",
 "demo": true
 },
 "GET /sites": {
@@ -2027,7 +2069,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T02:51"
+"when": "2026-10-28T03:08"
 },
 {
 "user": "bradly",
@@ -2254,6 +2296,24 @@ window.ARISE_DEMO_DATA = {
 }
 ]
 },
+"GET /links": {
+"links": [
+{
+"root": "home",
+"path": "/Documents/Sunday setlist 2026-10-26.pdf",
+"name": "Sunday setlist 2026-10-26.pdf",
+"user": "bradly",
+"created": "2026-10-26T03:08",
+"expires": "2026-11-02T03:08",
+"note": "for the worship team",
+"downloads": 3,
+"dir": false,
+"token": "demo7x2k9q",
+"expired": false
+}
+],
+"demo": true
+},
 "GET /bible/translations": {
 "translations": [
 {
@@ -2286,7 +2346,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T02:51:54+00:00",
+"last_check": "2026-10-28T03:08:33+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -2635,6 +2695,50 @@ window.ARISE_DEMO_DATA = {
 }
 ]
 },
+"GET /files/list?root=data&path=/homes/office": {
+"demo": true,
+"root": "data",
+"path": "/homes/office",
+"entries": [
+{
+"name": "Desktop",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Documents",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/homes/office/Documents": {
+"demo": true,
+"root": "data",
+"path": "/homes/office/Documents",
+"entries": [
+{
+"name": "Bulletin 2026-11-01.docx",
+"dir": false,
+"size": 96000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Visitor cards October.xlsx",
+"dir": false,
+"size": 41000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Letters",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
 "GET /files/list?root=data&path=/shares": {
 "demo": true,
 "root": "data",
@@ -2668,6 +2772,62 @@ window.ARISE_DEMO_DATA = {
 "name": "graphics",
 "dir": true,
 "size": null,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/staff": {
+"demo": true,
+"root": "data",
+"path": "/shares/staff",
+"entries": [
+{
+"name": "Calendar 2026-27.pdf",
+"dir": false,
+"size": 310000,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Forms",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Phone list.xlsx",
+"dir": false,
+"size": 22000,
+"mtime": "2026-10-26T14:02"
+}
+]
+},
+"GET /files/list?root=data&path=/shares/media": {
+"demo": true,
+"root": "data",
+"path": "/shares/media",
+"entries": [
+{
+"name": "sermons",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "thumbnails",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "loops",
+"dir": true,
+"size": null,
+"mtime": "2026-10-26T14:02"
+},
+{
+"name": "Sunday 2026-10-26 program.mp4",
+"dir": false,
+"size": 6420000000,
 "mtime": "2026-10-26T14:02"
 }
 ]

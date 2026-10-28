@@ -11,6 +11,78 @@ Nothing in this document deletes a local account. The old account stays on the
 Mac until Bradly removes it himself, after the person has used the new one for
 a while.
 
+## The automatic way
+
+One command does both jobs for a Mac that already has people on it:
+
+```bash
+# on the Mac, as an admin, with everyone else logged out, Ethernet plugged in
+cd ~/Desktop/mac                      # the mac/ folder from the repo
+sudo ./enroll-mac.sh --computer-name MEDIA-MAC-01 --dry-run   # read the plan
+sudo ./enroll-mac.sh --computer-name MEDIA-MAC-01             # do it
+```
+
+`enroll-mac.sh` binds the Mac (it runs `bind-mac.sh`), lists the local
+accounts that are real people (uid 501 and up, a home under `/Users`, not
+`admin` or `guest`), creates each one in the directory with the same short
+name and their full name, copies each one's files into their server home
+(`migrate-mac-user.sh`), installs the two LaunchAgents, and ends with a
+report: what it did, the one-time passwords to hand over, and anything it left
+for a human. Run it twice and the second run skips everything already done.
+
+How it creates the users: over SSH by default, running
+`sudo arisectl user add <name> --display "<Full Name>" --password <one-time> --groups Staff`
+on the server. That needs `ssh bradly@arise-server` to work without a
+password from that Mac (`ssh-copy-id bradly@arise-server` once). The fallback
+is `--via api`: it logs into the dashboard as the admin and posts to
+`/api/directory/users`, which is the same call the Directory app makes.
+
+Flags worth knowing: `--only alice,bob` to enrol some people and not others,
+`--skip name` to leave an account alone, `--no-migrate` to bind and install the
+agents without copying anything (a new Mac, or one where you will migrate by
+hand later). The by-hand steps below are what the script runs, for when one of
+them needs doing alone.
+
+## What "files saved to their profile on the server" means on a Mac
+
+The short version: the person logs in on any church Mac with their church
+password, their Desktop and Documents live on the server, and whatever else
+they keep is copied to the server every fifteen minutes. In detail there are
+three pieces, and each one covers a gap in the others:
+
+| Piece | What it does | When it is the one that matters |
+|---|---|---|
+| **Mobile account** (the bind) | the directory account is cached on the Mac, with a local home under `/Users/<name>` | login works with the server off, on Wi‑Fi, at home |
+| **Server home share** (`mount-home.sh` at login) | mounts `smb://arise-server/homes/<name>` as `/Volumes/<name>`; Desktop and Documents become links into it | every save in those two folders is on the server the moment it happens, and in the 03:00 backup |
+| **Home sync** (`arise-home-sync.sh`, every 15 minutes) | rsyncs the folders in `/usr/local/arise/sync-folders.txt` to the share, newest wins, older server copies kept aside | a Mac that was never migrated (local accounts with the same names), extra folders like Downloads, and any time the share was not mounted at login |
+
+macOS used to have "portable home directories" that synced the whole home.
+Apple removed that years ago, and a true network home over SMB makes Photos,
+Mail and Safari misbehave, so this is the honest replacement: the two folders
+people actually work in live on the server, and a sync catches the rest.
+
+What stays on the Mac on purpose, and why:
+
+| Stays local | Why |
+|---|---|
+| Photos Library, iMovie / Final Cut libraries, Music library | sqlite databases inside a bundle; they corrupt over SMB and are tens of GB. They are **excluded** from the sync and copied once by the migration as a backup only |
+| Mail | IMAP; it re-downloads from Google on any Mac |
+| Keychain, Preferences, app containers | per-Mac and per-account; they do not travel well and hold secrets |
+| Big video projects | work on them locally; drop the finished export in Documents or the `media` share |
+
+Off-site (home, the Hub before it has a network, a laptop at a conference):
+the login works because the account is cached. Desktop and Documents are
+links to a share that is not there, so macOS shows them empty until the
+share is reachable; with Tailscale on the laptop it is reachable from
+anywhere and they fill back in. The sync agent checks for the server every
+fifteen minutes and simply waits when it cannot see it. The older-copy
+conflict folder lives in `~/Library/Application Support/Arise/conflicts/` on
+the Mac, never on the share.
+
+Check it is working on any Mac: `tail ~/Library/Logs/arise-home-sync.log`
+shows a `sync done` line with a file count. `/Volumes/<name>` in Finder is the
+server's copy.
+
 ## Before you start: the rules
 
 - **Ethernet during migration.** Plug the Mac into the church switch. Copying
@@ -140,8 +212,10 @@ is owned by the domain user), so the files are the person's when they log in.
 ### First domain login
 
 1. Log in as the domain user on the Mac (Ethernet still plugged in).
-2. The LaunchAgent mounts the share and links Desktop and Documents. Open
-   Finder: the Desktop shows the migrated files.
+2. The LaunchAgents mount the share, link Desktop and Documents, and start
+   the fifteen-minute sync. Open Finder: the Desktop shows the migrated files.
+   Have them change their one-time password: dashboard → flame menu → Change
+   password.
 3. Open Proclaim / StreamYard / whatever they use and check it finds its
    data. Sign into mail and Keychain-held services again.
 4. Fill in the row on `mac/CHECKLIST.md`. Leave the old local account in
@@ -157,3 +231,6 @@ is owned by the domain user), so the files are the person's when they log in.
 | Share mounts but files are read-only | home folder ownership | on the server: `arisectl user homefix <name>` |
 | `rsync` stops on a long filename or an `Icon\r` file | SMB name limits | the script skips `Icon\r`; for the rest, rename on the Mac and re-run |
 | Everything is slow | Wi‑Fi | Ethernet |
+| `arise-home-sync.log` says "could not mount" for a local account | no saved password for the share | open `smb://arise-server/homes/<name>` once in Finder as that person and tick "Remember this password in my keychain" |
+| `arise-home-sync.log` says "not reachable" away from church | no VPN on that Mac | install Tailscale on it (docs/REMOTE-ACCESS.md); the next run syncs |
+| A file on the server is older than the one on the Mac after a sync | it was open in an app during the run (rsync skipped it, code 23/24 in the log) | save and close; the next run copies it |

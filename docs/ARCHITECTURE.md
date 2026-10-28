@@ -269,6 +269,8 @@ and previewed anywhere, including the published preview page.
 | `GET /api/bible?ref=&translation=` | a passage from bible-api.com (public-domain texts), the Bible app |
 | `GET /api/sermons` | the channel from the automator's `channel_inventory.csv`, zero quota |
 | `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `GET /api/files/view?root=&path=` · `POST /api/files/upload` · `POST /api/files/mkdir` | the Finder, inside `/srv/arise` and the NAS mount; `view` is inline (Quick Look), `download` is an attachment; no delete, no move |
+| `GET /api/links` · `POST /api/links` {root,path,days,note} · `DELETE /api/links/{token}` · `GET /s/{token}` (no login) | share links: a time-limited public download of one file or a zipped folder |
+| `POST /api/me/password` {old,new} | a person changes their own directory password (Kerberos check of the old one first) |
 | `GET /api/search?q=` | Spotlight: file names on both roots (a bounded `os.walk` index, cached 120 s), users and computers from the directory |
 | `GET /api/system/updates` · `POST /api/system/update` · `POST /api/system/apt-upgrade` | apt and Arise Server updates |
 | `POST /api/system/power` `{action: reboot|poweroff, confirm}` | the closet has no power button you can reach |

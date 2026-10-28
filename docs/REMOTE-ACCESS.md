@@ -4,7 +4,14 @@ The PC goes in the closet, the door locks, and from then on every bit of
 work on it happens from somewhere else: your Mac at the media desk, your
 laptop at home, the iMac in Alexandria, the office PCs at the Apostolic Hub.
 This page is the whole story of how that works and what it costs in
-exposure. Nothing here opens the dashboard to the internet.
+exposure. Nothing here opens the dashboard to the internet; a public door for
+members is a separate decision, docs/SETUP-GUIDE.md § 9.
+
+Which VLAN may reach which port, how a whole site (Alexandria) joins
+through one route box, and what happens to all of this when the server moves
+to the Hub are in **docs/NETWORK.md** and **docs/MOVING-DAY.md**; the order to
+set it all up is **docs/SETUP-GUIDE.md**. Members (not just the admin) can
+sign in to the dashboard too; what they see is docs/SETUP-GUIDE.md § 6.
 
 Four doors, in the order you will use them:
 
@@ -84,7 +91,7 @@ On the server, once:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up --ssh --advertise-routes=192.168.1.0/24
+sudo tailscale up --ssh --advertise-routes=192.168.1.0/24   # the server's own LAN subnet; docs/NETWORK.md § The IP plan
 ```
 
 (`install.sh --with-tailscale` does the first line and prints the second,
@@ -182,7 +189,9 @@ Then you:
    `192.168.1.0/24` and `10.47.0.0/24` through. Add it as a peer with
    `AllowedIPs = 10.47.0.2/32, 192.168.2.0/24` on the server side so
    Pineville can reach Alexandria too. Then every Mac in Alexandria is "on
-   the network" without running anything.
+   the network" without running anything. The Tailscale version of the same
+   box is docs/NETWORK.md option B; after the server moves to the Hub,
+   Pineville needs one as well (docs/MOVING-DAY.md).
 
 **wg-easy** (the `wg-easy` template) is the same WireGuard with a web page
 for adding devices and QR codes for phones. Use it *instead of* native

@@ -29,6 +29,21 @@ port = 4147
 admin_user = "bradly"
 admin_password_hash = ""
 session_hours = 12
+# Everyone in the directory may sign in with their domain password. Members get
+# their own files, the shares their groups allow, share links, Sermons, Bible.
+member_login = true
+# Members of this group get the administrator's desktop as well.
+admins_group = "Domain Admins"
+# The address share links are written with. Empty = whatever address the person
+# used to open the dashboard. Set it once Caddy/HTTPS is up, e.g. "https://arise.arisecenla.church".
+public_url = ""
+
+[links]
+# Share links (a public download address for one file or folder).
+days = 7        # default life
+max_days = 30
+max_zip_bytes = 2147483648   # folders bigger than this are not zipped
+
 
 [directory]
 # The Samba Active Directory Domain Controller. Provisioned by install.sh.
