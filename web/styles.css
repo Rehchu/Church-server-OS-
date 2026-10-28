@@ -550,3 +550,107 @@ body.kiosk.bone{--ink:#0A0A0C}  /* the monitor never goes light; the class is ig
 .walk__k{display:inline-block;background:var(--panel3);padding:2px 7px;border:1px solid var(--line);font-family:ui-monospace,Menlo,monospace;font-size:12px}
 .about__week{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--text2)}
 .about__week b{color:var(--text)}
+
+/* ===== v0.8 Exodus: Calendar, Weather, Calculator, Clock, Help, snap, accessibility ===== */
+.calapp{display:flex;flex-direction:column;height:100%;min-height:0}
+.calapp__hd{margin-bottom:12px}
+.calapp__hd h2{font-size:20px}
+.calapp__body{display:grid;grid-template-columns:1fr 260px;gap:14px;flex:1 1 auto;min-height:0}
+.calm{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(74px,1fr);gap:2px;min-height:0}
+.calm__h{font-family:'Anton';font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:4px 6px;grid-row:auto;min-height:0}
+.calm__d{background:var(--panel2);border:1px solid var(--line2);padding:4px;min-width:0;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.calm__d.dim{background:transparent;border-color:transparent}
+.calm__d b{font-weight:500;font-size:12px;color:var(--text2);padding:0 2px}
+.calm__d.today{border-color:var(--red)} .calm__d.today b{color:#fff;background:var(--red);align-self:flex-start;padding:0 6px}
+.calm__ev{display:block;width:100%;text-align:left;font-size:11px;line-height:1.25;padding:2px 4px;background:rgba(92,168,224,.18);border-left:2px solid var(--info);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calm__ev.svc{background:rgba(214,34,45,.18);border-left-color:var(--red)}
+.calm__ev:hover{background:var(--red);color:#fff}
+.calm__more{font-size:10px;color:var(--muted);padding:0 4px}
+.calapp__side{overflow:auto;min-height:0;border-left:1px solid var(--line2);padding-left:14px}
+.calup{display:grid;grid-template-columns:86px 1fr;gap:10px;width:100%;text-align:left;padding:8px 6px;border-bottom:1px solid var(--line2);border-left:3px solid var(--info)}
+.calup.svc{border-left-color:var(--red)}
+.calup:hover{background:rgba(255,255,255,.04)}
+.calup__when{font-size:11.5px;color:var(--text2)} .calup__when b{color:#fff;font-weight:500}
+.calup__what b{font-weight:500;color:#fff;font-size:13px} .calup__what small{color:var(--muted);font-size:11.5px}
+@media(max-width:900px){.calapp__body{grid-template-columns:1fr}.calm{grid-auto-rows:minmax(54px,auto)}.calm__ev{font-size:0;padding:0;height:4px;border-left:0;margin-top:2px}.calapp__side{border-left:0;padding-left:0}}
+
+.widget--wx .wx__now{display:flex;align-items:center;gap:12px}
+.wx__i{display:inline-grid;place-items:center;width:34px;height:34px;color:var(--warn)} .wx__i svg{width:28px;height:28px}
+.widget--wx .widget__big{font-size:34px}
+.wx__days{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;text-align:center}
+.wx__days div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px}
+.wx__days b{font-weight:500;color:var(--text2);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.wx__days .wx__i{width:24px;height:24px} .wx__days .wx__i svg{width:20px;height:20px}
+.wx__days span{color:#fff;font-variant-numeric:tabular-nums} .wx__days span i{font-style:normal;color:var(--muted);margin-left:4px}
+.wx__days em{font-style:normal;font-size:10px;color:var(--info);min-height:13px}
+
+.calc{max-width:360px;margin:0 auto}
+.calc__disp{background:var(--scrim);border:1px solid var(--line);padding:14px 16px;text-align:right;min-height:92px;display:flex;flex-direction:column;justify-content:flex-end}
+.calc__expr{font-size:14px;color:var(--text2);min-height:20px;word-break:break-all;font-variant-numeric:tabular-nums}
+.calc__res{font-family:'Anton';font-size:40px;color:#fff;line-height:1.1;word-break:break-all;font-variant-numeric:tabular-nums}
+.calc__keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.calc__keys button{padding:16px 0;font-size:18px;background:var(--panel2);border:1px solid var(--line2);font-variant-numeric:tabular-nums}
+.calc__keys button:hover{border-color:#fff}
+.calc__keys button.op{color:var(--redL)} .calc__keys button.eq{background:var(--red);color:#fff;border-color:var(--red)}
+
+.clockapp{height:100%;display:flex;flex-direction:column}
+.clock__big{font-family:'Anton';font-size:clamp(44px,8vw,84px);color:#fff;text-align:center;line-height:1;margin:18px 0 22px;font-variant-numeric:tabular-nums}
+.world{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.world__z{background:var(--panel2);border:1px solid var(--line2);border-top:3px solid var(--red);padding:14px 16px}
+.world__t{display:block;font-family:'Anton';font-size:34px;color:#fff;line-height:1.1;font-variant-numeric:tabular-nums}
+.world__d{color:var(--text2);font-size:12px}
+.sw__laps{list-style:none;margin:16px auto 0;max-width:320px;font-variant-numeric:tabular-nums}
+.sw__laps li{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--line2);font-size:13px}
+.sw__laps b{font-weight:500;color:#fff}
+.timer input,.alarm input{background:var(--scrim);border:1px solid var(--line);padding:8px 10px}
+
+.help{display:grid;grid-template-columns:250px 1fr;gap:0;height:100%;min-height:0}
+.help__side{border-right:1px solid var(--line2);display:flex;flex-direction:column;min-height:0;padding-right:12px}
+.help__q{background:var(--scrim);border:1px solid var(--line);padding:9px 12px;margin-bottom:8px;width:100%}
+.help__q:focus{outline:none;border-color:var(--red)}
+.help__list{overflow:auto;min-height:0}
+.help__it{display:block;width:100%;text-align:left;padding:8px 10px;border-left:3px solid transparent}
+.help__it b{display:block;font-weight:500;font-size:13.5px;color:#fff} .help__it span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;max-height:2.7em;overflow:hidden}
+.help__it:hover{background:rgba(255,255,255,.04)} .help__it.on{border-left-color:var(--red);background:rgba(214,34,45,.1)}
+.help__doc{overflow:auto;min-height:0;padding:0 4px 20px 20px;font-size:14.5px;line-height:1.6;max-width:820px}
+.help__doc h1{font-size:26px;margin-bottom:12px} .help__doc h2{font-size:18px;margin:26px 0 8px;color:#fff} .help__doc h3{margin:18px 0 6px;color:var(--redL)}
+.help__doc p{margin:0 0 10px} .help__doc ul,.help__doc ol{margin:0 0 10px 22px} .help__doc li{margin-bottom:3px}
+.help__doc code{background:var(--panel2);padding:1px 5px;font-size:12.5px} .help__doc pre{background:var(--scrim);border:1px solid var(--line2);padding:12px 14px;overflow:auto;margin:0 0 12px;font-size:12.5px;line-height:1.5} .help__doc pre code{background:none;padding:0}
+.help__doc table{border-collapse:collapse;width:100%;margin:0 0 14px;font-size:13px} .help__doc th,.help__doc td{border:1px solid var(--line2);padding:6px 8px;text-align:left;vertical-align:top} .help__doc th{color:var(--muted);font-family:'Anton';font-weight:400;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.help__doc a{color:var(--info)} .help__doc blockquote{border-left:3px solid var(--red);padding:4px 12px;color:var(--text2);margin:0 0 10px}
+.help__doc strong{color:#fff;font-weight:500} .help__doc hr{border:0;border-top:1px solid var(--line2);margin:16px 0}
+@media(max-width:900px){.help{grid-template-columns:1fr;grid-template-rows:auto 1fr}.help__side{border-right:0;padding-right:0;max-height:38%}.help__doc{padding-left:0}}
+.keys td.mono{white-space:nowrap;color:#fff;width:120px}
+
+.about__new{grid-column:1/-1;margin-top:12px;padding:12px 14px;background:var(--panel2);border-left:3px solid var(--red)}
+.about__new .widget__kicker{margin-bottom:6px} .about__new ul{margin:0 0 0 18px;font-size:13px;color:var(--text2)} .about__new li{margin-bottom:2px}
+
+.pwmeter{height:5px;background:var(--panel3);margin-top:-2px} .pwmeter i{display:block;height:100%;width:0;background:var(--bad);transition:width .2s,background .2s}
+.pwmeter.s2 i{background:var(--warn)} .pwmeter.s3 i{background:#9fd4b4} .pwmeter.s4 i{background:var(--ok)}
+.pwrules{font-size:12.5px;color:var(--text2);margin:0 0 4px 18px} .pwrules li{margin-bottom:2px}
+.pwword{font-size:12px;color:var(--muted);text-align:right;min-height:16px}
+
+.snapghost{position:absolute;z-index:5;background:rgba(214,34,45,.12);border:2px solid var(--red);pointer-events:none;transition:left .08s,top .08s,width .08s,height .08s}
+
+/* accessibility switches (Control Center) */
+body.a11y-text{font-size:17px} body.a11y-text .tbl{font-size:15px} body.a11y-text .widget__row,body.a11y-text .menu__drop button,body.a11y-text .ctx button,body.a11y-text .spot__res button{font-size:15px}
+body.a11y-text .widgets{width:340px} body.a11y-text .lp b{font-size:14px} body.a11y-text .cc button b{font-size:14px}
+body.a11y-motion *,body.a11y-motion *::before,body.a11y-motion *::after{transition:none!important;animation:none!important}
+body.a11y-motion .dock__i{transform:none!important}
+body.a11y-contrast{--text:#fff;--text2:rgba(255,255,255,.86);--muted:#C8C8CE;--muted2:#B0B0B6;--line:rgba(255,255,255,.3);--line2:rgba(255,255,255,.18)}
+body.a11y-contrast .widget,body.a11y-contrast .win,body.a11y-contrast .menu__drop,body.a11y-contrast .ctx,body.a11y-contrast .cc,body.a11y-contrast .nc,body.a11y-contrast .spot__box{backdrop-filter:none;background:#0A0A0C}
+body.a11y-contrast.bone{--text:#000;--text2:#111;--muted:#333;--line:rgba(0,0,0,.4);--line2:rgba(0,0,0,.22)}
+body.a11y-contrast.bone .widget,body.a11y-contrast.bone .win,body.a11y-contrast.bone .menu__drop,body.a11y-contrast.bone .ctx,body.a11y-contrast.bone .cc,body.a11y-contrast.bone .nc,body.a11y-contrast.bone .spot__box{background:#fff}
+body.a11y-contrast :focus-visible{outline:3px solid #fff;outline-offset:2px}
+.menu__drop button:focus-visible,.ctx button:focus-visible{background:var(--red);color:#fff;outline:none}
+body.bone .calm__d{background:#F7F5F2} body.bone .calm__d b,body.bone .calup__what b,body.bone .calup__when b,body.bone .world__t,body.bone .clock__big,body.bone .calc__res,body.bone .help__it b,body.bone .help__doc h2,body.bone .help__doc strong,body.bone .sw__laps b,body.bone .wx__days span,body.bone .widget--wx .widget__big,body.bone .keys td.mono{color:#0A0A0C}
+body.bone .calc__keys button{background:#F7F5F2} body.bone .calc__disp,body.bone .help__q,body.bone .help__doc pre{background:#F7F5F2}
+
+/* the Dock hides (round 4): slides below the edge; the bottom edge or an opening app brings it back */
+.dock{transition:transform .28s var(--t),opacity .2s}
+body.dockhide .dock{transform:translate(-50%,calc(100% + 30px));opacity:.6}
+body.dockhide .dock.show,body.dockhide .dock:hover,body.dockhide .dock:focus-within{transform:translate(-50%,0);opacity:1}
+#dockEdge{position:absolute;left:0;right:0;bottom:0;height:10px;z-index:29}
+body.a11y-motion .dock{transition:none}
+/* the widget column scrolls when it is taller than the screen (weather and the verse stay reachable) */
+@media(min-width:901px){.widgets{max-height:calc(100% - 104px);overflow-y:auto;scrollbar-width:none;padding-right:2px}.widgets::-webkit-scrollbar{display:none}}

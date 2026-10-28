@@ -531,11 +531,15 @@ async function linksModal() {
     $$('[data-rm]').forEach(b => b.onclick = async () => { const x = await api('/links/' + b.dataset.rm, { method: 'DELETE' }); if (x.ok === false) return toast(x.err, 'bad'); toast('Link removed'); linksModal(); });
   });
 }
-function changePassword() {
+async function changePassword() {
+  let rules = null; try { rules = await api('/me/password/rules'); } catch {}
+  const minLen = rules?.min_length || 8;
   modal(`<h2>Change your password</h2><p class="muted">This is your directory password: the same one for the Macs, the shares and this dashboard.</p>
-    <form id="pwf" style="display:grid;gap:8px;margin-top:12px"><input type="password" id="pwOld" placeholder="Current password" autocomplete="current-password"><input type="password" id="pwNew" placeholder="New password (8 or more)" autocomplete="new-password"><input type="password" id="pwNew2" placeholder="New password again" autocomplete="new-password">
+    ${rules?.words?.length ? `<ul class="pwrules" style="margin-top:10px">${rules.words.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+    <form id="pwf" style="display:grid;gap:8px;margin-top:12px"><input type="password" id="pwOld" placeholder="Current password" autocomplete="current-password"><input type="password" id="pwNew" placeholder="New password (${minLen} or more)" autocomplete="new-password" aria-describedby="pwWord"><div class="pwmeter" id="pwMeter"><i></i></div><div class="pwword" id="pwWord"></div><input type="password" id="pwNew2" placeholder="New password again" autocomplete="new-password">
     <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">Change</button></div></form>`, () => {
-    $('#pwf').onsubmit = async e => { e.preventDefault(); if ($('#pwNew').value !== $('#pwNew2').value) return toast('The two new passwords differ', 'warn');
+    $('#pwNew').oninput = e => { const pw = e.target.value; const sc = pwScore(pw, S.user); const m = $('#pwMeter'); m.className = 'pwmeter s' + sc; $('i', m).style.width = (sc * 25) + '%'; $('#pwWord').textContent = !pw ? '' : pw.length < minLen ? `${minLen - pw.length} more character${minLen - pw.length === 1 ? '' : 's'}` : PW_WORDS[sc] || 'Weak'; };
+    $('#pwf').onsubmit = async e => { e.preventDefault(); if ($('#pwNew').value !== $('#pwNew2').value) return toast('The two new passwords differ', 'warn'); if ($('#pwNew').value.length < minLen) return toast(`At least ${minLen} characters`, 'warn');
       const r = await api('/me/password', { method: 'POST', body: { old: $('#pwOld').value, new: $('#pwNew').value } }).catch(er => ({ ok: false, err: er.message }));
       if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : 'Password changed'); $('[data-close]').click(); };
   });
@@ -802,6 +806,10 @@ const I = {
   sunday: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v10h12V8zm2 3l2 2 4-4 1.4 1.4L10 15.8l-3.4-3.4z"/></svg>',
   devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v16H3zm2 4v10h14V9zM7 2h2v4H7zm8 0h2v4h-2zM7 11h3v3H7zm5 0h3v3h-3z"/></svg>',
+  calc: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2h16v20H4zm2 2v4h12V4zM6 10v2h3v-2zm5 0v2h3v-2zm5 0v2h2v-2zM6 14v2h3v-2zm5 0v2h3v-2zm5 0v6h2v-6zM6 18v2h3v-2zm5 0v2h3v-2z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3h2v5.6l3.5 2-1 1.7L11 13.6z"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 12.5a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM12 6.5c2.2 0 3.8 1.3 3.8 3.2 0 1.3-.7 2-1.8 2.7-.9.6-1.1.9-1.1 1.6h-1.9c0-1.5.6-2.2 1.7-2.9.8-.5 1.1-.8 1.1-1.4 0-.8-.7-1.4-1.8-1.4-1 0-1.7.6-1.8 1.6H8.3c.1-2 1.6-3.4 3.7-3.4z"/></svg>',
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
 const APPS = [
@@ -824,9 +832,13 @@ const APPS = [
   { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
   { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
   { id: 'mail', n: '19', name: 'Mail', what: 'The church family list, newsletters (Resend)', w: 980, h: 640 },
-  { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
+  { id: 'calendar', n: '20', name: 'Calendar', what: 'Services and events; every Mac and phone can subscribe', whatMember: 'The services and the church\'s events', tone: 'bone', dock: true, w: 980, h: 640 },
+  { id: 'calc', n: '21', name: 'Calculator', what: 'Sums, also in Spotlight', tone: 'bone', w: 420, h: 560 },
+  { id: 'clock', n: '22', name: 'Clock', what: 'World clock, timer, stopwatch, alarm', tone: 'bone', w: 760, h: 480 },
+  { id: 'help', n: '23', name: 'Help', what: 'The docs, in here; F1', whatMember: 'How the portal works', tone: 'bone', dock: true, w: 1000, h: 660 },
+  { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 600, h: 640 },
 ];
-const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday'];
+const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about', 'assist', 'sunday', 'calendar', 'calc', 'clock', 'help'];
 const isMember = () => S.role === 'member';
 const visibleApps = () => isMember() ? APPS.filter(a => MEMBER_APPS.includes(a.id)) : APPS;
 const appOf = id => APPS.find(a => a.id === id);
@@ -838,12 +850,273 @@ const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span
 V.about = async () => {
   const o = S.overview || await api('/overview'); const m = o.machine || S.machine || {};
   let wk = null; try { wk = await api('/about/week'); } catch {}
+  let nw = null; try { nw = await api('/about/whatsnew'); } catch {}
+  const whatsnew = nw && nw.lines?.length ? `<div class="about__new"><div class="widget__kicker">What's new in v${esc(nw.version)} “${esc(nw.codename)}”</div><ul>${nw.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul></div>` : '';
   const week = wk ? `<div class="about__week">This week: <b>${esc(wk.verse?.ref || '')}</b>${wk.verse?.text ? ' · “' + esc(wk.verse.text.slice(0, 90)) + (wk.verse.text.length > 90 ? '…' : '') + '”' : ''}<br>${wk.services} services on the calendar · ${wk.published_this_week} video${wk.published_this_week === 1 ? '' : 's'} published this week${wk.minutes_this_week ? ' · ' + Math.round(wk.minutes_this_week / 60 * 10) / 10 + ' hours of them' : ''}${wk.latest ? `<br>Latest on the channel: <b>${esc(wk.latest)}</b>` : ''}</div>` : '';
   return `<div class="about"><div class="flame">${I.about.replace('<svg', '<svg width="72" height="72"')}</div><div><div class="kicker">ariseOS · Arise Server</div><h2>v${esc(o.version)} “${esc(o.codename)}”</h2>
     <dl class="kv"><dt>Host</dt><dd>${esc(o.hostname)}</dd><dt>Domain</dt><dd>${esc(o.realm || '—')}</dd><dt>System</dt><dd>${esc(m.os || '')}</dd><dt>Processor</dt><dd>${esc(m.cpu_model || '')} · ${m.cpu_count || '?'} cores</dd><dt>Memory</dt><dd>${esc(m.ram_total_h || '')}</dd><dt>Uptime</dt><dd>${fmtUp(S.stats?.uptime)}</dd><dt>Profile</dt><dd>${esc(o.profile)}</dd></dl>
-    ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div></div>`;
+    ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div>${whatsnew}</div>`;
 };
 V.about.after = root => $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
+
+/* ---------------- v0.8 Exodus: Calendar, Weather, Calculator, Clock, Help, What's New ---------------- */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const fmtDay = iso => { const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); };
+const fmtClock = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+const toLocalInput = iso => (iso || '').slice(0, 16);
+
+V.calendar = async () => {
+  const now = new Date(); const c = S.cal = S.cal || { y: now.getFullYear(), m: now.getMonth() + 1 };
+  const data = await api(`/calendar?year=${c.y}&month=${c.m}`); S.calData = data;
+  const items = data.items || [], byDay = {};
+  for (const it of items) { const k = it.start.slice(0, 10); (byDay[k] = byDay[k] || []).push(it); }
+  const first = new Date(c.y, c.m - 1, 1).getDay(), days = new Date(c.y, c.m, 0).getDate(), today = now.toISOString().slice(0, 10);
+  let grid = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(x => `<div class="calm__h">${x}</div>`).join('');
+  for (let i = 0; i < first; i++) grid += '<div class="calm__d dim"></div>';
+  for (let d = 1; d <= days; d++) {
+    const k = `${c.y}-${String(c.m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; const list = byDay[k] || [];
+    grid += `<div class="calm__d ${k === today ? 'today' : ''}" data-day="${k}"><b>${d}</b>${list.slice(0, 3).map(it => `<button class="calm__ev ${it.service ? 'svc' : ''}" data-ev="${esc(it.id)}" title="${esc(it.title)}">${esc(fmtClock(it.start))} ${esc(it.title)}</button>`).join('')}${list.length > 3 ? `<span class="calm__more">+${list.length - 3} more</span>` : ''}</div>`;
+  }
+  const up = (data.upcoming || []).slice(0, 12);
+  return `<div class="calapp"><div class="calapp__hd row row--between"><div class="row"><button class="btn btn--ghost btn--xs" id="calPrev" aria-label="Previous month">‹</button><h2 style="min-width:210px;text-align:center">${MONTHS[c.m - 1]} ${c.y}</h2><button class="btn btn--ghost btn--xs" id="calNext" aria-label="Next month">›</button><button class="btn btn--ghost btn--xs" id="calToday">Today</button></div>
+      <div class="row">${!isMember() ? '<button class="btn btn--sm" id="calAdd">Add event</button>' : ''}<button class="btn btn--ghost btn--sm" id="calSub">Subscribe</button></div></div>
+    <div class="calapp__body"><div class="calm">${grid}</div>
+    <aside class="calapp__side"><div class="widget__kicker">Next two weeks</div>${up.length ? up.map(it => `<button class="calup ${it.service ? 'svc' : ''}" data-ev="${esc(it.id)}"><span class="calup__when">${fmtDay(it.start)}<br><b>${fmtClock(it.start)}</b></span><span class="calup__what"><b>${esc(it.title)}</b>${it.where ? `<br><small>${esc(it.where)}</small>` : ''}</span></button>`).join('') : '<p class="muted">Nothing on the calendar for the next two weeks beyond the services.</p>'}
+    <p class="muted" style="font-size:12px;margin-top:12px">Services come from the server's settings; events are added here. ${data.demo ? 'Sample events say so in their titles.' : ''}</p></aside></div></div>`;
+};
+V.calendar.after = root => {
+  const c = S.cal; const go = (dy) => { c.m += dy; if (c.m < 1) { c.m = 12; c.y--; } if (c.m > 12) { c.m = 1; c.y++; } rerender('calendar'); };
+  $('#calPrev', root).onclick = () => go(-1); $('#calNext', root).onclick = () => go(1); $('#calToday', root).onclick = () => { const n = new Date(); c.y = n.getFullYear(); c.m = n.getMonth() + 1; rerender('calendar'); };
+  $('#calSub', root).onclick = subscribeModal; const add = $('#calAdd', root); if (add) add.onclick = () => eventModal(null);
+  $$('[data-ev]', root).forEach(b => b.onclick = () => { const it = (S.calData.items || []).concat(S.calData.upcoming || []).find(x => x.id === b.dataset.ev); if (it) eventDetails(it); });
+  $$('.calm__d[data-day]', root).forEach(d => d.ondblclick = e => { if (isMember() || e.target.closest('button')) return; eventModal({ start: d.dataset.day + 'T18:30' }, true); });
+};
+function eventDetails(it) {
+  const when = `${fmtDay(it.start)} · ${fmtClock(it.start)}${it.end ? ' to ' + fmtClock(it.end) : ''}`;
+  modal(`<h2>${esc(it.title)}</h2><dl class="kv" style="margin-top:12px"><dt>When</dt><dd>${when}</dd>${it.where ? `<dt>Where</dt><dd>${esc(it.where)}</dd>` : ''}${it.note ? `<dt>Note</dt><dd>${esc(it.note)}</dd>` : ''}${it.service ? '<dt>Kind</dt><dd>A service, from the server\'s settings (every week)</dd>' : `<dt>Added by</dt><dd>${esc(it.who || '')}</dd>`}</dl>
+    <div class="acts">${!isMember() && !it.service ? `<button class="btn btn--danger btn--sm" id="evRm">Remove…</button><button class="btn btn--ghost btn--sm" id="evEd">Edit</button>` : ''}<button class="btn btn--ghost" data-close>Close</button></div>`, m => {
+    const ed = $('#evEd', m); if (ed) ed.onclick = () => { m.close(); eventModal(it); };
+    const rm = $('#evRm', m); if (rm) rm.onclick = () => { m.close(); confirmType('Remove this event', 'remove', `<b>${esc(it.title)}</b> on ${fmtDay(it.start)} comes off the calendar and the feed every Mac and phone reads.`, async () => { const r = await api(`/calendar/${encodeURIComponent(it.id)}`, { method: 'DELETE' }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample mode: nothing changed' : 'Removed'); rerender('calendar'); }); };
+  });
+}
+function eventModal(it, isNew) {
+  const e = it || {}; const editing = !!(it && it.id && !isNew);
+  modal(`<h2>${editing ? 'Edit event' : 'Add an event'}</h2><form id="evf" style="margin-top:12px">
+    <div class="field"><label>Title</label><input id="evT" value="${esc(e.title || '')}" maxlength="120" required autocomplete="off"></div>
+    <div class="row"><div class="field" style="flex:1"><label>Starts</label><input id="evS" type="datetime-local" value="${esc(toLocalInput(e.start))}" required></div><div class="field" style="flex:1"><label>Ends (optional)</label><input id="evE" type="datetime-local" value="${esc(toLocalInput(e.end))}"></div></div>
+    <div class="field"><label>Where</label><input id="evW" value="${esc(e.where || '')}" maxlength="120" placeholder="Pineville, the fellowship hall…"></div>
+    <div class="field"><label>Note</label><textarea id="evN" rows="3" maxlength="1000">${esc(e.note || '')}</textarea></div>
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">${editing ? 'Save' : 'Add'}</button></div></form>`, m => {
+    $('#evf', m).onsubmit = async ev => { ev.preventDefault(); const body = { title: $('#evT', m).value, start: $('#evS', m).value, end: $('#evE', m).value, where: $('#evW', m).value, note: $('#evN', m).value };
+      const r = await api(editing ? `/calendar/${encodeURIComponent(it.id)}` : '/calendar', { method: editing ? 'PUT' : 'POST', body }).catch(er => ({ ok: false, err: er.message }));
+      if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : editing ? 'Saved' : 'Added to the calendar'); tone('done'); m.close(); rerender('calendar'); };
+    $('#evT', m).focus();
+  });
+}
+async function subscribeModal() {
+  let s; try { s = await api('/calendar/subscribe'); } catch (e) { return toast(e.message, 'bad'); }
+  modal(`<h2>Subscribe to the church calendar</h2><p class="muted">One calendar, kept on the server. Your Mac or phone checks it every hour; services and events appear by themselves.</p>
+    <div class="field" style="margin-top:12px"><label>The address</label><div class="row"><input id="subUrl" readonly value="${esc(s.webcal)}" style="flex:1"><button class="btn btn--ghost btn--sm" id="subCopy">Copy</button></div></div>
+    <dl class="kv"><dt>On a Mac</dt><dd>${esc(s.mac)}</dd><dt>On an iPhone</dt><dd>${esc(s.iphone)}</dd><dt>Note</dt><dd>${esc(s.note)}</dd></dl>
+    <div class="acts"><a class="btn btn--ghost btn--sm" href="${esc(s.webcal)}">Open in Calendar</a><button class="btn btn--ghost" data-close>Close</button></div>`, m => { $('#subCopy', m).onclick = () => copyText(s.webcal, $('#subCopy', m)); });
+}
+
+/* Weather: Open-Meteo for Pineville, cached on the server; offline says so */
+const WX = {
+  sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></g></svg>',
+  'cloud-sun': '<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3.5" fill="currentColor" opacity=".7"/><path d="M8 20h10a4 4 0 0 0 .5-8A6 6 0 0 0 7 13a3.5 3.5 0 0 0 1 7z" fill="currentColor"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24"><path d="M7 19h11a4 4 0 0 0 .6-8A6 6 0 0 0 7 12a3.5 3.5 0 0 0 0 7z" fill="currentColor"/></svg>',
+  fog: '<svg viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2"><path d="M3 9h18M5 13h14M3 17h18"/></g></svg>',
+  rain: '<svg viewBox="0 0 24 24"><path d="M7 15h11a4 4 0 0 0 .6-8A6 6 0 0 0 7 8a3.5 3.5 0 0 0 0 7z" fill="currentColor"/><g stroke="currentColor" stroke-width="2"><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></g></svg>',
+  snow: '<svg viewBox="0 0 24 24"><path d="M7 14h11a4 4 0 0 0 .6-8A6 6 0 0 0 7 7a3.5 3.5 0 0 0 0 7z" fill="currentColor"/><g fill="currentColor"><circle cx="8" cy="19" r="1.3"/><circle cx="12" cy="21" r="1.3"/><circle cx="16" cy="19" r="1.3"/></g></svg>',
+  storm: '<svg viewBox="0 0 24 24"><path d="M7 14h11a4 4 0 0 0 .6-8A6 6 0 0 0 7 7a3.5 3.5 0 0 0 0 7z" fill="currentColor"/><path d="M13 13l-3 5h3l-1 5 4-7h-3z" fill="currentColor"/></svg>',
+};
+const wxIcon = k => `<i class="wx__i">${WX[k] || WX.cloud}</i>`;
+async function loadWeather(force) {
+  if (!force && S.weather && Date.now() - (S.weatherAt || 0) < 30 * 60000) return S.weather;
+  try { S.weather = await api('/weather'); } catch (e) { S.weather = { ok: false, why: e.message }; }
+  S.weatherAt = Date.now(); return S.weather;
+}
+function weatherWidget() {
+  const w = S.weather; if (!w) return '';
+  if (!w.ok) return `<div class="widget widget--wx"><div class="widget__kicker">Weather · Pineville</div><div class="widget__sub">No weather (offline)</div></div>`;
+  const n = w.now || {}; const dayName = d => new Date(d.date + 'T12:00').toLocaleDateString('en-US', { weekday: 'short' });
+  return `<div class="widget widget--wx"><div class="widget__kicker">Weather · ${esc(w.place)}${w.stale ? ' · from earlier' : ''}${w.demo ? ' · sample' : ''}</div>
+    <div class="wx__now">${wxIcon(n.icon)}<span class="widget__big">${n.temp ?? '–'}°</span><span class="widget__sub">${esc(n.words)}<br>feels ${n.feels ?? '–'}° · wind ${n.wind ?? '–'} mph</span></div>
+    <div class="wx__days">${(w.days || []).slice(1, 6).map(d => `<div><b>${dayName(d)}</b>${wxIcon(d.icon)}<span>${d.hi ?? '–'}°<i>${d.lo ?? '–'}°</i></span><em>${d.rain >= 20 ? d.rain + '%' : ''}</em></div>`).join('')}</div></div>`;
+}
+
+/* Calculator: a safe evaluator (no eval), also behind Spotlight */
+function calcEval(src) {
+  const s = String(src ?? '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/,/g, '').trim();
+  if (!s || !/^[\d\s.+\-*/%^()]+$/.test(s) || !/\d/.test(s)) return NaN;
+  const toks = s.match(/\d+\.?\d*|\.\d+|[+\-*/%^()]/g) || [];
+  const out = [], ops = [], prec = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3, u: 2.5 }, right = { '^': true, u: true };  // -3^2 is -9, as on paper
+  let prev = null;
+  for (const t of toks) {
+    if (/^[\d.]/.test(t)) { if (prev === 'n' || prev === ')') return NaN; out.push(parseFloat(t)); prev = 'n'; continue; }
+    if (t === '(') { if (prev === 'n' || prev === ')') return NaN; ops.push(t); prev = '('; continue; }
+    if (t === ')') { while (ops.length && ops[ops.length - 1] !== '(') out.push(ops.pop()); if (!ops.length) return NaN; ops.pop(); prev = ')'; continue; }
+    let op = t;
+    if (t === '-' && (prev === null || prev === 'op' || prev === '(')) op = 'u'; else if (prev !== 'n' && prev !== ')') return NaN;
+    while (ops.length) { const o = ops[ops.length - 1]; if (o === '(') break; if (prec[o] > prec[op] || (prec[o] === prec[op] && !right[op])) out.push(ops.pop()); else break; }
+    ops.push(op); prev = 'op';
+  }
+  if (prev === 'op' || prev === '(') return NaN;
+  while (ops.length) { const o = ops.pop(); if (o === '(') return NaN; out.push(o); }
+  const st = [];
+  for (const t of out) {
+    if (typeof t === 'number') { st.push(t); continue; }
+    if (t === 'u') { st.push(-st.pop()); continue; }
+    const b = st.pop(), a = st.pop(); if (a === undefined || b === undefined) return NaN;
+    st.push(t === '+' ? a + b : t === '-' ? a - b : t === '*' ? a * b : t === '/' ? a / b : t === '%' ? a % b : Math.pow(a, b));
+  }
+  return st.length === 1 ? st[0] : NaN;
+}
+const fmtCalc = v => isNaN(v) ? '' : !isFinite(v) ? '∞' : String(+v.toPrecision(12));
+const looksLikeSum = q => /[+\-*/^%×÷−]/.test(q) && /^[\d\s.+\-*/%^()×÷−,]+$/.test(q) && /\d/.test(q) && !isNaN(calcEval(q));
+V.calc = async () => { const st = S.calc = S.calc || { expr: '', res: '0' };
+  return `<div class="calc"><div class="calc__disp" aria-live="polite"><div class="calc__expr" id="calcExpr">${esc(st.expr)}</div><div class="calc__res" id="calcRes">${esc(st.res)}</div></div>
+    <div class="calc__keys">${['C', '(', ')', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '0', '.', '⌫', '='].map(k => `<button data-k="${k}" class="${'÷×−+'.includes(k) ? 'op' : ''} ${k === '=' ? 'eq' : ''}" aria-label="${k === '⌫' ? 'Delete' : k === 'C' ? 'Clear' : k}">${k}</button>`).join('')}</div>
+    <p class="muted" style="font-size:12px;margin-top:12px">Type a sum into Spotlight too: ${esc(kbd('⌘Space'))}, then <span class="mono">1250*0.8</span>.</p></div>`; };
+V.calc.after = root => {
+  const st = S.calc;
+  const paint = () => { $('#calcExpr', root).textContent = st.expr; const v = fmtCalc(calcEval(st.expr)); $('#calcRes', root).textContent = st.expr ? (v || '…') : st.res; };
+  const press = k => { tone('click'); if (k === 'C') { st.expr = ''; st.res = '0'; } else if (k === '⌫') st.expr = st.expr.slice(0, -1); else if (k === '=') { const v = fmtCalc(calcEval(st.expr)); if (v) { st.res = v; st.expr = ''; } } else st.expr += k; paint(); };
+  $$('[data-k]', root).forEach(b => b.onclick = () => press(b.dataset.k));
+  root.tabIndex = 0; root.onkeydown = e => { if (e.metaKey || e.ctrlKey) return; const map = { '*': '×', '/': '÷', '-': '−', Enter: '=', '=': '=', Backspace: '⌫', Escape: 'C', Delete: 'C' }; const k = map[e.key] || (/^[\d.+()%^]$/.test(e.key) ? e.key : null); if (k) { e.preventDefault(); e.stopPropagation(); press(k); } };
+  paint(); if (!isPhone()) root.focus();
+};
+
+/* Clock: world clock, timer, stopwatch, alarm */
+const ZONES = [['Pineville', 'America/Chicago'], ['New York', 'America/New_York'], ['Los Angeles', 'America/Los_Angeles'], ['Jerusalem', 'Asia/Jerusalem']];
+const mmss = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+V.clock = async () => { const c = S.clock = S.clock || { tab: 'world', timer: { total: 300, left: 300, on: false, at: 0 }, sw: { el: 0, on: false, t0: 0, laps: [] }, alarm: null };
+  return `<div class="clockapp"><div class="tabs" id="clockTabs">${[['world', 'World clock'], ['timer', 'Timer'], ['sw', 'Stopwatch'], ['alarm', 'Alarm']].map(([k, l]) => `<button data-t="${k}" class="${c.tab === k ? 'active' : ''}">${l}</button>`).join('')}</div><div id="clockBody"></div></div>`; };
+V.clock.after = root => {
+  const c = S.clock; $$('#clockTabs button', root).forEach(b => b.onclick = () => { c.tab = b.dataset.t; $$('#clockTabs button', root).forEach(x => x.classList.toggle('active', x === b)); paintClock(root, true); });
+  clearInterval(S.clockT); S.clockT = setInterval(() => { if (!document.body.contains(root)) { clearInterval(S.clockT); return; } clockTick(); paintClock(root, false); }, 250);
+  paintClock(root, true);
+};
+function clockTick() {
+  const c = S.clock; if (!c) return; const now = Date.now();
+  if (c.timer.on) { c.timer.left = Math.max(0, (c.timer.at - now) / 1000); if (c.timer.left <= 0) { c.timer.on = false; c.timer.left = 0; tone('done'); toast('Timer done', 'ok', 8000); } }
+  if (c.alarm && !c.alarm.rang) { const d = new Date(); const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); if (hm === c.alarm.at) { c.alarm.rang = true; tone('done'); setTimeout(() => tone('done'), 700); toast(`Alarm · ${fmtHM(c.alarm.at)}${c.alarm.label ? ' · ' + c.alarm.label : ''}`, 'warn', 15000); } }
+}
+const fmtHM = hm => { const [h, m] = hm.split(':').map(Number); const d = new Date(); d.setHours(h, m); return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+function paintClock(root, full) {
+  const c = S.clock, body = $('#clockBody', root); if (!body) return; const now = new Date();
+  if (c.tab === 'world') {
+    if (full || !$('.world', body)) body.innerHTML = `<div class="world">${ZONES.map(([n, z]) => `<div class="world__z" data-z="${z}"><span class="widget__kicker">${n}</span><b class="world__t"></b><small class="world__d"></small></div>`).join('')}</div>`;
+    $$('.world__z', body).forEach(el => { const z = el.dataset.z; $('.world__t', el).textContent = now.toLocaleTimeString('en-US', { timeZone: z, hour: 'numeric', minute: '2-digit' }); $('.world__d', el).textContent = now.toLocaleDateString('en-US', { timeZone: z, weekday: 'long' }) + (z === 'America/Chicago' ? ' · here' : ''); });
+  } else if (c.tab === 'timer') {
+    const t = c.timer;
+    if (full || !$('.timer', body)) { body.innerHTML = `<div class="timer"><div class="clock__big" id="tmLeft"></div><div class="row" style="justify-content:center;gap:8px">${[1, 5, 10, 15, 30].map(m => `<button class="btn btn--ghost btn--xs" data-min="${m}">${m} min</button>`).join('')}<input id="tmIn" type="text" inputmode="numeric" placeholder="mm:ss" style="width:84px" aria-label="Minutes and seconds"></div>
+      <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="tmGo"></button><button class="btn btn--ghost" id="tmReset">Reset</button></div><p class="muted" style="text-align:center;font-size:12px;margin-top:10px">A quiet chime at zero (if sounds are on) and a note on the screen.</p></div>`;
+      $$('[data-min]', body).forEach(b => b.onclick = () => { t.total = t.left = +b.dataset.min * 60; t.on = false; paintClock(root, false); });
+      $('#tmIn', body).onchange = e => { const m = e.target.value.match(/^(\d{1,3})(?::(\d{1,2}))?$/); if (!m) return toast('Type minutes, or mm:ss', 'warn'); t.total = t.left = +m[1] * 60 + (+m[2] || 0); t.on = false; e.target.value = ''; paintClock(root, false); };
+      $('#tmGo', body).onclick = () => { tone('click'); if (t.on) { t.on = false; } else { if (t.left <= 0) t.left = t.total; t.at = Date.now() + t.left * 1000; t.on = true; } paintClock(root, false); };
+      $('#tmReset', body).onclick = () => { t.on = false; t.left = t.total; paintClock(root, false); };
+    }
+    $('#tmLeft', body).textContent = mmss(t.left); $('#tmGo', body).textContent = t.on ? 'Pause' : t.left < t.total && t.left > 0 ? 'Resume' : 'Start';
+  } else if (c.tab === 'sw') {
+    const s = c.sw; const el = s.on ? s.el + (Date.now() - s.t0) : s.el;
+    if (full || !$('.sw', body)) { body.innerHTML = `<div class="sw"><div class="clock__big" id="swT"></div><div class="row" style="justify-content:center"><button class="btn" id="swGo"></button><button class="btn btn--ghost" id="swLap">Lap</button><button class="btn btn--ghost" id="swReset">Reset</button></div><ol class="sw__laps" id="swLaps"></ol></div>`;
+      $('#swGo', body).onclick = () => { tone('click'); if (s.on) { s.el += Date.now() - s.t0; s.on = false; } else { s.t0 = Date.now(); s.on = true; } paintClock(root, false); };
+      $('#swLap', body).onclick = () => { const v = s.on ? s.el + (Date.now() - s.t0) : s.el; if (v > 0) { s.laps.unshift(v); paintClock(root, true); } };
+      $('#swReset', body).onclick = () => { s.on = false; s.el = 0; s.laps = []; paintClock(root, true); };
+      $('#swLaps', body).innerHTML = s.laps.map((l, i) => `<li><span>Lap ${s.laps.length - i}</span><b>${fmtSw(l)}</b></li>`).join('');
+    }
+    $('#swT', body).textContent = fmtSw(el); $('#swGo', body).textContent = s.on ? 'Stop' : el ? 'Resume' : 'Start';
+  } else {
+    const a = c.alarm;
+    if (full || !$('.alarm', body)) { body.innerHTML = `<div class="alarm"><div class="clock__big">${a ? fmtHM(a.at) : '—'}</div><p class="muted" style="text-align:center">${a ? (a.rang ? 'Rang. Set another or clear it.' : `Set${a.label ? ' · ' + esc(a.label) : ''}. It rings while this page is open.`) : 'No alarm set. It rings on this screen while the page is open; it is not a phone alarm.'}</p>
+      <form id="alf" class="row" style="justify-content:center;margin-top:12px"><input id="alT" type="time" required aria-label="Time"><input id="alL" placeholder="Label (optional)" maxlength="40" style="width:160px"><button class="btn btn--sm" type="submit">Set</button>${a ? '<button type="button" class="btn btn--ghost btn--sm" id="alClr">Clear</button>' : ''}</form></div>`;
+      $('#alf', body).onsubmit = e => { e.preventDefault(); c.alarm = { at: $('#alT', body).value, label: $('#alL', body).value.trim(), rang: false }; tone('click'); paintClock(root, true); };
+      const clr = $('#alClr', body); if (clr) clr.onclick = () => { c.alarm = null; paintClock(root, true); };
+    }
+  }
+}
+const fmtSw = ms => { const t = Math.floor(ms / 10), cs = t % 100, s = Math.floor(t / 100) % 60, m = Math.floor(t / 6000); return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`; };
+
+/* Help: the docs inside the dashboard */
+V.help = async () => {
+  const h = S.help = S.help || { name: null, q: '' };
+  const list = await api('/help'); S.helpList = list;
+  const docs = list.docs || []; if (!h.name) h.name = isMember() ? 'PORTAL-GUIDE' : (docs.find(d => d.name === 'README') ? 'README' : docs[0]?.name);
+  return `<div class="help"><aside class="help__side"><input id="helpQ" class="help__q" placeholder="Search the docs" value="${esc(h.q)}" autocomplete="off" aria-label="Search the docs"><div id="helpList" class="help__list"></div></aside><article class="help__doc" id="helpDoc"><div class="skeleton" style="width:50%"></div></article></div>`;
+};
+V.help.after = root => {
+  const h = S.help, docs = S.helpList.docs || [];
+  const paintList = hits => { const q = h.q.trim().toLowerCase(); const el = $('#helpList', root);
+    if (hits) { el.innerHTML = hits.length ? hits.map(x => `<button class="help__it ${x.name === h.name ? 'on' : ''}" data-doc="${esc(x.name)}"><b>${esc(x.title)}</b><span>${esc(x.snippet)}</span></button>`).join('') : '<p class="muted" style="padding:10px">Nothing in the docs for that.</p>'; }
+    else el.innerHTML = docs.filter(d => !q || d.title.toLowerCase().includes(q) || d.name.toLowerCase().includes(q) || (d.blurb || '').toLowerCase().includes(q)).map(d => `<button class="help__it ${d.name === h.name ? 'on' : ''}" data-doc="${esc(d.name)}"><b>${esc(d.title)}</b><span>${esc(d.blurb || d.name)}</span></button>`).join('');
+    $$('[data-doc]', el).forEach(b => b.onclick = () => { h.name = b.dataset.doc; paintList(hits); loadDoc(); }); };
+  const loadDoc = async () => { const box = $('#helpDoc', root); if (!h.name) { box.innerHTML = '<p class="muted">No documents.</p>'; return; } try { const d = await api(`/help/${encodeURIComponent(h.name)}`); if (!document.body.contains(box)) return; box.innerHTML = (/^\s*<h1/i.test(d.html) ? '' : `<h1>${esc(d.title)}</h1>`) + d.html; box.scrollTop = 0;
+      $$('a', box).forEach(a => { const href = a.getAttribute('href') || ''; const m = href.match(/^(?:\.\.\/|\.\/)?(?:docs\/)?([A-Za-z0-9_-]+)\.md(#.*)?$/); if (m) { a.onclick = e => { e.preventDefault(); h.name = m[1] === 'README' || m[1] ? m[1] : h.name; paintList(); loadDoc(); }; } else if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } }); }
+    catch (e) { box.innerHTML = `<p class="muted">${esc(e.message)}</p>`; } };
+  $('#helpQ', root).oninput = e => { h.q = e.target.value; clearTimeout(S.helpT); if (h.q.trim().length >= 2) S.helpT = setTimeout(async () => { try { const r = await api(`/help?q=${encodeURIComponent(h.q.trim())}`); if ($('#helpQ', root).value === h.q) paintList(r.search?.hits || null); } catch {} }, 250); paintList(); };
+  paintList(); loadDoc();
+};
+function shortcutsSheet() {
+  const rows = [['⌘Space', 'Spotlight: apps, people, files, a verse, a sum'], ['F1', 'Help'], ['⌘/', 'This sheet'], ['F3', 'Mission Control'], ['F4', 'Launchpad'], ['⌘Tab', 'Switch windows'], ['⌘W', 'Close the window'], ['⌘M', 'Minimise'], ['⌘R', 'Refresh the window'], ['⌘←  ⌘→', 'Snap the window to the left or right half'], ['⌘↑', 'Fill the screen'], ['⌘↓', 'Put the window back'], ['⌘I', 'Get Info (Finder)'], ['⇧⌘N', 'New folder (Finder)'], ['⌃⌘Q', 'Lock the screen'], ['Esc', 'Close whatever is open']];
+  modal(`<h2>Keyboard shortcuts</h2><p class="muted">${IS_MAC ? 'On a Mac keyboard.' : 'On a Windows keyboard: Ctrl does what ⌘ does on a Mac.'}</p><table class="tbl keys" style="margin-top:10px"><tbody>${rows.map(([k, w]) => `<tr><td class="mono">${esc(kbd(k))}</td><td>${esc(w)}</td></tr>`).join('')}</tbody></table><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`);
+}
+const firstName = () => { const d = String(S.me?.display || S.me?.name || '').trim(); const n = d ? d.split(/\s+/)[0] : String(S.user || '').split('.')[0]; return n ? n[0].toUpperCase() + n.slice(1) : ''; };
+function greet() {
+  if (S.kiosk || !S.user) return;
+  try { if (sessionStorage.getItem('arise.greeted') === S.user) return; sessionStorage.setItem('arise.greeted', S.user); } catch {}
+  const h = new Date().getHours(); const part = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; const ref = S.church?.verse?.ref;
+  toast(`Good ${part}, ${firstName() || 'there'}.${ref ? ' Today: ' + ref + '.' : ''}`, 'ok', 3000);
+}
+async function whatsNewToast() {
+  try { const w = await api('/about/whatsnew'); if (!w.version) return; const seen = PREF.get('seen', ''); if (seen !== w.version) { PREF.set('seen', w.version); if (seen) { toast(`ariseOS is now v${w.version} “${w.codename}”. What's new is in About.`, 'ok', 9000); tone('done'); } } } catch {}
+}
+
+/* Snap windows: edges and corners while dragging, ⌘-arrows on the keyboard */
+function snapZone(x, y) { const st = $('#stage'), r = st.getBoundingClientRect(); const px = x - r.left, py = y - r.top, W = r.width, H = r.height, m = 12; const L = px < m, R = px > W - m, T = py < m, B = py > H - m; if ((L || R) && T) return L ? 'tl' : 'tr'; if ((L || R) && B) return L ? 'bl' : 'br'; if (T) return 'max'; if (L) return 'left'; if (R) return 'right'; return null; }
+function snapRect(zone) { const st = $('#stage'), W = st.clientWidth, H = st.clientHeight - 84, hw = Math.floor(W / 2), hh = Math.floor(H / 2); return { left: [0, 0, hw, H], right: [hw, 0, W - hw, H], max: [0, 0, W, H], tl: [0, 0, hw, hh], tr: [hw, 0, W - hw, hh], bl: [0, hh, hw, H - hh], br: [hw, hh, W - hw, H - hh] }[zone]; }
+function snapGhost(zone) { let g = $('#snapGhost'); if (!zone) { if (g) g.hidden = true; return; } if (!g) { g = document.createElement('div'); g.id = 'snapGhost'; g.className = 'snapghost'; $('#stage').appendChild(g); } const [x, y, w, h] = snapRect(zone); Object.assign(g.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' }); g.hidden = false; }
+function snapTo(id, zone) {
+  const w = S.wins[id]; if (!w || isPhone()) return; const el = w.el;
+  if (zone === 'max') { if (!w.max) { w.max = true; el.classList.add('max'); } w.snap = 'max'; return; }
+  if (w.max) { w.max = false; el.classList.remove('max'); }
+  if (!w.pre) w.pre = { left: el.style.left, top: el.style.top, width: el.style.width, height: el.style.height };
+  const [x, y, ww, hh] = snapRect(zone); Object.assign(el.style, { left: x + 'px', top: y + 'px', width: ww + 'px', height: hh + 'px' }); w.snap = zone;
+}
+function unsnap(id) { const w = S.wins[id]; if (!w) return false; if (w.max) { w.max = false; w.el.classList.remove('max'); w.snap = null; return true; } if (w.pre) { Object.assign(w.el.style, w.pre); w.pre = null; w.snap = null; return true; } return false; }
+function snapKey(id, key) { if (key === 'ArrowLeft') snapTo(id, 'left'); else if (key === 'ArrowRight') snapTo(id, 'right'); else if (key === 'ArrowUp') snapTo(id, 'max'); else if (key === 'ArrowDown') { if (!unsnap(id)) minApp(id); } }
+
+/* Accessibility: larger text, reduce motion, high contrast; menus by keyboard */
+const A11Y = [['text', 'Larger text', 'bigger type everywhere'], ['motion', 'Reduce motion', 'no animations, no dock zoom'], ['contrast', 'High contrast', 'brighter text, firmer lines']];
+function applyA11y() { const b = document.body; b.classList.toggle('a11y-text', PREF.get('a11y.text', '0') === '1'); b.classList.toggle('a11y-motion', PREF.get('a11y.motion', '0') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches); b.classList.toggle('a11y-contrast', PREF.get('a11y.contrast', '0') === '1'); }
+const reducedMotion = () => document.body.classList.contains('a11y-motion');
+function ccA11y() { return A11Y.map(([k, n, w]) => { const on = PREF.get('a11y.' + k, '0') === '1'; return `<button class="${on ? 'ok' : ''}" data-act="a11y-${k}" aria-pressed="${on}"><b>${n}</b><span>${on ? 'on · ' : ''}${w}</span></button>`; }).join(''); }
+document.addEventListener('keydown', e => {
+  if (!menuOpen) return; const bs = $$('#menuDrop button'); if (!bs.length) return; let i = bs.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); i = (i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length; bs[i].focus(); }
+  else if (e.key === 'Enter' && i >= 0) { e.preventDefault(); bs[i].click(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { const ms = [$('#barLogo'), ...$$('#menus button')]; const j = ms.indexOf(menuOpen); if (j >= 0) { e.preventDefault(); ms[(j + (e.key === 'ArrowRight' ? 1 : -1) + ms.length) % ms.length].click(); setTimeout(() => $('#menuDrop button')?.focus(), 0); } }
+});
+
+/* The power menu: gentler steps first; the server refuses all of it during a service */
+function restartUnit(unit, what, word) {
+  confirmType(`Restart ${what}`, word, unit === 'arise-web.service' ? 'The dashboard goes away for a few seconds and this page reloads itself. Nothing else is touched.' : 'Macs signed in keep working on cached accounts; a sign-in during the restart fails once. About twenty seconds. Refused during a service.', async () => {
+    const r = await api(`/services/${encodeURIComponent(unit)}/restart`, { method: 'POST' }); if (r.ok === false) throw new Error(r.err);
+    toast(r.demo ? 'Sample mode: nothing changed' : `Restarting ${what}…`, 'warn', 6000); if (unit === 'arise-web.service' && !r.demo) setTimeout(() => location.reload(), 4000);
+  });
+}
+const POWER_MENU = () => [{ h: 'Power' }, ['Restart the dashboard', () => restartUnit('arise-web.service', 'the dashboard', 'dashboard')], ['Restart the domain', () => restartUnit('samba-ad-dc.service', 'the domain', 'domain')], ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
+
+/* The password meter and the domain's rules in words */
+function pwScore(pw, user) {
+  if (!pw) return 0; let s = 0; const kinds = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(r => r.test(pw)).length;
+  if (pw.length >= 8) s++; if (pw.length >= 12) s++; if (pw.length >= 16) s++; if (kinds >= 3) s++; if (kinds === 4 && pw.length >= 12) s++;
+  const parts = String(user || '').toLowerCase().split(/[.\s_-]+/).filter(p => p.length >= 3); if (parts.some(p => pw.toLowerCase().includes(p))) s = Math.min(s, 1);
+  if (/^(.)\1+$/.test(pw) || /^(?:0123|1234|2345|3456|4567|5678|6789|abcd|qwer|pass)/i.test(pw)) s = Math.min(s, 1);
+  return Math.min(4, s);
+}
+const PW_WORDS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
 /* ---------------- window manager ---------------- */
 function tabs(sel) {
@@ -869,7 +1142,7 @@ function openApp(id, focusOnly) {
   el.addEventListener('click', () => { if ($('#stage').classList.contains('mc')) { missionControl(false); focusWin(id); } }, true);
   drag(el, $('.win__bar', el));
   focusWin(id); rerender(id); if (!a.hidden) location.hash = '#' + id;
-  const di = $(`#dock [data-app="${id}"]`); if (di) { di.classList.add('bounce'); setTimeout(() => di.classList.remove('bounce'), 1100); }
+  const di = $(`#dock [data-app="${id}"]`); if (di) { di.classList.add('bounce'); setTimeout(() => di.classList.remove('bounce'), 1100); } dockShow(true); dockShow(false, 1400);
   updateDock(); $('#widgets').classList.toggle('dim', !isPhone() && Object.keys(S.wins).length > 0);
 }
 function closeApp(id) {
@@ -884,9 +1157,9 @@ function focusWin(id) { const w = S.wins[id]; if (!w) return; $$('.win').forEach
 function focusedApp() { return S.focused && S.wins[S.focused] && !S.wins[S.focused].min ? S.focused : null; }
 function drag(el, handle) {
   let sx, sy, ox, oy, on = false;
-  handle.addEventListener('pointerdown', e => { if (isPhone() || e.target.closest('button') || el.classList.contains('max') || $('#stage').classList.contains('mc')) return; on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
-  handle.addEventListener('pointermove', e => { if (!on) return; const st = $('#stage'); el.style.left = Math.max(-el.offsetWidth + 80, Math.min(st.clientWidth - 80, ox + e.clientX - sx)) + 'px'; el.style.top = Math.max(0, Math.min(st.clientHeight - 40, oy + e.clientY - sy)) + 'px'; });
-  handle.addEventListener('pointerup', () => on = false); handle.addEventListener('pointercancel', () => on = false);
+  handle.addEventListener('pointerdown', e => { if (isPhone() || e.target.closest('button') || el.classList.contains('max') || $('#stage').classList.contains('mc')) return; const sw = S.wins[el.dataset.app]; if (sw && sw.pre && sw.snap) { el.style.width = sw.pre.width; el.style.height = sw.pre.height; sw.pre = null; sw.snap = null; } on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
+  handle.addEventListener('pointermove', e => { if (!on) return; snapGhost(snapZone(e.clientX, e.clientY)); const st = $('#stage'); el.style.left = Math.max(-el.offsetWidth + 80, Math.min(st.clientWidth - 80, ox + e.clientX - sx)) + 'px'; el.style.top = Math.max(0, Math.min(st.clientHeight - 40, oy + e.clientY - sy)) + 'px'; });
+  handle.addEventListener('pointerup', e => { if (!on) return; on = false; const z = snapZone(e.clientX, e.clientY); snapGhost(null); if (z) snapTo(el.dataset.app, z); }); handle.addEventListener('pointercancel', () => { on = false; snapGhost(null); });
 }
 const seqs = {};
 async function rerender(id) {
@@ -912,7 +1185,7 @@ let menuOpen = null;
 function menuItems(id) {
   const a = id ? appOf(id) : null;
   const win = [['Minimise', () => id && minApp(id), '⌘M'], ['Zoom', () => id && $('.z', S.wins[id].el).click()], ['Close Window', () => id && closeApp(id), '⌘W'], null, ['Mission Control', () => missionControl(true), 'F3'], ['Launchpad', () => toggleLaunchpad(true)], null, { h: 'Open' }, ...Object.keys(S.wins).map(k => [appOf(k).name + (S.wins[k].min ? ' (minimised)' : ''), () => openApp(k, true)])];
-  const help = [['Dashboard guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/DASHBOARD.md')], ['Remote access guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/docs/REMOTE-ACCESS.md')], ['Install guide', () => window.open('https://github.com/Rehchu/Church-server-OS-/blob/main/INSTALL.md')], null, ['About This Server', () => openApp('about')]];
+  const help = [['ariseOS Help', () => openApp('help'), 'F1'], ['Keyboard Shortcuts', () => shortcutsSheet(), '⌘/'], ['Show me around', () => walkthrough(true)], null, ...(isMember() ? [] : [['Dashboard guide', () => { S.help = { name: 'DASHBOARD', q: '' }; openApp('help'); }], ['Remote access guide', () => { S.help = { name: 'REMOTE-ACCESS', q: '' }; openApp('help'); }], ['Install guide', () => { S.help = { name: 'INSTALL', q: '' }; openApp('help'); }], ['On GitHub', () => window.open('https://github.com/Rehchu/Church-server-OS-')], null]), ['About This Server', () => openApp('about')]];
   const file = { files: [['New Folder', () => $('#fNew')?.click(), '⇧⌘N'], ['Upload Here', () => $('#fsUp')?.click()], null, ['Share Link…', () => { const el = $('#fMain .sel'); if (el) shareLink(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); else toast('Select a file or folder first', 'warn'); }], ['Shared Links…', () => linksModal()], null, ['Quick Look', () => { const el = $('#fMain .sel'); if (el && el.dataset.dir !== '1') quickLook(S.fs.root, (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n, el.dataset.n); }, 'Space'], ['Get Info', () => { const el = $('#fMain .sel'); if (el) getInfo(el.dataset.n, el.dataset.dir === '1', (S.fs.path === '/' ? '' : S.fs.path) + '/' + el.dataset.n); }, '⌘I'], null, ['Close Window', () => closeApp('files'), '⌘W']],
     backups: [['Run all jobs now', () => act($('#next') || document.body, () => api('/backups/run/automator', { method: 'POST' }), 'Started the automator job')], ['Refresh GitHub mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
@@ -920,13 +1193,17 @@ function menuItems(id) {
     devices: [['Scan now', () => $('#devScan')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
     sunday: [['Refresh', () => rerender('sunday'), '⌘R'], null, ['Close Window', () => closeApp(id), '⌘W']],
     mail: [['Compose', () => { S.mailTab = 'compose'; rerender('mail'); }], ['Contacts', () => { S.mailTab = 'contacts'; rerender('mail'); }], ['Sent', () => { S.mailTab = 'sent'; rerender('mail'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
+    calendar: [['Add Event…', () => !isMember() && eventModal(null)], ['Subscribe…', () => subscribeModal()], ['Today', () => $('#calToday')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
+    clock: [['World clock', () => { S.clock.tab = 'world'; rerender('clock'); }], ['Timer', () => { S.clock.tab = 'timer'; rerender('clock'); }], ['Stopwatch', () => { S.clock.tab = 'sw'; rerender('clock'); }], ['Alarm', () => { S.clock.tab = 'alarm'; rerender('clock'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
+    calc: [['Clear', () => { S.calc = { expr: '', res: '0' }; rerender('calc'); }], ['Copy result', () => copyText(S.calc?.res || '0')], null, ['Close Window', () => closeApp(id), '⌘W']],
+    help: [['Portal guide', () => { S.help.name = 'PORTAL-GUIDE'; rerender('help'); }], ['Keyboard Shortcuts', () => shortcutsSheet(), '⌘/'], null, ['Close Window', () => closeApp(id), '⌘W']],
     assist: [['Open Claude', () => $$('[data-url]').find(b => b.dataset.url.includes('claude'))?.click()], ['Claude Code in Terminal', () => $('[data-claude-code]')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
   }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'ariseOS', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
 }
 const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['Change Password…', () => changePassword()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()]]
-  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ['Restart…', () => powerAsk('reboot')], ['Shut Down…', () => powerAsk('poweroff')]];
+  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ...POWER_MENU()];
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
@@ -970,9 +1247,11 @@ function switcher(step) {
 
 /* Spotlight */
 const ACTIONS_ALL = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about']];
-const actions = () => isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL;
+const ACTIONS_ANY = [['Help', () => openApp('help'), 'help'], ['Keyboard shortcuts', () => shortcutsSheet(), 'help'], ['Subscribe to the calendar', () => subscribeModal(), 'calendar'], ['Set a timer', () => { S.clock = S.clock || { tab: 'timer', timer: { total: 300, left: 300, on: false, at: 0 }, sw: { el: 0, on: false, t0: 0, laps: [] }, alarm: null }; S.clock.tab = 'timer'; openApp('clock'); }, 'clock']];
+const actions = () => (isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL).concat(ACTIONS_ANY);
 function spotResults(q, remote) {
   q = q.trim(); const ql = q.toLowerCase(); let out = ''; const row = (icon, label, small, data) => `<button data-s='${esc(JSON.stringify(data))}'><span class="dock__icon">${icon}</span>${esc(label)}${small ? `<small>${esc(small)}</small>` : ''}</button>`;
+  if (q && looksLikeSum(q)) out += `<div class="h">Calculator</div>` + row(I.calc, `= ${fmtCalc(calcEval(q))}`, q, { calc: q });
   const bible = q.match(/^([1-3]?\s?[a-z]{2,20})\s?(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/i);
   if (bible) out += `<div class="h">Bible</div>` + row(I.bible, `Read ${q}`, 'Bible', { bible: q });
   const apps = visibleApps().filter(a => !a.hidden && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
@@ -991,6 +1270,7 @@ function spotGo(data) {
   toggleSpot(false);
   if (data.app) openApp(data.app);
   else if (data.bible) { S.bible = { ref: data.bible, tr: S.bible?.tr || 'web' }; openApp('bible'); }
+  else if (data.calc) { S.calc = { expr: '', res: fmtCalc(calcEval(data.calc)) }; copyText(S.calc.res); openApp('calc'); }
   else if (data.act != null) actions()[data.act][1]();
   else if (data.file) { const f = data.file; const dir = f.dir ? f.path : f.path.replace(/\/[^/]*$/, '') || '/'; S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: f.root, path: dir, sel: f.dir ? null : f.name, q: '' }); openApp('files'); }
 }
@@ -1005,13 +1285,14 @@ function weekWidget() {
 function verseWidget() { const v = S.church?.verse; if (!v || !v.text) return ''; return `<div class="widget widget--verse"><div class="widget__kicker">Verse of the day</div><blockquote>${esc(v.text)}<cite>${esc(v.ref)}</cite></blockquote></div>`; }
 async function loadChurch() { try { S.church = await api('/church'); } catch { S.church = S.church || null; } }
 async function buildMemberWidgets() {
+  await loadWeather();
   const w = $('#widgets'); const roots = S.me?.roots || []; let links = [];
   try { links = (await api('/links')).links || []; } catch {}
   const live = links.filter(l => !l.expired);
   w.innerHTML = `<div class="widget widget--clear"><div class="widget__kicker">Signed in</div><div class="widget__title" style="font-size:18px">${esc(S.user)}</div><div class="widget__sub">${(S.me?.groups || []).join(' · ') || 'member'}</div></div>
     <div class="widget"><div class="widget__kicker">Your places</div><div class="widget__rows">${roots.map(r => `<button class="widget__row" data-root="${esc(r.id)}"><span>${esc(r.name)}</span><b>${r.home ? 'your home folder' : r.writable === false ? 'read only' : 'share'}</b></button>`).join('')}</div></div>
     <div class="widget"><div class="widget__kicker">Shared links</div><div class="widget__rows"><div class="widget__row"><span>Live</span><b>${live.length}</b></div><div class="widget__row"><span>Downloads</span><b>${links.reduce((a, l) => a + (l.downloads || 0), 0)}</b></div></div><button class="btn btn--ghost btn--xs" data-act="links" style="margin-top:8px">Manage</button></div>
-    ${weekWidget()}${verseWidget()}`;
+    ${weekWidget()}${weatherWidget()}${verseWidget()}`;
   $$('[data-root]', w).forEach(b => b.onclick = () => { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: b.dataset.root, path: '/', sel: null }); openApp('files'); if (S.wins.files) rerender('files'); });
   $$('[data-act="links"]', w).forEach(b => b.onclick = () => linksModal());
 }
@@ -1024,6 +1305,7 @@ async function buildNC() {
   for (let i = 1; i <= days; i++) { const wd = new Date(y, m, i).getDay(); cal += `<span class="${wd === 0 || wd === 1 ? 'svc' : ''} ${i === d.getDate() ? 'today' : ''}">${i}</span>`; }
   cal += `</div><div class="widget__sub" style="margin-top:8px">● ${(S.church?.services || []).map(x => `${x.day}s ${fmtSvc(x.time)} ${x.name === 'Sunday Service' ? x.site : x.name}`).join(' · ') || 'Sundays 10:30 Pineville · 10:00 Alexandria · Mondays 7 PM Glory Night'}</div>`;
   $('#ncCal').innerHTML = cal;
+  try { const c = await api('/calendar'); const up = (c.upcoming || []).filter(x => new Date(x.start) - Date.now() < 7 * 86400000).slice(0, 6); if (up.length && $('#ncCal')) $('#ncCal').insertAdjacentHTML('beforeend', `<div class="widget__rows" style="margin-top:10px">${up.map(x => `<button class="widget__row" data-open="calendar"><span>${esc(fmtDay(x.start))} · ${esc(x.title)}</span><b>${esc(fmtClock(x.start))}</b></button>`).join('')}</div>`); $$('#ncCal [data-open]').forEach(b => b.onclick = () => { toggleNC(false); openApp('calendar'); }); } catch {}
   try { const s = await api('/sermons?limit=1'); const v = (s.videos || [])[0]; if (v) $('#ncSermon').innerHTML = `<div class="widget__kicker">Latest on the channel</div><div class="widget__title" style="font-size:15px">${esc(v.title)}</div><div class="widget__sub">${esc(v.kind)} · ${esc(v.published)}${v.views ? ' · ' + fmtN(v.views) + ' views' : ''}</div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--xs" data-open="sermons">Sermons</button></div>`; $$('[data-open]', $('#ncSermon')).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); }); } catch {}
 }
 /* Control Center */
@@ -1095,34 +1377,45 @@ function buildCC() {
   $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
   $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { const a = b.dataset.act; if (a in CC_FEEL) return CC_FEEL[a](); toggleCC(false); ({ backup: runAllBackups, preview: () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), mc: () => missionControl(true), lock: lockScreen })[a](); });
 }
-const CC_FEEL = { theme: toggleTheme, sounds: () => { PREF.set('sounds', PREF.get('sounds', '1') === '1' ? '0' : '1'); tone('click'); buildCC(); }, push: () => { toggleCC(false); enablePush(); }, walk: () => { toggleCC(false); walkthrough(true); } };
+const CC_FEEL = { dockhide: () => { PREF.set('dock.hide', PREF.get('dock.hide', '1') === '1' ? '0' : '1'); applyDockHide(); buildCC(); }, 'a11y-text': () => { PREF.set('a11y.text', PREF.get('a11y.text', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, 'a11y-motion': () => { PREF.set('a11y.motion', PREF.get('a11y.motion', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, 'a11y-contrast': () => { PREF.set('a11y.contrast', PREF.get('a11y.contrast', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, theme: toggleTheme, sounds: () => { PREF.set('sounds', PREF.get('sounds', '1') === '1' ? '0' : '1'); tone('click'); buildCC(); }, push: () => { toggleCC(false); enablePush(); }, walk: () => { toggleCC(false); walkthrough(true); } };
 function ccFeel() {
   const bone = PREF.get('theme', 'dark') === 'bone', snd = PREF.get('sounds', '1') === '1', pushOn = PREF.get('push', '') === '1';
   return `<button class="${bone ? 'ok' : ''}" data-act="theme" ${S.kiosk ? 'disabled title="the monitor stays dark"' : ''}><b>${bone ? 'Bone' : 'House Lights Down'}</b><span>${S.kiosk ? 'the monitor stays dark' : bone ? 'light paper · tap for dark' : 'dark stage · tap for light'}</span></button>
     <button class="${snd ? 'ok' : ''}" data-act="sounds"><b>Sounds ${snd ? 'on' : 'off'}</b><span>quiet clicks and chimes</span></button>
     ${S.me && S.me.user && !S.kiosk ? `<button class="${pushOn ? 'ok' : ''}" data-act="push"><b>Push ${pushOn ? 'on' : 'off'}</b><span>${pushOn ? 'this device gets alerts' : 'alerts to this phone'}</span></button>` : ''}
-    <button data-act="walk"><b>Show me around</b><span>the five-step tour</span></button>`;
+    <button data-act="walk"><b>Show me around</b><span>the five-step tour</span></button>
+    ${isPhone() ? '' : `<button class="${PREF.get('dock.hide', '1') === '1' ? 'ok' : ''}" data-act="dockhide"><b>Dock ${PREF.get('dock.hide', '1') === '1' ? 'hides' : 'stays'}</b><span>${PREF.get('dock.hide', '1') === '1' ? 'slides away; mouse at the bottom edge brings it back' : 'always on screen'}</span></button>`}
+    ${ccA11y()}`;
 }
 async function runAllBackups() { const jobs = (await api('/backups/jobs')).jobs || []; for (const j of jobs) await api(`/backups/run/${encodeURIComponent(j.id)}`, { method: 'POST' }); toast(`Started ${jobs.length} backup jobs; rows appear in Backups as they finish`); }
 function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Everything stops for about a minute. Logged-in Macs keep working on cached accounts. The desktop comes back by itself.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await api('/system/power', { method: 'POST', body: { action, confirm: action } }); if (r.ok === false) throw new Error(r.err); toast(action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
 
 /* ---------------- dock + launchpad + desktop icons ---------------- */
+const DOCK_DEFAULT = { admin: ['files', 'overview', 'sunday', 'sermons', 'calendar', 'mail', 'apps', 'settings', 'terminal'], member: ['files', 'sermons', 'bible', 'sunday', 'calendar', 'assist', 'help'] };
+function dockPins() { const k = 'dock.' + (isMember() ? 'member' : 'admin'); try { const v = JSON.parse(PREF.get(k, 'null')); if (Array.isArray(v)) return v.filter(id => appOf(id) && (!isMember() || MEMBER_APPS.includes(id))); } catch {} return DOCK_DEFAULT[isMember() ? 'member' : 'admin']; }
+function pinApp(id, on) { const pins = dockPins().filter(x => x !== id); if (on) pins.push(id); PREF.set('dock.' + (isMember() ? 'member' : 'admin'), JSON.stringify(pins)); buildDock(); tone('click'); toast(on ? `${appOf(id).name} kept in the Dock` : `${appOf(id).name} removed from the Dock (it still shows while open)`); }
+const dockApps = () => { const pins = dockPins(); const vis = visibleApps().filter(a => !a.hidden); return vis.filter(a => pins.includes(a.id)).sort((a, b) => pins.indexOf(a.id) - pins.indexOf(b.id)).concat(vis.filter(a => !pins.includes(a.id) && S.wins[a.id])); };
+function applyDockHide() { const on = PREF.get('dock.hide', '1') === '1' && !isPhone(); document.body.classList.toggle('dockhide', on); let edge = $('#dockEdge'); if (!edge) { edge = document.createElement('div'); edge.id = 'dockEdge'; edge.setAttribute('aria-hidden', 'true'); $('#desk').appendChild(edge); edge.onmouseenter = () => dockShow(true); $('#dock').onmouseleave = () => dockShow(false, 400); $('#dock').onmouseenter = () => dockShow(true); } }
+function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock').classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock').classList.remove('show'), after || 0); }
 function buildDock() {
   const d = $('#dock');
-  d.innerHTML = visibleApps().filter(a => a.dock).map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
+  d.innerHTML = dockApps().map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
     `<span class="dock__sep"></span><button class="dock__i" id="dockLp" aria-label="Launchpad"><span class="dock__icon">${I.apps}</span><span class="lbl">Launchpad</span></button>`;
-  $$('[data-app]', d).forEach(b => b.onclick = () => { tone('click'); const id = b.dataset.app; const w = S.wins[id]; if (w && !w.min && w.el.classList.contains('focus') && !isPhone()) minApp(id); else openApp(id, true); });
+  $$('[data-app]', d).forEach(b => { b.onclick = () => { tone('click'); const id = b.dataset.app; const w = S.wins[id]; if (w && !w.min && w.el.classList.contains('focus') && !isPhone()) minApp(id); else openApp(id, true); };
+    b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.app, pinned = dockPins().includes(id), w = S.wins[id]; ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], null, [w ? 'Close' : 'Open', () => w ? closeApp(id) : openApp(id)]]); }; });
   $('#dockLp').onclick = () => toggleLaunchpad();
+  if (d.dataset.bound) { updateDock(); } else { d.dataset.bound = '1';
   // magnification
-  const items = $$('.dock__i', d);
-  d.addEventListener('mousemove', e => { if (isPhone() || matchMedia('(prefers-reduced-motion: reduce)').matches) return; items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
-  d.addEventListener('mouseleave', () => items.forEach(it => it.style.transform = ''));
+  d.addEventListener('mousemove', e => { if (isPhone() || reducedMotion()) return; const items = $$('.dock__i', d); items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
+  d.addEventListener('mouseleave', () => $$('.dock__i', d).forEach(it => it.style.transform = '')); }
   const lp = $('#lpGrid'); lp.innerHTML = visibleApps().filter(a => !a.hidden).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></button>`).join('');
-  $$('[data-lp]', lp).forEach(b => b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); });
+  $$('[data-lp]', lp).forEach(b => { b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); }; b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.lp, pinned = dockPins().includes(id); ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], null, ['Open', () => { toggleLaunchpad(false); openApp(id); }]]); }; });
   $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); };
   $('#launchpad').onclick = e => { if (e.target.id === 'launchpad') toggleLaunchpad(false); };
 }
-function updateDock() { $$('#dock [data-app]').forEach(b => { const w = S.wins[b.dataset.app]; b.classList.toggle('run', !!w); b.classList.toggle('active', !!w && w.el.classList.contains('focus') && !w.min); }); }
+function updateDock() {
+  const shown = $$('#dock [data-app]').map(b => b.dataset.app), want = dockApps().map(a => a.id); if (shown.join() !== want.join()) { buildDock(); return; }
+  $$('#dock [data-app]').forEach(b => { const w = S.wins[b.dataset.app]; b.classList.toggle('run', !!w); b.classList.toggle('active', !!w && w.el.classList.contains('focus') && !w.min); }); }
 async function buildIcons() {
   let roots = []; try { roots = (await api('/files/roots')).roots || []; } catch {}
   $('#icons').innerHTML = roots.map(r => `<button class="ico" data-root="${esc(r.id)}"><span class="dock__icon" style="background:${r.id === 'nas' ? ICONURL.nas : ICONURL.server} center/80% no-repeat #000"></span><span>${esc(r.name)}</span></button>`).join('');
@@ -1134,6 +1427,7 @@ async function buildIcons() {
 /* ---------------- desktop widgets ---------------- */
 async function buildWidgets() {
   if (isMember()) return buildMemberWidgets();
+  await loadWeather();
   let o; try { o = await api('/overview'); } catch (e) { if (e.status === 401) return showLogin(e); o = null; }
   S.overview = o;
   const w = $('#widgets'); if (!o) { w.innerHTML = ''; return; }
@@ -1157,7 +1451,7 @@ async function buildWidgets() {
       <div class="widget__row"><span>Backups</span><b>${b.last ? (b.last.ok ? 'ok' : '<span style="color:var(--redL)">failed</span>') + ' · ' + ago(b.last.started) : 'none'}</b></div>
       <div class="widget__row"><span>Synology</span><b>${n.mounted ? fmtB(n.free) + ' free' : '<span style="color:var(--warn)">not mounted</span>'}</b></div>
       <div class="widget__row"><span>Next</span><b>${esc(next)}</b></div></div>
-    ${weekWidget()}${verseWidget()}`;
+    ${weekWidget()}${weatherWidget()}${verseWidget()}`;
   $$('[data-open]', w).forEach(x => x.onclick = () => openApp(x.dataset.open));
   if (S.stats) paintWidgetLive(S.stats);
 }
@@ -1168,7 +1462,8 @@ function lockScreen(idle) {
   const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
-function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+function churchLine() { const c = S.church; const n = c?.next; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }
+function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); const h = $('#lock .lock__hint'); if (h) h.textContent = churchLine() + ($('#lock').classList.contains('idle') ? ' · press a key' : ''); }
 $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw').value; $('#lockPw').value = '';
   if (S.demoOnly || S.demo) { $('#lock').hidden = true; return; }
   try { await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } }); $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
@@ -1178,7 +1473,8 @@ function showLogin(err) {
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
     ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>` : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
     <form id="lf" class="lock__form"><input id="lu" value="${esc((() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })())}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
-    <div class="lock__hint">arise-server · AD.ARISECENLA.CHURCH</div></div></div>`;
+    <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px">arise-server · AD.ARISECENLA.CHURCH</div></div></div>`;
+  api('/public/signage').then(sg => { const n = sg.next; const el = $('#loginNext'); if (el) el.textContent = `${sg.name || 'Arise Church'} · ${(sg.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }).catch(() => {});
   const f = $('#lf'); if (f) { $('#lp').focus(); f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy'); try { await api('/auth/login', { method: 'POST', body: { user: $('#lu').value, password: $('#lp').value } }); location.reload(); } catch (er) { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = er.message; } finally { b.classList.remove('busy'); } }; }
 }
 function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
@@ -1192,7 +1488,10 @@ document.addEventListener('keydown', e => {
   if (cmd && e.key === 'Tab') { e.preventDefault(); switcher(e.shiftKey ? -1 : 1); return; }
   if (inField) return;
   if (e.key === 'F4') { e.preventDefault(); toggleLaunchpad(); return; }
+  if (e.key === 'F1' || (cmd && (e.key === '?' || (e.shiftKey && e.key === '/')))) { e.preventDefault(); openApp('help'); return; }
+  if (cmd && e.key === '/') { e.preventDefault(); shortcutsSheet(); return; }
   const id = focusedApp();
+  if (cmd && id && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && !isPhone()) { e.preventDefault(); snapKey(id, e.key); return; }
   if (cmd && (e.key === 'w' || e.key === 'q') && id) { e.preventDefault(); closeApp(id); }
   else if (cmd && e.key === 'm' && id) { e.preventDefault(); minApp(id); }
   else if (cmd && e.key === 'r' && id) { e.preventDefault(); rerender(id); }
@@ -1235,7 +1534,7 @@ function kioskSetup() {
 async function boot() {
   if (window.ARISE_FORCE_DEMO) setDemoOnly();
   clock(); setInterval(clock, 15000);
-  buildDock(); setAppMenus(null); kioskSetup(); applyTheme();
+  buildDock(); setAppMenus(null); kioskSetup(); applyTheme(); applyA11y(); applyDockHide();
   try {
     const me = await api('/auth/me');
     if (me.error) { if (me.error.setup) return showLogin({ setup: true }); return showLogin(me.error); }
@@ -1243,6 +1542,7 @@ async function boot() {
     applyTheme();
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && !S.demoOnly) navigator.serviceWorker.register('/sw.js').catch(() => {});
     if (!S.kiosk && !me.demo) setTimeout(() => walkthrough(false), 1200);
+    if (!S.kiosk) setTimeout(whatsNewToast, 2500);
     try { if (!me.demo) localStorage.setItem('arise.user', S.user); } catch {}
     if (isMember()) { document.body.classList.add('member'); buildDock(); setAppMenus(null); }
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
@@ -1250,7 +1550,8 @@ async function boot() {
   if (!isMember()) startStats();
   await loadChurch();
   await Promise.all([buildWidgets(), isMember() ? Promise.resolve() : buildIcons()]);
-  setInterval(loadChurch, 15 * 60000);
+  greet();
+  setInterval(loadChurch, 15 * 60000); setInterval(() => loadWeather(true), 30 * 60000);
   setInterval(buildWidgets, 60000);
   const first = (location.hash || '').replace('#', '').split('/')[0];
   if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('files');
@@ -1258,5 +1559,5 @@ async function boot() {
 }
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
-window.arise = { openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, S, APPS };
+window.arise = { pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, S, APPS };
 })();

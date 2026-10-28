@@ -258,3 +258,40 @@ def is_admin(name: str) -> bool:
         return True
     admins = cfg.web.get("admins_group", "Domain Admins")
     return admins in user_groups(name)
+
+
+# ---- the password rules, in words ------------------------------------------------
+def rules_from_show(text: str) -> dict:
+    """`samba-tool domain passwordsettings show` as words. Only what the domain
+    reports is said; nothing is assumed. Pure."""
+    import re as _re
+    get = lambda label: (_re.search(label + r":\s*(\S+)", text or "") or [None, None])[1]
+    min_len = get(r"Minimum password length")
+    complexity = get(r"Password complexity")
+    history = get(r"Password history length")
+    max_age = get(r"Maximum password age \(days\)")
+    words = []
+    if min_len and min_len.isdigit():
+        words.append(f"At least {min_len} characters")
+    if complexity and complexity.lower() == "on":
+        words.append("Three of the four kinds: capitals, small letters, numbers, symbols")
+        words.append("Not your name or any part of it")
+    if history and history.isdigit() and int(history) > 0:
+        words.append(f"Not one of your last {history} passwords")
+    if max_age is not None:
+        words.append("Never expires" if max_age == "0" else f"Expires after {max_age} days")
+    return {"min_length": int(min_len) if min_len and min_len.isdigit() else None, "complexity": (complexity or "").lower() == "on",
+            "history": int(history) if history and history.isdigit() else None, "max_age_days": int(max_age) if max_age and max_age.isdigit() else None, "words": words}
+
+
+# What installer/install.sh step 5b sets (no history line: the installer leaves that to the domain's default).
+_DEMO_SHOW = "Minimum password length: 12\nPassword complexity: on\nMaximum password age (days): 0\n"
+
+
+def password_rules() -> dict:
+    if not available():
+        return {**rules_from_show(_DEMO_SHOW), "demo": True}
+    r = run(["samba-tool", "domain", "passwordsettings", "show"], timeout=20)
+    if not r["ok"]:
+        return {"min_length": 8, "complexity": None, "history": None, "max_age_days": None, "words": ["At least 8 characters (the domain did not answer; this is the dashboard's own floor)"], "err": r["err"]}
+    return rules_from_show(r["out"])

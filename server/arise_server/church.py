@@ -71,6 +71,26 @@ def next_service(now: datetime | None = None, services: list | None = None) -> d
             "in_words": (f"{mins // 1440} days" if mins >= 2880 else f"{mins // 60} h {mins % 60} min" if mins >= 60 else f"{mins} min")}
 
 
+def in_service_now(now: datetime | None = None, services: list | None = None, hours: float = 2.0) -> dict | None:
+    """The service happening right now, if any: from its start until two hours after.
+    Pure, for the tests. Power actions and the domain restart are refused while this is set."""
+    now = now or datetime.now()
+    for s in services if services is not None else info()["services"]:
+        try:
+            day = DAYS.index(s["day"])
+            hh, mm = [int(x) for x in str(s["time"]).split(":")[:2]]
+        except (ValueError, KeyError):
+            continue
+        if day != now.weekday():
+            continue
+        start = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        end = start + timedelta(hours=hours)
+        if start <= now < end:
+            return {"name": s["name"], "site": s.get("site", ""), "started": start.isoformat(timespec="minutes"), "ends": end.isoformat(timespec="minutes"),
+                    "ends_at": end.strftime("%-I:%M %p")}
+    return None
+
+
 def verse_of_day(now: datetime | None = None) -> dict:
     now = now or datetime.now()
     pool = VERSES
