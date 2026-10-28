@@ -73,9 +73,9 @@ restic_repo = "/mnt/synology/arise-backups/restic"
 password_file = "/etc/arise/secrets/restic-password"
 schedule = "03:00"
 # Retention: restic forget --keep-daily 14 --keep-weekly 8 --keep-monthly 12, then prune.
-keep_daily = 14
-keep_weekly = 8
-keep_monthly = 12
+keep_daily = 30
+keep_weekly = 12
+keep_monthly = 24   # Bradly: more history than the default (docs/ANSWERS.md 47)
 jobs_file = "/etc/arise/backups.yaml"
 
 [nas]
@@ -124,6 +124,7 @@ guacamole_url = "http://arise-server:8084"
 
 # The daily note (07:00): what needs you, to a Discord or Slack webhook.
 # Leave webhook_url empty and nothing is sent; the dashboard still shows it.
+# Bradly, Oct 28 2026: no daily note for now (docs/ANSWERS.md 49).
 [notify]
 webhook_url = ""
 hour = 7

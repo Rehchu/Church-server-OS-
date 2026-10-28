@@ -52,9 +52,9 @@ DEFAULTS = {
         "restic_repo": _root("/mnt/synology/arise-backups/restic", r"Z:\arise-backups\restic"),
         "password_file": _root("/etc/arise/secrets/restic-password", r"C:\Arise\config\secrets\restic-password"),
         "schedule": "03:00",
-        "keep_daily": 14,
-        "keep_weekly": 8,
-        "keep_monthly": 12,
+        "keep_daily": 30,
+        "keep_weekly": 12,
+        "keep_monthly": 24,
         "jobs_file": _root("/etc/arise/backups.yaml", r"C:\Arise\config\backups.yaml"),
     },
     "nas": {

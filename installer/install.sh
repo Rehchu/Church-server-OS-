@@ -422,6 +422,41 @@ RESOLVED
 fi
 
 # ----------------------------------------------------------------------------
+# 5b. Groups and shares (docs/ANSWERS.md 25, 27, 37)
+# ----------------------------------------------------------------------------
+say "5b/7  Groups and the nine shares"
+# One security group per share plus the department groups. samba-tool refuses
+# to add a group that exists, so every line is safe to run again.
+if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
+  for g in Staff Leadership Media Kids Childrens-Department Inedge Worship Volunteers Kids-Check-in; do
+    if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool group add $g"; continue; fi
+    if samba-tool group list 2>/dev/null | grep -qx "$g"; then note "group $g exists"; else
+      samba-tool group add "$g" >/dev/null 2>&1 && note "group $g created" || warn "could not create group $g (is the DC up?)"
+    fi
+  done
+  # Leadership also reads the staff share: nest it. Media reads graphics and worship (in smb.conf).
+  if [ "$DRY_RUN" = 0 ]; then samba-tool group addmembers Staff Leadership >/dev/null 2>&1 || true; fi
+fi
+for sh in staff leadership media graphics kids childrens-department inedge worship; do
+  run mkdir -p "$DATA_ROOT/shares/$sh"
+done
+run mkdir -p "$DATA_ROOT/shares"
+if [ "$DRY_RUN" = 0 ] && [ "$SKIP_DOMAIN" = 0 ] && getent group "Domain Users" >/dev/null 2>&1; then
+  # Each share folder belongs to its group so the force group in smb.conf matches on disk.
+  for pair in staff:Staff leadership:Leadership media:Media graphics:Media kids:Kids childrens-department:Childrens-Department inedge:Inedge worship:Worship; do
+    d=${pair%%:*}; g=${pair#*:}
+    chgrp "$g" "$DATA_ROOT/shares/$d" 2>/dev/null && chmod 2775 "$DATA_ROOT/shares/$d" || note "chgrp $g on shares/$d skipped (group not visible to the OS yet; run again after the DC is up)"
+  done
+  chmod 2770 "$DATA_ROOT/shares/leadership" 2>/dev/null || true
+fi
+note "recordings share lives on the Synology (/mnt/synology/arise/recordings); made by 'arisectl nas mount'"
+# The four administrators (docs/ANSWERS.md 25) are added by hand with real passwords:
+#   sudo arisectl user add bryant.sanders --display "Bryant Sanders" --groups "Domain Admins,Staff,Leadership"
+#   sudo arisectl user add vanessa.sanders --display "Vanessa Sanders" --groups "Domain Admins,Staff,Leadership"
+#   sudo arisectl user add kristina.robinson --display "Kristina Robinson" --groups "Domain Admins,Staff"
+# bradly.dyer is created by step 5 as the first Domain Admin when --admin-pass is given.
+
+# ----------------------------------------------------------------------------
 # 6. Docker (optional) and systemd units
 # ----------------------------------------------------------------------------
 say "6/7  Docker and the Arise services"

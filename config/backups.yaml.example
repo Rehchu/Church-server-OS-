@@ -27,6 +27,10 @@ jobs:
 
   - id: shares
     name: Shared folders
+    # The nine church shares. The recordings share is NOT here: it lives on the
+    # Synology (/mnt/synology/arise/recordings) and a 6 GB file a week would
+    # swallow the backup history; its RAID is its protection until an off-site
+    # copy exists (docs/ANSWERS.md 48, 51).
     paths: ["/srv/arise/shares"]
     tags: [shares]
 

@@ -2,7 +2,8 @@
 # enroll-mac.sh — the one command for a Mac that already has people on it.
 #
 #   sudo ./enroll-mac.sh --computer-name MEDIA-MAC-01 [--server arise-server] [--ssh-user bradly]
-#                        [--only alice,bob] [--skip admin,guest] [--via ssh|api] [--dashboard http://arise-server:4147]
+#                        [--only alice,bob] [--skip admin,guest] [--map alice=alice.smith,bob=bob.jones]
+#                        [--via ssh|api] [--dashboard http://arise-server:4147]
 #                        [--no-migrate] [--dry-run]
 #
 # What it does, in order, and says so as it goes:
@@ -25,7 +26,7 @@
 set -u
 
 HERE=$(cd "$(dirname "$0")" && pwd)
-SERVER="arise-server"; SSH_USER="bradly"; COMPUTER=""; ONLY=""; SKIP="admin,guest,administrator,arise,shared"
+SERVER="arise-server"; SSH_USER="bradly"; COMPUTER=""; ONLY=""; SKIP="admin,guest,administrator,arise,shared"; MAP=""
 VIA="ssh"; DASH=""; MIGRATE=1; DRY=0
 NETBIOS="ARISE"
 
@@ -40,6 +41,7 @@ while [ $# -gt 0 ]; do
     --server)        SERVER="$2"; shift 2 ;;
     --ssh-user)      SSH_USER="$2"; shift 2 ;;
     --only)          ONLY="$2"; shift 2 ;;
+    --map)           MAP="$MAP,$2"; shift 2 ;;   # local=directory, e.g. bradly=bradly.dyer (usernames are first.last)
     --skip)          SKIP="$SKIP,$2"; shift 2 ;;
     --via)           VIA="$2"; shift 2 ;;
     --dashboard)     DASH="$2"; shift 2 ;;
@@ -68,6 +70,9 @@ gen_pw() { # 14 chars, letters and digits, no look-alikes; meets the domain poli
 in_list() { # in_list needle "a,b,c"
   case ",$2," in *",$1,"*) return 0 ;; esac; return 1
 }
+# The directory name for a local account: --map old=new, else the same name.
+# Bradly's rule is first.last (docs/ANSWERS.md 23), so most local names need a map.
+dir_name() { local n="$1" pair; IFS=',' read -ra _pairs <<< "$MAP"; for pair in "${_pairs[@]}"; do [ "${pair%%=*}" = "$n" ] && { echo "${pair#*=}"; return; }; done; echo "$n"; }
 
 # ---- 1. bind -------------------------------------------------------------------
 step "1/6  Bind to the domain"
@@ -122,24 +127,26 @@ else
   fi
 fi
 for p in "${PEOPLE[@]}"; do
-  name=${p%%|*}; full=${p#*|}
-  if in_list "$name" "$existing"; then say "$name: already in the directory"; REPORT+=("user $name: existed"); continue; fi
+  name=${p%%|*}; full=${p#*|}; dname=$(dir_name "$name")
+  [ "$dname" = "$name" ] || say "$name -> $dname (from --map)"
+  case "$dname" in *.*) ;; *) say "$dname: not first.last; add --map $name=first.last if that is the rule"; TODO+=("username $dname is not first.last");; esac
+  if in_list "$dname" "$existing"; then say "$dname: already in the directory"; REPORT+=("user $dname: existed"); continue; fi
   pw=$(gen_pw)
   if [ "$VIA" = "ssh" ]; then
     # the password goes over the SSH session, not the command line of this Mac
-    if run ssh "$SSH_USER@$SERVER" "sudo arisectl user add '$name' --display '$full' --password '$pw' --groups Staff"; then
-      say "$name: created (groups: Staff)"; REPORT+=("user $name: created"); PASSWORDS+=("$name  $pw")
+    if run ssh "$SSH_USER@$SERVER" "sudo arisectl user add '$dname' --display '$full' --password '$pw' --groups Staff"; then
+      say "$dname: created (groups: Staff)"; REPORT+=("user $dname: created"); PASSWORDS+=("$dname  $pw")
     else
-      say "$name: arisectl user add FAILED (see above)"; REPORT+=("user $name: FAILED to create"); TODO+=("create $name by hand: sudo arisectl user add $name --display \"$full\"")
+      say "$dname: arisectl user add FAILED (see above)"; REPORT+=("user $dname: FAILED to create"); TODO+=("create $dname by hand: sudo arisectl user add $dname --display \"$full\"")
     fi
   else
-    if [ $DRY -eq 1 ]; then say "would POST $DASH/api/directory/users for $name"; REPORT+=("user $name: would create"); continue; fi
-    body=$(printf '{"name":"%s","password":"%s","display":"%s","groups":["Staff"]}' "$name" "$pw" "$full")
+    if [ $DRY -eq 1 ]; then say "would POST $DASH/api/directory/users for $dname"; REPORT+=("user $dname: would create"); continue; fi
+    body=$(printf '{"name":"%s","password":"%s","display":"%s","groups":["Staff"]}' "$dname" "$pw" "$full")
     code=$(curl -s -o /tmp/arise-enrol.out -w '%{http_code}' -b "$COOKIE_JAR" -H 'Content-Type: application/json' -d "$body" "$DASH/api/directory/users")
     if [ "$code" = "200" ] && ! grep -q '"ok": *false' /tmp/arise-enrol.out; then
-      say "$name: created (groups: Staff)"; REPORT+=("user $name: created"); PASSWORDS+=("$name  $pw")
+      say "$dname: created (groups: Staff)"; REPORT+=("user $dname: created"); PASSWORDS+=("$dname  $pw")
     else
-      say "$name: API said $code: $(head -c 200 /tmp/arise-enrol.out)"; REPORT+=("user $name: FAILED to create"); TODO+=("create $name in Directory > Users > Add")
+      say "$dname: API said $code: $(head -c 200 /tmp/arise-enrol.out)"; REPORT+=("user $dname: FAILED to create"); TODO+=("create $dname in Directory > Users > Add")
     fi
   fi
 done
@@ -149,18 +156,18 @@ done
 step "4/6  Copy each person's files into their server home"
 if [ $MIGRATE -eq 0 ]; then say "skipped (--no-migrate)"; else
   for p in "${PEOPLE[@]}"; do
-    name=${p%%|*}
+    name=${p%%|*}; dname=$(dir_name "$name")
     if who | awk '{print $1}' | grep -qx "$name"; then
-      say "$name is logged in; skipped. Log them out and run: sudo ./migrate-mac-user.sh --from $name --to $name"
-      TODO+=("migrate $name after they log out: sudo ./migrate-mac-user.sh --from $name --to $name"); continue
+      say "$name is logged in; skipped. Log them out and run: sudo ./migrate-mac-user.sh --from $name --to $dname"
+      TODO+=("migrate $name after they log out: sudo ./migrate-mac-user.sh --from $name --to $dname"); continue
     fi
-    if [ $DRY -eq 1 ]; then say "would run: migrate-mac-user.sh --from $name --to $name"; continue; fi
-    say "-- $name (you will be asked for $name's NEW domain password to mount the share)"
-    if bash "$HERE/migrate-mac-user.sh" --from "$name" --to "$name" --server "$SERVER"; then
+    if [ $DRY -eq 1 ]; then say "would run: migrate-mac-user.sh --from $name --to $dname"; continue; fi
+    say "-- $name -> $dname (you will be asked for $dname's NEW domain password to mount the share)"
+    if bash "$HERE/migrate-mac-user.sh" --from "$name" --to "$dname" --server "$SERVER"; then
       REPORT+=("migrate $name: done")
     else
       REPORT+=("migrate $name: finished with warnings (read the manifest on $name's Desktop)")
-      TODO+=("check $name's migration manifest, then re-run: sudo ./migrate-mac-user.sh --from $name --to $name")
+      TODO+=("check $name's migration manifest, then re-run: sudo ./migrate-mac-user.sh --from $name --to $dname")
     fi
   done
 fi

@@ -80,7 +80,7 @@ class Backups(unittest.TestCase):
         for j in jobs:
             self.assertTrue(j["paths"], j["id"])
             self.assertTrue(all(p.startswith("/") for p in j["paths"]), j["id"])
-        self.assertEqual(cfg.backups.keep_daily, 14)
+        self.assertEqual(cfg.backups.keep_daily, 30)  # Bradly: more history (docs/ANSWERS.md 47)
 
     def test_unknown_job_is_refused(self):
         self.assertFalse(backups.run_job("nope")["ok"])

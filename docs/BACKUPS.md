@@ -47,7 +47,7 @@ Edit the file to add a job. It is read fresh on every run.
 | 04:00 | `arise-mirror.timer`: refresh the GitHub mirror (the 03:00 run of the next night snapshots it) |
 | 04:30 | the Synology's own Hyper Backup to the off-site copy (set on the NAS) |
 
-Policy from `arise.toml`: **keep 14 daily, 8 weekly, 12 monthly** snapshots
+Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)
 per job. A file deleted on a Tuesday is in last night's snapshot for two weeks,
 in a weekly for two months, in a monthly for a year.
 

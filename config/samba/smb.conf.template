@@ -74,3 +74,100 @@
         create mask = 0664
         directory mask = 0775
         force group = "Domain Users"
+
+# ---- The church's shares (Bradly, Oct 28 2026; docs/ANSWERS.md 37) ----------
+# One folder each under /srv/arise/shares, one security group each. The
+# installer makes the groups and the folders (step 2b). Add a person to a
+# group and the share appears for them; nothing else to touch.
+# recordings lives on the Synology because of its size, and restic does not
+# back it up (docs/ANSWERS.md 51); the Synology's RAID is its protection.
+
+[staff]
+        comment = Staff: pastors and paid staff
+        path = /srv/arise/shares/staff
+        valid users = @"ARISE\Staff" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Staff"
+
+[leadership]
+        comment = Leadership only
+        path = /srv/arise/shares/leadership
+        valid users = @"ARISE\Leadership" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0660
+        directory mask = 0770
+        force group = "Leadership"
+
+[media]
+        comment = Media team: livestream, YouTube, projector
+        path = /srv/arise/shares/media
+        valid users = @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Media"
+
+[graphics]
+        comment = Proclaim backgrounds, loops, lower thirds (synced to the media Mac)
+        path = /srv/arise/shares/graphics
+        valid users = @"ARISE\Media" @"ARISE\Staff" @"ARISE\Domain Admins"
+        write list = @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = yes
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Media"
+
+[kids]
+        comment = Kids ministry
+        path = /srv/arise/shares/kids
+        valid users = @"ARISE\Kids" @"ARISE\Childrens-Department" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Kids"
+
+[childrens-department]
+        comment = Children's Department
+        path = /srv/arise/shares/childrens-department
+        valid users = @"ARISE\Childrens-Department" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Childrens-Department"
+
+[inedge]
+        comment = Inedge
+        path = /srv/arise/shares/inedge
+        valid users = @"ARISE\Inedge" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Inedge"
+
+[worship]
+        comment = Worship and music: charts, setlists, tracks
+        path = /srv/arise/shares/worship
+        valid users = @"ARISE\Worship" @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Worship"
+
+[recordings]
+        comment = Sunday recordings (on the Synology; not in the restic backup)
+        path = /mnt/synology/arise/recordings
+        valid users = @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775

@@ -24,6 +24,8 @@ USERS = [
     {"name": "office", "display": "Church Office", "groups": ["Staff"], "enabled": True, "last_logon": _ago(days=2, hours=3), "home": r"\\arise-server\homes\office"},
     {"name": "kids-checkin", "display": "Kids Check-in", "groups": ["Kids-Check-in"], "enabled": True, "last_logon": _ago(days=6), "home": r"\\arise-server\homes\kids-checkin"},
     {"name": "guest-speaker", "display": "Guest Speaker (loaner)", "groups": ["Volunteers"], "enabled": False, "last_logon": None, "home": r"\\arise-server\homes\guest-speaker"},
+    {"name": "childrens.department", "display": "Children's Department", "groups": ["Childrens-Department"], "enabled": True, "last_logon": _ago(days=3), "home": r"\\arise-server\homes\childrens.department"},
+    {"name": "inedge", "display": "Inedge", "groups": ["Inedge"], "enabled": True, "last_logon": _ago(days=9), "home": r"\\arise-server\homes\inedge"},
 ]
 
 GROUPS = [
@@ -33,6 +35,9 @@ GROUPS = [
     {"name": "Leadership", "members": [], "description": "Pastoral leadership"},
     {"name": "Volunteers", "members": ["guest-speaker"], "description": "Volunteer logins"},
     {"name": "Kids-Check-in", "members": ["kids-checkin"], "description": "Children's ministry check-in station"},
+    {"name": "Childrens-Department", "members": ["childrens.department"], "description": "Children's Department (department login)"},
+    {"name": "Inedge", "members": ["inedge"], "description": "Inedge (department login)"},
+    {"name": "Worship", "members": [], "description": "Worship and music"},
 ]
 
 COMPUTERS = [
@@ -52,6 +57,14 @@ SHARES = [
     {"name": "homes", "path": "/srv/arise/homes", "comment": "One folder per user, Mac-friendly", "writable": True, "browseable": False, "used": 48_700_000_000, "mac": True, "valid_users": ["%S"], "write_list": []},
     {"name": "shares", "path": "/srv/arise/shares", "comment": "Everyone in Domain Users", "writable": True, "browseable": True, "used": 212_000_000_000, "mac": True, "valid_users": [], "write_list": []},
     {"name": "media", "path": "/mnt/synology/media", "comment": "On the Synology - service recordings, graphics", "writable": True, "browseable": True, "used": 1_380_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff"], "write_list": ["@Media"]},
+    {"name": "staff", "path": "/srv/arise/shares/staff", "comment": "Staff: pastors and paid staff", "writable": True, "browseable": True, "used": 31_000_000_000, "mac": True, "valid_users": ["@Staff", "@Domain Admins"], "write_list": []},
+    {"name": "leadership", "path": "/srv/arise/shares/leadership", "comment": "Leadership only", "writable": True, "browseable": True, "used": 4_200_000_000, "mac": True, "valid_users": ["@Leadership", "@Domain Admins"], "write_list": []},
+    {"name": "graphics", "path": "/srv/arise/shares/graphics", "comment": "Proclaim backgrounds, loops, lower thirds (synced to the media Mac)", "writable": True, "browseable": True, "used": 58_000_000_000, "mac": True, "valid_users": ["@Media", "@Staff", "@Domain Admins"], "write_list": ["@Media", "@Domain Admins"]},
+    {"name": "kids", "path": "/srv/arise/shares/kids", "comment": "Kids ministry", "writable": True, "browseable": True, "used": 2_900_000_000, "mac": True, "valid_users": ["@Kids", "@Childrens-Department", "@Domain Admins"], "write_list": []},
+    {"name": "childrens-department", "path": "/srv/arise/shares/childrens-department", "comment": "Children's Department", "writable": True, "browseable": True, "used": 1_100_000_000, "mac": True, "valid_users": ["@Childrens-Department", "@Domain Admins"], "write_list": []},
+    {"name": "inedge", "path": "/srv/arise/shares/inedge", "comment": "Inedge", "writable": True, "browseable": True, "used": 640_000_000, "mac": True, "valid_users": ["@Inedge", "@Domain Admins"], "write_list": []},
+    {"name": "worship", "path": "/srv/arise/shares/worship", "comment": "Worship and music: charts, setlists, tracks", "writable": True, "browseable": True, "used": 12_000_000_000, "mac": True, "valid_users": ["@Worship", "@Media", "@Domain Admins"], "write_list": []},
+    {"name": "recordings", "path": "/mnt/synology/arise/recordings", "comment": "Sunday recordings (on the Synology; not in the restic backup)", "writable": True, "browseable": True, "used": 1_240_000_000_000, "mac": True, "valid_users": ["@Media", "@Domain Admins"], "write_list": []},
     {"name": "sysvol", "path": "/var/lib/samba/sysvol", "comment": "Domain policies (system)", "writable": False, "browseable": False, "used": 2_100_000, "mac": False, "valid_users": ["@Domain Admins"], "write_list": []},
 ]
 
