@@ -17,6 +17,8 @@
 #
 #  Flags:
 #    --admin-pass PASS   Domain Administrator password (prompted if omitted)
+#    --owner NAME        Bradly's own Linux account (default: the account that ran sudo). It runs the 02:05
+#                        YouTube job and gets sudo without a password, so his Claude can change anything (Oct 28)
 #    --skip-domain       do not provision / touch the Samba AD DC
 #    --skip-docker       do not install Docker (no app templates)
 #    --no-start          install everything but do not start services/timers
@@ -98,6 +100,8 @@ STAGING=0
 STAGING_MARK="/etc/arise/staging"
 SKIP_DOMAIN=0
 SKIP_DOCKER=0
+# Bradly's account: --owner, else whoever ran `sudo bash install.sh`.
+OWNER="${OWNER:-}"
 NO_START=0
 DRY_RUN=0
 
@@ -106,6 +110,7 @@ usage() { sed -n '2,30p' "$0" | sed 's/^#  \{0,1\}//'; exit "${1:-0}"; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --admin-pass)  ADMIN_PASS="${2:-}"; shift 2 ;;
+    --owner)       OWNER="${2:-}"; shift 2 ;;
     --admin-pass=*) ADMIN_PASS="${1#*=}"; shift ;;
     --skip-domain) SKIP_DOMAIN=1; shift ;;
     --skip-docker) SKIP_DOCKER=1; shift ;;
@@ -465,7 +470,7 @@ else
 fi
 run mkdir -p "$CONF_DIR" "$STATE_DIR" "$LOG_DIR"
 run mkdir -p "$CONF_DIR/secrets"
-run chmod 0711 "$CONF_DIR/secrets"   # 0711: no listing, but arise-yt and arise-kb can reach their own subfolders
+run chmod 0711 "$CONF_DIR/secrets"   # 0711: no listing, but the owner (youtube/) and arise-kb (archive/) reach their own subfolders
 for d in homes shares automator apps backups backups/github-mirror; do
   run mkdir -p "$DATA_ROOT/$d"
 done
@@ -484,7 +489,7 @@ else
 fi
 run chmod 0640 "$CONF_DIR/arise.toml" "$CONF_DIR/backups.yaml"
 # arise.toml holds no secrets, but stays closed: root, plus the group arise-conf, which the
-# service users join (arise-yt, arise-git, arise-kb) so their arisectl calls can read it.
+# service users join (arise-git, arise-kb) and the owner, so their arisectl calls can read it.
 getent group arise-conf >/dev/null 2>&1 || run groupadd -g 1504 arise-conf 2>/dev/null || run groupadd arise-conf
 run chgrp arise-conf "$CONF_DIR/arise.toml"
 run mkdir -p /mnt/synology
@@ -755,14 +760,25 @@ else
   die "config/systemd is missing from $SRC"
 fi
 
+# Bradly's own account owns the box (Oct 28): every ariseOS group, sudo without a
+# password (his Claude edits anything), and the 02:05 job runs as him (next step).
+OWNER="${OWNER:-${SUDO_USER:-}}"
+if [ -z "$OWNER" ] || [ "$OWNER" = root ]; then
+  warn "no owner account: run install.sh with sudo from your own account, or pass --owner NAME (then: sudo arisectl owner setup)"
+elif [ "$DRY_RUN" = 1 ]; then
+  bash "$SRC/scripts/arise-owner-setup" --dry-run --owner "$OWNER" --src "$SRC" || warn "owner setup (dry run) reported a problem"
+else
+  bash "$SRC/scripts/arise-owner-setup" --owner "$OWNER" --src "$SRC" || warn "owner setup did not finish (above): sudo arisectl owner setup $OWNER"
+fi
+
 # The YouTube automator: ready, never the runner (SERVER_HANDOFF.md in the automator
 # repo; docs/AUTOMATOR.md). Its user, folders, env file, read-only deploy key and
 # checkout; the timer below may run from day one, because while runner.json names
 # the PC each night only writes a "not the runner" report.
 if [ "$DRY_RUN" = 1 ]; then
-  bash "$SRC/scripts/arise-automator-setup" --dry-run --src "$SRC" || warn "automator setup (dry run) reported a problem"
+  bash "$SRC/scripts/arise-automator-setup" --dry-run --src "$SRC" ${OWNER:+--owner "$OWNER"} || warn "automator setup (dry run) reported a problem"
 else
-  bash "$SRC/scripts/arise-automator-setup" --src "$SRC" || warn "automator setup did not finish (above): sudo arisectl automator setup"
+  bash "$SRC/scripts/arise-automator-setup" --src "$SRC" ${OWNER:+--owner "$OWNER"} || warn "automator setup did not finish (above): sudo arisectl automator setup"
 fi
 
 # The Arise repos, two-way with GitHub every 15 minutes (docs/REPOS.md).
@@ -1711,7 +1727,7 @@ cat <<SUMMARY
           then: sudo arisectl automator setup
        b. Cloud Console (project iconic-vine-505702-i5): OAuth consent screen -> Audience -> Publish app;
           Credentials -> Create OAuth client ID -> Desktop app, named "ariseOS server"; download the JSON
-       c. scp it to /etc/arise/secrets/youtube/client_secret.json; chown arise-yt; chmod 600
+       c. scp it to /etc/arise/secrets/youtube/client_secret.json; chown it to your account; chmod 600
        d. sudo arisectl automator signin        (once; paste the localhost address back)
        e. sudo arisectl automator cutover       (what is left before you hand the job over)
     3. restic password:           openssl rand -base64 32 | sudo tee $CONF_DIR/secrets/restic-password >/dev/null

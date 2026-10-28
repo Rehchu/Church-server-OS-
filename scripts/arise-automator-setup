@@ -7,10 +7,11 @@
 # Run by installer/install.sh and by `arisectl automator setup`; safe to run
 # again. It makes the server READY. It never makes the server the runner: that
 # is automator/runner.json on the PC, Bradly's change (docs/AUTOMATOR.md).
-#   1. the user arise-yt, and the folders it owns (nothing else of ariseOS's)
+#   1. the folders the job uses, owned by Bradly's account ([owner] user, Oct 28),
+#      and the units' User= drop-in, so the 02:05 job runs as him
 #   2. /etc/arise/arise.env (paths only), if it is not there yet
 #   3. a read-only deploy key and GitHub's published host keys
-#   4. the checkout of the private repo, on branch main, owned by arise-yt
+#   4. the checkout of the private repo, on branch main, owned by the owner
 #   5. the automator's Python libraries in the venv
 #   6. logrotate for last-run.log
 # What it cannot do, and prints: Bradly adds the deploy key on GitHub, publishes
@@ -19,17 +20,20 @@
 set -uo pipefail
 
 DRY_RUN=0
+U=""
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=1; shift ;;
     --src) SRC="$2"; shift 2 ;;
+    --owner) U="$2"; shift 2 ;;
     *) echo "unknown flag: $1" >&2; exit 2 ;;
   esac
 done
 
-U=arise-yt
-UID_WANTED=1502
+# The job runs as Bradly's own account (Oct 28), named in arise.toml [owner] user.
+U="${U:-$(python3 -c 'import sys, tomllib; print((tomllib.load(open("/etc/arise/arise.toml", "rb")).get("owner") or {}).get("user", ""))' 2>/dev/null)}"
+U="${U:-${SUDO_USER:-}}"
 STATE=/var/lib/arise/automator
 SECRETS=/etc/arise/secrets/youtube
 ENVF=/etc/arise/arise.env
@@ -49,18 +53,34 @@ as_u() { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] (as %s) %s\n' "$U" "$*"
 if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
 echo "== The YouTube automator (ready, not the runner)"
 
-# 1. the user and its folders
-if id -u "$U" >/dev/null 2>&1; then say "user $U exists"; else
-  run groupadd -g "$UID_WANTED" "$U" 2>/dev/null || run groupadd "$U"
-  run useradd -u "$UID_WANTED" -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS YouTube automator" "$U" \
-    || run useradd -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS YouTube automator" "$U"
+# 1. the owner and the folders the job uses
+if [ -z "$U" ] || [ "$U" = root ]; then
+  warn "no owner account: set [owner] user in /etc/arise/arise.toml (sudo arisectl owner setup), or pass --owner NAME"; exit 1
 fi
-getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-yt   # may read arise.toml (no secrets in it)
-run install -d -m 0750 -o "$U" -g "$U" "$STATE" "$STATE/reports"
-run install -d -m 0711 -o root -g root /etc/arise/secrets   # traverse only: arise-yt reaches youtube/, nothing is listed
-run install -d -m 0700 -o "$U" -g "$U" "$SECRETS"
-run install -d -m 0755 -o "$U" -g "$U" "$PARENT"
+if ! id -u "$U" >/dev/null 2>&1; then
+  if [ "$DRY_RUN" = 1 ]; then say "[dry-run] $U is not an account here; on the box it is Bradly's"; else warn "$U is not an account on this machine"; exit 1; fi
+fi
+G="$(id -gn "$U" 2>/dev/null || echo "$U")"
+say "the job runs as $U (Bradly's account)"
+run install -d -m 0750 -o "$U" -g "$G" "$STATE" "$STATE/reports"
+run install -d -m 0711 -o root -g root /etc/arise/secrets   # traverse only: the owner reaches youtube/, nothing is listed
+run install -d -m 0700 -o "$U" -g "$G" "$SECRETS"
+run install -d -m 0755 -o "$U" -g "$G" "$PARENT"
 run install -d -m 0755 /etc/arise/automator
+
+# An earlier install ran the job as arise-yt: its files move to the owner. The arise-yt
+# account itself is left alone (removing an account is Bradly's click).
+for d in "$STATE" "$SECRETS" "$PARENT"; do
+  if [ -e "$d" ] && [ "$(stat -c %U "$d" 2>/dev/null)" = arise-yt ]; then run chown -R "$U:$G" "$d"; say "moved $d from arise-yt to $U"; fi
+done
+
+# The units run as the owner: a drop-in, so the unit files stay the same on every box.
+for unit in arise-automator.service arise-automator-preview.service; do
+  run install -d -m 0755 "/etc/systemd/system/$unit.d"
+  if [ "$DRY_RUN" = 1 ]; then say "[dry-run] /etc/systemd/system/$unit.d/10-owner.conf: User=$U Group=$G"
+  else printf '# Written by arise-automator-setup: the job runs as Bradly'"'"'s account (Oct 28).\n[Service]\nUser=%s\nGroup=%s\n' "$U" "$G" > "/etc/systemd/system/$unit.d/10-owner.conf"; fi
+done
+command -v systemctl >/dev/null 2>&1 && run systemctl daemon-reload 2>/dev/null || true
 
 # 2. the environment file (paths only)
 if [ -f "$ENVF" ]; then say "$ENVF present (left as it is)"; else
@@ -77,7 +97,7 @@ SSHCMD="ssh -i $KEY -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHos
 # 4. the checkout
 if [ -d "$REPO_DIR/.git" ]; then
   say "checkout present at $REPO_DIR"
-  run chown -R "$U:$U" "$REPO_DIR"
+  run chown -R "$U:$G" "$REPO_DIR"
   as_u git -C "$REPO_DIR" remote set-url origin "$REMOTE"
   as_u git -C "$REPO_DIR" config core.sshCommand "$SSHCMD"
   if [ "$DRY_RUN" = 0 ] && ! runuser -u "$U" -- git -C "$REPO_DIR" fetch --quiet origin main 2>/dev/null; then
@@ -103,7 +123,8 @@ else
 fi
 
 # 6. logrotate
-run install -m 0644 "$SRC/config/logrotate/arise-automator" /etc/logrotate.d/arise-automator
+if [ "$DRY_RUN" = 1 ]; then say "[dry-run] /etc/logrotate.d/arise-automator (su $U $G)"
+else sed "s/@OWNER@ @GROUP@/$U $G/" "$SRC/config/logrotate/arise-automator" > /etc/logrotate.d/arise-automator; chmod 0644 /etc/logrotate.d/arise-automator; fi
 
 # What only Bradly can do
 [ -f "$SECRETS/client_secret.json" ] || NEEDS+=("the server's own OAuth client JSON at $SECRETS/client_secret.json (Cloud Console, docs/AUTOMATOR.md step 2)")

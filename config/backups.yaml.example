@@ -22,6 +22,14 @@ jobs:
     exclude: ["**/__pycache__", "**/*.zip", "**/token.json", "**/client_secret*.json", "**/deploy_key*", "**/.nightly.lock"]
     tags: [automator]
 
+  - id: songs
+    name: Song lyrics
+    # The lyrics Bradly adds from Proclaim or SongSelect (the Automator app's Songs tab),
+    # one text file per song, with every earlier version. They are the church's licensed
+    # copies (CCLI): kept here and on the Synology, never in a git repository.
+    paths: ["/srv/arise/songs"]
+    tags: [songs]
+
   - id: homes
     name: Home folders
     # Every domain user's home share. Caches and trash are noise.

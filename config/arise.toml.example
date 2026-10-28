@@ -88,6 +88,12 @@ dns_forwarder = "1.1.1.1"
 # "/mnt/synology/homes" once the NAS is joined to the domain (docs/SYNOLOGY.md).
 homes_path = "/srv/arise/homes"
 
+# Bradly's own Linux account (Oct 28: "the Automator doesn't need its own profile, it can run on mine").
+# It runs the 02:05 job and has sudo without a password, so his Claude can change anything.
+# install.sh fills it in from the account that ran sudo (or --owner NAME).
+[owner]
+user = ""
+
 [automator]
 # The nightly YouTube job. The checkout is a clone of Rehchu/arise-youtube-automation;
 # token.json and client_secret.json go in that folder by hand (never in git).

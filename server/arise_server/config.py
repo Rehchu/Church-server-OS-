@@ -42,6 +42,8 @@ DEFAULTS = {
         "dns_forwarder": "1.1.1.1",
         "homes_path": _root("/srv/arise/homes", r"C:\Arise\data\homes"),
     },
+    # Bradly's Linux account (Oct 28): runs the 02:05 job, sudo without a password. install.sh fills it in.
+    "owner": {"user": ""},
     "automator": {
         "enabled": True,
         "path": _root("/srv/arise/automator/ARISE_YouTube_Updater", r"C:\Arise\automator\ARISE_YouTube_Updater"),

@@ -5,6 +5,7 @@ written are what is pinned.
 """
 import json
 import os
+import subprocess
 import re
 import sys
 import unittest
@@ -345,12 +346,20 @@ class AutomatorHandoff(unittest.TestCase):
 
     def test_units_follow_the_handoff(self):
         svc = (self.ROOT / "config" / "systemd" / "arise-automator.service").read_text()
-        for need in ("User=arise-yt", "EnvironmentFile=/etc/arise/arise.env", "ExecStart=/opt/arise/scripts/arise-nightly.sh",
+        for need in ("EnvironmentFile=/etc/arise/arise.env", "ExecStart=/opt/arise/scripts/arise-nightly.sh",
                      "NoNewPrivileges=yes", "ProtectSystem=strict", "ProtectHome=read-only", "TimeoutStartSec=3h",
                      "ReadWritePaths=/srv/arise/automator/ARISE_YouTube_Updater /var/lib/arise/automator /etc/arise/secrets/youtube"):
             self.assertIn(need, svc)
         self.assertNotIn("User=root", svc)
+        # Bradly's own account runs it (Oct 28): User= comes from the drop-in the setup writes, and
+        # without one the unit refuses to run as root rather than falling back to it.
+        self.assertNotIn("User=arise-yt", svc)
+        self.assertIn('test "$$(id -u)" != 0', svc)
+        setup = (self.ROOT / "scripts" / "arise-automator-setup").read_text()
+        self.assertIn("10-owner.conf", setup)
+        self.assertIn('[ "$U" = root ]', setup)
         prev = (self.ROOT / "config" / "systemd" / "arise-automator-preview.service").read_text()
+        self.assertIn('test "$$(id -u)" != 0', prev)
         self.assertIn("arise-nightly.sh --plan-only", prev)
         tim = (self.ROOT / "config" / "systemd" / "arise-automator.timer").read_text()
         self.assertIn("OnCalendar=*-*-* 02:05:00 America/Chicago", tim); self.assertIn("Persistent=false", tim)
@@ -391,7 +400,8 @@ class AutomatorHandoff(unittest.TestCase):
         self.assertIn('run(["systemctl", "start", "--no-block", unit]', src)
         self.assertNotIn("--dry-run", src)          # the job's flag is --plan-only, and the unit passes it
         cli = (self.ROOT / "cli" / "arisectl").read_text()
-        self.assertIn('"runuser", "-u", "arise-yt"', cli)   # signin runs as the automator's user
+        self.assertIn('cmd = ["runuser", "-u", who, "--",', cli)   # signin runs as the job's account (Bradly's), never root
+        self.assertIn('if not who or who == "root":', cli)
         self.assertNotIn('["--dry-run"] if a.sub == "preview"', cli)
 
     def test_env_file_reader(self):
@@ -471,8 +481,44 @@ class ClaudeDesktop(unittest.TestCase):
         self.assertIn("https://downloads.claude.ai/claude-desktop/apt/stable stable main", s)
         self.assertIn("--no-install-recommends claude-desktop gnome-keyring", s)   # no Cowork VM on the closet box
         launcher = (root / "scripts" / "arise-claude-desktop").read_text()
-        self.assertIn("sudo -u arise-kiosk", launcher)     # never as root: the app refuses root without --no-sandbox
+        self.assertIn('sudo -u "$OWNER"', launcher)        # Bradly's account (Oct 28), never root: the app refuses root without --no-sandbox
+        self.assertIn('[ "$OWNER" = root ]', launcher)
+        self.assertIn('setfacl -x "u:$OWNER"', launcher)   # the kiosk's display is lent while open, taken back on close
         self.assertNotIn("--no-sandbox", launcher)
+
+
+class Owner(unittest.TestCase):
+    """Bradly's own account runs the automator and has full access (Oct 28)."""
+    ROOT = Path(__file__).resolve().parents[1]
+
+    def test_setup_script(self):
+        s = (self.ROOT / "scripts" / "arise-owner-setup").read_text()
+        self.assertIn('%s ALL=(ALL:ALL) NOPASSWD: ALL', s)
+        self.assertIn('visudo -cf "$TMP"', s)                 # checked before it is put in place
+        self.assertIn('install -m 0440 -o root -g root "$TMP" "$SUD"', s)
+        self.assertIn('[ "$OWNER" = root ]', s)               # never root
+        for rule in ("Read(/etc/arise/secrets/**)", "Read(/etc/arise/SAFE-CARD.txt)"):
+            self.assertIn(rule, s)                            # a credential never enters a chat
+        r = subprocess.run(["bash", str(self.ROOT / "scripts" / "arise-owner-setup"), "--dry-run", "--owner", "bradly"],
+                           capture_output=True, text=True, timeout=30)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("NOPASSWD", r.stdout)
+        r = subprocess.run(["bash", str(self.ROOT / "scripts" / "arise-owner-setup"), "--dry-run", "--owner", "root"],
+                           capture_output=True, text=True, timeout=30, env={k: v for k, v in os.environ.items() if k != "SUDO_USER"})
+        self.assertNotEqual(r.returncode, 0)
+
+    def test_installer_and_claude_users(self):
+        inst = (self.ROOT / "installer" / "install.sh").read_text()
+        self.assertIn('OWNER="${OWNER:-${SUDO_USER:-}}"', inst)
+        self.assertIn("--owner)", inst)
+        os.environ["ARISE_DEMO"] = "1"
+        from arise_server import church, config
+        cfg = config.load(force=True)
+        cfg.raw.setdefault("owner", {})["user"] = "bdyer"
+        try:
+            self.assertIn("bdyer", church.claude_users(cfg))
+        finally:
+            cfg.raw["owner"]["user"] = ""
 
 
 class Repos(unittest.TestCase):

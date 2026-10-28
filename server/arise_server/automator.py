@@ -89,8 +89,17 @@ def runner_info(runner_doc: dict | None, machine: str, now: datetime | None = No
             "note": "this server runs the 02:05 job" if is_runner else f"{runner} runs the 02:05 job; this server writes a 'not the runner' report and changes nothing"}
 
 
-def file_mode_ok(path: str, owner: str = "arise-yt") -> dict:
-    """Is a secret file there, 0600, owned by the automator's user? Never reads its content."""
+def job_user() -> str:
+    """The account the 02:05 job runs as: Bradly's own ([owner] user, Oct 28)."""
+    try:
+        return str(load().owner.user or "")
+    except AttributeError:
+        return ""
+
+
+def file_mode_ok(path: str, owner: str | None = None) -> dict:
+    """Is a secret file there, 0600, owned by the job's account (Bradly's)? Never reads its content."""
+    owner = owner if owner is not None else job_user()
     try:
         st = os.stat(path)
     except OSError:
@@ -182,7 +191,7 @@ def overview() -> dict:
         "holds": len(holds.get("videos", [])), "rules": len(holds.get("rules", [])),
         "worklist_enabled": sum(1 for j in jobs if isinstance(j, dict) and j.get("enabled", True)), "worklist_total": len(jobs),
         "token_ok": token_ok, "token_days_left": token_days_left, "token": tok, "client_secret": sec,
-        "token_note": None if tok["ok"] else (f"{p['token']} is {tok.get('mode')} owned by {tok.get('owner')}; it must be 0600 and owned by arise-yt" if tok["present"]
+        "token_note": None if tok["ok"] else (f"{p['token']} is {tok.get('mode')} owned by {tok.get('owner')}; it must be 0600 and owned by {job_user() or 'the owner ([owner] user in arise.toml)'}" if tok["present"]
                        else "the server is not signed in to YouTube yet: sudo arisectl automator signin (docs/AUTOMATOR.md)"),
         "client_secret_ok": sec["present"], "runner": runner, "state_dir": p["state"],
         "signed_in_as": signed, "latest_report": latest or "(no report yet - the automator has not run on this server)",
@@ -272,7 +281,7 @@ def start(mode: str) -> dict:
         return {"ok": False, "err": f"the automator is not here ({_paths()['script']} is missing): sudo arisectl automator setup"}
     unit = UNIT if mode == "run" else PREVIEW_UNIT
     if not which("systemctl"):
-        return {"ok": False, "err": "systemd is not here; the automator runs only through its units (as arise-yt, with /etc/arise/arise.env)"}
+        return {"ok": False, "err": "systemd is not here; the automator runs only through its units (as the owner's account, with /etc/arise/arise.env)"}
     r = run(["systemctl", "start", "--no-block", unit], timeout=20)
     if not r["ok"]:
         return {"ok": False, "err": f"{unit} did not start: " + (r.get("err") or r.get("out") or "").strip()[-300:]}
@@ -297,7 +306,7 @@ def cutover(now: datetime | None = None) -> dict:
             {"n": 4, "level": "warn", "text": "Sample: no plan-only report yet", "fix": "sudo arisectl automator preview"},
             {"n": 5, "level": "ok", "text": "The job's state files are untracked and live in the state folder (decided Oct 28)", "fix": ""},
             {"n": 6, "level": "ok", "text": "sunday-playlist-reassign is parked; the cap here is 6,000 (decided Oct 28)", "fix": ""},
-            {"n": 7, "level": "warn", "text": "The PC's _starfix_state.json is not in /var/lib/arise/automator yet", "fix": "copy it there at cutover, owned by arise-yt"},
+            {"n": 7, "level": "warn", "text": "The PC's _starfix_state.json is not in /var/lib/arise/automator yet", "fix": "copy it there at cutover, owned by your account"},
             {"n": 8, "level": "you", "text": "The PC is clean and pushed", "fix": ""}],
             "runner": "pc", "machine": "ariseOS"}
     ri = runner_info(read_json(p["runner"], default=None), p["machine"], now)
@@ -306,7 +315,7 @@ def cutover(now: datetime | None = None) -> dict:
     if tok["ok"] and sec["present"]:
         add(2, "ok", f"The server's own client and token are here (token {tok['mode']}, {tok['owner']}, refreshed {tok['modified']})")
     else:
-        add(2, "bad", "The server's own OAuth client and/or token are missing or not 0600 arise-yt",
+        add(2, "bad", f"The server's own OAuth client and/or token are missing or not 0600 {job_user() or 'the owner'}",
             "copy the 'ariseOS server' client JSON to " + p["secret"] + ", then: sudo arisectl automator signin")
     reports = []
     try:
@@ -350,7 +359,7 @@ def cutover(now: datetime | None = None) -> dict:
     if os.path.exists(sf):
         add(7, "ok", f"_starfix_state.json is in the state folder (from {datetime.fromtimestamp(os.path.getmtime(sf)).date()}); check it is the PC's latest at cutover")
     else:
-        add(7, "warn", "The PC's _starfix_state.json is not in " + p["state"] + " yet", "copy it there at cutover (scp), then: sudo chown arise-yt: " + sf)
+        add(7, "warn", "The PC's _starfix_state.json is not in " + p["state"] + " yet", "copy it there at cutover (scp), then: sudo chown " + (job_user() or "OWNER") + ": " + sf)
     blocked = pull_blocked()
     if blocked:
         add(9, "bad", "Last night's pull was blocked by untracked files the PC has since committed: " + ", ".join(blocked[:5]),

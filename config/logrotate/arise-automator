@@ -1,4 +1,5 @@
 # The automator's own run log grows by appending (handoff section 6).
+# arise-automator-setup fills in the owner (Bradly's account) when it installs this.
 /var/lib/arise/automator/last-run.log {
     monthly
     rotate 12
@@ -7,5 +8,5 @@
     missingok
     notifempty
     copytruncate
-    su arise-yt arise-yt
+    su @OWNER@ @GROUP@
 }

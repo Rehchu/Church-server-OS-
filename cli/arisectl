@@ -491,7 +491,7 @@ def cmd_automator(a):
         print(f"  runner     {ri.get('runner')} (this machine: {ri.get('machine')}; cap here today, {ri.get('day')}: {ri.get('budget')} units) - {ri.get('note', '')}")
         if o.get("demo"): warn("sample data (automator folder not found)")
     elif a.sub in ("preview", "run"):
-        # Through the units only: as arise-yt, with /etc/arise/arise.env, behind the wrapper's lock.
+        # Through the units only: as the owner's account (Bradly's), with /etc/arise/arise.env, behind the wrapper's lock.
         # Running arise_daily.py as root would write the token's refresh back as a root-owned file.
         if not automator.available():
             sys.exit(f"automator not found at {o['path']}: sudo arisectl automator setup")
@@ -524,13 +524,16 @@ def cmd_automator(a):
             sys.exit(f"{repo}/authorize_headless.py is missing: sudo arisectl automator setup (the checkout must be at 'Server-ready automator' or later)")
         if not Path(env.get("ARISE_CLIENT_SECRET", "/etc/arise/secrets/youtube/client_secret.json")).exists():
             sys.exit("the server's own OAuth client is not here yet: copy the 'ariseOS server' JSON (Desktop app) to "
-                     + env.get("ARISE_CLIENT_SECRET", "/etc/arise/secrets/youtube/client_secret.json") + " with scp, chown arise-yt, chmod 600")
+                     + env.get("ARISE_CLIENT_SECRET", "/etc/arise/secrets/youtube/client_secret.json") + f" with scp, chown {automator.job_user() or 'YOUR-ACCOUNT'}, chmod 600")
         head("sign the server in to YouTube (once)")
         print("  A Google link follows. Open it on any computer or phone, sign in as the owner of the Arise Church channel,")
         print("  pass the 'Google hasn't verified this app' warning (Advanced -> Go to ...), approve, then copy the whole")
         print("  http://localhost:8765/?state=...&code=... address the browser fails to load, and paste it here. Paste promptly.")
         envargs = [f"{k}={v}" for k, v in env.items()]
-        cmd = ["runuser", "-u", "arise-yt", "--", "env", *envargs, env.get("ARISE_PYTHON", "/opt/arise/venv/bin/python"), "authorize_headless.py"] + (["--force"] if a.name == "--force" or getattr(a, "force", False) else [])
+        who = automator.job_user()
+        if not who or who == "root":
+            sys.exit("no owner account in arise.toml ([owner] user): sudo arisectl owner setup")
+        cmd = ["runuser", "-u", who, "--", "env", *envargs, env.get("ARISE_PYTHON", "/opt/arise/venv/bin/python"), "authorize_headless.py"] + (["--force"] if a.name == "--force" or getattr(a, "force", False) else [])
         sys.exit(subprocess.call(cmd, cwd=repo))
     elif a.sub == "unblock":
         # The revised handoff, section 3: a file the server wrote (a Whisper transcript) that the PC later
@@ -548,7 +551,7 @@ def cmd_automator(a):
         for m in r["moved"]: ok(f"moved {m['file']} -> {m['to']}")
         for f in r["refused"]: bad(f"left alone (tracked, missing or outside the checkout): {f}")
         if r["moved"]:
-            run(["chown", "-R", "arise-yt:", r["folder"]], timeout=20)
+            run(["chown", "-R", f"{automator.job_user()}:", r["folder"]], timeout=20)
     elif a.sub == "cutover":
         c = automator.cutover()
         head(f"handing the nightly job to this server (runner now: {c.get('runner')}; this machine: {c.get('machine')})")
@@ -825,6 +828,36 @@ def cmd_repos(a):
     elif a.sub == "setup":
         need_root()
         sys.exit(subprocess.call(["bash", str(HOME / "scripts" / "arise-repos-setup"), "--src", str(HOME)]))
+
+def cmd_owner(a):
+    """Bradly's own account (Oct 28): runs the 02:05 job; sudo without a password for him and his Claude."""
+    from arise_server import automator
+    if a.sub == "setup":
+        need_root()
+        args = ["bash", str(HOME / "scripts" / "arise-owner-setup"), "--src", str(HOME)] + (["--owner", a.name] if a.name else [])
+        rc = subprocess.call(args)
+        if rc == 0:
+            rc = subprocess.call(["bash", str(HOME / "scripts" / "arise-automator-setup"), "--src", str(HOME)] + (["--owner", a.name] if a.name else []))
+        sys.exit(rc)
+    who = automator.job_user()
+    head("the owner's account")
+    if not who:
+        bad("no [owner] user in arise.toml: sudo arisectl owner setup [NAME]"); return
+    import grp, pwd
+    try:
+        pw = pwd.getpwnam(who)
+    except KeyError:
+        bad(f"{who} is named in arise.toml but is not an account here"); return
+    groups = sorted(g.gr_name for g in grp.getgrall() if who in g.gr_mem)
+    print(f"  account    {who} (uid {pw.pw_uid}, home {pw.pw_dir})")
+    print(f"  groups     {' '.join(groups) or '(none)'}")
+    sud = Path("/etc/sudoers.d/arise-owner")
+    (ok if sud.exists() else warn)(f"sudo without a password: {'on' if sud.exists() else 'not set up'} ({sud})")
+    for unit in ("arise-automator.service", "arise-automator-preview.service"):
+        d = Path(f"/etc/systemd/system/{unit}.d/10-owner.conf")
+        txt = d.read_text() if d.exists() else ""
+        (ok if f"User={who}" in txt else bad)(f"{unit} runs as {who}" if f"User={who}" in txt else f"{unit} has no owner drop-in: sudo arisectl automator setup")
+
 
 def cmd_offboard(a):
     """Someone leaving (round 2, 24): 30 days, then the login is disabled and the files move on."""
@@ -1327,6 +1360,7 @@ def build():
     sp.add_parser("ups").set_defaults(f=cmd_ups)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
     p = sp.add_parser("browser"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply", "policy"]); p.set_defaults(f=cmd_browser)
+    p = sp.add_parser("owner"); p.add_argument("sub", nargs="?", default="status", choices=["status", "setup"]); p.add_argument("name", nargs="?", help="setup: the Linux account (default: [owner] user, then whoever ran sudo)"); p.set_defaults(f=cmd_owner)
     p = sp.add_parser("repos"); p.add_argument("sub", nargs="?", default="status", choices=["status", "sync", "setup"]); p.add_argument("name", nargs="?", help="sync: one repo only"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_repos)
     p = sp.add_parser("offboard"); p.add_argument("sub", choices=["list", "mark", "cancel", "sweep"]); p.add_argument("name", nargs="?"); p.add_argument("--to", help="mark: who takes the files"); p.add_argument("--days", type=int, default=30); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_offboard)
     p = sp.add_parser("audit"); p.add_argument("q", nargs="?", help="words to match"); p.add_argument("--who"); p.add_argument("--failed", action="store_true"); p.add_argument("--limit", type=int, default=50); p.set_defaults(f=cmd_audit)

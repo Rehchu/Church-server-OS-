@@ -391,9 +391,10 @@ V.automator = async () => {
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Guard rails</span><span class="stat__v">${a.holds}<small>on hold</small></span><span class="stat__n">${a.rules} standing rules · ${a.worklist_enabled} of ${a.worklist_total} jobs enabled</span></div><div class="row" style="margin-top:10px"><button class="btn btn--ghost btn--xs" id="auPreview">Preview tonight</button><button class="btn btn--xs" id="auRun">Run now</button></div></div>
     </div>
     ${a.manual?.started ? `<p class="note" style="margin-bottom:14px"><b>${esc(a.manual.mode)}</b> started ${fmtT(a.manual.started)} · ${a.manual.finished ? (a.manual.ok ? 'finished ok' : `failed: ${esc(a.manual.error || 'exit ' + a.manual.code)}`) : 'still running'} · output in last-run.log</p>` : ''}
-    <div class="tabs" id="auTabs"><button class="active" data-t="videos">Videos</button><button data-t="search">Search</button><button data-t="report">Latest report</button><button data-t="work">Worklist</button><button data-t="holds">Hold list</button><button data-t="reports">Past reports</button><button data-t="switch">Server switch</button></div>
+    <div class="tabs" id="auTabs"><button class="active" data-t="videos">Videos</button><button data-t="search">Search</button><button data-t="songs">Songs</button><button data-t="report">Latest report</button><button data-t="work">Worklist</button><button data-t="holds">Hold list</button><button data-t="reports">Past reports</button><button data-t="switch">Server switch</button></div>
     <div data-tab="videos" id="chVideos"><div class="empty">Loading the videos…</div></div>
     <div data-tab="search" hidden id="chSearch"></div>
+    <div data-tab="songs" hidden id="chSongs"><div class="empty">Loading the songs…</div></div>
     <div data-tab="switch" hidden id="auSwitch"><div class="empty">Loading…</div></div>
     <div data-tab="report" hidden class="panel panel--flat"><div class="md">${md(a.latest_report)}</div></div>
     <div data-tab="work" hidden class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>Job</th><th>Note</th><th class="num">Est. units</th><th>State</th></tr></thead><tbody>
@@ -406,7 +407,7 @@ V.automator = async () => {
 };
 V.automator.after = () => {
   tabs('#auTabs', 'automator');
-  chVideos(); chSearch(); chSwitch();
+  chVideos(); chSearch(); chSongs(); chSwitch();
   $('#auPreview').onclick = e => act(e.target, () => api('/automator/preview', { method: 'POST' }), 'Preview started: a dry run, nothing is written to YouTube');
   $('#auRun').onclick = e => modal(`<h2>Run the automator now?</h2><p class="note" style="margin-bottom:14px">This spends real quota and writes to the channel exactly as the 02:05 run would. The hold list still applies. If a chat session is also working today, remember the 10,000 units are shared.</p><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="auGo">Run</button></div>`, m => { $('#auGo', m).onclick = async ev => { const r = await act(ev.target, () => api('/automator/run', { method: 'POST' }), 'Run started; the report appears when it finishes'); if (r) { m.close(); setTimeout(() => rerender('automator'), 3000); } }; });
   $$('[data-rep]').forEach(b => b.onclick = async () => { $$('[data-rep]').forEach(x => x.classList.toggle('active', x === b)); const r = await api(`/automator/reports/${encodeURIComponent(b.dataset.rep)}`); $('#repBody').innerHTML = `<h3 style="margin:0 0 10px">${esc(b.dataset.rep.replace('.md', '').replace('_', ' · '))}</h3>` + md(r.text || '(an empty report)'); });
@@ -470,7 +471,7 @@ function chSearch() {
       <label class="chk"><input type="checkbox" id="chHist" ${CH.hist ? 'checked' : ''}> past versions</label>${S.me?.claude ? `<label class="chk" title="emails/, memory/: names of private people. Bradly only."><input type="checkbox" id="chPriv" ${CH.priv ? 'checked' : ''}> private folders</label>` : ''}</div>
     <div id="chSR">${CH.sq ? '<div class="empty">Searching…</div>' : `<div class="chhint"><p>Search every sermon transcript, description, chapter list and set list in the archive. Each result opens its video, with the thumbnails, the YouTube and Studio links, the chapters, the songs and the transcript at that moment.</p>
       <p class="muted">Try <a href="#" data-try="framing">framing</a>, <a href="#" data-try="&quot;peace is a garrison&quot;">"peace is a garrison"</a> (quotes match the exact phrase), or a CCLI number like <a href="#" data-try="7247827" data-kind="all">7247827</a>.</p></div>`}</div>`;
-  const run = () => { CH.sq = $('#chSQ', el).value.trim(); chSearch(); };
+  const run = () => { const v = $('#chSQ', el).value.trim(); if (!v) { toast('Type a word, a phrase in quotes, or a CCLI number to search for', 'warn'); $('#chSQ', el).focus(); return; } CH.sq = v; chSearch(); };
   $('#chSF', el).onsubmit = e => { e.preventDefault(); run(); };
   $$('#chSK .chip', el).forEach(b => b.onclick = () => { CH.skind = b.dataset.k; CH.sq = $('#chSQ', el).value.trim(); chSearch(); });
   $('#chHist', el).onchange = e => { CH.hist = e.target.checked; if (CH.sq) chSearch(); };
@@ -587,6 +588,92 @@ async function chSwitch() {
     <div class="kicker" style="margin:16px 0 8px">Before the switch (SERVER_HANDOFF.md, section 9)</div>
     ${c.error ? `<p class="note" style="color:var(--warn)">${esc(c.error)}</p>` : ''}
     <div class="chsw">${(c.rows || []).map(r => `<div class="chsw__r"><span class="pill ${lv[r.level] || 'warn'}">${r.level === 'you' ? 'Bradly' : esc(r.level)}</span><div><div>${esc(r.text)}</div>${r.fix ? `<code class="chsw__fix">${esc(r.fix)}</code>` : ''}</div></div>`).join('') || '<div class="empty">No checklist</div>'}</div>`;
+}
+
+/* ---------------- songs: the song list, and the lyrics Bradly adds ----------------
+   The list is song_bank.json (read-only); lyrics live on the server only (docs/AUTOMATOR.md, Songs). */
+const SG = { q: '', has: '', open: null };
+const SECTION_RE = /^(verse|chorus|pre-?chorus|bridge|tag|intro|outro|vamp|ending|interlude|refrain|hook|turnaround|channel)\b[\s\d:.()x]*$/i;
+const firstLine = t => (String(t || '').split('\n').map(l => l.trim()).find(l => l && !SECTION_RE.test(l)) || '');
+function chOpenVideo(vid) { CH.open = vid; CH.at = null; CH.from = 'videos'; const b = $('#auTabs [data-t="videos"]'); if (b) b.click(); chVideos(); }
+function chFindLine(line) { CH.sq = `"${line.replace(/"/g, '').slice(0, 80)}"`; CH.skind = 'transcript'; CH.open = null; const b = $('#auTabs [data-t="search"]'); if (b) b.click(); chSearch(); }
+async function chSongs() {
+  const el = $('#chSongs'); if (!el) return;
+  if (SG.open) return sgSong(el, SG.open);
+  const r = await api('/songs?' + new URLSearchParams({ q: SG.q, has: SG.has })).catch(e => ({ error: e.message, songs: [] }));
+  if (!el.isConnected) return;
+  const typing = document.activeElement && document.activeElement.id === 'sgQ';
+  const c = r.counts || {};
+  el.innerHTML = `<div class="chbar"><input id="sgQ" type="search" placeholder="Find a song: title, CCLI number, writer, or a line of the lyrics" value="${esc(SG.q)}" autocomplete="off">
+    <div class="seg" id="sgHas">${[['', `All${c.all != null ? ' ' + c.all : ''}`], ['lyrics', `With lyrics${c.lyrics != null ? ' ' + c.lyrics : ''}`], ['missing', 'No lyrics yet'], ['original', 'Originals']].map(([k, l]) => `<button data-k="${k}" class="${SG.has === k ? 'active' : ''}">${esc(l)}</button>`).join('')}</div>
+    <label class="btn btn--ghost btn--xs sgimp" title="SongSelect .txt or .usr, ChordPro, or plain text">Import lyrics files<input type="file" id="sgFile" multiple accept=".txt,.usr,.cho,.chopro,.chordpro,.pro,.crd" hidden></label></div>
+    ${r.error ? `<p class="note" style="color:var(--warn);margin-bottom:12px">${esc(r.error)}</p>` : ''}
+    <div class="panel panel--flat tbl-wrap"><table class="tbl sgtbl"><thead><tr><th>Song</th><th>CCLI</th><th>Writers</th><th>Lyrics</th><th class="num">Sung</th><th>Last sung</th></tr></thead><tbody>
+    ${(r.songs || []).map(s => `<tr data-song="${esc(s.key)}" tabindex="0"><td><b>${esc(s.title)}</b>${s.original ? ' <span class="tag">original</span>' : ''}${s.in_bank === false ? ' <span class="tag tag--warn">not in song_bank.json</span>' : ''}${s.snippet ? `<br><small class="muted">${snip(s.snippet)}</small>` : ''}</td><td class="mono">${esc(s.ccli || '—')}</td><td class="dim" style="font-size:12.5px">${esc(s.writers || '')}</td><td>${s.lyrics ? '<span class="pill ok">yes</span>' : '<span class="pill">not yet</span>'}</td><td class="num">${s.sung || 0}</td><td class="dim">${s.last_sung ? fmtD(s.last_sung) : '—'}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No song matches.</td></tr>'}
+    </tbody></table></div>
+    <p class="note" style="margin-top:12px">The list is song_bank.json, read-only here (songs are added on the PC). Paste a song's lyrics into it from Proclaim, or import SongSelect .txt / .usr or ChordPro files: a file links to its song by the CCLI number in it, or by a title only one song has. ${esc(r.note || '')}</p>`;
+  const q = $('#sgQ', el); let t;
+  q.oninput = () => { clearTimeout(t); t = setTimeout(() => { SG.q = q.value.trim(); chSongs(); }, 300); };
+  if (typing) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+  $$('#sgHas button', el).forEach(b => b.onclick = () => { SG.has = b.dataset.k; chSongs(); });
+  $$('[data-song]', el).forEach(tr => { const go = () => { SG.open = tr.dataset.song; chSongs(); }; tr.onclick = go; tr.onkeydown = e => { if (e.key === 'Enter') go(); }; });
+  $('#sgFile', el).onchange = async e => {
+    const files = await Promise.all([...e.target.files].map(f => f.text().then(text => ({ name: f.name, text }))));
+    if (!files.length) return;
+    const res = await api('/songs/import', { method: 'POST', body: { files } }).catch(er => ({ ok: false, err: er.message }));
+    if (res.ok === false) return toast(res.err, 'bad');
+    modal(`<h2>Lyrics imported</h2><p class="note" style="margin-bottom:10px">${res.linked} linked to their song, ${res.unlinked} kept but not linked, ${res.failed} not read.${res.demo ? ' (sample mode: kept in this preview only)' : ''}</p>
+      <div class="sgres">${res.results.map(x => `<div class="sgres__r"><span class="pill ${x.ok ? (x.matched_by ? 'ok' : 'warn') : 'bad'}">${x.ok ? (x.matched_by ? 'linked' : 'kept') : 'failed'}</span><div><b>${esc(x.name)}</b>${x.title ? ` → ${esc(x.title)}` : ''}<br><small class="muted">${esc(x.matched_by ? 'by ' + x.matched_by : x.note || x.err || '')}</small></div></div>`).join('')}</div>
+      <div class="acts"><button class="btn" data-close>Done</button></div>`);
+    chSongs();
+  };
+}
+async function sgSong(el, key) {
+  el.innerHTML = '<div class="empty">Opening…</div>';
+  const s = await api('/songs/' + encodeURIComponent(key)).catch(e => ({ ok: false, err: e.message }));
+  if (!el.isConnected) return;
+  const back = `<button class="btn btn--ghost btn--xs" id="sgBack">← All songs</button>`;
+  const goBack = () => { SG.open = null; chSongs(); };
+  if (s.ok === false) { el.innerHTML = back + `<p class="note" style="margin-top:12px;color:var(--warn)">${esc(s.err)}</p>`; $('#sgBack', el).onclick = goBack; return; }
+  const L = s.lyrics;
+  const kv = [['CCLI', s.ccli ? `<span class="mono">${esc(s.ccli)}</span>` : (s.original ? 'none: an Arise original' : 'none in song_bank.json')], ['Writers', esc(s.writers || '—')], ['Copyright', esc(s.copyright || '—')], ['Admin', esc(s.admin || '—')],
+    ['Credit line', s.credit_line ? `${esc(s.credit_line)} <button class="btn btn--ghost btn--xs" id="sgCopyCredit">Copy</button>` : '—'], ['Performed by', esc(s.performed_by || '—')], ['Verified', esc(s.verified || '—')], ['Note', esc(s.note || '—')]];
+  el.innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:12px">${back}<span class="muted mono" style="font-size:12px">${esc(s.key)}</span></div>
+    <div class="grid">
+      <div class="c4 panel panel--flat"><div class="kicker">${s.in_bank ? 'song_bank.json' : 'Lyrics only: not in song_bank.json'}</div><h2 class="chv__title">${esc(s.title)}</h2>
+        <dl class="kv sgkv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+        <p class="note" style="margin-top:10px">Credits come only from song_bank.json, as written there. A new song or a correction is made on the PC.</p></div>
+      <div class="c8 panel panel--flat" id="sgLyrBox"></div>
+      <div class="c12 panel panel--flat"><div class="panel__hd"><h3>Where it was sung</h3><span class="sub">${(s.sung || []).length}</span></div>
+        ${(s.sung || []).length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Service</th><th>From</th><th></th></tr></thead><tbody>${s.sung.map(x => `<tr><td>${fmtD(x.date)}</td><td>${esc(x.title || x.service || '')}</td><td class="dim">${esc(x.from)}</td><td>${x.video_id ? `<button class="btn btn--ghost btn--xs" data-open-vid="${esc(x.video_id)}">Open the video</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+          : '<p class="note">No set list or description in the archive names this song yet.</p>'}</div>
+    </div>`;
+  $('#sgBack', el).onclick = goBack;
+  const cc = $('#sgCopyCredit', el); if (cc) cc.onclick = e => copyText(s.credit_line, e.target);
+  $$('[data-open-vid]', el).forEach(b => b.onclick = () => chOpenVideo(b.dataset.openVid));
+  const box = $('#sgLyrBox', el);
+  const view = () => {
+    box.innerHTML = `<div class="panel__hd"><h3>Lyrics</h3>${L ? `<span class="sub">${esc(L.source || '')}${L.updated ? ' · ' + fmtT(L.updated) : ''}${s.versions ? ` · ${s.versions} earlier ${s.versions === 1 ? 'version' : 'versions'} kept` : ''}</span>` : ''}</div>
+      ${L ? `<pre class="chdesc sglyr" id="sgLyr">${esc(L.text)}</pre>
+        <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn btn--ghost btn--xs" id="sgEdit">Edit</button><button class="btn btn--ghost btn--xs" id="sgFind" title="Select a line first, or it uses the first one">Find a line in the transcripts</button><button class="btn btn--ghost btn--xs" id="sgRm" style="margin-left:auto">Remove the lyrics</button></div>`
+      : `<p class="note" style="margin-bottom:8px">No lyrics yet. Paste them here (from Proclaim's song editor, or SongSelect), with the section names (Verse 1, Chorus) on their own lines.</p>`}
+      <p class="note" style="margin-top:10px">${esc(s.licence || '')}</p>`;
+    if (!L) return edit('');
+    $('#sgEdit', box).onclick = () => edit(L.text);
+    $('#sgFind', box).onclick = () => { const sel = String(window.getSelection() || '').trim().split('\n')[0]; const line = sel || firstLine(L.text); if (line) chFindLine(line); };
+    $('#sgRm', box).onclick = () => confirmType('Remove these lyrics', s.title, 'The file moves to the lyrics folder’s .removed folder on the server; nothing is deleted.', async () => {
+      const r = await api(`/songs/${encodeURIComponent(s.key)}/lyrics`, { method: 'DELETE', body: { confirm: s.title } }); if (r.ok === false) throw new Error(r.err); toast('Lyrics removed (kept in .removed)'); sgSong(el, key); });
+  };
+  const edit = text => {
+    const area = document.createElement('div');
+    area.innerHTML = `<textarea id="sgText" class="sgtext" spellcheck="false" placeholder="Verse 1\n…\n\nChorus\n…">${esc(text)}</textarea>
+      <div class="row" style="gap:8px;margin-top:10px"><button class="btn" id="sgSave">Save</button>${L ? '<button class="btn btn--ghost" id="sgCancel">Cancel</button>' : ''}<span class="muted" style="font-size:12px">${L ? 'The current version is kept when you save.' : ''}</span></div>`;
+    const hd = $('.panel__hd', box) || box; box.querySelectorAll('pre, .row').forEach(x => x.remove()); hd.after(area);
+    const ta = $('#sgText', box); ta.focus();
+    $('#sgSave', box).onclick = async e => { const r = await act(e.target, () => api(`/songs/${encodeURIComponent(s.key)}/lyrics`, { method: 'PUT', body: { text: ta.value, source: L ? 'edited' : 'pasted' } }), 'Lyrics saved'); if (r && r.ok !== false) sgSong(el, key); };
+    const cn = $('#sgCancel', box); if (cn) cn.onclick = view;
+  };
+  view();
 }
 
 V.nas = async () => {

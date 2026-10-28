@@ -11,8 +11,10 @@ ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_d
 
 [Service]
 Type=oneshot
-User=arise-yt
-Group=arise-yt
+# User= and Group= come from the drop-in arise-automator-setup writes
+# (arise-automator.service.d/10-owner.conf): Bradly's own account (Oct 28).
+# Without it the job would run as root, which it must never do; this refuses.
+ExecStartPre=/bin/sh -c 'test "$$(id -u)" != 0 || { echo "refusing to run the automator as root: sudo arisectl automator setup writes the owner drop-in"; exit 1; }'
 EnvironmentFile=/etc/arise/arise.env
 ExecCondition=+/usr/local/bin/arisectl service-now --quiet
 ExecStart=/opt/arise/scripts/arise-nightly.sh --plan-only

@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, channel, church, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
+from . import VERSION, CODENAME, apps, automator, backups, bible, channel, church, songs, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
 from . import activity, automations, monitor, storage, updates
 from . import auth as _auth
 from . import links
@@ -698,6 +698,51 @@ def auto_search(q: str = "", kind: str = "transcript", history: bool = False, pr
 @app.get("/api/automator/archive/doc")
 def auto_archive_doc(repo: str, path: str, start: int | None = None, who=admin):
     return channel.document(repo, path, start, who)
+
+
+# The song list (song_bank.json, read-only) and the lyrics Bradly adds (server/arise_server/songs.py).
+@app.get("/api/songs")
+def api_songs(q: str = "", has: str = "", _=admin):
+    return songs.listing(q, has)
+
+
+@app.get("/api/songs/{key}")
+def api_song(key: str, _=admin):
+    return songs.song(key)
+
+
+class Lyrics(BaseModel):
+    text: str
+    source: str = "pasted"
+
+
+@app.put("/api/songs/{key}/lyrics")
+def api_song_lyrics(key: str, body: Lyrics, who=admin):
+    return songs.save(key, body.text, who["user"], source=body.source)
+
+
+class LyricsRemove(BaseModel):
+    confirm: str = ""
+
+
+@app.delete("/api/songs/{key}/lyrics")
+def api_song_lyrics_remove(key: str, body: LyricsRemove, who=admin):
+    """Moved to .removed/, never deleted; the song's title typed to confirm."""
+    return songs.remove(key, body.confirm, who["user"])
+
+
+class LyricsFile(BaseModel):
+    name: str
+    text: str
+
+
+class LyricsImport(BaseModel):
+    files: list[LyricsFile]
+
+
+@app.post("/api/songs/import")
+def api_songs_import(body: LyricsImport, who=admin):
+    return songs.import_files([f.model_dump() for f in body.files], who["user"])
 
 
 @app.get("/api/automator/archive/file")

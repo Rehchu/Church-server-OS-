@@ -98,7 +98,8 @@ def _from_index(vid: str, v: dict) -> dict:
     _put(r, "published", v.get("pub"))
     _put(r, "privacy", v.get("privacy"))
     _put(r, "seconds", iso_seconds(v.get("dur")) or None)
-    _put(r, "service_date", v.get("date_ct"))
+    m = re.match(r"\d{4}-\d{2}-\d{2}", str(v.get("date_ct") or ""))   # "2026-08-30 Sun 10:35" -> the date
+    _put(r, "service_date", m.group(0) if m else None)
     return r
 
 

@@ -508,6 +508,35 @@ route('DELETE', /^\/directory\/users\/([^/]+)\/leaving$/, (b, m) => {
 route('POST', /^\/repos\/sync$/, () => { if (!isAdmin()) return http(403, 'Administrator only'); const r = getOr('GET /repos', { repos: [] }); const t = new Date().toISOString(); r.last = t; (r.repos || []).forEach(x => { x.when = t; }); touch('GET /repos'); return ok({ demo: true, started: true }); });
 // Claude Desktop on the closet monitor: Bradly opens it (round 4, 44); anyone's lock closes it.
 route('POST', /^\/kiosk\/claude-desktop$/, b => { const a = b.action || 'open'; if (!['open', 'close', 'status'].includes(a)) return fail('action is open, close or status'); if (a === 'open' && !claudeOk()) return fail("Claude on this box is Bradly's (round 4, 44)"); return ok({ demo: true, action: a, state: a === 'open' ? 'open' : 'closed' }); });
+// Songs: the lyrics Bradly pastes or imports stay in this browser (the server keeps them in /srv/arise/songs).
+const normT = t => String(t || '').toLowerCase().replace(/[‘’]/g, "'").replace(/[^\w\s']/g, ' ').replace(/\s+/g, ' ').trim();
+function lyricsAll() { if (!X.lyrics) { X.lyrics = {}; for (const k of Object.keys(G)) { const m = k.match(/^GET \/songs\/(.+)$/); if (m && G[k] && G[k].lyrics) X.lyrics[m[1]] = clone(G[k].lyrics); } } return X.lyrics; }
+const nowIso = () => new Date().toISOString().slice(0, 19);
+route('PUT', /^\/songs\/([^/]+)\/lyrics$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const key = decodeURIComponent(m[1]); const text = String(b.text || '').replace(/\r\n/g, '\n').replace(/^\n+|\n+$/g, '');
+  if (!text.trim()) return fail('nothing to save: paste the lyrics first'); const seed = get('GET /songs/' + key); const L = lyricsAll();
+  if (!seed && !L[key]) return fail('no such song in song_bank.json');
+  L[key] = { title: seed?.title || L[key].title, ccli: seed?.ccli || L[key]?.ccli || null, source: b.source || 'pasted', text, updated: nowIso() }; save(); return ok({ key, demo: true });
+});
+route('DELETE', /^\/songs\/([^/]+)\/lyrics$/, (b, m) => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const key = decodeURIComponent(m[1]); const L = lyricsAll(); const cur = L[key];
+  if (!cur) return fail('this song has no lyrics here'); if ((b.confirm || '').trim() !== (cur.title || key)) return fail("type the song's title to confirm");
+  delete L[key]; save(); return ok({ demo: true });
+});
+route('POST', /^\/songs\/import$/, b => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const bank = (get('GET /songs') || { songs: [] }).songs; const L = lyricsAll(); const results = [];
+  for (const f of (b.files || []).slice(0, 200)) {
+    const name = String(f.name || 'lyrics.txt'); if (!/\.(txt|usr|cho|chopro|chordpro|pro|crd)$/i.test(name)) { results.push({ name, ok: false, err: 'not a lyrics file' }); continue; }
+    const raw = String(f.text || '').replace(/\r\n/g, '\n'); const num = (raw.match(/CCLI\s*(?:Song\s*)?#?\s*:?\s*(\d{3,8})/i) || raw.match(/^\[S A?(\d+)\]/m) || raw.match(/\{\s*ccli\s*:\s*(\d+)\s*\}/i) || [])[1];
+    const title = ((raw.match(/^\{\s*(?:title|t)\s*:\s*(.+?)\s*\}/m) || raw.match(/^Title=(.+)$/m) || [])[1] || raw.split('\n').find(l => l.trim()) || name).trim();
+    const text = raw.replace(/^\{[^}]*\}\s*$/gm, '').replace(/\[[^\]]*\]/g, '').trim();
+    const hit = (num && bank.find(s => s.ccli === num)) || (!num && bank.filter(s => normT(s.title) === normT(title)).length === 1 ? bank.find(s => normT(s.title) === normT(title)) : null);
+    const key = hit ? hit.key : 'x-' + normT(title).replace(/[^a-z0-9]+/g, '-').slice(0, 60);
+    L[key] = { title: hit ? hit.title : title, ccli: hit ? hit.ccli : num || null, source: `imported ${name}`, text, updated: nowIso() };
+    results.push(hit ? { name, ok: true, key, title: hit.title, matched_by: num ? 'CCLI number' : 'title (check it is the right song)' } : { name, ok: true, key, title, matched_by: null, note: 'kept, not linked: no song in song_bank.json matches' });
+  }
+  save(); return ok({ demo: true, results, linked: results.filter(r => r.matched_by).length, unlinked: results.filter(r => r.ok && !r.matched_by).length, failed: results.filter(r => !r.ok).length });
+});
 route('POST', /^\/kiosk\/open$/, b => ok({ demo: true, out: `Preview: the closet monitor would open ${b.url}` }));
 const calClean = b => { const title = String(b.title || '').trim().slice(0, 120), start = String(b.start || '').trim().slice(0, 16); if (!title || isNaN(new Date(start))) return null; let end = String(b.end || '').trim().slice(0, 16); if (end && (isNaN(new Date(end)) || new Date(end) < new Date(start))) end = ''; return { title, start, end, where: String(b.where || '').trim().slice(0, 120), note: String(b.note || '').trim().slice(0, 1000) }; };
 route('POST', /^\/calendar$/, b => { if (!isAdmin()) return http(403, 'Adding events is for the administrator'); const c = calClean(b); if (!c) return fail('a title and a start time are needed'); const ev = Object.assign({ id: hex(8) }, c, { who: me().user, added: isoMin() }); X.events.push(ev); save(); return ok({ event: ev }); });
@@ -564,6 +593,30 @@ route('POST', /^\/security\/scan\/restore$/, b => { if (b.confirm !== b.name) re
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
   const s = me();
+  if (p === '/songs') {
+    const seed = get('GET /songs') || { songs: [] }; const L = lyricsAll(); const words = normT(q.get('q') || '').split(' ').filter(Boolean); const has = q.get('has') || '';
+    const keys = new Set(seed.songs.map(x => x.key)); const all = seed.songs.map(x => Object.assign({}, x, { lyrics: !!L[x.key] }));
+    for (const [k, v] of Object.entries(L)) if (!keys.has(k)) all.push({ key: k, title: v.title || k, ccli: v.ccli, lyrics: true, in_bank: false, original: false, sung: 0 });
+    const rows = [];
+    for (const r0 of all) {
+      const r = Object.assign({}, r0); delete r.snippet; delete r.matched;
+      if (words.length) {
+        const meta = normT([r.title, r.ccli, r.writers, r.note].join(' ')); const onMeta = words.every(w => meta.includes(w));
+        const line = r.lyrics ? (L[r.key].text || '').split('\n').find(l => words.every(w => normT(l).includes(w))) : null;
+        if (!onMeta && !line) continue;
+        if (line && !onMeta) { r.matched = 'lyrics'; let sn = line.trim(); for (const w of words) sn = sn.replace(new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'), '[$1]'); r.snippet = sn; }
+      }
+      if (has === 'lyrics' && !r.lyrics) continue; if (has === 'missing' && r.lyrics) continue; if (has === 'original' && !r.original) continue;
+      rows.push(r);
+    }
+    const qs = (q.get('q') || '').trim(); rows.sort((a, b) => ((a.ccli === qs) ? 0 : 1) - ((b.ccli === qs) ? 0 : 1) || (a.matched === 'lyrics') - (b.matched === 'lyrics') || normT(a.title).localeCompare(normT(b.title)));
+    return { demo: true, source: seed.source, total: rows.length, songs: rows, note: seed.note, counts: { all: seed.songs.length, lyrics: seed.songs.filter(x => L[x.key]).length, originals: seed.songs.filter(x => x.original).length } };
+  }
+  if (p.startsWith('/songs/') && !p.endsWith('/lyrics')) {
+    const key = decodeURIComponent(p.slice(7)); const seed = get('GET /songs/' + key); const L = lyricsAll()[key];
+    if (!seed && !L) return { ok: false, err: 'no such song in song_bank.json' };
+    return Object.assign({ ok: true, key, title: L?.title || key, in_bank: false, sung: [], versions: 0, licence: (get('GET /songs') || {}).note }, clone(seed || {}), { lyrics: L ? clone(L) : null });
+  }
   if (p === '/automator/videos') {
     const all = (get('GET /automator/videos') || { videos: [] }).videos; const ql = (q.get('q') || '').trim().toLowerCase(); const kind = q.get('kind') || '', has = q.get('has') || '';
     let rows = all.filter(r => !ql || r.id.toLowerCase() === ql || ql.split(/\s+/).every(w => (r.title || '').toLowerCase().includes(w)));

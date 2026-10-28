@@ -35,6 +35,7 @@ sudo arisectl update                       what Software Update is waiting to in
 arisectl automations list                  every timer, next run, last result
 arisectl storage                           what is eating the disk
 arisectl trash list                        what sits in the shares' Trash
+sudo arisectl owner                        Bradly's account: groups, sudo, the job's drop-in
 ```
 
 ## Rules that do not bend
@@ -48,7 +49,8 @@ arisectl trash list                        what sits in the shares' Trash
    server adapts: `/etc/netplan/60-arise-pinned.yaml` on this box, resolver
    files on the Macs, Tailscale for the rest.
 3. Never run the automator in apply mode by hand: `arise-automator.timer`
-   fires at 02:05 America/Chicago, as `arise-yt`, and `automator/runner.json`
+   fires at 02:05 America/Chicago, as Bradly's own account (`[owner] user`,
+   which is also yours: sudo, no password), and `automator/runner.json`
    in its repo decides whether this box is the runner (the PC is, until
    Bradly switches it on the PC; never edit runner.json, holds.json or
    worklist.json here). `arisectl automator preview` is the plan-only run;
@@ -65,7 +67,10 @@ arisectl trash list                        what sits in the shares' Trash
    `wayvnc`, `discord.toml`, and `youtube/`: the automator's `token.json`,
    `client_secret.json` and deploy key), the apps' `.env` files, and
    `/etc/arise/SAFE-CARD.txt`. Never print one into the conversation, never
-   move one into git, never paste one into a doc.
+   move one into git, never paste one into a doc. You can read and write the
+   whole box (Oct 28); a credential's content is the one thing you don't open.
+   Song lyrics (`/srv/arise/songs/lyrics`) are the church's licensed copies:
+   search them for Bradly, never quote them into a title, description or Short.
 7. Nothing on this box is reachable from the internet, by Bradly's choice.
    Do not open a port, add a port forward, or turn `public_url` on.
 8. `--staging` means the box is at Bradly's house: the domain is on
@@ -78,8 +83,8 @@ arisectl trash list                        what sits in the shares' Trash
     a timer back. Anything bigger (a user, a share, an app's data, the
     network, the domain) waits for his word.
 11. Never teleport into, branch in or edit the automator job's checkout
-    (`/srv/arise/automator/ARISE_YouTube_Updater`): it is the 02:05 job's,
-    `main` only. Work on the automator from a separate clone in Bradly's
+    (`/srv/arise/automator/ARISE_YouTube_Updater`): you can, but it is the
+    02:05 job's, `main` only, and a change there makes the next pull fail. Work on the automator from a separate clone in Bradly's
     home (docs/CLAUDE-ON-THE-BOX.md).
 11b. You talk to Bradly only (round 4, 44).
 13. The Arise repos live in `/srv/arise/repos/<name>` and sync two-way with
@@ -119,6 +124,7 @@ python3 scripts/gen-demo-data.py             # after any API change
 sudo systemctl restart arise-web             # after a change to server/ or web/
 ```
 
-Fixed names (hostname, realm, port, paths above) are the contract in
+Change the OS in `/srv/arise/repos/Church-server-OS-`, not `/opt/arise`
+(Software Update replaces it). Fixed names (hostname, realm, port, paths above) are the contract in
 docs/ARCHITECTURE.md: change none of them. Usernames are `first.last`.
 Commits are Bradly's to push; stage and show him the diff.

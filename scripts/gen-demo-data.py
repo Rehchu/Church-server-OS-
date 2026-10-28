@@ -45,6 +45,10 @@ data["GET /automator/videos"] = c.get("/api/automator/videos").json()
 for v in data["GET /automator/videos"]["videos"]:
     data[f"GET /automator/videos/{v['id']}"] = c.get(f"/api/automator/videos/{v['id']}").json()
     data[f"GET /automator/videos/{v['id']}/transcript"] = c.get(f"/api/automator/videos/{v['id']}/transcript").json()
+# The Songs tab: the sample song bank and each song's card (the mock keeps the lyrics you add).
+data["GET /songs"] = c.get("/api/songs").json()
+for sg in data["GET /songs"]["songs"]:
+    data[f"GET /songs/{sg['key']}"] = c.get(f"/api/songs/{sg['key']}").json()
 for name in data["GET /automator/reports"]["reports"]:
     data[f"GET /automator/reports/{name}"] = c.get(f"/api/automator/reports/{name}").json()
 for a in data["GET /apps"]["apps"]:

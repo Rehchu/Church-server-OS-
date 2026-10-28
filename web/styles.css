@@ -769,3 +769,12 @@ mark{background:rgba(214,34,45,.28);color:var(--text);padding:0 2px}
 .chsw__fix{display:inline-block;margin-top:6px;font-size:12px;background:var(--scrim);border:1px solid var(--line2);padding:3px 8px}
 .tag--warn{border-color:var(--warn);color:var(--warn)}
 @media (max-width:760px){.chv{grid-template-columns:1fr}.chg__hd{flex-direction:column}.chg__t{flex-basis:auto;width:100%}.vgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.chbar__n{margin-left:0}}
+/* the Songs tab */
+.sgtbl tbody tr{cursor:pointer} .sgtbl tbody tr:hover,.sgtbl tbody tr:focus-visible{background:var(--panel3);outline:none}
+.sgimp{cursor:pointer;margin-left:auto}
+.sgkv{grid-template-columns:96px 1fr;font-size:13px} .sgkv dd{word-break:break-word}
+.sglyr{max-height:520px;font-size:14px;line-height:1.6}
+.sgtext{width:100%;min-height:340px;background:var(--scrim);border:1px solid var(--line);color:var(--text);padding:12px 14px;font:inherit;font-size:14px;line-height:1.55;resize:vertical}
+.sgtext:focus{border-color:var(--red);outline:none}
+.sgres{max-height:50vh;overflow:auto;margin-bottom:12px} .sgres__r{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.sgres__r .pill{flex:0 0 74px;justify-content:center}

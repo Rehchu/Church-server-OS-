@@ -226,11 +226,12 @@ def signage() -> dict:
 
 
 def claude_users(cfg=None) -> set[str]:
-    """Who may open Claude on the box: Bradly (round 4, 44), as the dashboard's admin user and
-    as his domain account, plus anyone listed in [claude] users (empty by default)."""
+    """Who may open Claude on the box: Bradly (round 4, 44), as the dashboard's admin user, his
+    domain account and his Linux account ([owner] user), plus anyone in [claude] users (empty by default)."""
     cfg = cfg or load()
     raw = cfg.raw.get("claude", {}) if isinstance(cfg.raw, dict) else {}
-    return {cfg.web.admin_user, "bradly.dyer", *[str(u) for u in (raw.get("users") or [])]}
+    owner = str((cfg.raw.get("owner") or {}).get("user", "") if isinstance(cfg.raw, dict) else "")
+    return {cfg.web.admin_user, "bradly.dyer", *([owner] if owner else []), *[str(u) for u in (raw.get("users") or [])]}
 
 
 def claude_desktop(action: str, who: str) -> dict:

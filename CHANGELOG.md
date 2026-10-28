@@ -10,12 +10,12 @@ Releases are named after books of the Bible from v0.7 on (round 2, 20).
 - Store, Logs and System Settings rebuilt; every template preinstalled within the memory budget, 35 more free apps in a catalogue, a cap on every app
 - Finder: Trash, Previous Versions, Get Info, Recents, a text editor, Compress, Open on my Mac, the Everyone views, uploads to 10 GB
 - Weather for Pineville, snap windows, accessibility switches, a Dock that hides, a greeting, the next service on the lock screen
-- Two-step sign-in, optional, with Microsoft Authenticator; dangerous clicks ask your password again
-- The break-glass admin arise-rescue, the disk unlocked by the TPM, a snapshot before every update, reinstall from the Synology
+- Two-step sign-in with Microsoft Authenticator; dangerous clicks ask your password again; the break-glass admin, the TPM-unlocked disk, a snapshot before every update, reinstall from the Synology
 - The weekly virus scan, the church certificate on every Mac, logs kept a year, SSH keys only; Restart and Shut Down never during a service
 - Firefox in the ariseOS colours as the browser; Claude Desktop on the monitor for Bradly; the Arise repos two-way with GitHub (Backups → Repos); the automator handoff
-- The Automator app: every video with its thumbnails, YouTube and Studio links, chapters, songs and transcript, and a search of every sermon transcript that opens the video at that moment
-- MIT licence; 115 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up
+- The Automator app: every video with its thumbnails, YouTube and Studio links, chapters, songs and transcript; a search of every sermon transcript that opens the video at that moment; the song list, searchable down to a line of the lyrics you add from Proclaim
+- The automator runs as your own account, and your Claude has full access to the box
+- MIT licence; 118 of Bradly's answers recorded; the two-node plan (Arise-Pineville, Arise-Home) written up
 
 ## v0.7 "Genesis": the feel
 

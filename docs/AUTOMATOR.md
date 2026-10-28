@@ -56,9 +56,9 @@ variables are the handoff's own, so the automator's code is unchanged.
 | What | The handoff | ariseOS | Why the difference |
 |---|---|---|---|
 | The checkout (`ARISE_REPO`) | `/opt/arise/ARISE_YouTube_Updater` | `/srv/arise/automator/ARISE_YouTube_Updater` | `/opt/arise` is the dashboard's own git checkout; `/srv/arise/automator` is already backed up nightly |
-| The user | `arise` | `arise-yt` (uid 1502) | `arise` (uid 1500) already owns the Docker apps' data; the token gets a user of its own |
-| Secrets (`ARISE_TOKEN`, `ARISE_CLIENT_SECRET`) | `/etc/arise/secrets/` | `/etc/arise/secrets/youtube/` (arise-yt, 0700; files 0600) | `/etc/arise/secrets/` also holds the backup password, two-step secrets and the rescue password; the job cannot read them |
-| State (`ARISE_STATE_DIR`) | `/var/lib/arise` | `/var/lib/arise/automator` (arise-yt) | `/var/lib/arise` holds the audit log and the dashboard's state |
+| The user | `arise` | **Bradly's own account** (`[owner] user` in arise.toml; Oct 28: "the Automator doesn't need its own profile, it can run on mine") | the units get `User=` from a drop-in (`arise-automator.service.d/10-owner.conf`) that `arise-automator-setup` writes; with no drop-in the unit refuses to run as root |
+| Secrets (`ARISE_TOKEN`, `ARISE_CLIENT_SECRET`) | `/etc/arise/secrets/` | `/etc/arise/secrets/youtube/` (the owner, 0700; files 0600) | `/etc/arise/secrets/` also holds the backup password, two-step secrets and the rescue password; the job cannot read them |
+| State (`ARISE_STATE_DIR`) | `/var/lib/arise` | `/var/lib/arise/automator` (the owner) | `/var/lib/arise` holds the audit log and the dashboard's state |
 | The venv (`ARISE_PYTHON`) | `/opt/arise/venv` | the same | |
 | The environment | `/etc/arise/arise.env` | the same (paths only) | |
 | The wrapper | `/opt/arise/bin/arise-nightly.sh` | `/opt/arise/scripts/arise-nightly.sh` | the handoff's script, unchanged, shipped in this repo |
@@ -72,18 +72,19 @@ sudo cat /var/lib/arise/automator/LATEST_REPORT.md
 sudo tail -40 /var/lib/arise/automator/last-run.log
 systemctl list-timers arise-automator.timer
 sudo stat -c '%a %U %y' /etc/arise/secrets/youtube/token.json
-sudo -u arise-yt git -C /srv/arise/automator/ARISE_YouTube_Updater status
+git -C /srv/arise/automator/ARISE_YouTube_Updater status
 ```
 
 ## The Automator app (the dashboard)
 
-The app on the desktop has seven tabs. Everything in the first two is read-only:
+The app on the desktop has eight tabs. Everything in the first two is read-only:
 nothing there spends quota, writes to YouTube or touches the token.
 
 | Tab | What |
 |---|---|
 | **Videos** | Every video the channel snapshots and the archive know (about 1,380 at the Oct 28 inventory), newest first, each with its YouTube thumbnail. Filter by title or id, by Services / Shorts / Other, or to the ones with a transcript, with chapters, or on the hold list. |
 | **Search** | Searches the sermon transcripts (the default), descriptions, chapters, songs, set lists and notes, or everything. Results are grouped by video: thumbnail, title, date, YouTube and Studio links, and each hit with its time. Clicking a time opens the video with the transcript at that moment. A CCLI number shows its song_bank.json entry. "Past versions" adds the `_backup` files; "private folders" (emails/, memory/) is there for Bradly only. |
+| **Songs** | Every song in song_bank.json (139 at the Oct 28 inventory), searchable by title, CCLI number, writer or **a line of the lyrics**. Filter to the ones with lyrics, without, or the originals. Each song shows its credits as song_bank.json writes them (with Copy on the credit line), every service it was sung at (from the set lists, and from descriptions that credit its number), and its lyrics. |
 | Latest report, Worklist, Hold list, Past reports | as before |
 | **Server switch** | Who runs the 02:05 job tonight (the PC, until runner.json says otherwise) and the handoff's section 9 checklist, row by row. |
 
@@ -97,6 +98,30 @@ nothing there spends quota, writes to YouTube or touches the token.
 - **Description**: every version (the channel snapshot, the toolkit's description files, the applied text, past versions marked as such), with **Copy** and **Copy clean** (no `**`, no CCLI numbers: the text for StreamYard, CLAUDE.md Oct 5).
 - **Transcript**: the timed text with each line linked to that second on YouTube, a find box, and a choice of source when there are several. The note above it says what the archive's rule says: transcripts hold sung lyrics, which never go into a title, description or Short.
 - **In the archive**: every file that names the video, each one readable in place.
+
+**Lyrics** (Oct 28: "I'd have to add the lyrics most likely from Proclaim"):
+
+- **Paste** into a song: open it in the Songs tab and paste from Proclaim's song
+  editor (or SongSelect), section names (Verse 1, Chorus) on their own lines.
+  Edit any time; every earlier version is kept.
+- **Import files**, many at once: SongSelect's `.txt` and `.usr` downloads,
+  ChordPro (`.cho`, `.chopro`, `.pro`; chords are stripped), or plain text.
+  A file links to its song by the CCLI number in it, else by a title exactly
+  one song has. Two songs that share a title (Holy Ground, Dry Bones, You Are
+  Good, Kadosh) are never guessed between: the file is kept, not linked, and
+  you paste it into the right one. A file whose number is not in song_bank.json
+  is kept too, marked "not in song_bank.json", until the PC adds the song.
+- Proclaim has no lyrics export that this could read; paste is the way from it.
+- **Where they live:** `/srv/arise/songs/lyrics/<CCLI number>.txt` (or
+  `t-<title>.txt` for a song with no number), with `.versions/` and `.removed/`
+  beside it: removing asks for the title and moves the file, nothing is deleted.
+  The folder is yours (the owner's account), so Claude on the box can work with
+  it too; the nightly backup job `songs` copies it to the Synology. It is never
+  in a git repository: these are the church's licensed copies (CCLI No. 245091),
+  and they never go into a title, description or Short.
+- **Find a line in the transcripts** (on a song) searches the sermon
+  transcripts for that line, to see where it was sung. That is a lead for you to
+  check, never a credit: credits come only from song_bank.json.
 
 Where the data comes from: the archive's index and its clone of the automator repo
 (docs/ARCHIVE.md), so it is as fresh as the 04:15 refresh. Titles and descriptions
@@ -128,9 +153,9 @@ this order, the parts only Bradly can do:
      named **ariseOS server**. Download the JSON.
 3. Copy it in with `scp` (never chat or git) to
    `/etc/arise/secrets/youtube/client_secret.json`, then
-   `sudo chown arise-yt: … && sudo chmod 600 …`.
+   `sudo chown $USER: … && sudo chmod 600 …` (your account).
 4. **Sign in once**: `sudo arisectl automator signin`. It runs the handoff's
-   `authorize_headless.py` as arise-yt. Open the link on any computer or phone,
+   `authorize_headless.py` as your account. Open the link on any computer or phone,
    sign in as the channel's owner, pass the unverified-app warning (Advanced →
    Go to …), approve, then paste the whole `http://localhost:8765/?state=…&code=…`
    address the browser fails to load. The script checks the channel is Arise
@@ -175,7 +200,7 @@ service day.
 section 9 list, ticking what the server can see:
 
 1. The OAuth app is Published. *(Bradly confirms.)*
-2. The server's own client and token are here, 0600, arise-yt.
+2. The server's own client and token are here, 0600, your account.
 3. The timer has written a "not the runner" report.
 4. A plan-only run shows "signed in as Arise Church" and the hold count.
 5. The job's state files. **Decided Oct 28**: `_starfix_state.json`,
@@ -188,7 +213,7 @@ section 9 list, ticking what the server can see:
    Oct 28). A server plan-only report shows budget 6000 and the three
    remaining jobs planned.
 7. The PC's `_starfix_state.json` is copied into **`/var/lib/arise/automator`**
-   (the state folder, not the checkout), owned by arise-yt, so the star
+   (the state folder, not the checkout), owned by your account, so the star
    cleanup resumes where the PC stopped.
 8. The PC is clean and pushed (`origin/main` has the latest holds and worklist).
 
@@ -226,7 +251,7 @@ deletes them and never touches a tracked file. The next pull goes through.
    disable its secret). The PC uses a different client and is untouched.
 2. Revoke the token itself, on the server, without printing it:
    ```
-   sudo -u arise-yt /opt/arise/venv/bin/python -c "import json,urllib.request,urllib.parse;t=json.load(open('/etc/arise/secrets/youtube/token.json'))['refresh_token'];urllib.request.urlopen('https://oauth2.googleapis.com/revoke',urllib.parse.urlencode({'token':t}).encode())"
+   /opt/arise/venv/bin/python -c "import json,urllib.request,urllib.parse;t=json.load(open('/etc/arise/secrets/youtube/token.json'))['refresh_token'];urllib.request.urlopen('https://oauth2.googleapis.com/revoke',urllib.parse.urlencode({'token':t}).encode())"
    ```
    (The handoff notes it is not confirmed whether this kills one token or the
    client's whole grant; with separate clients only the server is affected.)
