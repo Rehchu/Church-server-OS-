@@ -56,8 +56,9 @@ What is there (his words, drawn out):
 
 ```
  internet ── modem ── Netgear A ──┬── unmanaged switch (Cisco or Netgear) ──┬── Netgear B (office)  → office Mac, wired
-                                  │                                        └── some NDI cameras, wired
-                                  └── Google Mesh (2 or 3 points) → the media / streaming Mac (Wi-Fi), the other NDI cameras
+                                  │                                        └── whatever else is on the wire (the Network app lists it)
+                                  └── Google Mesh (2 or 3 points) ──┬── the media / streaming Mac (Wi-Fi)
+                                                                   └── a second unmanaged switch → the NDI cameras
 ```
 
 Three boxes each hand out their own addresses, so this is three networks
@@ -87,6 +88,25 @@ Second DNS option, for any Mac on Tailscale: the Tailscale admin console's
 split DNS rule (docs/REMOTE-ACCESS.md step 5) sends `ad.arisecenla.church`
 to the server for every device on the tailnet, wherever it is. The resolver
 file covers Macs without Tailscale; the two do not conflict.
+
+**Seeing everything on the switch.** The dashboard's **Network** app (16)
+scans Netgear A's wire every hour (`arp-scan`, the same thing a network
+engineer runs by hand) and lists every device: address, MAC, maker, a
+guessed kind (Mac, NAS, printer, router, camera), whether it is joined to
+the domain, when it was first and last seen. Name a device once and the
+name follows its MAC through every address the router hands it. New
+devices are flagged. What it cannot see, honestly: anything *behind* the
+office Netgear or the Google Mesh. Each of those shows as one device (its
+WAN side); the office Mac, the media Mac and the cameras' switch are on
+their own networks on the far side of a NAT, invisible from this wire by
+design. Those devices are known to the server another way: they join the
+domain (Directory → Computers) or run Tailscale (Remote).
+
+**The cameras** sit on their own unmanaged switch, which plugs into the
+Mesh. So the NDI cameras and the streaming Mac are on the Mesh's network
+together, which is the one thing NDI needs (discovery works between them).
+The server is on a different network, which does not matter: nothing on
+the server talks NDI.
 
 **What works across the stack and what does not:**
 

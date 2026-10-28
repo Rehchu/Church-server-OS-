@@ -260,3 +260,27 @@ class V04(unittest.TestCase):
         self.assertFalse(directory.authenticate("office", ""))
         self.assertTrue(directory.is_admin("bradly"))
         self.assertFalse(directory.is_admin("office"))
+
+
+class Devices(unittest.TestCase):
+    def test_arp_scan_and_neigh_parse(self):
+        from arise_server import devices
+        rows = devices.parse_arp_scan("192.168.1.5\t00:11:22:33:44:55\tApple, Inc.\nStarting arp-scan\n192.168.1.6\tAA:BB:CC:DD:EE:FF\n")
+        self.assertEqual([r["ip"] for r in rows], ["192.168.1.5", "192.168.1.6"])
+        self.assertEqual(rows[1]["mac"], "aa:bb:cc:dd:ee:ff")
+        n = devices.parse_neigh("192.168.1.9 dev eno1 lladdr 00:11:22:33:44:66 REACHABLE\n192.168.1.10 dev eno1  FAILED\n")
+        self.assertEqual(len(n), 1)
+
+    def test_classify_guesses_kind(self):
+        from arise_server import devices
+        self.assertEqual(devices.classify("Synology Incorporated"), ("Synology", "nas"))
+        self.assertEqual(devices.classify("NETGEAR"), ("Netgear", "router"))
+        self.assertEqual(devices.classify("", "ds920.local")[1], "nas")
+        self.assertEqual(devices.classify("Something Else")[1], "unknown")
+
+    def test_sample_devices_and_label_rules(self):
+        from arise_server import devices
+        r = devices.list_devices()
+        self.assertTrue(r["demo"]); self.assertGreaterEqual(len(r["devices"]), 5)
+        self.assertTrue(all(d["mac"].startswith("02:") for d in r["devices"]))  # sample MACs are never real ones
+        self.assertEqual(devices.label("02:a1:00:00:00:01", kind="toaster").get("ok"), True)  # demo: nothing written

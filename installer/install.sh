@@ -177,7 +177,7 @@ PKGS=(
   samba winbind krb5-user krb5-config libnss-winbind libpam-winbind
   smbclient ldb-tools acl attr
   cifs-utils nfs-common
-  restic rsync git curl jq
+  restic rsync git curl jq arp-scan
   python3 python3-venv python3-pip
   chrony
 )
@@ -690,6 +690,13 @@ else
 fi
 
 # --- the daily notification timer (unit files come from config/systemd) ------
+if [ -f "$UNIT_SRC/arise-devices.timer" ]; then
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now arise-devices.timer || warn "arise-devices.timer failed to start"
+  else
+    run systemctl enable arise-devices.timer
+  fi
+fi
 if [ -f /etc/systemd/system/arise-notify.timer ] || [ -f "$UNIT_SRC/arise-notify.timer" ]; then
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now arise-notify.timer || warn "arise-notify.timer failed to start"

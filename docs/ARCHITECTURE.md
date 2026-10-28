@@ -58,7 +58,7 @@ framework, so it installs on an old PC with nothing but Python 3.11+.
 | Data root | `/srv/arise/` — `homes/`, `shares/`, `automator/`, `apps/`, `backups/` |
 | Automator checkout | `/srv/arise/automator/ARISE_YouTube_Updater` (clone of `Rehchu/arise-youtube-automation`) |
 | Synology mount | `/mnt/synology` (SMB or NFS), subfolders `arise-backups/`, `homes/` |
-| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-notify.timer` 07:00 |
+| Timers | `arise-automator.timer` 02:05 America/Chicago · `arise-backup.timer` 03:00 · `arise-mirror.timer` 04:00 · `arise-notify.timer` 07:00 (off: no daily note) · `arise-devices.timer` hourly network scan |
 | VPN | Tailscale (100.64.0.0/10) or WireGuard `wg0` on UDP 51820, tunnel `10.47.0.0/24` |
 | Remote desktop | Guacamole, port 8084 (`remote.ad.arisecenla.church` behind Caddy) |
 | HTTPS | Caddy, `tls internal`, `config/caddy/Caddyfile` |
@@ -271,6 +271,7 @@ and previewed anywhere, including the published preview page.
 | `GET /api/files/roots` · `GET /api/files/list?root=&path=` · `GET /api/files/download?root=&path=` · `GET /api/files/view?root=&path=` · `POST /api/files/upload` · `POST /api/files/mkdir` | the Finder, inside `/srv/arise` and the NAS mount; `view` is inline (Quick Look), `download` is an attachment; no delete, no move |
 | `GET /api/links` · `POST /api/links` {root,path,days,note} · `DELETE /api/links/{token}` · `GET /s/{token}` (no login) | share links: a time-limited public download of one file or a zipped folder |
 | `POST /api/me/password` {old,new} | a person changes their own directory password (Kerberos check of the old one first) |
+| `GET /api/devices` · `POST /api/devices/scan` · `POST /api/devices/{mac}` {name,note,kind} · `DELETE /api/devices/{mac}` | everything on the switch: `arp-scan --localnet` (else a ping sweep and the neighbour table), merged into `/var/lib/arise/devices.json` by MAC |
 | `GET /api/search?q=` | Spotlight: file names on both roots (a bounded `os.walk` index, cached 120 s), users and computers from the directory |
 | `GET /api/system/updates` · `POST /api/system/update` · `POST /api/system/apt-upgrade` | apt and Arise Server updates |
 | `POST /api/system/power` `{action: reboot|poweroff, confirm}` | the closet has no power button you can reach |

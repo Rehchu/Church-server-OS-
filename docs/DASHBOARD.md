@@ -57,6 +57,7 @@ closes whatever is on top.
 | 13 | **Services** | the systemd units that matter | start, stop, restart, jump to logs |
 | 14 | **Logs** | the last 300 journal lines of any unit | pick a unit, refresh |
 | 15 | **System Settings** | updates (packages, Arise Server itself), the daily note, power (reboot, shut down), every non-secret value of `arise.toml` | update, upgrade, test the note, reboot/shut down with the word typed |
+| 16 | **Network** | everything on the switch: every device on Netgear A's wire with address, MAC, maker, a guessed kind, whether it is joined to the domain, first and last seen; the office Netgear and the Google Mesh appear as one device each (their networks are behind them). An hourly scan by itself (`arise-devices.timer`); new devices are flagged | Scan now, name a device (the name sticks to its MAC whatever address it gets), note, kind, forget an offline one |
 | — | **About This Server** | version, host, domain, kernel, processor, memory, uptime, profile | from the flame menu |
 
 ## Who can sign in, and what they see

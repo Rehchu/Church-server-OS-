@@ -638,6 +638,29 @@ V.sites = async () => {
     <p class="note" style="margin-top:14px">Set each site's <code>probe</code> in arise.toml to something at that site that is always on (its router, a Mac) and this page shows whether the link is up. Alexandria's Macs bind to the domain over the VPN and keep working on cached accounts when it is down. docs/MULTI-SITE.md.</p></div>`;
 };
 
+const KIND_ICON = { server: 'server', nas: 'nas', mac: 'users', pc: 'apps', router: 'remote', switch: 'remote', network: 'remote', printer: 'text', camera: 'sermons', iot: 'folder', phone: 'users', unknown: 'file' };
+V.devices = async () => {
+  const r = await api('/devices'); S.devCache = r;
+  const m = r.meta || {}, devs = r.devices || [], online = devs.filter(d => d.online).length, fresh = devs.filter(d => d.first_seen === m.last_scan).length;
+  const row = d => `<tr class="${d.online ? '' : 'dim'}" data-mac="${esc(d.mac)}"><td><i class="fico" style="--i:${ICONURL[KIND_ICON[d.kind_final] || 'file']};width:18px;height:18px;display:inline-block;vertical-align:-4px;margin-right:8px"></i><b>${esc(d.name || d.hostname?.split('.')[0] || d.vendor || 'unknown device')}</b>${d.first_seen === m.last_scan ? ' <span class="tag" style="background:var(--red);color:#fff">new</span>' : ''}${d.joined ? ' <span class="tag">joined</span>' : ''}<br><small class="muted">${esc(d.hostname || '')}${d.note ? (d.hostname ? ' · ' : '') + esc(d.note) : ''}</small></td>
+    <td class="mono">${esc(d.ip || '')}${(d.ips || []).length > 1 ? `<br><small class="muted">before: ${esc((d.ips || []).filter(x => x !== d.ip).join(', '))}</small>` : ''}</td><td class="mono" style="font-size:11.5px">${esc(d.mac)}</td><td>${esc(d.vendor || '')}</td><td>${esc(d.kind_final)}</td><td>${d.online ? '<span class="pill pill--ok">on</span>' : esc(ago(d.last_seen))}</td><td><button class="btn btn--ghost btn--xs" data-edit="${esc(d.mac)}">Name</button></td></tr>`;
+  return `<div class="fade"><div class="row row--between" style="margin-bottom:12px"><div><div class="kicker">Everything on the switch</div><h2 style="margin:0">${devs.length} devices · ${online} on now${fresh ? ` · <span style="color:var(--redL)">${fresh} new</span>` : ''}</h2>
+      <p class="note" style="margin:6px 0 0">${esc(r.network?.subnet || '')} on ${esc(r.network?.iface || '')} · last scan ${m.last_scan ? ago(m.last_scan) : 'never'}${m.tool ? ' · ' + esc(m.tool) : ''}${r.demo ? ' · sample' : ''}. This is Netgear A's wire. The office Netgear and the Google Mesh show as one device each; what is behind them is their own network and cannot be seen from here.</p></div>
+      <button class="btn" id="devScan">Scan now</button></div>
+    <table class="tbl"><thead><tr><th>Device</th><th>Address</th><th>MAC</th><th>Maker</th><th>Kind</th><th>Seen</th><th></th></tr></thead><tbody>${devs.map(row).join('') || '<tr><td colspan="7" class="muted">Nothing yet. Scan now.</td></tr>'}</tbody></table>
+    <p class="note" style="margin-top:12px">A scan runs every hour by itself (arise-devices.timer). Give a device a name once and it keeps it, whatever address the router hands it next.</p></div>`;
+};
+V.devices.after = root => {
+  $('#devScan', root).onclick = async () => { const b = $('#devScan', root); b.disabled = true; b.textContent = 'Scanning…'; try { const r = await api('/devices/scan', { method: 'POST' }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample scan' : `Found ${r.found}, ${r.new} new`); rerender('devices'); } catch (e) { toast(e.message, 'bad'); b.disabled = false; b.textContent = 'Scan now'; } };
+  $$('[data-edit]', root).forEach(btn => btn.onclick = () => { const d = (S.devCache?.devices || []).find(x => x.mac === btn.dataset.edit); if (!d) return;
+    modal(`<h2>${esc(d.name || d.hostname || d.mac)}</h2><form id="devF" style="display:grid;gap:8px;margin-top:10px"><input id="devName" placeholder="Name (e.g. Office printer)" value="${esc(d.name || '')}"><input id="devNote" placeholder="Note" value="${esc(d.note || '')}"><select id="devKind">${['', 'server', 'nas', 'mac', 'pc', 'router', 'switch', 'network', 'printer', 'camera', 'iot', 'phone', 'unknown'].map(k => `<option value="${k}" ${(d.kind || '') === k ? 'selected' : ''}>${k || 'kind: as guessed (' + esc(d.guess || 'unknown') + ')'}</option>`).join('')}</select>
+      <dl class="kv" style="margin-top:6px"><dt>MAC</dt><dd class="mono">${esc(d.mac)}</dd><dt>First seen</dt><dd>${esc(d.first_seen || '')}</dd><dt>Addresses</dt><dd class="mono">${esc((d.ips || []).join(', '))}</dd></dl>
+      <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button>${d.online ? '' : '<button type="button" class="btn btn--ghost" id="devForget">Forget</button>'}<button class="btn" type="submit">Save</button></div></form>`, () => {
+      $('#devF').onsubmit = async e => { e.preventDefault(); const r = await api('/devices/' + encodeURIComponent(d.mac), { method: 'POST', body: { name: $('#devName').value, note: $('#devNote').value, kind: $('#devKind').value } }); if (r.ok === false) return toast(r.err, 'bad'); $('[data-close]').click(); rerender('devices'); };
+      const f = $('#devForget'); if (f) f.onclick = async () => { await api('/devices/' + encodeURIComponent(d.mac), { method: 'DELETE' }); $('[data-close]').click(); rerender('devices'); };
+    }); });
+};
+
 V.terminal = async () => `<div class="term" id="termMount"></div>`;
 V.terminal.after = root => {
   const mount = $('#termMount'); if (!mount || !window.Terminal) { if (mount) mount.innerHTML = '<p class="note">xterm.js did not load.</p>'; return; }
@@ -688,6 +711,7 @@ const I = {
   nas: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v7H3zm0 9h18v7H3zm3 2h3v3H6zm0-9h3v3H6z"/></svg>',
   services: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 5l-2 .4a7 7 0 0 1-.8 2l1.2 1.7-1.4 1.4-1.7-1.2a7 7 0 0 1-2 .8L14 21h-4l-.4-2a7 7 0 0 1-2-.8l-1.7 1.2-1.4-1.4 1.2-1.7a7 7 0 0 1-.8-2L3 14v-4l2-.4a7 7 0 0 1 .8-2L4.6 5.9 6 4.5l1.7 1.2a7 7 0 0 1 2-.8L10 3h4l.4 2a7 7 0 0 1 2 .8l1.7-1.2 1.4 1.4-1.2 1.7a7 7 0 0 1 .8 2l2 .4z"/></svg>',
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
+  devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h12v2H3zm14 0h4v2h-4zM3 11h4v2H3zm6 0h12v2H9zM3 16h10v2H3zm12 0h6v2h-6z"/></svg>',
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
@@ -707,6 +731,7 @@ const APPS = [
   { id: 'services', n: '13', name: 'Services', what: 'The systemd units' },
   { id: 'logs', n: '14', name: 'Logs', what: 'journalctl, last 300 lines' },
   { id: 'settings', n: '15', name: 'System Settings', what: 'arise.toml, updates, power' },
+  { id: 'devices', n: '16', name: 'Network', what: 'Everything on the switch', w: 980, h: 600 },
   { id: 'about', n: '', name: 'About This Server', what: '', hidden: true, w: 560, h: 380 },
 ];
 const MEMBER_APPS = ['files', 'sermons', 'bible', 'sites', 'about'];
@@ -798,6 +823,7 @@ function menuItems(id) {
     backups: [['Run all jobs now', () => act($('#next') || document.body, () => api('/backups/run/automator', { method: 'POST' }), 'Started the automator job')], ['Refresh GitHub mirror', () => api('/backups/mirror', { method: 'POST' }).then(() => toast('Mirror refreshed'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     automator: [['Preview tonight (dry run)', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started'))], null, ['Close Window', () => closeApp(id), '⌘W']],
     terminal: [['New shell (reopen)', () => { closeApp('terminal'); openApp('terminal'); }], null, ['Close Window', () => closeApp(id), '⌘W']],
+    devices: [['Scan now', () => $('#devScan')?.click()], null, ['Close Window', () => closeApp(id), '⌘W']],
   }[id] || [['Close Window', () => id && closeApp(id), '⌘W']];
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'Arise Server', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];

@@ -1,0 +1,8 @@
+[Unit]
+Description=Arise Server network scan (everything on the switch)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arisectl devices scan --quiet

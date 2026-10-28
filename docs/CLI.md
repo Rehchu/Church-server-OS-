@@ -67,3 +67,11 @@ The timers call it: `arise-backup.service` runs `arisectl backup run`,
 `arise-mirror.service` runs `arisectl mirror run`, `arise-nas-mount.service`
 runs `arisectl nas mount`. On Windows the scheduled tasks run the same
 commands through `C:\Arise\venv\Scripts\python.exe cli\arisectl`.
+
+## arisectl devices
+
+```
+arisectl devices list              everything on the switch, from the last scan
+arisectl devices scan [--quiet]    scan now (arp-scan, else a ping sweep); --quiet is what the hourly timer runs
+arisectl devices name <mac> <name> give a device a name that sticks to its MAC
+```

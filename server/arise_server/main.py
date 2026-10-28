@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, directory, files, metrics, nas, remote, sermons, services, shares, sites, system
+from . import VERSION, CODENAME, apps, automator, backups, bible, devices, directory, files, metrics, nas, remote, sermons, services, shares, sites, system
 from . import links
 from .auth import COOKIE, current_user, login, require_admin
 from .config import load
@@ -569,6 +569,33 @@ def public_link(token: str):
             raise HTTPException(413, {"message": "That folder is too big to zip; ask for the files another way"})
         return FileResponse(z, filename=got["name"] + ".zip", media_type="application/zip")
     return FileResponse(got["path"], filename=got["name"])
+
+
+# ----- everything on the switch --------------------------------------------------
+class DeviceLabel(BaseModel):
+    name: Optional[str] = None
+    note: Optional[str] = None
+    kind: Optional[str] = None
+
+
+@app.get("/api/devices")
+def api_devices(_=auth):
+    return devices.list_devices()
+
+
+@app.post("/api/devices/scan")
+def api_devices_scan(_=auth):
+    return devices.scan()
+
+
+@app.post("/api/devices/{mac}")
+def api_devices_label(mac: str, body: DeviceLabel, _=auth):
+    return devices.label(mac, body.name, body.note, body.kind)
+
+
+@app.delete("/api/devices/{mac}")
+def api_devices_forget(mac: str, _=auth):
+    return devices.forget(mac)
 
 
 @app.get("/api/system/updates")

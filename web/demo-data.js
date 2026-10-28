@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:30:47",
+"last_run": "2026-10-28T02:50:44",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T00:30:47"
+"since": "2026-10-14T00:50:44"
 }
 ]
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T02:30:47",
+"last_logon": "2026-10-28T02:50:44",
 "home": "\\\\arise-server\\homes\\bradly"
 },
 {
@@ -167,7 +167,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T03:30:47",
+"last_logon": "2026-10-27T03:50:44",
 "home": "\\\\arise-server\\homes\\media-mac"
 },
 {
@@ -177,7 +177,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T00:30:47",
+"last_logon": "2026-10-26T00:50:44",
 "home": "\\\\arise-server\\homes\\office"
 },
 {
@@ -187,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T03:30:47",
+"last_logon": "2026-10-22T03:50:44",
 "home": "\\\\arise-server\\homes\\kids-checkin"
 },
 {
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T03:30:47",
+"last_logon": "2026-10-25T03:50:44",
 "home": "\\\\arise-server\\homes\\childrens.department"
 },
 {
@@ -217,7 +217,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T03:30:47",
+"last_logon": "2026-10-19T03:50:44",
 "home": "\\\\arise-server\\homes\\inedge"
 }
 ]
@@ -295,28 +295,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T02:30:47",
+"last_seen": "2026-10-28T02:50:44",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T03:30:47",
+"last_seen": "2026-10-27T03:50:44",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T03:30:47",
+"last_seen": "2026-10-26T03:50:44",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T03:26:47",
+"last_seen": "2026-10-28T03:46:44",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1752,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T03:30:47",
+"last_check": "2026-10-19T03:50:44",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:30:47",
+"last_run": "2026-10-28T02:50:44",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1873,17 +1873,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-27T22:30:47",
+"when": "2026-10-27T22:50:44",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-27T22:30:47",
+"when": "2026-10-27T22:50:44",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-27T22:30:47",
+"when": "2026-10-27T22:50:44",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1918,7 +1918,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.3,
 "mem": 38000000,
 "url": "http://arise-server:8081",
-"updated": "2026-10-25T03:30:47",
+"updated": "2026-10-25T03:50:44",
 "mem_h": "36.2 MB"
 },
 {
@@ -1931,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T03:30:47",
+"updated": "2026-10-25T03:50:44",
 "mem_h": "135.4 MB"
 },
 {
@@ -1944,7 +1944,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T03:30:47",
+"updated": "2026-10-27T03:50:44",
 "mem_h": "0 B"
 }
 ],
@@ -2051,7 +2051,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T01:30:47",
+"last": "2026-10-27T01:50:44",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -2234,7 +2234,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T03:30"
+"when": "2026-10-28T03:50"
 },
 {
 "user": "bradly",
@@ -2468,8 +2468,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T03:30",
-"expires": "2026-11-02T03:30",
+"created": "2026-10-26T03:50",
+"expires": "2026-11-02T03:50",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -2478,6 +2478,187 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "demo": true
+},
+"GET /devices": {
+"demo": true,
+"meta": {
+"last_scan": "2026-10-28T06:00",
+"tool": "arp-scan",
+"subnet": "192.168.1.0/24",
+"iface": "eno1",
+"found": 9,
+"new": 1
+},
+"devices": [
+{
+"mac": "02:a1:00:00:00:01",
+"ip": "192.168.1.1",
+"ips": [
+"192.168.1.1"
+],
+"vendor": "Netgear",
+"guess": "router",
+"kind": "router",
+"hostname": "",
+"name": "Netgear A (the router at the modem)",
+"note": "hands out the addresses on this wire",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "router"
+},
+{
+"mac": "02:a1:00:00:00:57",
+"ip": "192.168.1.57",
+"ips": [
+"192.168.1.57"
+],
+"vendor": "Dell",
+"guess": "server",
+"kind": "server",
+"hostname": "arise-server.ad.arisecenla.church",
+"name": "arise-server (this box)",
+"note": "",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": true,
+"online": true,
+"kind_final": "server"
+},
+{
+"mac": "02:a1:00:00:00:11",
+"ip": "192.168.1.11",
+"ips": [
+"192.168.1.11"
+],
+"vendor": "Synology",
+"guess": "nas",
+"kind": "",
+"hostname": "synology",
+"name": "Synology",
+"note": "",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "nas"
+},
+{
+"mac": "02:a1:00:00:00:02",
+"ip": "192.168.1.2",
+"ips": [
+"192.168.1.2"
+],
+"vendor": "Netgear",
+"guess": "router",
+"kind": "router",
+"hostname": "",
+"name": "Netgear B (office) - its own network behind it",
+"note": "the office Mac is behind this; it is not visible here",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "router"
+},
+{
+"mac": "02:a1:00:00:00:03",
+"ip": "192.168.1.3",
+"ips": [
+"192.168.1.3"
+],
+"vendor": "Google",
+"guess": "router",
+"kind": "router",
+"hostname": "",
+"name": "Google Mesh - its own network behind it",
+"note": "the media Mac and the NDI cameras' switch are behind this",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "router"
+},
+{
+"mac": "02:a1:00:00:00:21",
+"ip": "192.168.1.21",
+"ips": [
+"192.168.1.21",
+"192.168.1.34"
+],
+"vendor": "Apple",
+"guess": "mac",
+"kind": "",
+"hostname": "MEDIA-MAC-01.ad.arisecenla.church",
+"name": "",
+"note": "",
+"first_seen": "2026-10-27T09:10",
+"last_seen": "2026-10-28T06:00",
+"joined": true,
+"online": true,
+"kind_final": "mac"
+},
+{
+"mac": "02:a1:00:00:00:40",
+"ip": "192.168.1.40",
+"ips": [
+"192.168.1.40"
+],
+"vendor": "HP",
+"guess": "printer",
+"kind": "",
+"hostname": "",
+"name": "",
+"note": "",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "printer"
+},
+{
+"mac": "02:a1:00:00:00:88",
+"ip": "192.168.1.88",
+"ips": [
+"192.168.1.88"
+],
+"vendor": "",
+"guess": "unknown",
+"kind": "",
+"hostname": "",
+"name": "",
+"note": "",
+"first_seen": "2026-10-28T06:00",
+"last_seen": "2026-10-28T06:00",
+"joined": false,
+"online": true,
+"kind_final": "unknown"
+},
+{
+"mac": "02:a1:00:00:00:60",
+"ip": "192.168.1.60",
+"ips": [
+"192.168.1.60"
+],
+"vendor": "Apple",
+"guess": "mac",
+"kind": "",
+"hostname": "",
+"name": "Loaner MacBook",
+"note": "",
+"first_seen": "2026-10-26T14:00",
+"last_seen": "2026-10-27T17:40",
+"joined": false,
+"online": false,
+"kind_final": "mac"
+}
+],
+"network": {
+"subnet": "192.168.1.0/24",
+"iface": "eno1",
+"ip": "192.168.1.57"
+}
 },
 "GET /bible/translations": {
 "translations": [
@@ -2511,7 +2692,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T03:30:48+00:00",
+"last_check": "2026-10-28T03:50:44+00:00",
 "security": 1
 },
 "GET /notify": {

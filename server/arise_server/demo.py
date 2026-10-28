@@ -200,3 +200,18 @@ LOGS = {
     "arise-automator.service": AUTOMATOR["latest_report"],
     "samba-ad-dc.service": "Oct 26 02:00:01 arise-server samba[655]:   Kerberos: TGS-REQ bradly@AD.ARISECENLA.CHURCH from ipv4:192.168.1.41 for cifs/arise-server\nOct 26 02:00:01 arise-server samba[655]:   Kerberos: TGS-REQ authtime: 2026-10-26T01:58:11 starttime: unset endtime: 2026-10-26T11:58:11 renew till: 2026-11-02T01:58:11\n",
 }
+
+
+# Everything on the switch (sample). MACs are locally administered (02:...), so none is a real device.
+DEVICES_META = {"last_scan": "2026-10-28T06:00", "tool": "arp-scan", "subnet": "192.168.1.0/24", "iface": "eno1", "found": 9, "new": 1}
+DEVICES = [
+    {"mac": "02:a1:00:00:00:01", "ip": "192.168.1.1", "ips": ["192.168.1.1"], "vendor": "Netgear", "guess": "router", "kind": "router", "hostname": "", "name": "Netgear A (the router at the modem)", "note": "hands out the addresses on this wire", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "router"},
+    {"mac": "02:a1:00:00:00:57", "ip": "192.168.1.57", "ips": ["192.168.1.57"], "vendor": "Dell", "guess": "server", "kind": "server", "hostname": "arise-server.ad.arisecenla.church", "name": "arise-server (this box)", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": True, "online": True, "kind_final": "server"},
+    {"mac": "02:a1:00:00:00:11", "ip": "192.168.1.11", "ips": ["192.168.1.11"], "vendor": "Synology", "guess": "nas", "kind": "", "hostname": "synology", "name": "Synology", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "nas"},
+    {"mac": "02:a1:00:00:00:02", "ip": "192.168.1.2", "ips": ["192.168.1.2"], "vendor": "Netgear", "guess": "router", "kind": "router", "hostname": "", "name": "Netgear B (office) - its own network behind it", "note": "the office Mac is behind this; it is not visible here", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "router"},
+    {"mac": "02:a1:00:00:00:03", "ip": "192.168.1.3", "ips": ["192.168.1.3"], "vendor": "Google", "guess": "router", "kind": "router", "hostname": "", "name": "Google Mesh - its own network behind it", "note": "the media Mac and the NDI cameras' switch are behind this", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "router"},
+    {"mac": "02:a1:00:00:00:21", "ip": "192.168.1.21", "ips": ["192.168.1.21", "192.168.1.34"], "vendor": "Apple", "guess": "mac", "kind": "", "hostname": "MEDIA-MAC-01.ad.arisecenla.church", "name": "", "note": "", "first_seen": "2026-10-27T09:10", "last_seen": "2026-10-28T06:00", "joined": True, "online": True, "kind_final": "mac"},
+    {"mac": "02:a1:00:00:00:40", "ip": "192.168.1.40", "ips": ["192.168.1.40"], "vendor": "HP", "guess": "printer", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "printer"},
+    {"mac": "02:a1:00:00:00:88", "ip": "192.168.1.88", "ips": ["192.168.1.88"], "vendor": "", "guess": "unknown", "kind": "", "hostname": "", "name": "", "note": "", "first_seen": "2026-10-28T06:00", "last_seen": "2026-10-28T06:00", "joined": False, "online": True, "kind_final": "unknown"},
+    {"mac": "02:a1:00:00:00:60", "ip": "192.168.1.60", "ips": ["192.168.1.60"], "vendor": "Apple", "guess": "mac", "kind": "", "hostname": "", "name": "Loaner MacBook", "note": "", "first_seen": "2026-10-26T14:00", "last_seen": "2026-10-27T17:40", "joined": False, "online": False, "kind_final": "mac"},
+]

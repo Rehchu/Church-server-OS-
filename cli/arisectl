@@ -17,6 +17,7 @@
     arisectl mirror run
     arisectl sites
     arisectl link list|revoke <token>|sweep
+    arisectl devices list|scan|name <mac> <name>      everything on the switch
     arisectl remote status|add-peer <name>
     arisectl notify test|send
     arisectl update [check|apply|apt]
@@ -435,6 +436,32 @@ def cmd_nas(a):
         need_root(); show(nas.unmount())
 
 
+def cmd_devices(a):
+    from arise_server import devices
+    if a.sub == "scan":
+        r = devices.scan()
+        if r.get("ok") is False:
+            sys.exit(r["err"])
+        if not a.quiet:
+            print(f"found {r.get('found', len(r['devices']))} devices, {r.get('new', 0)} new ({r.get('tool', 'sample')})")
+            a.sub = "list"
+        else:
+            return
+    if a.sub == "list":
+        r = devices.list_devices()
+        rows = [{"device": d.get("name") or (d.get("hostname") or "").split(".")[0] or d.get("vendor") or "?", "ip": d.get("ip", ""), "mac": d["mac"], "maker": d.get("vendor", ""), "kind": d.get("kind_final", ""), "seen": "on" if d.get("online") else (d.get("last_seen") or "")} for d in r["devices"]]
+        table(rows, ["device", "ip", "mac", "maker", "kind", "seen"])
+        m = r.get("meta", {})
+        print(f"  {m.get('subnet', '')} · last scan {m.get('last_scan', 'never')} · the office Netgear and the Mesh are one row each; their networks are behind them")
+        if r.get("demo"): warn("sample data")
+    elif a.sub == "name":
+        if not a.mac or not a.value:
+            sys.exit("arisectl devices name <mac> <name>")
+        show(devices.label(a.mac, name=a.value))
+    else:
+        sys.exit("arisectl devices list|scan|name <mac> <name>")
+
+
 def cmd_link(a):
     from arise_server import links
     who = {"user": "arisectl", "role": "admin"}
@@ -546,6 +573,7 @@ def build():
     p = sp.add_parser("mirror"); p.add_argument("sub", choices=["run"]); p.set_defaults(f=cmd_mirror)
     sp.add_parser("sites").set_defaults(f=cmd_sites)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
+    p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "apply", "apt"]); p.set_defaults(f=cmd_update)
