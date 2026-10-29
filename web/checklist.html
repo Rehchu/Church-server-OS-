@@ -109,7 +109,7 @@ async function load() {
 
 function paint() {
   const d = S.data, n = d.next;
-  const lists = d.lists || [];
+  const lists = (d.lists || []).slice().sort((a, b) => (b.can_tick ? 1 : 0) - (a.can_tick ? 1 : 0));   // their own list first
   $('#cl').innerHTML = `<div class="cl__top"><h1>Checklist</h1><div class="who">${esc(d.user || '')}<br><button id="so" type="button">Sign out</button></div></div>
     ${n ? `<div class="cl__svc">Next: <b>${esc(n.name)}</b>${n.site ? ` · ${esc(n.site)}` : ''} · ${esc(n.day)} ${esc(fmtCall(n.time))}${d.call_time ? ` · call time <b>${esc(fmtCall(d.call_time))}</b>` : ''}</div>` : ''}
     ${lists.length ? lists.map(listHtml).join('') : '<p class="cl__empty">You are not in a department with a checklist. Ask your department leader or Bradly.</p>'}

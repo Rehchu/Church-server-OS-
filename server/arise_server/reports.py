@@ -226,7 +226,7 @@ def weekly_facts(now: datetime | None = None) -> dict:
     except Exception as e:  # noqa: BLE001
         f["backups"] = {"error": str(e)[:120]}
     try:
-        f["storage"] = [{"mount": d.get("mount"), "pct": round(d["pct"]) if d.get("pct") is not None else None} for d in storage.mounts()][:6]
+        f["storage"] = [{"mount": d.get("mount"), "pct": round(d["pct"]) if d.get("pct") is not None else None} for d in (storage.status().get("mounts") or [])][:6]
     except Exception:  # noqa: BLE001
         f["storage"] = []
     try:
@@ -449,8 +449,8 @@ def explain_failure(report: str, limit: int = 4) -> list[str]:
         if m:
             job = m.group(1)
             continue
-        if not line or line.startswith("#") or not FAIL_RE.search(line):
-            continue
+        if not line or line.startswith("#") or "jobs done" in line or not FAIL_RE.search(line):
+            continue   # the summary line is already in the note; the job lines say which
         if re.search(r"(?i)\b0 failed\b", line) and not re.search(r"(?i)\b[1-9]\d* failed\b", line):
             continue
         text = re.sub(r"^[-*]\s*", "", line)

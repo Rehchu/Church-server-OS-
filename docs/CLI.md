@@ -165,4 +165,8 @@ arisectl remote status|add-peer <name>   the VPN; add-peer is the WireGuard path
 arisectl notify test|send                the daily note (off: no webhook set)
 arisectl archive status|build [--full]|search <words>|setup   the searchable archive of both repos (docs/ARCHIVE.md)
 arisectl service-now [--quiet]           exit 1 during a service: the timers' ExecCondition gate
+arisectl report weekly|status|test <ch>|pastors [YYYY-MM]   the Monday report, Discord's channels, a test line, the pastors' draft (never sends it)
+arisectl songs inbox|usage|quarter       the Lyrics inbox now; this quarter's CCLI usage; write the quarter's CSV
+arisectl channel copy                    the nightly copy of titles, descriptions and thumbnails (no quota)
+arisectl speedtest [show]|run            the hourly internet speed test (refused during a service)
 ```

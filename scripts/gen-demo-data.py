@@ -32,6 +32,8 @@ GETS = [
     "/storage/quotas", "/backups/targets", "/files/shared", "/files/quota", "/files/share/people",
     "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/cloud", "/cloud/people", "/cloud/conflicts?limit=20",
+    "/checklist/mine", "/checklist/people", "/service/now", "/service/hold", "/reports", "/reports/pastors",
+    "/songs/inbox", "/songs/usage", "/notes-board", "/speedtest",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]
 c = TestClient(app)
@@ -39,6 +41,10 @@ data = {}
 for p in GETS:
     r = c.get("/api" + p)
     data["GET " + p] = r.json()
+# Service mode (round 7, 87) as it looks during a service; the preview's button shows it.
+c.post("/api/service/demo", json={"on": True})
+data["GET /service/now#on"] = c.get("/api/service/now").json()
+c.post("/api/service/demo", json={"on": False})
 for u in ["arise-web.service", "arise-automator.service", "arise-backup.service", "arise-mirror.service", "samba-ad-dc.service", "docker.service", "arise-nas-mount.service"]:
     data[f"GET /logs/{u}"] = c.get(f"/api/logs/{u}").json()
 # The Automator's channel: every sample video, its card and its transcript. The

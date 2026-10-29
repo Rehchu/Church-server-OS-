@@ -1495,7 +1495,7 @@ V.calendar.after = root => {
 };
 function eventDetails(it) {
   const when = `${fmtDay(it.start)} · ${fmtClock(it.start)}${it.end ? ' to ' + fmtClock(it.end) : ''}`;
-  modal(`<h2>${esc(it.title)}</h2><dl class="kv" style="margin-top:12px"><dt>When</dt><dd>${when}</dd>${it.where ? `<dt>Where</dt><dd>${esc(it.where)}</dd>` : ''}${it.note ? `<dt>Note</dt><dd>${esc(it.note)}</dd>` : ''}${it.service ? '<dt>Kind</dt><dd>A service, from the server\'s settings (every week)</dd>' : `<dt>Added by</dt><dd>${esc(it.who || '')}</dd>`}</dl>
+  modal(`<h2>${esc(it.title)}</h2><dl class="kv" style="margin-top:12px"><dt>When</dt><dd>${when}</dd>${it.where ? `<dt>Where</dt><dd>${esc(it.where)}</dd>` : ''}${it.note ? `<dt>Note</dt><dd>${esc(it.note)}</dd>` : ''}${it.service ? '<dt>Kind</dt><dd>A service, from the server\'s settings (every week)</dd>' : `${it.is_service ? '<dt>Kind</dt><dd>Counts as a service</dd>' : ''}<dt>Added by</dt><dd>${esc(it.who || '')}</dd>`}</dl>
     <div class="acts">${!isMember() && !it.service ? `<button class="btn btn--danger btn--sm" id="evRm">Remove…</button><button class="btn btn--ghost btn--sm" id="evEd">Edit</button>` : ''}<button class="btn btn--ghost" data-close>Close</button></div>`, m => {
     const ed = $('#evEd', m); if (ed) ed.onclick = () => { m.close(); eventModal(it); };
     const rm = $('#evRm', m); if (rm) rm.onclick = () => { m.close(); confirmType('Remove this event', 'remove', `<b>${esc(it.title)}</b> on ${fmtDay(it.start)} comes off the calendar and the feed every Mac and phone reads.`, async () => { const r = await api(`/calendar/${encodeURIComponent(it.id)}`, { method: 'DELETE' }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? 'Sample mode: nothing changed' : 'Removed'); rerender('calendar'); }); };
@@ -1509,8 +1509,9 @@ function eventModal(it, isNew) {
     <div class="field"><label>Where</label><input id="evW" value="${esc(e.where || '')}" maxlength="120" placeholder="Pineville, the fellowship hall…"></div>
     <div class="field"><label>Note</label><textarea id="evN" rows="3" maxlength="1000">${esc(e.note || '')}</textarea></div>
     <div class="field"><label>Who's in it (optional)</label><input id="evP" value="${esc((e.people || []).join(', '))}" placeholder="kristina.robinson, @Media" autocomplete="off"><span class="hint">People and @groups get a reminder 30 minutes before.</span></div>
+    <label class="check" style="margin:4px 0 10px"><input type="checkbox" id="evSvc" ${e.is_service ? 'checked' : ''}> Counts as a service <span class="hint">(Easter, The Outpour: no updates, restarts or Mac changes while it runs, and the all-green an hour before)</span></label>
     <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">${editing ? 'Save' : 'Add'}</button></div></form>`, m => {
-    $('#evf', m).onsubmit = async ev => { ev.preventDefault(); const body = { title: $('#evT', m).value, start: $('#evS', m).value, end: $('#evE', m).value, where: $('#evW', m).value, note: $('#evN', m).value, people: $('#evP', m).value.split(/[,\s]+/).filter(Boolean) };
+    $('#evf', m).onsubmit = async ev => { ev.preventDefault(); const body = { title: $('#evT', m).value, start: $('#evS', m).value, end: $('#evE', m).value, where: $('#evW', m).value, note: $('#evN', m).value, people: $('#evP', m).value.split(/[,\s]+/).filter(Boolean), is_service: $('#evSvc', m).checked };
       const r = await api(editing ? `/calendar/${encodeURIComponent(it.id)}` : '/calendar', { method: editing ? 'PUT' : 'POST', body }).catch(er => ({ ok: false, err: er.message }));
       if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample mode: nothing changed' : editing ? 'Saved' : 'Added to the calendar'); tone('done'); m.close(); rerender('calendar'); };
     $('#evT', m).focus();
@@ -1544,9 +1545,10 @@ function weatherWidget() {
   const w = S.weather; if (!w) return '';
   if (!w.ok) return `<div class="widget widget--wx"><div class="widget__kicker">Weather · Pineville</div><div class="widget__sub">No weather (offline)</div></div>`;
   const n = w.now || {}; const dayName = d => new Date(d.date + 'T12:00').toLocaleDateString('en-US', { weekday: 'short' });
-  return `<div class="widget widget--wx"><div class="widget__kicker">Weather · ${esc(w.place)}${w.stale ? ' · from earlier' : ''}${w.demo ? ' · sample' : ''}</div>
+  return `<div data-wg="weather" class="widget widget--wx"><div class="widget__kicker">Weather · ${esc(w.place)}${w.stale ? ' · from earlier' : ''}${w.demo ? ' · sample' : ''}</div>
     <div class="wx__now">${wxIcon(n.icon)}<span class="widget__big">${n.temp ?? '–'}°</span><span class="widget__sub">${esc(n.words)}<br>feels ${n.feels ?? '–'}° · wind ${n.wind ?? '–'} mph</span></div>
-    <div class="wx__days">${(w.days || []).slice(1, 6).map(d => `<div><b>${dayName(d)}</b>${wxIcon(d.icon)}<span>${d.hi ?? '–'}°<i>${d.lo ?? '–'}°</i></span><em>${d.rain >= 20 ? d.rain + '%' : ''}</em></div>`).join('')}</div></div>`;
+    <div class="wx__days">${(w.days || []).slice(1, 6).map(d => `<div><b>${dayName(d)}</b>${wxIcon(d.icon)}<span>${d.hi ?? '–'}°<i>${d.lo ?? '–'}°</i></span><em>${d.rain >= 20 ? d.rain + '%' : ''}</em></div>`).join('')}</div>
+    ${(w.places || []).slice(1).filter(p => p.ok).map(p => `<div class="widget__row wx__also"><span>${esc(p.place)}</span><b>${p.now?.temp ?? '–'}° · ${esc(p.now?.words || '')}</b></div>`).join('')}</div>`;
 }
 
 /* Calculator: a safe evaluator (no eval), also behind Spotlight */
@@ -2147,9 +2149,9 @@ function fmtSvc(t) { const [h, m] = String(t).split(':').map(Number); const d = 
 function weekWidget() {
   const c = S.church; const n = c?.next;
   const rows = (c?.services || [{ name: 'Sunday Service', site: 'Pineville', day: 'Sunday', time: '10:30' }, { name: 'Sunday Service', site: 'Alexandria', day: 'Sunday', time: '10:00' }, { name: 'Glory Night', site: 'Pineville', day: 'Monday', time: '19:00' }]);
-  return `<div class="widget"><div class="widget__kicker">This week${n ? ` · next in ${esc(n.in_words)}` : ''}</div><div class="widget__rows">${rows.map(x => `<div class="widget__row"><span>${esc(x.name === 'Sunday Service' ? 'Sunday · ' + x.site : x.name + ' · ' + x.day)}</span><b>${esc(fmtSvc(x.time))}</b></div>`).join('')}</div></div>`;
+  return `<div data-wg="week" class="widget"><div class="widget__kicker">This week${n ? ` · next in ${esc(n.in_words)}` : ''}</div><div class="widget__rows">${rows.map(x => `<div class="widget__row"><span>${esc(x.name === 'Sunday Service' ? 'Sunday · ' + x.site : x.name + ' · ' + x.day)}</span><b>${esc(fmtSvc(x.time))}</b></div>`).join('')}</div></div>`;
 }
-function verseWidget() { const v = S.church?.verse; if (!v || !v.text) return ''; return `<div class="widget widget--verse"><div class="widget__kicker">Verse of the day</div><blockquote>${esc(v.text)}<cite>${esc(v.ref)}</cite></blockquote></div>`; }
+function verseWidget() { const v = S.church?.verse; if (!v || !v.text) return ''; return `<div data-wg="verse" class="widget widget--verse"><div class="widget__kicker">Verse of the day</div><blockquote>${esc(v.text)}<cite>${esc(v.ref)}</cite></blockquote></div>`; }
 async function loadChurch() { try { S.church = await api('/church'); } catch { S.church = S.church || null; } }
 async function buildMemberWidgets() {
   await loadWeather();
@@ -2275,8 +2277,8 @@ function buildDock() {
   // magnification
   d.addEventListener('mousemove', e => { if (isPhone() || reducedMotion()) return; const items = $$('.dock__i', d); items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
   d.addEventListener('mouseleave', () => $$('.dock__i', d).forEach(it => it.style.transform = '')); }
-  const lp = $('#lpGrid'); lp.innerHTML = visibleApps().filter(a => !a.hidden).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></button>`).join('');
-  $$('[data-lp]', lp).forEach(b => { b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); }; b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.lp, pinned = dockPins().includes(id); ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], null, ['Open', () => { toggleLaunchpad(false); openApp(id); }]]); }; });
+  const lp = $('#lpGrid'); lp.innerHTML = visibleApps().filter(a => !a.hidden && !lpHidden().includes(a.id)).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></button>`).join('');
+  $$('[data-lp]', lp).forEach(b => { b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); }; b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.lp, pinned = dockPins().includes(id); ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], ['Hide from my Launchpad', () => lpHide(id, true)], null, ['Open', () => { toggleLaunchpad(false); openApp(id); }]]); }; });
   $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); };
   $('#launchpad').onclick = e => { if (e.target.id === 'launchpad') toggleLaunchpad(false); };
 }
@@ -2309,18 +2311,19 @@ async function buildWidgets() {
   const nowH = new Date().getHours();
   const next = nowH < 2 ? '02:05 automator' : nowH < 3 ? '03:00 backups' : nowH < 4 ? '04:00 GitHub mirror' : nowH < 7 ? '07:00 daily note' : '02:05 automator (tonight)';
   w.innerHTML = `
-    <div class="widget ${att.length ? (bad ? 'widget--bad' : 'widget--warn') : 'widget--clear'}"><div class="widget__kicker">${att.length ? 'Needs you' : 'All clear'}</div>
+    <div data-wg="needs" class="widget ${att.length ? (bad ? 'widget--bad' : 'widget--warn') : 'widget--clear'}"><div class="widget__kicker">${att.length ? 'Needs you' : 'All clear'}</div>
       ${att.length ? `<div class="att">${att.slice(0, 4).map(x => `<div class="att__i ${x.level}">${esc(x.text)}</div>`).join('')}${att.length > 4 ? `<button class="btn btn--ghost btn--xs" data-open="overview">${att.length - 4} more</button>` : ''}</div>` : '<div class="widget__sub">Services up, last automator run clean, backups ok, Synology mounted.</div>'}</div>
-    <div class="widget"><div class="widget__kicker">Live</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:#fff">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
-    <div class="widget"><div class="widget__kicker">The box</div>
+    <div data-wg="live" class="widget"><div class="widget__kicker">Live</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:#fff">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
+    <div data-wg="box" class="widget"><div class="widget__kicker">The box</div>
       <div class="widget__row"><span>Directory</span><b>${o.directory_ok ? 'online' : '<span style="color:var(--redL)">down</span>'} · ${o.counts?.users} users</b></div>
       <div class="widget__row"><span>Automator</span><b>${a.last_run ? ago(a.last_run) : 'never'} · ${a.last_ok === false ? '<span style="color:var(--redL)">failures</span>' : a.last_ok ? 'clean' : '—'}</b></div>
       <div class="widget__row"><span>Quota</span><b>${fmtN(a.quota_today)} / ${fmtN(a.quota_daily)}</b></div>
       <div class="widget__row"><span>Backups</span><b>${b.last ? (b.last.ok ? 'ok' : '<span style="color:var(--redL)">failed</span>') + ' · ' + ago(b.last.started) : 'none'}</b></div>
       <div class="widget__row"><span>Synology</span><b>${n.mounted ? fmtB(n.free) + ' free' : '<span style="color:var(--warn)">not mounted</span>'}</b></div>
       <div class="widget__row"><span>Next</span><b>${esc(next)}</b></div></div>
-    ${weekWidget()}${weatherWidget()}${verseWidget()}`;
+    ${weekWidget()}${weatherWidget()}${verseWidget()}${notesWidget()}`;
   $$('[data-open]', w).forEach(x => x.onclick = () => openApp(x.dataset.open));
+  applyWidgetPrefs(w); notesWidgetAfter(w);
   if (S.stats) paintWidgetLive(S.stats);
 }
 
@@ -2434,7 +2437,7 @@ function saver(on) {
   const paint = () => { const d = new Date(); $('#saverTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); const c = S.church; const n = c?.next;
     $('#saverNext').textContent = n ? `${n.name} · ${n.site} · ${n.day} ${fmtSvc(n.time)} · in ${n.in_words}` : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     $('#saverVerse').innerHTML = c?.verse?.text ? `${esc(c.verse.text)}<cite>${esc(c.verse.ref)}</cite>` : ''; $('#saverName').textContent = (c?.name || 'Arise Church') + ' · ' + (c?.city || ''); };
-  paint(); S.saverT = setInterval(paint, 30000);
+  paint(); S.saverT = setInterval(paint, 30000); saverExtras();
   // a slow slideshow of the channel's thumbnails behind the clock
   api('/sermons?limit=12').then(r => { const th = (r.videos || []).map(v => v.thumbnail).filter(Boolean); if (!th.length) return; let i = 0; const art = $('#saverArt'); const step = () => { if (sv.hidden) return; art.style.backgroundImage = `url(${th[i % th.length]})`; i++; }; step(); S.saverA = setInterval(step, 20000); }).catch(() => {});
 }
@@ -2468,11 +2471,11 @@ async function boot() {
     if (S.role !== 'admin' && (me.staff_access || 'none') === 'none') return onYourMac(me);
     if (isMember()) { document.body.classList.add('member'); buildDock(); setAppMenus(null); }
     if (me.demo) { S.demo = true; $('#demoBadge').hidden = false; }
-  } catch (e) { if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
+  } catch (e) { if (S.kiosk && !S.demoOnly && e.status === 401 && await kioskAutologin()) return; if (!S.demoOnly) return showLogin(e); S.user = 'bradly'; }
   if (!isMember()) startStats();
   await loadChurch();
   await Promise.all([buildWidgets(), isMember() ? Promise.resolve() : buildIcons()]);
-  buildDeskIcons(); notifyStart(); setupMaybe();
+  buildDeskIcons(); notifyStart(); setupMaybe(); serviceWatch();
   greet();
   every(loadChurch, 15 * 60000); every(() => loadWeather(true), 30 * 60000);
   every(buildWidgets, 60000);
@@ -2643,7 +2646,7 @@ boot();
 /* ---- profiles (round 5): the first-login password, "Forgot your password?", the profile,
    settings that follow the account, the day-one people list ---- */
 // Settings that follow the account (round 5, 11): the same localStorage keys, kept on the server too.
-const SYNC_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text))$/;
+const SYNC_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text)|widgets\.off|lp\.hidden)$/;
 let _prefsT = null, _prefsLive = false;
 const _prefSet = PREF.set;
 PREF.set = (k, v) => { _prefSet(k, v); if (_prefsLive && SYNC_RE.test(k)) { clearTimeout(_prefsT); _prefsT = setTimeout(prefsPush, 800); } };
@@ -2801,6 +2804,7 @@ function onYourMac(me) {
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>Hello, ${esc(name)}</h1>
     <p>Your files are on your Mac. Everything you save there reaches the church's server by itself, and the nightly backup from there.</p>
     <p class="muted">The server's own desktop is for the administrators, in the closet. Anything you need from it: ask Bradly.</p>
+    <p><a class="btn" href="/checklist">Your department's checklist</a></p>
     <div class="row" style="justify-content:center;margin-top:16px"><button class="btn" id="omOut">Sign out</button></div>
     <div class="lock__hint" style="margin-top:18px">Arise Church · Pineville</div></div></div>`;
   $('#omOut').onclick = () => signOut();
@@ -2948,7 +2952,7 @@ async function deptLists(root) {
   const box = $('#deptLists', root); if (!box) return;
   let r; try { r = await api('/checklists'); } catch (e) { box.innerHTML = `<div class="kicker">Department checklists</div><p class="note">${esc(e.message)}</p>`; return; }
   const lists = r.lists || [];
-  box.innerHTML = `<div class="kicker">Department checklists</div><p class="note" style="margin:6px 0 12px">Each department's own list, ready before each service. A list moves on at 8 PM the night before; the finished round goes to its history.${r.demo ? ' Sample.' : ''}</p>
+  box.innerHTML = `<div class="kicker">Department checklists</div><p class="note" style="margin:6px 0 12px">Each department's own list, ready before each service. A list moves on at 8 PM the night before; the finished round goes to its history. Staff tick theirs on their phones at <a href="/checklist" target="_blank" rel="noopener"><code>/checklist</code></a> (church Wi-Fi or Tailscale); a list opens at call time${S.church?.call_times ? ': ' + Object.entries(S.church.call_times).map(([k, v]) => `${esc(k)} ${esc(fmtSvc(v))}`).join(', ') : ''}.${r.demo ? ' Sample.' : ''}</p>
     <div class="deptgrid">${lists.map(l => `<div class="card dept" data-dept="${esc(l.dept)}"><div class="row row--between"><div><b>${esc(l.dept.replace(/-/g, ' '))}</b><div class="muted" style="font-size:12px">${l.round ? `for ${esc(l.round.service)} · ${esc(fmtDay(l.round.at))}` : 'no service ahead'} · ${l.done} of ${l.items.length}</div></div>${l.can_edit ? `<button class="btn btn--ghost btn--xs" data-dedit="${esc(l.dept)}">Edit</button>` : ''}</div>
       ${l.items.length ? l.items.map(i => `<label class="sun__item ${i.done ? 'done' : ''}"><input type="checkbox" data-dept-i="${i.i}" ${i.done ? 'checked' : ''} ${l.can_tick ? '' : 'disabled'}><div><span>${esc(i.text)}</span>${i.done ? `<small>${esc(i.by)} · ${esc(i.at.replace('T', ' '))}</small>` : ''}</div></label>`).join('') : `<p class="note">No items yet.${l.can_edit ? ' Edit to add them.' : ''}</p>`}
       <div class="muted" style="font-size:12px;margin-top:8px">Leader: ${esc(l.leader || 'none yet')} · nudge ${Object.entries(l.nudge || {}).map(([s, t]) => `${esc(s)} ${esc(fmtSvc(t))}`).join(', ')}</div>
@@ -3147,6 +3151,216 @@ function staffTwofaOn(name) {
   };
 }
 // ===== end R6-SYNC =====
+
+// ===== R7-C: services, the closet desktop and the channel (round 7; docs/ANSWERS.md) =====
+// Service mode on the monitor (87), the admins' notes board (116), widgets and Launchpad apps
+// each admin chooses (114, 115), both campuses' weather (111), the screensaver's announcements
+// from the Calendar (110), the owner's desktop after a restart (107), Reports in Settings
+// (Discord, the Monday report, the pastors' note: 78-81, 85, 144), the speed test (121), and
+// the Songs tab's Lyrics inbox and CCLI usage (99, 100, 106).
+const WIDGETS = [['needs', 'Needs you'], ['live', 'Live'], ['box', 'The box'], ['week', 'This week'], ['weather', 'Weather'], ['verse', 'Verse of the day'], ['notes', 'Notes board']];
+function jsonPref(k) { try { const v = JSON.parse(PREF.get(k, '[]')); return Array.isArray(v) ? v : []; } catch { return []; } }
+function widgetsOff() { return jsonPref('widgets.off'); }
+function lpHidden() { return jsonPref('lp.hidden'); }
+function applyWidgetPrefs(w) { const off = widgetsOff(); $$('[data-wg]', w).forEach(el => { el.hidden = off.includes(el.dataset.wg); }); }
+function lpHide(id, hide) { const cur = lpHidden().filter(x => x !== id); if (hide) cur.push(id); PREF.set('lp.hidden', JSON.stringify(cur)); buildDock(); toast(hide ? 'Hidden from your Launchpad (Settings → My desktop brings it back)' : 'Back on your Launchpad'); }
+function widgetSet(id, on) { const cur = widgetsOff().filter(x => x !== id); if (!on) cur.push(id); PREF.set('widgets.off', JSON.stringify(cur)); const w = $('#widgets'); if (w) applyWidgetPrefs(w); }
+
+/* the notes board (116) */
+const NOTE_COLOURS = ['ink', 'red', 'amber', 'green'];
+function notesWidget() {
+  if (isMember()) return '';
+  const b = S.board || { notes: [] };
+  return `<div data-wg="notes" class="widget widget--notes"><div class="row row--between"><div class="widget__kicker">Notes board</div><button class="btn btn--ghost btn--xs" id="nbAdd">Add a note</button></div>
+    <div class="nb">${(b.notes || []).slice(0, 6).map(n => `<div class="nb__n nb--${esc(n.colour || 'ink')}" data-note="${esc(n.id)}"><p>${esc(n.text)}</p><div class="nb__f"><span>${esc(n.by)} · ${esc(ago(n.at))}${n.pinned ? ' · pinned' : ''}</span><span><button class="btn btn--ghost btn--xs" data-nbpin="${esc(n.id)}">${n.pinned ? 'Unpin' : 'Pin'}</button><button class="btn btn--ghost btn--xs" data-nbedit="${esc(n.id)}">Edit</button><button class="btn btn--ghost btn--xs" data-nbaway="${esc(n.id)}">Put away</button></span></div></div>`).join('') || '<div class="widget__sub">Nothing on the board. The four admins see the same notes.</div>'}</div>
+    ${(b.notes || []).length > 6 ? `<div class="widget__sub">${b.notes.length - 6} more</div>` : ''}${(b.away || []).length ? `<button class="btn btn--ghost btn--xs" id="nbAway" style="margin-top:6px">Put away (${b.away.length})</button>` : ''}</div>`;
+}
+function notesWidgetAfter(w) {
+  if (isMember()) return;
+  if (!S.boardAt || Date.now() - S.boardAt > 30000) { S.boardAt = Date.now(); api('/notes-board').then(b => { S.board = b; const el = $('[data-wg="notes"]', w); if (el) { el.outerHTML = notesWidget(); applyWidgetPrefs(w); notesWidgetAfter(w); } }).catch(() => {}); }
+  const box = $('[data-wg="notes"]', w); if (!box) return;
+  const redraw = b => { S.board = b; S.boardAt = Date.now(); const el = $('[data-wg="notes"]', w); if (el) { el.outerHTML = notesWidget(); applyWidgetPrefs(w); notesWidgetAfter(w); } };
+  const add = $('#nbAdd', box); if (add) add.onclick = () => noteModal(null, redraw);
+  $$('[data-nbedit]', box).forEach(b => b.onclick = () => noteModal((S.board.notes || []).find(n => n.id === b.dataset.nbedit), redraw));
+  $$('[data-nbpin]', box).forEach(b => b.onclick = async () => { const n = (S.board.notes || []).find(x => x.id === b.dataset.nbpin); const r = await api(`/notes-board/${encodeURIComponent(n.id)}`, { method: 'PUT', body: { pinned: !n.pinned } }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) return toast(r.err, 'bad'); redraw(r); });
+  $$('[data-nbaway]', box).forEach(b => b.onclick = async () => { const r = await api(`/notes-board/${encodeURIComponent(b.dataset.nbaway)}/away`, { method: 'POST' }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) return toast(r.err, 'bad'); toast('Put away (it is kept: Put away brings it back)'); redraw(r); });
+  const aw = $('#nbAway', box); if (aw) aw.onclick = () => modal(`<h2>Put away</h2><p class="muted">Notes the admins put away. Nothing here is deleted.</p><div style="margin-top:10px">${(S.board.away || []).map(n => `<div class="widget__row"><span>${esc(n.text)}<br><small class="muted">${esc(n.away_by || '')} · ${esc(ago(n.away_at))}</small></span><button class="btn btn--ghost btn--xs" data-nbback="${esc(n.id)}">Bring back</button></div>`).join('')}</div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, m => {
+    $$('[data-nbback]', m).forEach(b => b.onclick = async () => { const r = await api(`/notes-board/${encodeURIComponent(b.dataset.nbback)}/back`, { method: 'POST' }).catch(e => ({ ok: false, err: e.message })); if (r.ok === false) return toast(r.err, 'bad'); m.close(); redraw(r); });
+  });
+}
+function noteModal(n, done) {
+  modal(`<h2>${n ? 'Edit the note' : 'A note for the board'}</h2><form id="nbf" style="margin-top:12px"><div class="field"><label for="nbT">Note</label><textarea id="nbT" rows="4" maxlength="600" required>${esc(n?.text || '')}</textarea><span class="hint">All four admins see it on their desktops.</span></div>
+    <div class="field"><label>Colour</label><div class="seg" id="nbC">${NOTE_COLOURS.map(c => `<button type="button" data-c="${c}" class="${(n?.colour || 'ink') === c ? 'active' : ''}">${c}</button>`).join('')}</div></div>
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">${n ? 'Save' : 'Add'}</button></div></form>`, m => {
+    let colour = n?.colour || 'ink';
+    $$('#nbC button', m).forEach(b => b.onclick = () => { colour = b.dataset.c; $$('#nbC button', m).forEach(x => x.classList.toggle('active', x === b)); });
+    $('#nbf', m).onsubmit = async e => { e.preventDefault(); const text = $('#nbT', m).value;
+      const r = await api(n ? `/notes-board/${encodeURIComponent(n.id)}` : '/notes-board', { method: n ? 'PUT' : 'POST', body: { text, colour } }).catch(er => ({ ok: false, err: er.message }));
+      if (r.ok === false) return toast(r.err, 'bad'); toast(n ? 'Saved' : 'On the board'); m.close(); done(r); };
+    $('#nbT', m).focus();
+  });
+}
+
+/* the screensaver: announcements from the Calendar (110), both campuses' weather (111) */
+async function saverExtras() {
+  const sv = $('#saver'); if (!sv) return;
+  let box = $('#saverAnn'); if (!box) { box = document.createElement('div'); box.id = 'saverAnn'; box.className = 'saver__ann'; ($('#saverVerse') || sv).after(box); }
+  const lines = [];
+  try {
+    const n = new Date(); const cal = await api(`/calendar?year=${n.getFullYear()}&month=${n.getMonth() + 1}`);
+    const soon = (cal.upcoming || []).filter(e => !e.service && new Date(e.start) - n < 8 * 86400000).slice(0, 6);
+    lines.push(...soon.map(e => `${fmtDay(e.start)} · ${fmtClock(e.start)} · ${e.title}${e.where ? ' · ' + e.where : ''}`));
+  } catch {}
+  try { const w = await loadWeather(); const ps = (w.places || [w]).filter(p => p && p.ok); if (ps.length) lines.push(ps.map(p => `${p.place.split(',')[0]} ${p.now?.temp ?? '–'}° ${p.now?.words || ''}`).join('  ·  ')); } catch {}
+  if (!lines.length) { box.textContent = ''; return; }
+  let i = 0; const step = () => { if (sv.hidden) return clearInterval(S.saverN); box.textContent = lines[i % lines.length]; i++; };
+  clearInterval(S.saverN); step(); S.saverN = setInterval(step, 12000);
+}
+
+/* after a restart, the owner's desktop on the monitor (107) */
+async function kioskAutologin() {
+  try {
+    const r = await api('/auth/kiosk-autologin', { method: 'POST' });
+    if (!r || r.ok === false) return false;
+    try { await api('/kiosk/profile', { method: 'POST', body: { action: 'switch' } }); } catch {}
+    location.reload(); return true;
+  } catch { return false; }
+}
+
+/* service mode (87): the monitor opens it by itself while a service runs */
+I.servicemode = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-6v2h3v2H7v-2h3v-2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v8h16V7zm6 1.5 5 2.5-5 2.5z"/></svg>';
+APPS.push({ id: 'servicemode', n: '34', name: 'Service mode', what: 'During a service: the stream, every checklist, the run sheet', w: 1100, h: 720 });
+async function serviceWatch() {
+  if (isMember() || S.svcWatch) return; S.svcWatch = true;
+  const look = async () => {
+    let v; try { v = await api('/service/now'); } catch { return; }
+    S.svcNow = v;
+    const key = v.in_service ? `${v.service.name}|${v.service.started}` : '';
+    if (v.in_service && S.kiosk && S.svcOpened !== key) { S.svcOpened = key; openApp('servicemode'); const w = S.wins.servicemode; if (w && typeof snapTo === 'function') try { snapTo('servicemode', 'max'); } catch {} }
+    if (S.wins.servicemode) rerender('servicemode');
+  };
+  look(); every(look, 60000);
+}
+V.servicemode = async () => {
+  const v = S.svcNow = await api('/service/now');
+  if (!v.in_service) {
+    const n = v.next;
+    return `<div class="fade svm svm--off"><div class="kicker">Service mode</div><h2>No service on right now</h2><p class="note">During a service the closet monitor opens this by itself: the stream, every department's checklist and the run sheet. Updates, restarts, Mac changes and heavy syncing wait until it ends.</p>
+      ${n ? `<p style="margin-top:10px">Next: <b>${esc(n.name)}</b> · ${esc(n.site || '')} · ${esc(n.day)} ${esc(fmtSvc(n.time))} · in ${esc(n.in_words)}</p>` : ''}
+      ${v.demo ? '<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" id="svmDemo">Show it as during a service (preview)</button></div>' : ''}</div>`;
+  }
+  const s = v.service, st = v.stream || {}, net = v.internet || {}, rs = v.run_sheet || {};
+  const live = st.live === true ? '<span class="pill ok">LIVE</span>' : st.live === false ? '<span class="pill warn">not live</span>' : '<span class="pill">could not tell</span>';
+  return `<div class="fade svm"><div class="row row--between"><div><div class="kicker">Service mode${s.sample ? ' · preview' : ''}</div><h2 style="margin:0">${esc(s.name)}${s.site ? ' · ' + esc(s.site) : ''}</h2><div class="muted">until ${esc(s.ends_at || '')} · updates, restarts, Mac changes and heavy syncing wait</div></div>${v.demo && s.sample ? '<button class="btn btn--ghost btn--xs" id="svmDemoOff">End the preview</button>' : ''}</div>
+    <div class="grid" style="margin-top:14px">
+      <div class="c4 panel panel--flat"><div class="panel__hd"><h3>The stream</h3></div><div class="svm__big">${live}</div><div class="muted" style="margin-top:6px">checked ${esc(fmtClock(st.checked || ''))}${st.why ? ' · ' + esc(st.why) : ''}</div>
+        <div class="widget__row" style="margin-top:10px"><span>Internet</span><b>${net.down != null ? `${esc(net.down)} down · ${esc(net.up)} up · ${esc(net.ping)} ms` : 'no test yet'}</b></div>${st.url ? `<a class="btn btn--ghost btn--xs" href="${esc(st.url)}" target="_blank" rel="noopener" style="margin-top:10px">Open the live page</a>` : ''}</div>
+      <div class="c4 panel panel--flat"><div class="panel__hd"><h3>Checklists</h3></div>${(v.checklists || []).map(c => `<div class="svm__cl"><div class="widget__row"><span>${esc(c.dept.replace(/-/g, ' '))}</span><b class="${c.total && c.done === c.total ? 'ok' : ''}">${c.done} of ${c.total}</b></div><div class="meter"><i style="width:${c.total ? Math.round(100 * c.done / c.total) : 0}%"></i></div>${c.left.length ? `<small class="muted">${c.left.map(esc).join(' · ')}</small>` : ''}</div>`).join('') || '<p class="muted">No department lists for this service.</p>'}</div>
+      <div class="c4 panel panel--flat svm__sheet"><div class="panel__hd"><h3>Run sheet</h3>${rs.name ? `<span class="muted mono" style="font-size:11px">${esc(rs.name)}</span>` : ''}</div>${rs.ok ? `<div class="md">${md(rs.text)}</div>` : `<p class="muted">${esc(rs.why || 'none')}</p>`}</div>
+    </div></div>`;
+};
+V.servicemode.after = root => {
+  const on = $('#svmDemo', root); if (on) on.onclick = async () => { await api('/service/demo', { method: 'POST', body: { on: true } }).catch(() => {}); rerender('servicemode'); };
+  const off = $('#svmDemoOff', root); if (off) off.onclick = async () => { await api('/service/demo', { method: 'POST', body: { on: false } }).catch(() => {}); rerender('servicemode'); };
+};
+
+/* Settings: My desktop (114, 115) and Reports (78-81, 85, 144) */
+{
+  SETTINGS_SECTIONS.splice(SETTINGS_SECTIONS.findIndex(x => x[0] === 'notifications') + 1, 0, ['reports', 'Reports'], ['mydesktop', 'My desktop']);
+  const setView = V.settings, setAfter = V.settings.after;
+  const wrap = body => `<div class="settings"><nav class="settings__nav">${SETTINGS_SECTIONS.map(([id, name]) => `<button class="${S.settingsSec === id ? 'active' : ''}" data-sec="${id}">${esc(name)}</button>`).join('')}</nav><div class="settings__body fade">${body}</div></div>`;
+  V.settings = async () => {
+    if (S.settingsSec === 'mydesktop') {
+      const off = widgetsOff(), hid = lpHidden();
+      return wrap(`<h2>My desktop</h2><p class="note" style="margin-bottom:12px">Yours alone: they follow your account to the closet monitor and any browser.</p>
+        <h3 style="margin:6px 0 8px">Widgets</h3><div class="mdsk">${WIDGETS.map(([id, name]) => `<label class="check"><input type="checkbox" data-wgset="${id}" ${off.includes(id) ? '' : 'checked'}> ${esc(name)}</label>`).join('')}</div>
+        <h3 style="margin:16px 0 8px">Hidden from my Launchpad</h3>${hid.length ? hid.map(id => { const a = APPS.find(x => x.id === id); return `<div class="widget__row"><span>${esc(a ? a.name : id)}</span><button class="btn btn--ghost btn--xs" data-lpshow="${esc(id)}">Show</button></div>`; }).join('') : '<p class="muted">Nothing hidden. Right-click an app in Launchpad → Hide from my Launchpad.</p>'}`);
+    }
+    if (S.settingsSec === 'reports') {
+      let r = {}, p = {}; try { r = await api('/reports'); } catch (e) { r = { error: e.message }; } try { p = await api('/reports/pastors'); } catch (e) { p = { ok: false, err: e.message }; }
+      const ch = (r.discord || {}).channels || {}; const c = r.channel || {};
+      return wrap(`<h2>Reports</h2>
+        <h3 style="margin:6px 0 8px">Discord</h3><p class="note" style="margin-bottom:8px">Four channels through four webhooks in <code>/etc/arise/secrets/discord.toml</code> (docs/DISCORD.md). The addresses never reach this page.</p>
+        <div class="kv">${['alerts', 'sunday', 'weekly', 'daily'].map(k => `<dt>#${k}</dt><dd>${ch[k] ? 'set' : '<span class="muted">not set</span>'} <button class="btn btn--ghost btn--xs" data-dtest="${k}">Test</button></dd>`).join('')}</div>
+        <p class="note" style="margin-top:8px">#sunday gets the all-green an hour before each service, Glory Night and Alexandria included. #weekly gets the Monday report at 07:30.</p>
+        <h3 style="margin:16px 0 8px">The Monday report</h3><pre class="log pre" id="rpWeekly">${esc(r.weekly || r.error || '')}</pre><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--xs" id="rpSend">Post it to #weekly now</button></div>
+        <p class="note" style="margin-top:6px">Channel: ${c.ok ? `${fmtN(c.subscribers)} subscribers (${fmtN(c.subs_left)} to 1,000) · ${fmtN(c.watch_hours)} public watch hours (${fmtN(c.hours_left)} to 4,000)${c.as_of ? ', as of ' + esc(c.as_of) : ''}${c.demo ? ' · sample' : ''}` : 'numbers not available yet (the automator keeps none on this box)'}</p>
+        <h3 style="margin:16px 0 8px">The pastors' monthly note</h3><p class="note" style="margin-bottom:8px">Drafted from the month's own facts. Read it, change anything, then send it: nothing goes to the pastors until you press Send.</p>
+        ${p.ok === false ? `<p class="note" style="color:var(--warn)">${esc(p.err)}</p>` : `<div class="row" style="gap:8px;margin-bottom:8px"><span class="muted">${esc(p.month)} · to ${esc((p.to || []).join(', ') || 'the pastors in [storage] pastors')}${p.sent ? ` · sent ${esc(p.sent)} by ${esc(p.sent_by)}` : ''}</span></div>
+        <textarea id="rpNote" data-month="${esc(p.month || '')}" rows="8" style="width:100%" ${p.sent ? 'readonly' : ''}>${esc(p.draft || '')}</textarea>
+        <div class="row" style="margin-top:8px;gap:8px">${p.sent ? '' : '<button class="btn btn--ghost btn--xs" id="rpSave">Save</button><button class="btn btn--xs" id="rpPastors">Send to the pastors…</button>'}</div>`}`);
+    }
+    return setView();
+  };
+  V.settings.after = root => {
+    setAfter(root);
+    $$('[data-wgset]', root).forEach(cb => cb.onchange = () => widgetSet(cb.dataset.wgset, cb.checked));
+    $$('[data-lpshow]', root).forEach(b => b.onclick = () => { lpHide(b.dataset.lpshow, false); rerender('settings'); });
+    $$('[data-dtest]', root).forEach(b => b.onclick = () => act(b, () => api('/reports/discord/test', { method: 'POST', body: { channel: b.dataset.dtest } }), `A test line went to #${b.dataset.dtest}`));
+    const send = $('#rpSend', root); if (send) send.onclick = () => act(send, () => api('/reports/weekly', { method: 'POST' }), 'Posted to #weekly');
+    const sv = $('#rpSave', root); if (sv) sv.onclick = () => act(sv, () => api('/reports/pastors', { method: 'PUT', body: { month: $('#rpNote', root).dataset.month, text: $('#rpNote', root).value } }).then(r => { if (r.ok === false) throw new Error(r.err); return r; }), 'Saved');
+    const ps = $('#rpPastors', root); if (ps) ps.onclick = async () => {
+      const p = await api('/reports/pastors').catch(() => ({})); const text = $('#rpNote', root).value;
+      confirmType('Send the note to the pastors', 'send', `It goes by email to ${esc((p.to || []).join(' and '))}, as you see it. Type <b>send</b> to send it.`, async () => {
+        const r = await api('/reports/pastors/send', { method: 'POST', body: { month: p.month, text } }); if (r.ok === false) throw new Error(r.err);
+        toast(r.demo ? 'Sample mode: nothing was emailed' : `Sent to ${r.sent_to.join(', ')}${r.no_email.length ? ' (no email for ' + r.no_email.join(', ') + ')' : ''}`); rerender('settings'); });
+    };
+  };
+}
+
+/* Activity Monitor → Network: the hourly speed test (121) */
+{
+  const actView = V.activity, actAfter = V.activity.after;
+  V.activity = async () => {
+    let html = await actView();
+    if (!S.speed || Date.now() - (S.speedAt || 0) > 60000) { try { S.speed = await api('/speedtest'); S.speedAt = Date.now(); } catch { S.speed = S.speed || { runs: [] }; } }
+    const on = S.actTab === 'network';
+    html = html.replace(/(<div class="tabs" id="actTabs">)([\s\S]*?)(<\/div>)/, (m0, a, b, c) => a + b.replace(/class="active"/g, on ? 'class=""' : 'class="active"') + `<button class="${on ? 'active' : ''}" data-t="network">Network</button>` + c);
+    if (on) html = html.replace(/<div data-tab="procs"(?![^>]*hidden)/, '<div data-tab="procs" hidden').replace(/<div data-tab="containers"(?![^>]*hidden)/, '<div data-tab="containers" hidden');
+    const sp = S.speed || {}, last = sp.last, wk = sp.week || {};
+    const net = `<div data-tab="network" ${on ? '' : 'hidden'}><div class="panel panel--flat"><div class="panel__hd"><h3>Internet speed, every hour</h3><span class="muted">${esc(sp.plan || '')}</span></div>
+      ${last ? `<div class="grid" style="margin-bottom:10px"><div class="c4"><div class="stat"><span class="stat__l">Down</span><span class="stat__v">${esc(last.down ?? '—')}<small> Mb/s</small></span><span class="stat__n">week median ${esc(wk.down ?? '—')}</span></div></div>
+        <div class="c4"><div class="stat"><span class="stat__l">Up</span><span class="stat__v">${esc(last.up ?? '—')}<small> Mb/s</small></span><span class="stat__n">week median ${esc(wk.up ?? '—')}</span></div></div>
+        <div class="c4"><div class="stat"><span class="stat__l">Ping</span><span class="stat__v">${esc(last.ping ?? '—')}<small> ms</small></span><span class="stat__n">${wk.failed ? wk.failed + ' failed this week' : 'none failed this week'}</span></div></div></div>
+        <svg class="spdchart" id="spdChart" viewBox="0 0 700 160" preserveAspectRatio="none" role="img" aria-label="Download speed over the last week"></svg>` : '<p class="muted">No test yet: the first runs within the hour.</p>'}
+      <div class="row" style="margin-top:10px"><button class="btn btn--ghost btn--xs" id="spdRun">Test now</button><span class="muted" style="font-size:12px">Cloudflare's speed test, about 25 MB down and 5 MB up; never during a service.${sp.demo ? ' Sample.' : ''}</span></div></div></div>`;
+    return html.replace(/(<p class="note" style="margin-top:12px">Refreshes every 3 seconds)/, net + '$1');
+  };
+  V.activity.after = root => {
+    actAfter(root);
+    $$('#actTabs button', root).forEach(b => b.onclick = () => { S.actTab = b.dataset.t === 'procs' ? undefined : b.dataset.t; rerender('activity'); });
+    const run = $('#spdRun', root); if (run) run.onclick = () => act(run, () => api('/speedtest', { method: 'POST' }).then(r => { S.speedAt = 0; return r; }), 'Tested');
+    const svg = $('#spdChart', root); const runs = (S.speed?.runs || []).filter(r => r.down != null); if (!svg || runs.length < 2) return;
+    const max = Math.max(...runs.map(r => r.down)) * 1.1, W = 700, H = 160, step = W / (runs.length - 1);
+    const pts = runs.map((r, i) => `${(i * step).toFixed(1)},${(H - (r.down / max) * (H - 14)).toFixed(1)}`).join(' ');
+    svg.innerHTML = `<polyline points="0,${H} ${pts} ${W},${H}" fill="rgba(214,34,45,.18)" stroke="none"/><polyline points="${pts}" fill="none" stroke="var(--red)" stroke-width="2"/><text x="4" y="12" fill="var(--text2)" font-size="11">${Math.round(max / 1.1)} Mb/s</text>`;
+  };
+}
+
+/* Songs → the Lyrics inbox (99, 100) and the CCLI usage report (106) */
+{
+  const songsList = chSongs;
+  chSongs = async function () {
+    await songsList();
+    if (SG.open) return;
+    const bar = $('#chSongs .chbar'); if (!bar || $('#sgInbox', bar)) return;
+    bar.insertAdjacentHTML('beforeend', '<button class="btn btn--ghost btn--xs" id="sgInbox">Lyrics inbox</button><button class="btn btn--ghost btn--xs" id="sgUsage">CCLI usage</button>');
+    $('#sgInbox', bar).onclick = async () => {
+      const r = await api('/songs/inbox').catch(e => ({ runs: [], error: e.message }));
+      modal(`<h2>Lyrics inbox</h2><p class="muted">Export songs from Proclaim (or SongSelect) and drop the files into <b>${esc(r.folder || 'Lyrics inbox')}</b> in Nextcloud. Every 15 minutes they come into this list, matched by CCLI number, and the file moves to Imported. ${(r.users || []).length ? esc(r.users.join(' and ')) : 'Bradly and the worship leader ([songs] inbox_users)'} see the folder.</p>
+        ${(r.runs || []).length ? r.runs.slice(0, 6).map(x => `<div class="panel panel--flat" style="margin-top:10px"><div class="row row--between"><b>${esc(fmtDay(x.at))} ${esc(fmtClock(x.at))}</b><span class="muted">${x.files} file(s) · ${x.linked} linked · ${x.unlinked} kept unlinked · ${x.failed} not imported</span></div>${(x.results || []).map(y => `<div class="widget__row"><span>${esc(y.name)}</span><b class="${y.ok ? '' : 'bad'}">${esc(y.ok ? (y.matched_by ? 'linked by ' + y.matched_by : y.note || 'kept') : y.err || 'not imported')}</b></div>`).join('')}</div>`).join('') : '<p class="note" style="margin-top:10px">Nothing has come through yet.</p>'}
+        <div class="acts"><button class="btn btn--ghost" id="sgInRun">Check the inbox now</button><button class="btn btn--ghost" data-close>Close</button></div>`, m => { $('#sgInRun', m).onclick = () => act($('#sgInRun', m), () => api('/songs/inbox', { method: 'POST' }), 'Checked'); });
+    };
+    $('#sgUsage', bar).onclick = async () => {
+      const r = await api('/songs/usage').catch(e => ({ songs: [], error: e.message }));
+      modal(`<h2>CCLI song usage · ${esc(r.label || '')}</h2><p class="muted">From the set lists: ${r.services ?? 0} services. Titles and numbers as song_bank.json has them; no lyrics. The quarterly copy is written to <code>songs/reports/</code> on the first of January, April, July and October.</p>
+        <div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>Song</th><th>CCLI</th><th class="num">Times</th></tr></thead><tbody>${(r.songs || []).map(x => `<tr><td>${esc(x.title)}</td><td class="mono">${esc(x.ccli || (x.original ? 'Arise original' : '—'))}</td><td class="num">${x.times}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No set lists in this quarter.</td></tr>'}</tbody></table></div>
+        ${(r.no_number || []).length ? `<p class="note" style="color:var(--warn);margin-top:8px">No CCLI number banked for: ${r.no_number.map(esc).join(', ')}. Look them up in SongSelect; nothing is guessed.</p>` : ''}
+        <div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`);
+    };
+  };
+}
+// ===== end R7-C =====
 
 window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

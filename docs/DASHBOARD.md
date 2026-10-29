@@ -178,8 +178,8 @@ administrators.
   `[church] departments` group. The leader (or any admin) edits it, members
   tick it, each service gets a fresh round (the list moves on at 8 PM the
   night before), the finished round goes to History, and each list has its
-  own nudge time per service. For now only the administrators tick them
-  here; staff get theirs another way after Bradly's answers.
+  own nudge time per service. Staff tick theirs on their phones at
+  `/checklist` (round 7, below).
 - **Text size on the closet monitor**: Settings → *The monitor & setup*,
   100–150%, 125% by default. Saving writes `/var/lib/arise/kiosk-scale` and
   restarts the kiosk browser; refused during a service.
@@ -188,6 +188,68 @@ administrators.
   Settings opens it again. State in `/var/lib/arise/setup.json`.
 - **Sign-in faces** on the closet monitor (`?kiosk=1`): the administrators as
   initials, nobody preselected; the name field starts empty everywhere.
+
+### Round 7 on the desktop
+
+- **The phone checklist** (`/checklist`, rows 19, 88, 89): the one page staff
+  open on the dashboard, with their own account, even with
+  `[web] staff_access = "none"`. It and `/api/checklist/*` are the only
+  exception; everything else still answers 403. Mobile-first: their
+  department's list for the next service, a big tap target per item, tick
+  and untick. A department's leader (the *Leader* on its list in the Sunday
+  app) and the admins see every department's list; others see their own.
+  Only the department and the admins tick a list. A leader can also reset
+  the password of someone in a department they lead: a temporary password,
+  shown once on the leader's phone, audited (`checklist.leader_reset`); the
+  person chooses their own at the next sign-in. Never an admin's password.
+- **Call times** (row 90): a list opens at call time, Sunday 09:00 and
+  Glory Night 18:00 (`[church] call_times`). Before that staff see the items
+  but cannot tick; the default nudge is the call time.
+- **Service mode** (app 34, row 87): from a service's start to two hours after
+  (`church.in_service_now`: Pineville, Alexandria's 10:00, and any Calendar
+  event marked *Counts as a service*), the closet monitor opens it by itself,
+  full screen: the stream (live or not, from the channel's public `/live`
+  page, no API quota), every department's checklist with what is left, the
+  internet speed, and the run sheet (a file with "run sheet" in its name in
+  `Church/Run sheets` or the owner's Desktop, `.md` or `.txt`).
+- **One hold for everyone** (rows 91, 93, 94): `church.hold(kind)` answers
+  whether a service holds back an `update`, a `restart`, a `mac` change,
+  heavy `sync`ing or other `heavy` work, and why. Timers use
+  `arisectl service-now --quiet` as their `ExecCondition`;
+  `GET /api/service/hold?kind=…` shows it.
+- **Widgets each admin chooses** (114) and **Launchpad apps each admin hides**
+  (115): Settings → *My desktop*; right-click an app in Launchpad →
+  *Hide from my Launchpad*. Both follow the account (`widgets.off`,
+  `lp.hidden` in the synced preferences).
+- **The notes board** (116): a widget the four admins share. Add, edit, pin,
+  colour, *Put away*; a note put away is kept and *Bring back* returns it.
+  Nothing on it is ever deleted. State in `/var/lib/arise/notes-board.json`.
+- **Weather for both campuses** (111): Pineville in the widget, Alexandria
+  under it, both on the screensaver (`[church] weather_places`).
+- **Screensaver announcements** (110): the next week's Calendar events, one at
+  a time under the verse.
+- **Dark by default** (109): dark for everyone; *Bone* (light) is each
+  admin's own choice in Appearance and follows their account.
+- **After a restart** (107): the closet monitor opens the owner's desktop by
+  itself (`[kiosk] autologin = "owner"`, `"off"` to stop it), once per boot,
+  within 15 minutes of it, and only on the monitor itself; it still locks
+  after ten idle minutes. Audited as `kiosk.autologin`.
+- **The text console** (108): the kiosk owns tty1 only; `Ctrl+Alt+F2` (tty2
+  and up) keeps its login prompt for the admins.
+- **Settings → Reports** (78-81, 85, 144): which Discord channels are set
+  (names only, never the addresses) with a Test per channel; the Monday report
+  as it would post; the channel's progress to 1,000 subscribers and 4,000
+  public watch hours when the box has the automator's numbers ("not
+  available yet" otherwise); the pastors' monthly note.
+- **The pastors' monthly note** (81, 144): the server drafts five plain lines
+  from the month's own facts (services it stayed out of the way of, backups,
+  new accounts, the Macs, nothing reachable from outside). Bradly edits it
+  and presses *Send to the pastors* (he types `send`); it goes by email to
+  `[storage] pastors`. Nothing sends unapproved, and a sent month is kept.
+- **Activity Monitor → Network** (121): the hourly speed test charted for the
+  week, with *Test now*; never during a service.
+- **Songs → Lyrics inbox and CCLI usage** (99, 100, 106): see
+  docs/AUTOMATOR.md.
 
 A member who opens an admin app by its address gets *That part of the
 dashboard is for the administrator* (HTTP 403); the server enforces it, not

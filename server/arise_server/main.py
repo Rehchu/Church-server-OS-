@@ -926,6 +926,30 @@ def api_songs(q: str = "", has: str = "", _=admin):
     return songs.listing(q, has)
 
 
+# Round 7 (99, 100, 106): the Lyrics inbox and the CCLI usage report.
+@app.get("/api/songs/inbox")
+def api_songs_inbox(_=admin):
+    """The Lyrics inbox (99, 100): who sees the folder and what the last runs imported."""
+    return songs.inbox_log()
+
+
+@app.post("/api/songs/inbox")
+def api_songs_inbox_run(who=admin):
+    return songs.inbox_scan(by=who["user"])
+
+
+@app.get("/api/songs/usage")
+def api_songs_usage(start: str = "", end: str = "", _=admin):
+    """The CCLI song-usage report (106): this quarter unless dates are given.
+    (These two sit before /api/songs/{key}, which would otherwise take "inbox" for a song.)"""
+    import re as _re
+    from datetime import date as _date
+    label, first, last = songs.quarter_of(_date.today())
+    if start and end and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", start) and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", end):
+        label, first, last = f"{start} to {end}", start, end
+    return {"label": label, **songs.usage_report(first, last), "demo": load().demo}
+
+
 @app.get("/api/songs/{key}")
 def api_song(key: str, _=admin):
     return songs.song(key)
@@ -2577,28 +2601,6 @@ def api_reports_pastors_save(body: PastorNote, who=admin):
 def api_reports_pastors_send(body: PastorNote, who=admin):
     """Only on this click does the note go to the two pastors."""
     return reports.pastors_send(body.month, body.text, who["user"])
-
-
-@app.get("/api/songs/inbox")
-def api_songs_inbox(_=admin):
-    """The Lyrics inbox (99, 100): who sees the folder and what the last runs imported."""
-    return songs.inbox_log()
-
-
-@app.post("/api/songs/inbox")
-def api_songs_inbox_run(who=admin):
-    return songs.inbox_scan(by=who["user"])
-
-
-@app.get("/api/songs/usage")
-def api_songs_usage(start: str = "", end: str = "", _=admin):
-    """The CCLI song-usage report (106): this quarter unless dates are given."""
-    import re as _re
-    from datetime import date as _date
-    label, first, last = songs.quarter_of(_date.today())
-    if start and end and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", start) and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", end):
-        label, first, last = f"{start} to {end}", start, end
-    return {"label": label, **songs.usage_report(first, last), "demo": load().demo}
 
 
 @app.get("/api/notes-board")

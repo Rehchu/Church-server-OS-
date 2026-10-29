@@ -11,8 +11,8 @@ four webhooks. Nothing is read from Discord; it is one-way.
    | Channel | What lands there |
    |---|---|
    | `#alerts` | failures (backup, stream, domain, disk at 75%, UPS), security (a new device, `arise-rescue` used, a virus found), updates waiting |
-   | `#sunday` | the Sunday all-green at the end of the checklist, the live link the moment the stream starts, the 9:30 nudge if the list has open items |
-   | `#weekly` | the Monday morning summary |
+   | `#sunday` | the all-green an hour before each service (Sunday, Alexandria's 10:00, Glory Night, and Calendar events that count as a service), the live link the moment the stream starts, the nudge if a list has open items |
+   | `#weekly` | the Monday 07:30 report: backups, storage, the Macs, sign-ins, updates, and the channel's progress to 1,000 subscribers and 4,000 public watch hours ("not available yet" until the box has the automator's numbers) |
    | `#daily` | the 06:00 morning report (Claude's, from the box's own data) |
 
 2. For each channel: channel settings → Integrations → Webhooks → New
@@ -37,6 +37,14 @@ four webhooks. Nothing is read from Discord; it is one-way.
    everything in the dashboard and the push to Bradly's phone.
 
 ## Posting rules
+
+- The all-green (round 7, 78-80) posts an hour before each service: "All
+  green: services up, backups ok, Synology mounted, nothing needs you", or
+  each thing that needs someone, then every department's checklist (done of
+  total). It posts once per service (the key is the date and the service),
+  from the dashboard's own reminders loop, which checks every minute.
+- Settings → Reports shows which channels are set (never the addresses) and
+  the Monday report as it would post; `arisectl report weekly` posts it now.
 
 - Every post is plain text with the time, one line of what happened and the
   command that fixes it; no embeds, no pings.

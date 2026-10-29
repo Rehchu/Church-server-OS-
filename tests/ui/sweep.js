@@ -183,6 +183,18 @@ async function flows(browser, url) {
   await step('Department checklists', 'ticking an item counts it', async () => { await p.click('#deptLists .dept[data-dept="Media"] input[data-dept-i="0"]'); await settle(p, 800); const t = await text(p, '#deptLists .dept[data-dept="Media"]'); return /1 of 5/.test(t) ? true : t.slice(0, 120); });
   await step('Department checklists', 'a nudge at or after the service is refused', async () => { await p.click('[data-dedit="Media"]'); await settle(p, 300); await p.fill('[data-denudge="Sunday Service"]', '11:00'); await toasts(p); await p.click('#deF button[type=submit]'); await settle(p, 500); const t = await toasts(p); await closeModal(p); return t.some(x => /at or after/.test(x.text)) ? true : JSON.stringify(t); });
   await step('Department checklists', 'the leader and the items are edited', async () => { await p.click('[data-dedit="Inedge"]'); await settle(p, 300); await p.fill('#deItems', 'Room set up\nSound check'); await p.fill('#deLead', 'inedge'); await p.click('#deF button[type=submit]'); await settle(p, 900); const t = await text(p, '#deptLists .dept[data-dept="Inedge"]'); return /Room set up/.test(t) && /Leader: inedge/.test(t) ? true : t.slice(0, 160); });
+  // ---- round 7: service mode, the notes board, My desktop ----
+  await step('Service mode', 'it says no service is on, and the preview shows one', async () => { await app(p, 'servicemode'); await settle(p, 700); const off = await text(p, '#wb-servicemode'); if (!/No service on right now/.test(off)) return /Checklists/.test(off) ? true : off.slice(0, 120); await p.click('#svmDemo'); await settle(p, 900); const on = await text(p, '#wb-servicemode'); const ok1 = /The stream/.test(on) && /Checklists/.test(on) && /Run sheet/.test(on) && /Media/.test(on); await p.click('#svmDemoOff'); await settle(p, 700); const back = await text(p, '#wb-servicemode'); return ok1 && /No service on right now/.test(back) ? true : JSON.stringify({ on: on.slice(0, 160), back: back.slice(0, 60) }); });
+  await p.evaluate(() => window.arise.closeApp('servicemode')); await settle(p, 300);
+  await step('Notes board', 'a note goes on the board, is pinned, put away and brought back', async () => {
+    await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k))); await settle(p, 500);
+    await p.click('#nbAdd'); await settle(p, 300); await p.fill('#nbT', 'Sweep: chairs for Glory Night'); await p.click('#nbC [data-c="green"]'); await p.click('#nbf button[type=submit]'); await settle(p, 900);
+    const id = await p.evaluate(() => [...document.querySelectorAll('[data-note]')].find(n => n.textContent.includes('Sweep: chairs'))?.dataset.note); if (!id) return 'the note did not appear';
+    await p.click(`[data-nbpin="${id}"]`); await settle(p, 700); const pinned = /pinned/.test(await text(p, `[data-note="${id}"]`));
+    await p.click(`[data-nbaway="${id}"]`); await settle(p, 700); const gone = !(await exists(p, `[data-note="${id}"]`));
+    await p.click('#nbAway'); await settle(p, 400); await p.click(`[data-nbback="${id}"]`); await settle(p, 800); const back = await exists(p, `[data-note="${id}"]`);
+    return pinned && gone && back ? true : JSON.stringify({ pinned, gone, back }); });
+  await step('My desktop', 'a widget turned off in Settings leaves the desktop, and comes back', async () => { await app(p, 'settings'); await p.click('[data-sec="mydesktop"]'); await settle(p, 600); await p.uncheck('[data-wgset="weather"]'); await settle(p, 300); const off = await p.evaluate(() => document.querySelector('#widgets [data-wg="weather"]')?.hidden); await p.check('[data-wgset="weather"]'); await settle(p, 300); const on = await p.evaluate(() => document.querySelector('#widgets [data-wg="weather"]')?.hidden); await p.evaluate(() => window.arise.closeApp('settings')); return off === true && on === false ? true : JSON.stringify({ off, on }); });
   await p.evaluate(() => window.arise.closeApp('sunday')); await settle(p, 300);
   await step('Settings', 'The monitor & setup: the text size for the closet monitor', async () => { await app(p, 'settings'); await p.click('[data-sec="monitor"]'); await settle(p, 700); await toasts(p); await p.click('[data-scale="1.4"]'); await settle(p, 800); const t = await toasts(p); const on = await p.evaluate(() => document.querySelector('[data-scale="1.4"]')?.classList.contains('active')); return t.some(x => /140%/.test(x.text)) && on ? true : JSON.stringify({ t, on }); });
   await step('Setup', 'the guided setup opens from Settings and walks the steps', async () => { await p.click('#stSetup'); await settle(p, 900); const steps = await p.$$eval('[data-wstep]', els => els.map(e => e.dataset.wstep)); await p.click('[data-wstep="discord"]'); await settle(p, 600); await p.click('[data-wmark="done"]'); await settle(p, 900); const after = await p.evaluate(() => document.querySelector('[data-wstep="discord"] .pill')?.textContent); await closeModal(p); return steps.join(',') === 'people,shares,synology,discord,resend,tailscale' && after === 'done' ? true : JSON.stringify({ steps, after }); });
@@ -394,6 +406,32 @@ async function everyControl(browser, url, role) {
   await p.ctx.close();
 }
 
+/* ---------------- the phone checklist (round 7, 19, 88-90) ---------------- */
+// Staff sign in with their own account although staff access is "none": this page is the exception.
+async function phoneChecklist(browser, url) {
+  const p = await newPage(browser, url + 'checklist', { width: 390, height: 844 }); step.page = null; p.setDefaultTimeout(6000);
+  const A = 'phone · checklist';
+  await step(A, 'the admin sees every department, with the leader tools', async () => { await p.waitForSelector('.cl__list'); const n = (await p.$$('.cl__list')).length; const t = await text(p, '#cl'); return n >= 4 && /call time/.test(t) && (await exists(p, '#lrGo')) ? true : `${n} lists: ${t.slice(0, 120)}`; });
+  await step(A, 'ticking an item counts it, and unticking it takes it back', async () => { const sel = '.cl__item[data-dept="Media"][data-tick="1"]'; await p.click(sel); await settle(p, 600); const a = await text(p, '.cl__list:has([data-dept="Media"]) h2'); await p.click(sel); await settle(p, 600); const b = await text(p, '.cl__list:has([data-dept="Media"]) h2'); await p.click(sel); await settle(p, 600); return /1 of 5/.test(a) && /0 of 5/.test(b) ? true : JSON.stringify({ a, b }); });
+  let temp = '';
+  await step(A, 'a leader resets a department member\'s password: shown once', async () => { await p.selectOption('#lrUser', 'media-mac'); await p.click('#lrGo'); await settle(p, 600); temp = (await text(p, '.cl__pw')).trim(); return /^[A-Za-z]+-[A-Za-z]+-\d{2}\W$/.test(temp) ? true : `got "${temp}"`; });
+  await step(A, 'staff sign in with the temporary password, choose their own, and see only their list', async () => {
+    await p.click('#so'); await settle(p, 500); await p.fill('#su', 'media-mac'); await p.fill('#sp', temp); await p.click('#sf button[type=submit]'); await settle(p, 600);
+    if (await p.evaluate(() => document.getElementById('sn').hidden)) return 'no new-password step after a temporary password';
+    await p.fill('#snew', 'Mercy-Seat-2026!'); await p.click('#sf button[type=submit]'); await settle(p, 900);
+    const depts = await p.$$eval('.cl__item', els => [...new Set(els.map(e => e.dataset.dept))]); const t = await text(p, '#cl');
+    return depts.length === 1 && depts[0] === 'Media' && /1 of 5/.test(t) && !(await exists(p, '#lrGo')) ? true : JSON.stringify({ depts, t: t.slice(0, 120) }); });
+  await step(A, 'a leader who is not an admin sees every list but ticks only their own', async () => {
+    await p.click('#so'); await settle(p, 500); await p.fill('#su', 'childrens.department'); await p.fill('#sp', 'any-password'); await p.click('#sf button[type=submit]'); await settle(p, 900);
+    const r = await p.evaluate(() => ({ lists: document.querySelectorAll('.cl__list').length, own: [...document.querySelectorAll('.cl__item[data-dept="Childrens-Department"]')].every(b => !b.disabled), other: [...document.querySelectorAll('.cl__item[data-dept="Media"]')].every(b => b.disabled) }));
+    return r.lists >= 4 && r.own && r.other ? true : JSON.stringify(r); });
+  const o = await p.evaluate(() => ({ page: document.documentElement.scrollWidth - innerWidth, body: document.body.scrollWidth - innerWidth }));
+  rec(A, 'no sideways scroll', o.page <= 1 && o.body <= 1, `page +${o.page}px, body +${o.body}px`);
+  await p.screenshot({ path: path.join(OUT, 'phone-checklist.png') });
+  const e = await errs(p); rec(A, 'no page errors', !e.length, e.join(' | '));
+  await p.ctx.close();
+}
+
 /* ---------------- the phone ---------------- */
 async function phone(browser, url) {
   const p = await newPage(browser, url, { width: 390, height: 844 });
@@ -422,7 +460,7 @@ async function phone(browser, url) {
     if (only.includes('flows')) { console.log('flows…'); await flows(browser, url); }
     if (only.includes('admin')) { console.log('every control, admin…'); await everyControl(browser, url, 'admin'); }
     if (only.includes('member')) { console.log('every control, member…'); await everyControl(browser, url, 'member'); }
-    if (only.includes('phone')) { console.log('the phone…'); await phone(browser, url); }
+    if (only.includes('phone')) { console.log('the phone…'); await phone(browser, url); await phoneChecklist(browser, url); }
   } finally { await browser.close(); srv.close(); }
   const by = {}; for (const r of results) { const a = r.area.split(' · ')[0] === 'admin' || r.area.split(' · ')[0] === 'member' || r.area.split(' · ')[0] === 'phone' ? r.area : r.area; (by[a] = by[a] || { pass: 0, fail: 0, skip: 0 })[r.result === 'pass' ? 'pass' : r.result === 'skip' ? 'skip' : 'fail']++; }
   const lines = ['| Area | Control | Result | Note |', '|---|---|---|---|', ...results.map(r => `| ${r.area} | ${r.control} | ${r.result} | ${r.note.replace(/\|/g, '/')} |`)];

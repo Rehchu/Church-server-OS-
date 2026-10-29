@@ -1568,7 +1568,7 @@ def cmd_songs(a):
         (ok if r.get("ok") else bad)(f"{r.get('label')}: {len(r.get('songs', []))} songs from {r.get('services', 0)} services -> {r.get('file', '(sample)')}")
         try:
             from arise_server import reports
-            reports.post("weekly", f"🎵 The CCLI song-usage report for {r.get('label')} is ready: {len(r.get('songs', []))} songs, {r.get('services', 0)} services. Songs tab → Usage.",
+            reports.post("weekly", f"🎵 The CCLI song-usage report for {r.get('label')} is ready: {len(r.get('songs', []))} songs, {r.get('services', 0)} services. Songs → CCLI usage.",
                          key=f"ccli:{r.get('label')}")
         except Exception:  # noqa: BLE001
             pass
