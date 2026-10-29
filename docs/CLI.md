@@ -45,7 +45,8 @@ arisectl backup snapshots
 arisectl backup restore <id|latest> [--tag homes] [--at 2026-10-20] [--path /srv/arise/homes/office] --target /srv/arise/restore
 arisectl backup verify              restic check --read-data-subset=10%
 arisectl backup prune
-arisectl backup drill [--quiet]     one random file back from last night's backup, compared; the monthly timer
+arisectl backup drill [--quiet]     one random file back from last night's backup, compared; the monthly timer; its line goes to Discord #weekly
+arisectl backup offsite             the off-site copy now: every new snapshot to Arise-Home (restic copy), raw recordings never (round 7, 53)
 
 arisectl automator status
 arisectl automator preview          dry run: prints tonight's plan, writes nothing
@@ -96,12 +97,22 @@ arisectl storage [status|scan]      what is eating the disk; scan runs in the ba
 arisectl monitor status|on|off      the closet panel (off 23:00, on 06:00 by timer)
 arisectl monitor share on|off       Screen Sharing of the panel through Guacamole, Bradly only
 
+arisectl upkeep hourly              the hourly checks: a missed backup night, a church Mac silent 3 days, disk health, heat; each to Discord #alerts once
+arisectl upkeep january             the January clean-up report and the Google export reminder (lists; never deletes)
+arisectl upkeep changes [--limit N] the change record: what changed on the box, by Bradly, Kristina or Claude
+arisectl upkeep health              every disk's SMART health and temperature, and the CPU's
+arisectl notify test <channel>      one test post to Discord #alerts, #sunday, #weekly or #daily
+arisectl notify discord             which of the four Discord channels are set (names only)
+arisectl mail forward [status]      staff addresses: who forwards where (masked), on or off
+arisectl mail forward run           one pass: what arrived at Resend goes on to each personal email (the 5-minute timer)
+arisectl mail forward export <user> a leaver's mail: their forwarding log as CSV (forwarding only: no mailbox is kept)
+
 arisectl security                   the Security app's rows: encryption, scan, certificate, two-step, rescue
 arisectl twofa list                 who has two-step sign-in on
 arisectl twofa reset <user>         turn it off for someone who lost the phone (the name typed)
 arisectl rescue status              the break-glass admin arise-rescue: exists, last use
-arisectl rescue rotate              a new password (prints nothing but "rotated"; it goes on the safe card)
-arisectl rescue card                print the SAFE card (/etc/arise/SAFE-CARD.txt): for the safe, never the door
+arisectl rescue rotate              a new password (prints nothing but "rotated"); rewrites the closet card: print it again
+arisectl rescue card                write the closet card: /etc/arise/CLOSET-CARD.html (root only, with arise-rescue's password: print it, tape it INSIDE the closet) and a copy without it on the staff share; never prints the password
 arisectl encrypt status             is the disk LUKS, is there a TPM, is it bound
 arisectl encrypt tpm                bind the LUKS disk to the TPM with clevis (asks the passphrase once)
 arisectl snapshot create "<note>"   a Timeshift system snapshot (rsync mode; church files are not in it)

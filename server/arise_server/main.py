@@ -529,6 +529,14 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
             items.extend(storage.disk_alerts())
         except Exception:  # noqa: BLE001
             pass
+    # Round 7: a missed backup night (64), a church Mac silent three days (82), a disk to replace or
+    # a hot CPU (137/138). The hourly timer posts each to Discord #alerts once; here they stay while true.
+    try:
+        from . import upkeep
+        for it in upkeep.attention():
+            items.append({"level": it["level"], "text": it["text"] + (f" ({it['fix']})" if it.get("fix") else "")})
+    except Exception:  # noqa: BLE001
+        pass
     return items
 
 
@@ -935,6 +943,91 @@ def bk_history(limit: int = 200, _=admin):
 @app.get("/api/backups/snapshots")
 def bk_snapshots(limit: int = 100, _=admin):
     return backups.snapshots(limit)
+
+
+@app.get("/api/backups/offsite")
+def bk_offsite(_=admin):
+    """Round 7, 53/54: tonight's off-site plan (Arise-Home) and its last run."""
+    from . import sharing
+    plan = backups.offsite_plan(sharing.backup_targets(), getattr(load().backups, "offsite", "arise-home"))
+    last = next((r for r in backups.history(limit=400)["rows"] if r.get("job") == "offsite"), None)
+    return {"demo": load().demo, "plan": plan, "last": last, "skip_tags": list(getattr(load().backups, "offsite_skip_tags", ["recordings"]) or [])}
+
+
+# ----- round 7: upkeep, Discord, mail forwarding ------------------------------------
+@app.get("/api/upkeep/changes")
+def api_upkeep_changes(limit: int = 100, _=admin):
+    """The change record in About (round 7, 140): what changed, by Bradly, Kristina or Claude."""
+    from . import upkeep
+    return upkeep.changes(limit=max(1, min(int(limit or 100), 500)))
+
+
+@app.get("/api/upkeep/january")
+def api_upkeep_january(_=admin):
+    """The January clean-up report (round 7, 139): the latest one kept, or this year's as of now."""
+    from . import upkeep
+    from .util import read_json
+    from datetime import datetime
+    y = datetime.now().year
+    for yr in (y, y - 1):
+        rep = read_json(load().state_dir / f"january-{yr}.json", default=None) if not load().demo else None
+        if rep:
+            return {"demo": False, "report": rep, "kept": True}
+    return {"demo": load().demo, "report": upkeep.january_report(), "kept": False}
+
+
+@app.get("/api/upkeep/health")
+def api_upkeep_health(_=admin):
+    """Disks (SMART) and the CPU's heat (round 7, 137/138)."""
+    from . import upkeep, metrics
+    try:
+        cpu = metrics._temps()
+    except Exception:  # noqa: BLE001
+        cpu = None
+    return {"demo": load().demo, "disks": upkeep.disks_health(), "cpu_temp": cpu, "cpu_hot_c": upkeep.cfg_upkeep()["cpu_hot_c"],
+            "items": upkeep.health(fresh=True)}
+
+
+@app.get("/api/help/contacts")
+def api_help_contacts(_=auth):
+    """Who to call and where staff ask for help (round 7, 118, 141): names and the IT portal, no numbers."""
+    from . import upkeep
+    u = upkeep.cfg_upkeep()
+    return {"call": u["call"], "it_portal": upkeep.it_portal()}
+
+
+@app.get("/api/discord")
+def api_discord(_=admin):
+    """Which of the four channels are set: names only, never the webhook addresses."""
+    from . import discord
+    return discord.status()
+
+
+class DiscordTest(BaseModel):
+    channel: str
+
+
+@app.post("/api/discord/test")
+def api_discord_test(body: DiscordTest, _=admin):
+    from . import discord
+    return discord.test(body.channel)
+
+
+@app.get("/api/mail/forwarding")
+def api_mail_forwarding(_=admin):
+    """Staff addresses, forwarding only (round 7, 155): who forwards where (masked), and the log."""
+    from . import mailfwd
+    return {**mailfwd.status(), "log": mailfwd.log(limit=50)}
+
+
+@app.get("/api/mail/forwarding/export/{name}")
+def api_mail_forwarding_export(name: str, who=admin):
+    """A leaver's mail: their alias and forwarding log, as CSV text (round 5, 38)."""
+    from . import mailfwd
+    if not directory._ok_name(name):
+        return {"ok": False, "err": "not a user name"}
+    audit.record(who.get("user", "?"), "mail.forwarding.export", name)
+    return mailfwd.export(name)
 
 
 @app.get("/api/backups/repo")
@@ -1938,8 +2031,11 @@ def api_updates(_=admin):
 
 
 @app.post("/api/system/update")
-def api_update(_=admin):
-    return system.update_arise()
+def api_update(who=admin):
+    """Round 7, 135: any admin may install it; the ring (136) decides which version arrives."""
+    r = system.update_arise()
+    audit.record(who.get("user", "?"), "system.update_arise", system.ring(), ok=bool(r.get("ok")), detail=str(r.get("out") or r.get("err") or "")[:200])
+    return r
 
 
 @app.post("/api/system/apt-upgrade")

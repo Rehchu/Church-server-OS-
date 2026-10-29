@@ -237,3 +237,12 @@ class Rules(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NotifyEmail(unittest.TestCase):
+    def test_personal_email_reads_the_profile(self):
+        from arise_server import notify, profiles
+        from unittest import mock
+        with mock.patch.object(profiles, "_read", return_value={"jane.doe": {"personal_email": "jane@example.com"}}):
+            self.assertEqual(notify.personal_email("Jane.Doe"), "jane@example.com")
+            self.assertIsNone(notify.personal_email("nobody"))

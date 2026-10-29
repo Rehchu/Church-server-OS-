@@ -33,6 +33,7 @@ GETS = [
     "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/cloud", "/cloud/people", "/cloud/conflicts?limit=20",
     "/pastors/breakglass", "/directory/unused", "/contacts",
+    "/backups/offsite", "/upkeep/changes?limit=12", "/upkeep/january", "/upkeep/health", "/help/contacts", "/discord", "/mail/forwarding",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]
 c = TestClient(app)
@@ -53,6 +54,9 @@ for v in data["GET /automator/videos"]["videos"]:
 data["GET /songs"] = c.get("/api/songs").json()
 for sg in data["GET /songs"]["songs"]:
     data[f"GET /songs/{sg['key']}"] = c.get(f"/api/songs/{sg['key']}").json()
+# Staff addresses (round 7, 155): each alias's export, so the preview's Export button answers.
+for al in data["GET /mail/forwarding"].get("aliases", []):
+    data[f"GET /mail/forwarding/export/{al['alias']}"] = c.get(f"/api/mail/forwarding/export/{al['alias']}").json()
 # The Macs app (round 6): the list and each church Mac's card (the mock keeps the choices you make).
 data["GET /macs"] = c.get("/api/macs").json()
 for m in data["GET /macs"]["macs"]:

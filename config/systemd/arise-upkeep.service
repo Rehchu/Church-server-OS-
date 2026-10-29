@@ -1,0 +1,14 @@
+[Unit]
+Description=Arise Server upkeep checks (a missed backup night, a silent church Mac, disk health, heat)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Round 7, 64, 82, 137/138: each item posts to Discord #alerts once; the Needs You list keeps it
+# while it is true. A check during a service is fine: it reads, it never changes anything.
+ExecStart=/usr/local/bin/arisectl upkeep hourly
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+StandardOutput=append:/var/log/arise/upkeep.log
+StandardError=append:/var/log/arise/upkeep.log

@@ -75,8 +75,9 @@ class DocsTruth(unittest.TestCase):
                 cal = " ".join(re.findall(r"^OnCalendar=(.+)$", f.read_text(), re.M))
                 if w == "hourly" or w == "monthly":
                     self.assertIn(w, cal, u)
-                elif w == "every 15 min":
-                    self.assertRegex(cal, r"\*:0{0,2}/15", u)
+                elif w.startswith("every ") and w.endswith(" min"):
+                    n = w.split()[1]
+                    self.assertRegex(cal, r"\*:0{0,2}/" + n + r"(?!\d)", u)
                 else:
                     day = re.match(r"(Mon|Tue|Wed|Thu|Fri|Sat|Sun) ", w)
                     hhmm = re.search(r"(\d\d:\d\d)", w).group(1)

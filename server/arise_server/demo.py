@@ -117,7 +117,7 @@ def _history():
 
 
 BACKUP_HISTORY = _history()
-BACKUP_REPO = {"repo": "/mnt/synology/arise-backups/restic", "ok": True, "snapshots": 53, "total_size": 318_000_000_000, "raw_size": 1_950_000_000_000, "last_check": _ago(days=9), "keep": {"daily": 14, "weekly": 8, "monthly": 12}}
+BACKUP_REPO = {"repo": "/mnt/synology/arise-backups/restic", "ok": True, "snapshots": 53, "total_size": 318_000_000_000, "raw_size": 1_950_000_000_000, "last_check": _ago(days=9), "keep": {"daily": 30, "weekly": 12, "monthly": 24}}
 
 AUTOMATOR = {
     "path": "/srv/arise/automator/ARISE_YouTube_Updater",

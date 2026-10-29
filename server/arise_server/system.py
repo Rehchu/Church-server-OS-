@@ -18,29 +18,68 @@ from .util import now_iso, read_json, run, which, write_json
 ARISE_HOME = "/opt/arise"
 
 
+# Round 7, 135/136: any admin installs ariseOS updates, and they arrive in two steps. Arise-Home
+# (Bradly's house, the test box) takes a new version the day it lands; Arise-Pineville takes only
+# what has been out a week, so a bad version shows itself at the house first.
+RING_DAYS = {"home": 0, "pineville": 7}
+
+
+def ring() -> str:
+    raw = load().raw
+    r = str(((raw.get("updates") if isinstance(raw, dict) else None) or {}).get("ring", "pineville")).lower()
+    return r if r in RING_DAYS else "pineville"
+
+
+def stage_args(ring_name: str) -> list[str]:
+    """Pure: the git rev-list arguments naming the newest commit this box may take."""
+    days = RING_DAYS.get(ring_name, 7)
+    return ["rev-list", "-1"] + ([f"--before={days} days ago"] if days else []) + ["origin/main"]
+
+
+def _stage_ref() -> tuple[str | None, int]:
+    """(the commit this box may move to, how many newer commits wait for the week to pass)."""
+    r = run(["git", "-C", ARISE_HOME, *stage_args(ring())], timeout=10)
+    ref = r["out"].strip() if r["ok"] and r["out"].strip() else None
+    waiting = 0
+    if ref:
+        w = run(["git", "-C", ARISE_HOME, "rev-list", "--count", f"{ref}..origin/main"], timeout=10)
+        waiting = int(w["out"].strip() or 0) if w["ok"] else 0
+    return ref, waiting
+
+
 def updates() -> dict:
     cfg = load()
     if cfg.demo or not which("apt-get"):
-        return {"demo": True, "apt_upgradable": 3, "arise_behind": 0, "last_check": now_iso(), "security": 1}
+        return {"demo": True, "apt_upgradable": 3, "arise_behind": 0, "arise_waiting": 0, "ring": ring(), "last_check": now_iso(), "security": 1}
     r = run(["apt", "list", "--upgradable"], timeout=60)
     rows = [l for l in r["out"].splitlines() if "/" in l and "upgradable" in l]
     sec = sum(1 for l in rows if "security" in l)
-    behind = None
+    behind = waiting = None
     if os.path.isdir(os.path.join(ARISE_HOME, ".git")):
         run(["git", "-C", ARISE_HOME, "fetch", "-q", "origin"], timeout=60)
-        b = run(["git", "-C", ARISE_HOME, "rev-list", "--count", "HEAD..origin/main"], timeout=10)
-        behind = int(b["out"].strip() or 0) if b["ok"] else None
-    return {"demo": False, "apt_upgradable": len(rows), "security": sec, "arise_behind": behind, "last_check": now_iso()}
+        ref, waiting = _stage_ref()
+        if ref:
+            b = run(["git", "-C", ARISE_HOME, "rev-list", "--count", f"HEAD..{ref}"], timeout=10)
+            behind = int(b["out"].strip() or 0) if b["ok"] else None
+        else:
+            behind = 0
+    return {"demo": False, "apt_upgradable": len(rows), "security": sec, "arise_behind": behind, "arise_waiting": waiting,
+            "ring": ring(), "last_check": now_iso()}
 
 
 def update_arise() -> dict:
-    """git pull + pip install + restart. The timers keep running throughout."""
+    """Move to the newest version this box's ring allows (a merge, never a rebase), pip install,
+    restart. The timers keep running throughout."""
     if load().demo:
-        return {"ok": True, "demo": True, "out": "(sample) git pull && pip install -r server/requirements.txt && systemctl restart arise-web"}
+        return {"ok": True, "demo": True, "out": f"(sample) git merge --ff-only <the newest {ring()} version> && pip install -r server/requirements.txt && systemctl restart arise-web"}
     if not os.path.isdir(os.path.join(ARISE_HOME, ".git")):
         return {"ok": False, "err": f"{ARISE_HOME} is not a git checkout, so there is nothing to pull; reinstall from the repo"}
+    run(["git", "-C", ARISE_HOME, "fetch", "-q", "origin"], timeout=120)
+    ref, waiting = _stage_ref()
+    if not ref:
+        return {"ok": True, "out": f"nothing has been out long enough for {ring()} yet ({waiting} newer version(s) wait for the week)"}
     steps = [
-        ["git", "-C", ARISE_HOME, "pull", "--ff-only"],
+        ["git", "-C", ARISE_HOME, "merge", "--ff-only", ref],
         [os.path.join(ARISE_HOME, "venv", "bin", "pip"), "install", "-q", "-r", os.path.join(ARISE_HOME, "server", "requirements.txt")],
         ["install", "-m", "0755", os.path.join(ARISE_HOME, "cli", "arisectl"), "/usr/local/bin/arisectl"],
         ["cp", "-f"] + [os.path.join(ARISE_HOME, "config", "systemd", f) for f in os.listdir(os.path.join(ARISE_HOME, "config", "systemd"))] + ["/etc/systemd/system/"],
@@ -53,7 +92,7 @@ def update_arise() -> dict:
         if not r["ok"]:
             return {"ok": False, "err": r["err"] or r["out"], "log": "\n".join(log)}
     run(["systemctl", "restart", "arise-web.service"], timeout=30)  # restarts us; the response may not arrive
-    return {"ok": True, "log": "\n".join(log)}
+    return {"ok": True, "log": "\n".join(log), "waiting": waiting}
 
 
 def apt_upgrade() -> dict:

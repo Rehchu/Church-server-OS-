@@ -36,6 +36,9 @@ def cfg_mail() -> dict:
     st = _state()
     return {"provider": raw.get("provider", "resend"), "api_key_file": raw.get("api_key_file", "/etc/arise/secrets/resend-api-key"),
             "from_name": raw.get("from_name", "Arise Church"), "from_email": raw.get("from_email", ""), "reply_to": raw.get("reply_to", ""),
+            # Round 7, 132: what the server itself sends (reset links, notices, staff notes, forwards)
+            # comes from "Arise Church IT"; newsletters to the church family keep from_name.
+            "server_from_name": raw.get("server_from_name", "Arise Church IT"),
             "audience_id": raw.get("audience_id") or st.get("audience_id", ""), "audience_name": raw.get("audience_name", "Arise Church family")}
 
 
@@ -272,7 +275,7 @@ def send_one(to: str, subject: str, text: str) -> dict:
         return {"ok": True, "demo": True, "out": "(sample) no mail is sent from the sample"}
     if not m["from_email"]:
         return {"ok": False, "err": "set [mail] from_email in arise.toml first (an address at a domain verified in Resend)"}
-    return _call("POST", "/emails", {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text})
+    return _call("POST", "/emails", {"from": f"{m['server_from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text})
 
 
 def send_notice(to: str, subject: str, text: str) -> dict:
@@ -284,7 +287,7 @@ def send_notice(to: str, subject: str, text: str) -> dict:
         return {"ok": True, "demo": True, "out": f"(sample) would email {to}"}
     if not m["from_email"]:
         return {"ok": False, "err": "no [mail] from_email yet; the notice went by push only"}
-    body = {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text}
+    body = {"from": f"{m['server_from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text}
     return _call("POST", "/emails", body)
 
 
@@ -297,7 +300,7 @@ def send_note(to: str, subject: str, text: str) -> dict:
         return {"ok": True, "demo": True}
     if not m["from_email"]:
         return {"ok": False, "err": "set [mail] from_email in arise.toml first"}
-    return _call("POST", "/emails", {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject[:120], "text": text[:4000]})
+    return _call("POST", "/emails", {"from": f"{m['server_from_name']} <{m['from_email']}>", "to": [to], "subject": subject[:120], "text": text[:4000]})
 
 
 def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:

@@ -126,10 +126,11 @@ def _deliver(user: str, item: dict) -> dict:
 
 def personal_email(user: str) -> str | None:
     """The profile's personal email (round 5, 9), when the directory has one."""
+    # The profile holds it (profiles.py); directory never had a personal_email(), so this
+    # used to return None for everyone and staff notices were never emailed.
     try:
-        from . import directory
-        f = getattr(directory, "personal_email", None)
-        return f(user) if f else None
+        from . import profiles
+        return (profiles._read().get((user or "").lower(), {}) or {}).get("personal_email") or None
     except Exception:  # noqa: BLE001
         return None
 

@@ -91,3 +91,18 @@ Dell OptiPlex; model and specs to follow. The service tag on its sticker, put in
 dell.com/support, answers every line above at once. `docs/PRE-WIPE.md` is the
 checklist for the days before the wipe: specs, the two credential files if the
 automator runs there today, the USB stick, the F12/F2 boot steps.
+
+## Round 7 (Oct 29): what is known now
+
+- **Internet at Pineville:** Optimum Business, the highest plan (127).
+- **The Synology:** on the Netgear Nighthawk, router A (128), the same network
+  as the server, so it mounts directly.
+- **Alexandria:** one church Mac (134).
+- **The old PC:** "just there existing, unused" (126); nothing on it has to
+  keep running.
+- **Disk health:** SMART's own verdict and 80 °C for the CPU (137); a disk is
+  replaced when its health check warns, not on a calendar (138).
+  `sudo arisectl upkeep health` reads every disk; a warning is a red line in
+  Needs You and one post to Discord `#alerts`. `smartmontools` is installed
+  by the installer's care step.
+- **Spare parts:** none kept (142).

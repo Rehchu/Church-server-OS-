@@ -109,7 +109,7 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 | When (America/Chicago) | Unit | What |
 |---|---|---|
 | 02:05 | `arise-automator.timer` | the nightly YouTube job |
-| 03:00 | `arise-backup.timer` | restic to the Synology (30/12/24 kept) |
+| 03:00 | `arise-backup.timer` | restic to the Synology (30/12/24 kept), then the off-site copy to Arise-Home |
 | 04:00 | `arise-mirror.timer` | GitHub mirror refresh |
 | 04:15 | `arise-archive.timer` | the archive index, new files only (not Wednesdays) |
 | Wed 04:15 | `arise-archive-rebuild.timer` | the archive index, rebuilt in full |
@@ -117,10 +117,13 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 | 05:15 | `arise-offboard.timer` | leavers: disabled, then their files moved after 30 days |
 | 07:00 | `arise-notify.timer` | the daily note (off: no webhook set; Discord's #daily is the plan) |
 | hourly | `arise-devices.timer` | the network scan |
+| hourly | `arise-upkeep.timer` | upkeep: a missed backup night, a church Mac silent 3 days, a disk to replace, the CPU at 80 °C, each to Discord #alerts once |
 | hourly | `arise-cloud-conflicts.timer` | Nextcloud conflicts: newest wins, the older copy to the Trash (skips services) |
 | every 15 min | `arise-idle-apps.timer` | idle desktop programs stopped |
+| every 5 min | `arise-mailfwd.timer` | staff addresses forwarded from Resend (off until `[mailfwd] enabled`) |
 | every 15 min | `arise-repos.timer` | the Arise repos synced two-way with GitHub |
 | monthly | `arise-drill.timer` | the restore drill |
+| Jan 5 09:12 | `arise-january.timer` | the January clean-up report and the Google export reminder (lists; never deletes) |
 | Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |
 | Sun 23:30 | `arise-clamscan.timer` | the virus scan of the shares |
 | 23:00 / 06:00 | `arise-monitor-off/on.timer` | the closet panel sleeps and wakes |

@@ -10,7 +10,7 @@
     arisectl group list|add <group>|addmember <group> <user>|removemember <group> <user>
     arisectl computer list|remove <name>
     arisectl share list|add <name> <path> [--group G] [--comment C]|remove <name>
-    arisectl backup status|jobs|run [job]|snapshots|restore <id|latest> [--tag T] [--at DATE] [--path P] --target DIR|verify|prune|drill
+    arisectl backup status|jobs|run [job]|snapshots|restore <id|latest> [--tag T] [--at DATE] [--path P] --target DIR|verify|prune|drill|offsite
     arisectl trash list|sweep [--dry-run]|empty <share>          the Trash on every share (30 days, then the sweep)
     arisectl offboard list|mark <user> --to <user>|cancel <user>|sweep [--dry-run]   someone leaving: 30 days, then disabled, files to the next person
     arisectl browser [status|apply|policy]                      Firefox on the closet monitor: what is installed, rewrite the policy and theme, print the policy
@@ -33,11 +33,13 @@
     arisectl link list|revoke <token>|sweep
     arisectl devices list|scan [--wide]|behind|cameras|name <mac> <name>   everything on the switch, strays, cameras
     arisectl mail status|contacts|import <wix.csv>|test <to> <subject>       the church family list (Resend)
+    arisectl mail forward [status|run|export <first.last>]   staff addresses, forwarding only (round 7, 155)
     arisectl remote status|add-peer <name>
-    arisectl notify test|send
+    arisectl notify test [alerts|sunday|weekly|daily]|send|discord
+    arisectl upkeep hourly|january|changes|health   round 7: the hourly checks, the January report, the change record, disk health
     arisectl security                   the Security app's rows: encryption, scan, certificate, two-step, rescue
     arisectl twofa list|reset <user>    who has two-step sign-in on; reset = turn it off for someone who lost the phone
-    arisectl rescue status|rotate|card  the break-glass admin arise-rescue (console and SSH only)
+    arisectl rescue status|rotate|card  the break-glass admin arise-rescue (console only); card writes the closet card
     arisectl encrypt status|tpm         LUKS and the TPM: is the disk encrypted, does the TPM unlock it (clevis)
     arisectl snapshot create "<note>"|list|restore <name>|prune   system snapshots (Timeshift), 5 kept, never during a service
     arisectl scan status|run|restore <file>   the weekly ClamAV scan of the shares; restore puts a quarantined file back
@@ -115,6 +117,32 @@ def show(res):
 def need_root():
     if os.name != "nt" and hasattr(os, "geteuid") and os.geteuid() != 0:
         sys.exit("arisectl: this needs root. Run it with sudo.")
+
+
+def _actor() -> str:
+    """Who ran this: the sudo user, "+claude" when Claude Code ran it (its shell carries CLAUDECODE).
+    Round 7, 140: the change record in About says Bradly, Kristina or Claude."""
+    who = os.environ.get("SUDO_USER") or os.environ.get("USER") or "root"
+    return who + ("+claude" if os.environ.get("CLAUDECODE") else "")
+
+
+# Verbs that only read: not a change, not in the change record.
+READ_ONLY = {"status", "list", "jobs", "snapshots", "info", "doctor", "templates", "catalog", "logs", "report", "holds",
+             "worklist", "contacts", "behind", "cameras", "changes", "health", "discord", "people", "conflicts", "verify", None}
+
+
+def _record_change(a) -> None:
+    sub = getattr(a, "sub", None)
+    if a.cmd in ("doctor", "info", "audit", "service-now", "security", "storage", "automations") or sub in READ_ONLY:
+        return
+    if os.name == "nt" or not hasattr(os, "geteuid") or os.geteuid() != 0:
+        return   # only root changes the box; a non-root read never lands in the record
+    try:
+        from arise_server import audit
+        target = " ".join(str(x) for x in (getattr(a, "name", None), getattr(a, "job", None)) if x)
+        audit.record(_actor(), f"arisectl.{a.cmd}" + (f".{sub}" if sub else ""), target[:80])
+    except Exception:  # noqa: BLE001 - the command itself never fails because of the record
+        pass
 
 
 # ---- commands -----------------------------------------------------------------
@@ -358,7 +386,7 @@ def cmd_directory(a):
         text = Path(a.file).read_text(encoding="utf-8-sig")
     except OSError as e:
         sys.exit(f"could not read {a.file}: {e}")
-    r = profiles.import_people(text, bool(a.apply), os.environ.get("SUDO_USER") or "arisectl")
+    r = profiles.import_people(text, bool(a.apply), _actor())
     if not r.get("ok"):
         bad(r.get("err", "the list was refused")); sys.exit(1)
     head(("creating" if a.apply else "checking (nothing is created without --apply)") + f": {len(r['rows'])} rows, mail @{r['mail_domain']}, realm {r['realm']}")
@@ -531,7 +559,23 @@ def cmd_backup(a):
             print("  … forget/prune", flush=True)
             r = backups.forget_prune()
             (ok if r.get("ok") else bad)("prune " + ("done" if r.get("ok") else (r.get("err") or "")[:200]))
+            # Round 7, 53/54: Arise-Home is the off-site copy; raw recordings never go.
+            print("  … off-site copy", flush=True)
+            o = backups.offsite_copy()
+            if o.get("skipped"):
+                warn(f"off-site: {o.get('note')}")
+            elif o.get("ok"):
+                (warn if o.get("warning") else ok)("off-site: " + (o.get("warning") or o.get("note") or f"{o.get('copied', 0)} snapshots on Arise-Home"))
+            else:
+                failed += 1; bad(f"off-site: {o.get('error')}")
         sys.exit(1 if failed else 0)
+    elif a.sub == "offsite":
+        need_root()
+        o = backups.offsite_copy()
+        if o.get("ok"):
+            (warn if o.get("warning") or o.get("skipped") else ok)(o.get("warning") or o.get("note") or f"{o.get('copied', 0)} snapshots on Arise-Home")
+        else:
+            bad(o.get("error")); sys.exit(1)
     elif a.sub == "snapshots":
         s = backups.snapshots(limit=200)
         table([{"id": x["id"], "time": str(x["time"])[:16], "tags": ",".join(x.get("tags", [])), "paths": " ".join(x.get("paths", []))} for x in s["snapshots"]], ["id", "time", "tags", "paths"])
@@ -551,6 +595,10 @@ def cmd_backup(a):
     elif a.sub == "drill":
         need_root()
         r = backups.drill(quiet=a.quiet)
+        # Round 7, 56: the drill's result is a line in Discord #weekly (once per drill).
+        from arise_server import discord
+        discord.post("weekly", backups.drill_line(r), key=f"drill:{str(r.get('when', ''))[:16]}",
+                     fix="" if r.get("ok") else "sudo arisectl backup drill")
         if a.quiet:
             sys.exit(0 if r.get("ok") else 1)
         (ok if r.get("ok") else bad)(f"drill {r.get('when', '')[:16]}: {r.get('file') or '-'} ({human_bytes(r.get('bytes'))}) from snapshot {r.get('snapshot') or '-'}")
@@ -757,6 +805,31 @@ def cmd_nas(a):
 
 def cmd_mail(a):
     from arise_server import mail
+    if a.sub == "forward":
+        # Round 7, 155: first.last@ad.arisecenla.com, forwarding only (arise-mailfwd.timer runs `forward run`).
+        from arise_server import mailfwd
+        what = a.arg1 or "status"
+        if what == "run":
+            need_root()
+            r = mailfwd.run_once()
+            if r.get("skipped"):
+                warn(r["skipped"])
+            elif r.get("ok"):
+                ok(f"{r.get('arrived', 0)} arrived, {r.get('forwarded', 0)} forwarded")
+            else:
+                bad(r.get("err")); sys.exit(1)
+        elif what == "export":
+            need_root()
+            if not a.arg2:
+                sys.exit("arisectl mail forward export <first.last>")
+            r = mailfwd.export(a.arg2)
+            print(r["csv"], end="")
+            warn(r["note"])
+        else:
+            st = mailfwd.status()
+            (ok if st["enabled"] else warn)(f"forwarding is {'on' if st['enabled'] else 'off'} for @{st['domain']}" + (f"; last run {st['last_run']}" if st.get("last_run") else ""))
+            table([{"alias": x["alias"], "to": x["to"] or "-", "on": "yes" if x["enabled"] else "no", "note": x.get("why", "")} for x in st["aliases"]], ["alias", "to", "on", "note"])
+        return
     if a.sub == "status":
         st = mail.status()
         for k in ("provider", "configured", "from_name", "from_email", "reply_to", "audience_id"):
@@ -976,11 +1049,11 @@ def cmd_offboard(a):
     elif a.sub == "mark":
         need_root()
         if not a.name or not a.to: sys.exit("arisectl offboard mark <user> --to <who takes the files>")
-        show(offboard.start(a.name, a.to, os.environ.get("SUDO_USER") or "root", days=a.days))
+        show(offboard.start(a.name, a.to, _actor(), days=a.days))
     elif a.sub == "cancel":
         need_root()
         if not a.name: sys.exit("arisectl offboard cancel <user>")
-        show(offboard.cancel(a.name, os.environ.get("SUDO_USER") or "root"))
+        show(offboard.cancel(a.name, _actor()))
     elif a.sub == "sweep":
         if not a.dry_run: need_root()
         r = offboard.sweep(dry_run=a.dry_run)
@@ -1083,11 +1156,42 @@ def cmd_remote(a):
         print("\n--- paste this into the WireGuard app on that computer ---\n" + r["config"])
 
 
+def cmd_upkeep(a):
+    """Round 7: the hourly checks, the January report, the change record, disk health."""
+    from arise_server import upkeep
+    if a.sub == "hourly":
+        r = upkeep.hourly()
+        (ok if not r["items"] else warn)(f"{r['items']} item(s) need you; posted to #alerts now: {', '.join(r['posted']) or 'nothing new'}")
+    elif a.sub == "january":
+        need_root()
+        r = upkeep.january()
+        print(upkeep.january_text(r["report"]))
+        (ok if r["posted"].get("ok") else warn)("posted to #weekly" if r["posted"].get("ok") else f"not posted: {r['posted'].get('err')}")
+    elif a.sub == "changes":
+        rows = upkeep.changes(limit=a.limit or 40)["changes"]
+        table([{"when": str(x["when"])[:16], "who": x["who"], "what": x["what"], "target": str(x["target"])[:40]} for x in rows], ["when", "who", "what", "target"])
+    elif a.sub == "health":
+        disks = upkeep.disks_health()
+        table([{"disk": d["dev"], "model": d["model"][:30], "health": "ok" if not d["why"] else "REPLACE", "temp": d["temp"] if d["temp"] is not None else "-", "why": "; ".join(d["why"])} for d in disks], ["disk", "model", "health", "temp", "why"])
+        if not disks:
+            warn("no disks read (smartctl missing? sudo apt install smartmontools)")
+        for it in upkeep.health(fresh=True):
+            (bad if it["level"] == "bad" else warn)(it["text"])
+
+
 def cmd_notify(a):
     need_root()
     from arise_server import system
     if a.sub == "test":
-        show(system.send_webhook("Arise Server: test note from arisectl."))
+        if a.channel:   # docs/DISCORD.md: one of the four channels
+            from arise_server import discord
+            show(discord.test(a.channel))
+        else:
+            show(system.send_webhook("Arise Server: test note from arisectl."))
+    elif a.sub == "discord":
+        from arise_server import discord
+        st = discord.status()
+        (ok if not st["missing"] else warn)(f"set: {', '.join(st['set']) or 'none'}; missing: {', '.join(st['missing']) or 'none'} ({st['file']})")
     elif a.sub == "send":
         from arise_server.main import overview as _ov
         o = _ov(None)
@@ -1137,14 +1241,23 @@ def cmd_rescue(a):
             print(f"  {u.get('when')}  {u.get('via')}  from {u.get('from')}")
         if st.get("demo"): warn("sample data")
     elif a.sub == "rotate":
-        need_root(); show(security.rescue_rotate())
+        need_root(); r = security.rescue_rotate(); show(r)
+        if r.get("ok"):
+            from arise_server import upkeep
+            upkeep.write_cards()
+            warn("the closet card changed: print /etc/arise/CLOSET-CARD.html again; replace the one inside the closet and Kristina's copy")
     elif a.sub == "card":
+        # Round 7, 57/73: one card, taped INSIDE the closet, with arise-rescue's password on it.
+        # It is written to a root-only file and never printed here: a credential never reaches a
+        # terminal someone else might be reading, or a chat (CLAUDE.md rule 6).
         need_root()
-        p_ = Path("/etc/arise/SAFE-CARD.txt")
-        if not p_.exists():
-            sys.exit("no safe card yet: install.sh step 6j writes /etc/arise/SAFE-CARD.txt")
-        print(p_.read_text())
-        print("\n  (print this, put it in the safe, never on the closet door)")
+        from arise_server import upkeep
+        r = upkeep.write_cards()
+        if not r.get("ok"):
+            bad(r.get("err")); sys.exit(1)
+        ok(f"the card with the password: {r['private']} (root only). Open it in Firefox at the closet monitor, print it, tape it inside the closet; give Kristina a copy")
+        ok(f"the staff-share copy, password left out: {r['public']}")
+        if r.get("public_err"): warn(r["public_err"])
 
 
 def cmd_encrypt(a):
@@ -1458,7 +1571,7 @@ def cmd_cloud(a):
         need_root()
         if not (a.user and a.device):
             sys.exit('arisectl cloud app-password <first.last> "<device name>"   (shown once: type it into that device)')
-        r = cloud.app_password(a.user, a.device, by=os.environ.get("SUDO_USER", "root"))
+        r = cloud.app_password(a.user, a.device, by=_actor())
         if not r.get("ok"):
             bad(r.get("err")); sys.exit(1)
         print(f"  server:   {r['server']}\n  login:    {r['login']}\n  password: {r['app_password']}")
@@ -1467,7 +1580,7 @@ def cmd_cloud(a):
         need_root()
         if not a.user:
             sys.exit('arisectl cloud revoke <first.last> ["<device name>"]   (no device: every sign-in they have)')
-        show(cloud.revoke(a.user, a.device, by=os.environ.get("SUDO_USER", "root")))
+        show(cloud.revoke(a.user, a.device, by=_actor()))
     elif a.sub == "watch":
         need_root()
         cloud.watch()
@@ -1515,7 +1628,7 @@ def build():
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
     p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove", "folders"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.add_argument("--yes", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(f=cmd_share)
     p = sp.add_parser("quota"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply"]); p.set_defaults(f=cmd_quota)
-    p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
+    p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill", "offsite"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
     p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover", "unblock"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
     p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "catalog", "install-all", "autostart", "idle-sweep", "theme", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("value", nargs="?", help="autostart: on|off"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
@@ -1533,10 +1646,11 @@ def build():
     p = sp.add_parser("offboard"); p.add_argument("sub", choices=["list", "mark", "cancel", "sweep"]); p.add_argument("name", nargs="?"); p.add_argument("--to", help="mark: who takes the files"); p.add_argument("--days", type=int, default=30); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_offboard)
     p = sp.add_parser("audit"); p.add_argument("q", nargs="?", help="words to match"); p.add_argument("--who"); p.add_argument("--failed", action="store_true"); p.add_argument("--limit", type=int, default=50); p.set_defaults(f=cmd_audit)
     p = sp.add_parser("trash"); p.add_argument("sub", choices=["list", "sweep", "empty"]); p.add_argument("share", nargs="?", help="empty: the share whose Trash goes (typed again to confirm)"); p.add_argument("--dry-run", action="store_true", help="sweep: show what would go"); p.add_argument("--quiet", action="store_true", help="sweep: print nothing (the daily timer)"); p.set_defaults(f=cmd_trash)
-    p = sp.add_parser("mail"); p.add_argument("sub", choices=["status", "contacts", "import", "test"]); p.add_argument("arg1", nargs="?"); p.add_argument("arg2", nargs="?"); p.set_defaults(f=cmd_mail)
+    p = sp.add_parser("mail"); p.add_argument("sub", choices=["status", "contacts", "import", "test", "forward"]); p.add_argument("arg1", nargs="?"); p.add_argument("arg2", nargs="?"); p.set_defaults(f=cmd_mail)
     p = sp.add_parser("devices"); p.add_argument("sub", choices=["list", "scan", "behind", "cameras", "name"]); p.add_argument("mac", nargs="?"); p.add_argument("value", nargs="?"); p.add_argument("--quiet", action="store_true"); p.add_argument("--wide", action="store_true", help="also scan the common ranges a device may be parked on"); p.set_defaults(f=cmd_devices)
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
-    p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send"]); p.set_defaults(f=cmd_notify)
+    p = sp.add_parser("upkeep"); p.add_argument("sub", choices=["hourly", "january", "changes", "health"]); p.add_argument("--limit", type=int); p.set_defaults(f=cmd_upkeep)
+    p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send", "discord"]); p.add_argument("channel", nargs="?", choices=["alerts", "sunday", "weekly", "daily"], help="test: post to this Discord channel"); p.set_defaults(f=cmd_notify)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "refresh", "queue", "apply", "apt", "self"]); p.add_argument("name", nargs="?", help="queue: a package, an app, 'reboot', 'all' or 'clear'"); p.add_argument("rest", nargs="*")
     p.add_argument("--now", action="store_true", help="(apply) the same as the Saturday run, right now"); p.add_argument("--no-snapshot", action="store_true", help="(apply) go without the system snapshot"); p.add_argument("--quiet", action="store_true", help="(apply) for the timer: log only, exit 1 on failure"); p.set_defaults(f=cmd_update)
     sp.add_parser("security").set_defaults(f=cmd_security)
@@ -1563,6 +1677,7 @@ def main():
     for needed in (("service", ("status", "start", "stop", "restart")), ("user", ("add", "remove", "passwd", "enable", "disable", "homefix")), ("group", ("add", "addmember", "removemember")), ("computer", ("remove",)), ("share", ("add", "remove")), ("app", ("deploy", "start", "stop", "restart", "update", "remove", "logs", "autostart", "theme")), ("automations", ("pause", "resume"))):
         if a.cmd == needed[0] and a.sub in needed[1] and not a.name:
             sys.exit(f"arisectl {a.cmd} {a.sub} needs a name")
+    _record_change(a)
     try:
         a.f(a)
     except KeyboardInterrupt:
