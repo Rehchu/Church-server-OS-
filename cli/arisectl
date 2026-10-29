@@ -44,6 +44,7 @@
     arisectl reinstall <restic-repo>    rebuild this box from the Synology's backup (docs/REINSTALL.md)
     arisectl archive status|build [--full]|search <words>|setup   the searchable archive of both repos (read-only, docs/ARCHIVE.md)
     arisectl service-now [--quiet]      exit 0 = no service on, 1 = a service is on (the timers' ExecCondition)
+    arisectl cloud [status|people|setup [--dry-run]|sweep [--dry-run]|conflicts|app-password <user> "<device>"|revoke <user> ["<device>"]|watch]   Mac and phone syncing (Nextcloud, docs/SYNC.md)
     arisectl update [check|refresh|queue|apply|apt]   Software Update: what waits, what Bradly queued, the Saturday 03:30 apply
     arisectl update apply [--now] [--no-snapshot] [--quiet]   install the queue (refuses during a service; snapshot first)
 
@@ -1379,6 +1380,61 @@ def cmd_archive(a):
         sys.exit(f"cannot read {acfg.index}: the archive is readable by the group arise-claude and root (sudo arisectl archive setup adds you)")
 
 
+def cmd_cloud(a):
+    """Mac and phone syncing: Nextcloud over the homes and shares (round 6, docs/SYNC.md)."""
+    from arise_server import cloud
+    if a.sub == "status":
+        s = cloud.status()
+        (ok if s.get("running") else bad if s.get("running") is False else warn)(f"Nextcloud at {s['url']}: " + {True: "running", False: "not running", None: "Docker not here"}[s.get("running")])
+        print(f"  {s['mounts']} folders mounted; {', '.join(s['sync_folders'])} sync in full; conflicts: {s['conflicts']} wins; client {s['client']}")
+        if s.get("demo"): warn("sample data")
+    elif a.sub == "people":
+        r = cloud.people()
+        table([{"person": p["user"], "devices": ", ".join(d["device"] + (" (revoked)" if d.get("revoked") else "") for d in p["devices"]) or "-",
+                "last sync": (p["last_sync"] or "never")[:16], "conflicts": p["conflicts"],
+                "storage": f"{human_bytes(p['storage'].get('used'))} of {human_bytes(p['storage'].get('quota')) if p['storage'].get('quota') else 'no limit'}"}
+               for p in r["people"]], ["person", "devices", "last sync", "conflicts", "storage"])
+    elif a.sub == "setup":
+        need_root()
+        r = cloud.setup(dry_run=a.dry_run)
+        if r.get("dry_run"):
+            head("would run"); [print("  " + x) for x in r.get("account", []) + r.get("plan", [])]
+            print(f"  + {len(r.get('mounts', []))} mounts, the ACLs on the homes and shares, each home linked")
+            return
+        for s in r.get("steps", []):
+            (ok if s.get("ok", True) else bad)(s["step"] + ("" if s.get("ok", True) else f": {s.get('err', '')}"))
+        if not r.get("ok"):
+            bad(r.get("err") or "some steps failed (above)"); sys.exit(1)
+        ok(f"Nextcloud is ariseOS's: {r.get('url')}")
+    elif a.sub == "sweep":
+        need_root()
+        r = cloud.sweep(dry_run=a.dry_run)
+        if a.quiet:
+            sys.exit(0 if r.get("ok") else 1)
+        for m in r.get("moved", []):
+            print(f"  {m['file']}: kept the {m['kept']}" + (f"; older copy in {m['trash']}" if m.get("trash") else "") + (f" ({m['error']})" if m.get("error") else ""))
+        ok(f"{'would settle' if a.dry_run else 'settled'} {len(r.get('moved', []))} conflict(s) of {r.get('checked', 0)} found")
+    elif a.sub == "conflicts":
+        table([{"when": c["t"][:16], "file": c["file"], "kept": c["kept"], "older copy": c.get("trash", "-")} for c in cloud.conflicts(50)["conflicts"]], ["when", "file", "kept", "older copy"])
+    elif a.sub == "app-password":
+        need_root()
+        if not (a.user and a.device):
+            sys.exit('arisectl cloud app-password <first.last> "<device name>"   (shown once: type it into that device)')
+        r = cloud.app_password(a.user, a.device, by=os.environ.get("SUDO_USER", "root"))
+        if not r.get("ok"):
+            bad(r.get("err")); sys.exit(1)
+        print(f"  server:   {r['server']}\n  login:    {r['login']}\n  password: {r['app_password']}")
+        warn("shown once; it signs in this one device only. Revoke: arisectl cloud revoke " + r["login"] + f' "{a.device}"')
+    elif a.sub == "revoke":
+        need_root()
+        if not a.user:
+            sys.exit('arisectl cloud revoke <first.last> ["<device name>"]   (no device: every sign-in they have)')
+        show(cloud.revoke(a.user, a.device, by=os.environ.get("SUDO_USER", "root")))
+    elif a.sub == "watch":
+        need_root()
+        cloud.watch()
+
+
 def cmd_service_now(a):
     """The scheduled jobs' gate (ExecCondition=): nothing runs during a service.
 
@@ -1453,6 +1509,8 @@ def build():
     p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
     p = sp.add_parser("archive"); p.add_argument("sub", choices=["status", "build", "search", "setup"]); p.add_argument("words", nargs="*", help="search: the words (\"quoted phrase\" kept)"); p.add_argument("--full", action="store_true", help="build: the full rebuild (the Wednesday one)"); p.add_argument("--kind"); p.add_argument("--repo"); p.add_argument("--history", action="store_true", help="search: include past states"); p.add_argument("--limit", type=int, default=10); p.set_defaults(f=cmd_archive)
     p = sp.add_parser("service-now"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_service_now)
+    p = sp.add_parser("cloud"); p.add_argument("sub", nargs="?", default="status", choices=["status", "people", "setup", "sweep", "conflicts", "app-password", "revoke", "watch"])
+    p.add_argument("user", nargs="?"); p.add_argument("device", nargs="?"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_cloud)
     p = sp.add_parser("reinstall"); p.add_argument("name", nargs="?", help="the restic repository, e.g. /mnt/synology/arise-backups/restic"); p.set_defaults(f=cmd_reinstall)
     return ap
 

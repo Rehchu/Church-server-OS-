@@ -318,7 +318,7 @@ def list_apps() -> dict:
         ports = _ports(name)
         meta = _app_meta(name)
         apps.append({"name": name, "template": meta.get("template", name), "source": meta.get("source", "template"), "status": "running" if "running" in s.get("Status", "") else "exited",
-                     "ports": ports, "cpu": st.get("cpu", 0.0), "mem": st.get("mem", 0), "url": _url(ports), "updated": meta.get("deployed"),
+                     "ports": ports, "cpu": st.get("cpu", 0.0), "mem": st.get("mem", 0), "url": _app_url(meta, ports), "updated": meta.get("deployed"),
                      "autostart": meta.get("autostart", True), "ram_mb": meta.get("ram_mb"), "limit_mb": (meta.get("limits") or {}).get("mem_mb")})
     return {"demo": False, "apps": apps, "docker": True, "ram_total_mb": ram_total_mb(), "reserve_mb": RESERVE_MB}
 
@@ -382,6 +382,14 @@ def _ports(project: str) -> list[str]:
             if p.get("PublishedPort"):
                 ports.append(f"{p['PublishedPort']}:{p.get('TargetPort')}")
     return sorted(set(ports))
+
+
+def _app_url(meta: dict, ports: list[str]) -> str:
+    """Nextcloud publishes on 127.0.0.1 only; people reach it through Caddy (round 6, docs/SYNC.md)."""
+    if meta.get("template") == "nextcloud":
+        from . import cloud
+        return cloud.url()
+    return _url(ports)
 
 
 def _url(ports: list[str]) -> str:
@@ -485,6 +493,9 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
         yaml.safe_dump(doc, f, sort_keys=False, default_flow_style=False)
     tp = theme_plan(meta)
     defaults = dict(_template_env(template))
+    if template == "nextcloud":
+        from . import cloud
+        defaults.update(cloud.env_keys())   # this box's homes, shares and names (round 6, docs/SYNC.md)
     defaults.update(tp["env"])          # the house look where the app takes it through its env
     values, made = fill_secrets(defaults, env, _read_env(os.path.join(dest, ".env")))
     if tp["env"] and entry is not None:

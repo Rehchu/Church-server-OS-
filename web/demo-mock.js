@@ -808,8 +808,38 @@ function r5Get(p, q) {
 }
 
 
+// ===== R6-SYNC: the Sync panel (server/arise_server/cloud.py) =====
+const DEVICE_RE = /^[A-Za-z0-9][A-Za-z0-9 ._-]{0,59}$/;
+const cloudPeople = () => { if (!X.cloud) X.cloud = clone(get('GET /cloud/people') || { people: [] }); return X.cloud; };
+const cloudPerson = u => cloudPeople().people.find(p => p.user === u);
+function r6SyncGet(p) {
+  if (p === '/cloud/people') return cloudPeople();
+  if (p === '/cloud') { const st = clone(get('GET /cloud') || {}); st.devices = cloudPeople().people.reduce((n, x) => n + x.devices.filter(d => !d.revoked).length, 0); return st; }
+  return undefined;
+}
+route('POST', /^\/cloud\/app-password$/, b => {
+  const p = cloudPerson(String(b.user || '').toLowerCase()); const dev = String(b.device || '').trim();
+  if (!p) return fail('not a username');
+  if (!DEVICE_RE.test(dev)) return fail('name the device: letters, digits, spaces, . _ - (60 at most)');
+  p.devices = p.devices.filter(d => d.device !== dev).concat([{ device: dev, created: isoSec(), revoked: null, last_sync: null }]).sort((a, c) => a.device.localeCompare(c.device));
+  save();
+  return ok({ demo: true, user: p.user, device: dev, server: (get('GET /cloud') || {}).url || 'https://cloud.ad.arisecenla.com', login: p.user, app_password: 'preview-' + token(24) });
+});
+route('POST', /^\/cloud\/revoke$/, b => {
+  const p = cloudPerson(String(b.user || '').toLowerCase()); const dev = b.device ? String(b.device).trim() : null;
+  if (!p) return fail('not a username');
+  if (dev && !p.devices.some(d => d.device === dev)) return fail(`${p.user} has no device called ${dev}`);
+  const gone = []; for (const d of p.devices) if (!dev || d.device === dev) { if (!d.revoked) gone.push(d.device); d.revoked = isoSec(); d.last_sync = null; }
+  const live = p.devices.filter(d => !d.revoked && d.last_sync).map(d => d.last_sync).sort(); p.last_sync = live.length ? live[live.length - 1] : null;
+  save();
+  return ok({ demo: true, user: p.user, device: dev, revoked: gone });
+});
+route('POST', /^\/cloud\/sweep$/, () => inService() ? fail(`not during ${inService().name}: the sweep runs again after it`) : ok({ demo: true, moved: [], checked: 0 }));
+// ===== end R6-SYNC =====
+
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
+  const r6 = r6SyncGet(p); if (r6 !== undefined) return r6;   // the Sync panel (round 6)
   const r5 = r5Get(p, q); if (r5 !== undefined) return r5;   // profiles (round 5)
   const s = me();
   if (p === '/notifications') { const f = notesOf(s?.user); return { items: f.slice(0, +(q.get('limit') || 50)), unread: f.filter(n => !n.read).length }; }

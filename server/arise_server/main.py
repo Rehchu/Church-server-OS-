@@ -2091,6 +2091,77 @@ def api_public_faces(request: Request):
     return {"faces": faces}
 
 
+# ===== R6-SYNC: Mac and phone syncing (round 6, rows 13-19, 39, 40; docs/SYNC.md) =====
+from . import cloud  # noqa: E402
+
+
+class CloudDevice(BaseModel):
+    user: str
+    device: str = ""
+
+
+@app.get("/api/cloud")
+def api_cloud(_=admin):
+    """Nextcloud at a glance: its address, running or not, the mounts, devices signed in."""
+    return cloud.status()
+
+
+@app.get("/api/cloud/people")
+def api_cloud_people(_=admin):
+    """The Sync panel: per person, last sync, devices, conflicts settled, storage against the quota."""
+    return cloud.people()
+
+
+@app.get("/api/cloud/conflicts")
+def api_cloud_conflicts(limit: int = 100, _=admin):
+    """Newest wins (row 15): what each conflict kept and which Trash the older copy is in."""
+    return cloud.conflicts(max(1, min(int(limit), 1000)))
+
+
+@app.post("/api/cloud/app-password")
+def api_cloud_app_password(body: CloudDevice, who=admin):
+    """A device app password for a phone or a Mac set up by hand: shown once, never stored."""
+    return cloud.app_password(body.user, body.device.strip(), by=who["user"])
+
+
+@app.post("/api/cloud/revoke")
+def api_cloud_revoke(body: CloudDevice, who=admin):
+    """Cut off one device of a person, or (no device) every sign-in they have."""
+    return cloud.revoke(body.user, body.device.strip() or None, by=who["user"])
+
+
+@app.post("/api/cloud/sweep")
+def api_cloud_sweep(who=admin):
+    """Settle the conflict copies now (the hourly timer does the same). Never during a service."""
+    svc = church.in_service_now()
+    if svc:
+        return {"ok": False, "err": f"not during {svc['name']}: the sweep runs again after {svc['ends_at']}"}
+    r = cloud.sweep()
+    audit.record(who["user"], "cloud.sweep", "", detail=f"{len(r.get('moved', []))} settled")
+    return r
+
+
+@app.post("/api/cloud/agent/app-password")
+async def api_cloud_agent_app_password(request: Request):
+    """The Mac helper's nextcloud task (mac/helper/tasks/nextcloud.sh): its Mac key in X-Arise-Mac,
+    and only for a task an admin queued on that Mac. Plain text: APP_PASSWORD= and CLOUD_URL=."""
+    def txt(s: str, code: int = 200) -> Response:
+        return Response(s + "\n", status_code=code, media_type="text/plain", headers={"Cache-Control": "no-store"})
+    try:
+        from . import macs as church_macs_
+    except ImportError:
+        return txt("ERROR the Macs app is not on this server", 404)
+    mac = church_macs_.agent_auth(request.headers.get("x-arise-mac", ""))
+    if not mac:
+        return txt("ERROR not an enrolled church Mac", 401)
+    f = await request.form()
+    r = cloud.agent_app_password(mac, str(f.get("user", "")), str(f.get("local", "")))
+    if not r.get("ok"):
+        return txt("ERROR " + str(r.get("err", "refused")).replace("\n", " "), 403)
+    return txt(f"APP_PASSWORD={r['app_password']}\nCLOUD_URL={r['server']}\nLOGIN={r['login']}\nDEVICE={r['device']}")
+# ===== end R6-SYNC =====
+
+
 # ----- the dashboard -----------------------------------------------------------
 WEB = cfg.web_dir
 if WEB.is_dir():

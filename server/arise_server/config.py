@@ -43,6 +43,18 @@ DEFAULTS = {
         "dns_forwarder": "1.1.1.1",
         "homes_path": _root("/srv/arise/homes", r"C:\Arise\data\homes"),
     },
+    # Mac and phone syncing (round 6, rows 13-19, 39, 40): Nextcloud over the home folders and shares.
+    "cloud": {
+        "enabled": True,
+        "host": "",                     # empty: cloud.<realm in lower case>, the church network and Tailscale only
+        "container": "arise-app-nextcloud",
+        "www_uid": 33,                  # the official image's www-data; the ACLs give it rwX on homes and shares
+        "data_dir": "",                 # empty: /srv/arise/apps/nextcloud/data (Nextcloud's own records; the files are the homes)
+        "sync_folders": ["Desktop", "Documents"],   # row 13: what each Mac profile syncs in full
+        "conflicts": "newest",          # row 15: the newer copy keeps the name; the older goes to the Trash
+        "client_version": "3.14.3",     # the Nextcloud desktop client the Mac helper installs
+        "client_team_id": "NKUJUXUJ3B", # Nextcloud GmbH's Apple Developer ID team; the pkg's signature must name it
+    },
     # Bradly's Linux account (Oct 28): runs the 02:05 job, sudo without a password. install.sh fills it in.
     "owner": {"user": ""},
     "automator": {

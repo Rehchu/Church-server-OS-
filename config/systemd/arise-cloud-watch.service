@@ -1,0 +1,17 @@
+[Unit]
+Description=Arise Server sync watcher (a change made over SMB or in the dashboard reaches every Nextcloud client)
+Documentation=file:///opt/arise/docs/SYNC.md
+After=docker.service local-fs.target
+Wants=docker.service
+
+[Service]
+# inotify over the homes and shares; every few seconds, `occ files:scan --shallow` of just the
+# folders that changed (server/arise_server/cloud.py watch). Reads and rescans, never writes a file.
+ExecStart=/usr/local/bin/arisectl cloud watch
+Restart=always
+RestartSec=30
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target

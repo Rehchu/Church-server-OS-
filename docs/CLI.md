@@ -73,6 +73,15 @@ arisectl trash list                 what sits in every share's Trash, oldest fir
 arisectl trash sweep [--dry-run]    remove what is older than 30 days (arise-trash.timer, 04:30); also stale upload parts
 arisectl trash empty <share>        the whole Trash of one share; the share's name typed again
 
+arisectl cloud [status]             Nextcloud, the Macs' and phones' sync (docs/SYNC.md): running, its address, the folders
+arisectl cloud people               per person: devices, last sync, conflicts settled, storage against the quota
+arisectl cloud setup [--dry-run]    make Nextcloud ariseOS's: the directory account, the mounts, the theme, each home linked
+arisectl cloud app-password <user> "<device>"   a device password for a phone or a Mac set up by hand (shown once)
+arisectl cloud revoke <user> ["<device>"]       cut one device off, or every sign-in the person has
+arisectl cloud sweep [--dry-run]    settle conflict copies: newest wins, the older to the Trash (arise-cloud-conflicts.timer, hourly)
+arisectl cloud conflicts            what the sweep settled, newest first
+arisectl cloud watch                the watcher arise-cloud-watch.service runs (SMB changes reach the clients)
+
 arisectl update [check]             Software Update: what waits (security vs the rest), app images, reboot needed
 arisectl update refresh             apt update and re-read
 arisectl update queue <pkg|app|reboot|all|clear>   what the Saturday 03:30 run installs
