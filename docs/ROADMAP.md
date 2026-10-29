@@ -89,7 +89,7 @@ decisions not yet built, grouped. Costs are honest estimates.
 | Easter eggs, the anniversary | the Konami code lights the flame, a verse typed in Spotlight, the About flame on the anniversary; only the year 2018 is known, no day is invented (83, 84) | the founding date, if there is one | small |
 | The reboot rule | the Saturday reboot waits until nobody is signed in (92) | nothing | small |
 | Time Machine, the Synology layout, the disk split | two backups per Mac kept; three drives one volume and one drive for the backups; the partition plan (58, 55, 91) | the Synology model and the PCs' specs on Friday | a day |
-| Decided, nothing built | no prayer box (93), no hot corners, no Wake-on-LAN (41), no remote Mac screens (42), no chat server (89), Nextcloud stays stopped (90), Cockpit stays (34), KJV (51), Proclaim keeps the lobby TV (10), the automator keeps its PC backups and the server runs the real job (95, 96), the YouTube token question is with the automator chat (97) | | |
+| Decided, nothing built | no prayer box (93), no hot corners, no Wake-on-LAN (41), no remote Mac screens (42), no chat server (89), Nextcloud stays stopped (90; replaced by round 6, 14: it is the sync now), Cockpit stays (34), KJV (51), Proclaim keeps the lobby TV (10), the automator keeps its PC backups and the server runs the real job (95, 96), the YouTube token question is with the automator chat (97) | | |
 
 ## v0.9 "Leviticus": Sunday
 

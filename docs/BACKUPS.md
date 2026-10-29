@@ -66,9 +66,9 @@ drill also checks that the newest `system` snapshot holds
 `/etc/arise/arise.toml` and a domain backup tarball, so a reinstall would
 have what it needs.
 
-Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than the old 14/8/12 default; docs/ANSWERS.md 47)
-per job. A file deleted on a Tuesday is in last night's snapshot for two weeks,
-in a weekly for two months, in a monthly for a year.
+Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than restic's usual default; docs/ANSWERS.md 47)
+per job. A file deleted on a Tuesday is in a daily snapshot for a month,
+in a weekly for about three months, in a monthly for two years.
 
 The run order matters: the automator must be finished before its folder is
 snapshotted, and the mirror must be refreshed before the next snapshot. If the

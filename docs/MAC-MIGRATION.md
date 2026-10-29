@@ -78,10 +78,11 @@ home over SMB makes Photos, Mail and Safari misbehave, so this is the honest
 replacement: the two folders people actually work in live on the server, and
 a sync catches the rest.
 
-Round 6 (docs/MACS.md): Desktop and Documents are to sync through the
-Nextcloud client, set up by the Mac helper's `nextcloud` task.
-`arise-home-sync.sh` is the fallback until that is in, and stays the fallback
-on any Mac where the Nextcloud client is not running.
+Round 6 (docs/MACS.md, docs/SYNC.md): Desktop and Documents sync through
+the Nextcloud client, set up by the Mac helper's `nextcloud` task.
+`arise-home-sync.sh` stands down for any account Nextcloud syncs, so two
+programs never write the same folders; it stays the fallback on a Mac where
+the Nextcloud client is not running.
 
 What stays on the Mac on purpose, and why:
 

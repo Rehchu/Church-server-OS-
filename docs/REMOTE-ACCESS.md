@@ -10,8 +10,9 @@ members is a separate decision, docs/SETUP-GUIDE.md § 9.
 Which VLAN may reach which port, how a whole site (Alexandria) joins
 through one route box, and what happens to all of this when the server moves
 to the Hub are in **docs/NETWORK.md** and **docs/MOVING-DAY.md**; the order to
-set it all up is **docs/SETUP-GUIDE.md**. Members (not just the admin) can
-sign in to the dashboard too; what they see is docs/SETUP-GUIDE.md § 6.
+set it all up is **docs/SETUP-GUIDE.md**. Only the four admins use the
+dashboard; staff and volunteers reach their files through Nextcloud over
+Tailscale (docs/SYNC.md, docs/ANSWERS.md round 5, 41).
 
 Four doors, in the order you will use them:
 
@@ -140,6 +141,9 @@ The dashboard's **Remote** app reads `tailscale status` and shows every
 device, online or not, and which site it belongs to.
 
 ### WireGuard — self-hosted, nothing in the middle
+
+**Not used at Arise:** Bradly chose Tailscale only, with nothing forwarded
+on any router (docs/ANSWERS.md 36, 111). This section stays for reference.
 
 Plain WireGuard on the server. You own every key; nobody relays anything.
 The price is the plumbing: a port forward, a public name, and a config file

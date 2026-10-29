@@ -9,6 +9,8 @@ Arise Server turns an old PC into the church's own server:
 - the **nightly YouTube automator** (`arise_daily.py`) on a systemd timer at 02:05 Central, its reports on the dashboard
 - **backups** with restic to the Synology at 03:00, every run recorded, failures in red, plus a mirror of every GitHub repo
 - a **Store** of Docker Compose apps: 26 templates preinstalled within the box's memory, a catalogue of 35 more free ones, each capped and wearing the house look where it allows
+- the **church Macs** run by the server, the church's own Active Directory with no Microsoft licence: a small helper on each church Mac (never a personal one) adds and removes accounts, waits for an admin's choice on local accounts (Convert, Link or Leave alone), keeps FileVault's key and a hidden admin's password on the server, and adds printers, bookmarks and security updates (docs/MACS.md)
+- **Desktop and Documents synced** from every Mac and phone to the server through Nextcloud, newest wins with the older copy in the Trash (docs/SYNC.md). Staff and volunteers just use their Macs; the four admins use the OS at the closet monitor
 - the **Synology** joined to the domain, mounted, and watched
 - **remote access for a server in a locked closet**: key-only SSH, a VPN (Tailscale recommended, native WireGuard or wg-easy as the self-hosted option), Guacamole remote desktop to any church computer from a browser tab, HTTPS with the server's own CA, a Terminal app in the dashboard
 - **three sites on one server**: Pineville (main), Arise Church Alexandria and the Apostolic Hub reach it over the VPN; a Campuses app watches each one
@@ -24,7 +26,7 @@ Plain Python 3.11+ and plain HTML/CSS/JS. No Node build step. The whole thing ru
 
 ## Status
 
-**v0.8.0 "Exodus" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, every app template deployed with the light ones running (INSTALL.md § What is running), and the safety basics (docs/SECURITY.md). Thirty-one numbered apps in the dashboard (docs/DASHBOARD.md), a catalogue of 35 more free apps in the Store (docs/STORE.md), and the full map against Windows 11 and macOS in docs/PARITY.md. The next block is the two nodes, Arise-Pineville and Arise-Home (docs/NODES.md), once Friday's specs say which PC is which. Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
+**v0.8.0 "Exodus" — built, not yet installed on the church PC.** One run of the installer brings up the OS desktop, the domain, every app template deployed with the light ones running (INSTALL.md § What is running), and the safety basics (docs/SECURITY.md). Thirty-three numbered apps in the dashboard (docs/DASHBOARD.md), a catalogue of 35 more free apps in the Store (docs/STORE.md), and the full map against Windows 11 and macOS in docs/PARITY.md. The next block is the two nodes, Arise-Pineville and Arise-Home (docs/NODES.md), once Friday's specs say which PC is which. Start with [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md); the open questions are in [docs/QUESTIONS.md](docs/QUESTIONS.md). The PC's specs and the Synology model are still to come; `docs/HARDWARE.md` is the checklist. Until then: the unit tests pass, the dashboard and CLI run end to end in sample mode, the Ubuntu installer passes `bash -n` and a full `--dry-run` (with every remote-access flag), and the PowerShell installer has been checked statically only (no Windows here).
 
 What has **not** been run against a real Samba domain, a real Synology, a real restic repository, a real Tailscale or WireGuard tunnel or a real Guacamole: every call is written against the tools' documented interfaces, and `arisectl doctor` is there to find the first thing that disagrees.
 
@@ -88,9 +90,9 @@ Full guide: [INSTALL.md](INSTALL.md).
 | Macs with profiles and files on the server | Mobile accounts (cached local home, works offline) plus the user's server home share mounted at login, Desktop and Documents kept there. `mac/migrate-mac-user.sh` moves an existing local account's data over with a manifest and never deletes. [docs/MAC-MIGRATION.md](docs/MAC-MIGRATION.md) |
 | The Synology | Joins the domain; holds the bulk files (`media`, optionally `homes`) on four drives; is the restic target; ships the off-site copy with Hyper Backup. [docs/SYNOLOGY.md](docs/SYNOLOGY.md) |
 | Run the automator | `arise-automator.timer` at 02:05 America/Chicago runs `automator/arise_daily.py` from the cloned `arise-youtube-automation` repo. Reports, worklist, holds and quota on the dashboard; preview (dry run) and run from there or `arisectl`. [docs/AUTOMATOR.md](docs/AUTOMATOR.md) |
-| Back up everything Arise | restic jobs: automator, homes, shares, app data, media, GitHub mirror, server config. Keep 14/8/12. History in the dashboard, restores by `arisectl backup restore`. [docs/BACKUPS.md](docs/BACKUPS.md) |
+| Back up everything Arise | restic jobs: automator, homes, shares, app data, media, GitHub mirror, server config. Keep 30 daily, 12 weekly, 24 monthly. History in the dashboard, restores by `arisectl backup restore`. [docs/BACKUPS.md](docs/BACKUPS.md) |
 | Run great, feel great | A dashboard laid out like a desktop (menu bar, windows, dock, launchpad) that streams live stats over SSE; square, ink-and-red, Anton and Oswald; works on a phone. [docs/DASHBOARD.md](docs/DASHBOARD.md) |
-| Reach it from anywhere | Key-only SSH, Tailscale or WireGuard, Guacamole remote desktop, HTTPS via Caddy, a Terminal app. Nothing forwarded on the router but UDP 51820 if WireGuard. [docs/REMOTE-ACCESS.md](docs/REMOTE-ACCESS.md) |
+| Reach it from anywhere | Key-only SSH, Tailscale or WireGuard, Guacamole remote desktop, HTTPS via Caddy, a Terminal app. Nothing forwarded on the router (Tailscale only). [docs/REMOTE-ACCESS.md](docs/REMOTE-ACCESS.md) |
 | Three sites | Pineville, Alexandria and the Apostolic Hub on one server over the VPN; Macs in Alexandria stay domain-joined. [docs/MULTI-SITE.md](docs/MULTI-SITE.md) |
 
 ---
@@ -183,15 +185,19 @@ arisectl notify test                            # the morning report, to the web
 | America/Chicago | What |
 |---|---|
 | 02:00 | YouTube quota resets (midnight Pacific) |
-| 02:05 | `arise-automator.timer` → `arise_daily.py` (worklist, holds, quota ledger, report) |
+| 02:05 | `arise-automator.timer` → `scripts/arise-nightly.sh` → `arise_daily.py`, as Bradly's own account, only when `runner.json` names this box (worklist, holds, quota ledger, report) |
 | 03:00 | `arise-backup.timer` → `arisectl backup run` (every job, then forget/prune) |
 | 04:00 | `arise-mirror.timer` → `arisectl mirror run` (bare mirrors of the GitHub repos) |
+| 04:15 | `arise-archive.timer` → the archive index, new files only (Wednesdays `arise-archive-rebuild.timer` rebuilds it in full) |
 | 04:30 | `arise-trash.timer` → `arisectl trash sweep` (what sat 30 days in a Trash goes) |
+| 05:15 | `arise-offboard.timer` → `arisectl offboard sweep` (leavers marked 30 days ago: files moved to whoever takes them) |
 | 07:00 | `arise-notify.timer` → `arisectl notify send` (off: no daily note; Discord's #daily is the morning report's place, docs/DISCORD.md) |
 | Sat 03:30 | `arise-update.timer` → `arisectl update apply` (only what was queued; a snapshot first) |
 | Sun 23:30 | `arise-clamscan.timer` → `arisectl scan run` (the shares, video skipped) |
 
-Timers are `Persistent=true`: if the PC was off, they run at next boot. A missed night is skipped, not lost.
+Through the day: `arise-repos.timer` every 15 minutes (`arisectl repos sync`), `arise-cloud-conflicts.timer` and `arise-devices.timer` hourly, `arise-idle-apps.timer` every 15 minutes.
+
+Most timers are `Persistent=true`: if the PC was off, they run at next boot. The automator is not, on purpose: a night missed to a power cut must not fire at 10 AM on a Sunday and spend the quota that day's service needs. A missed night is skipped; the worklist carries on the next.
 
 ---
 
@@ -199,7 +205,7 @@ Timers are `Persistent=true`: if the PC was off, they run at next boot. A missed
 
 ```
 README.md  INSTALL.md
-docs/            ARCHITECTURE (the contract) · DIRECTORY · MAC-MIGRATION · SYNOLOGY · BACKUPS · AUTOMATOR · HARDWARE · DASHBOARD · CLI · REMOTE-ACCESS · MULTI-SITE · EVERYDAY · FINDER · SYSTEM-APPS · STORE · SECURITY · REINSTALL · NODES · PARITY · ROADMAP · ANSWERS
+docs/            ARCHITECTURE (the contract) · DIRECTORY · MACS · SYNC · STAFF-FILES · BROWSER · REPOS · ARCHIVE · MAC-MIGRATION · SYNOLOGY · BACKUPS · AUTOMATOR · HARDWARE · DASHBOARD · CLI · REMOTE-ACCESS · MULTI-SITE · EVERYDAY · FINDER · SYSTEM-APPS · STORE · SECURITY · REINSTALL · NODES · PARITY · ROADMAP · ANSWERS
 catalog/         catalog.yaml, the Store's catalogue of further free apps
 CHANGELOG.md     What's New
 site/            the landing page (static)
@@ -229,7 +235,7 @@ Fixed names, from [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): hostname `arise-
 - **Never silent.** Every timer run writes a report or a history row, success or failure. The Overview's first panel is "Needs you", and the morning report says the same thing to the webhook.
 - **Deleting is Bradly's click.** Users, shares and apps need their name typed; home folders, share folders, app data and snapshots are never removed by the dashboard.
 - **Secrets never go to GitHub or the browser.**
-- **Nothing on the internet.** No router port is forwarded except UDP 51820 when WireGuard is chosen; SSH, the dashboard, the Terminal and the domain controller are reachable over the VPN only.
+- **Nothing on the internet.** No router port is forwarded (Tailscale only, docs/ANSWERS.md 36); SSH, the dashboard, the Terminal and the domain controller are reachable over the VPN only.
 - **Sample data is labelled.** No config, or a missing tool, means `"demo": true` and an amber badge.
 - **The automator's rules are the automator's.** This server runs `arise_daily.py` and shows its output; `holds.json`, the quota ledger and the chapter rules are untouched.
 

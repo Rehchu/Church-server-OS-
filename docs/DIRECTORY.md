@@ -302,7 +302,8 @@ is a join script from the dashboard that joins, maps the shares as drives
 and trusts the church certificate, nothing else; not yet built. Windows 10/11
 **Pro** or better (Home edition cannot join a domain):
 
-1. Make sure the PC's DNS is the server (it will be, from DHCP).
+1. Set the PC's DNS to the server in the PC's own network settings (the
+   router hands out its usual DNS and is not touched).
 2. Settings → System → About → **Domain or workgroup** → Change → Domain:
    `ad.arisecenla.com`.
 3. Credentials: `ARISE\administrator` (or Bradly's Domain Admin account).

@@ -32,10 +32,12 @@ ram_mb: 350            # an honest estimate at rest
 limits: {mem_mb: 768, cpus: 1.0}   # the cap written into every service
 ```
 
+Nextcloud is not in that list: since round 6 (14) it is the Macs' and
+phones' sync and starts with the box (docs/SYNC.md).
 `apps.autostart_plan` takes the autostart apps smallest-first until RAM
 minus 2 GB is spent; the rest, and everything marked `autostart: false`
 (ollama, open-webui, frigate, moodle, synapse, mattermost, kimai, churchcrm,
-phplist, nginx-rtmp, nextcloud, wg-easy, filebrowser, every desktop program
+phplist, nginx-rtmp, wg-easy, filebrowser, every desktop program
 and both experiments), are deployed with `docker compose create` and left
 stopped, one click away. `arisectl doctor` warns when the autostart caps
 exceed the budget. The choice is remembered per app in
