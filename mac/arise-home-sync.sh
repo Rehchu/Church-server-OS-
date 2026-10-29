@@ -90,6 +90,13 @@ fi
 echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
 
+# ---- Nextcloud syncs this account now (round 6, docs/SYNC.md)? Then this copy stands down,
+# so two programs never write the same folders. mac/helper/tasks/nextcloud.sh sets that up.
+if grep -q '^[0-9]*\\dav_user=' "$HOME_DIR/Library/Preferences/Nextcloud/nextcloud.cfg" 2>/dev/null; then
+  log "Nextcloud syncs $USER_NAME's Desktop and Documents now; this copy is not needed"
+  exit 0
+fi
+
 # ---- is this someone with a home on the server? ----------------------------
 IS_DOMAIN=0
 if dscl . -read "/Users/$USER_NAME" OriginalNodeName 2>/dev/null | grep -q "Active Directory"; then

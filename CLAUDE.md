@@ -110,6 +110,7 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 | 04:30 | `arise-trash.timer` | the 30-day Trash sweep |
 | 07:00 | `arise-notify.timer` | the daily note (off: no webhook set; Discord's #daily is the plan) |
 | hourly | `arise-devices.timer` | the network scan |
+| hourly | `arise-cloud-conflicts.timer` | Nextcloud conflicts: newest wins, the older copy to the Trash (skips services) |
 | every 15 min | `arise-idle-apps.timer` | idle desktop programs stopped |
 | monthly | `arise-drill.timer` | the restore drill |
 | Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |

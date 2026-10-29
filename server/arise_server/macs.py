@@ -535,6 +535,16 @@ def removal_args(user: str) -> dict:
     return {"bases": "|".join(bases), "folders": ",".join(macs_cfg()["sync_folders"])}
 
 
+def _nextcloud_off(mac_id: str, by: str) -> dict:
+    """Every Nextcloud sign-in this Mac holds (cloud.revoke_mac). Never fatal: Nextcloud may be off."""
+    try:
+        from . import cloud
+        r = cloud.revoke_mac(mac_id, by=by)
+        return {"ok": bool(r.get("ok")), "revoked": sum(1 for x in r.get("revoked", []) if x.get("ok"))}
+    except Exception as e:  # noqa: BLE001 - no Nextcloud on this box, or it is down
+        return {"ok": False, "err": str(e)[:160]}
+
+
 def result(m: dict, task_id: str, state: str, detail: str = "", extra: dict | None = None) -> dict:
     """The helper reports a task. Accounts it made or removed are noted on the Mac at once."""
     if state not in ("done", "failed", "refused", "skipped"):
@@ -555,6 +565,8 @@ def result(m: dict, task_id: str, state: str, detail: str = "", extra: dict | No
             ch = cur.setdefault("choices", {}).get(t["args"].get("local"), {})
             ch["state"] = "done"
         _write(d)
+    if state == "done" and t["kind"] == "retire":
+        _nextcloud_off(m["id"], by=f"mac:{m['name']} (retired)")
     audit.record(f"mac:{m['name']}", f"macs.task.{t['kind']}", t["args"].get("user") or t["args"].get("local") or "",
                  ok=state in ("done", "skipped"), detail=f"{state}: {(detail or '')[:120]}")
     return {"ok": True}
@@ -790,9 +802,13 @@ def cut_off(mac_id: str, confirm: str, by: str) -> dict:
         # stops the Mac's Kerberos and domain logins.
         r = run(["samba-tool", "user", "disable", m["name"].upper() + "$"], timeout=20)
         disabled = bool(r.get("ok"))
-    audit.record(by, "macs.cut_off", m["name"], detail=f"key revoked; computer account disabled: {disabled}")
-    return {"ok": True, "demo": load().demo, "computer_disabled": disabled,
-            "also": ["Tailscale admin console: remove this Mac's machine", "Nextcloud: Settings > Security > revoke this Mac's sessions for each person who used it"]}
+    nc = _nextcloud_off(mac_id, by=by)
+    audit.record(by, "macs.cut_off", m["name"], detail=f"key revoked; computer account disabled: {disabled}; Nextcloud sign-ins revoked: {nc.get('revoked', 0)}")
+    also = ["Tailscale admin console: remove this Mac's machine"]
+    if not nc.get("ok"):
+        also.append("Nextcloud: Settings > Security > revoke this Mac's sessions for each person who used it (it could not be done from here: "
+                    + (nc.get("err") or "Nextcloud did not answer") + ")")
+    return {"ok": True, "demo": load().demo, "computer_disabled": disabled, "nextcloud_revoked": nc.get("revoked", 0), "also": also}
 
 
 def reveal(mac_id: str, kind: str, by: str) -> dict:

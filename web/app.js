@@ -3078,5 +3078,66 @@ function staffTwofaOn(name) {
   });
 }; }
 
+// ===== R6-SYNC: the Sync panel (round 6, rows 13-19, 39, 40; docs/SYNC.md) =====
+// Admins only: per person, last sync, devices, conflicts settled, storage against the quota.
+// A device password is shown once; Cut off revokes one device or every sign-in a person has.
+{
+  I.sync = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4a8 8 0 0 1 7.4 5H22l-3.5 4L15 9h2.2A6 6 0 0 0 6.3 8.3L4.6 7.2A8 8 0 0 1 12 4zM5.5 11L9 15H6.8a6 6 0 0 0 10.9.7l1.7 1.1A8 8 0 0 1 4.6 15H2z"/></svg>';
+  APPS.splice(APPS.findIndex(a => a.id === 'shares'), 0, { id: 'sync', n: '33', name: 'Sync', what: 'Nextcloud: every Mac and phone, last sync, conflicts, storage', w: 1040, h: 680 });
+  const lastOf = p => p.last_sync ? `${fmtT(p.last_sync)} <span class="dim">(${ago(p.last_sync)})</span>` : '<span class="dim">never</span>';
+  V.sync = async () => {
+    const [st, pp, cf] = await Promise.all([api('/cloud'), api('/cloud/people'), api('/cloud/conflicts?limit=20')]);
+    const people = pp.people || [], cs = cf.conflicts || [];
+    S.syncPeople = people;
+    const nDev = people.reduce((n, p) => n + p.devices.filter(d => !d.revoked).length, 0);
+    const synced = people.filter(p => p.devices.some(d => !d.revoked));
+    const full = people.filter(p => p.storage?.warn || p.storage?.full);
+    const qgb = pp.quota_gb ? `${pp.quota_gb} GB` : 'no limit';
+    const row = p => {
+      const s = p.storage || {}, pc = s.pct ?? 0;
+      const devs = p.devices.length ? p.devices.map(d => `<div class="row" style="gap:6px;align-items:center;margin:2px 0"><span class="${d.revoked ? 'dim' : ''}">${esc(d.device)}</span>${d.revoked ? '<span class="pill">cut off</span>' : `<span class="dim" style="font-size:12px">${d.last_sync ? ago(d.last_sync) : 'not yet'}</span><button class="btn btn--ghost btn--xs" data-cut="${esc(p.user)}" data-dev="${esc(d.device)}">Cut off</button>`}</div>`).join('') : '<span class="dim">no devices</span>';
+      return `<tr><td><b>${esc(p.user)}</b></td><td>${devs}</td><td>${lastOf(p)}</td><td>${p.conflicts || 0}</td>
+        <td style="min-width:150px"><div style="font-size:12.5px">${fmtB(s.used)} of ${s.quota ? fmtB(s.quota) : 'no limit'}</div><div class="meter ${s.full ? '' : s.warn ? 'meter--warn' : 'meter--ok'}" style="margin-top:6px"><i style="width:${Math.min(100, pc)}%"></i></div></td>
+        <td class="acts"><button class="btn btn--ghost btn--xs" data-newdev="${esc(p.user)}">New device…</button>${p.devices.some(d => !d.revoked) ? `<button class="btn btn--ghost btn--xs" data-cutall="${esc(p.user)}">Cut off all…</button>` : ''}</td></tr>`;
+    };
+    return `<div class="fade">
+      <div class="grid" style="margin-bottom:14px">
+        <div class="c3 panel ${st.running === false ? 'panel--bad' : 'panel--ok'}"><div class="stat"><span class="stat__l">Nextcloud</span><span class="stat__v" style="font-size:22px">${st.running ? 'running' : st.running === false ? 'stopped' : 'unknown'}</span><span class="stat__n mono" style="font-size:11.5px">${esc(st.url || '')}</span></div></div>
+        <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Devices</span><span class="stat__v">${nDev}</span><span class="stat__n">${synced.length} of ${people.length} people syncing</span></div></div>
+        <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Conflicts settled</span><span class="stat__v">${cs.length}</span><span class="stat__n">newest wins; the older copy is in the Trash</span></div></div>
+        <div class="c3 panel ${full.length ? 'panel--warn' : 'panel--flat'}"><div class="stat"><span class="stat__l">Storage</span><span class="stat__v">${full.length}<small>near ${esc(qgb)}</small></span><span class="stat__n">each home against its quota</span></div></div>
+      </div>
+      <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>People</h3><span class="sub">${esc((st.sync_folders || []).join(' and '))} in full on every Mac · the shares on demand in Finder's sidebar · phones in the Nextcloud app</span>
+        <div class="row" style="margin-left:auto;gap:6px"><button class="btn btn--ghost btn--xs" id="syncSweep">Settle conflicts now</button></div></div>
+        <table class="tbl"><thead><tr><th>Person</th><th>Devices</th><th>Last sync</th><th>Conflicts</th><th>Storage</th><th></th></tr></thead><tbody>${people.map(row).join('')}</tbody></table></div>
+      <div class="panel panel--flat"><div class="panel__hd"><h3>Recent conflicts</h3><span class="sub">two copies changed at once: the newer keeps the name, the older goes to that folder's Trash (Put Back works)</span></div>
+        ${cs.length ? `<table class="tbl"><thead><tr><th>When</th><th>File</th><th>Kept</th><th>Older copy</th></tr></thead><tbody>${cs.map(c => `<tr><td>${fmtT(c.t)}</td><td class="mono" style="font-size:12px">${esc(c.file)}</td><td>${esc(c.kept)}</td><td class="mono dim" style="font-size:12px">${esc(c.trash || '—')}</td></tr>`).join('')}</tbody></table>` : '<p class="muted" style="font-size:13px">No conflicts yet.</p>'}
+      </div></div>`;
+  };
+  V.sync.after = root => {
+    $$('[data-cut]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cut, device: b.dataset.dev } }), `${b.dataset.dev} is cut off`); if (r && r.ok !== false) rerender('sync'); });
+    $$('[data-cutall]', root).forEach(b => b.onclick = () => confirmType(`Cut off every device of ${b.dataset.cutall}`, b.dataset.cutall,
+      `Every Mac, phone and web sign-in ${esc(b.dataset.cutall)} has in Nextcloud stops at once. Their files stay, on the server and on each Mac. A lost Mac, or someone leaving.`,
+      async () => { const r = await api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cutall } }); if (r.ok === false) throw new Error(r.err); toast(`${b.dataset.cutall}: every device cut off`); rerender('sync'); }));
+    $$('[data-newdev]', root).forEach(b => b.onclick = () => modal(`<h2>A device password for ${esc(b.dataset.newdev)}</h2>
+      <p class="note" style="margin-bottom:12px">For a phone or a Mac set up by hand. Church Macs get theirs from the helper by themselves. It is shown once and signs in that one device; never their domain password.</p>
+      <div class="field"><label>Device name</label><input id="ndName" placeholder="Kristina's iPhone" maxlength="60" autocomplete="off"></div>
+      <div id="ndOut"></div>
+      <div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="ndGo">Make the password</button></div>`, m => {
+      $('#ndName', m).focus();
+      $('#ndGo', m).onclick = async e => {
+        const r = await act(e.target, () => api('/cloud/app-password', { method: 'POST', body: { user: b.dataset.newdev, device: $('#ndName', m).value.trim() } }));
+        if (!r || r.ok === false) return;
+        $('#ndOut', m).innerHTML = `<dl class="kv" style="margin:10px 0"><dt>Server</dt><dd class="mono">${esc(r.server)}</dd><dt>Login</dt><dd class="mono">${esc(r.login)}</dd><dt>Password</dt><dd class="mono" id="ndPw">${esc(r.app_password)}</dd></dl>
+          <div class="row" style="gap:6px"><button class="btn btn--ghost btn--xs" id="ndCopy">Copy</button><span class="muted" style="font-size:12px">In the Nextcloud app: the server, then “Log in with an app password”.</span></div>`;
+        $('#ndCopy', m).onclick = ev => copyText(r.app_password, ev.target);
+        e.target.disabled = true; rerender('sync');
+      };
+    }));
+    const sw = $('#syncSweep', root); if (sw) sw.onclick = async () => { const r = await act(sw, () => api('/cloud/sweep', { method: 'POST' })); if (r && r.ok !== false) { toast(`${(r.moved || []).length} conflict(s) settled` + (r.demo ? ' (sample mode: nothing changed)' : '')); rerender('sync'); } };
+  };
+}
+// ===== end R6-SYNC =====
+
 window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

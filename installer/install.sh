@@ -301,7 +301,7 @@ fi
 PKGS=(
   samba samba-ad-dc samba-ad-provision samba-dsdb-modules samba-vfs-modules
   winbind krb5-user krb5-config libnss-winbind libpam-winbind
-  smbclient ldb-tools acl attr quota auditd
+  smbclient ldb-tools acl attr quota auditd inotify-tools
   cifs-utils nfs-common
   restic rsync git curl jq arp-scan nmap ffmpeg bind9-host
   openssh-server
@@ -944,6 +944,42 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
   note "generated passwords: /etc/arise/secrets/apps/<app>.env (root only)"
 elif [ -n "$APPS" ]; then
   note "apps skipped ($([ "$SKIP_DOCKER" = 1 ] && echo --skip-docker || echo --no-start)); later: arisectl app deploy <name>"
+fi
+
+# --- 6a-sync. Mac and phone syncing: Nextcloud over the homes and shares (round 6, docs/SYNC.md) ---
+# Nextcloud starts by default (row 14). `arisectl cloud setup` makes it ariseOS's: the domain
+# sign-in (its own read-only directory account), the mounts, the theme, each home linked.
+if [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] arisectl app deploy nextcloud (if not yet); arisectl cloud setup; cloud CNAME in the domain's DNS; arise-cloud-watch + the hourly conflicts timer"
+  else
+    [ -f /srv/arise/apps/nextcloud/compose.yaml ] || /usr/local/bin/arisectl app deploy nextcloud >>"$LOG_FILE" 2>&1 || warn "nextcloud did not deploy (see $LOG_FILE): arisectl app deploy nextcloud"
+    # inotify for the watcher: one watch per folder in every home and share
+    printf 'fs.inotify.max_user_watches=1048576\nfs.inotify.max_user_instances=512\n' > /etc/sysctl.d/60-arise-cloud.conf
+    sysctl -q -p /etc/sysctl.d/60-arise-cloud.conf >/dev/null 2>&1 || true
+    if [ -f /srv/arise/apps/nextcloud/compose.yaml ]; then
+      # The first start of Nextcloud installs itself (a minute or two) before occ answers.
+      for _ in $(seq 1 60); do docker exec -u www-data arise-app-nextcloud php occ status >/dev/null 2>&1 && break; sleep 5; done
+      if /usr/local/bin/arisectl cloud setup >>"$LOG_FILE" 2>&1; then
+        note "sync: Nextcloud is set up (https://cloud.${REALM,,}); every church Mac's helper installs the client"
+      else
+        warn "sync: arisectl cloud setup had failures (see $LOG_FILE); run it again once Nextcloud is up"
+      fi
+    fi
+    if samba-tool dns query 127.0.0.1 "${REALM,,}" cloud ALL -P >/dev/null 2>&1; then
+      note "sync: cloud.${REALM,,} is already in the domain's DNS"
+    elif samba-tool dns add 127.0.0.1 "${REALM,,}" cloud CNAME "$HOSTNAME_WANTED.${REALM,,}" -P >>"$LOG_FILE" 2>&1; then
+      note "sync: cloud.${REALM,,} added to the domain's DNS (a CNAME to this box)"
+    else
+      warn "sync: could not add cloud.${REALM,,} to DNS: sudo samba-tool dns add 127.0.0.1 ${REALM,,} cloud CNAME $HOSTNAME_WANTED.${REALM,,} -U administrator"
+    fi
+  fi
+  for u in arise-cloud-watch.service arise-cloud-conflicts.timer; do
+    [ -f "$UNIT_SRC/$u" ] && { run systemctl enable --now "$u" || warn "$u did not start"; }
+  done
+  note "sync: arise-cloud-watch (SMB changes reach the clients), arise-cloud-conflicts.timer hourly (newest wins, the older copy to the Trash)"
+else
+  note "sync: Nextcloud skipped with the apps; later: arisectl app deploy nextcloud && sudo arisectl cloud setup"
 fi
 
 say "6b/7  Remote access and the firewall"

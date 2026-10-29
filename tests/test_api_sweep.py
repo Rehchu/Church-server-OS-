@@ -289,6 +289,16 @@ CALLS = {
     ("POST", "/api/macs/agent/check"): None,
     ("GET", "/api/macs/agent/config"): None,
     ("GET", "/mac/{name}"): ("/mac/enrol.sh", None, None),
+
+    # round 6: Mac and phone syncing (Nextcloud; tests/test_cloud.py pins the behaviour)
+    ("GET", "/api/cloud"): ("/api/cloud", None, None),
+    ("GET", "/api/cloud/people"): ("/api/cloud/people", None, None),
+    ("GET", "/api/cloud/conflicts"): ("/api/cloud/conflicts", None, {"limit": 20}),
+    ("POST", "/api/cloud/app-password"): ("/api/cloud/app-password", {"user": "office", "device": "Sweep iPad"}, None),
+    ("POST", "/api/cloud/revoke"): ("/api/cloud/revoke", {"user": "office", "device": "Office iMac"}, None),
+    ("POST", "/api/cloud/sweep"): ("/api/cloud/sweep", None, None),
+    # the Mac helper's own door: plain text, its Mac key, no session (tests/test_cloud.py)
+    ("POST", "/api/cloud/agent/app-password"): None,
     ("GET", "/{path:path}"): ("/", None, None),
 }
 

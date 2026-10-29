@@ -170,6 +170,15 @@ church_folder = "church"     # every account reads and writes
 staff_group = "Staff"        # all staff write every department folder
 shared_path = ""             # empty: /srv/arise/shared (Shared with me: one folder of links per person)
 
+[cloud]
+# Mac and phone syncing, round 6 (docs/SYNC.md): Nextcloud over the homes and shares above.
+enabled = true
+host = ""                    # empty: cloud.<realm in lower case>; the church network and Tailscale only
+sync_folders = ["Desktop", "Documents"]   # synced in full on every Mac; the shares come on demand
+conflicts = "newest"         # the newer copy keeps the name; the older goes to that folder's Trash
+client_version = "3.14.3"    # the Nextcloud desktop client the Mac helper installs (signature checked)
+client_team_id = "NKUJUXUJ3B"   # Nextcloud GmbH's Apple team; a package signed by anyone else is refused
+
 [apps]
 # Docker Compose templates from templates/. Off in Windows mode.
 docker = true

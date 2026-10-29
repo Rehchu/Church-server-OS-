@@ -49,3 +49,17 @@ remote.ad.arisecenla.com {
 	redir / /guacamole/ 302
 	reverse_proxy /guacamole/* 127.0.0.1:8084
 }
+
+# Nextcloud: the church's sync (round 6, docs/SYNC.md). Every church Mac's client, the phone app
+# and the web page reach it here, on the church certificate, on the church network and over
+# Tailscale. The container listens on 127.0.0.1:8091 only. Its DNS name is a CNAME to this box,
+# added by the installer (or by hand):
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com cloud CNAME arise-server.ad.arisecenla.com -P
+# Caddy sets no upload size limit (row 18); the clients send big files in 100 MB chunks anyway.
+cloud.ad.arisecenla.com {
+	tls internal
+	header Strict-Transport-Security "max-age=15552000"
+	redir /.well-known/carddav /remote.php/dav/ 301
+	redir /.well-known/caldav /remote.php/dav/ 301
+	reverse_proxy 127.0.0.1:8091
+}
