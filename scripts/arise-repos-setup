@@ -16,9 +16,9 @@ run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; 
 if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
 echo "== The Arise repos on the server (two-way with GitHub)"
 
-getent group arise-repos >/dev/null 2>&1 || run groupadd -g 1503 arise-repos 2>/dev/null || run groupadd arise-repos
+getent group arise-repos >/dev/null 2>&1 || run groupadd -g 1502 arise-repos 2>/dev/null || run groupadd arise-repos
 if id -u arise-git >/dev/null 2>&1; then say "user arise-git exists"; else
-  run useradd -u 1503 -g arise-repos -M -d /var/lib/arise/repos -s /usr/sbin/nologin -c "ariseOS repo sync" arise-git \
+  run useradd -u 1502 -g arise-repos -M -d /var/lib/arise/repos -s /usr/sbin/nologin -c "ariseOS repo sync" arise-git \
     || run useradd -g arise-repos -M -d /var/lib/arise/repos -s /usr/sbin/nologin -c "ariseOS repo sync" arise-git
 fi
 # The people who work in the folders: Bradly's accounts, if they exist on this box yet.

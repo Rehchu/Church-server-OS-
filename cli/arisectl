@@ -67,7 +67,10 @@ HOME = next((Path(c) for c in CANDIDATES if c and (Path(c) / "server" / "arise_s
 if HOME is None:
     sys.exit("arisectl: cannot find the server package. Set ARISE_HOME to the repo folder (the one with server/ and cli/).")
 VENV_PY = HOME / "venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-if VENV_PY.exists() and Path(sys.executable).resolve() != VENV_PY.resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
+# sys.prefix, not the interpreter's path: a venv's python is a symlink to the system one, so the
+# resolved paths are the same and arisectl ran on the system Python without the venv's modules
+# (found by the install rehearsal: bcrypt, fastapi, psutil "missing").
+if VENV_PY.exists() and Path(sys.prefix).resolve() != (HOME / "venv").resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
     os.environ["ARISECTL_NO_REEXEC"] = "1"
     os.execv(str(VENV_PY), [str(VENV_PY), str(HERE), *sys.argv[1:]])
 sys.path.insert(0, str(HOME / "server"))

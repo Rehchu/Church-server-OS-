@@ -71,6 +71,10 @@ if command -v snap >/dev/null 2>&1 && snap list firefox >/dev/null 2>&1; then
 fi
 if [ "$DRY_RUN" = 0 ] && dpkg-query -W -f='${Version}' firefox 2>/dev/null | grep -qv snap; then
   say "firefox $(dpkg-query -W -f='${Version}' firefox) installed"
+elif [ "$DRY_RUN" = 0 ] && ! { [ -f /etc/apt/sources.list.d/mozilla.list ] && [ -f "$KEYRING" ]; }; then
+  # Without Mozilla's repository, Ubuntu's own `firefox` is a stub that installs snapd and the
+  # snap: never that on the server. The monitor stays on Epiphany until the repository works.
+  fail "Mozilla's repository is not set up, so Firefox was not installed (Ubuntu's own package would bring snapd); run this again when packages.mozilla.org answers"
 else
   run apt-get update -q || fail "apt-get update failed"
   run env DEBIAN_FRONTEND=noninteractive apt-get install -y -q firefox fontconfig || fail "apt-get install firefox failed"

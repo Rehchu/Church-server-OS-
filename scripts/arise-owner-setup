@@ -114,8 +114,12 @@ else
 fi
 
 # 2. the groups (made here if a later step has not made them yet)
-for g in arise-conf arise-repos arise-claude; do
-  getent group "$g" >/dev/null 2>&1 || run groupadd "$g"
+# The same fixed ids install.sh, arise-repos-setup and arise-archive-setup use, so the groups
+# come out the same whichever script runs first (uids: arise 1500, arise-kiosk 1501,
+# the repo sync account 1502, arise-kb 1503).
+for gg in arise-conf:1504 arise-repos:1502 arise-claude:1506; do
+  g="${gg%%:*}"; gid="${gg##*:}"
+  getent group "$g" >/dev/null 2>&1 || run groupadd -g "$gid" "$g" 2>/dev/null || run groupadd "$g"
 done
 for who in "$OWNER" "${EXTRA[@]}"; do
   for g in sudo arise-conf arise-repos arise-claude docker adm systemd-journal; do
