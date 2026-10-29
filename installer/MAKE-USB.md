@@ -1,87 +1,105 @@
-# Making the install USB
+# Making the install media
 
-Two ways. Both end with a USB stick that boots the old PC into the Ubuntu
-Server 24.04 installer. If `autoinstall.yaml` is on the stick the install
-runs itself (Path C in INSTALL.md); if not, you answer the installer's
-questions by hand (Path A).
+The install takes two pieces: Ubuntu Server 24.04 and ariseOS. Ubuntu asks
+who you are (your name, a user name, a password, the server name:
+`arise-server`). Then it **wipes the largest disk**, installs itself and
+ariseOS without more questions, and restarts. On that first boot the ariseOS
+wizard comes up on the monitor. It asks whether the box is at the church or
+at home, the domain password, the Synology and the rest, finishes the
+install and restarts into the Arise desktop (INSTALL.md, Path C).
 
-**You need:** an 8 GB or larger USB stick (it gets wiped), and the ISO:
+The media carries the code (the repo is private, so the install never runs
+`git clone`) and no password.
 
-```
-https://releases.ubuntu.com/24.04/
-→ ubuntu-24.04.x-live-server-amd64.iso   (about 3 GB)
-```
+**Back up the old PC first.** Whatever is on its largest disk is gone.
 
-Check the download before writing it. The `SHA256SUMS` file on the same page
-has the right value:
+## 1. Make the files
 
-```powershell
-# Windows PowerShell
-Get-FileHash .\ubuntu-24.04.3-live-server-amd64.iso -Algorithm SHA256
-```
-```bash
-# Mac
-shasum -a 256 ~/Downloads/ubuntu-24.04.3-live-server-amd64.iso
-```
-
----
-
-## On Windows — Rufus
-
-1. Download Rufus from https://rufus.ie (the portable .exe is fine).
-2. Plug in the stick. In Rufus: **Device** = the stick. Double-check the
-   size; Rufus will erase it.
-3. **Boot selection** → SELECT → the Ubuntu ISO.
-4. Leave **Partition scheme** on *GPT*, **Target system** *UEFI (non CSM)*
-   unless the old PC is BIOS-only (Rufus usually guesses right; if the PC
-   will not boot it, come back and pick *MBR / BIOS or UEFI*).
-5. START. When asked, choose **Write in ISO Image mode**. Wait for READY.
-6. **For the hands-off install only:** open the stick in File Explorer and
-   copy `autoinstall.yaml` from this folder to its root, next to `casper`
-   and `boot`. Edit it first and put your password hash in
-   (`openssl passwd -6` on any Mac/Linux terminal; Windows has no built-in
-   way, use the Mac at church or Git Bash's `openssl`).
-7. Eject.
-
-## On a Mac — dd
+On any Linux box or Mac with the repo (the server itself works, and so does
+a VM). You need `xorriso` and `zip` (`sudo apt install xorriso zip`, or
+`brew install xorriso` on a Mac).
 
 ```bash
-# 1. find the stick. It is the one whose size matches, e.g. /dev/disk4.
-diskutil list
-
-# 2. unmount it (NOT eject)
-diskutil unmountDisk /dev/disk4
-
-# 3. write the ISO. rdisk is faster than disk. This takes a few minutes and
-#    prints nothing until it finishes. Ctrl-T shows progress.
-sudo dd if=~/Downloads/ubuntu-24.04.3-live-server-amd64.iso of=/dev/rdisk4 bs=4m status=progress
-
-# 4. macOS will say the disk is unreadable — that is normal for a Linux ISO.
-#    Click Ignore, then:
-diskutil eject /dev/disk4
+bash scripts/make-install-media.sh            # the add-on disc and the USB files (a few MB)
+bash scripts/make-install-media.sh --full     # also the one ariseOS ISO (about 3 GB, needs 8 GB free)
 ```
 
-**For the hands-off install** the stick written by `dd` is read-only, so you
-cannot drop `autoinstall.yaml` on it afterwards. Do it from Rufus on Windows,
-or use the second-stick method: write `autoinstall.yaml` (and an empty file
-named `meta-data`) to a *second*, FAT32 stick with the volume label
-`CIDATA`, and plug both in. Ubuntu's installer looks there too.
+Out, in `dist/`:
 
----
+| File | What | Use it for |
+|---|---|---|
+| `ariseos-<version>-amd64.iso` | the official Ubuntu 24.04 server ISO with ariseOS inside (`--full`) | **the easy way**: one file, one stick |
+| `ariseos-addon.iso` | a small disc labelled `CIDATA` with the config and the code | VirtualBox (a second optical drive), or a second stick |
+| `ariseos-addon.zip` | the same files for a Rufus stick | Windows and Rufus with the plain Ubuntu ISO |
+| `SHA256SUMS` | their checksums | check a copy before writing it |
 
-## Booting the old PC from it
+The media holds the last commit, not uncommitted changes (the script says so
+when there are some).
+
+`--full` downloads `ubuntu-24.04.x-live-server-amd64.iso` from
+releases.ubuntu.com and checks it against Ubuntu's `SHA256SUMS` before using
+it (or use one you already have: `--ubuntu-iso PATH`). Its boot records are
+Ubuntu's own (`xorriso -boot_image any replay`), so it boots wherever the
+Ubuntu ISO boots, BIOS or UEFI, Secure Boot on or off. Its boot menu:
+
+1. **Install ariseOS (ERASES this computer's largest disk)**: the hands-off install.
+2. **Install by hand (the plain Ubuntu installer)**: no autoinstall (INSTALL.md, Path A).
+
+The menu waits for a choice; it never starts the erasing entry by itself.
+
+## 2. Write a stick (8 GB or larger; it gets wiped)
+
+### The one ariseOS ISO (easiest)
+
+- **Windows**: Rufus (https://rufus.ie). **Device** = the stick (check the
+  size), **Boot selection** = `ariseos-<version>-amd64.iso`, START, and
+  choose **Write in DD Image mode** when asked.
+- **Mac**:
+
+  ```bash
+  diskutil list                          # find the stick, e.g. /dev/disk4
+  diskutil unmountDisk /dev/disk4        # unmount, do not eject
+  sudo dd if=dist/ariseos-0.8.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
+  diskutil eject /dev/disk4              # "unreadable disk" before this is normal: Ignore
+  ```
+
+### The plain Ubuntu ISO plus the add-on (when there is no `--full` ISO)
+
+Download `ubuntu-24.04.x-live-server-amd64.iso` from
+https://releases.ubuntu.com/24.04/ and check it against the `SHA256SUMS`
+file on that page (`Get-FileHash .\ubuntu-24.04.3-live-server-amd64.iso -Algorithm SHA256`
+in PowerShell, `shasum -a 256` on a Mac).
+
+- **Windows, one stick**: write the Ubuntu ISO with Rufus in **ISO Image
+  mode** (GPT / UEFI unless the old PC is BIOS-only). Then unzip
+  `ariseos-addon.zip` onto the stick's root, so `autoinstall.yaml` and the
+  `arise` folder sit next to `casper` and `boot`. Eject.
+- **Mac, two sticks**: `dd` the Ubuntu ISO to the first stick as above (a
+  `dd` stick is read-only), and `dd` `dist/ariseos-addon.iso` to a second
+  one. Plug in both. The installer finds the second by its `CIDATA` label.
+
+With the plain Ubuntu ISO, the installer asks once, "Continue with
+autoinstall?" Type `yes`.
+
+## 3. Boot the old PC from it
 
 1. Plug the stick into a rear USB port (front ports on old PCs are often
-   USB 1.1 and the boot takes forever).
-2. Power on and hammer the boot-menu key: **F12** on most Dells and Lenovos,
-   **F8** on ASUS, **F11** on MSI, **Esc** or **F9** on HP. If you get the
-   BIOS instead, look for *Boot order* and put USB first.
-3. If it refuses to boot: in the BIOS turn **Secure Boot** off and make sure
+   USB 1.1, and the boot takes forever).
+2. Power on and press the boot-menu key: **F12** on most Dells and Lenovos,
+   **F8** on ASUS, **F11** on MSI, **Esc** or **F9** on HP. If the BIOS
+   comes up instead, put USB first in *Boot order*.
+3. If it refuses to boot, turn **Secure Boot** off in the BIOS and make sure
    **UEFI** (not Legacy) is on. Ubuntu boots with Secure Boot on, but old
    firmware sometimes blocks it anyway.
-4. "Try or Install Ubuntu Server" → with `autoinstall.yaml` present it asks
-   one confirmation ("continue with autoinstall?") and runs; without it,
-   follow INSTALL.md Path A.
+4. Pick **Install ariseOS**, answer the identity screen (server name
+   `arise-server`), and leave it. It restarts by itself; take the stick out
+   then. The first-boot wizard is on the monitor next.
 
-The install wipes the chosen disk. Anything still on the old Windows PC that
-you want is gone after this. Back it up first.
+To run the wizard again later: `sudo arisectl setup`.
+
+## The manual way (no autoinstall)
+
+Write the plain Ubuntu ISO with nothing added, answer the installer by hand
+(INSTALL.md, Path A), then copy the repo onto the box and run
+`sudo bash installer/install.sh` with the flags INSTALL.md lists. Every flag
+still works without the wizard.

@@ -31,8 +31,9 @@ every Mac's login with it.
 
 ### 1. Make the USB
 
-Follow `installer/MAKE-USB.md` (Rufus on Windows, `dd` on a Mac). Skip the
-`autoinstall.yaml` part; that is Path C.
+Follow `installer/MAKE-USB.md`, "The manual way": the plain Ubuntu ISO
+with nothing added (Rufus on Windows, `dd` on a Mac). The ariseOS media is
+Path C.
 
 ### 2. Install Ubuntu
 
@@ -186,27 +187,34 @@ Then continue at **First boot** below, skipping the domain and Mac steps.
 
 ---
 
-## Path C · Hands-off USB (autoinstall)
+## Path C · The ariseOS install media (hands-off, then a wizard)
 
-Path A with no questions. Build the USB per `installer/MAKE-USB.md`
-**including** the `autoinstall.yaml` step, after putting your password hash
-in the file:
+Path A without the typing. Make the media with
+`bash scripts/make-install-media.sh --full` (the one ariseOS ISO) or without
+`--full` (the add-on for the plain Ubuntu ISO), and write the stick per
+`installer/MAKE-USB.md`. The media carries the code, so no GitHub token, and
+it holds no password.
 
-```bash
-openssl passwd -6 'the-password-you-want'      # on any Mac or Linux terminal
-```
+Boot the PC from the stick and pick **Install ariseOS** (with the plain
+Ubuntu ISO and the add-on, type `yes` at "Continue with autoinstall?").
 
-Boot the PC from the stick. It asks one question ("continue with
-autoinstall?" — yes), wipes the disk, installs Ubuntu, clones the repo to
-`/opt/arise`, runs `install.sh --no-start --skip-domain --skip-docker`, and
-reboots. The login banner then tells you the one command left:
+1. Ubuntu asks one screen: your name, the user name (`bradly`), the server
+   name (`arise-server`) and a password.
+2. It **wipes the largest disk**, installs Ubuntu on LVM (America/Chicago,
+   OpenSSH on), checks the code against the media's `SHA256SUMS`, copies it
+   to `/opt/arise-src`, and runs
+   `install.sh --no-start --skip-domain --skip-docker`. It restarts by itself.
+3. On the first boot the **ariseOS setup** wizard is on the monitor
+   (`arise-firstboot.service`, tty1, once). It asks: church or home
+   (staging), the owner account, the domain Administrator password (twice,
+   never shown or logged), the Synology's address (optional), Tailscale, the
+   desktop on this monitor, and the Discord webhooks (optional). Then it runs
+   `install.sh` with the matching flags (the password goes in a 0600 file,
+   not on the command line), asks for the dashboard password, shows
+   `arisectl doctor`'s summary, and restarts into the Arise desktop.
 
-```bash
-sudo bash /opt/arise/installer/install.sh
-```
-
-which provisions the domain (asks for the Administrator password), installs
-Docker, and starts everything. Then **First boot**.
+Run the wizard again any time with `sudo arisectl setup`. Every
+`install.sh` flag still works without it. Then **First boot**.
 
 ---
 

@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+# ariseOS: the first-boot wizard (round 4, 59: "a short on-screen wizard, flags still work").
+#
+# After the hands-off Ubuntu install (installer/autoinstall.yaml) the box boots to this on
+# the screen (arise-firstboot.service, tty1, once). It asks a few things in plain words,
+# then runs installer/install.sh with the matching flags, and reboots into the desktop.
+#
+#   sudo arisectl setup                 run it again any time (it is safe to re-run)
+#   sudo bash scripts/arise-firstboot   the same
+#
+# Passwords: the domain Administrator password goes to install.sh in a 0600 temp file
+# (--admin-pass-file), never on a command line (ps shows those to everyone) and never in a
+# log. The dashboard password is typed straight into `arisectl admin set-password`.
+# Everything install.sh can take as a flag still works without this wizard.
+set -uo pipefail
+
+DONE=/var/lib/arise/firstboot.done
+LOG=/var/log/arise/firstboot.log
+FROM_BOOT=0
+[ "${1:-}" = "--from-boot" ] && FROM_BOOT=1
+
+[ "$(id -u)" = 0 ] || { echo "run as root: sudo arisectl setup" >&2; exit 1; }
+
+# The source: the copy the install media made, else the installed one.
+SRC=""
+for d in /opt/arise-src /opt/arise "$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)"; do
+  [ -n "$d" ] && [ -f "$d/installer/install.sh" ] && { SRC="$d"; break; }
+done
+[ -n "$SRC" ] || { echo "ariseOS is not on this box (/opt/arise-src or /opt/arise)" >&2; exit 1; }
+mkdir -p /var/lib/arise /var/log/arise
+
+# ----- the screen: whiptail when there is one, plain prompts otherwise ---------------------
+W=""
+if command -v whiptail >/dev/null 2>&1 && [ -t 0 ] && [ "${ARISE_PLAIN:-}" != 1 ]; then W=whiptail; fi
+TITLE="ariseOS setup"
+say()   { if [ -n "$W" ]; then whiptail --title "$TITLE" --msgbox "$1" 20 74; else printf '\n%s\n\n' "$1"; [ -t 0 ] && read -r -p "  Press Enter to go on. " _; fi; }
+yesno() { # yesno "question" default(yes|no) -> 0 for yes
+  if [ -n "$W" ]; then
+    if [ "$2" = no ]; then whiptail --title "$TITLE" --defaultno --yesno "$1" 16 74; else whiptail --title "$TITLE" --yesno "$1" 16 74; fi
+  else
+    local a; read -r -p "  $1 [$( [ "$2" = no ] && echo y/N || echo Y/n )] " a
+    a="${a:-$2}"; case "$a" in [Yy]*) return 0 ;; *) return 1 ;; esac
+  fi
+}
+ask() { # ask "question" "default" -> stdout
+  if [ -n "$W" ]; then whiptail --title "$TITLE" --inputbox "$1" 14 74 "$2" 3>&1 1>&2 2>&3
+  else local a; read -r -p "  $1 [$2] " a; printf '%s' "${a:-$2}"; fi
+}
+secret() { # secret "question" -> stdout (never echoed, never logged)
+  if [ -n "$W" ]; then whiptail --title "$TITLE" --passwordbox "$1" 12 74 3>&1 1>&2 2>&3
+  else local a; read -r -s -p "  $1 " a; echo >&2; printf '%s' "$a"; fi
+}
+choose() { # choose "question" tag1 "item1" tag2 "item2" -> the tag
+  local q="$1"; shift
+  if [ -n "$W" ]; then whiptail --title "$TITLE" --menu "$q" 20 74 4 "$@" 3>&1 1>&2 2>&3
+  else
+    printf '\n  %s\n' "$q" >&2; local i=1 tags=()
+    while [ $# -gt 0 ]; do printf '    %d. %s\n' "$i" "$2" >&2; tags+=("$1"); shift 2; i=$((i + 1)); done
+    local a; read -r -p "  Number: " a; printf '%s' "${tags[$((${a:-1} - 1))]:-${tags[0]}}"
+  fi
+}
+
+# ----- the questions --------------------------------------------------------------------------
+say "Welcome to ariseOS, the Arise Church server.
+
+A few questions, then it finishes the install by itself (15 to 30 minutes) and restarts into the Arise desktop.
+
+Nothing is changed until you have answered everything and said Go."
+
+WHERE="$(choose "Where is this box right now?" \
+  church "At the church. It becomes the church's domain on the church network." \
+  home   "At home or in a test VM. The domain stays on this box only (staging).")" || exit 1
+
+DEF_OWNER="$(getent passwd 1000 | cut -d: -f1)"
+while :; do
+  OWNER="$(ask "Your own Linux account on this box (the one Ubuntu's installer made). It owns the box and runs the 02:05 automator." "${DEF_OWNER:-bradly}")" || exit 1
+  if id -u "$OWNER" >/dev/null 2>&1 && [ "$OWNER" != root ]; then break; fi
+  say "There is no account called '$OWNER' on this box. Use the user name you typed in Ubuntu's installer."
+done
+
+NEED_DOMAIN=1
+[ -f /var/lib/samba/private/sam.ldb ] && NEED_DOMAIN=0
+PASSFILE=""
+cleanup() { [ -n "$PASSFILE" ] && [ -f "$PASSFILE" ] && { shred -u "$PASSFILE" 2>/dev/null || rm -f "$PASSFILE"; }; }
+trap cleanup EXIT
+if [ "$NEED_DOMAIN" = 1 ]; then
+  while :; do
+    P1="$(secret "The domain Administrator password (at least 8 characters, with upper case, lower case and a digit). Write it on the closet card.")" || exit 1
+    P2="$(secret "The same password again:")" || exit 1
+    if [ "$P1" != "$P2" ]; then say "The two passwords differ. Try again."; continue; fi
+    if [ ${#P1} -lt 8 ] || ! [[ "$P1" =~ [A-Z] ]] || ! [[ "$P1" =~ [a-z] ]] || ! [[ "$P1" =~ [0-9] ]]; then
+      say "The domain needs at least 8 characters with an upper-case letter, a lower-case letter and a digit."; continue
+    fi
+    break
+  done
+  PASSFILE="$(mktemp /run/arise-firstboot.XXXXXX)"; chmod 600 "$PASSFILE"
+  printf '%s' "$P1" > "$PASSFILE"; unset P1 P2
+fi
+
+NAS="$(ask "The Synology's address, if it is on the network already (for example 192.168.0.50). Leave it empty to add it later in Settings." "")" || exit 1
+TAILSCALE=1; yesno "Install Tailscale (for reaching the server from home and from Alexandria)?" yes || TAILSCALE=0
+KIOSK=1;     yesno "Show the Arise desktop on this monitor (the closet screen)?" yes || KIOSK=0
+DISCORD=0;   yesno "Add the Discord webhooks now (#alerts, #sunday, #weekly, #daily)? You can add them later." no && DISCORD=1
+declare -A HOOK
+if [ "$DISCORD" = 1 ]; then
+  for c in alerts sunday weekly daily; do
+    HOOK[$c]="$(ask "The webhook address for #$c (https://discord.com/api/webhooks/...), or empty to skip:" "")" || exit 1
+  done
+fi
+
+FLAGS=(--owner "$OWNER")
+[ "$WHERE" = home ] && FLAGS+=(--staging)
+[ "$KIOSK" = 1 ] && FLAGS+=(--kiosk)
+[ "$TAILSCALE" = 1 ] && FLAGS+=(--with-tailscale) || FLAGS+=(--no-tailscale)
+[ -n "$PASSFILE" ] && FLAGS+=(--admin-pass-file "$PASSFILE")
+
+SUMMARY="Here is what happens next:
+
+  Where:      $( [ "$WHERE" = home ] && echo "home or a test VM (staging: the domain on this box only)" || echo "the church (the church's domain on the network)" )
+  Owner:      $OWNER
+  Domain:     $( [ "$NEED_DOMAIN" = 1 ] && echo "made now, realm AD.ARISECENLA.COM" || echo "already made, kept as it is" )
+  Synology:   ${NAS:-later}
+  Tailscale:  $( [ "$TAILSCALE" = 1 ] && echo yes || echo no )
+  Desktop:    $( [ "$KIOSK" = 1 ] && echo "on this monitor" || echo "no; the text console" )
+  Discord:    $( [ "$DISCORD" = 1 ] && echo "the webhooks you typed" || echo later )
+
+Then you choose the dashboard password, and the box restarts.
+
+Go?"
+yesno "$SUMMARY" yes || { say "Nothing was changed. Run it again with: sudo arisectl setup"; exit 0; }
+
+# ----- doing it ---------------------------------------------------------------------------------
+clear 2>/dev/null || true
+echo "  ariseOS: finishing the install. This takes 15 to 30 minutes; the log is $LOG"
+echo
+# The log never sees a password: install.sh does not print it, and the flags hold a file name.
+ARISE_FIRSTBOOT=1 bash "$SRC/installer/install.sh" "${FLAGS[@]}" 2>&1 | tee -a "$LOG"
+RC=${PIPESTATUS[0]}
+cleanup; PASSFILE=""
+
+CONF=/etc/arise/arise.toml
+if [ -n "$NAS" ] && [ -f "$CONF" ]; then
+  python3 - "$CONF" "$NAS" <<'PY' || echo "  ! could not write the Synology address into $CONF; add it in Settings"
+import re, sys
+p, host = sys.argv[1], sys.argv[2].strip()
+if not re.fullmatch(r"[A-Za-z0-9.\-:]{1,253}", host):
+    sys.exit("not an address")
+s = open(p).read()
+m = re.search(r"(?ms)^\[nas\]\s*\n(.*?)(?=^\[|\Z)", s)
+if m:
+    body = m.group(1)
+    body = re.sub(r'(?m)^host\s*=.*$', f'host = "{host}"', body, count=1) if re.search(r'(?m)^host\s*=', body) else f'host = "{host}"\n' + body
+    s = s[:m.start(1)] + body + s[m.end(1):]
+else:
+    s += f'\n[nas]\nhost = "{host}"\n'
+open(p, "w").write(s)
+PY
+fi
+if [ "$DISCORD" = 1 ]; then
+  F=/etc/arise/secrets/discord.toml
+  install -d -m 0700 /etc/arise/secrets
+  ( umask 077; : > "$F.new"
+    for c in alerts sunday weekly daily; do
+      v="${HOOK[$c]:-}"
+      case "$v" in https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) printf '%s = "%s"\n' "$c" "$v" >> "$F.new" ;; "") ;; *) echo "  ! #$c: not a Discord webhook address; skipped" ;; esac
+    done
+    mv "$F.new" "$F" )
+  chmod 600 "$F"
+fi
+
+echo
+echo "  Now the dashboard password (what you sign in to the desktop and the dashboard with)."
+PW_SET=0
+for _ in 1 2 3; do
+  /usr/local/bin/arisectl admin set-password && { PW_SET=1; break; }
+done
+[ "$PW_SET" = 1 ] || echo "  ! The dashboard password is not set yet. Later: sudo arisectl admin set-password"
+
+echo
+echo "  What still needs you (sudo arisectl doctor):"
+/usr/local/bin/arisectl doctor 2>&1 | tail -n 25 || true
+
+if [ "$RC" != 0 ]; then
+  echo
+  echo "  The install reported a problem (above, and in $LOG). Nothing is lost: fix it, then sudo arisectl setup"
+  [ "$FROM_BOOT" = 1 ] && { read -r -t 600 -p "  Press Enter for a login prompt. " _ || true; }
+  exit "$RC"
+fi
+
+touch "$DONE"
+systemctl disable arise-firstboot.service >/dev/null 2>&1 || true
+echo
+echo "  Done. The desktop comes up after this restart."
+if [ "$FROM_BOOT" = 1 ]; then
+  read -r -t 60 -p "  Press Enter to restart now (it restarts by itself in a minute). " _ || true
+  systemctl reboot
+else
+  echo "  Restart when you are ready: sudo reboot"
+fi

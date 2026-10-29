@@ -17,6 +17,7 @@
 #
 #  Flags:
 #    --admin-pass PASS   Domain Administrator password (prompted if omitted)
+#    --admin-pass-file F the same, read from a file (the first-boot wizard's 0600 temp file)
 #    --owner NAME        Bradly's own Linux account (default: the account that ran sudo). It runs the 02:05
 #                        YouTube job and gets sudo without a password, so his Claude can change anything (Oct 28)
 #    --skip-domain       do not provision / touch the Samba AD DC
@@ -112,6 +113,10 @@ while [ $# -gt 0 ]; do
     --admin-pass)  ADMIN_PASS="${2:-}"; shift 2 ;;
     --owner)       OWNER="${2:-}"; shift 2 ;;
     --admin-pass=*) ADMIN_PASS="${1#*=}"; shift ;;
+    # The first-boot wizard hands the password over in a 0600 file, never on the
+    # command line (ps shows every argument to every user on the box).
+    --admin-pass-file) ADMIN_PASS="$(cat "${2:-/dev/null}" 2>/dev/null || true)"; shift 2 ;;
+    --admin-pass-file=*) ADMIN_PASS="$(cat "${1#*=}" 2>/dev/null || true)"; shift ;;
     --skip-domain) SKIP_DOMAIN=1; shift ;;
     --skip-docker) SKIP_DOCKER=1; shift ;;
     --no-start)    NO_START=1; shift ;;
@@ -1410,9 +1415,13 @@ if [ "$WITH_KIOSK" = 1 ]; then
       warn "--console and --kiosk both given: the desktop takes tty1; arisetui is still 'arisetui' in any terminal"
       run systemctl disable --now arise-console.service || true
     fi
-    if [ "$NO_START" = 0 ]; then
+    if [ "$NO_START" = 0 ] && [ -z "${ARISE_FIRSTBOOT:-}" ]; then
       run systemctl enable --now arise-kiosk.service
       note "tty1 now shows the Arise desktop. Alt+F2 is a normal login."
+    elif [ -n "${ARISE_FIRSTBOOT:-}" ]; then
+      # The first-boot wizard is on tty1 right now: the desktop takes it after the reboot.
+      run systemctl enable arise-kiosk.service
+      note "the Arise desktop comes up on tty1 after the reboot."
     else
       run systemctl enable arise-kiosk.service
     fi

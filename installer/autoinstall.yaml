@@ -1,42 +1,45 @@
 #cloud-config
 # =============================================================================
-#  Arise Server — hands-off Ubuntu Server 24.04 install (subiquity autoinstall)
+#  ariseOS: the hands-off Ubuntu Server 24.04 install (subiquity autoinstall)
 #
-#  Put this file, named exactly  autoinstall.yaml , in the root of the Ubuntu
-#  Server USB stick (see MAKE-USB.md). Boot the old PC from the stick, pick
-#  "Try or Install Ubuntu Server", and walk away. It will:
-#    - WIPE THE FIRST DISK and install Ubuntu Server 24.04 LTS on LVM
-#    - hostname arise-server, timezone America/Chicago, user "bradly"
-#    - install OpenSSH, git, python
-#    - on first boot: clone this repo to /opt/arise and run install.sh --no-start
+#  You don't use this file by hand. scripts/make-install-media.sh puts it on
+#  the install media three ways (installer/MAKE-USB.md):
+#    - the ariseOS ISO (one file):  /autoinstall.yaml, with `autoinstall` on
+#      the boot menu's first entry
+#    - the ariseOS add-on disc:     user-data on a disc labelled CIDATA, next
+#      to the plain Ubuntu ISO (VirtualBox: two optical drives)
+#    - a Rufus USB stick:           autoinstall.yaml and arise/ at the stick's root
 #
-#  Before using it, replace the password hash below. Generate one on any Linux
-#  or Mac terminal:
-#      openssl passwd -6 'the-password-you-want'
-#  and paste the whole $6$... line in place of REPLACE_WITH_HASH.
-#  The domain Administrator password is asked for later, by install.sh.
+#  What it does:
+#    - asks only who you are (name, user name, password, server name:
+#      type arise-server; the wizard sets it anyway)
+#    - WIPES THE LARGEST DISK and installs Ubuntu Server 24.04 LTS on LVM
+#    - America/Chicago, US keyboard, OpenSSH on
+#    - copies ariseOS from the media (no git, no GitHub token: the repo is
+#      private, so the media carries the code) to /opt/arise-src, checks it
+#      against SHA256SUMS, and runs install.sh --no-start --skip-domain
+#    - first boot: the ariseOS wizard on the screen (scripts/arise-firstboot)
+#      asks church or home, the domain password and the rest, then finishes
+#
+#  No password is in this file. The one you type at the identity screen goes
+#  to Ubuntu only; the domain password is asked by the wizard on first boot.
+#  Validated against subiquity's autoinstall-schema.json
+#  (installer/schema/, commit noted in tests/test_install_media.py).
 # =============================================================================
 autoinstall:
   version: 1
+  # Only "who are you" is asked; everything else runs by itself.
+  interactive-sections:
+    - identity
   locale: en_US.UTF-8
   keyboard:
     layout: us
   timezone: America/Chicago
 
-  identity:
-    hostname: arise-server
-    username: bradly
-    realname: Bradly Dyer
-    # openssl passwd -6 '...'  → paste the result here (keep the quotes)
-    password: "REPLACE_WITH_HASH"
-
   ssh:
     install-server: true
     allow-pw: true
 
-  # Whole-disk LVM on the first disk the installer finds. If the PC has more
-  # than one disk, pin it: replace "match: size: largest" with
-  #   match: { path: /dev/sda }   (or whatever `lsblk` shows on the live USB).
   storage:
     layout:
       name: lvm
@@ -44,9 +47,6 @@ autoinstall:
       match:
         size: largest
 
-  # A domain controller wants a wired interface with a fixed address. DHCP here
-  # gets the install done; INSTALL.md step "Fixed address" pins it afterwards
-  # (or set a DHCP reservation on the router for this MAC).
   network:
     version: 2
     ethernets:
@@ -65,12 +65,35 @@ autoinstall:
   updates: security
 
   late-commands:
-    # Fetch the server code into the installed system and run the installer
-    # with --no-start --skip-domain: packages, venv, config, units — but the
-    # domain is provisioned on first login, where install.sh can ask for the
-    # Administrator password and check the wired address.
-    - curtin in-target --target=/target -- git clone --depth 1 https://github.com/Rehchu/Church-server-OS-.git /opt/arise
-    - curtin in-target --target=/target -- bash -c 'bash /opt/arise/installer/install.sh --no-start --skip-domain --skip-docker >/var/log/arise-autoinstall.log 2>&1 || echo "install.sh failed, see /var/log/arise-autoinstall.log" >> /etc/motd'
-    - curtin in-target --target=/target -- bash -c 'printf "\n  Arise Server: finish the install with\n      sudo bash /opt/arise/installer/install.sh --kiosk            (at the church)\n      sudo bash /opt/arise/installer/install.sh --kiosk --staging  (at home first)\n  It provisions the domain, deploys and starts the apps, and puts the desktop on this monitor.\n  See /opt/arise/INSTALL.md\n\n" >> /etc/motd'
+    # 1. Find ariseOS on the media: the ISO or a USB stick (/cdrom/arise), or
+    #    the add-on disc labelled CIDATA. Check it, then copy it into the new system.
+    - |
+      set -e
+      M=""
+      [ -f /cdrom/arise/ariseos-src.tar.gz ] && M=/cdrom/arise
+      if [ -z "$M" ]; then
+        D="$(blkid -L CIDATA 2>/dev/null || true)"
+        if [ -n "$D" ]; then
+          mkdir -p /run/arise-media
+          mount -o ro "$D" /run/arise-media 2>/dev/null || true
+          [ -f /run/arise-media/arise/ariseos-src.tar.gz ] && M=/run/arise-media/arise
+        fi
+      fi
+      if [ -z "$M" ]; then
+        echo "ariseOS: the install media has no arise/ariseos-src.tar.gz; Ubuntu is installed, ariseOS is not" | tee -a /target/etc/motd
+        exit 0
+      fi
+      (cd "$M" && sha256sum -c SHA256SUMS) || { echo "ariseOS: the copy on the media is damaged (SHA256SUMS); make the media again" | tee -a /target/etc/motd; exit 0; }
+      mkdir -p /target/opt/arise-src
+      tar -xzf "$M/ariseos-src.tar.gz" -C /target/opt/arise-src
+      cp "$M/SHA256SUMS" /target/opt/arise-src/.media-SHA256SUMS
+      [ -f "$M/VERSION" ] && cp "$M/VERSION" /target/opt/arise-src/.media-VERSION || true
+    # 2. The packages, the code, the config and the units. The domain waits for
+    #    the first boot, where the wizard asks for its password.
+    - |
+      curtin in-target --target=/target -- bash -c '[ -f /opt/arise-src/installer/install.sh ] || exit 0; mkdir -p /var/log/arise; bash /opt/arise-src/installer/install.sh --no-start --skip-domain --skip-docker >/var/log/arise-autoinstall.log 2>&1 || echo "ariseOS: the install step failed: see /var/log/arise-autoinstall.log, then sudo arisectl setup" >> /etc/motd'
+    # 3. The first-boot wizard on the screen.
+    - |
+      curtin in-target --target=/target -- bash -c '[ -f /opt/arise-src/config/systemd/arise-firstboot.service ] || exit 0; install -m 0644 /opt/arise-src/config/systemd/arise-firstboot.service /etc/systemd/system/arise-firstboot.service; systemctl enable arise-firstboot.service'
 
   shutdown: reboot
