@@ -112,6 +112,11 @@ class Sessions(unittest.TestCase):
         self.assertTrue(auth.too_many(["u:test.limit"], now))
         auth.clear_failures(keys)
         self.assertFalse(auth.too_many(keys, now))
+        # Never per account at sign-in: someone else's wrong guesses must not lock a person out (round 4, 27).
+        src = (ROOT / "server" / "arise_server" / "main.py").read_text()
+        login = src[src.index("def api_login"):src.index("\n@app.", src.index("def api_login"))]
+        self.assertIn('keys = [f"ip:{_ip(request)}"]', login)
+        self.assertNotIn('"u:" +', login)
 
     def test_password_changes_and_disabling_end_sessions(self):
         src = (ROOT / "server" / "arise_server" / "directory.py").read_text()

@@ -208,7 +208,8 @@ def fresh_token(request: Request) -> str | None:
 # ---- too many wrong passwords ----------------------------------------------------------
 # Samba's own lockout is off by default, and the dashboard was only slowed by 0.8 s a try
 # (with forty worker threads, about fifty guesses a second). Ten wrong tries in fifteen
-# minutes, per person and per address, and that one waits.
+# minutes from one address, and that device waits. Never per account: anyone could lock
+# someone else out that way, and round 4, 27 says no lockout.
 FAIL_MAX, FAIL_WINDOW = 10, 900
 _fails: dict[str, list[float]] = {}
 

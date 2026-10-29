@@ -139,7 +139,7 @@ def api_login(body: Login, response: Response, request: Request):
     c = load()
     if not c.demo and not c.web.admin_password_hash:
         raise HTTPException(401, {"setup": True, "message": "No admin password yet. On the server run: sudo arisectl admin set-password"})
-    keys = [f"ip:{_ip(request)}", "u:" + (body.user or "").strip().lower()[:64]]
+    keys = [f"ip:{_ip(request)}"]   # the guessing device waits, never the account: no lockout (round 4, 27)
     if not c.demo and _auth.too_many(keys):
         audit.record(body.user[:64], "auth.login", ok=False, ip=_ip(request), detail="too many wrong passwords: waiting")
         raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes, or reset it with Forgot your password?"})
@@ -246,7 +246,7 @@ def api_login_new_password(body: NewPassword, response: Response, request: Reque
     The same change a Mac's login window asks for; the domain's rules apply."""
     c = load()
     user = (body.user or "").strip().lower()
-    keys = [f"ip:{_ip(request)}", "u:" + user[:64]]
+    keys = [f"ip:{_ip(request)}"]   # the device waits, never the account (round 4, 27)
     if not c.demo and _auth.too_many(keys):
         raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes"})
     r = directory.change_expired(user, body.old, body.new)
