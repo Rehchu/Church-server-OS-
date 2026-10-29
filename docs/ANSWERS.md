@@ -640,6 +640,14 @@ Follow-ups the same night (pop-ups):
 | 158 | 147's staff help chat (needs its own Anthropic API key, billed per use)? | Later | not built now; asked again after install day; Claude still talks to Bradly only |
 | 159 | 152 "Any contact information for anybody"? | A church contacts list | everyone's contact details (staff, members, volunteers) searchable by staff: the Mail app's contacts (round 2, 39) published read-only through Nextcloud to Contacts on church Macs and staff phones |
 
+PIN codes (Oct 29, unprompted: "Can we setup pin codes for the dashboard? so we don't have to do a full login?"):
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 160 | Where a PIN unlocks the dashboard | Anywhere | a PIN (4 to 8 digits, each person sets their own after their full password) signs in on any device on church Wi-Fi or Tailscale; obvious PINs (0000, 1234, 2580) refused; only a hash is kept; 10 wrong PINs for one account switch that account's PIN off until one full-password sign-in (the password always works: no lockout, round 4, 27), with a Discord #alerts line |
+| 161 | The password-again clicks | Full password | deletes, emptying a Trash, showing the FileVault key or ariseadmin password, the Pastors emergency look and the YouTube renewal still ask for the real password |
+| 162 | A PIN for staff on the phone checklist page | Yes, on their own phone | after one full sign-in on their phone, a PIN opens their checklist; a leader's password reset still asks for the leader's password |
+
 ## Still needed
 
 - Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
