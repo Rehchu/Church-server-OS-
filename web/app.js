@@ -253,7 +253,7 @@ V.overview = async () => {
     <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Disks</h3><span class="sub">refreshes every 10 s</span></div><div id="lvDisks"></div></div>
     <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Tonight</h3><span class="sub">America/Chicago</span></div>
       <div class="kv"><dt>02:00</dt><dd>YouTube quota resets (midnight Pacific)</dd><dt>02:05</dt><dd>arise-automator.timer runs arise_daily.py from the worklist</dd><dt>03:00</dt><dd>arise-backup.timer: restic snapshots to the Synology, then forget/prune</dd><dt>04:00</dt><dd>arise-mirror.timer refreshes the GitHub mirror</dd></div>
-      <p class="note" style="margin-top:14px">A missed night is skipped, not lost: every job is resumable. If the PC was off, the timers run when it next boots (Persistent=true).</p></div>
+      <p class="note" style="margin-top:14px">A missed night is skipped, not lost: every job is resumable. If the box was off, the backup and mirror timers catch up when it next boots; the 02:05 automator does not, on purpose.</p></div>
   </div>`;
 };
 
@@ -268,7 +268,7 @@ V.directory = async () => {
       <div class="c3 panel ${st.ldap_ok ? 'panel--ok' : 'panel--bad'}"><div class="stat"><span class="stat__l">Domain</span><span class="stat__v" style="font-size:22px">${esc(st.netbios)}</span><span class="stat__n">${esc(st.realm)}<br>${esc(st.dc || '')}</span></div></div>
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Health</span><div class="row" style="margin-top:6px"><span class="pill ${st.ldap_ok ? 'ok' : 'bad'}">LDAP</span><span class="pill ${st.kerberos_ok ? 'ok' : 'bad'}">Kerberos</span><span class="pill ${st.dns_ok ? 'ok' : 'bad'}">DNS</span></div><span class="stat__n">forest level ${esc(st.forest_level || '—')}</span>${st.error ? `<span class="stat__n" style="color:var(--redL)">${esc(st.error)}</span>` : ''}</div></div>
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Accounts</span><span class="stat__v">${users.length}<small>users</small></span><span class="stat__n">${groups.length} groups · ${comps.length} computers</span></div></div>
-      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Join a Mac</span><span class="stat__n" style="margin-top:4px">On the Mac: <code>sudo ./mac/bind-mac.sh --computer-name MEDIA-MAC</code><br>Then log in as a domain user. Full steps in docs/MAC-MIGRATION.md.</span></div></div>
+      <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Join a Mac</span><span class="stat__n" style="margin-top:4px">Open <a href="#" data-open="macs" style="color:var(--redL)">Macs</a> → Enrol a Mac, and paste the one line into Terminal on that Mac. Church Macs only; steps in docs/MACS.md.</span></div></div>
     </div>
     <div class="tabs" id="dirTabs"><button class="active" data-t="users">Users</button><button data-t="groups">Groups</button><button data-t="shares">Shares</button><button data-t="computers">Computers</button></div>
     <div data-tab="shares" hidden>${sharesHtml(sh.shares || [])}</div>
@@ -292,6 +292,7 @@ V.directory = async () => {
   </div>`;
 };
 V.directory.after = root => {
+  $$('a[data-open]', root).forEach(a => a.onclick = e => { e.preventDefault(); openApp(a.dataset.open); });
   tabs('#dirTabs', 'directory');
   sharesAfter(root, 'directory');
   $('#uq').oninput = e => { const q = e.target.value.toLowerCase(); $$('#uTable tbody tr').forEach(tr => tr.hidden = q && !(tr.dataset.q || '').includes(q)); };
@@ -1509,6 +1510,13 @@ V.calendar.after = root => {
   $('#calSub', root).onclick = subscribeModal; const add = $('#calAdd', root); if (add) add.onclick = () => eventModal(null);
   $$('[data-ev]', root).forEach(b => b.onclick = () => { const it = (S.calData.items || []).concat(S.calData.upcoming || []).find(x => x.id === b.dataset.ev); if (it) eventDetails(it); });
   $$('.calm__d[data-day]', root).forEach(d => d.ondblclick = e => { if (isMember() || e.target.closest('button')) return; eventModal({ start: d.dataset.day + 'T18:30' }, true); });
+  // On a phone the month's events are 4 px bars: a tap on the day opens its event, or lists them.
+  $$('.calm__d[data-day]', root).forEach(d => d.addEventListener('click', e => {
+    if (!isPhone()) return; const evs = $$('[data-ev]', d); if (!evs.length) return; e.preventDefault(); e.stopPropagation();
+    if (evs.length === 1) return evs[0].click();
+    const m = modal(`<h2>${esc(new Date(d.dataset.day + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }))}</h2><div style="display:grid;gap:8px;margin-top:12px">${evs.map((b, i) => `<button class="btn btn--ghost" data-pick="${i}" style="justify-content:flex-start;text-align:left">${esc(b.title || b.textContent)}</button>`).join('')}</div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`);
+    $$('[data-pick]', m).forEach(x => x.onclick = () => { m.close(); evs[+x.dataset.pick].click(); });
+  }, true));
 };
 function eventDetails(it) {
   const when = `${fmtDay(it.start)} · ${fmtClock(it.start)}${it.end ? ' to ' + fmtClock(it.end) : ''}`;
@@ -2042,6 +2050,17 @@ function drag(el, handle) {
   handle.addEventListener('pointerup', e => { if (!on) return; on = false; const z = snapZone(e.clientX, e.clientY); snapGhost(null); if (z) snapTo(el.dataset.app, z); }); handle.addEventListener('pointercancel', () => { on = false; snapGhost(null); });
 }
 const seqs = {};
+// Every table in a window scrolls sideways inside its own box when it is wider than the window
+// (a phone), instead of pushing the window wider or running off its edge. Tables drawn later by
+// a tab or a search are caught too.
+function wrapTables(root) {
+  for (const t of root.querySelectorAll('.win__body table.tbl')) {
+    if (t.parentElement.classList.contains('tbl-wrap')) continue;
+    const w = document.createElement('div'); w.className = 'tbl-wrap'; t.replaceWith(w); w.appendChild(t);
+  }
+}
+let wrapRaf = 0;
+new MutationObserver(() => { if (wrapRaf) return; wrapRaf = requestAnimationFrame(() => { wrapRaf = 0; wrapTables(document); }); }).observe(document.documentElement, { childList: true, subtree: true });
 async function rerender(id) {
   const w = S.wins[id]; const fn = V[id]; if (!w || !fn) return;
   S.lastView = id;
@@ -2092,7 +2111,10 @@ const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('abou
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
-  $$('button', m).forEach(b => { b.onclick = e => { e.stopPropagation(); openMenu(b, list[+b.dataset.m][1]); }; b.onmouseenter = () => { if (menuOpen && menuOpen !== b) openMenu(b, list[+b.dataset.m][1]); }; });
+  // On a phone only the app's name shows in the bar (File, View, Window and Help would push the
+  // clock off the screen), so its menu carries every group, each under its own heading.
+  const all = () => list.flatMap((g, i) => i === 0 ? g[1] : [null, { h: g[0] }, ...g[1].filter(x => x !== null)]);
+  $$('button', m).forEach(b => { b.onclick = e => { e.stopPropagation(); openMenu(b, +b.dataset.m === 0 && matchMedia('(max-width: 520px)').matches ? all() : list[+b.dataset.m][1]); }; b.onmouseenter = () => { if (menuOpen && menuOpen !== b) openMenu(b, list[+b.dataset.m][1]); }; });
 }
 function openMenu(btn, items) {
   const d = $('#menuDrop');
@@ -2282,7 +2304,7 @@ function dockPins() { const k = 'dock.' + (isMember() ? 'member' : 'admin'); try
 function pinApp(id, on) { const pins = dockPins().filter(x => x !== id); if (on) pins.push(id); PREF.set('dock.' + (isMember() ? 'member' : 'admin'), JSON.stringify(pins)); buildDock(); tone('click'); toast(on ? `${appOf(id).name} kept in the Dock` : `${appOf(id).name} removed from the Dock (it still shows while open)`); }
 const dockApps = () => { const pins = dockPins(); const vis = visibleApps().filter(a => !a.hidden); return vis.filter(a => pins.includes(a.id)).sort((a, b) => pins.indexOf(a.id) - pins.indexOf(b.id)).concat(vis.filter(a => !pins.includes(a.id) && S.wins[a.id])); };
 function applyDockHide() { const on = PREF.get('dock.hide', '1') === '1' && !isPhone(); document.body.classList.toggle('dockhide', on); let edge = $('#dockEdge'); if (!edge) { edge = document.createElement('div'); edge.id = 'dockEdge'; edge.setAttribute('aria-hidden', 'true'); $('#desk').appendChild(edge); edge.onmouseenter = () => dockShow(true); $('#dock').onmouseleave = () => dockShow(false, 400); $('#dock').onmouseenter = () => dockShow(true); } }
-function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock').classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock').classList.remove('show'), after || 0); }
+function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock')?.classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock')?.classList.remove('show'), after || 0); }   // the sign-in page may have replaced the desktop by then
 function buildDock() {
   const d = $('#dock');
   d.innerHTML = dockApps().map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
@@ -2410,7 +2432,7 @@ function showLogin(err) {
     catch (er) { fail(er.message); }
     finally { b.classList.remove('busy'); } };
 }
-function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
+function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', matchMedia('(max-width: 520px)').matches ? { hour: 'numeric', minute: '2-digit' } : { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
 
 /* ---------------- keyboard + kiosk + boot ---------------- */
 document.addEventListener('keydown', e => {
