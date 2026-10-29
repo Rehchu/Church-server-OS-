@@ -108,6 +108,7 @@ section.strip{background:var(--scrim);border-top:1px solid rgba(255,255,255,.08)
 .feat__c{background:var(--ink);padding:28px 24px 30px;border-top:3px solid transparent;transition:border-color .2s,background .2s}
 .feat__c:hover{border-top-color:var(--red);background:var(--panel)}
 .feat__c h3{font-size:17px;margin-bottom:10px} .feat__c p{font-size:14.5px}
+.feat__c ul{margin:8px 0 8px 18px;font-size:14.5px;color:inherit} .feat__c li{margin:3px 0} .feat__c p+p{margin-top:8px}
 @media(max-width:1000px){.feat{grid-template-columns:1fr 1fr}} @media(max-width:560px){.feat{grid-template-columns:1fr}}
 
 /* tabs */
