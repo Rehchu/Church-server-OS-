@@ -55,7 +55,8 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
    in its repo decides whether this box is the runner (the PC is, until
    Bradly switches it on the PC; never edit runner.json, holds.json or
    worklist.json here). `arisectl automator preview` is the plan-only run;
-   its reads still spend the shared quota. Never run arise_daily.py as root.
+   its reads still spend the shared quota: you may run it once a week, never on a Sunday or
+   Monday (round 7, 146 and 157). Never run arise_daily.py as root.
    Never invent a CCLI number, a speaker or a sermon title. docs/AUTOMATOR.md
    and the automator repo's SERVER_HANDOFF.md are the rules.
 4. `/etc/samba/smb.conf`: edit only with a backup copy made first and

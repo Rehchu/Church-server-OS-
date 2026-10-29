@@ -631,6 +631,15 @@ Bradly: "keep working till you think it is perfect! If you have to, ask 150 ques
 | 154 | Removed Mac profiles are kept as disk images in /Users/Deleted Users on that Mac. They pile up. | Keep them forever | removed-profile disk images are kept forever |
 | 155 | Staff email addresses (first.last@ad.arisecenla.com) forwarding to their personal email: the mail server isn't built yet. | Build it next: forwarding only, plus exporting a leaver's mail | build mail next: forwarding to personal email only, and exporting a leaver's mail |
 
+Follow-ups the same night (pop-ups):
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 156 | 23's "Link them all": a local account that matches no server user? | Make a server user | first.last from the account's full name (first.last2 on a clash, 12), a temporary password shown once, then linked; in watch mode only reported |
+| 157 | 98 (no previews before the switch week) against 146 (Claude previews weekly)? | Weekly, from now | Claude may run one plan-only preview a week, never on a Sunday or Monday; no nightly server previews until the switch week |
+| 158 | 147's staff help chat (needs its own Anthropic API key, billed per use)? | Later | not built now; asked again after install day; Claude still talks to Bradly only |
+| 159 | 152 "Any contact information for anybody"? | A church contacts list | everyone's contact details (staff, members, volunteers) searchable by staff: the Mail app's contacts (round 2, 39) published read-only through Nextcloud to Contacts on church Macs and staff phones |
+
 ## Still needed
 
 - Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
