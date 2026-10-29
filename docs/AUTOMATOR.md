@@ -147,8 +147,10 @@ this order, the parts only Bradly can do:
    title "ariseOS server", paste the key the setup printed, **leave "Allow
    write access" unticked**. Then `sudo arisectl automator setup` again; it clones.
 2. **Cloud Console**, project `iconic-vine-505702-i5`:
-   - APIs & Services → OAuth consent screen → **Audience** → if it says
-     Testing, **Publish app**. In Testing, refresh tokens die after 7 days.
+   - APIs & Services → OAuth consent screen → **Audience**: it stays in
+     **Testing**, on purpose (Bradly, Oct 29). Refresh tokens then die 7 days
+     after they are given, so the server's sign-in is renewed each week
+     (Weekly sign-in, below). Bradly's account must be on the Test users list.
    - Credentials → Create credentials → OAuth client ID → **Desktop app**,
      named **ariseOS server**. Download the JSON.
 3. Copy it in with `scp` (never chat or git) to
@@ -166,6 +168,60 @@ this order, the parts only Bradly can do:
    `signed in as Arise Church`, a budget of 6000, **the same hold count as
    the PC's LATEST_REPORT.md** (8 on hold, 6 standing rules), and each enabled
    job's dry run.
+
+## Weekly sign-in (Testing mode)
+
+Bradly keeps the OAuth app in Testing (Oct 29), so Google ends a sign-in seven
+days after it is given. He renews the PC's every Sunday; the server's is renewed
+the same day, the same way, in the dashboard. The server uses its own "ariseOS
+server" client; the PC's token never comes to the server, and no token ever goes
+through a chat, a log, git or the dashboard's answers.
+
+**Where: the Media Mac.** It is the Mac signed in to the channel's Google account
+(Bradly, Oct 29), so the whole renewal runs in one browser there:
+
+1. On the Media Mac, open `https://arise-server.ad.arisecenla.com` in Safari and
+   sign in to the dashboard as yourself.
+2. **Automator → Sign-in → Renew for the week.** It asks for your password again.
+3. **Open Google's sign-in.** It opens in a new tab of the same browser. Choose
+   the **Arise Church** channel, then Advanced → Go to … (the church's own app),
+   then Allow.
+4. Google sends that tab to `http://localhost:8765/?state=…&code=…`, which
+   **fails to load**. That is expected. Copy the whole address (click the address
+   bar, ⌘A, ⌘C), close the tab, paste it into the dashboard (⌘V), press **Renew**.
+5. The server checks the address came from this very attempt, swaps the code for
+   a sign-in, asks YouTube once (1 quota unit) that it is Arise Church
+   (`UCGS9j7B_prcJkbTNgzlGrKg`), and only then writes `token.json` (0600, your
+   account) for the 02:05 job. The answer says when the sign-in now ends.
+
+**The shared Mac.** A dashboard sign-in lasts a year, and the Media Mac is shared,
+so the box **"Sign me out of this browser when done"** is ticked: once the renewal
+works, that browser is signed out of the dashboard. Only that browser: your phone
+and the closet stay signed in. Untick it to stay signed in; the success screen
+also has a **Sign me out of this browser** button. On the closet monitor it never
+signs out.
+
+**Rules.** The link works ten minutes and once. A pasted address from another
+attempt, an old link, an account with no refresh token or the wrong channel is
+refused and nothing is written. Never during a service: the Media Mac streams, so
+Renew is refused while a service is on. The audit log says "renewed, expires …"
+and nothing more. The PKCE verifier and the state wait in
+`/var/lib/arise/ytauth-pending.json` (root, 0600) for ten minutes; the renewal
+date is in `/var/lib/arise/ytauth.json` (the job rewrites `token.json` every night,
+so its date says nothing about when Google gave the sign-in).
+
+**Reminders.** When the sign-in ends within 30 hours: a Discord #alerts line and a
+push on **Saturday evening** (19:00) and again **Sunday after the service** (from
+12:00, never during one), once each a week: "Renew from the Media Mac: Automator →
+Sign-in". Needs You (and so the morning note) says when it ends, and once it has
+ended: "the YouTube sign-in expired on …; renew it from the Media Mac". The job
+itself already fails safe on an expired sign-in; nothing about it changed.
+
+**From a terminal:** `sudo arisectl automator renew` prints the same link and reads
+the pasted address (the token is never printed). `sudo arisectl automator signin`
+(the handoff's own `authorize_headless.py`) still works and starts the weekly
+clock too. `[automator] oauth_testing = false` in arise.toml turns the weekly clock
+off if the app is ever published.
 
 ## The timer
 
@@ -199,7 +255,7 @@ service day.
 `sudo arisectl automator cutover` (and the Automator app) shows the handoff's
 section 9 list, ticking what the server can see:
 
-1. The OAuth app is Published. *(Bradly confirms.)*
+1. The OAuth app stays in Testing (Oct 29); the server's sign-in has been renewed this week (Automator → Sign-in).
 2. The server's own client and token are here, 0600, your account.
 3. The timer has written a "not the runner" report.
 4. A plan-only run shows "signed in as Arise Church" and the hold count.
@@ -277,7 +333,7 @@ the channel's video; StreamYard or a local capture).
 
 ## Open items for Bradly (the handoff's section 12, plus what ariseOS found)
 
-- Publish the OAuth app; create the "ariseOS server" client.
+- Create the "ariseOS server" client (the app stays in Testing; the server's sign-in is renewed weekly from the Media Mac).
 - Add the server's read-only deploy key on GitHub.
 - **Push the revision commit** ("Per-machine job state, server cap 6,000")
   from the PC; GitHub's `main` is still at 8326b4a.

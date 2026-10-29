@@ -126,7 +126,7 @@ AUTOMATOR = {
     "next_run": (datetime.now().replace(hour=2, minute=5, second=0, microsecond=0) + timedelta(days=1)).isoformat(timespec="seconds"),
     "quota_today": 1962, "quota_daily": 10000, "quota_reset": "2:00 AM Central",
     "holds": 8, "rules": 3, "worklist_enabled": 4, "worklist_total": 6,
-    "token_ok": True, "token_days_left": 5, "token_note": "OAuth app is still in Testing: Google expires the token every 7 days. Publish it (Google Cloud → OAuth consent → Audience → Publish app).",
+    "token_ok": True, "token_days_left": 5, "token_note": "Testing mode, on purpose (Oct 29): Google ends the sign-in seven days after it is given; renew it each week from the Media Mac in Automator → Sign-in.",
     "signed_in_as": "Arise Church (@arisechurch4147)",
     "latest_report": """# Arise YouTube — automated run
 Sunday 26 October 2026, 02:05 AM Central

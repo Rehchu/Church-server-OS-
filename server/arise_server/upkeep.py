@@ -187,6 +187,12 @@ def hourly(now: datetime | None = None, post=None) -> dict:
         r = post("alerts", it["text"], key=key, fix=it.get("fix", ""))
         if r.get("ok") and not r.get("duplicate"):
             sent.append(it["key"])
+    # The weekly YouTube sign-in: Saturday evening and Sunday after the service, once each (Oct 29).
+    try:
+        from . import ytauth
+        sent += ytauth.reminders(now, post=post)
+    except Exception:  # noqa: BLE001 - a reminder never stops the hourly round
+        pass
     return {"ok": True, "items": len(items), "posted": sent}
 
 

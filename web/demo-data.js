@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793254200
+"boot_time": 1793263308
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,14 +32,14 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-29T02:27:28",
+"last_run": "2026-10-29T02:54:06",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 5,
+"token_days_left": 3.1,
 "holds": 8
 },
 "backup": {
@@ -90,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:27:28"
+"since": "2026-10-15T05:54:06"
 }
 ]
 },
@@ -169,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T06:27:28",
+"last_logon": "2026-10-29T07:54:06",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -183,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T07:27:28",
+"last_logon": "2026-10-28T08:54:06",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -197,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T04:27:28",
+"last_logon": "2026-10-27T05:54:06",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -211,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-23T07:27:28",
+"last_logon": "2026-10-23T08:54:06",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -239,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T07:27:28",
+"last_logon": "2026-10-26T08:54:06",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -253,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-20T07:27:28",
+"last_logon": "2026-10-20T08:54:06",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -270,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T03:27:28",
+"last_logon": "2026-10-28T04:54:06",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -287,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T07:27:28",
+"last_logon": "2026-10-27T08:54:06",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -303,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T00:27:28",
+"last_logon": "2026-10-28T01:54:06",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -409,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-29T06:27:28",
+"last_seen": "2026-10-29T07:54:06",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-28T07:27:28",
+"last_seen": "2026-10-28T08:54:06",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-27T07:27:28",
+"last_seen": "2026-10-27T08:54:06",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-29T07:23:28",
+"last_seen": "2026-10-29T08:50:06",
 "ip": "192.168.1.20"
 }
 ]
@@ -1958,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-20T07:27:28",
+"last_check": "2026-10-20T08:54:06",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1990,7 +1990,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-29T02:27:28",
+"last_run": "2026-10-29T02:54:06",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
@@ -2002,8 +2002,8 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 5,
-"token_note": "OAuth app is still in Testing: Google expires the token every 7 days. Publish it (Google Cloud → OAuth consent → Audience → Publish app).",
+"token_days_left": 3.1,
+"token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 1, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
 "reports": [
@@ -2020,6 +2020,18 @@ window.ARISE_DEMO_DATA = {
 "2026-10-16_0205.md",
 "2026-10-15_0205.md"
 ],
+"signin": {
+"testing": true,
+"known": true,
+"issued": "2026-10-25T12:14",
+"expires": "2026-11-01T12:14",
+"expires_text": "Sun Nov 1, 12:14 PM",
+"hours_left": 75.3,
+"days_left": 3.1,
+"expired": false,
+"soon": false,
+"by": "bradly"
+},
 "demo": true,
 "schedule": "02:05",
 "manual": {},
@@ -2112,17 +2124,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-29T02:27:28",
+"when": "2026-10-29T03:54:06",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-29T02:27:28",
+"when": "2026-10-29T03:54:06",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-29T02:27:28",
+"when": "2026-10-29T03:54:06",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2133,8 +2145,8 @@ window.ARISE_DEMO_DATA = {
 "rows": [
 {
 "n": 1,
-"level": "you",
-"text": "The OAuth app is Published (Cloud Console, Audience)",
+"level": "ok",
+"text": "The OAuth app stays in Testing (Oct 29); sample: the server's sign-in was renewed this week",
 "fix": ""
 },
 {
@@ -2212,7 +2224,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2229,7 +2241,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2246,7 +2258,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2263,7 +2275,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2280,7 +2292,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-27T07:27:28",
+"updated": "2026-10-27T08:54:06",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2297,7 +2309,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2314,7 +2326,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2331,7 +2343,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-28T07:27:28",
+"updated": "2026-10-28T08:54:06",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2348,7 +2360,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2365,7 +2377,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-26T07:27:28",
+"updated": "2026-10-26T08:54:06",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3213,7 +3225,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-28T05:27:28",
+"last": "2026-10-28T06:54:06",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3271,7 +3283,8 @@ window.ARISE_DEMO_DATA = {
 "enabled": true,
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
 "python": "/opt/arise/venv/bin/python",
-"schedule": "02:05"
+"schedule": "02:05",
+"oauth_testing": true
 },
 "storage": {
 "homes_on": "server",
@@ -3476,7 +3489,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-29T07:27"
+"when": "2026-10-29T08:54"
 },
 {
 "user": "bradly",
@@ -3710,8 +3723,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-27T07:27",
-"expires": "2026-11-03T07:27",
+"created": "2026-10-27T08:54",
+"expires": "2026-11-03T08:54",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4059,7 +4072,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4472,
+"in_minutes": 4385,
 "in_words": "3 days"
 },
 "verse": {
@@ -4193,7 +4206,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4472,
+"in_minutes": 4385,
 "in_words": "3 days"
 },
 "verse": {
@@ -4240,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-29T07:27"
+"now": "2026-10-29T08:54"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4344,7 +4357,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-29T07:27:29+00:00",
+"last_check": "2026-10-29T08:54:06+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4357,7 +4370,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-29T03:27:29",
+"t": "2026-10-29T04:54:06",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4365,7 +4378,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T02:27:29",
+"t": "2026-10-28T03:54:06",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4373,7 +4386,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T07:27:29",
+"t": "2026-10-27T08:54:06",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4381,7 +4394,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T05:27:29",
+"t": "2026-10-26T06:54:06",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4389,7 +4402,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T07:27:29",
+"t": "2026-10-24T08:54:06",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4397,7 +4410,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T06:27:29",
+"t": "2026-10-24T07:54:06",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4405,7 +4418,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T04:27:29",
+"t": "2026-10-23T05:54:06",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4413,7 +4426,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T04:27:29",
+"t": "2026-10-23T05:54:06",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4908,8 +4921,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "AUTOMATOR",
 "title": "The automator on the server",
-"size": 21858,
-"lines": 332,
+"size": 25494,
+"lines": 388,
 "blurb": "The Arise YouTube nightly job (automator/arisedaily.py in"
 },
 {
@@ -5027,8 +5040,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "MACS",
 "title": "The church Macs",
-"size": 27548,
-"lines": 492,
+"size": 28569,
+"lines": 512,
 "blurb": "The server is the church's own Active Directory. It is a Samba AD domain"
 },
 {
@@ -5282,7 +5295,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-29T07:27:29+00:00",
+"checked_at": "2026-10-29T08:54:06+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5307,7 +5320,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-29T07:27:29+00:00",
+"queued_at": "2026-10-29T08:54:06+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5315,16 +5328,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-24T07:27",
+"when": "2026-10-24T08:54",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-29T07:27:29+00:00"
+"last_check": "2026-10-29T08:54:06+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793258849.7134354,
+"t": 1793264046.731397,
 "processes": [
 {
 "pid": 470,
@@ -5334,7 +5347,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792049249.7134213,
+"since": 1792054446.7313766,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5351,7 +5364,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792049249.71342,
+"since": 1792054446.7313755,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5368,7 +5381,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792049249.7134001,
+"since": 1792054446.7313445,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5385,7 +5398,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792049249.7134087,
+"since": 1792054446.7313552,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5402,7 +5415,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792049249.7134151,
+"since": 1792054446.7313697,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5419,7 +5432,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792049249.7134051,
+"since": 1792054446.7313504,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5436,7 +5449,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792049249.7134078,
+"since": 1792054446.7313533,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5453,7 +5466,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792049249.7134123,
+"since": 1792054446.7313595,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5470,7 +5483,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792049249.7134223,
+"since": 1792054446.7313778,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5487,7 +5500,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792049249.713414,
+"since": 1792054446.7313676,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5504,7 +5517,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792049249.7134242,
+"since": 1792054446.7313828,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5521,7 +5534,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792049249.7134187,
+"since": 1792054446.7313733,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5538,7 +5551,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792049249.713423,
+"since": 1792054446.7313793,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5555,7 +5568,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792049249.7134168,
+"since": 1792054446.7313712,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5675,8 +5688,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-29T08:00:00",
-"last": "2026-10-28T08:00:00",
+"next": "2026-10-29T09:00:00",
+"last": "2026-10-28T09:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5833,7 +5846,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-29T01:27",
+"as_of": "2026-10-29T02:54",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5906,62 +5919,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-29T07:27"
+"mtime": "2026-10-29T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-22T07:27"
+"mtime": "2026-10-22T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-15T07:27"
+"mtime": "2026-10-15T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-08T07:27"
+"mtime": "2026-10-08T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-01T07:27"
+"mtime": "2026-10-01T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-24T07:27"
+"mtime": "2026-09-24T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-17T07:27"
+"mtime": "2026-09-17T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-10T07:27"
+"mtime": "2026-09-10T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-03T07:27"
+"mtime": "2026-09-03T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-27T07:27"
+"mtime": "2026-08-27T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-20T07:27"
+"mtime": "2026-08-20T08:54"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-13T07:27"
+"mtime": "2026-08-13T08:54"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5978,17 +5991,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-16T07:27"
+"mtime": "2025-06-16T08:54"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-16T07:27"
+"mtime": "2025-06-16T08:54"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-16T07:27"
+"mtime": "2025-06-16T08:54"
 }
 ],
 "old_days": 365
@@ -8084,7 +8097,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8099,7 +8112,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8114,7 +8127,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8129,7 +8142,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8144,7 +8157,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8159,7 +8172,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8174,7 +8187,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 },
 {
@@ -8189,11 +8202,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:27:30+00:00",
+"when": "2026-10-29T08:54:07+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-29T07:27:30+00:00",
+"last": "2026-10-29T08:54:07+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8605,7 +8618,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-27T07:27",
+"when": "2026-10-27T08:54",
 "from": "portal"
 },
 {
@@ -8617,7 +8630,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-17T07:27",
+"when": "2026-10-17T08:54",
 "from": "mac"
 },
 {
@@ -8629,7 +8642,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-02T07:27",
+"when": "2026-10-02T08:54",
 "from": "mac"
 }
 ],
@@ -8860,6 +8873,19 @@ window.ARISE_DEMO_DATA = {
 }
 ]
 },
+"GET /automator/signin": {
+"demo": true,
+"testing": true,
+"known": true,
+"issued": "2026-10-25T12:14",
+"expires": "2026-11-01T12:14",
+"expires_text": "Sun Nov 1, 12:14 PM",
+"hours_left": 75.3,
+"days_left": 3.1,
+"expired": false,
+"soon": false,
+"by": "bradly"
+},
 "GET /pastors/breakglass": {
 "open": false,
 "allowed": true,
@@ -8897,35 +8923,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-29T03:27:29",
+"when": "2026-10-29T04:54:06",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-28T02:27:29",
+"when": "2026-10-28T03:54:06",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-27T07:27:29",
+"when": "2026-10-27T08:54:06",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-24T07:27:29",
+"when": "2026-10-24T08:54:06",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-23T04:27:29",
+"when": "2026-10-23T05:54:06",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9229,7 +9255,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4472,
+"in_minutes": 4385,
 "in_words": "3 days"
 },
 "call_time": "09:00",
@@ -9256,7 +9282,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4472,
+"in_minutes": 4385,
 "in_words": "3 days"
 },
 "demo": true
@@ -9430,1176 +9456,1176 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-22T07:05",
+"at": "2026-10-22T08:05",
 "down": 929.1,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-22T08:05",
+"at": "2026-10-22T09:05",
 "down": 934.9,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-22T09:05",
+"at": "2026-10-22T10:05",
 "down": 938.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-22T10:05",
+"at": "2026-10-22T11:05",
 "down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T11:05",
+"at": "2026-10-22T12:05",
 "down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-22T12:05",
+"at": "2026-10-22T13:05",
 "down": 935.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-22T13:05",
+"at": "2026-10-22T14:05",
 "down": 930.0,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-22T14:05",
+"at": "2026-10-22T15:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-22T15:05",
+"at": "2026-10-22T16:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-22T16:05",
+"at": "2026-10-22T17:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-22T17:05",
+"at": "2026-10-22T18:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-22T18:05",
-"down": 879.0,
+"at": "2026-10-22T19:05",
+"down": 483.5,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-22T19:05",
+"at": "2026-10-22T20:05",
 "down": 476.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T20:05",
+"at": "2026-10-22T21:05",
 "down": 470.7,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T21:05",
-"down": 464.9,
+"at": "2026-10-22T22:05",
+"down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-22T22:05",
+"at": "2026-10-22T23:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-22T23:05",
+"at": "2026-10-23T00:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-23T00:05",
+"at": "2026-10-23T01:05",
 "down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-23T01:05",
+"at": "2026-10-23T02:05",
 "down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-23T02:05",
+"at": "2026-10-23T03:05",
 "down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-23T03:05",
+"at": "2026-10-23T04:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-23T04:05",
+"at": "2026-10-23T05:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-23T05:05",
+"at": "2026-10-23T06:05",
 "down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-23T06:05",
+"at": "2026-10-23T07:05",
 "down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-23T07:05",
+"at": "2026-10-23T08:05",
 "down": 849.9,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-23T08:05",
+"at": "2026-10-23T09:05",
 "down": 860.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-23T09:05",
+"at": "2026-10-23T10:05",
 "down": 872.5,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-23T10:05",
+"at": "2026-10-23T11:05",
 "down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-23T11:05",
+"at": "2026-10-23T12:05",
 "down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-23T12:05",
+"at": "2026-10-23T13:05",
 "down": 907.4,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-23T13:05",
+"at": "2026-10-23T14:05",
 "down": 917.5,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-23T14:05",
+"at": "2026-10-23T15:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-23T15:05",
+"at": "2026-10-23T16:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-23T16:05",
+"at": "2026-10-23T17:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-23T17:05",
+"at": "2026-10-23T18:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-23T18:05",
-"down": 939.7,
+"at": "2026-10-23T19:05",
+"down": 516.8,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-23T19:05",
+"at": "2026-10-23T20:05",
 "down": 515.5,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-23T20:05",
+"at": "2026-10-23T21:05",
 "down": 512.9,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-23T21:05",
-"down": 509.2,
+"at": "2026-10-23T22:05",
+"down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-23T22:05",
+"at": "2026-10-23T23:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-23T23:05",
+"at": "2026-10-24T00:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T00:05",
+"at": "2026-10-24T01:05",
 "down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T01:05",
+"at": "2026-10-24T02:05",
 "down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-24T02:05",
+"at": "2026-10-24T03:05",
 "down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-24T03:05",
+"at": "2026-10-24T04:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-24T04:05",
+"at": "2026-10-24T05:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-24T05:05",
+"at": "2026-10-24T06:05",
 "down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-24T06:05",
+"at": "2026-10-24T07:05",
 "down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-24T07:05",
+"at": "2026-10-24T08:05",
 "down": 825.7,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-24T08:05",
+"at": "2026-10-24T09:05",
 "down": 821.7,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-24T09:05",
+"at": "2026-10-24T10:05",
 "down": 820.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T10:05",
+"at": "2026-10-24T11:05",
 "down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T11:05",
+"at": "2026-10-24T12:05",
 "down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-24T12:05",
+"at": "2026-10-24T13:05",
 "down": 829.2,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-24T13:05",
+"at": "2026-10-24T14:05",
 "down": 836.6,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-24T14:05",
+"at": "2026-10-24T15:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-24T15:05",
+"at": "2026-10-24T16:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-24T16:05",
+"at": "2026-10-24T17:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-24T17:05",
+"at": "2026-10-24T18:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T18:05",
-"down": 891.4,
+"at": "2026-10-24T19:05",
+"down": 490.3,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T19:05",
+"at": "2026-10-24T20:05",
 "down": 496.6,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T20:05",
+"at": "2026-10-24T21:05",
 "down": 502.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-24T21:05",
-"down": 507.5,
+"at": "2026-10-24T22:05",
+"down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-24T22:05",
+"at": "2026-10-24T23:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-24T23:05",
+"at": "2026-10-25T00:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-25T00:05",
+"at": "2026-10-25T01:05",
 "down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-25T01:05",
+"at": "2026-10-25T02:05",
 "down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-25T02:05",
+"at": "2026-10-25T03:05",
 "down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-25T03:05",
+"at": "2026-10-25T04:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T04:05",
+"at": "2026-10-25T05:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T05:05",
+"at": "2026-10-25T06:05",
 "down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T06:05",
+"at": "2026-10-25T07:05",
 "down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-25T07:05",
+"at": "2026-10-25T08:05",
 "down": 900.6,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-25T08:05",
+"at": "2026-10-25T09:05",
 "down": 889.0,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-25T09:05",
+"at": "2026-10-25T10:05",
 "down": 877.0,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T10:05",
+"at": "2026-10-25T11:05",
 "down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-25T11:05",
+"at": "2026-10-25T12:05",
 "down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T12:05",
+"at": "2026-10-25T13:05",
 "down": 843.7,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T13:05",
+"at": "2026-10-25T14:05",
 "down": 834.9,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T14:05",
+"at": "2026-10-25T15:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T15:05",
+"at": "2026-10-25T16:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T16:05",
+"at": "2026-10-25T17:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T17:05",
+"at": "2026-10-25T18:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-25T18:05",
-"down": 822.3,
+"at": "2026-10-25T19:05",
+"down": 452.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T19:05",
+"at": "2026-10-25T20:05",
 "down": 454.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-25T20:05",
+"at": "2026-10-25T21:05",
 "down": 458.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-25T21:05",
-"down": 462.9,
+"at": "2026-10-25T22:05",
+"down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-25T22:05",
+"at": "2026-10-25T23:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T23:05",
+"at": "2026-10-26T00:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T00:05",
+"at": "2026-10-26T01:05",
 "down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T01:05",
+"at": "2026-10-26T02:05",
 "down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T02:05",
+"at": "2026-10-26T03:05",
 "down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-26T03:05",
+"at": "2026-10-26T04:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-26T04:05",
+"at": "2026-10-26T05:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-26T05:05",
+"at": "2026-10-26T06:05",
 "down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-26T06:05",
+"at": "2026-10-26T07:05",
 "down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T07:05",
+"at": "2026-10-26T08:05",
 "down": 937.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T08:05",
+"at": "2026-10-26T09:05",
 "down": 939.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T09:05",
+"at": "2026-10-26T10:05",
 "down": 939.4,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T10:05",
+"at": "2026-10-26T11:05",
 "down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T11:05",
+"at": "2026-10-26T12:05",
 "down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-26T12:05",
+"at": "2026-10-26T13:05",
 "down": 924.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-26T13:05",
+"at": "2026-10-26T14:05",
 "down": 915.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-26T14:05",
+"at": "2026-10-26T15:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-26T15:05",
+"at": "2026-10-26T16:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T16:05",
+"at": "2026-10-26T17:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T17:05",
+"at": "2026-10-26T18:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
-"down": 858.5,
+"at": "2026-10-26T19:05",
+"down": 472.2,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
+"at": "2026-10-26T20:05",
 "down": 466.3,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
+"at": "2026-10-26T21:05",
 "down": 461.1,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 456.8,
+"at": "2026-10-26T22:05",
+"down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-26T23:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T00:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T01:05",
 "down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T02:05",
 "down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T03:05",
 "down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T04:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T05:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T06:05",
 "down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-27T07:05",
 "down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-27T08:05",
 "down": 869.5,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-27T09:05",
 "down": 881.5,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T10:05",
 "down": 893.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T11:05",
 "down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-27T12:05",
 "down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-27T13:05",
 "down": 924.1,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-27T14:05",
 "down": 931.3,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
+"at": "2026-10-27T15:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
+"at": "2026-10-27T16:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
+"at": "2026-10-27T17:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
+"at": "2026-10-27T18:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
-"down": 933.9,
+"at": "2026-10-27T19:05",
+"down": 513.7,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
+"at": "2026-10-27T20:05",
 "down": 510.2,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
+"at": "2026-10-27T21:05",
 "down": 505.7,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 500.3,
+"at": "2026-10-27T22:05",
+"down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-27T23:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T00:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T01:05",
 "down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T02:05",
 "down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T03:05",
 "down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T04:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T05:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T06:05",
 "down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-28T07:05",
 "down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-28T08:05",
 "down": 820.2,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-28T09:05",
 "down": 820.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T10:05",
 "down": 822.9,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T11:05",
 "down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-28T12:05",
 "down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-28T13:05",
 "down": 843.3,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-28T14:05",
 "down": 853.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
+"at": "2026-10-28T15:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
+"at": "2026-10-28T16:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
+"at": "2026-10-28T17:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
+"at": "2026-10-28T18:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
-"down": 910.9,
+"at": "2026-10-28T19:05",
+"down": 501.0,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
+"at": "2026-10-28T20:05",
 "down": 506.3,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
+"at": "2026-10-28T21:05",
 "down": 510.7,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 514.0,
+"at": "2026-10-28T22:05",
+"down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-28T23:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T00:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T01:05",
 "down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T02:05",
 "down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T03:05",
 "down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T04:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T05:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T06:05",
 "down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T07:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10607,14 +10633,14 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "last": {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T07:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 872.5,
+"down": 872.1,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
@@ -10746,12 +10772,12 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-10-29T07:27",
+"checked": "2026-10-29T08:54",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T07:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -14449,14 +14475,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T07:27:29",
+"enrolled": "2026-10-20T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T01:27:29",
+"last_checkin": "2026-10-29T02:54:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T07:27:29",
+"ariseadmin_at": "2026-10-20T08:54:06",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14474,14 +14500,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T07:27:29",
+"enrolled": "2026-10-26T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:25:29",
+"last_checkin": "2026-10-29T08:52:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T07:27:29",
+"ariseadmin_at": "2026-10-26T08:54:06",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14499,14 +14525,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T07:27:29",
+"enrolled": "2026-10-28T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:23:29",
+"last_checkin": "2026-10-29T08:50:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T07:27:29",
+"ariseadmin_at": "2026-10-28T08:54:06",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14543,14 +14569,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T07:27:29",
+"enrolled": "2026-10-20T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T01:27:29",
+"last_checkin": "2026-10-29T02:54:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T07:27:29",
+"ariseadmin_at": "2026-10-20T08:54:06",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14569,7 +14595,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-25T07:27:29"
+"last_login": "2026-10-25T08:54:06"
 }
 ],
 "tasks": [
@@ -14580,9 +14606,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-28T11:27:29",
+"made": "2026-10-28T12:54:06",
 "by": "the overnight window",
-"finished": "2026-10-28T12:27:29",
+"finished": "2026-10-28T13:54:06",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14603,14 +14629,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T07:27:29",
+"enrolled": "2026-10-26T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:25:29",
+"last_checkin": "2026-10-29T08:52:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T07:27:29",
+"ariseadmin_at": "2026-10-26T08:54:06",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14629,7 +14655,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-28T07:27:29"
+"last_login": "2026-10-28T08:54:06"
 },
 {
 "user": "media",
@@ -14639,12 +14665,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-29T04:27:29",
+"last_login": "2026-10-29T05:54:06",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-27T07:27:29",
+"at": "2026-10-27T08:54:06",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14661,9 +14687,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-27T07:27:29",
+"made": "2026-10-27T08:54:06",
 "by": "bradly",
-"finished": "2026-10-27T07:27:29",
+"finished": "2026-10-27T08:54:06",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14673,9 +14699,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-26T07:27:29",
+"made": "2026-10-26T08:54:06",
 "by": "the directory",
-"finished": "2026-10-26T07:27:29",
+"finished": "2026-10-26T08:54:06",
 "detail": "mobile account made"
 }
 ],
@@ -14696,14 +14722,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T07:27:29",
+"enrolled": "2026-10-28T08:54:06",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:23:29",
+"last_checkin": "2026-10-29T08:50:06",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T07:27:29",
+"ariseadmin_at": "2026-10-28T08:54:06",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14722,7 +14748,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-27T07:27:29"
+"last_login": "2026-10-27T08:54:06"
 },
 {
 "user": "levi",
@@ -14732,7 +14758,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-24T07:27:29",
+"last_login": "2026-10-24T08:54:06",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14759,7 +14785,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T05:27:29",
+"made": "2026-10-29T06:54:06",
 "by": "enrolment"
 },
 {
@@ -14767,7 +14793,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T05:27:29",
+"made": "2026-10-29T06:54:06",
 "by": "enrolment"
 },
 {
@@ -14775,7 +14801,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T05:27:29",
+"made": "2026-10-29T06:54:06",
 "by": "enrolment"
 },
 {
@@ -14783,7 +14809,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T05:27:29",
+"made": "2026-10-29T06:54:06",
 "by": "enrolment"
 },
 {
@@ -14791,9 +14817,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-28T07:27:29",
+"made": "2026-10-28T08:54:06",
 "by": "enrolment",
-"finished": "2026-10-28T07:27:29",
+"finished": "2026-10-28T08:54:06",
 "detail": "1 printer"
 },
 {
@@ -14803,9 +14829,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-28T07:27:29",
+"made": "2026-10-28T08:54:06",
 "by": "the directory",
-"finished": "2026-10-28T07:27:29",
+"finished": "2026-10-28T08:54:06",
 "detail": "mobile account made"
 }
 ],
@@ -16112,7 +16138,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "AUTOMATOR",
 "title": "The automator on the server",
-"html": "<h1 id=\"the-automator-on-the-server\">The automator on the server</h1>\n<p>The Arise YouTube nightly job (<code>automator/arise_daily.py</code> in\n<code>Rehchu/arise-youtube-automation</code>) moves from the church PC to ariseOS. The\nsession that maintains the automator wrote the brief for it:\n<strong>SERVER_HANDOFF.md</strong> in that repo, commit \"Server-ready automator\"\n(8326b4a, Oct 28 2026), revised the same day after ariseOS's build report with\nBradly's decisions (commit \"Per-machine job state, server cap 6,000\"). The\nrevision accepts ariseOS's placements below. This page is how ariseOS carries\nit out. Where this page and the handoff disagree on the automator's own rules,\n<strong>the handoff wins</strong>.</p>\n<blockquote>\n<p><strong>As of Oct 28, evening: the revision commit is not on GitHub yet.</strong> <code>main</code> is\nstill at 8326b4a, so the repo still says 4,000 (2,000 Sun/Mon), still has\n<code>sunday-playlist-reassign</code> enabled and still tracks the four state files.\nariseOS reads all three from the repo at run time, so nothing on the server\nchanges when it lands: <strong>push it from the PC</strong> and the next pull carries it.</p>\n</blockquote>\n<h2 id=\"where-things-stand\">Where things stand</h2>\n<ul>\n<li><strong>The PC is the runner</strong> until Bradly says otherwise. <code>automator/runner.json</code>\n  in the repo says <code>\"pc\"</code>. Only the machine named there may change anything;\n  every other machine writes a \"not the runner\" report and stops.</li>\n<li><strong>ariseOS gets fully ready</strong>: its own user, its own OAuth client and token,\n  the timer, the pull, the logging. The timer can be on from day one. While\n  <code>runner.json</code> names the PC, each 02:05 run writes a \"not the runner\" report,\n  changes nothing and costs no quota.</li>\n<li><strong>The switch is Bradly's</strong>, made on the PC by changing <code>runner.json</code>,\n  committing and pushing (Cutover, below). Nothing on ariseOS flips it.</li>\n</ul>\n<h2 id=\"the-rules-ariseos-keeps-the-handoffs-section-1\">The rules ariseOS keeps (the handoff's section 1)</h2>\n<ol>\n<li>Credentials (<code>token.json</code>, <code>client_secret*.json</code>, the deploy key) never go\n   in git, a log, a report, an archive or a chat. No backup job takes them\n   (<code>/etc/arise/secrets/youtube</code> is excluded; the automator job also excludes\n   <code>**/token.json</code>, <code>**/client_secret*.json</code>). A test scans this repo for real\n   Google token shapes (<code>1//0…</code>, <code>GOCSPX-…</code>, <code>ya29.…</code>) on every run.</li>\n<li>Both repos stay private.</li>\n<li>The job does only what <code>worklist.json</code> lists. ariseOS never edits\n   <code>holds.json</code>, <code>worklist.json</code>, <code>runner.json</code>, <code>song_bank.json</code> or\n   <code>speakers.json</code>; Bradly edits them on the PC. The dashboard shows them read-only.</li>\n<li>Videos in <code>holds.json</code> are never written to (<code>hold_gate.py</code> refuses).</li>\n<li>Nothing deletes, unlists or privates a video or a playlist.</li>\n<li><strong>No apply run by hand.</strong> The dashboard's and <code>arisectl</code>'s Run is refused\n   while the timer is on, which is always. Preview is <code>--plan-only</code>: it changes\n   nothing, but <strong>its reads spend real quota</strong> on the shared project, so it asks first.</li>\n<li>No speaker, song credit, CCLI number or sermon theme is ever inferred from a\n   transcript, Whisper's included.</li>\n<li>Channel <code>UCGS9j7B_prcJkbTNgzlGrKg</code> (Arise Church); Cloud project <code>iconic-vine-505702-i5</code>.</li>\n</ol>\n<h2 id=\"where-ariseos-puts-it\">Where ariseOS puts it</h2>\n<p>The handoff's layout, with three placements changed for least privilege. The\nvariables are the handoff's own, so the automator's code is unchanged.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>The handoff</th>\n<th>ariseOS</th>\n<th>Why the difference</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>The checkout (<code>ARISE_REPO</code>)</td>\n<td><code>/opt/arise/ARISE_YouTube_Updater</code></td>\n<td><code>/srv/arise/automator/ARISE_YouTube_Updater</code></td>\n<td><code>/opt/arise</code> is the dashboard's own git checkout; <code>/srv/arise/automator</code> is already backed up nightly</td>\n</tr>\n<tr>\n<td>The user</td>\n<td><code>arise</code></td>\n<td><strong>Bradly's own account</strong> (<code>[owner] user</code> in arise.toml; Oct 28: \"the Automator doesn't need its own profile, it can run on mine\")</td>\n<td>the units get <code>User=</code> from a drop-in (<code>arise-automator.service.d/10-owner.conf</code>) that <code>arise-automator-setup</code> writes; with no drop-in the unit refuses to run as root</td>\n</tr>\n<tr>\n<td>Secrets (<code>ARISE_TOKEN</code>, <code>ARISE_CLIENT_SECRET</code>)</td>\n<td><code>/etc/arise/secrets/</code></td>\n<td><code>/etc/arise/secrets/youtube/</code> (the owner, 0700; files 0600)</td>\n<td><code>/etc/arise/secrets/</code> also holds the backup password, two-step secrets and the rescue password; the job cannot read them</td>\n</tr>\n<tr>\n<td>State (<code>ARISE_STATE_DIR</code>)</td>\n<td><code>/var/lib/arise</code></td>\n<td><code>/var/lib/arise/automator</code> (the owner)</td>\n<td><code>/var/lib/arise</code> holds the audit log and the dashboard's state</td>\n</tr>\n<tr>\n<td>The venv (<code>ARISE_PYTHON</code>)</td>\n<td><code>/opt/arise/venv</code></td>\n<td>the same</td>\n<td></td>\n</tr>\n<tr>\n<td>The environment</td>\n<td><code>/etc/arise/arise.env</code></td>\n<td>the same (paths only)</td>\n<td></td>\n</tr>\n<tr>\n<td>The wrapper</td>\n<td><code>/opt/arise/bin/arise-nightly.sh</code></td>\n<td><code>/opt/arise/scripts/arise-nightly.sh</code></td>\n<td>the handoff's script, unchanged, shipped in this repo</td>\n</tr>\n<tr>\n<td>The units</td>\n<td><code>arise-nightly.service</code> / <code>.timer</code></td>\n<td><code>arise-automator.service</code> / <code>.timer</code></td>\n<td>the name the dashboard, arisectl and the docs already use; same contents as the handoff's section 7</td>\n</tr>\n<tr>\n<td>Previews</td>\n<td><code>arise_daily.py --plan-only</code> by hand</td>\n<td><code>arise-automator-preview.service</code></td>\n<td>the same command as the same user, behind the same lock</td>\n</tr>\n</tbody>\n</table>\n<p>So the handoff's morning checks read, on ariseOS:</p>\n<pre><code>sudo cat /var/lib/arise/automator/LATEST_REPORT.md\nsudo tail -40 /var/lib/arise/automator/last-run.log\nsystemctl list-timers arise-automator.timer\nsudo stat -c '%a %U %y' /etc/arise/secrets/youtube/token.json\ngit -C /srv/arise/automator/ARISE_YouTube_Updater status\n</code></pre>\n<h2 id=\"the-automator-app-the-dashboard\">The Automator app (the dashboard)</h2>\n<p>The app on the desktop has eight tabs. Everything in the first two is read-only:\nnothing there spends quota, writes to YouTube or touches the token.</p>\n<table>\n<thead>\n<tr>\n<th>Tab</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Videos</strong></td>\n<td>Every video the channel snapshots and the archive know (about 1,380 at the Oct 28 inventory), newest first, each with its YouTube thumbnail. Filter by title or id, by Services / Shorts / Other, or to the ones with a transcript, with chapters, or on the hold list.</td>\n</tr>\n<tr>\n<td><strong>Search</strong></td>\n<td>Searches the sermon transcripts (the default), descriptions, chapters, songs, set lists and notes, or everything. Results are grouped by video: thumbnail, title, date, YouTube and Studio links, and each hit with its time. Clicking a time opens the video with the transcript at that moment. A CCLI number shows its song_bank.json entry. \"Past versions\" adds the <code>_backup</code> files; \"private folders\" (emails/, memory/) is there for Bradly only.</td>\n</tr>\n<tr>\n<td><strong>Songs</strong></td>\n<td>Every song in song_bank.json (139 at the Oct 28 inventory), searchable by title, CCLI number, writer or <strong>a line of the lyrics</strong>. Filter to the ones with lyrics, without, or the originals. Each song shows its credits as song_bank.json writes them (with Copy on the credit line), every service it was sung at (from the set lists, and from descriptions that credit its number), and its lyrics.</td>\n</tr>\n<tr>\n<td>Latest report, Worklist, Hold list, Past reports</td>\n<td>as before</td>\n</tr>\n<tr>\n<td><strong>Server switch</strong></td>\n<td>Who runs the 02:05 job tonight (the PC, until runner.json says otherwise) and the handoff's section 9 checklist, row by row.</td>\n</tr>\n</tbody>\n</table>\n<p><strong>A video's card</strong> (open one from either tab):</p>\n<ul>\n<li><strong>Thumbnails.</strong> YouTube's current one (full-size link), plus every thumbnail the toolkit made: files named after the video id, and <code>THUMB_&amp;lt;date&gt;_…</code> / podcast / Spotify art made for the service date. Each opens full size or downloads. A Short shows only files named after itself.</li>\n<li><strong>Links.</strong> Watch on YouTube, Open in Studio (<code>studio.youtube.com/video/&amp;lt;id&gt;/edit</code>), Copy link, and on a Short, the full service it came from.</li>\n<li><strong>Chapters</strong> from the description, each one a jump into the transcript and a ▶ link to YouTube at that second.</li>\n<li><strong>Songs</strong> exactly as the description credits them, and the set list for that date when there is one. Nothing is looked up or added: credits come only from song_bank.json.</li>\n<li><strong>Shorts from this service</strong> (the Shorts whose description links to it).</li>\n<li><strong>Description</strong>: every version (the channel snapshot, the toolkit's description files, the applied text, past versions marked as such), with <strong>Copy</strong> and <strong>Copy clean</strong> (no <code>**</code>, no CCLI numbers: the text for StreamYard, CLAUDE.md Oct 5).</li>\n<li><strong>Transcript</strong>: the timed text with each line linked to that second on YouTube, a find box, and a choice of source when there are several. The note above it says what the archive's rule says: transcripts hold sung lyrics, which never go into a title, description or Short.</li>\n<li><strong>In the archive</strong>: every file that names the video, each one readable in place.</li>\n</ul>\n<p><strong>Lyrics</strong> (Oct 28: \"I'd have to add the lyrics most likely from Proclaim\"):</p>\n<ul>\n<li><strong>Paste</strong> into a song: open it in the Songs tab and paste from Proclaim's song\n  editor (or SongSelect), section names (Verse 1, Chorus) on their own lines.\n  Edit any time; every earlier version is kept.</li>\n<li><strong>Import files</strong>, many at once: SongSelect's <code>.txt</code> and <code>.usr</code> downloads,\n  ChordPro (<code>.cho</code>, <code>.chopro</code>, <code>.pro</code>; chords are stripped), or plain text.\n  A file links to its song by the CCLI number in it, else by a title exactly\n  one song has. Two songs that share a title (Holy Ground, Dry Bones, You Are\n  Good, Kadosh) are never guessed between: the file is kept, not linked, and\n  you paste it into the right one. A file whose number is not in song_bank.json\n  is kept too, marked \"not in song_bank.json\", until the PC adds the song.</li>\n<li>Proclaim has no lyrics export that this could read; paste is the way from it.</li>\n<li><strong>Where they live:</strong> <code>/srv/arise/songs/lyrics/&amp;lt;CCLI number&gt;.txt</code> (or\n  <code>t-&amp;lt;title&gt;.txt</code> for a song with no number), with <code>.versions/</code> and <code>.removed/</code>\n  beside it: removing asks for the title and moves the file, nothing is deleted.\n  The folder is yours (the owner's account), so Claude on the box can work with\n  it too; the nightly backup job <code>songs</code> copies it to the Synology. It is never\n  in a git repository: these are the church's licensed copies (CCLI No. 245091),\n  and they never go into a title, description or Short.</li>\n<li><strong>Find a line in the transcripts</strong> (on a song) searches the sermon\n  transcripts for that line, to see where it was sung. That is a lead for you to\n  check, never a credit: credits come only from song_bank.json.</li>\n</ul>\n<p>Where the data comes from: the archive's index and its clone of the automator repo\n(docs/ARCHIVE.md), so it is as fresh as the 04:15 refresh. Titles and descriptions\ncome from the channel snapshots the PC writes (<code>cloud_workspace/_all_vids.json</code>,\n<code>_channel_index.json</code>, <code>channel_descriptions.json</code>, <code>channel_inventory.csv</code>) and\ncan be older than YouTube. The card asks YouTube's public oEmbed for the title as\nit is now (no key, no quota; cached a week in <code>/var/lib/arise/channel/oembed.json</code>)\nand shows it when it differs. A date in the title (\"Glory Night October 19, 2026\")\nwins over the snapshot's, because a stream is often scheduled a week ahead.</p>\n<p>The tabs are the administrator's. Spotlight's sermon-transcript results open the\nSearch tab for an administrator, and the Sermons app for members as before.</p>\n<h2 id=\"setting-it-up\">Setting it up</h2>\n<p><code>install.sh</code> runs <code>scripts/arise-automator-setup</code>; <code>sudo arisectl automator setup</code>\nruns it again any time. It makes the user and folders, writes\n<code>/etc/arise/arise.env</code>, makes a <strong>read-only deploy key</strong>, pins GitHub's published\nhost keys, clones <code>main</code>, installs the libraries and log rotation. Then, in\nthis order, the parts only Bradly can do:</p>\n<ol>\n<li><strong>GitHub</strong>: Rehchu/arise-youtube-automation → Settings → Deploy keys → Add,\n   title \"ariseOS server\", paste the key the setup printed, <strong>leave \"Allow\n   write access\" unticked</strong>. Then <code>sudo arisectl automator setup</code> again; it clones.</li>\n<li><strong>Cloud Console</strong>, project <code>iconic-vine-505702-i5</code>:</li>\n<li>APIs &amp; Services → OAuth consent screen → <strong>Audience</strong> → if it says\n     Testing, <strong>Publish app</strong>. In Testing, refresh tokens die after 7 days.</li>\n<li>Credentials → Create credentials → OAuth client ID → <strong>Desktop app</strong>,\n     named <strong>ariseOS server</strong>. Download the JSON.</li>\n<li>Copy it in with <code>scp</code> (never chat or git) to\n   <code>/etc/arise/secrets/youtube/client_secret.json</code>, then\n   <code>sudo chown $USER: … &amp;&amp; sudo chmod 600 …</code> (your account).</li>\n<li><strong>Sign in once</strong>: <code>sudo arisectl automator signin</code>. It runs the handoff's\n   <code>authorize_headless.py</code> as your account. Open the link on any computer or phone,\n   sign in as the channel's owner, pass the unverified-app warning (Advanced →\n   Go to …), approve, then paste the whole <code>http://localhost:8765/?state=…&amp;code=…</code>\n   address the browser fails to load. The script checks the channel is Arise\n   Church before writing the token (0600) and never prints it.</li>\n<li><strong>The first check</strong>: <code>sudo arisectl automator preview</code> (it asks, because the\n   reads spend quota), then <code>arisectl automator report</code>. Expected:\n   <code>this machine: ariseOS · designated runner: pc</code>, \"plan-only… continuing\",\n   <code>signed in as Arise Church</code>, a budget of 6000, <strong>the same hold count as\n   the PC's LATEST_REPORT.md</strong> (8 on hold, 6 standing rules), and each enabled\n   job's dry run.</li>\n</ol>\n<h2 id=\"the-timer\">The timer</h2>\n<p><code>arise-automator.timer</code>: 02:05 America/Chicago, five minutes after Google's\nquota day resets (midnight Pacific). <strong><code>Persistent=false</code> on purpose</strong>: a night\nmissed to a power cut must not fire at 10 AM on a Sunday and eat the quota\nBradly needs for that day's service. The wrapper pulls <code>origin/main</code> just\nbefore running, so a hold Bradly pushes in the evening applies that night; if\nthe pull fails it runs plan-only, because stale holds must never drive writes.\nA lock stops two runs at once. <code>last-run.log</code> rotates monthly.</p>\n<h2 id=\"the-quota\">The quota</h2>\n<p>One project, 10,000 units a day, shared by the PC's token, the server's and\nBradly's chat sessions on Sunday and Monday. The 02:05 run spends from the same\nquota day as that day's service work. Caps per machine are in <code>runner.json</code>:\nthe PC 10,000; <strong>ariseOS 6,000 every day</strong> (Bradly, Oct 28; weekday keys still\nwork if he wants them later). A job whose estimate does not fit (with a\n300-unit reserve) is not started. The ledger books estimates; the true figure\nis in Cloud Console → YouTube Data API v3 → Quotas.</p>\n<p><code>sunday-playlist-reassign</code> is <strong>parked</strong> (Bradly, Oct 28: its work was done and\nit booked 3,500 a night). With it parked, tonight's enabled jobs fit inside\n6,000: preflight 1, then <code>vertical-twin-titles</code> 400, <code>pull-transcripts</code> 2,500\nand <code>strip-markdown-stars</code> 2,000, each passing the reserve. That leaves at least\n4,000 for Sunday and Monday chat work, which uses about 1,000 to 1,500 on a\nservice day.</p>\n<h2 id=\"cutover\">Cutover</h2>\n<p><code>sudo arisectl automator cutover</code> (and the Automator app) shows the handoff's\nsection 9 list, ticking what the server can see:</p>\n<ol>\n<li>The OAuth app is Published. <em>(Bradly confirms.)</em></li>\n<li>The server's own client and token are here, 0600, your account.</li>\n<li>The timer has written a \"not the runner\" report.</li>\n<li>A plan-only run shows \"signed in as Arise Church\" and the hold count.</li>\n<li>The job's state files. <strong>Decided Oct 28</strong>: <code>_starfix_state.json</code>,\n   <code>_tx_run.json</code>, <code>_retitle_report.txt</code> and <code>_ss_fix_report.txt</code> move to\n   <code>ARISE_STATE_DIR</code> through <code>arise_paths.job_state()</code> and are untracked on\n   <code>main</code>. When the server pulls that commit, git deletes its unmodified\n   checkout copies; that is expected. The check turns green when the pulled\n   repo no longer tracks them.</li>\n<li><code>sunday-playlist-reassign</code> is parked; the server's cap is 6,000 (decided\n   Oct 28). A server plan-only report shows budget 6000 and the three\n   remaining jobs planned.</li>\n<li>The PC's <code>_starfix_state.json</code> is copied into <strong><code>/var/lib/arise/automator</code></strong>\n   (the state folder, not the checkout), owned by your account, so the star\n   cleanup resumes where the PC stopped.</li>\n<li>The PC is clean and pushed (<code>origin/main</code> has the latest holds and worklist).</li>\n</ol>\n<p><strong>The switch</strong>, by day and not on a Sunday or Monday: on the PC set\n<code>\"runner\": \"ariseOS\"</code> in <code>automator/runner.json</code>, commit, push. The PC's\nWindows task can stay on: from then on it writes a \"not the runner\" report\nnightly, a heartbeat. <strong>Rollback</strong>: <code>\"runner\": \"pc\"</code>, commit, push.</p>\n<p><strong>From the switch on, holds and worklist changes must be pushed to count.</strong> A\nhold added on the PC but not pushed before 02:00 does not reach that night's\nrun. The PC read its own file; the server sees only GitHub.</p>\n<p><strong>The morning after</strong>: the server's LATEST_REPORT.md is dated today 02:05, says\n<code>this machine: ariseOS · designated runner: ariseOS</code>, <code>signed in as Arise\nChurch</code>, <code>0 failed</code>; <code>last-run.log</code> shows <code>repo at &amp;lt;sha&gt;</code> matching the PC's\npush and no WARNING; the PC's report says \"not the runner\"; the Cloud quota\ngraph shows one run; <code>token.json</code> was modified overnight and is still 0600;\n<code>git status</code> on the server is clean; one changed video looks right.</p>\n<h2 id=\"transcripts-and-a-blocked-pull\"><code>transcripts/</code> and a blocked pull</h2>\n<p><code>transcripts/</code> stays tracked (162 files): the PC uses it too. The server never\npushes, so a transcript it writes (Whisper, later) stays untracked in its\ncheckout. If the PC then commits a transcript for the same video, the\nserver's fast-forward stops with \"untracked working tree files would be\noverwritten\" and that night runs plan-only. The cutover check and the\nAutomator app show it (item 9). <code>sudo arisectl automator unblock</code> lists the\nfiles git named in last night's log and, after you type <code>move</code>, moves the\nserver's copies into <code>/var/lib/arise/automator/displaced/&amp;lt;date&gt;/</code>. It never\ndeletes them and never touches a tracked file. The next pull goes through.</p>\n<h2 id=\"if-the-servers-token-leaks-the-handoffs-section-10\">If the server's token leaks (the handoff's section 10)</h2>\n<ol>\n<li>Cloud Console → Credentials → the <strong>ariseOS server</strong> client → delete it (or\n   disable its secret). The PC uses a different client and is untouched.</li>\n<li>Revoke the token itself, on the server, without printing it:\n   <code>/opt/arise/venv/bin/python -c \"import json,urllib.request,urllib.parse;t=json.load(open('/etc/arise/secrets/youtube/token.json'))['refresh_token'];urllib.request.urlopen('https://oauth2.googleapis.com/revoke',urllib.parse.urlencode({'token':t}).encode())\"</code>\n   (The handoff notes it is not confirmed whether this kills one token or the\n   client's whole grant; with separate clients only the server is affected.)</li>\n<li><strong>Do not</strong> use myaccount.google.com → Third-party connections → Remove\n   access: it lists the app, not the machine, and would sign the PC out too.</li>\n<li>A new Desktop client, its JSON into <code>/etc/arise/secrets/youtube/</code>,\n   <code>sudo arisectl automator signin --force</code>, then a preview.</li>\n<li>Check YouTube Studio and the quota graph for anything the token did.</li>\n</ol>\n<p>Routine rotation is steps 1, 4 and 5.</p>\n<h2 id=\"whisper-transcripts-round-4-100-planned-not-built\">Whisper transcripts (round 4, 100: planned, not built)</h2>\n<p>The handoff's section 11 is the contract: write\n<code>transcripts/&amp;lt;videoId&gt;.json</code> in the checkout as\n<code>{\"segments\": [{\"start\": 12.34, \"dur\": 4.10, \"text\": \"…\"}], \"source\": \"whisper (&amp;lt;model&gt;)\"}</code>,\nseconds as floats, no <code>.nocaptions</code> or <code>.failed</code> markers. The caption puller\nskips a video that already has a file, so captions stay the fallback. There is\nno automated chapter step. Whisper output is evidence, never authority: no\nnames from it decide who spoke, and sung words are never copied. <strong>Open\nquestion for Bradly</strong>: where the recordings come from (the API cannot download\nthe channel's video; StreamYard or a local capture).</p>\n<h2 id=\"open-items-for-bradly-the-handoffs-section-12-plus-what-ariseos-found\">Open items for Bradly (the handoff's section 12, plus what ariseOS found)</h2>\n<ul>\n<li>Publish the OAuth app; create the \"ariseOS server\" client.</li>\n<li>Add the server's read-only deploy key on GitHub.</li>\n<li><strong>Push the revision commit</strong> (\"Per-machine job state, server cap 6,000\")\n  from the PC; GitHub's <code>main</code> is still at 8326b4a.</li>\n<li>The recording source for Whisper, and how its transcripts should reach the PC.</li>\n<li>Decided Oct 28: state files moved and untracked; <code>sunday-playlist-reassign</code>\n  parked; the server's cap 6,000 every day; both repos on the server as a\n  searchable archive for Claude (docs/ARCHIVE.md).</li>\n<li>Later, maybe: the server pushing reports and transcripts to a <code>server-out</code>\n  branch (a separate write key; never <code>main</code>).</li>\n</ul>\n<h2 id=\"round-7-songs-transcripts-and-the-channel-copy\">Round 7: songs, transcripts and the channel copy</h2>\n<ul>\n<li><strong>The Lyrics inbox</strong> (99, 100): a <em>Lyrics inbox</em> folder in Nextcloud for\n  Bradly and the worship leader (<code>[songs] inbox_users</code>; the owner always).\n  Every 15 minutes (<code>arise-lyrics-inbox.timer</code>) the files dropped there go\n  through the same import as the Songs tab's <em>Import lyrics files</em>\n  (<code>songs.import_files</code>: SongSelect <code>.txt</code>/<code>.usr</code>, ChordPro, plain text,\n  matched to song_bank.json by CCLI number, then by title). Each file then\n  moves to <code>Imported/</code> (or <code>Not imported/</code> with the reason in the Songs tab).\n  The lyrics land in <code>/srv/arise/songs/lyrics</code> and nowhere else: never into\n  a title, a description, a Short or a log line.</li>\n<li><strong>Held videos stay out of transcript search</strong> (105): a video in\n  <code>holds.json</code> is left out of the Search tab's transcript and title hits;\n  the answer says how many were held back.</li>\n<li><strong>The CCLI usage report</strong> (106): Songs → <em>CCLI usage</em> shows this quarter;\n  <code>arise-ccli.timer</code> writes <code>songs/reports/ccli-usage-YYYY-Qn.csv</code> on the\n  first of January, April, July and October. From the set lists and song\n  credits already in the archive: title, the CCLI number exactly as\n  song_bank.json has it, times used. No lyrics. A song with no number banked\n  is listed as such, never guessed; Arise originals say so.</li>\n<li><strong>The nightly channel copy</strong> (62): <code>arise-channel-copy.timer</code> at 04:45 copies\n  the automator repo's own snapshot files (already synced to\n  <code>/srv/arise/repos</code>) into <code>/srv/arise/channel-copy/&amp;lt;date&gt;/</code>, and each\n  video's public thumbnail from <code>i.ytimg.com</code> into\n  <code>channel-copy/thumbnails/</code> (up to 300 new a night). Zero quota: never the\n  YouTube API. Skipped during a service.</li>\n<li><strong>The morning note explains a failed 02:05 run</strong> (145): when the night's\n  report failed, the note quotes the report's own failing lines in plain\n  words, with the quota reset time when that was the cause. The note stays\n  off until a webhook is set.</li>\n</ul>\n<h2 id=\"commands\">Commands</h2>\n<pre><code>sudo arisectl automator setup        make the server ready (idempotent)\nsudo arisectl automator signin       sign the server in to YouTube (once; --force to replace)\nsudo arisectl automator preview      a plan-only run through its unit (asks: reads spend quota)\narisectl automator status            runner, this machine's cap today, token, holds, last run\narisectl automator report [name]     the latest report, or one by name\nsudo arisectl automator cutover      the section 9 checklist\n</code></pre>",
+"html": "<h1 id=\"the-automator-on-the-server\">The automator on the server</h1>\n<p>The Arise YouTube nightly job (<code>automator/arise_daily.py</code> in\n<code>Rehchu/arise-youtube-automation</code>) moves from the church PC to ariseOS. The\nsession that maintains the automator wrote the brief for it:\n<strong>SERVER_HANDOFF.md</strong> in that repo, commit \"Server-ready automator\"\n(8326b4a, Oct 28 2026), revised the same day after ariseOS's build report with\nBradly's decisions (commit \"Per-machine job state, server cap 6,000\"). The\nrevision accepts ariseOS's placements below. This page is how ariseOS carries\nit out. Where this page and the handoff disagree on the automator's own rules,\n<strong>the handoff wins</strong>.</p>\n<blockquote>\n<p><strong>As of Oct 28, evening: the revision commit is not on GitHub yet.</strong> <code>main</code> is\nstill at 8326b4a, so the repo still says 4,000 (2,000 Sun/Mon), still has\n<code>sunday-playlist-reassign</code> enabled and still tracks the four state files.\nariseOS reads all three from the repo at run time, so nothing on the server\nchanges when it lands: <strong>push it from the PC</strong> and the next pull carries it.</p>\n</blockquote>\n<h2 id=\"where-things-stand\">Where things stand</h2>\n<ul>\n<li><strong>The PC is the runner</strong> until Bradly says otherwise. <code>automator/runner.json</code>\n  in the repo says <code>\"pc\"</code>. Only the machine named there may change anything;\n  every other machine writes a \"not the runner\" report and stops.</li>\n<li><strong>ariseOS gets fully ready</strong>: its own user, its own OAuth client and token,\n  the timer, the pull, the logging. The timer can be on from day one. While\n  <code>runner.json</code> names the PC, each 02:05 run writes a \"not the runner\" report,\n  changes nothing and costs no quota.</li>\n<li><strong>The switch is Bradly's</strong>, made on the PC by changing <code>runner.json</code>,\n  committing and pushing (Cutover, below). Nothing on ariseOS flips it.</li>\n</ul>\n<h2 id=\"the-rules-ariseos-keeps-the-handoffs-section-1\">The rules ariseOS keeps (the handoff's section 1)</h2>\n<ol>\n<li>Credentials (<code>token.json</code>, <code>client_secret*.json</code>, the deploy key) never go\n   in git, a log, a report, an archive or a chat. No backup job takes them\n   (<code>/etc/arise/secrets/youtube</code> is excluded; the automator job also excludes\n   <code>**/token.json</code>, <code>**/client_secret*.json</code>). A test scans this repo for real\n   Google token shapes (<code>1//0…</code>, <code>GOCSPX-…</code>, <code>ya29.…</code>) on every run.</li>\n<li>Both repos stay private.</li>\n<li>The job does only what <code>worklist.json</code> lists. ariseOS never edits\n   <code>holds.json</code>, <code>worklist.json</code>, <code>runner.json</code>, <code>song_bank.json</code> or\n   <code>speakers.json</code>; Bradly edits them on the PC. The dashboard shows them read-only.</li>\n<li>Videos in <code>holds.json</code> are never written to (<code>hold_gate.py</code> refuses).</li>\n<li>Nothing deletes, unlists or privates a video or a playlist.</li>\n<li><strong>No apply run by hand.</strong> The dashboard's and <code>arisectl</code>'s Run is refused\n   while the timer is on, which is always. Preview is <code>--plan-only</code>: it changes\n   nothing, but <strong>its reads spend real quota</strong> on the shared project, so it asks first.</li>\n<li>No speaker, song credit, CCLI number or sermon theme is ever inferred from a\n   transcript, Whisper's included.</li>\n<li>Channel <code>UCGS9j7B_prcJkbTNgzlGrKg</code> (Arise Church); Cloud project <code>iconic-vine-505702-i5</code>.</li>\n</ol>\n<h2 id=\"where-ariseos-puts-it\">Where ariseOS puts it</h2>\n<p>The handoff's layout, with three placements changed for least privilege. The\nvariables are the handoff's own, so the automator's code is unchanged.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>The handoff</th>\n<th>ariseOS</th>\n<th>Why the difference</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>The checkout (<code>ARISE_REPO</code>)</td>\n<td><code>/opt/arise/ARISE_YouTube_Updater</code></td>\n<td><code>/srv/arise/automator/ARISE_YouTube_Updater</code></td>\n<td><code>/opt/arise</code> is the dashboard's own git checkout; <code>/srv/arise/automator</code> is already backed up nightly</td>\n</tr>\n<tr>\n<td>The user</td>\n<td><code>arise</code></td>\n<td><strong>Bradly's own account</strong> (<code>[owner] user</code> in arise.toml; Oct 28: \"the Automator doesn't need its own profile, it can run on mine\")</td>\n<td>the units get <code>User=</code> from a drop-in (<code>arise-automator.service.d/10-owner.conf</code>) that <code>arise-automator-setup</code> writes; with no drop-in the unit refuses to run as root</td>\n</tr>\n<tr>\n<td>Secrets (<code>ARISE_TOKEN</code>, <code>ARISE_CLIENT_SECRET</code>)</td>\n<td><code>/etc/arise/secrets/</code></td>\n<td><code>/etc/arise/secrets/youtube/</code> (the owner, 0700; files 0600)</td>\n<td><code>/etc/arise/secrets/</code> also holds the backup password, two-step secrets and the rescue password; the job cannot read them</td>\n</tr>\n<tr>\n<td>State (<code>ARISE_STATE_DIR</code>)</td>\n<td><code>/var/lib/arise</code></td>\n<td><code>/var/lib/arise/automator</code> (the owner)</td>\n<td><code>/var/lib/arise</code> holds the audit log and the dashboard's state</td>\n</tr>\n<tr>\n<td>The venv (<code>ARISE_PYTHON</code>)</td>\n<td><code>/opt/arise/venv</code></td>\n<td>the same</td>\n<td></td>\n</tr>\n<tr>\n<td>The environment</td>\n<td><code>/etc/arise/arise.env</code></td>\n<td>the same (paths only)</td>\n<td></td>\n</tr>\n<tr>\n<td>The wrapper</td>\n<td><code>/opt/arise/bin/arise-nightly.sh</code></td>\n<td><code>/opt/arise/scripts/arise-nightly.sh</code></td>\n<td>the handoff's script, unchanged, shipped in this repo</td>\n</tr>\n<tr>\n<td>The units</td>\n<td><code>arise-nightly.service</code> / <code>.timer</code></td>\n<td><code>arise-automator.service</code> / <code>.timer</code></td>\n<td>the name the dashboard, arisectl and the docs already use; same contents as the handoff's section 7</td>\n</tr>\n<tr>\n<td>Previews</td>\n<td><code>arise_daily.py --plan-only</code> by hand</td>\n<td><code>arise-automator-preview.service</code></td>\n<td>the same command as the same user, behind the same lock</td>\n</tr>\n</tbody>\n</table>\n<p>So the handoff's morning checks read, on ariseOS:</p>\n<pre><code>sudo cat /var/lib/arise/automator/LATEST_REPORT.md\nsudo tail -40 /var/lib/arise/automator/last-run.log\nsystemctl list-timers arise-automator.timer\nsudo stat -c '%a %U %y' /etc/arise/secrets/youtube/token.json\ngit -C /srv/arise/automator/ARISE_YouTube_Updater status\n</code></pre>\n<h2 id=\"the-automator-app-the-dashboard\">The Automator app (the dashboard)</h2>\n<p>The app on the desktop has eight tabs. Everything in the first two is read-only:\nnothing there spends quota, writes to YouTube or touches the token.</p>\n<table>\n<thead>\n<tr>\n<th>Tab</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Videos</strong></td>\n<td>Every video the channel snapshots and the archive know (about 1,380 at the Oct 28 inventory), newest first, each with its YouTube thumbnail. Filter by title or id, by Services / Shorts / Other, or to the ones with a transcript, with chapters, or on the hold list.</td>\n</tr>\n<tr>\n<td><strong>Search</strong></td>\n<td>Searches the sermon transcripts (the default), descriptions, chapters, songs, set lists and notes, or everything. Results are grouped by video: thumbnail, title, date, YouTube and Studio links, and each hit with its time. Clicking a time opens the video with the transcript at that moment. A CCLI number shows its song_bank.json entry. \"Past versions\" adds the <code>_backup</code> files; \"private folders\" (emails/, memory/) is there for Bradly only.</td>\n</tr>\n<tr>\n<td><strong>Songs</strong></td>\n<td>Every song in song_bank.json (139 at the Oct 28 inventory), searchable by title, CCLI number, writer or <strong>a line of the lyrics</strong>. Filter to the ones with lyrics, without, or the originals. Each song shows its credits as song_bank.json writes them (with Copy on the credit line), every service it was sung at (from the set lists, and from descriptions that credit its number), and its lyrics.</td>\n</tr>\n<tr>\n<td>Latest report, Worklist, Hold list, Past reports</td>\n<td>as before</td>\n</tr>\n<tr>\n<td><strong>Server switch</strong></td>\n<td>Who runs the 02:05 job tonight (the PC, until runner.json says otherwise) and the handoff's section 9 checklist, row by row.</td>\n</tr>\n</tbody>\n</table>\n<p><strong>A video's card</strong> (open one from either tab):</p>\n<ul>\n<li><strong>Thumbnails.</strong> YouTube's current one (full-size link), plus every thumbnail the toolkit made: files named after the video id, and <code>THUMB_&amp;lt;date&gt;_…</code> / podcast / Spotify art made for the service date. Each opens full size or downloads. A Short shows only files named after itself.</li>\n<li><strong>Links.</strong> Watch on YouTube, Open in Studio (<code>studio.youtube.com/video/&amp;lt;id&gt;/edit</code>), Copy link, and on a Short, the full service it came from.</li>\n<li><strong>Chapters</strong> from the description, each one a jump into the transcript and a ▶ link to YouTube at that second.</li>\n<li><strong>Songs</strong> exactly as the description credits them, and the set list for that date when there is one. Nothing is looked up or added: credits come only from song_bank.json.</li>\n<li><strong>Shorts from this service</strong> (the Shorts whose description links to it).</li>\n<li><strong>Description</strong>: every version (the channel snapshot, the toolkit's description files, the applied text, past versions marked as such), with <strong>Copy</strong> and <strong>Copy clean</strong> (no <code>**</code>, no CCLI numbers: the text for StreamYard, CLAUDE.md Oct 5).</li>\n<li><strong>Transcript</strong>: the timed text with each line linked to that second on YouTube, a find box, and a choice of source when there are several. The note above it says what the archive's rule says: transcripts hold sung lyrics, which never go into a title, description or Short.</li>\n<li><strong>In the archive</strong>: every file that names the video, each one readable in place.</li>\n</ul>\n<p><strong>Lyrics</strong> (Oct 28: \"I'd have to add the lyrics most likely from Proclaim\"):</p>\n<ul>\n<li><strong>Paste</strong> into a song: open it in the Songs tab and paste from Proclaim's song\n  editor (or SongSelect), section names (Verse 1, Chorus) on their own lines.\n  Edit any time; every earlier version is kept.</li>\n<li><strong>Import files</strong>, many at once: SongSelect's <code>.txt</code> and <code>.usr</code> downloads,\n  ChordPro (<code>.cho</code>, <code>.chopro</code>, <code>.pro</code>; chords are stripped), or plain text.\n  A file links to its song by the CCLI number in it, else by a title exactly\n  one song has. Two songs that share a title (Holy Ground, Dry Bones, You Are\n  Good, Kadosh) are never guessed between: the file is kept, not linked, and\n  you paste it into the right one. A file whose number is not in song_bank.json\n  is kept too, marked \"not in song_bank.json\", until the PC adds the song.</li>\n<li>Proclaim has no lyrics export that this could read; paste is the way from it.</li>\n<li><strong>Where they live:</strong> <code>/srv/arise/songs/lyrics/&amp;lt;CCLI number&gt;.txt</code> (or\n  <code>t-&amp;lt;title&gt;.txt</code> for a song with no number), with <code>.versions/</code> and <code>.removed/</code>\n  beside it: removing asks for the title and moves the file, nothing is deleted.\n  The folder is yours (the owner's account), so Claude on the box can work with\n  it too; the nightly backup job <code>songs</code> copies it to the Synology. It is never\n  in a git repository: these are the church's licensed copies (CCLI No. 245091),\n  and they never go into a title, description or Short.</li>\n<li><strong>Find a line in the transcripts</strong> (on a song) searches the sermon\n  transcripts for that line, to see where it was sung. That is a lead for you to\n  check, never a credit: credits come only from song_bank.json.</li>\n</ul>\n<p>Where the data comes from: the archive's index and its clone of the automator repo\n(docs/ARCHIVE.md), so it is as fresh as the 04:15 refresh. Titles and descriptions\ncome from the channel snapshots the PC writes (<code>cloud_workspace/_all_vids.json</code>,\n<code>_channel_index.json</code>, <code>channel_descriptions.json</code>, <code>channel_inventory.csv</code>) and\ncan be older than YouTube. The card asks YouTube's public oEmbed for the title as\nit is now (no key, no quota; cached a week in <code>/var/lib/arise/channel/oembed.json</code>)\nand shows it when it differs. A date in the title (\"Glory Night October 19, 2026\")\nwins over the snapshot's, because a stream is often scheduled a week ahead.</p>\n<p>The tabs are the administrator's. Spotlight's sermon-transcript results open the\nSearch tab for an administrator, and the Sermons app for members as before.</p>\n<h2 id=\"setting-it-up\">Setting it up</h2>\n<p><code>install.sh</code> runs <code>scripts/arise-automator-setup</code>; <code>sudo arisectl automator setup</code>\nruns it again any time. It makes the user and folders, writes\n<code>/etc/arise/arise.env</code>, makes a <strong>read-only deploy key</strong>, pins GitHub's published\nhost keys, clones <code>main</code>, installs the libraries and log rotation. Then, in\nthis order, the parts only Bradly can do:</p>\n<ol>\n<li><strong>GitHub</strong>: Rehchu/arise-youtube-automation → Settings → Deploy keys → Add,\n   title \"ariseOS server\", paste the key the setup printed, <strong>leave \"Allow\n   write access\" unticked</strong>. Then <code>sudo arisectl automator setup</code> again; it clones.</li>\n<li><strong>Cloud Console</strong>, project <code>iconic-vine-505702-i5</code>:</li>\n<li>APIs &amp; Services → OAuth consent screen → <strong>Audience</strong>: it stays in\n     <strong>Testing</strong>, on purpose (Bradly, Oct 29). Refresh tokens then die 7 days\n     after they are given, so the server's sign-in is renewed each week\n     (Weekly sign-in, below). Bradly's account must be on the Test users list.</li>\n<li>Credentials → Create credentials → OAuth client ID → <strong>Desktop app</strong>,\n     named <strong>ariseOS server</strong>. Download the JSON.</li>\n<li>Copy it in with <code>scp</code> (never chat or git) to\n   <code>/etc/arise/secrets/youtube/client_secret.json</code>, then\n   <code>sudo chown $USER: … &amp;&amp; sudo chmod 600 …</code> (your account).</li>\n<li><strong>Sign in once</strong>: <code>sudo arisectl automator signin</code>. It runs the handoff's\n   <code>authorize_headless.py</code> as your account. Open the link on any computer or phone,\n   sign in as the channel's owner, pass the unverified-app warning (Advanced →\n   Go to …), approve, then paste the whole <code>http://localhost:8765/?state=…&amp;code=…</code>\n   address the browser fails to load. The script checks the channel is Arise\n   Church before writing the token (0600) and never prints it.</li>\n<li><strong>The first check</strong>: <code>sudo arisectl automator preview</code> (it asks, because the\n   reads spend quota), then <code>arisectl automator report</code>. Expected:\n   <code>this machine: ariseOS · designated runner: pc</code>, \"plan-only… continuing\",\n   <code>signed in as Arise Church</code>, a budget of 6000, <strong>the same hold count as\n   the PC's LATEST_REPORT.md</strong> (8 on hold, 6 standing rules), and each enabled\n   job's dry run.</li>\n</ol>\n<h2 id=\"weekly-sign-in-testing-mode\">Weekly sign-in (Testing mode)</h2>\n<p>Bradly keeps the OAuth app in Testing (Oct 29), so Google ends a sign-in seven\ndays after it is given. He renews the PC's every Sunday; the server's is renewed\nthe same day, the same way, in the dashboard. The server uses its own \"ariseOS\nserver\" client; the PC's token never comes to the server, and no token ever goes\nthrough a chat, a log, git or the dashboard's answers.</p>\n<p><strong>Where: the Media Mac.</strong> It is the Mac signed in to the channel's Google account\n(Bradly, Oct 29), so the whole renewal runs in one browser there:</p>\n<ol>\n<li>On the Media Mac, open <code>https://arise-server.ad.arisecenla.com</code> in Safari and\n   sign in to the dashboard as yourself.</li>\n<li><strong>Automator → Sign-in → Renew for the week.</strong> It asks for your password again.</li>\n<li><strong>Open Google's sign-in.</strong> It opens in a new tab of the same browser. Choose\n   the <strong>Arise Church</strong> channel, then Advanced → Go to … (the church's own app),\n   then Allow.</li>\n<li>Google sends that tab to <code>http://localhost:8765/?state=…&amp;code=…</code>, which\n   <strong>fails to load</strong>. That is expected. Copy the whole address (click the address\n   bar, ⌘A, ⌘C), close the tab, paste it into the dashboard (⌘V), press <strong>Renew</strong>.</li>\n<li>The server checks the address came from this very attempt, swaps the code for\n   a sign-in, asks YouTube once (1 quota unit) that it is Arise Church\n   (<code>UCGS9j7B_prcJkbTNgzlGrKg</code>), and only then writes <code>token.json</code> (0600, your\n   account) for the 02:05 job. The answer says when the sign-in now ends.</li>\n</ol>\n<p><strong>The shared Mac.</strong> A dashboard sign-in lasts a year, and the Media Mac is shared,\nso the box <strong>\"Sign me out of this browser when done\"</strong> is ticked: once the renewal\nworks, that browser is signed out of the dashboard. Only that browser: your phone\nand the closet stay signed in. Untick it to stay signed in; the success screen\nalso has a <strong>Sign me out of this browser</strong> button. On the closet monitor it never\nsigns out.</p>\n<p><strong>Rules.</strong> The link works ten minutes and once. A pasted address from another\nattempt, an old link, an account with no refresh token or the wrong channel is\nrefused and nothing is written. Never during a service: the Media Mac streams, so\nRenew is refused while a service is on. The audit log says \"renewed, expires …\"\nand nothing more. The PKCE verifier and the state wait in\n<code>/var/lib/arise/ytauth-pending.json</code> (root, 0600) for ten minutes; the renewal\ndate is in <code>/var/lib/arise/ytauth.json</code> (the job rewrites <code>token.json</code> every night,\nso its date says nothing about when Google gave the sign-in).</p>\n<p><strong>Reminders.</strong> When the sign-in ends within 30 hours: a Discord #alerts line and a\npush on <strong>Saturday evening</strong> (19:00) and again <strong>Sunday after the service</strong> (from\n12:00, never during one), once each a week: \"Renew from the Media Mac: Automator →\nSign-in\". Needs You (and so the morning note) says when it ends, and once it has\nended: \"the YouTube sign-in expired on …; renew it from the Media Mac\". The job\nitself already fails safe on an expired sign-in; nothing about it changed.</p>\n<p><strong>From a terminal:</strong> <code>sudo arisectl automator renew</code> prints the same link and reads\nthe pasted address (the token is never printed). <code>sudo arisectl automator signin</code>\n(the handoff's own <code>authorize_headless.py</code>) still works and starts the weekly\nclock too. <code>[automator] oauth_testing = false</code> in arise.toml turns the weekly clock\noff if the app is ever published.</p>\n<h2 id=\"the-timer\">The timer</h2>\n<p><code>arise-automator.timer</code>: 02:05 America/Chicago, five minutes after Google's\nquota day resets (midnight Pacific). <strong><code>Persistent=false</code> on purpose</strong>: a night\nmissed to a power cut must not fire at 10 AM on a Sunday and eat the quota\nBradly needs for that day's service. The wrapper pulls <code>origin/main</code> just\nbefore running, so a hold Bradly pushes in the evening applies that night; if\nthe pull fails it runs plan-only, because stale holds must never drive writes.\nA lock stops two runs at once. <code>last-run.log</code> rotates monthly.</p>\n<h2 id=\"the-quota\">The quota</h2>\n<p>One project, 10,000 units a day, shared by the PC's token, the server's and\nBradly's chat sessions on Sunday and Monday. The 02:05 run spends from the same\nquota day as that day's service work. Caps per machine are in <code>runner.json</code>:\nthe PC 10,000; <strong>ariseOS 6,000 every day</strong> (Bradly, Oct 28; weekday keys still\nwork if he wants them later). A job whose estimate does not fit (with a\n300-unit reserve) is not started. The ledger books estimates; the true figure\nis in Cloud Console → YouTube Data API v3 → Quotas.</p>\n<p><code>sunday-playlist-reassign</code> is <strong>parked</strong> (Bradly, Oct 28: its work was done and\nit booked 3,500 a night). With it parked, tonight's enabled jobs fit inside\n6,000: preflight 1, then <code>vertical-twin-titles</code> 400, <code>pull-transcripts</code> 2,500\nand <code>strip-markdown-stars</code> 2,000, each passing the reserve. That leaves at least\n4,000 for Sunday and Monday chat work, which uses about 1,000 to 1,500 on a\nservice day.</p>\n<h2 id=\"cutover\">Cutover</h2>\n<p><code>sudo arisectl automator cutover</code> (and the Automator app) shows the handoff's\nsection 9 list, ticking what the server can see:</p>\n<ol>\n<li>The OAuth app stays in Testing (Oct 29); the server's sign-in has been renewed this week (Automator → Sign-in).</li>\n<li>The server's own client and token are here, 0600, your account.</li>\n<li>The timer has written a \"not the runner\" report.</li>\n<li>A plan-only run shows \"signed in as Arise Church\" and the hold count.</li>\n<li>The job's state files. <strong>Decided Oct 28</strong>: <code>_starfix_state.json</code>,\n   <code>_tx_run.json</code>, <code>_retitle_report.txt</code> and <code>_ss_fix_report.txt</code> move to\n   <code>ARISE_STATE_DIR</code> through <code>arise_paths.job_state()</code> and are untracked on\n   <code>main</code>. When the server pulls that commit, git deletes its unmodified\n   checkout copies; that is expected. The check turns green when the pulled\n   repo no longer tracks them.</li>\n<li><code>sunday-playlist-reassign</code> is parked; the server's cap is 6,000 (decided\n   Oct 28). A server plan-only report shows budget 6000 and the three\n   remaining jobs planned.</li>\n<li>The PC's <code>_starfix_state.json</code> is copied into <strong><code>/var/lib/arise/automator</code></strong>\n   (the state folder, not the checkout), owned by your account, so the star\n   cleanup resumes where the PC stopped.</li>\n<li>The PC is clean and pushed (<code>origin/main</code> has the latest holds and worklist).</li>\n</ol>\n<p><strong>The switch</strong>, by day and not on a Sunday or Monday: on the PC set\n<code>\"runner\": \"ariseOS\"</code> in <code>automator/runner.json</code>, commit, push. The PC's\nWindows task can stay on: from then on it writes a \"not the runner\" report\nnightly, a heartbeat. <strong>Rollback</strong>: <code>\"runner\": \"pc\"</code>, commit, push.</p>\n<p><strong>From the switch on, holds and worklist changes must be pushed to count.</strong> A\nhold added on the PC but not pushed before 02:00 does not reach that night's\nrun. The PC read its own file; the server sees only GitHub.</p>\n<p><strong>The morning after</strong>: the server's LATEST_REPORT.md is dated today 02:05, says\n<code>this machine: ariseOS · designated runner: ariseOS</code>, <code>signed in as Arise\nChurch</code>, <code>0 failed</code>; <code>last-run.log</code> shows <code>repo at &amp;lt;sha&gt;</code> matching the PC's\npush and no WARNING; the PC's report says \"not the runner\"; the Cloud quota\ngraph shows one run; <code>token.json</code> was modified overnight and is still 0600;\n<code>git status</code> on the server is clean; one changed video looks right.</p>\n<h2 id=\"transcripts-and-a-blocked-pull\"><code>transcripts/</code> and a blocked pull</h2>\n<p><code>transcripts/</code> stays tracked (162 files): the PC uses it too. The server never\npushes, so a transcript it writes (Whisper, later) stays untracked in its\ncheckout. If the PC then commits a transcript for the same video, the\nserver's fast-forward stops with \"untracked working tree files would be\noverwritten\" and that night runs plan-only. The cutover check and the\nAutomator app show it (item 9). <code>sudo arisectl automator unblock</code> lists the\nfiles git named in last night's log and, after you type <code>move</code>, moves the\nserver's copies into <code>/var/lib/arise/automator/displaced/&amp;lt;date&gt;/</code>. It never\ndeletes them and never touches a tracked file. The next pull goes through.</p>\n<h2 id=\"if-the-servers-token-leaks-the-handoffs-section-10\">If the server's token leaks (the handoff's section 10)</h2>\n<ol>\n<li>Cloud Console → Credentials → the <strong>ariseOS server</strong> client → delete it (or\n   disable its secret). The PC uses a different client and is untouched.</li>\n<li>Revoke the token itself, on the server, without printing it:\n   <code>/opt/arise/venv/bin/python -c \"import json,urllib.request,urllib.parse;t=json.load(open('/etc/arise/secrets/youtube/token.json'))['refresh_token'];urllib.request.urlopen('https://oauth2.googleapis.com/revoke',urllib.parse.urlencode({'token':t}).encode())\"</code>\n   (The handoff notes it is not confirmed whether this kills one token or the\n   client's whole grant; with separate clients only the server is affected.)</li>\n<li><strong>Do not</strong> use myaccount.google.com → Third-party connections → Remove\n   access: it lists the app, not the machine, and would sign the PC out too.</li>\n<li>A new Desktop client, its JSON into <code>/etc/arise/secrets/youtube/</code>,\n   <code>sudo arisectl automator signin --force</code>, then a preview.</li>\n<li>Check YouTube Studio and the quota graph for anything the token did.</li>\n</ol>\n<p>Routine rotation is steps 1, 4 and 5.</p>\n<h2 id=\"whisper-transcripts-round-4-100-planned-not-built\">Whisper transcripts (round 4, 100: planned, not built)</h2>\n<p>The handoff's section 11 is the contract: write\n<code>transcripts/&amp;lt;videoId&gt;.json</code> in the checkout as\n<code>{\"segments\": [{\"start\": 12.34, \"dur\": 4.10, \"text\": \"…\"}], \"source\": \"whisper (&amp;lt;model&gt;)\"}</code>,\nseconds as floats, no <code>.nocaptions</code> or <code>.failed</code> markers. The caption puller\nskips a video that already has a file, so captions stay the fallback. There is\nno automated chapter step. Whisper output is evidence, never authority: no\nnames from it decide who spoke, and sung words are never copied. <strong>Open\nquestion for Bradly</strong>: where the recordings come from (the API cannot download\nthe channel's video; StreamYard or a local capture).</p>\n<h2 id=\"open-items-for-bradly-the-handoffs-section-12-plus-what-ariseos-found\">Open items for Bradly (the handoff's section 12, plus what ariseOS found)</h2>\n<ul>\n<li>Create the \"ariseOS server\" client (the app stays in Testing; the server's sign-in is renewed weekly from the Media Mac).</li>\n<li>Add the server's read-only deploy key on GitHub.</li>\n<li><strong>Push the revision commit</strong> (\"Per-machine job state, server cap 6,000\")\n  from the PC; GitHub's <code>main</code> is still at 8326b4a.</li>\n<li>The recording source for Whisper, and how its transcripts should reach the PC.</li>\n<li>Decided Oct 28: state files moved and untracked; <code>sunday-playlist-reassign</code>\n  parked; the server's cap 6,000 every day; both repos on the server as a\n  searchable archive for Claude (docs/ARCHIVE.md).</li>\n<li>Later, maybe: the server pushing reports and transcripts to a <code>server-out</code>\n  branch (a separate write key; never <code>main</code>).</li>\n</ul>\n<h2 id=\"round-7-songs-transcripts-and-the-channel-copy\">Round 7: songs, transcripts and the channel copy</h2>\n<ul>\n<li><strong>The Lyrics inbox</strong> (99, 100): a <em>Lyrics inbox</em> folder in Nextcloud for\n  Bradly and the worship leader (<code>[songs] inbox_users</code>; the owner always).\n  Every 15 minutes (<code>arise-lyrics-inbox.timer</code>) the files dropped there go\n  through the same import as the Songs tab's <em>Import lyrics files</em>\n  (<code>songs.import_files</code>: SongSelect <code>.txt</code>/<code>.usr</code>, ChordPro, plain text,\n  matched to song_bank.json by CCLI number, then by title). Each file then\n  moves to <code>Imported/</code> (or <code>Not imported/</code> with the reason in the Songs tab).\n  The lyrics land in <code>/srv/arise/songs/lyrics</code> and nowhere else: never into\n  a title, a description, a Short or a log line.</li>\n<li><strong>Held videos stay out of transcript search</strong> (105): a video in\n  <code>holds.json</code> is left out of the Search tab's transcript and title hits;\n  the answer says how many were held back.</li>\n<li><strong>The CCLI usage report</strong> (106): Songs → <em>CCLI usage</em> shows this quarter;\n  <code>arise-ccli.timer</code> writes <code>songs/reports/ccli-usage-YYYY-Qn.csv</code> on the\n  first of January, April, July and October. From the set lists and song\n  credits already in the archive: title, the CCLI number exactly as\n  song_bank.json has it, times used. No lyrics. A song with no number banked\n  is listed as such, never guessed; Arise originals say so.</li>\n<li><strong>The nightly channel copy</strong> (62): <code>arise-channel-copy.timer</code> at 04:45 copies\n  the automator repo's own snapshot files (already synced to\n  <code>/srv/arise/repos</code>) into <code>/srv/arise/channel-copy/&amp;lt;date&gt;/</code>, and each\n  video's public thumbnail from <code>i.ytimg.com</code> into\n  <code>channel-copy/thumbnails/</code> (up to 300 new a night). Zero quota: never the\n  YouTube API. Skipped during a service.</li>\n<li><strong>The morning note explains a failed 02:05 run</strong> (145): when the night's\n  report failed, the note quotes the report's own failing lines in plain\n  words, with the quota reset time when that was the cause. The note stays\n  off until a webhook is set.</li>\n</ul>\n<h2 id=\"commands\">Commands</h2>\n<pre><code>sudo arisectl automator setup        make the server ready (idempotent)\nsudo arisectl automator signin       sign the server in to YouTube (once; --force to replace)\nsudo arisectl automator preview      a plan-only run through its unit (asks: reads spend quota)\narisectl automator status            runner, this machine's cap today, token, holds, last run\narisectl automator report [name]     the latest report, or one by name\nsudo arisectl automator cutover      the section 9 checklist\n</code></pre>",
 "demo": true
 },
 "GET /help/BACKUPS": {
@@ -16231,7 +16257,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "MACS",
 "title": "The church Macs",
-"html": "<h1 id=\"the-church-macs\">The church Macs</h1>\n<p>The server is the church's own Active Directory. It is a Samba AD domain\ncontroller on <code>arise-server</code> (realm <code>AD.ARISECENLA.COM</code>, NetBIOS <code>ARISE</code>).\nThere is no Microsoft licence and no Microsoft server anywhere, and no Apple\nMDM or Apple certificate either (round 6, 1).</p>\n<p>Bradly (Oct 29): \"this should run like Active Directory and actually add and\nremove user accounts from the local Macs on the network (not the private ones\nthat people own) ... We don't want to pay for Active Directory, we want the\nserver to be our own Active Directory.\"</p>\n<p>This page covers:</p>\n<ul>\n<li>how a Mac becomes a church Mac</li>\n<li>what the server then does to it on its own</li>\n<li>what waits for an admin</li>\n<li>what it never does</li>\n</ul>\n<p>The code is in:</p>\n<ul>\n<li><code>server/arise_server/macs.py</code></li>\n<li><code>mac/helper/</code></li>\n<li>the <strong>Macs</strong> app on the dashboard (admins only)</li>\n</ul>\n<h2 id=\"which-macs\">Which Macs</h2>\n<p>Only a Mac enrolled with the one Terminal line below is a church Mac. That Mac\ncarries <code>church_owned</code> in the server's records, and enrolment is the only thing\nthat sets it.</p>\n<p>A Mac nobody enrolled is never listed and never touched. That includes\nApostle Bryant's and Pastor Vanessa's own Macs, a volunteer's laptop, and any\nMac that was only bound by hand with <code>bind-mac.sh</code>. Personal Macs keep\nTailscale and the dashboard (docs/MAC-MIGRATION.md § Personal Macs).</p>\n<h2 id=\"watch-mode-first-round-7-4\">Watch mode first (round 7, 4)</h2>\n<p>The helper starts in <strong>watch mode</strong> (<code>[macs] watch = true</code>, the default). In\nwatch mode the helper still checks in every five minutes and reports what it\nfinds, and the server still makes the whole plan, but it hands out <strong>no task</strong>\nexcept a notice (a notice changes nothing on the Mac). Each check-in's answer\nstarts with <code>WATCH &amp;lt;n&gt;</code>: the number of tasks that would run.</p>\n<p>The Macs app shows a <strong>Watch mode</strong> bar with what would happen on each Mac, line\nby line (\"would make levi.mercer and link levi to it\", \"would run: The church\napps\"), and Needs You carries one line until it is switched on.</p>\n<p><strong>Switch on</strong> is in that bar, for admins only. It asks for the word <code>on</code> and the\nadmin's password again, and is written in the audit log (<code>macs.live</code>). It is\nfor the whole box, not per Mac. <strong>Back to watch mode</strong> is the same, with the\nword <code>watch</code> (<code>macs.watch</code>). The switch is kept in the state file; it wins over\n<code>[macs] watch</code> from then on.</p>\n<h2 id=\"enrolling-a-mac-round-6-37\">Enrolling a Mac (round 6, 37)</h2>\n<ol>\n<li>Open the <strong>Macs</strong> app and press <strong>Enrol a Mac</strong>. A name is optional: leave\n   it empty and the Mac keeps the name it has (round 7, 35); type one\n   (<code>OFFICE-MAC-02</code>) only to rename it. Press <strong>Make the line</strong>.</li>\n<li>On the Mac, open Terminal, paste the line, and press Return. It asks for the\n   Mac's own password (sudo), then for the domain administrator's password.</li>\n</ol>\n<p>The line works <strong>once</strong>, for <strong>one hour</strong>. It looks like this:</p>\n<pre><code>curl -fsSL http://192.168.1.20:4147/ca.crt -o /tmp/arise-ca.crt &amp;&amp;\n[ &quot;$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)&quot; = &quot;&amp;lt;the certificate's fingerprint&gt;&quot; ] &amp;&amp;\ncurl -fsSL --cacert /tmp/arise-ca.crt --resolve arise-server.ad.arisecenla.com:443:192.168.1.20 \\\n  https://arise-server.ad.arisecenla.com/mac/enrol.sh |\nsudo bash -s -- --token &amp;lt;one-time&gt; --dns 192.168.1.20 --name OFFICE-MAC-02 --server https://arise-server.ad.arisecenla.com\n</code></pre>\n<p>Why it looks like that:</p>\n<ul>\n<li><strong>The address, not the name.</strong> A new Mac cannot look up\n  <code>arise-server.ad.arisecenla.com</code> yet, so the line uses the server's address.\n  Writing the <code>/etc/resolver</code> file that teaches it the name is the first thing\n  enrolment does. Set <code>[macs] server_ip</code> if the guessed address is wrong.</li>\n<li><strong>The fingerprint check.</strong> The church certificate comes first, and the line\n  checks its fingerprint against the one the server printed. The script then\n  arrives over HTTPS that the Mac can verify. Before Caddy has ever run, there\n  is no certificate, and the line falls back to plain http on the church\n  network.</li>\n</ul>\n<p>What <code>mac/helper/enrol.sh</code> does, in order. It is safe to run again.</p>\n<ol>\n<li><strong>A Time Machine backup</strong> (round 7, 6). When the Mac has a Time Machine\n   destination (<code>tmutil destinationinfo</code> names one), it runs\n   <code>tmutil startbackup --block</code> before anything changes. When there is none, or\n   the backup cannot run, it says so and goes on. <code>--no-backup</code> skips it.</li>\n<li><strong>DNS.</strong> It points the Mac at the server for the church domain only,\n   through <code>/etc/resolver/ad.arisecenla.com</code>. No router is touched.</li>\n<li><strong>The certificate.</strong> It trusts the church certificate in the System\n   keychain. macOS asks for approval once; a daemon cannot do this by itself.</li>\n<li><strong>The domain.</strong> It joins the domain with <code>mac/bind-mac.sh</code>, unchanged,\n   which checks DNS, the SRV records and the clock first. The Mac keeps its\n   name; only the domain's computer account takes a short plain form of it\n   (15 letters, digits and dashes: \"Office Mac 2\" joins as <code>Office-Mac-2</code>),\n   which the server keeps as the Mac's <code>ad_name</code> for <strong>Cut off</strong>.</li>\n<li><strong>The key.</strong> It trades the token for the Mac's own key. The key is kept in\n   <code>/var/db/arise/helper.key</code> (root, 0600). The server keeps only its sha256.</li>\n<li><strong>The helper.</strong> It installs the helper at <code>/usr/local/arise/helper/</code>, with\n   the LaunchDaemon <code>com.arisechurch.helper</code>, which runs at boot and every\n   five minutes.</li>\n<li><strong>The first check-in.</strong> It runs the helper once. The server then hands out\n   the first tasks:</li>\n<li>the certificate check</li>\n<li>the login window</li>\n<li><code>ariseadmin</code></li>\n<li>FileVault</li>\n<li>the printers</li>\n<li>the bookmarks</li>\n<li>Tailscale</li>\n<li>the welcome page, the Mac's settings, the church apps, the DNS filter\n     (all below)</li>\n<li>an account for every server user</li>\n</ol>\n<p>In watch mode these wait in the Macs app as \"would run\" until Switch on.</p>\n<ol>\n<li><strong>Full Disk Access, by hand, once: Bradly, while enrolling</strong> (round 7, 39).\n   macOS hides everyone's Desktop and\n   Documents even from root, and no script can grant the exception. Enrolment\n   opens System Settings &gt; Privacy &amp; Security &gt; Full Disk Access; add\n   <code>/usr/local/arise/helper/arise-mac-helper</code> and <code>/bin/bash</code> there. Until\n   then the Mac's card says <strong>no Full Disk Access</strong>, and no profile is ever\n   removed from that Mac: the helper reports a folder it could not read, and\n   the server refuses any listing that came back unread, has items but no\n   files, or holds a file name with a tab or a line break.</li>\n</ol>\n<p>At the end it lists the local accounts already on the Mac. Each is linked to a\nserver user by default (below); in watch mode that is only shown as \"would\nlink\" or \"would make … and link\" until Switch on.</p>\n<h2 id=\"accounts-on-their-own-the-directory\">Accounts, on their own (the directory)</h2>\n<p><strong>Every server user gets an account.</strong> Every enabled directory user gets a\nmobile (AD) account made on every church Mac with:</p>\n<pre><code>/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n &amp;lt;user&gt; -v\n</code></pre>\n<p>So their face is on the login window before they ever sign in there. A new\nuser reaches every church Mac within about five minutes (one check-in).</p>\n<p>A person who already has a <strong>linked local account</strong> on a Mac gets no second,\nmobile account there (round 7, 25): they keep signing in to their own account,\nwhich syncs as them.</p>\n<p>Some users never get an account:</p>\n<ul>\n<li>the names in <code>[macs] exclude</code></li>\n<li>the box's own accounts, whatever the config says: <code>administrator</code>,\n  <code>krbtgt</code>, <code>guest</code>, <code>arise-rescue</code>, <code>arise</code>, <code>arise-kiosk</code>, <code>arise-git</code>,\n  <code>arise-kb</code>, <code>ariseadmin</code></li>\n</ul>\n<p><strong>A disabled user's profile comes off by the checked path, and only that\npath.</strong> A user is disabled by hand or by offboarding's day-30 sweep. Their\nprofile then comes off every church Mac where they have one, like this:</p>\n<ol>\n<li>The server queues <code>remove_profile</code> for each of those Macs. Offboarding\n   queues it too, and puts the folder their files were moved to first in the\n   list of places to look.</li>\n<li>The helper sends the server a list of every file in their Desktop,\n   Documents, Downloads, Pictures and Music (<code>[macs] sync_folders</code>, round 7, 42\n   and 43). The list has the name, size and date of each file, never its\n   contents. Library packages (<code>Photos Library.photoslibrary</code>,\n   <code>Music Library.musiclibrary</code> and the rest, see docs/SYNC.md) are left out of\n   the list, because they never sync.</li>\n<li>The server checks each one against its own copy, in places the <strong>server</strong>\n   chooses: their home, and where offboarding moved it. It never looks where\n   the Mac says to. A file counts only when the server has it at the same\n   size, and the copy on the Mac is not newer.</li>\n<li>Only when every file counts does anything change. First the rest of their\n   Mac folder (the library packages and whatever else does not sync) is kept as a\n   compressed disk image in <code>/Users/Deleted Users/&amp;lt;user&gt;-&amp;lt;date&gt;.dmg</code> on that\n   Mac, the way macOS's own Delete User can; if that copy cannot be made,\n   nothing is removed. Then the account is deleted, with\n   <code>sysadminctl -deleteUser</code>. Deleting the disk image later is Bradly's click. Otherwise the task is refused, says how many\n   files are missing or newer on the Mac, and is tried again at the next\n   check-in.</li>\n</ol>\n<p>The server also refuses the check unless a removal of that person is really\nwaiting on that Mac. So a Mac's key is not a way to probe other people's\nfolders.</p>\n<p>Some accounts are never removed by this path:</p>\n<ul>\n<li><strong>A signed-in person.</strong> Their removal waits.</li>\n<li><strong>A local account.</strong> Only AD accounts are removed this way.</li>\n<li><strong>An account with a home outside <code>/Users</code>.</strong> It is left for an admin.</li>\n<li><strong>A profile that is only unused</strong> (round 6, 5). It is never removed; only a\n  disabled user's is.</li>\n</ul>\n<h2 id=\"accounts-already-on-a-mac-linked-by-default-round-7-23-25-26\">Accounts already on a Mac: linked by default (round 7, 23, 25, 26)</h2>\n<p>Every local account the helper finds is <strong>linked</strong> by default to a server user\n(Bradly, round 7, 23, and his follow-up):</p>\n<ul>\n<li><strong>A clear match links to that user.</strong> A clear match is a server user with the\n  same short name, or <code>first.last</code> made from the account's full name where that\n  server user's own name agrees (or none is on file).</li>\n<li><strong>No clear match: a server user is made, then linked.</strong> Its name is\n  <code>first.last</code> from the account's full name, <code>first.last2</code> when that name is\n  already someone else's (row 12). It gets a temporary password, which waits in\n  the Mac's 0600 secrets file until an admin presses <strong>Show it once</strong> in the\n  Mac's card (password again, audited, then forgotten). The person chooses\n  their own at the first sign-in (round 5, 5).</li>\n<li><strong>A full name that is not a first and a last name</strong> (a one-word name such as\n  \"Media\") waits for a choice by hand.</li>\n</ul>\n<p>In watch mode none of this happens: the card says \"would link kristina to\nkristina.robinson\" or \"would make levi.mercer and link levi to it\", and nobody\nis made until Switch on. The box's own accounts (<code>[macs] exclude</code> and the list\nbelow) are never linked.</p>\n<p>The admin can still change any account's choice with <strong>Choose…</strong>. A new choice\ncancels the default's open link and sync tasks for that account.</p>\n<ul>\n<li>\n<p><strong>Convert</strong> stays available per account.</p>\n</li>\n<li>\n<p><strong>Convert</strong> (by hand only). The account becomes the server user.</p>\n</li>\n<li>The Mac's helper stops if the person is signed in.</li>\n<li>It writes a rollback record: <code>/var/db/arise/convert/&amp;lt;old&gt;.plist</code>, 0600,\n    with the UID, groups, home, shell and password hash.</li>\n<li>It deletes only the local record (<code>dscl . -delete</code>) and keeps the home.\n    The home moves to <code>/Users/&amp;lt;first.last&gt;</code> if that is free.</li>\n<li>It runs <code>createmobileaccount -n &amp;lt;first.last&gt; -h &amp;lt;home&gt;</code> and gives the\n    files to the AD uid.</li>\n<li>Admin rights carry over only if the local account had them. Staff are\n    standard users (round 6, 8).</li>\n<li><strong>Undo</strong> puts the local account back from the record. If\n    <code>createmobileaccount</code> fails partway, the helper does the Undo by itself,\n    so nobody is left without an account to sign in to.</li>\n<li>It refuses when the account holds the Mac's Secure Token and FileVault is\n    on (see \"Not verified\" below): Link is the answer there.</li>\n<li><strong>Link.</strong> The local account stays exactly as it is. The Nextcloud client in\n  that account signs in as the server user, so its synced folders go to that\n  person's server home. This is the default.</li>\n<li><strong>Leave alone.</strong> Nothing happens to it, ever.</li>\n</ul>\n<p>The Macs app's <strong>Choose…</strong> suggests the default's server user. If the chosen\nserver user does not exist yet, it is made first with a temporary password,\nshown to the admin once.</p>\n<p>Convert and Link also queue the <code>nextcloud</code> task for that person.</p>\n<p><strong>Retire</strong> is refused until every local account on the Mac has a choice and\nevery AD account's files are on the server.</p>\n<p><code>mac/migrate-mac-user.sh</code> and <code>enroll-mac.sh --map</code> stay as they were. Use\nthem for a Mac that cannot run the helper, or to copy an old account's files\nto the server once before converting it.</p>\n<h2 id=\"the-rest-of-what-the-helper-does\">The rest of what the helper does</h2>\n<table>\n<thead>\n<tr>\n<th>Task</th>\n<th>What happens on the Mac</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>login_window</code></td>\n<td>A list of faces, plus Other… (<code>[macs] login_window = \"faces\"</code>, or <code>\"name\"</code>), and the login window text, word for word: \"Arise Church: sign in with your church account. Help: Bradly\" (round 7, 27; <code>[macs] login_text</code>)</td>\n</tr>\n<tr>\n<td><code>welcome</code></td>\n<td>Round 7, 3: at each person's first sign-in on that Mac, <code>Welcome to Arise Church.html</code> on their Desktop: their login, where their files are (the synced folders), and who to ask (<code>[macs] help</code>: Bradly, Kristina, Ronnie). A small LaunchAgent (<code>com.arisechurch.session</code>, in every session) puts it there once, and shows waiting notices</td>\n</tr>\n<tr>\n<td><code>mac_settings</code></td>\n<td>Guest User on (round 7, 33; macOS wipes it at sign-out). App Store installs need an admin (round 7, 30): <code>restrict-store-require-admin-to-install</code> in <code>com.apple.appstore</code>. Staff stay standard users. <strong>No screen lock and no automatic sign-out are ever set</strong> (round 7, 28 and 29)</td>\n</tr>\n<tr>\n<td><code>apps</code></td>\n<td>Round 7, 31: the church apps from each maker's own address, refused unless signed by the expected Developer ID team and notarized (below)</td>\n</tr>\n<tr>\n<td><code>dnsfilter</code></td>\n<td>Round 7, 71 and 72: every network service's DNS goes to a malware and adult filter (Cloudflare for Families). <code>/etc/resolver/ad.arisecenla.com</code> keeps the church domain on the server. The servers each had before are kept; <strong>DNS filter off</strong> in the card puts them back. Personal devices are never touched</td>\n</tr>\n<tr>\n<td><code>notice</code></td>\n<td>Round 7, 84: a Mac notification for one person, shown now if they are signed in, else at their next sign-in. Goes out in watch mode too</td>\n</tr>\n<tr>\n<td><code>ariseadmin</code></td>\n<td>A hidden admin with a random password. The password is changed every 30 days and kept on the server. If the server cannot be reached, the new password is kept on the Mac (root only) and sent at the next check-in</td>\n</tr>\n<tr>\n<td><code>filevault</code></td>\n<td><code>fdesetup enable -defer</code>: FileVault turns on at the next sign-in, and the recovery key goes to the server after that</td>\n</tr>\n<tr>\n<td><code>printers</code></td>\n<td><code>lpadmin</code>, from <code>[macs] printers</code></td>\n</tr>\n<tr>\n<td><code>bookmarks</code></td>\n<td>A <strong>Church</strong> folder in Chrome (managed bookmarks), and <code>.webloc</code> links in <code>/Library/Arise/Church Links</code> for Safari</td>\n</tr>\n<tr>\n<td><code>certificate</code></td>\n<td>Checks that the church certificate is trusted. Trusting it needs a person at the Mac, so enrolment does that part</td>\n</tr>\n<tr>\n<td><code>updates</code></td>\n<td>Overnight, 01:00 to 05:00, once a night, never during a service. Turns on Apple's automatic security responses and installs security-labelled updates. Asks for a restart in a dialog. Never a new macOS</td>\n</tr>\n<tr>\n<td><code>tailscale</code></td>\n<td>Installs Tailscale if it is missing and turns on \"use Tailscale subnets\" (<code>--accept-routes</code>), so a laptop off-site reaches the server at its church address through the route the server advertises (docs/REMOTE-ACCESS.md): check-ins, Nextcloud and the shares carry on away from church. Someone signs it in once with the church login; the server's route is approved once in the Tailscale admin</td>\n</tr>\n<tr>\n<td><code>nextcloud</code></td>\n<td>Runs <code>/usr/local/arise/helper/tasks/nextcloud.sh --user &amp;lt;first.last&gt; --local &amp;lt;short name&gt; --server &amp;lt;url&gt;</code>. The Nextcloud work supplies that script; until it exists, the task reports <em>skipped</em></td>\n</tr>\n<tr>\n<td><code>retire</code></td>\n<td>Checks every AD account's files as above, then <code>dsconfigad -remove</code>, then removes the helper. Erasing the Mac is Bradly's to do</td>\n</tr>\n</tbody>\n</table>\n<p>The ariseadmin password and the FileVault key are kept in\n<code>/etc/arise/secrets/macs/&amp;lt;mac&gt;.json</code> (0600, root). To see one, an admin\npresses <strong>Show admin password</strong> or <strong>Show FileVault key</strong> and types their\npassword again (remembered for five minutes). Each look is written in the\naudit log; the value never is.</p>\n<p><strong>Cut off</strong> is for a lost or stolen Mac (round 6, 11):</p>\n<ul>\n<li>the Mac's key stops working at once</li>\n<li>its waiting tasks are cancelled</li>\n<li>its computer account is disabled (<code>samba-tool user disable NAME$</code>)</li>\n</ul>\n<p>The app then lists what to revoke by hand: the Mac's Tailscale machine, and\neach person's Nextcloud sessions on it. There is no remote erase.</p>\n<p><strong>Never during a service.</strong> On Sundays at 10:30 and Mondays at 19:00, the\nserver answers every check-in with <code>HOLD</code> and hands out nothing. On <code>HOLD</code> the\nhelper also quits the Nextcloud client in each signed-in session, so it does\nnot use the church's upload during the stream, and reopens it at the first\ncheck-in after the service (round 7, 92). In watch mode there is no <code>HOLD</code>\n(nothing on the Mac changes) and nothing goes out.</p>\n<h2 id=\"the-church-apps-round-7-31\">The church apps (round 7, 31)</h2>\n<p>Nextcloud, Firefox, Google Chrome and Zoom go on every church Mac. Each is\ndownloaded from its maker's own address and installed only when\n<code>pkgutil --check-signature</code> shows \"Developer ID Installer: … (TEAM)\" for the\nexpected team and <code>spctl</code> says it is notarized. An app already there, signed by\nthat team, is left alone.</p>\n<table>\n<thead>\n<tr>\n<th>App</th>\n<th>Apple Team ID</th>\n<th>Download</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Firefox</td>\n<td><code>43AQ936H96</code> (Mozilla)</td>\n<td><code>https://download.mozilla.org/?product=firefox-pkg-latest-ssl&amp;os=osx&amp;lang=en-US</code></td>\n</tr>\n<tr>\n<td>Google Chrome</td>\n<td><code>EQHXZ8M8AV</code> (Google)</td>\n<td>Google's <code>googlechrome.pkg</code> at <code>dl.google.com/chrome/mac/stable/</code></td>\n</tr>\n<tr>\n<td>Zoom</td>\n<td><code>BJ4HAAB9B3</code> (Zoom Video Communications)</td>\n<td><code>https://zoom.us/client/latest/ZoomInstallerIT.pkg</code></td>\n</tr>\n<tr>\n<td>Nextcloud</td>\n<td><code>NKUJUXUJ3B</code> (Nextcloud GmbH)</td>\n<td>the <code>nextcloud</code> task installs the client</td>\n</tr>\n</tbody>\n</table>\n<p>Source for the Team IDs: Installomator's labels, which the Mac admin community\nkeeps against each maker's signing identity\n(<code>github.com/Installomator/Installomator</code>, <code>fragments/labels/firefoxpkg.sh</code>,\n<code>googlechromepkg.sh</code>, <code>zoom.sh</code>, <code>nextcloud.sh</code>), checked Oct 29.</p>\n<p><strong>Proclaim is not in the list yet.</strong> It belongs only on the media Mac (the\n<strong>This is the media Mac</strong> box in its card), but its Team ID could not be\nconfirmed from a source we trust: one third-party app catalogue gives a value,\nnothing from Faithlife or Installomator does. Rather than guess, it is left out.\nTo add it, on a Mac with Proclaim installed run\n<code>codesign -dv --verbose=4 /Applications/Proclaim.app 2&gt;&amp;1 | grep TeamIdentifier</code>\nand add it to <code>[macs] apps</code> with <code>media_only = true</code> (the example is in\n<code>config/arise.toml.example</code>). An entry without a real 10-character Team ID is\nignored.</p>\n<h2 id=\"the-disk-a-silent-mac-and-telling-a-person-something\">The disk, a silent Mac, and telling a person something</h2>\n<ul>\n<li><strong>The disk</strong> (round 7, 40). Each check-in reports how full the Mac's disk is.\n  At 90% the person at the Mac gets a notification (\"This Mac's disk is nearly\n  full\"), and Bradly gets one alert line: a push and Discord #alerts, once a\n  week per Mac. The card and Needs You show it too.</li>\n<li><strong>A silent Mac</strong> (round 7, 82). A church Mac not heard from in three days is a\n  Needs You line (<code>macs.silent_macs()</code> gives the list).</li>\n<li><strong>Notices</strong> (round 7, 84). <code>notices.notify_person(user, title, body,\n  kind=\"info\")</code> in <code>server/arise_server/notices.py</code> is the one call other parts\n  of the server make to tell a staff member something: an email to their\n  personal address (<code>mail.send_one</code>), and a Mac notification on every church\n  Mac where they have an account (mobile, or a linked local account). The\n  notification is shown with <code>osascript</code> taking the text as arguments, so the\n  text is never read as AppleScript.</li>\n</ul>\n<h2 id=\"what-the-helper-never-does\">What the helper never does</h2>\n<ul>\n<li>erase a Mac, or delete a local account</li>\n<li>read the contents of anyone's files (a removal compares names, sizes and\n  dates)</li>\n<li>remove a profile the server has not confirmed is safely on the server</li>\n<li>act on a Mac nobody enrolled</li>\n<li>install a new macOS version</li>\n<li>set a screen lock or an automatic sign-out (round 7, 28 and 29)</li>\n<li>install an app that is not signed by its maker's expected team</li>\n<li>touch a personal Mac's DNS (or anything else on it)</li>\n<li>put a secret in its log (<code>/var/log/arise-helper.log</code>), a task or a result</li>\n</ul>\n<h2 id=\"syncing-files-nextcloud-with-the-old-agent-as-the-fallback\">Syncing files: Nextcloud, with the old agent as the fallback</h2>\n<p>macOS removed the home sync of mobile accounts in 10.12 (Sierra). A mobile\naccount still caches the login, but nothing copies the files back.</p>\n<p>Round 6, 13 and 14, are the plan, with round 7, 42 and 43: Desktop, Documents,\nDownloads, Pictures and Music sync through the Nextcloud client, which the\n<code>nextcloud</code> task sets up (library packages excluded: docs/SYNC.md). Until that is in, and on\nany Mac where it is not running, <code>mac/arise-home-sync.sh</code> keeps doing the job\nevery 15 minutes.</p>\n<p>The checked removal compares against the person's home on the server\n(<code>/srv/arise/homes/&amp;lt;user&gt;/Desktop</code>, <code>…/Documents</code>). So whatever syncs the\nfiles has to land them there.</p>\n<h2 id=\"the-protocol-for-whoever-works-on-it\">The protocol, for whoever works on it</h2>\n<p>The helper is bash 3.2, the bash macOS ships, so the server speaks plain text.</p>\n<p><strong>Server to helper.</strong> Each answer is lines:</p>\n<pre><code>TASK &amp;lt;id&gt; &amp;lt;kind&gt; k=v k=v\nHOLD &amp;lt;reason&gt;\nWATCH &amp;lt;n&gt;          watch mode: n tasks would run (only notices follow)\nNONE\n</code></pre>\n<p>The values are percent-encoded, so each <code>k=v</code> is one word.</p>\n<p><code>GET /api/macs/agent/config</code> gives the configuration tasks one item a line:\n<code>LOGIN</code>, <code>LOGINTEXT</code>, <code>PRINTER</code>, <code>BOOKMARK</code>, <code>APP &amp;lt;name&gt; &amp;lt;bundle&gt; &amp;lt;team&gt; &amp;lt;url&gt;</code>,\n<code>DNS</code>, <code>HELP</code>, <code>FOLDERS</code>, <code>CHURCH</code>.</p>\n<p><strong>Helper to server.</strong> The helper posts forms with <code>curl --data-urlencode</code>. Its\nown door is <code>/api/macs/agent/*</code>, opened by the header\n<code>X-Arise-Mac: &amp;lt;mac_id&gt;:&amp;lt;key&gt;</code>. Only an active, church-owned Mac with the right\nkey gets in.</p>\n<p><strong>Files.</strong> <code>/mac/&amp;lt;name&gt;</code> serves only the helper's own files: <code>enrol.sh</code>, the\nhelper, its plist, <code>bind-mac.sh</code>, <code>migrate-mac-user.sh</code>, and <code>nextcloud.sh</code>.</p>\n<h2 id=\"not-verified-on-a-real-mac-yet\">Not verified on a real Mac yet</h2>\n<p>There is no Mac where this was built. <code>tests/test_mac_scripts.py</code> reads every\nscript for anything bash 3.2 (the one macOS ships) cannot run, and runs the\nhelper's own functions with stand-ins for <code>dscl</code>, <code>stat -f</code>, <code>sysadminctl</code>,\n<code>fdesetup</code> and <code>softwareupdate</code>. Point <code>ARISE_BASH32</code> at a bash 3.2.57 binary\nto run them under the real version; this box runs them under its own bash.</p>\n<p><strong>Checked against the documentation (Oct 29), and fixed where they were wrong:</strong></p>\n<ul>\n<li>An empty array under <code>set -u</code> (<code>\"${ca[@]}\"</code>) stops bash 3.2 dead with\n  \"unbound variable\"; only bash 4.4 changed that (bash CHANGES, 4.4 a.). It\n  would have stopped every check-in to a server without a certificate yet. Every\n  such expansion is now <code>${a[@]+\"${a[@]}\"}</code>, and the test fails on a new one.</li>\n<li><code>dig</code> reads <code>/etc/resolv.conf</code> only and never sees <code>/etc/resolver/&amp;lt;domain&gt;</code>,\n  so <code>bind-mac.sh</code> could not find the server on a Mac that keeps the router's\n  DNS. It asks <code>dscacheutil -q host</code> (the system resolver, the one\n  <code>dsconfigad</code> uses) and points <code>dig</code> at the domain's nameserver for the SRV\n  records.</li>\n<li>macOS 15.4 replaced rsync 2.6.9 with openrsync, which takes only part of\n  rsync's options. <code>migrate-mac-user.sh</code> no longer passes <code>-X</code> (rsync 3's; Apple's\n  2.6.9 says <code>-E</code>): it asks <code>rsync --help</code>. The old home-sync stands down when\n  its rsync has no <code>--backup-dir</code>, rather than overwrite a server copy.</li>\n<li><code>curl -H @file</code> and <code>-H @-</code> need curl 7.55 (macOS 10.13 and later).</li>\n<li>The Full Disk Access link\n  <code>x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles</code>\n  opens the pane on Sonoma and Sequoia; the admin still presses + and adds the\n  helper. It is opened in the signed-in person's session (<code>open</code> as root has no\n  window).</li>\n<li><code>fdesetup status</code> says \"FileVault is Off, but will be enabled after the next\n  restart.\" when it is deferred: only \"FileVault is On\" counts as on now.</li>\n<li>The task loop reads the server's answer on stdin, and <code>enrol.sh</code> arrives\n  through <code>curl | sudo bash</code>: a command that reads stdin would have eaten the\n  next tasks, or the rest of the script. Tasks get <code>&amp;lt;/dev/null</code>, and <code>enrol.sh</code>\n  runs from a <code>main</code> that bash has read in full.</li>\n<li><code>sysadminctl</code> exits 0 even when it did nothing, so a removal and <code>ariseadmin</code>\n  are checked against the account record afterwards, never its exit code.</li>\n<li>Retire removed its files after <code>launchctl bootout</code>, which ends the script\n  itself; the files go first now, then the job.</li>\n<li>Updates: a new macOS is an upgrade, and macOS installs updates within its own\n  version (Apple's platform guide), so \"Install macOS updates\" is on and the\n  helper installs, itself, only patches for the macOS the Mac runs (minor\n  versions, Security Updates, Rapid Security Responses / Background Security\n  Improvements, Safari). On Apple silicon a macOS update wants a volume\n  owner's password, which root alone cannot give: those wait for macOS's own\n  overnight install.</li>\n<li><code>ariseadmin</code>: an account with a Secure Token keeps FileVault in step only when\n  its password is changed with the old one, so the helper keeps the current one\n  (root, 0600) and uses <code>dscl . -passwd</code> with it.</li>\n</ul>\n<p><strong>Still for a first run on one church Mac:</strong></p>\n<ul>\n<li><code>createmobileaccount</code>'s options (<code>-n</code>, <code>-h &amp;lt;home&gt;</code>, <code>-v</code>): Apple publishes no\n  manual page for it; the helper uses the forms admins have used for years.</li>\n<li>whether \"Install macOS updates\" (<code>AutomaticallyInstallMacOSUpdates</code>) ever\n  offers a new major macOS on its own. Apple's guide says upgrades need the\n  person; nothing tests the key itself.</li>\n<li>whether the restart notice reaches the person (<code>launchctl asuser</code> plus\n  <code>sudo -u</code>, kept alive by <code>AbandonProcessGroup</code>)</li>\n<li><code>createmobileaccount -h &amp;lt;home&gt;</code> on a converted account</li>\n<li>whether a converted account gets a Secure Token. Until that is tried, the\n  helper refuses to Convert an account that holds a Secure Token when\n  FileVault is on, or when it is the only token holder on the Mac: deleting\n  the local record takes the token with it, and nothing can give the new\n  account one without a holder's password. The card then says <strong>Choose Link\n  instead</strong>. To convert such a Mac anyway, first give <code>ariseadmin</code> a token by\n  hand (<code>sudo sysadminctl -secureTokenOn ariseadmin -password - -adminUser\n  &amp;lt;holder&gt; -adminPassword -</code>), then Convert, then grant the new account one\n  the same way.</li>\n<li>restoring a password hash (<code>ShadowHashData</code>) on Undo. If it does not take,\n  the message says to reset the password as <code>ariseadmin</code>.</li>\n<li><code>dsconfigad -force -remove</code> on Retire</li>\n<li>Chrome reading <code>/Library/Managed Preferences</code> without an MDM</li>\n<li>the Tailscale download address</li>\n<li><code>sysadminctl -deleteUser</code> asking for an admin's Secure Token on newer macOS</li>\n<li><code>samba-tool user disable NAME$</code> for a computer account</li>\n</ul>\n<p><strong>Round 7, also for that first run:</strong></p>\n<ul>\n<li><code>restrict-store-require-admin-to-install</code> without an MDM. Apple documents it\n  as an MDM restriction (\"Require admin password to install or update apps\");\n  the helper writes it to <code>/Library/Preferences</code> and <code>/Library/Managed\n  Preferences</code>, and whether the App Store reads it from there on current macOS\n  is not proven.</li>\n<li><code>LoginwindowText</code> on the login window</li>\n<li>the session LaunchAgent (<code>/Library/LaunchAgents/com.arisechurch.session.plist</code>)\n  writing the welcome page and showing notices, and <code>osascript display\n  notification</code> run through <code>launchctl asuser</code></li>\n<li><code>networksetup -setdnsservers</code> per service, and <code>Empty</code> on DNS filter off</li>\n<li><code>tmutil destinationinfo</code> / <code>startbackup --block</code> at enrolment</li>\n<li><code>pkgutil --check-signature</code> and <code>spctl -a -t install</code> on each app's package,\n  and Chrome's and Zoom's packages installing with <code>installer -pkg</code></li>\n<li>quitting and reopening the Nextcloud client in each session for a service</li>\n<li><code>sysadminctl -guestAccount on</code></li>\n</ul>",
+"html": "<h1 id=\"the-church-macs\">The church Macs</h1>\n<p>The server is the church's own Active Directory. It is a Samba AD domain\ncontroller on <code>arise-server</code> (realm <code>AD.ARISECENLA.COM</code>, NetBIOS <code>ARISE</code>).\nThere is no Microsoft licence and no Microsoft server anywhere, and no Apple\nMDM or Apple certificate either (round 6, 1).</p>\n<p>Bradly (Oct 29): \"this should run like Active Directory and actually add and\nremove user accounts from the local Macs on the network (not the private ones\nthat people own) ... We don't want to pay for Active Directory, we want the\nserver to be our own Active Directory.\"</p>\n<p>This page covers:</p>\n<ul>\n<li>how a Mac becomes a church Mac</li>\n<li>what the server then does to it on its own</li>\n<li>what waits for an admin</li>\n<li>what it never does</li>\n</ul>\n<p>The code is in:</p>\n<ul>\n<li><code>server/arise_server/macs.py</code></li>\n<li><code>mac/helper/</code></li>\n<li>the <strong>Macs</strong> app on the dashboard (admins only)</li>\n</ul>\n<h2 id=\"which-macs\">Which Macs</h2>\n<p>Only a Mac enrolled with the one Terminal line below is a church Mac. That Mac\ncarries <code>church_owned</code> in the server's records, and enrolment is the only thing\nthat sets it.</p>\n<p>A Mac nobody enrolled is never listed and never touched. That includes\nApostle Bryant's and Pastor Vanessa's own Macs, a volunteer's laptop, and any\nMac that was only bound by hand with <code>bind-mac.sh</code>. Personal Macs keep\nTailscale and the dashboard (docs/MAC-MIGRATION.md § Personal Macs).</p>\n<h2 id=\"watch-mode-first-round-7-4\">Watch mode first (round 7, 4)</h2>\n<p>The helper starts in <strong>watch mode</strong> (<code>[macs] watch = true</code>, the default). In\nwatch mode the helper still checks in every five minutes and reports what it\nfinds, and the server still makes the whole plan, but it hands out <strong>no task</strong>\nexcept a notice (a notice changes nothing on the Mac). Each check-in's answer\nstarts with <code>WATCH &amp;lt;n&gt;</code>: the number of tasks that would run.</p>\n<p>The Macs app shows a <strong>Watch mode</strong> bar with what would happen on each Mac, line\nby line (\"would make levi.mercer and link levi to it\", \"would run: The church\napps\"), and Needs You carries one line until it is switched on.</p>\n<p><strong>Switch on</strong> is in that bar, for admins only. It asks for the word <code>on</code> and the\nadmin's password again, and is written in the audit log (<code>macs.live</code>). It is\nfor the whole box, not per Mac. <strong>Back to watch mode</strong> is the same, with the\nword <code>watch</code> (<code>macs.watch</code>). The switch is kept in the state file; it wins over\n<code>[macs] watch</code> from then on.</p>\n<h2 id=\"enrolling-a-mac-round-6-37\">Enrolling a Mac (round 6, 37)</h2>\n<ol>\n<li>Open the <strong>Macs</strong> app and press <strong>Enrol a Mac</strong>. A name is optional: leave\n   it empty and the Mac keeps the name it has (round 7, 35); type one\n   (<code>OFFICE-MAC-02</code>) only to rename it. Press <strong>Make the line</strong>.</li>\n<li>On the Mac, open Terminal, paste the line, and press Return. It asks for the\n   Mac's own password (sudo), then for the domain administrator's password.</li>\n</ol>\n<p>The line works <strong>once</strong>, for <strong>one hour</strong>. It looks like this:</p>\n<pre><code>curl -fsSL http://192.168.1.20:4147/ca.crt -o /tmp/arise-ca.crt &amp;&amp;\n[ &quot;$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)&quot; = &quot;&amp;lt;the certificate's fingerprint&gt;&quot; ] &amp;&amp;\ncurl -fsSL --cacert /tmp/arise-ca.crt --resolve arise-server.ad.arisecenla.com:443:192.168.1.20 \\\n  https://arise-server.ad.arisecenla.com/mac/enrol.sh |\nsudo bash -s -- --token &amp;lt;one-time&gt; --dns 192.168.1.20 --name OFFICE-MAC-02 --server https://arise-server.ad.arisecenla.com\n</code></pre>\n<p>Why it looks like that:</p>\n<ul>\n<li><strong>The address, not the name.</strong> A new Mac cannot look up\n  <code>arise-server.ad.arisecenla.com</code> yet, so the line uses the server's address.\n  Writing the <code>/etc/resolver</code> file that teaches it the name is the first thing\n  enrolment does. Set <code>[macs] server_ip</code> if the guessed address is wrong.</li>\n<li><strong>The fingerprint check.</strong> The church certificate comes first, and the line\n  checks its fingerprint against the one the server printed. The script then\n  arrives over HTTPS that the Mac can verify. Before Caddy has ever run, there\n  is no certificate, and the line falls back to plain http on the church\n  network.</li>\n</ul>\n<p>What <code>mac/helper/enrol.sh</code> does, in order. It is safe to run again.</p>\n<ol>\n<li><strong>A Time Machine backup</strong> (round 7, 6). When the Mac has a Time Machine\n   destination (<code>tmutil destinationinfo</code> names one), it runs\n   <code>tmutil startbackup --block</code> before anything changes. When there is none, or\n   the backup cannot run, it says so and goes on. <code>--no-backup</code> skips it.</li>\n<li><strong>DNS.</strong> It points the Mac at the server for the church domain only,\n   through <code>/etc/resolver/ad.arisecenla.com</code>. No router is touched.</li>\n<li><strong>The certificate.</strong> It trusts the church certificate in the System\n   keychain. macOS asks for approval once; a daemon cannot do this by itself.</li>\n<li><strong>The domain.</strong> It joins the domain with <code>mac/bind-mac.sh</code>, unchanged,\n   which checks DNS, the SRV records and the clock first. The Mac keeps its\n   name; only the domain's computer account takes a short plain form of it\n   (15 letters, digits and dashes: \"Office Mac 2\" joins as <code>Office-Mac-2</code>),\n   which the server keeps as the Mac's <code>ad_name</code> for <strong>Cut off</strong>.</li>\n<li><strong>The key.</strong> It trades the token for the Mac's own key. The key is kept in\n   <code>/var/db/arise/helper.key</code> (root, 0600). The server keeps only its sha256.</li>\n<li><strong>The helper.</strong> It installs the helper at <code>/usr/local/arise/helper/</code>, with\n   the LaunchDaemon <code>com.arisechurch.helper</code>, which runs at boot and every\n   five minutes.</li>\n<li><strong>The first check-in.</strong> It runs the helper once. The server then hands out\n   the first tasks:</li>\n<li>the certificate check</li>\n<li>the login window</li>\n<li><code>ariseadmin</code></li>\n<li>FileVault</li>\n<li>the printers</li>\n<li>the bookmarks</li>\n<li>Tailscale</li>\n<li>the welcome page, the Mac's settings, the church apps, the DNS filter\n     (all below)</li>\n<li>an account for every server user</li>\n</ol>\n<p>In watch mode these wait in the Macs app as \"would run\" until Switch on.</p>\n<ol>\n<li><strong>Full Disk Access, by hand, once: Bradly, while enrolling</strong> (round 7, 39).\n   macOS hides everyone's Desktop and\n   Documents even from root, and no script can grant the exception. Enrolment\n   opens System Settings &gt; Privacy &amp; Security &gt; Full Disk Access; add\n   <code>/usr/local/arise/helper/arise-mac-helper</code> and <code>/bin/bash</code> there. Until\n   then the Mac's card says <strong>no Full Disk Access</strong>, and no profile is ever\n   removed from that Mac: the helper reports a folder it could not read, and\n   the server refuses any listing that came back unread, has items but no\n   files, or holds a file name with a tab or a line break.</li>\n</ol>\n<p>At the end it lists the local accounts already on the Mac. Each is linked to a\nserver user by default (below); in watch mode that is only shown as \"would\nlink\" or \"would make … and link\" until Switch on.</p>\n<h3 id=\"a-mac-where-youre-not-an-admin-the-office-mac\">A Mac where you're not an admin (the office Mac)</h3>\n<p>Enrolment needs a Mac admin once. On the office Mac that is the pastor's account\n(Oct 29).</p>\n<ol>\n<li>The pastor signs in, or types their password while you sit at the Mac. Your\n   own standard account cannot do this step: macOS refuses <code>sudo</code> from a\n   standard account, even with an admin's password.</li>\n<li>Terminal, paste the enrol line, Return. The pastor types their password\n   for <code>sudo</code> and for the certificate prompt. You type the domain\n   administrator's password, which is the server's.</li>\n<li>Full Disk Access (step 7 above): macOS asks for an admin name and password.\n   The pastor types theirs.</li>\n</ol>\n<p>After that the hidden <code>ariseadmin</code> exists on that Mac. Its password is on the\nMac's card in the Macs app (Show admin password); use it for any later admin\nprompt there instead of asking the pastor again. The pastor's own account is\nlinked (round 7, 23): it stays an admin, with the same password, files and\nFileVault unlock, and its files sync to their server account.</p>\n<h2 id=\"accounts-on-their-own-the-directory\">Accounts, on their own (the directory)</h2>\n<p><strong>Every server user gets an account.</strong> Every enabled directory user gets a\nmobile (AD) account made on every church Mac with:</p>\n<pre><code>/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n &amp;lt;user&gt; -v\n</code></pre>\n<p>So their face is on the login window before they ever sign in there. A new\nuser reaches every church Mac within about five minutes (one check-in).</p>\n<p>A person who already has a <strong>linked local account</strong> on a Mac gets no second,\nmobile account there (round 7, 25): they keep signing in to their own account,\nwhich syncs as them.</p>\n<p>Some users never get an account:</p>\n<ul>\n<li>the names in <code>[macs] exclude</code></li>\n<li>the box's own accounts, whatever the config says: <code>administrator</code>,\n  <code>krbtgt</code>, <code>guest</code>, <code>arise-rescue</code>, <code>arise</code>, <code>arise-kiosk</code>, <code>arise-git</code>,\n  <code>arise-kb</code>, <code>ariseadmin</code></li>\n</ul>\n<p><strong>A disabled user's profile comes off by the checked path, and only that\npath.</strong> A user is disabled by hand or by offboarding's day-30 sweep. Their\nprofile then comes off every church Mac where they have one, like this:</p>\n<ol>\n<li>The server queues <code>remove_profile</code> for each of those Macs. Offboarding\n   queues it too, and puts the folder their files were moved to first in the\n   list of places to look.</li>\n<li>The helper sends the server a list of every file in their Desktop,\n   Documents, Downloads, Pictures and Music (<code>[macs] sync_folders</code>, round 7, 42\n   and 43). The list has the name, size and date of each file, never its\n   contents. Library packages (<code>Photos Library.photoslibrary</code>,\n   <code>Music Library.musiclibrary</code> and the rest, see docs/SYNC.md) are left out of\n   the list, because they never sync.</li>\n<li>The server checks each one against its own copy, in places the <strong>server</strong>\n   chooses: their home, and where offboarding moved it. It never looks where\n   the Mac says to. A file counts only when the server has it at the same\n   size, and the copy on the Mac is not newer.</li>\n<li>Only when every file counts does anything change. First the rest of their\n   Mac folder (the library packages and whatever else does not sync) is kept as a\n   compressed disk image in <code>/Users/Deleted Users/&amp;lt;user&gt;-&amp;lt;date&gt;.dmg</code> on that\n   Mac, the way macOS's own Delete User can; if that copy cannot be made,\n   nothing is removed. Then the account is deleted, with\n   <code>sysadminctl -deleteUser</code>. Deleting the disk image later is Bradly's click. Otherwise the task is refused, says how many\n   files are missing or newer on the Mac, and is tried again at the next\n   check-in.</li>\n</ol>\n<p>The server also refuses the check unless a removal of that person is really\nwaiting on that Mac. So a Mac's key is not a way to probe other people's\nfolders.</p>\n<p>Some accounts are never removed by this path:</p>\n<ul>\n<li><strong>A signed-in person.</strong> Their removal waits.</li>\n<li><strong>A local account.</strong> Only AD accounts are removed this way.</li>\n<li><strong>An account with a home outside <code>/Users</code>.</strong> It is left for an admin.</li>\n<li><strong>A profile that is only unused</strong> (round 6, 5). It is never removed; only a\n  disabled user's is.</li>\n</ul>\n<h2 id=\"accounts-already-on-a-mac-linked-by-default-round-7-23-25-26\">Accounts already on a Mac: linked by default (round 7, 23, 25, 26)</h2>\n<p>Every local account the helper finds is <strong>linked</strong> by default to a server user\n(Bradly, round 7, 23, and his follow-up):</p>\n<ul>\n<li><strong>A clear match links to that user.</strong> A clear match is a server user with the\n  same short name, or <code>first.last</code> made from the account's full name where that\n  server user's own name agrees (or none is on file).</li>\n<li><strong>No clear match: a server user is made, then linked.</strong> Its name is\n  <code>first.last</code> from the account's full name, <code>first.last2</code> when that name is\n  already someone else's (row 12). It gets a temporary password, which waits in\n  the Mac's 0600 secrets file until an admin presses <strong>Show it once</strong> in the\n  Mac's card (password again, audited, then forgotten). The person chooses\n  their own at the first sign-in (round 5, 5).</li>\n<li><strong>A full name that is not a first and a last name</strong> (a one-word name such as\n  \"Media\") waits for a choice by hand.</li>\n</ul>\n<p>In watch mode none of this happens: the card says \"would link kristina to\nkristina.robinson\" or \"would make levi.mercer and link levi to it\", and nobody\nis made until Switch on. The box's own accounts (<code>[macs] exclude</code> and the list\nbelow) are never linked.</p>\n<p>The admin can still change any account's choice with <strong>Choose…</strong>. A new choice\ncancels the default's open link and sync tasks for that account.</p>\n<ul>\n<li>\n<p><strong>Convert</strong> stays available per account.</p>\n</li>\n<li>\n<p><strong>Convert</strong> (by hand only). The account becomes the server user.</p>\n</li>\n<li>The Mac's helper stops if the person is signed in.</li>\n<li>It writes a rollback record: <code>/var/db/arise/convert/&amp;lt;old&gt;.plist</code>, 0600,\n    with the UID, groups, home, shell and password hash.</li>\n<li>It deletes only the local record (<code>dscl . -delete</code>) and keeps the home.\n    The home moves to <code>/Users/&amp;lt;first.last&gt;</code> if that is free.</li>\n<li>It runs <code>createmobileaccount -n &amp;lt;first.last&gt; -h &amp;lt;home&gt;</code> and gives the\n    files to the AD uid.</li>\n<li>Admin rights carry over only if the local account had them. Staff are\n    standard users (round 6, 8).</li>\n<li><strong>Undo</strong> puts the local account back from the record. If\n    <code>createmobileaccount</code> fails partway, the helper does the Undo by itself,\n    so nobody is left without an account to sign in to.</li>\n<li>It refuses when the account holds the Mac's Secure Token and FileVault is\n    on (see \"Not verified\" below): Link is the answer there.</li>\n<li><strong>Link.</strong> The local account stays exactly as it is. The Nextcloud client in\n  that account signs in as the server user, so its synced folders go to that\n  person's server home. This is the default.</li>\n<li><strong>Leave alone.</strong> Nothing happens to it, ever.</li>\n</ul>\n<p>The Macs app's <strong>Choose…</strong> suggests the default's server user. If the chosen\nserver user does not exist yet, it is made first with a temporary password,\nshown to the admin once.</p>\n<p>Convert and Link also queue the <code>nextcloud</code> task for that person.</p>\n<p><strong>Retire</strong> is refused until every local account on the Mac has a choice and\nevery AD account's files are on the server.</p>\n<p><code>mac/migrate-mac-user.sh</code> and <code>enroll-mac.sh --map</code> stay as they were. Use\nthem for a Mac that cannot run the helper, or to copy an old account's files\nto the server once before converting it.</p>\n<h2 id=\"the-rest-of-what-the-helper-does\">The rest of what the helper does</h2>\n<table>\n<thead>\n<tr>\n<th>Task</th>\n<th>What happens on the Mac</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>login_window</code></td>\n<td>A list of faces, plus Other… (<code>[macs] login_window = \"faces\"</code>, or <code>\"name\"</code>), and the login window text, word for word: \"Arise Church: sign in with your church account. Help: Bradly\" (round 7, 27; <code>[macs] login_text</code>)</td>\n</tr>\n<tr>\n<td><code>welcome</code></td>\n<td>Round 7, 3: at each person's first sign-in on that Mac, <code>Welcome to Arise Church.html</code> on their Desktop: their login, where their files are (the synced folders), and who to ask (<code>[macs] help</code>: Bradly, Kristina, Ronnie). A small LaunchAgent (<code>com.arisechurch.session</code>, in every session) puts it there once, and shows waiting notices</td>\n</tr>\n<tr>\n<td><code>mac_settings</code></td>\n<td>Guest User on (round 7, 33; macOS wipes it at sign-out). App Store installs need an admin (round 7, 30): <code>restrict-store-require-admin-to-install</code> in <code>com.apple.appstore</code>. Staff stay standard users. <strong>No screen lock and no automatic sign-out are ever set</strong> (round 7, 28 and 29)</td>\n</tr>\n<tr>\n<td><code>apps</code></td>\n<td>Round 7, 31: the church apps from each maker's own address, refused unless signed by the expected Developer ID team and notarized (below)</td>\n</tr>\n<tr>\n<td><code>dnsfilter</code></td>\n<td>Round 7, 71 and 72: every network service's DNS goes to a malware and adult filter (Cloudflare for Families). <code>/etc/resolver/ad.arisecenla.com</code> keeps the church domain on the server. The servers each had before are kept; <strong>DNS filter off</strong> in the card puts them back. Personal devices are never touched</td>\n</tr>\n<tr>\n<td><code>notice</code></td>\n<td>Round 7, 84: a Mac notification for one person, shown now if they are signed in, else at their next sign-in. Goes out in watch mode too</td>\n</tr>\n<tr>\n<td><code>ariseadmin</code></td>\n<td>A hidden admin with a random password. The password is changed every 30 days and kept on the server. If the server cannot be reached, the new password is kept on the Mac (root only) and sent at the next check-in</td>\n</tr>\n<tr>\n<td><code>filevault</code></td>\n<td><code>fdesetup enable -defer</code>: FileVault turns on at the next sign-in, and the recovery key goes to the server after that</td>\n</tr>\n<tr>\n<td><code>printers</code></td>\n<td><code>lpadmin</code>, from <code>[macs] printers</code></td>\n</tr>\n<tr>\n<td><code>bookmarks</code></td>\n<td>A <strong>Church</strong> folder in Chrome (managed bookmarks), and <code>.webloc</code> links in <code>/Library/Arise/Church Links</code> for Safari</td>\n</tr>\n<tr>\n<td><code>certificate</code></td>\n<td>Checks that the church certificate is trusted. Trusting it needs a person at the Mac, so enrolment does that part</td>\n</tr>\n<tr>\n<td><code>updates</code></td>\n<td>Overnight, 01:00 to 05:00, once a night, never during a service. Turns on Apple's automatic security responses and installs security-labelled updates. Asks for a restart in a dialog. Never a new macOS</td>\n</tr>\n<tr>\n<td><code>tailscale</code></td>\n<td>Installs Tailscale if it is missing and turns on \"use Tailscale subnets\" (<code>--accept-routes</code>), so a laptop off-site reaches the server at its church address through the route the server advertises (docs/REMOTE-ACCESS.md): check-ins, Nextcloud and the shares carry on away from church. Someone signs it in once with the church login; the server's route is approved once in the Tailscale admin</td>\n</tr>\n<tr>\n<td><code>nextcloud</code></td>\n<td>Runs <code>/usr/local/arise/helper/tasks/nextcloud.sh --user &amp;lt;first.last&gt; --local &amp;lt;short name&gt; --server &amp;lt;url&gt;</code>. The Nextcloud work supplies that script; until it exists, the task reports <em>skipped</em></td>\n</tr>\n<tr>\n<td><code>retire</code></td>\n<td>Checks every AD account's files as above, then <code>dsconfigad -remove</code>, then removes the helper. Erasing the Mac is Bradly's to do</td>\n</tr>\n</tbody>\n</table>\n<p>The ariseadmin password and the FileVault key are kept in\n<code>/etc/arise/secrets/macs/&amp;lt;mac&gt;.json</code> (0600, root). To see one, an admin\npresses <strong>Show admin password</strong> or <strong>Show FileVault key</strong> and types their\npassword again (remembered for five minutes). Each look is written in the\naudit log; the value never is.</p>\n<p><strong>Cut off</strong> is for a lost or stolen Mac (round 6, 11):</p>\n<ul>\n<li>the Mac's key stops working at once</li>\n<li>its waiting tasks are cancelled</li>\n<li>its computer account is disabled (<code>samba-tool user disable NAME$</code>)</li>\n</ul>\n<p>The app then lists what to revoke by hand: the Mac's Tailscale machine, and\neach person's Nextcloud sessions on it. There is no remote erase.</p>\n<p><strong>Never during a service.</strong> On Sundays at 10:30 and Mondays at 19:00, the\nserver answers every check-in with <code>HOLD</code> and hands out nothing. On <code>HOLD</code> the\nhelper also quits the Nextcloud client in each signed-in session, so it does\nnot use the church's upload during the stream, and reopens it at the first\ncheck-in after the service (round 7, 92). In watch mode there is no <code>HOLD</code>\n(nothing on the Mac changes) and nothing goes out.</p>\n<h2 id=\"the-church-apps-round-7-31\">The church apps (round 7, 31)</h2>\n<p>Nextcloud, Firefox, Google Chrome and Zoom go on every church Mac. Each is\ndownloaded from its maker's own address and installed only when\n<code>pkgutil --check-signature</code> shows \"Developer ID Installer: … (TEAM)\" for the\nexpected team and <code>spctl</code> says it is notarized. An app already there, signed by\nthat team, is left alone.</p>\n<table>\n<thead>\n<tr>\n<th>App</th>\n<th>Apple Team ID</th>\n<th>Download</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Firefox</td>\n<td><code>43AQ936H96</code> (Mozilla)</td>\n<td><code>https://download.mozilla.org/?product=firefox-pkg-latest-ssl&amp;os=osx&amp;lang=en-US</code></td>\n</tr>\n<tr>\n<td>Google Chrome</td>\n<td><code>EQHXZ8M8AV</code> (Google)</td>\n<td>Google's <code>googlechrome.pkg</code> at <code>dl.google.com/chrome/mac/stable/</code></td>\n</tr>\n<tr>\n<td>Zoom</td>\n<td><code>BJ4HAAB9B3</code> (Zoom Video Communications)</td>\n<td><code>https://zoom.us/client/latest/ZoomInstallerIT.pkg</code></td>\n</tr>\n<tr>\n<td>Nextcloud</td>\n<td><code>NKUJUXUJ3B</code> (Nextcloud GmbH)</td>\n<td>the <code>nextcloud</code> task installs the client</td>\n</tr>\n</tbody>\n</table>\n<p>Source for the Team IDs: Installomator's labels, which the Mac admin community\nkeeps against each maker's signing identity\n(<code>github.com/Installomator/Installomator</code>, <code>fragments/labels/firefoxpkg.sh</code>,\n<code>googlechromepkg.sh</code>, <code>zoom.sh</code>, <code>nextcloud.sh</code>), checked Oct 29.</p>\n<p><strong>Proclaim is not in the list yet.</strong> It belongs only on the media Mac (the\n<strong>This is the media Mac</strong> box in its card), but its Team ID could not be\nconfirmed from a source we trust: one third-party app catalogue gives a value,\nnothing from Faithlife or Installomator does. Rather than guess, it is left out.\nTo add it, on a Mac with Proclaim installed run\n<code>codesign -dv --verbose=4 /Applications/Proclaim.app 2&gt;&amp;1 | grep TeamIdentifier</code>\nand add it to <code>[macs] apps</code> with <code>media_only = true</code> (the example is in\n<code>config/arise.toml.example</code>). An entry without a real 10-character Team ID is\nignored.</p>\n<h2 id=\"the-disk-a-silent-mac-and-telling-a-person-something\">The disk, a silent Mac, and telling a person something</h2>\n<ul>\n<li><strong>The disk</strong> (round 7, 40). Each check-in reports how full the Mac's disk is.\n  At 90% the person at the Mac gets a notification (\"This Mac's disk is nearly\n  full\"), and Bradly gets one alert line: a push and Discord #alerts, once a\n  week per Mac. The card and Needs You show it too.</li>\n<li><strong>A silent Mac</strong> (round 7, 82). A church Mac not heard from in three days is a\n  Needs You line (<code>macs.silent_macs()</code> gives the list).</li>\n<li><strong>Notices</strong> (round 7, 84). <code>notices.notify_person(user, title, body,\n  kind=\"info\")</code> in <code>server/arise_server/notices.py</code> is the one call other parts\n  of the server make to tell a staff member something: an email to their\n  personal address (<code>mail.send_one</code>), and a Mac notification on every church\n  Mac where they have an account (mobile, or a linked local account). The\n  notification is shown with <code>osascript</code> taking the text as arguments, so the\n  text is never read as AppleScript.</li>\n</ul>\n<h2 id=\"what-the-helper-never-does\">What the helper never does</h2>\n<ul>\n<li>erase a Mac, or delete a local account</li>\n<li>read the contents of anyone's files (a removal compares names, sizes and\n  dates)</li>\n<li>remove a profile the server has not confirmed is safely on the server</li>\n<li>act on a Mac nobody enrolled</li>\n<li>install a new macOS version</li>\n<li>set a screen lock or an automatic sign-out (round 7, 28 and 29)</li>\n<li>install an app that is not signed by its maker's expected team</li>\n<li>touch a personal Mac's DNS (or anything else on it)</li>\n<li>put a secret in its log (<code>/var/log/arise-helper.log</code>), a task or a result</li>\n</ul>\n<h2 id=\"syncing-files-nextcloud-with-the-old-agent-as-the-fallback\">Syncing files: Nextcloud, with the old agent as the fallback</h2>\n<p>macOS removed the home sync of mobile accounts in 10.12 (Sierra). A mobile\naccount still caches the login, but nothing copies the files back.</p>\n<p>Round 6, 13 and 14, are the plan, with round 7, 42 and 43: Desktop, Documents,\nDownloads, Pictures and Music sync through the Nextcloud client, which the\n<code>nextcloud</code> task sets up (library packages excluded: docs/SYNC.md). Until that is in, and on\nany Mac where it is not running, <code>mac/arise-home-sync.sh</code> keeps doing the job\nevery 15 minutes.</p>\n<p>The checked removal compares against the person's home on the server\n(<code>/srv/arise/homes/&amp;lt;user&gt;/Desktop</code>, <code>…/Documents</code>). So whatever syncs the\nfiles has to land them there.</p>\n<h2 id=\"the-protocol-for-whoever-works-on-it\">The protocol, for whoever works on it</h2>\n<p>The helper is bash 3.2, the bash macOS ships, so the server speaks plain text.</p>\n<p><strong>Server to helper.</strong> Each answer is lines:</p>\n<pre><code>TASK &amp;lt;id&gt; &amp;lt;kind&gt; k=v k=v\nHOLD &amp;lt;reason&gt;\nWATCH &amp;lt;n&gt;          watch mode: n tasks would run (only notices follow)\nNONE\n</code></pre>\n<p>The values are percent-encoded, so each <code>k=v</code> is one word.</p>\n<p><code>GET /api/macs/agent/config</code> gives the configuration tasks one item a line:\n<code>LOGIN</code>, <code>LOGINTEXT</code>, <code>PRINTER</code>, <code>BOOKMARK</code>, <code>APP &amp;lt;name&gt; &amp;lt;bundle&gt; &amp;lt;team&gt; &amp;lt;url&gt;</code>,\n<code>DNS</code>, <code>HELP</code>, <code>FOLDERS</code>, <code>CHURCH</code>.</p>\n<p><strong>Helper to server.</strong> The helper posts forms with <code>curl --data-urlencode</code>. Its\nown door is <code>/api/macs/agent/*</code>, opened by the header\n<code>X-Arise-Mac: &amp;lt;mac_id&gt;:&amp;lt;key&gt;</code>. Only an active, church-owned Mac with the right\nkey gets in.</p>\n<p><strong>Files.</strong> <code>/mac/&amp;lt;name&gt;</code> serves only the helper's own files: <code>enrol.sh</code>, the\nhelper, its plist, <code>bind-mac.sh</code>, <code>migrate-mac-user.sh</code>, and <code>nextcloud.sh</code>.</p>\n<h2 id=\"not-verified-on-a-real-mac-yet\">Not verified on a real Mac yet</h2>\n<p>There is no Mac where this was built. <code>tests/test_mac_scripts.py</code> reads every\nscript for anything bash 3.2 (the one macOS ships) cannot run, and runs the\nhelper's own functions with stand-ins for <code>dscl</code>, <code>stat -f</code>, <code>sysadminctl</code>,\n<code>fdesetup</code> and <code>softwareupdate</code>. Point <code>ARISE_BASH32</code> at a bash 3.2.57 binary\nto run them under the real version; this box runs them under its own bash.</p>\n<p><strong>Checked against the documentation (Oct 29), and fixed where they were wrong:</strong></p>\n<ul>\n<li>An empty array under <code>set -u</code> (<code>\"${ca[@]}\"</code>) stops bash 3.2 dead with\n  \"unbound variable\"; only bash 4.4 changed that (bash CHANGES, 4.4 a.). It\n  would have stopped every check-in to a server without a certificate yet. Every\n  such expansion is now <code>${a[@]+\"${a[@]}\"}</code>, and the test fails on a new one.</li>\n<li><code>dig</code> reads <code>/etc/resolv.conf</code> only and never sees <code>/etc/resolver/&amp;lt;domain&gt;</code>,\n  so <code>bind-mac.sh</code> could not find the server on a Mac that keeps the router's\n  DNS. It asks <code>dscacheutil -q host</code> (the system resolver, the one\n  <code>dsconfigad</code> uses) and points <code>dig</code> at the domain's nameserver for the SRV\n  records.</li>\n<li>macOS 15.4 replaced rsync 2.6.9 with openrsync, which takes only part of\n  rsync's options. <code>migrate-mac-user.sh</code> no longer passes <code>-X</code> (rsync 3's; Apple's\n  2.6.9 says <code>-E</code>): it asks <code>rsync --help</code>. The old home-sync stands down when\n  its rsync has no <code>--backup-dir</code>, rather than overwrite a server copy.</li>\n<li><code>curl -H @file</code> and <code>-H @-</code> need curl 7.55 (macOS 10.13 and later).</li>\n<li>The Full Disk Access link\n  <code>x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles</code>\n  opens the pane on Sonoma and Sequoia; the admin still presses + and adds the\n  helper. It is opened in the signed-in person's session (<code>open</code> as root has no\n  window).</li>\n<li><code>fdesetup status</code> says \"FileVault is Off, but will be enabled after the next\n  restart.\" when it is deferred: only \"FileVault is On\" counts as on now.</li>\n<li>The task loop reads the server's answer on stdin, and <code>enrol.sh</code> arrives\n  through <code>curl | sudo bash</code>: a command that reads stdin would have eaten the\n  next tasks, or the rest of the script. Tasks get <code>&amp;lt;/dev/null</code>, and <code>enrol.sh</code>\n  runs from a <code>main</code> that bash has read in full.</li>\n<li><code>sysadminctl</code> exits 0 even when it did nothing, so a removal and <code>ariseadmin</code>\n  are checked against the account record afterwards, never its exit code.</li>\n<li>Retire removed its files after <code>launchctl bootout</code>, which ends the script\n  itself; the files go first now, then the job.</li>\n<li>Updates: a new macOS is an upgrade, and macOS installs updates within its own\n  version (Apple's platform guide), so \"Install macOS updates\" is on and the\n  helper installs, itself, only patches for the macOS the Mac runs (minor\n  versions, Security Updates, Rapid Security Responses / Background Security\n  Improvements, Safari). On Apple silicon a macOS update wants a volume\n  owner's password, which root alone cannot give: those wait for macOS's own\n  overnight install.</li>\n<li><code>ariseadmin</code>: an account with a Secure Token keeps FileVault in step only when\n  its password is changed with the old one, so the helper keeps the current one\n  (root, 0600) and uses <code>dscl . -passwd</code> with it.</li>\n</ul>\n<p><strong>Still for a first run on one church Mac:</strong></p>\n<ul>\n<li><code>createmobileaccount</code>'s options (<code>-n</code>, <code>-h &amp;lt;home&gt;</code>, <code>-v</code>): Apple publishes no\n  manual page for it; the helper uses the forms admins have used for years.</li>\n<li>whether \"Install macOS updates\" (<code>AutomaticallyInstallMacOSUpdates</code>) ever\n  offers a new major macOS on its own. Apple's guide says upgrades need the\n  person; nothing tests the key itself.</li>\n<li>whether the restart notice reaches the person (<code>launchctl asuser</code> plus\n  <code>sudo -u</code>, kept alive by <code>AbandonProcessGroup</code>)</li>\n<li><code>createmobileaccount -h &amp;lt;home&gt;</code> on a converted account</li>\n<li>whether a converted account gets a Secure Token. Until that is tried, the\n  helper refuses to Convert an account that holds a Secure Token when\n  FileVault is on, or when it is the only token holder on the Mac: deleting\n  the local record takes the token with it, and nothing can give the new\n  account one without a holder's password. The card then says <strong>Choose Link\n  instead</strong>. To convert such a Mac anyway, first give <code>ariseadmin</code> a token by\n  hand (<code>sudo sysadminctl -secureTokenOn ariseadmin -password - -adminUser\n  &amp;lt;holder&gt; -adminPassword -</code>), then Convert, then grant the new account one\n  the same way.</li>\n<li>restoring a password hash (<code>ShadowHashData</code>) on Undo. If it does not take,\n  the message says to reset the password as <code>ariseadmin</code>.</li>\n<li><code>dsconfigad -force -remove</code> on Retire</li>\n<li>Chrome reading <code>/Library/Managed Preferences</code> without an MDM</li>\n<li>the Tailscale download address</li>\n<li><code>sysadminctl -deleteUser</code> asking for an admin's Secure Token on newer macOS</li>\n<li><code>samba-tool user disable NAME$</code> for a computer account</li>\n</ul>\n<p><strong>Round 7, also for that first run:</strong></p>\n<ul>\n<li><code>restrict-store-require-admin-to-install</code> without an MDM. Apple documents it\n  as an MDM restriction (\"Require admin password to install or update apps\");\n  the helper writes it to <code>/Library/Preferences</code> and <code>/Library/Managed\n  Preferences</code>, and whether the App Store reads it from there on current macOS\n  is not proven.</li>\n<li><code>LoginwindowText</code> on the login window</li>\n<li>the session LaunchAgent (<code>/Library/LaunchAgents/com.arisechurch.session.plist</code>)\n  writing the welcome page and showing notices, and <code>osascript display\n  notification</code> run through <code>launchctl asuser</code></li>\n<li><code>networksetup -setdnsservers</code> per service, and <code>Empty</code> on DNS filter off</li>\n<li><code>tmutil destinationinfo</code> / <code>startbackup --block</code> at enrolment</li>\n<li><code>pkgutil --check-signature</code> and <code>spctl -a -t install</code> on each app's package,\n  and Chrome's and Zoom's packages installing with <code>installer -pkg</code></li>\n<li>quitting and reopening the Nextcloud client in each session for a service</li>\n<li><code>sysadminctl -guestAccount on</code></li>\n</ul>",
 "demo": true
 },
 "GET /help/MOVING-DAY": {

@@ -66,6 +66,7 @@ DEFAULTS = {
         "path": _root("/srv/arise/automator/ARISE_YouTube_Updater", r"C:\Arise\automator\ARISE_YouTube_Updater"),
         "python": _root("/opt/arise/venv/bin/python", r"C:\Arise\venv\Scripts\python.exe"),
         "schedule": "02:05",
+        "oauth_testing": True,         # Bradly, Oct 29: the OAuth app stays in Testing; the sign-in is renewed weekly (ytauth.py)
     },
     # ---- storage (round 5, rows 12-15, 18) ----
     "storage": {

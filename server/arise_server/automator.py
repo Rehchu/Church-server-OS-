@@ -134,6 +134,11 @@ def overview() -> dict:
     cfg = load()
     if not available():
         d = dict(demo.AUTOMATOR)
+        from . import ytauth
+        d["signin"] = ytauth.expiry()
+        if d["signin"].get("known"):
+            d["token_days_left"] = d["signin"]["days_left"]
+            d["token_note"] = f"Testing mode, on purpose: the sign-in ends {d['signin']['expires_text']}; renew it each week in Automator → Sign-in (sample)."
         d["next_run"] = _next_run(cfg.automator.schedule)
         d["demo"] = cfg.demo
         d["schedule"] = cfg.automator.schedule
@@ -177,7 +182,11 @@ def overview() -> dict:
     tok = file_mode_ok(p["token"])
     sec = file_mode_ok(p["secret"])
     token_ok = tok["present"]
-    token_days_left = None   # a Published OAuth app's refresh token does not expire after 7 days (handoff 4.1)
+    # Testing mode (Bradly, Oct 29): Google ends a refresh token seven days after it is issued;
+    # ytauth.py keeps the renewal date (the job rewrites token.json nightly, so its mtime says nothing).
+    from . import ytauth
+    exp = ytauth.expiry()
+    token_days_left = exp.get("days_left") if exp.get("known") else None
     runner = runner_info(read_json(p["runner"], default=None), p["machine"])
     signed = ""
     m2 = re.search(r"signed in as \*\*(.+?)\*\*", latest)
@@ -190,8 +199,9 @@ def overview() -> dict:
         "quota_today": spent_today if spent_today is not None else spent, "quota_daily": daily, "quota_reset": "2:00 AM Central",
         "holds": len(holds.get("videos", [])), "rules": len(holds.get("rules", [])),
         "worklist_enabled": sum(1 for j in jobs if isinstance(j, dict) and j.get("enabled", True)), "worklist_total": len(jobs),
-        "token_ok": token_ok, "token_days_left": token_days_left, "token": tok, "client_secret": sec,
-        "token_note": None if tok["ok"] else (f"{p['token']} is {tok.get('mode')} owned by {tok.get('owner')}; it must be 0600 and owned by {job_user() or 'the owner ([owner] user in arise.toml)'}" if tok["present"]
+        "token_ok": token_ok, "token_days_left": token_days_left, "token": tok, "client_secret": sec, "signin": exp,
+        "token_note": (None if not exp.get("known") or not (exp.get("expired") or exp.get("soon")) else
+                       f"The sign-in {'ended' if exp.get('expired') else 'ends'} {exp.get('expires_text')}: renew it in Automator → Sign-in") if tok["ok"] else (f"{p['token']} is {tok.get('mode')} owned by {tok.get('owner')}; it must be 0600 and owned by {job_user() or 'the owner ([owner] user in arise.toml)'}" if tok["present"]
                        else "the server is not signed in to YouTube yet: sudo arisectl automator signin (docs/AUTOMATOR.md)"),
         "client_secret_ok": sec["present"], "runner": runner, "state_dir": p["state"],
         "signed_in_as": signed, "latest_report": latest or "(no report yet - the automator has not run on this server)",
@@ -300,7 +310,7 @@ def cutover(now: datetime | None = None) -> dict:
     add = lambda n, level, text, fix="": rows.append({"n": n, "level": level, "text": text, "fix": fix})  # noqa: E731
     if load().demo:
         return {"demo": True, "rows": [
-            {"n": 1, "level": "you", "text": "The OAuth app is Published (Cloud Console, Audience)", "fix": ""},
+            {"n": 1, "level": "ok", "text": "The OAuth app stays in Testing (Oct 29); sample: the server's sign-in was renewed this week", "fix": ""},
             {"n": 2, "level": "warn", "text": "Sample: no server token yet", "fix": "sudo arisectl automator signin"},
             {"n": 3, "level": "warn", "text": "Sample: no 'not the runner' report yet", "fix": "wait for 02:05, or: sudo systemctl start arise-automator.service"},
             {"n": 4, "level": "warn", "text": "Sample: no plan-only report yet", "fix": "sudo arisectl automator preview"},
@@ -310,7 +320,15 @@ def cutover(now: datetime | None = None) -> dict:
             {"n": 8, "level": "you", "text": "The PC is clean and pushed", "fix": ""}],
             "runner": "pc", "machine": "ariseOS"}
     ri = runner_info(read_json(p["runner"], default=None), p["machine"], now)
-    add(1, "you", "The OAuth app is Published (Cloud Console → OAuth consent screen → Audience). In Testing, tokens die after 7 days.")
+    from . import ytauth
+    exp = ytauth.expiry(now)
+    if not exp.get("testing"):
+        add(1, "you", "The OAuth app is Published (Cloud Console → OAuth consent screen → Audience)")
+    elif exp.get("known") and not exp.get("expired"):
+        add(1, "ok", f"The OAuth app stays in Testing (Oct 29); the server's sign-in ends {exp['expires_text']}")
+    else:
+        add(1, "warn", "The OAuth app stays in Testing (Oct 29): the server's sign-in "
+            + ("has ended" if exp.get("expired") else "has no renewal date yet"), "renew it from the Media Mac: Automator → Sign-in")
     sec, tok = file_mode_ok(p["secret"]), file_mode_ok(p["token"])
     if tok["ok"] and sec["present"]:
         add(2, "ok", f"The server's own client and token are here (token {tok['mode']}, {tok['owner']}, refreshed {tok['modified']})")

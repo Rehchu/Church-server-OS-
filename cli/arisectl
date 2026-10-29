@@ -17,7 +17,7 @@
     arisectl repos [status|sync [name] [--dry-run]|setup]       the 8 Arise repos in /srv/arise/repos, two-way with GitHub every 15 minutes
     arisectl audit [words] [--who U] [--failed] [--limit N]      the audit log, newest first (kept forever)
     arisectl ups                        the UPS: charge, runtime, status (nut), or 'not configured'
-    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|cutover|unblock
+    arisectl automator status|preview|run|report [name]|holds|worklist|schedule HH:MM|setup|signin [--force]|renew|cutover|unblock
     arisectl app list|templates|catalog|deploy <template> [--name N]|start|stop|restart|update|remove|logs <name>
     arisectl app install-all                 every template deployed, started within the memory budget (the installer's 6a)
     arisectl app autostart <name> on|off     whether an app starts with the box
@@ -677,7 +677,33 @@ def cmd_automator(a):
         if not who or who == "root":
             sys.exit("no owner account in arise.toml ([owner] user): sudo arisectl owner setup")
         cmd = ["runuser", "-u", who, "--", "env", *envargs, env.get("ARISE_PYTHON", "/opt/arise/venv/bin/python"), "authorize_headless.py"] + (["--force"] if a.name == "--force" or getattr(a, "force", False) else [])
-        sys.exit(subprocess.call(cmd, cwd=repo))
+        rc = subprocess.call(cmd, cwd=repo)
+        if rc == 0:   # Testing mode: the weekly clock starts now (ytauth.py; the job rewrites token.json nightly)
+            from arise_server import ytauth
+            ytauth.mark_issued(os.environ.get("SUDO_USER") or who)
+        sys.exit(rc)
+    elif a.sub == "renew":
+        # The weekly sign-in (Oct 29: the OAuth app stays in Testing, 7 days a token). The same as
+        # Automator -> Sign-in in the dashboard; the token is written for the 02:05 job, never shown.
+        need_root()
+        from arise_server import ytauth
+        r = ytauth.start(os.environ.get("SUDO_USER") or "root")
+        if not r.get("ok"):
+            bad(r.get("err", "could not start")); sys.exit(1)
+        head("renew the server's YouTube sign-in for the week")
+        print("  1. Open this link on the Media Mac (it is signed in to the channel's Google account):\n")
+        print("     " + r["url"] + "\n")
+        print("  2. Choose the Arise Church channel, pass 'Google hasn't verified this app' (Advanced -> Go to ...),")
+        print(f"     approve. The browser then tries {r['redirect']} and fails: that is expected.")
+        print("  3. Copy that whole address and paste it here within ten minutes.\n")
+        try:
+            addr = input("  Address: ")
+        except (EOFError, KeyboardInterrupt):
+            print(); bad("cancelled: nothing was kept"); sys.exit(130)
+        f = ytauth.finish(addr, os.environ.get("SUDO_USER") or "root")
+        if not f.get("ok"):
+            bad(f.get("err", "not renewed")); sys.exit(1)
+        ok(f"signed in as {f.get('channel')}; the sign-in ends {f.get('expires_text') or 'in seven days'}")
     elif a.sub == "unblock":
         # The revised handoff, section 3: a file the server wrote (a Whisper transcript) that the PC later
         # committed stops the nightly fast-forward. Move the server's copy aside; the next pull goes through.
@@ -1631,7 +1657,7 @@ def build():
     p = sp.add_parser("quota"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply"]); p.set_defaults(f=cmd_quota)
     p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill", "offsite"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
-    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover", "unblock"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
+    p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "renew", "cutover", "unblock"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)
     p = sp.add_parser("app"); p.add_argument("sub", choices=["list", "templates", "catalog", "install-all", "autostart", "idle-sweep", "theme", "deploy", "start", "stop", "restart", "update", "remove", "logs"]); p.add_argument("name", nargs="?"); p.add_argument("value", nargs="?", help="autostart: on|off"); p.add_argument("--name", dest="instance"); p.set_defaults(f=cmd_app)
     p = sp.add_parser("automations"); p.add_argument("sub", choices=["list", "pause", "resume"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_automations)
     p = sp.add_parser("storage"); p.add_argument("sub", nargs="?", default="status", choices=["status", "scan"]); p.set_defaults(f=cmd_storage)

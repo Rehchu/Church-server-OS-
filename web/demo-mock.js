@@ -396,6 +396,27 @@ route('POST', /^\/backups\/run\/([^/]+)$/, (b, m) => {
 });
 route('POST', /^\/backups\/check$/, () => { get('GET /backups/repo').last_check = isoSec(); touch('GET /backups/repo'); return ok({ out: 'restic check: no errors were found' }); });
 route('POST', /^\/backups\/mirror$/, () => ok({ demo: true, repos: [], out: 'Preview: the GitHub mirror refreshes on the server at 04:00' }));
+// The weekly YouTube sign-in (ytauth.py): a sample link, any localhost:8765 address with the right state.
+route('POST', /^\/automator\/signin\/start$/, () => {
+  const st = token(16); X.ytState = st;
+  return ok({ demo: true, redirect: 'http://localhost:8765/', expires_in: 600, channel: 'Arise Church', url: `https://accounts.google.com/o/oauth2/auth?client_id=sample&response_type=code&state=${st}&redirect_uri=http%3A%2F%2Flocalhost%3A8765%2F` });
+});
+route('POST', /^\/automator\/signin\/finish$/, b => {
+  const addr = String(b.address || '').trim();
+  if (!addr) return fail('Nothing was pasted.');
+  if (/error=/.test(addr)) return fail('Google sent back an error instead of a code (access_denied)');
+  if (!/code=/.test(addr)) return fail('That address has no code= in it. Copy the address Google sent the browser to after you approved, not the sign-in link.');
+  const st = (addr.match(/[?&]state=([^&]+)/) || [])[1];
+  if (!X.ytState || st !== X.ytState) return fail('That address is from a different sign-in (the state does not match). Press Renew again and use the new link.');
+  X.ytState = null;
+  const now = new Date(), ends = new Date(now.getTime() + 7 * 864e5);
+  const txt = ends.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(',', '');
+  const a = get('GET /automator');
+  a.signin = { testing: true, known: true, issued: isoSec().slice(0, 16), expires: ends.toISOString().slice(0, 16), expires_text: txt, hours_left: 168, days_left: 7, expired: false, soon: false, by: me()?.user || 'bradly' };
+  a.token_days_left = 7; a.token_note = `Testing mode, on purpose: the sign-in ends ${txt}; renew it each week in Automator → Sign-in (sample).`;
+  touch('GET /automator'); auditAdd('automator.signin', 'youtube', `renewed, expires ${txt}`);
+  return ok({ demo: true, channel: 'Arise Church', expires_text: txt, note: 'Sample: nothing was sent to Google and no token was written.', signed_out: false });
+});
 route('POST', /^\/automator\/preview$/, () => { const a = get('GET /automator'); a.manual = { mode: 'preview', started: isoSec(), finished: isoSec(), ok: true, code: 0 }; touch('GET /automator'); return ok({ mode: 'preview' }); });
 route('POST', /^\/automator\/run$/, () => {
   const t = (get('GET /automations').timers || []).find(x => x.timer === 'arise-automator.timer');
