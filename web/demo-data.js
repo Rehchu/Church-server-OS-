@@ -15,14 +15,14 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793235835
+"boot_time": 1793237684
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
 "directory_ok": true,
 "directory_demo": true,
 "counts": {
-"users": 9,
+"users": 10,
 "groups": 11,
 "computers": 4,
 "shares": 16,
@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-29T01:07:36",
+"last_run": "2026-10-29T02:01:37",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T22:07:36"
+"since": "2026-10-14T23:01:37"
 }
 ]
 },
@@ -141,7 +141,7 @@ window.ARISE_DEMO_DATA = {
 "kerberos_ok": true,
 "ldap_ok": true,
 "forest_level": "2008_R2",
-"users": 9,
+"users": 10,
 "groups": 11,
 "computers": 4
 },
@@ -157,7 +157,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T00:07:36",
+"last_logon": "2026-10-29T01:01:37",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -171,7 +171,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T01:07:36",
+"last_logon": "2026-10-28T02:01:37",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -185,7 +185,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T22:07:36",
+"last_logon": "2026-10-26T23:01:37",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -199,7 +199,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-23T01:07:36",
+"last_logon": "2026-10-23T02:01:37",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -227,7 +227,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T01:07:36",
+"last_logon": "2026-10-26T02:01:37",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -241,7 +241,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-20T01:07:36",
+"last_logon": "2026-10-20T02:01:37",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -258,7 +258,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T21:07:36",
+"last_logon": "2026-10-27T22:01:37",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -275,11 +275,27 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T01:07:36",
+"last_logon": "2026-10-27T02:01:37",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
 "full_name": "Pastor Vanessa Sanders",
+"has_personal_email": false
+},
+{
+"name": "kristina.robinson",
+"display": "Minister Kristina Robinson",
+"groups": [
+"Domain Admins",
+"Staff",
+"Worship"
+],
+"enabled": true,
+"last_logon": "2026-10-27T19:01:37",
+"home": "\\\\arise-server\\homes\\kristina.robinson",
+"must_change": false,
+"title": "",
+"full_name": "Minister Kristina Robinson",
 "has_personal_email": false
 }
 ]
@@ -292,7 +308,8 @@ window.ARISE_DEMO_DATA = {
 "members": [
 "bradly",
 "bryant.sanders",
-"vanessa.sanders"
+"vanessa.sanders",
+"kristina.robinson"
 ],
 "description": "Server administrators"
 },
@@ -302,7 +319,8 @@ window.ARISE_DEMO_DATA = {
 "bradly",
 "office",
 "bryant.sanders",
-"vanessa.sanders"
+"vanessa.sanders",
+"kristina.robinson"
 ],
 "description": "Church office staff"
 },
@@ -352,7 +370,9 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "name": "Worship",
-"members": [],
+"members": [
+"kristina.robinson"
+],
 "description": "Worship and music"
 },
 {
@@ -377,28 +397,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-29T00:07:36",
+"last_seen": "2026-10-29T01:01:37",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-28T01:07:36",
+"last_seen": "2026-10-28T02:01:37",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-27T01:07:36",
+"last_seen": "2026-10-27T02:01:37",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-29T01:03:36",
+"last_seen": "2026-10-29T01:57:37",
 "ip": "192.168.1.20"
 }
 ]
@@ -1926,7 +1946,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-20T01:07:36",
+"last_check": "2026-10-20T02:01:37",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1958,7 +1978,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-29T01:07:36",
+"last_run": "2026-10-29T02:01:37",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -2080,17 +2100,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-28T20:07:36",
+"when": "2026-10-28T21:01:37",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-28T20:07:36",
+"when": "2026-10-28T21:01:37",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-28T20:07:36",
+"when": "2026-10-28T21:01:37",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2180,7 +2200,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2197,7 +2217,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2214,7 +2234,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2231,7 +2251,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2248,7 +2268,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-27T01:07:36",
+"updated": "2026-10-27T02:01:37",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2265,7 +2285,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2282,7 +2302,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2299,7 +2319,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-28T01:07:36",
+"updated": "2026-10-28T02:01:37",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2316,7 +2336,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2333,7 +2353,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-26T01:07:36",
+"updated": "2026-10-26T02:01:37",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3181,7 +3201,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T23:07:36",
+"last": "2026-10-28T00:01:37",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3214,6 +3234,9 @@ window.ARISE_DEMO_DATA = {
 },
 "owner": {
 "user": ""
+},
+"owners": {
+"users": []
 },
 "automator": {
 "enabled": true,
@@ -3408,7 +3431,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-29T01:07"
+"when": "2026-10-29T02:01"
 },
 {
 "user": "bradly",
@@ -3642,8 +3665,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-27T01:07",
-"expires": "2026-11-03T01:07",
+"created": "2026-10-27T02:01",
+"expires": "2026-11-03T02:01",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -3987,7 +4010,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4852,
+"in_minutes": 4798,
 "in_words": "3 days"
 },
 "verse": {
@@ -4121,7 +4144,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4852,
+"in_minutes": 4798,
 "in_words": "3 days"
 },
 "verse": {
@@ -4168,7 +4191,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-29T01:07"
+"now": "2026-10-29T02:01"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4270,7 +4293,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-29T01:07:36+00:00",
+"last_check": "2026-10-29T02:01:37+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4283,7 +4306,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-28T21:07:36",
+"t": "2026-10-28T22:01:37",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4291,7 +4314,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T20:07:36",
+"t": "2026-10-27T21:01:37",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4299,7 +4322,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T01:07:36",
+"t": "2026-10-27T02:01:37",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4307,7 +4330,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T23:07:36",
+"t": "2026-10-26T00:01:37",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4315,7 +4338,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T01:07:36",
+"t": "2026-10-24T02:01:37",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4323,7 +4346,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T00:07:36",
+"t": "2026-10-24T01:01:37",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4331,7 +4354,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T22:07:36",
+"t": "2026-10-22T23:01:37",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4339,7 +4362,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T22:07:36",
+"t": "2026-10-22T23:01:37",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4662,8 +4685,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "ANSWERS",
 "title": "Answers from Bradly (Oct 28 2026) and what they decide",
-"size": 54153,
-"lines": 431,
+"size": 59877,
+"lines": 483,
 "blurb": "The multiple-choice questions in docs/QUESTIONS.md, answered in the chat"
 },
 {
@@ -4704,8 +4727,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "BROWSER",
 "title": "The browser: Firefox in the ariseOS look",
-"size": 5627,
-"lines": 87,
+"size": 5542,
+"lines": 86,
 "blurb": "Bradly asked (Oct 28) for Firefox, from github.com/mozilla-firefox/firefox, as"
 },
 {
@@ -5001,7 +5024,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-29T01:07:36+00:00",
+"checked_at": "2026-10-29T02:01:37+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5026,7 +5049,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-29T01:07:36+00:00",
+"queued_at": "2026-10-29T02:01:37+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5034,16 +5057,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-24T01:07",
+"when": "2026-10-24T02:01",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-29T01:07:36+00:00"
+"last_check": "2026-10-29T02:01:37+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793236056.9491818,
+"t": 1793239297.5550451,
 "processes": [
 {
 "pid": 470,
@@ -5053,7 +5076,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792026456.9491673,
+"since": 1792029697.5550256,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5070,7 +5093,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792026456.9491663,
+"since": 1792029697.5550241,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5087,7 +5110,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792026456.9491444,
+"since": 1792029697.5549965,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5104,7 +5127,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792026456.949152,
+"since": 1792029697.5550075,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5121,7 +5144,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792026456.9491591,
+"since": 1792029697.5550175,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5138,7 +5161,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792026456.949149,
+"since": 1792029697.5550027,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5155,7 +5178,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792026456.949151,
+"since": 1792029697.5550058,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5172,7 +5195,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792026456.9491563,
+"since": 1792029697.5550125,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5189,7 +5212,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792026456.9491684,
+"since": 1792029697.555027,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5206,7 +5229,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792026456.9491582,
+"since": 1792029697.5550148,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5223,7 +5246,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792026456.9491704,
+"since": 1792029697.55503,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5240,7 +5263,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792026456.9491615,
+"since": 1792029697.5550222,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5257,7 +5280,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792026456.9491692,
+"since": 1792029697.5550282,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5274,7 +5297,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792026456.94916,
+"since": 1792029697.5550199,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5394,8 +5417,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-29T02:00:00",
-"last": "2026-10-28T02:00:00",
+"next": "2026-10-29T03:00:00",
+"last": "2026-10-28T03:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5552,7 +5575,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-28T19:07",
+"as_of": "2026-10-28T20:01",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5625,62 +5648,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-29T01:07"
+"mtime": "2026-10-29T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-22T01:07"
+"mtime": "2026-10-22T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-15T01:07"
+"mtime": "2026-10-15T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-08T01:07"
+"mtime": "2026-10-08T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-01T01:07"
+"mtime": "2026-10-01T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-24T01:07"
+"mtime": "2026-09-24T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-17T01:07"
+"mtime": "2026-09-17T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-10T01:07"
+"mtime": "2026-09-10T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-03T01:07"
+"mtime": "2026-09-03T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-27T01:07"
+"mtime": "2026-08-27T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-20T01:07"
+"mtime": "2026-08-20T02:01"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-13T01:07"
+"mtime": "2026-08-13T02:01"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5697,17 +5720,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-16T01:07"
+"mtime": "2025-06-16T02:01"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-16T01:07"
+"mtime": "2025-06-16T02:01"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-16T01:07"
+"mtime": "2025-06-16T02:01"
 }
 ],
 "old_days": 365
@@ -7614,6 +7637,11 @@ window.ARISE_DEMO_DATA = {
 "user": "vanessa.sanders",
 "name": "Pastor Vanessa Sanders",
 "initials": "PV"
+},
+{
+"user": "kristina.robinson",
+"name": "Minister Kristina Robinson",
+"initials": "MK"
 }
 ]
 },
@@ -7726,6 +7754,10 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "vanessa.sanders",
 "display": "Pastor Vanessa Sanders"
+},
+{
+"name": "kristina.robinson",
+"display": "Minister Kristina Robinson"
 }
 ],
 "groups": [
@@ -7782,7 +7814,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7797,7 +7829,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7812,7 +7844,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7827,7 +7859,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7842,7 +7874,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7857,7 +7889,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7872,7 +7904,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 },
 {
@@ -7887,11 +7919,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T01:07:37+00:00",
+"when": "2026-10-29T02:01:37+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-29T01:07:37+00:00",
+"last": "2026-10-29T02:01:37+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8303,7 +8335,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-27T01:07",
+"when": "2026-10-27T02:01",
 "from": "portal"
 },
 {
@@ -8315,7 +8347,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-17T01:07",
+"when": "2026-10-17T02:01",
 "from": "mac"
 },
 {
@@ -8327,7 +8359,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-02T01:07",
+"when": "2026-10-02T02:01",
 "from": "mac"
 }
 ],
@@ -13357,7 +13389,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "ANSWERS",
 "title": "Answers from Bradly (Oct 28 2026) and what they decide",
-"html": "<h1 id=\"answers-from-bradly-oct-28-2026-and-what-they-decide\">Answers from Bradly (Oct 28 2026) and what they decide</h1>\n<p>The multiple-choice questions in docs/QUESTIONS.md, answered in the chat\npop-ups. Questions 1 to 7 (the OptiPlex and the Synology) come Sunday.\nWhere an answer changes the plan, the change is named here and made in the\nfile it points to. Nothing in this file is assumed; every line is his answer.</p>\n<h2 id=\"the-box-the-closet\">The box, the closet</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1 to 7</td>\n<td><strong>Sunday</strong></td>\n<td>model, RAM, drives, Synology model and RAID, what is on it, its login, whether it moves to the Hub</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Pineville has a UPS</td>\n<td>the server plugs into it on day 1; <code>nut</code> auto-shutdown moves from IDEAS into the day-1 plan once the UPS model is known (a USB cable from the UPS to the server is needed)</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Closet is cool and has a network cable</td>\n<td>wired, as planned</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"pineville-network\">Pineville network</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>10</td>\n<td>Cisco model: photo of the sticker to come</td>\n<td>until then: see 11</td>\n</tr>\n<tr>\n<td>11</td>\n<td>\"I think it's unmanaged\"</td>\n<td>an unmanaged switch has no VLANs. The VLAN plan in docs/NETWORK.md becomes: VLANs on the router if it can, or a managed switch later (an estimate: a 24-port managed gigabit switch is $150 to $300). Day 1 does not need VLANs; the server works on a flat network</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Several routers, each its own network</td>\n<td>the server lives behind ONE of them, on the network the staff Macs and the media Mac use. No two of those networks may share a subnet with Alexandria or the Hub. The list of those networks and their subnets is still needed (a photo of each router's LAN page)</td>\n</tr>\n<tr>\n<td>13</td>\n<td>A separate router (not the ISP box)</td>\n<td>DHCP, DNS hand-out and any port forward live there; it may be able to do VLANs itself</td>\n</tr>\n<tr>\n<td>14</td>\n<td>The router hands out addresses</td>\n<td>the one DNS setting that makes the domain work is on that router: point its DNS at the server</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Over 50 Mbit/s upload</td>\n<td>plenty for the sync, the VPN and the stream together</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Dynamic public IP, can forward a port</td>\n<td>Tailscale needs neither; nothing is forwarded (see 36)</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Guest Wi-Fi is a separate network or VLAN</td>\n<td>good; confirm it cannot reach the server's network once the router list is known</td>\n</tr>\n<tr>\n<td>18</td>\n<td>Cameras, thermostat, locks: not sure</td>\n<td>check when photographing the routers; the NDI cameras (50) are on the media network by necessity</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"alexandria\">Alexandria</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>19</td>\n<td>A single Mac</td>\n<td>no route box needed (21): that Mac runs Tailscale itself and binds to the domain over it; docs/NETWORK.md option A</td>\n</tr>\n<tr>\n<td>20</td>\n<td>ISP box, upload unknown</td>\n<td>fine for one Mac</td>\n</tr>\n<tr>\n<td>21</td>\n<td>No spot for an always-on box</td>\n<td>see 19</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Never streams from Alexandria</td>\n<td>no bandwidth rule there</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"people-and-accounts\">People and accounts</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>23</td>\n<td>Usernames are <code>first.last</code></td>\n<td><code>bradly.dyer</code>, <code>bryant.sanders</code>, <code>vanessa.sanders</code>, <code>kristina.robinson</code>. The Mac enrol script maps an old local name to the new one with <code>--map old=first.last</code></td>\n</tr>\n<tr>\n<td>24</td>\n<td>Staff and media only, for now</td>\n<td>first accounts: the admins below, the staff, the media team; volunteers through department accounts (27)</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Admins: Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly</td>\n<td>four members of <code>Domain Admins</code>; each gets the admin desktop; SSH keys only for Bradly unless asked</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Passwords never expire; 12 characters minimum; lockout after 10 failures</td>\n<td>the default in docs/DIRECTORY.md stays</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Department accounts exist: Children's Department, Media, Inedge, and others</td>\n<td>shared department logins instead of personal volunteer accounts: one directory user per department, in its own group, with its own share (37). The full list of departments is still needed</td>\n</tr>\n<tr>\n<td>28</td>\n<td>No kids check-in station yet</td>\n<td>nothing to join; the <code>Kids-Check-in</code> group waits</td>\n</tr>\n<tr>\n<td>29</td>\n<td>A shared church Google account exists; one other person knows it</td>\n<td>it is the Tailscale login (42) and the YouTube token's owner</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"macs\">Macs</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>30</td>\n<td>Six to ten Macs</td>\n<td>enrol them one at a time over two or three days (SETUP-GUIDE day 6)</td>\n</tr>\n<tr>\n<td>31</td>\n<td>No Windows PCs</td>\n<td>the \"joining a Windows PC\" parts are reference only; Guacamole needs only VNC (macOS Screen Sharing)</td>\n</tr>\n<tr>\n<td>32</td>\n<td>One person per login, except the media Mac</td>\n<td>enrol pairs each local user with <code>first.last</code>; the media Mac keeps a shared <code>media</code> login</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The media Mac's video is small enough to move to the server</td>\n<td>it goes to the new <code>recordings</code> share on the Synology (51)</td>\n</tr>\n<tr>\n<td>34</td>\n<td>Apostle Bryant's and Pastor Vanessa's personal Macs leave the building</td>\n<td>personal Macs: do NOT bind them to the domain. They get Tailscale and the dashboard portal, and the home-sync agent if they want a folder backed up. Binding a personal Mac hands its login to the church directory, which is the wrong direction for a personal machine</td>\n</tr>\n<tr>\n<td>35</td>\n<td>Nothing is managed</td>\n<td>no MDM to untangle</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"files-and-shares\">Files and shares</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>36</td>\n<td>Tailscale only, nothing exposed</td>\n<td>no port forward, no public Caddy door; <code>public_url</code> stays empty; share links work for people on Tailscale (a link to someone outside needs the public door, so it is off until he says otherwise)</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Shares: staff, leadership, media, kids, graphics, plus Children's Department, Inedge, Worship / music, Recordings</td>\n<td>nine shares, each with a group: <code>childrens-department</code>, <code>inedge</code>, <code>worship</code>, <code>recordings</code> added to <code>config/samba/smb.conf.template</code> and docs/DIRECTORY.md</td>\n</tr>\n<tr>\n<td>38</td>\n<td>Proclaim assets: synced local copy on the media Mac</td>\n<td>Syncthing between the media Mac and the <code>graphics</code> share (templates/syncthing)</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Share links: 7 days, everyone</td>\n<td>the default stays</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Giving, payroll and counselling records live on a local Mac that will not be on the server</td>\n<td>nothing to configure; that Mac is not enrolled</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Data per year: no idea</td>\n<td>the dashboard's disk widget answers it after a month; Synology sizing waits for 4</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"remote-access-and-security\">Remote access and security</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>42</td>\n<td>One church Tailscale login for every device</td>\n<td>the shared Google account (29); free plan</td>\n</tr>\n<tr>\n<td>43</td>\n<td>Everyone with an account may reach the server from home</td>\n<td>every account gets the portal address; staff laptops get the Tailscale app</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Remote desktop into the media Mac only</td>\n<td>one Guacamole connection (VNC to macOS Screen Sharing); sleep off on that Mac</td>\n</tr>\n<tr>\n<td>45</td>\n<td>No cyber insurance or written policy</td>\n<td>the defaults stand</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"automator-backups-the-note\">Automator, backups, the note</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>46</td>\n<td>The automator keeps running on the Windows PC until the server's timer is on, then stops</td>\n<td>SETUP-GUIDE day 3 keeps that order</td>\n</tr>\n<tr>\n<td>47</td>\n<td>More backup history</td>\n<td><code>keep_daily = 30, keep_weekly = 12, keep_monthly = 24</code> in <code>config/arise.toml.example</code>; how much Synology space that needs waits for 4</td>\n</tr>\n<tr>\n<td>48</td>\n<td>Off-site copy: nowhere yet</td>\n<td>stays open; a fire still takes the server and the Synology together</td>\n</tr>\n<tr>\n<td>49</td>\n<td>No daily note</td>\n<td><code>[notify]</code> stays empty; <code>arise-notify.timer</code> sends nothing; the dashboard's Needs-you list is the only alarm. The installer does not enable the timer</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"livestream-and-recordings\">Livestream and recordings</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>50</td>\n<td>StreamYard with the OBS virtual camera; NDI from the media Mac running Proclaim for lower thirds; the cameras are NDI too</td>\n<td>NDI is the heaviest thing on the church network: 100 to 200 Mbit/s per full-NDI source, discovery by mDNS. Rules in docs/NETWORK.md: every NDI device and the streaming Mac on the same gigabit wired segment, never Wi-Fi; the server may share that segment (an unmanaged gigabit switch copes) but its nightly backup must not run during a service; no VPN profile on the streaming Mac; Proclaim's media Mac is a Mac (follow-up), so it is enrolled like the others</td>\n</tr>\n<tr>\n<td>51</td>\n<td>Recordings go to YouTube AND the server</td>\n<td>a <code>recordings</code> share on the Synology; the media Mac copies each service there (Syncthing folder or a drag); restic EXCLUDES <code>recordings</code> by default (a 6 GB file a week would swallow the backup history) and the Synology's own RAID is its protection until an off-site copy exists (48)</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"day-to-day\">Day to day</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>52</td>\n<td>No second person yet</td>\n<td>the printed checklists in docs/MOVING-DAY.md and docs/SETUP-GUIDE.md matter more; a second admin exists (25), so at least the dashboard is not single-person</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"the-pineville-equipment-oct-28-later-the-same-day\">The Pineville equipment (Oct 28, later the same day)</h2>\n<table>\n<thead>\n<tr>\n<th>Fact</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Modem → Netgear router A → the switch → Netgear router B in the office; the Google Mesh (2 or 3 points) hangs off Netgear A; the switch is unmanaged and may be a Netgear, not a Cisco</td>\n<td>three stacked networks (double NAT behind A). The server goes wired on the switch, on A's network, with a DHCP reservation. B and the Mesh hand out the server as DNS. docs/NETWORK.md § The Pineville network as it is</td>\n</tr>\n<tr>\n<td>The office user is wired to Netgear B</td>\n<td>the office Mac joins the domain through B's NAT; it works because every directory and share connection is started by the Mac</td>\n</tr>\n<tr>\n<td>The media / streaming Mac is on the Mesh Wi-Fi; the NDI cameras are split between the Mesh and the switch</td>\n<td>NDI discovery does not cross the NAT; sources are added by address. Guacamole cannot reach that Mac through the NAT, so the media Mac runs Tailscale and Guacamole uses its Tailscale address</td>\n</tr>\n<tr>\n<td><strong>Bradly: leave the network as it is; leave the streaming Mac on Wi-Fi; the infrastructure cannot be changed at all, not even a router setting</strong></td>\n<td>no re-wiring, no AP mode, no VLANs, no DHCP reservation, no DNS change on any router. Static address in netplan on the server; <code>/etc/resolver</code> file on each Mac (<code>bind-mac.sh --dns</code>); Tailscale for everything the NATs block, including the Synology if it is not on Netgear A's network. NETWORK.md § The Pineville network as it is</td>\n</tr>\n<tr>\n<td>Alexandria's equipment: unknown</td>\n<td>one Mac with Tailscale needs nothing from the router there</td>\n</tr>\n<tr>\n<td>The NDI cameras are on their own unmanaged switch, which plugs into the Mesh (not into Netgear A's switch)</td>\n<td>the cameras and the streaming Mac share the Mesh's network, so NDI discovery works between them as it does today; nothing on the server side is involved. The Network app cannot see them (they are behind the Mesh's NAT) and does not need to</td>\n</tr>\n<tr>\n<td>Router A's own settings page does not show the things on the switch</td>\n<td>expected: a router lists only the DHCP leases it remembers. The Network app's ARP scan asks the wire itself. NETWORK.md § Why Router A's own page does not show them</td>\n</tr>\n<tr>\n<td>Router B is 10.0.0.1 (certain; the office printer was set to about 10.0.0.8). Router A is 192.168.0.1 or 10.0.0.1 (exact addresses on Friday)</td>\n<td>if A were also 10.0.0.1, B's network would overlap its upstream and nothing behind B could reach the server; the plan assumes A is 192.168.0.1 until Friday. <code>[[routers]]</code> for Netgear B gets <code>host = \"10.0.0.1\"</code></td>\n</tr>\n<tr>\n<td>Security cameras (PoE) are on Router A's switch, do not work, and Router A does not list them</td>\n<td>most likely no power (the switch is probably not a PoE switch) or factory addresses from another range. The Network app's Wide scan and Find cameras tell the two apart; Frigate records them once they are reachable. NETWORK.md § The security cameras. New hardware (a PoE switch or injectors) is the only fix for the first case</td>\n</tr>\n<tr>\n<td>\"It needs to check EVERYTHING that is connected to the switch\"</td>\n<td>the <strong>Network</strong> app (16) and <code>arisectl devices scan</code>: an hourly ARP scan of Netgear A's wire with names, makers, kinds, joined-or-not, first and last seen, and a flag on anything new. Behind-the-NAT devices show as their router, by the nature of NAT</td>\n</tr>\n<tr>\n<td><strong>Bradly: no IP address, network setting or router change of any kind</strong></td>\n<td>the server keeps the address Netgear A gives it and pins it on itself (install.sh step 2b); no device changes address; every Mac-side setting is a file on that Mac; Tailscale does the rest. There is nothing left on the list that touches a router, and the router pages no longer need a photo</td>\n</tr>\n</tbody>\n</table>\n<p>| Mass email to the church family through Resend; contacts exported from Wix; \"emails will come from Arisenow.church@gmail.com or something like that\"; Proclaim does the lobby signage | the <strong>Mail</strong> app (19) and <code>arisectl mail</code>: Wix CSV import into a Resend audience (unsubscribes handled by Resend), the house template, a test send, broadcasts with a typed <code>send</code>. Resend cannot send FROM gmail.com: <code>from_email</code> must be at a domain verified in Resend (arisecenla.church, or arisenow.church if the church owns it); the Gmail is the reply-to. Proclaim has no Linux version; it stays on its Mac, and <code>/signage</code> is for a screen with no Mac behind it |</p>\n<h2 id=\"round-2-oct-28-the-same-night-fifty-more\">Round 2 (Oct 28, the same night): fifty more</h2>\n<p>Fifty pop-up questions about what to add, improve and polish. His words are\nquoted where he typed them. The build order is his (50): Feel first.\ndocs/ROADMAP.md turns these into releases.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Boot like a product?</td>\n<td>Splash, no sound</td>\n<td>a Plymouth theme in the house style; silent boot</td>\n</tr>\n<tr>\n<td>2</td>\n<td>YouTube Partner progress widget?</td>\n<td>Yes, desktop only</td>\n<td>subscribers toward 1,000 and watch hours toward 4,000 from the automator's numbers; not on the lobby sign</td>\n</tr>\n<tr>\n<td>3</td>\n<td>House Lights Down mode on Sunday morning?</td>\n<td>Yes, automatic</td>\n<td>from an hour before a service the desktop dims admin noise and shows stream, checklist, countdown, one-tap doors; off after</td>\n</tr>\n<tr>\n<td>4</td>\n<td>A sermon podcast feed?</td>\n<td>Yes, build it</td>\n<td>ffmpeg pulls audio from each recording, an RSS feed for Spotify and Apple, the 16:9 art; episodes automatic, titles approved by Bradly</td>\n</tr>\n<tr>\n<td>5</td>\n<td>Time Machine backups of the Macs?</td>\n<td>Yes, every church Mac</td>\n<td>a Time Machine share on the Synology; needs space about equal to each Mac's used disk (estimate)</td>\n</tr>\n<tr>\n<td>6</td>\n<td>A print server?</td>\n<td>\"It's not an HP printer. It's a different one. But I'd like all devices to be able to print from it\"</td>\n<td>CUPS with AirPrint on the server once the model is known; the printer sits behind router B, which the server can reach</td>\n</tr>\n<tr>\n<td>7</td>\n<td>A morning report written by Claude?</td>\n<td>Yes, every morning</td>\n<td>a 06:00 run on the box's own data; summarises, never invents</td>\n</tr>\n<tr>\n<td>8</td>\n<td>A clip cutter for Shorts?</td>\n<td>No</td>\n<td>nothing built; cutting stays on the Mac</td>\n</tr>\n<tr>\n<td>9</td>\n<td>The portal as a phone home-screen app?</td>\n<td>Yes</td>\n<td>a web app manifest; Add to Home Screen on iPhone and Android</td>\n</tr>\n<tr>\n<td>10</td>\n<td>Push notifications?</td>\n<td>Yes, to me only</td>\n<td>web push to Bradly's phone: failed backup, stream down, new device</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Two-step sign-in for admins?</td>\n<td>\"2 step authentication using Microsoft Authenticator\"; Oct 28: \"2fa is optional, but if they do opt in, then it uses Microsoft Authenticator\"</td>\n<td>Two-step is optional for everyone; whoever turns it on enrols Microsoft Authenticator (TOTP, no Microsoft account needed). Nobody is forced</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Who ticks the Sunday checklist?</td>\n<td>Anyone signed in</td>\n<td>members included; the audit log says who</td>\n</tr>\n<tr>\n<td>13</td>\n<td>Jellyfin for whom?</td>\n<td>Staff only for now</td>\n<td>no lobby channel, no family access yet</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Recordings kept how long?</td>\n<td>Forever (YouTube is also the archive)</td>\n<td>nothing is ever deleted; the Synology's size is the only limit</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Transcript pages per sermon?</td>\n<td>Yes, for admins and staff</td>\n<td>a cleaned, searchable, printable page under Sermons; no sung words</td>\n</tr>\n<tr>\n<td>16</td>\n<td>The website pulling from the server?</td>\n<td>Not from the server; the site stays separate</td>\n<td>no public feed is built for the site</td>\n</tr>\n<tr>\n<td>17</td>\n<td>What may Claude do on its own?</td>\n<td>Draft YouTube titles and descriptions for approval; explain any failure in plain English; answer staff questions in the portal</td>\n<td>three Claude features, all read-only on the box, nothing live without Bradly's approval</td>\n</tr>\n<tr>\n<td>18</td>\n<td>Where does the morning report land?</td>\n<td>Dashboard only</td>\n<td>a widget and a page; no email, no push for it</td>\n</tr>\n<tr>\n<td>19</td>\n<td>A name for the OS?</td>\n<td>ariseOS</td>\n<td>the splash, the About window, the docs say ariseOS; \"Arise Server\" stays the name of the service and the repo</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Codenames?</td>\n<td>Books of the Bible</td>\n<td>the next release is \"Genesis\"; docs/ROADMAP.md</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Guest speakers' accounts?</td>\n<td>\"They email the media team everything they need\"</td>\n<td>no guest accounts, no expiry feature</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Who makes share links to outsiders?</td>\n<td>Everyone, as now</td>\n<td>7 days, revocable; unchanged</td>\n</tr>\n<tr>\n<td>23</td>\n<td>An audit trail?</td>\n<td>Yes, admins see it</td>\n<td>sign-ins, shares, user changes, checklist ticks, kept a year, nothing deleted from the dashboard</td>\n</tr>\n<tr>\n<td>24</td>\n<td>When someone leaves?</td>\n<td>\"Disable the login after 30 days just in case they come back. Move the files to the next appropriate member or account.\"</td>\n<td>an offboarding step in Directory: a 30-day grace timer, then disable; a \"move files to\" picker</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Which folders mirror with Syncthing?</td>\n<td>The thumbnails folder (the automator's output) and the office documents share, plus Proclaim assets</td>\n<td>three Syncthing pairs; nothing else</td>\n</tr>\n<tr>\n<td>26</td>\n<td>The printer?</td>\n<td>On router B; \"it's a weird brand\"; info coming</td>\n<td>CUPS waits for the model</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Kids check-in?</td>\n<td>Not planned</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>28</td>\n<td>A volunteer rota?</td>\n<td>Keep what we use now</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>29</td>\n<td>When is the Hub built?</td>\n<td>No date yet</td>\n<td>the move is written up, not scheduled</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Pineville's VPN after the move?</td>\n<td>Decide at the move</td>\n<td>both options stay in MOVING-DAY</td>\n</tr>\n<tr>\n<td>31</td>\n<td>A second domain controller later?</td>\n<td>Yes, plan for it</td>\n<td>a \"second DC\" installer mode goes on the roadmap</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Hardware purchases?</td>\n<td>None of these yet</td>\n<td>no PoE switch, second SSD or Coral stick for now</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The wallpaper?</td>\n<td>The ink and red stage, as now</td>\n<td>unchanged</td>\n</tr>\n<tr>\n<td>34</td>\n<td>Desktop sounds?</td>\n<td>All of them, quiet</td>\n<td>dock click, checklist chime, failure tone, all low</td>\n</tr>\n<tr>\n<td>35</td>\n<td>About-window flair?</td>\n<td>Fun, do it</td>\n<td>the week's verse, service count, hours streamed, the latest title, from real data</td>\n</tr>\n<tr>\n<td>36</td>\n<td>A light \"Bone\" theme?</td>\n<td>Yes, a switch in Control Center</td>\n<td>per browser; the monitor stays House Lights Down</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Newsletter rhythm?</td>\n<td>Only when there is news</td>\n<td>no reminder, no schedule</td>\n</tr>\n<tr>\n<td>38</td>\n<td>SMS alerts?</td>\n<td>Not now</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Members edit their own contact details?</td>\n<td>No, staff keep the list</td>\n<td>one source: the Mail app's contacts</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Discord posts?</td>\n<td>Yes, failures and the Sunday \"all green\"</td>\n<td>a webhook; the daily note stays off</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Channel stats in the dashboard?</td>\n<td>Yes, a Channel page under Sermons</td>\n<td>views, top video, Shorts count from the automator's data; no extra quota</td>\n</tr>\n<tr>\n<td>42</td>\n<td>Thumbnails and podcast art made on the server?</td>\n<td>Yes, on the server</td>\n<td>pick a frame in Sermons; the house layout rendered in both sizes; Bradly approves before anything is set</td>\n</tr>\n<tr>\n<td>43</td>\n<td>The hold list editable in the dashboard?</td>\n<td>Yes</td>\n<td>add, remove, a note and a name per hold; holds.json stays the source</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Stream watch on Sundays?</td>\n<td>Yes</td>\n<td>Uptime Kuma pings the live page and StreamYard every 30 s; push, Discord and a red monitor if it drops</td>\n</tr>\n<tr>\n<td>45</td>\n<td>Training?</td>\n<td>A built-in walkthrough on first sign-in</td>\n<td>five steps in the portal, once per person</td>\n</tr>\n<tr>\n<td>46</td>\n<td>A closet-door card?</td>\n<td>Yes</td>\n<td>a one-page PDF the installer writes: the commands, the Tailscale address, the backups, who to call</td>\n</tr>\n<tr>\n<td>47</td>\n<td>A restore drill?</td>\n<td>Yes, monthly, automatic</td>\n<td>one random file restored from last night's backup to a scratch folder and compared; the result in the dashboard</td>\n</tr>\n<tr>\n<td>48</td>\n<td>UPS shutdown timing?</td>\n<td>When the battery is nearly flat</td>\n<td>nut shuts the box down on the low-battery signal, not on a timer</td>\n</tr>\n<tr>\n<td>49</td>\n<td>The showpiece?</td>\n<td>The desktop on the monitor</td>\n<td>polish goes there first: the shell, the screensaver, Sunday mode</td>\n</tr>\n<tr>\n<td>50</td>\n<td>Build order?</td>\n<td>Feel first</td>\n<td>v0.7 \"Genesis\" is the Feel block; docs/ROADMAP.md</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-3-oct-28-what-windows-11-and-macos-have-and-the-basics-any-os-needs\">Round 3 (Oct 28): what Windows 11 and macOS have, and the basics any OS needs</h2>\n<p>Forty pop-up questions. Bradly's words quoted where he typed them. Builds as\nv0.8 \"Exodus\"; docs/PARITY.md is the full map of what the two desktops have\nand where ariseOS stands on each.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Trash for the shares?</td>\n<td>30 days, then it empties itself</td>\n<td>a Trash on every share (Samba recycle for the Macs, the portal too); anyone puts back their own file; <code>arise-trash.timer</code> empties what is older than 30 days; emptying early is Bradly's click</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Previous Versions in Finder?</td>\n<td>Yes, everyone for their own files</td>\n<td>right-click a file, see the nightly copies, put one back beside the original; members for their own, admins for anything</td>\n</tr>\n<tr>\n<td>3</td>\n<td>A Settings app, one place?</td>\n<td>Yes, build it</td>\n<td>System Settings becomes the one window: appearance, users, sharing, backups, updates, time, notifications, about</td>\n</tr>\n<tr>\n<td>4</td>\n<td>A Software Update app, who clicks?</td>\n<td>Security automatic, I click the rest</td>\n<td>security patches stay unattended; everything else is listed with a badge and waits for his click, then installs in the window (25)</td>\n</tr>\n<tr>\n<td>5</td>\n<td>An App Store?</td>\n<td>\"The 24 app templates should already be preinstalled, but definitely an App Store for other Linux programs that are free!\"</td>\n<td>all 24 templates deployed at install (the heavy ones stopped until started, with the RAM shown); a catalogue of further free self-hosted apps in the Store</td>\n</tr>\n<tr>\n<td>6</td>\n<td>Activity Monitor?</td>\n<td>Yes, admins</td>\n<td>processes and containers, CPU, memory, disk, network; End Process with a confirm</td>\n</tr>\n<tr>\n<td>7</td>\n<td>A Logs app?</td>\n<td>Yes, admins</td>\n<td>the journal by service, the arise logs, search, the last error highlighted</td>\n</tr>\n<tr>\n<td>8</td>\n<td>An Automations app?</td>\n<td>Yes</td>\n<td>every timer live: next run, last result, run a preview, pause one; the real automator still refused while its timer is on</td>\n</tr>\n<tr>\n<td>9</td>\n<td>A Storage pane?</td>\n<td>Yes</td>\n<td>disk by share and by app, the biggest files, a \"not changed in a year\" list; deleting stays his click</td>\n</tr>\n<tr>\n<td>10</td>\n<td>A church Calendar everyone can subscribe to?</td>\n<td>Yes, one calendar</td>\n<td>services and events on the server; an ICS feed every Mac and phone subscribes to; staff add events</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Notes?</td>\n<td>Trilium (the template)</td>\n<td>the Notes icon opens Trilium in a window; no second notes app</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Photos?</td>\n<td>Yes, Immich for staff</td>\n<td>the Immich template; staff phones upload over Tailscale</td>\n</tr>\n<tr>\n<td>13</td>\n<td>A Weather widget?</td>\n<td>Yes</td>\n<td>Pineville from Open-Meteo, no key; a line in the morning report</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Calculator and Clock?</td>\n<td>Yes, both</td>\n<td>both in Launchpad and Spotlight; Spotlight answers a sum</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Edit a text file in Finder?</td>\n<td>Yes</td>\n<td>.txt and .md open in place with a Markdown preview</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Compress, Get Info, Recents?</td>\n<td>All three</td>\n<td>zip a folder to download; file info; what you touched this week</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Screen Sharing of the closet monitor?</td>\n<td>Yes, me only</td>\n<td>wayvnc on the monitor's display, reached through Guacamole over Tailscale; Bradly first, admins later if he says</td>\n</tr>\n<tr>\n<td>18</td>\n<td>\"Open on my Mac\"?</td>\n<td>Yes</td>\n<td>a button in the portal's Finder opens the same folder in the Mac's Finder over the share</td>\n</tr>\n<tr>\n<td>19</td>\n<td>Snap windows?</td>\n<td>Yes</td>\n<td>drag to an edge for half, a corner for a quarter; Ctrl/Cmd+arrow tiles</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Hot corners on the monitor?</td>\n<td>No</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>21</td>\n<td>A break-glass local admin?</td>\n<td>Yes</td>\n<td><code>arise-rescue</code>: console and SSH only, never the dashboard; its password on the closet card; every use logged and pushed</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Disk encryption?</td>\n<td>Encrypt the data disk, TPM unlocks it</td>\n<td>LUKS chosen at the Ubuntu install; <code>arisectl encrypt tpm</code> binds the key to the Dell's TPM so it boots alone; the passphrase stays the fallback on the closet card</td>\n</tr>\n<tr>\n<td>23</td>\n<td>OS rollback?</td>\n<td>Yes, snapshot before every update</td>\n<td>a system snapshot (Timeshift) before each update, the last five kept; church files are in the backup, not the snapshot</td>\n</tr>\n<tr>\n<td>24</td>\n<td>Reinstall from backup?</td>\n<td>\"Yes, with the synology holding the backup to the server as well!\"</td>\n<td><code>arisectl reinstall</code> rebuilds a fresh Ubuntu from the Synology's restic repository: config, the domain's database, users, shares, apps, secrets. The Synology holds the server's backup, as it does today; read that way, nothing changes about where the backup lives</td>\n</tr>\n<tr>\n<td>25</td>\n<td>The maintenance window?</td>\n<td>Saturday 03:30</td>\n<td>updates he has clicked, and any reboot they need, apply Saturday 03:30; never during a service</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Log retention?</td>\n<td>1 year</td>\n<td>the journal and the arise logs kept a year</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Failed sign-in lockout?</td>\n<td>None</td>\n<td>no fail2ban, no domain lockout; everything is behind Tailscale or inside the building</td>\n</tr>\n<tr>\n<td>28</td>\n<td>A virus scan of the shares?</td>\n<td>Weekly scan, quarantine with a report</td>\n<td>ClamAV Sunday night over the shares (video skipped); a found file moved aside; the list in the dashboard and a push</td>\n</tr>\n<tr>\n<td>29</td>\n<td>HTTPS inside the building?</td>\n<td>Church CA, padlock on every Mac</td>\n<td>Caddy's internal CA in front of the dashboard; <code>enroll-mac.sh</code> trusts the root once; phones on Tailscale use Tailscale's certificate</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Monitor power?</td>\n<td>Off overnight, 23:00 to 06:00</td>\n<td>the panel sleeps at 23:00 and wakes at 06:00; a key wakes it anytime</td>\n</tr>\n<tr>\n<td>31</td>\n<td>Restart and Shut Down in the flame menu?</td>\n<td>Yes</td>\n<td>admins, a confirm, refused during a service; \"Restart the dashboard\" and \"Restart the domain\" as gentler steps</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Accessibility?</td>\n<td>Yes</td>\n<td>larger text, reduce motion, high contrast in Control Center; Tab reaches everything</td>\n</tr>\n<tr>\n<td>33</td>\n<td>Auto theme by daylight?</td>\n<td>Manual only</td>\n<td>the theme stays whatever was last picked</td>\n</tr>\n<tr>\n<td>34</td>\n<td>A What's New note after updates?</td>\n<td>Yes</td>\n<td>ten lines at most, in About and the morning report, from CHANGELOG.md</td>\n</tr>\n<tr>\n<td>35</td>\n<td>A Help app?</td>\n<td>Yes</td>\n<td>the docs rendered in the dashboard, searchable; F1 or Ctrl+? opens it; a shortcut sheet</td>\n</tr>\n<tr>\n<td>36</td>\n<td>Password rules at change?</td>\n<td>Yes</td>\n<td>a strength meter and the domain's rules in plain words</td>\n</tr>\n<tr>\n<td>37</td>\n<td>A licence?</td>\n<td>MIT</td>\n<td>LICENSE at the root, Bradly's name on it</td>\n</tr>\n<tr>\n<td>38</td>\n<td>Idle sign-out in a browser?</td>\n<td>Never, until they sign out</td>\n<td>the sign-in cookie lasts a year; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>39</td>\n<td>A Font library?</td>\n<td>Yes</td>\n<td><code>Media/Fonts</code> on the share; every enrolled Mac installs what is there on the hourly sync</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Resource caps on the apps?</td>\n<td>Yes, cap every app</td>\n<td>memory and CPU limits from each template; the domain and the dashboard always have room</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-4-oct-28-later-one-hundred-more-the-whole-os\">Round 4 (Oct 28, later): one hundred more, the whole OS</h2>\n<p>Bradly: \"Ask another 100 questions covering the entirety of the OS to make\nit the best thing ever! This is going to be the final batch until I get the\ninfo from the equipment.\" He also pasted a list of free desktop programs\n(LibreOffice, OnlyOffice, Thunderbird, GIMP, Krita, Inkscape, Kdenlive,\nShotcut, VLC, Dolphin, Ark, Flameshot, GParted, Heroic, Wine, Okular, Samba,\nNextcloud, Postfix+Dovecot, CUPS, PostgreSQL, Nginx, Docker, restic, Netdata)\nwith \"If you can use any of these as well, use them! If not then they can be\nin the App Store!\" and \"Any and all apps installed should match our theme,\ncolors, etc! Not the native app stylings.\" The codename is his: Exodus.</p>\n<p>Desktop programs cannot run inside a browser desktop as themselves; they run\non the server in a container and open in a browser window (the way Kasm and\nlinuxserver.io do it), saving to the shares. That is what \"in the Store\"\nmeans below.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>The desktop programs (GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity) in the browser?</td>\n<td>In the Store, started when needed</td>\n<td>installed and ready, stopped until Open, stop themselves after an hour idle; the memory cost shown</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Documents in the browser?</td>\n<td>OnlyOffice Docs, opened from Finder</td>\n<td>click a .docx in the portal, edit in place, saved to the share</td>\n</tr>\n<tr>\n<td>3</td>\n<td>An internal mail server?</td>\n<td>Yes, an internal-only mail server</td>\n<td>Postfix + Dovecot on the box; see 5 to 7</td>\n</tr>\n<tr>\n<td>4</td>\n<td>The theme rule for apps?</td>\n<td>Set everything each app allows; frame the rest</td>\n<td>house red, ink, the flame, Anton and Oswald wherever an app takes them; an app that takes nothing keeps its look inside our window</td>\n</tr>\n<tr>\n<td>5</td>\n<td>Who gets a mailbox?</td>\n<td>Staff and departments, first.last@ad.arisecenla.com</td>\n<td>one box per staff or department account</td>\n</tr>\n<tr>\n<td>6</td>\n<td>How is it read?</td>\n<td>\"They should get it through their personal email, apple mail, or whatever mail service they use on their phone.\"</td>\n<td>each account's mail is forwarded out through Resend's relay to the person's own address; nothing inbound from the internet</td>\n</tr>\n<tr>\n<td>7</td>\n<td>Where does the personal address come from, and replies?</td>\n<td>a field on their Directory account; replies go back to the sender's personal address (Reply-To)</td>\n<td>admins type it once; the person can change it</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Proclaim under Wine on the server?</td>\n<td>Try it as an experiment, not relied on</td>\n<td>a Store entry marked experimental, off by default</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Games?</td>\n<td>Heroic + a few FOSS games on the lobby TV</td>\n<td>a \"Game night\" Store entry, off by default</td>\n</tr>\n<tr>\n<td>10</td>\n<td>The lobby TV?</td>\n<td>Keep Proclaim; the server's sign page is a backup</td>\n<td>nothing changes on the TV</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Announcements?</td>\n<td>Staff, in the Calendar app</td>\n<td>an event marked \"announce\" shows on the sign and in the week widget</td>\n</tr>\n<tr>\n<td>12</td>\n<td>The Dock?</td>\n<td>Auto-hide, slides up from the bottom</td>\n<td>mouse at the bottom edge brings it back</td>\n</tr>\n<tr>\n<td>13</td>\n<td>The Dock's default set?</td>\n<td>Finder, Overview, Sunday, Sermons, Calendar, Mail, Store, Settings, Terminal</td>\n<td>each person pins or unpins their own</td>\n</tr>\n<tr>\n<td>14</td>\n<td>The sign-in screen?</td>\n<td>A list of faces to click, like a Mac</td>\n<td>see 16</td>\n</tr>\n<tr>\n<td>15</td>\n<td>A greeting after sign-in?</td>\n<td>\"Good morning, Bradly\" with the day's verse reference</td>\n<td>a three-second toast</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Whose faces, and on the monitor?</td>\n<td>Each person uploads their own; admins and staff listed on the monitor</td>\n<td>members type their name on their own devices; no photo = initials on red</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Clock and dates?</td>\n<td>12-hour, Sunday first, US dates, °F</td>\n<td></td>\n</tr>\n<tr>\n<td>18</td>\n<td>The screensaver?</td>\n<td>Clock, next service, the verse, the channel's thumbnails slowly</td>\n<td>plus the weather and the week's announcements</td>\n</tr>\n<tr>\n<td>19</td>\n<td>The lock and sign-in line?</td>\n<td>\"Arise Church · Pineville\" and the next service</td>\n<td></td>\n</tr>\n<tr>\n<td>20</td>\n<td>Folder layout?</td>\n<td>\"Each user has a folder, admin access them all! Users can't access other users folders. So documents would all merge into one document folder for admins, photos, etc.\"</td>\n<td>a personal folder each; admins get merged views (All Documents, All Photos, …) with the owner labelled; members never see another person's folder</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Home quota?</td>\n<td>\"Depends on the synology storage. I still need to get drives for it.\"</td>\n<td>no quota until the Synology's drives are known (see 30)</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Biggest upload?</td>\n<td>10 GB, resumable</td>\n<td>chunked uploads that continue after a drop</td>\n</tr>\n<tr>\n<td>23</td>\n<td>Share link expiry?</td>\n<td>Never, until removed</td>\n<td>changeable per link</td>\n</tr>\n<tr>\n<td>24</td>\n<td>Starting folders in a home?</td>\n<td>Documents, Photos, Videos, Music, Downloads</td>\n<td>created at first sign-in; these are what the admin's merged views merge</td>\n</tr>\n<tr>\n<td>25</td>\n<td>A shared space?</td>\n<td>Yes: one Church folder for all, plus a folder per department</td>\n<td></td>\n</tr>\n<tr>\n<td>26</td>\n<td>Windows PCs?</td>\n<td>\"Yes add windows pc capabilities just in case we get them at a location\"</td>\n<td>Windows joins the domain the same way; the shares as network drives; a join script and doc</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Downloading recordings?</td>\n<td>Admins and Media; everyone can stream in the browser</td>\n<td></td>\n</tr>\n<tr>\n<td>28</td>\n<td>An off-site backup copy?</td>\n<td>Not now</td>\n<td></td>\n</tr>\n<tr>\n<td>29</td>\n<td>Back up the recordings?</td>\n<td>\"The synology isn't even setup yet. It needs 4 new hard drives. Will get the model of it for you Friday so you can recommend a setup for user data, storage, etc.\"</td>\n<td>a Synology layout recommendation waits for the model on Friday</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Where the restic key lives?</td>\n<td>The closet card only</td>\n<td></td>\n</tr>\n<tr>\n<td>31</td>\n<td>A USB drive plugged into the server?</td>\n<td>\"It auto syncs everything to the appropriate folder or location\" → Into the folder of whoever is signed in on the monitor</td>\n<td>a plugged-in drive is imported, sorted by type (Photos, Videos, Documents, Audio), virus-scanned, into the signed-in person's home; the stick is never changed; a push when done</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Phone photos without cables?</td>\n<td>Through the portal's upload only</td>\n<td>Immich stays the library; the phone uploads through the portal</td>\n</tr>\n<tr>\n<td>33</td>\n<td>SSH?</td>\n<td>Keys only, passwords off; arise-rescue is the exception at the console</td>\n<td></td>\n</tr>\n<tr>\n<td>34</td>\n<td>Keep Cockpit?</td>\n<td>Keep it, admins only, for the rare deep thing</td>\n<td>linked from Settings</td>\n</tr>\n<tr>\n<td>35</td>\n<td>Disk-space warning?</td>\n<td>75%</td>\n<td>a push at 75%</td>\n</tr>\n<tr>\n<td>36</td>\n<td>Temperature alerts?</td>\n<td>Just the morning report line</td>\n<td></td>\n</tr>\n<tr>\n<td>37</td>\n<td>A weekly summary?</td>\n<td>Yes, Monday morning, in the dashboard and a push</td>\n<td></td>\n</tr>\n<tr>\n<td>38</td>\n<td>Push at night?</td>\n<td>Everything, any hour</td>\n<td>no quiet hours</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Tailscale access?</td>\n<td>Admins now; staff when they ask</td>\n<td></td>\n</tr>\n<tr>\n<td>40</td>\n<td>A screen per campus after the move?</td>\n<td>Yes, any old PC or a Raspberry Pi per campus, same desktop, a campus badge</td>\n<td>a kiosk image that boots into the dashboard over Tailscale</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Wake-on-LAN for the Macs?</td>\n<td>No</td>\n<td></td>\n</tr>\n<tr>\n<td>42</td>\n<td>Remote screen of a church Mac?</td>\n<td>\"I never miss a service\"</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>43</td>\n<td>May Claude fix things itself?</td>\n<td>Fix small things itself, tell me after</td>\n<td>restart a stuck service, re-run a failed backup, clear a full log; bigger waits for him</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Who can talk to Claude on the box?</td>\n<td>\"Claude is available to me only\"</td>\n<td>Bradly only; members get the help box</td>\n</tr>\n<tr>\n<td>45</td>\n<td>Who edits Claude's notes (CLAUDE.md on the box)?</td>\n<td>Claude edits freely</td>\n<td></td>\n</tr>\n<tr>\n<td>46</td>\n<td>\"Ask Claude about this\" on red items?</td>\n<td>Yes, everywhere something is red</td>\n<td>opens Claude with the facts pasted in; Bradly only (44)</td>\n</tr>\n<tr>\n<td>47</td>\n<td>What buzzes the phone?</td>\n<td>Everything: failures (backup, stream, domain, disk, UPS), Sunday all-green and the Monday weekly, security (new device, arise-rescue used, a virus found), housekeeping (updates waiting, an import finished, a quota warning)</td>\n<td></td>\n</tr>\n<tr>\n<td>48</td>\n<td>The phone home screen?</td>\n<td>Needs-you list, next service, backups, stream, the checklist</td>\n<td></td>\n</tr>\n<tr>\n<td>49</td>\n<td>A member's first screen?</td>\n<td>Their files, the Sunday list, this week's calendar, the verse</td>\n<td></td>\n</tr>\n<tr>\n<td>50</td>\n<td>Members see who else has an account?</td>\n<td>No; only staff and admins see the list</td>\n<td></td>\n</tr>\n<tr>\n<td>51</td>\n<td>Default Bible translation?</td>\n<td>KJV</td>\n<td>public domain, offline</td>\n</tr>\n<tr>\n<td>52</td>\n<td>A Songs app for the CCLI report?</td>\n<td>Yes</td>\n<td>every song per service from the automator's credits; a count per song; an export in CCLI's shape; numbers only from the song bank</td>\n</tr>\n<tr>\n<td>53</td>\n<td>Where ariseOS updates come from?</td>\n<td>GitHub releases, checked daily, installed on his click in the window</td>\n<td>What's New shown before the click</td>\n</tr>\n<tr>\n<td>54</td>\n<td>Password again for dangerous clicks?</td>\n<td>Yes, password again, remembered for five minutes</td>\n<td>on top of typing the name</td>\n</tr>\n<tr>\n<td>55</td>\n<td>The Synology's four drives?</td>\n<td>\"Probably will just have 3 as one big drive, and 1 for backups of documents or something. Need to have important items backed up on there only. The other 3 drives are one big drive.\"</td>\n<td>three drives as one volume (recordings, media, Time Machine); the fourth drive alone holds the server's restic backups and the documents; the layout proposal waits for the model</td>\n</tr>\n<tr>\n<td>56</td>\n<td>Drive size?</td>\n<td>4 TB each</td>\n<td>about 8 TB usable on the three-drive volume with one-drive protection, 4 TB on the backup drive</td>\n</tr>\n<tr>\n<td>57</td>\n<td>Where files live?</td>\n<td>\"Depends on the files. But the server disk should be utilized too!\"</td>\n<td>homes, shares and the apps on the server's disk; recordings, photos and backups on the Synology; Storage shows both</td>\n</tr>\n<tr>\n<td>58</td>\n<td>Time Machine space?</td>\n<td>\"Time Machine set to hold 2 Mac backups at a time per device\"</td>\n<td>the share keeps the two newest backups per Mac and thins older ones</td>\n</tr>\n<tr>\n<td>59</td>\n<td>The install itself?</td>\n<td>A short on-screen wizard, flags still work</td>\n<td>church or staging, admin password, Synology, Tailscale, encrypt; then it runs</td>\n</tr>\n<tr>\n<td>60</td>\n<td>First thing on the monitor after install?</td>\n<td>The sign-in screen only</td>\n<td>no QR on screen; the closet card carries it</td>\n</tr>\n<tr>\n<td>61</td>\n<td>Power back after a cut?</td>\n<td>Yes, auto power-on; the installer tells you the BIOS setting</td>\n<td>the box comes back on its own; the TPM unlocks the disk</td>\n</tr>\n<tr>\n<td>62</td>\n<td>Internet down?</td>\n<td>Everything inside keeps working; YouTube, mail, weather and Claude wait</td>\n<td>an \"offline\" chip; the automator skips the night with a note</td>\n</tr>\n<tr>\n<td>63</td>\n<td>The per-campus screen?</td>\n<td>The same desktop, signed in as a campus account, badge in the bar</td>\n<td>a kiosk image that boots, joins Tailscale, opens the dashboard</td>\n</tr>\n<tr>\n<td>64</td>\n<td>What campuses can do?</td>\n<td>Everything an admin or member can, by who signs in</td>\n<td>same rules everywhere</td>\n</tr>\n<tr>\n<td>65</td>\n<td>Move day?</td>\n<td>\"I'll probably move everything on a day nobody is there. So there should only be Down time for maintenance that day.\"</td>\n<td>no Pineville cache box; MOVING-DAY.md plans one quiet day</td>\n</tr>\n<tr>\n<td>66</td>\n<td>The Campuses app?</td>\n<td>Each campus: online, its screen, its devices, who signed in there</td>\n<td>live from Tailscale and the sign-ins</td>\n</tr>\n<tr>\n<td>67</td>\n<td>What the server gives a Windows PC?</td>\n<td>A join script, drive letters, and the church certificate; nothing else</td>\n<td>one PowerShell file from the dashboard; no group policy</td>\n</tr>\n<tr>\n<td>68</td>\n<td>Mail attachments?</td>\n<td>Larger attachments, 100 MB</td>\n<td></td>\n</tr>\n<tr>\n<td>69</td>\n<td>Who may send internal mail?</td>\n<td>\"anybody with an account that was registered.\"</td>\n<td>every domain account may send; delivery is inside and to personal addresses only</td>\n</tr>\n<tr>\n<td>70</td>\n<td>Two people in one document?</td>\n<td>They edit together, live</td>\n<td>OnlyOffice co-editing; saved to the share when the last closes</td>\n</tr>\n<tr>\n<td>71</td>\n<td>Window chrome?</td>\n<td>Mac-style, top-left</td>\n<td></td>\n</tr>\n<tr>\n<td>72</td>\n<td>Where Store apps open?</td>\n<td>In a window on the desktop, with a pop-out to a tab</td>\n<td></td>\n</tr>\n<tr>\n<td>73</td>\n<td>What Spotlight searches?</td>\n<td>Also inside documents, the calendar, mail subjects, the Bible, and sums</td>\n<td>a nightly text index of the shares</td>\n</tr>\n<tr>\n<td>74</td>\n<td>Quick Look previews?</td>\n<td>Images, PDFs, video with scrubbing, audio, text, Office files</td>\n<td>Office files through OnlyOffice; video streamed, not downloaded</td>\n</tr>\n<tr>\n<td>75</td>\n<td>Songs per service?</td>\n<td>The automator's credited songs, confirmed by you per service</td>\n<td>tick \"reported\"; export in CCLI's shape</td>\n</tr>\n<tr>\n<td>76</td>\n<td>Thumbnail approval?</td>\n<td>\"Option A, Even though i'll still probably do everything Sunday and Monday night through Claude Web.\"</td>\n<td>a push with the image, Approve or Change; the Sermons app too</td>\n</tr>\n<tr>\n<td>77</td>\n<td>Post the live link to Discord?</td>\n<td>Yes, to a channel you name</td>\n<td>the watcher posts once when the stream starts</td>\n</tr>\n<tr>\n<td>78</td>\n<td>A checklist nudge?</td>\n<td>Yes, one push at 9:30</td>\n<td>names the open items</td>\n</tr>\n<tr>\n<td>79</td>\n<td>Audit log kept?</td>\n<td>Forever</td>\n<td></td>\n</tr>\n<tr>\n<td>80</td>\n<td>Who exports the mail list?</td>\n<td>Admins only, and the export is logged</td>\n<td></td>\n</tr>\n<tr>\n<td>81</td>\n<td>Immich and faces?</td>\n<td>Staff only can see Immich; no sharing links from it</td>\n<td>public sharing off</td>\n</tr>\n<tr>\n<td>82</td>\n<td>A leaver's mailbox?</td>\n<td>Mailbox deleted with the account</td>\n<td>files still move to the next person (round 2, 24)</td>\n</tr>\n<tr>\n<td>83</td>\n<td>Easter eggs?</td>\n<td>Yes, a few quiet ones</td>\n<td>the Konami code lights the flame; a verse typed in Spotlight shows it; the About flame flickers on the anniversary</td>\n</tr>\n<tr>\n<td>84</td>\n<td>A founding date?</td>\n<td>\"All i know is 2018\"</td>\n<td>the year only; no day is invented; the flicker waits for a date</td>\n</tr>\n<tr>\n<td>85</td>\n<td>Which events make a sound?</td>\n<td>Checklist tick, a failure, the lock, a finished import, the greeting</td>\n<td></td>\n</tr>\n<tr>\n<td>86</td>\n<td>A startup sound?</td>\n<td>No, silent</td>\n<td></td>\n</tr>\n<tr>\n<td>87</td>\n<td>Scanning?</td>\n<td>\"Scans land in the Signed-in person's documents, the Local mac, and an Option to Share.\"</td>\n<td>scan-to-share when the printer can; a copy to the Mac; a share link offered</td>\n</tr>\n<tr>\n<td>88</td>\n<td>Jellyfin libraries?</td>\n<td>Service recordings, worship, graphics loops, podcast audio</td>\n<td>read from the Synology</td>\n</tr>\n<tr>\n<td>89</td>\n<td>Internal chat?</td>\n<td>\"Church doesn't use Discord, I'll be using it for Server monitoring and Alerts. As well as Anything Else that i can do with it. The Church doesn't have a Groupchat app or anything.\"</td>\n<td>Discord is Bradly's monitoring channel, not the church's chat; no chat server runs; Mattermost and Element stay stopped in the Store</td>\n</tr>\n<tr>\n<td>90</td>\n<td>Nextcloud?</td>\n<td>In the Store, stopped, for whoever wants it</td>\n<td></td>\n</tr>\n<tr>\n<td>91</td>\n<td>One disk: split it?</td>\n<td>\"It depends on the Storage of the Optiplex. I'll have FULL specs for you Friday.\"</td>\n<td>the partition plan waits for the Dell's disk size; both shapes are in INSTALL.md</td>\n</tr>\n<tr>\n<td>92</td>\n<td>Reboot with people signed in?</td>\n<td>\"Reboot after everybody is signed out, but there's never anybody at the church saturday anyway, so it should be fine!\"</td>\n<td>the Saturday reboot waits until nobody is signed in, then goes; a note in the weekly if it had to wait</td>\n</tr>\n<tr>\n<td>93</td>\n<td>A prayer-request box?</td>\n<td>No; prayer requests stay off the server</td>\n<td>like counselling records</td>\n</tr>\n<tr>\n<td>94</td>\n<td>Birthdays in the weekly?</td>\n<td>Yes, in the weekly, if the field exists</td>\n<td>never guessed; staff only</td>\n</tr>\n<tr>\n<td>95</td>\n<td>(unprompted) The automator's backups?</td>\n<td>\"The Arise Automator will need to keep backups on my personal PC like it does now! i'll make sure the automator has the Repo up to date as well so it syncs to the Synology or wherever correctly!\"</td>\n<td>the PC stays the automator's working copy and keeps its own backups; the server pulls the automator from the GitHub repo Bradly keeps current (the 04:00 mirror), runs the nightly job from that copy, and restic backs it up to the Synology; nothing on the server overwrites the PC</td>\n</tr>\n<tr>\n<td>96</td>\n<td>Which machine runs the real 02:05 job?</td>\n<td>The server runs it; the PC keeps the copy and the dev work</td>\n<td>the PC's timer goes off at the move; the server's timer is the only writer; holds.json lives in the repo</td>\n</tr>\n<tr>\n<td>97</td>\n<td>How the server gets YouTube access?</td>\n<td>\"Give me a markdown on what to ask that specific chat about how we can do it since it handles ALL the automations, and i'll let you know.\"</td>\n<td>docs/ASK-THE-AUTOMATOR-CHAT.md is that markdown; the decision waits for the automator chat's answer</td>\n</tr>\n<tr>\n<td>97b</td>\n<td>The automator chat's answers (Oct 28)</td>\n<td>SERVER_HANDOFF.md in Rehchu/arise-youtube-automation, commit 'Server-ready automator', pasted here by Bradly</td>\n<td>the server gets its own Desktop OAuth client and token, signed in headless; runner.json on the PC decides who runs (the PC until Bradly switches); ariseOS caps 4,000 (2,000 Sun/Mon); docs/AUTOMATOR.md carries it out</td>\n</tr>\n<tr>\n<td>97c</td>\n<td>The revised handoff (Oct 28, Bradly's decisions)</td>\n<td>the four job-state files move to ARISE_STATE_DIR and are untracked; <code>sunday-playlist-reassign</code> parked; the server's cap 6,000 every day; both repos on the server as a searchable archive for Claude</td>\n<td>docs/AUTOMATOR.md, docs/ARCHIVE.md; the revision commit still has to be pushed from the PC</td>\n</tr>\n<tr>\n<td>97d</td>\n<td>(unprompted) Working on the automator from the server</td>\n<td>\"The chat will be accessible from Claude desktop when it's installed on there. He can work on it from the server when it's up\"</td>\n<td>Claude Desktop (Linux beta) on the box, Bradly only; claude.ai/code in Firefox and <code>claude --teleport</code> also reach the automator chat; never in the job's checkout (docs/CLAUDE-ON-THE-BOX.md)</td>\n</tr>\n<tr>\n<td>98b</td>\n<td>(unprompted) The repos on the server</td>\n<td>\"We would need designated folders for all the repos or download all the arise repos to the server and keep them synced with GitHub and the server\"; then: two-way every 15 minutes with automatic pushes; the 8 Arise repos; one fine-grained token; the search archive stays at the 2 repos</td>\n<td>/srv/arise/repos (docs/REPOS.md); AriseHub pull-only and the automator's main held back by default, because a push there deploys or contradicts the handoff</td>\n</tr>\n<tr>\n<td>98</td>\n<td>Trash on the media share?</td>\n<td>7 days on the media share</td>\n<td>30 days everywhere else; the Storage pane shows the Trash's size</td>\n</tr>\n<tr>\n<td>99</td>\n<td>A staff tier?</td>\n<td>Yes: admin, staff, member, by group</td>\n<td>staff = anyone in Staff or Media; Photos, Notes, transcripts, calendar events, internal mail are theirs</td>\n</tr>\n<tr>\n<td>100</td>\n<td>Transcripts from where?</td>\n<td>Whisper on the server overnight; YouTube captions as the fallback</td>\n<td>one recording a night after the backup; never during a service; sung words never written</td>\n</tr>\n<tr>\n<td>101</td>\n<td>Discord channels?</td>\n<td>\"Add a #daily to option 1 and then it's approved so 4 channels total! i'll get discord setup right now if you'd like!\"</td>\n<td>four webhooks: #alerts, #sunday, #weekly, #daily (the morning report goes to #daily); docs/DISCORD.md says what to set up</td>\n</tr>\n<tr>\n<td>102</td>\n<td>The monitor when nobody is signed in?</td>\n<td>Yes, the glance view when idle; sign in for anything else</td>\n<td>next service, backups, attention, stream; nothing clickable, no names or files</td>\n</tr>\n<tr>\n<td>103</td>\n<td>Immich's library?</td>\n<td>Watch Media/Photos and every staff member's Photos folder</td>\n<td>external, read-only; deleting in Immich never deletes a file</td>\n</tr>\n<tr>\n<td>104</td>\n<td>Department accounts?</td>\n<td>\"Staff can be assigned individual accounts, but they're also assigned to a department or multiple departments. when they log in with their individual login, they get access to the department account stuff as well!\"</td>\n<td>everyone has their own account; departments are groups with their own share folder; membership grants the department's files and mail; a shared department login is not needed</td>\n</tr>\n<tr>\n<td>105</td>\n<td>A rehearsal at home?</td>\n<td>Yes, rehearse the install and the reinstall at home first</td>\n<td>REINSTALL.md gets the rehearsal checklist</td>\n</tr>\n<tr>\n<td>106</td>\n<td>(unprompted) Two Windows PCs at the church</td>\n<td>\"we have 2 Windows PCs at the Church, so technically, One could be at Arise Church Alexandria, while the other is at Pineville, or i Run One from my house that is linked to the Pineville location so i can do EVERYTHING from the server at my house, and it sync to the main server at the Pineville location.\"</td>\n<td>the two PCs become the two ariseOS nodes (107 to 115)</td>\n</tr>\n<tr>\n<td>107</td>\n<td>What becomes of the two PCs?</td>\n<td>\"One at the Pineville Location, and One at my house with the FULL OS installed on it (the one that i can actually push updates and stuff through and maintenance the other one so i don't have to travel to the church)\"</td>\n<td>both wiped; Arise-Pineville is the church's server, Arise-Home is Bradly's control node and replica</td>\n</tr>\n<tr>\n<td>108</td>\n<td>The home node, exactly?</td>\n<td>\"THE FULL OS installed on the 2nd windows PC wiping Windows Completely!\"</td>\n<td>a full ariseOS install, node mode \"home\"</td>\n</tr>\n<tr>\n<td>109</td>\n<td>Which machine is the Pineville server?</td>\n<td>The strongest machine, whichever it is</td>\n<td>decided from Friday's specs</td>\n</tr>\n<tr>\n<td>110</td>\n<td>Node names?</td>\n<td>\"the two will be Arise-Pineville and Arise-Home. when i get a third one it will be Arise-Alexandria.\"</td>\n<td>hostnames arise-pineville, arise-home, arise-alexandria (lower-case on the wire, shown as he wrote them); this replaces the fixed name arise-server in the contract: docs/NODES.md</td>\n</tr>\n<tr>\n<td>111</td>\n<td>The Dell?</td>\n<td>\"I only have 2 windows pcs right now, one is an optiplex, the other is an Unknown. I will get you the makes and models of both of them friday so you'll have EXACT information to work with.\"</td>\n<td>the OptiPlex is one of the two; roles assigned on Friday</td>\n</tr>\n<tr>\n<td>112</td>\n<td>What Arise-Home carries?</td>\n<td>The domain, all shares and homes mirrored, backups; apps live at Pineville (then see 115)</td>\n<td>second domain controller; Syncthing both ways for shares and homes; a full restic copy at home (the off-site backup, free)</td>\n</tr>\n<tr>\n<td>113</td>\n<td>Takeover when Pineville dies?</td>\n<td>Automatic takeover after an hour down</td>\n<td>Home promotes itself after an hour unreachable, with a fence so the nightly job and the timers never run on both: the primary role is a record both nodes read; a returning Pineville sees Home holds it and stays standby until Bradly hands it back</td>\n</tr>\n<tr>\n<td>114</td>\n<td>A Nodes page to push updates from home?</td>\n<td>Yes, a Nodes page on both; updates still take a snapshot first</td>\n<td>health, doctor, Update now, Open dashboard, Run a command, over Tailscale SSH with keys; refused during a service</td>\n</tr>\n<tr>\n<td>115</td>\n<td>Arise-Home on the home network, and its apps?</td>\n<td>Invisible to the home network except through Tailscale; \"whatever pineville's server is doing, my home server should be doing. it should be FULLY SYNCED back and forth.\"</td>\n<td>node mode home: DNS and the domain on the Tailscale interface only. Apps: Home runs the same apps; their data is copied from the primary to the standby every night (app folders, databases dumped) so Home can take over with yesterday's state. Two-way live sync of app databases is not safe and is not built; files and the domain are the two-way parts. Said plainly in NODES.md</td>\n</tr>\n<tr>\n<td>116</td>\n<td>(unprompted, Oct 28) The automator's account</td>\n<td>\"the Automator doesn't need its own profile, it can run on mine! Since nobody else will have access to Claude, unless they log into their own account via the dashboard on web\"</td>\n<td>the 02:05 job runs as Bradly's own Linux account (<code>[owner] user</code>, set by install.sh from the account that ran sudo, or <code>--owner</code>); no arise-yt; the units get User= from a drop-in and refuse to run as root without one</td>\n</tr>\n<tr>\n<td>117</td>\n<td>(unprompted, Oct 28) Claude's access</td>\n<td>\"My login of Claude must have full file access to modify, update, ect.\"</td>\n<td>his account: every ariseOS group, sudo without a password (<code>/etc/sudoers.d/arise-owner</code>, visudo-checked); Claude Code on the box gets the ariseOS folders with edits accepted; Claude Desktop on the monitor opens as his account. A credential's content is still never read into a chat (his own rule); <code>arisectl owner</code> shows it all</td>\n</tr>\n<tr>\n<td>118</td>\n<td>(unprompted, Oct 28) Songs</td>\n<td>\"I'd also need the song list searchable as well! And I'd have to add the lyrics most likely from proclaim!\"</td>\n<td>the Automator app's Songs tab: song_bank.json searchable by title, number, writer or a line of the lyrics; lyrics pasted or imported (SongSelect .txt/.usr, ChordPro, text) into <code>/srv/arise/songs/lyrics</code>, backed up, never in git, never in a description</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-5-oct-28-night-the-final-batch-how-it-is-set-up-out-of-the-box\">Round 5 (Oct 28, night): the final batch, how it is set up out of the box</h2>\n<p>Asked as pop-ups, 36 questions plus two follow-ups. \"Other\" answers are quoted.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question</th>\n<th>Answer</th>\n<th>What it changes</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>The directory's domain</td>\n<td><strong>arisecenla.com</strong> (\"Yes, we own .com at Wix\")</td>\n<td>the realm becomes <strong>AD.ARISECENLA.COM</strong> (NetBIOS ARISE unchanged); mail first.last@ad.arisecenla.com. The website stays arisecenla.church. Replaces the .church realm everywhere before the install</td>\n</tr>\n<tr>\n<td>2</td>\n<td>DNS at Wix</td>\n<td>Only email records</td>\n<td>SPF and DKIM for the sending domain; nothing at Wix points at the server (rule 7 holds)</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Sending domain</td>\n<td>mail.arisecenla.com</td>\n<td>Resend and the server's own mail send from it; its records go in Wix's DNS for arisecenla.com</td>\n</tr>\n<tr>\n<td>4</td>\n<td>Email on the domain today</td>\n<td>None</td>\n<td>nothing to work around; no MX is touched</td>\n</tr>\n<tr>\n<td>5</td>\n<td>A new account's first password</td>\n<td>Temporary, changed at the first sign-in</td>\n<td>the Directory app sets a temporary password and the flag; sign-in asks for a new one before anything else</td>\n</tr>\n<tr>\n<td>6</td>\n<td>A forgotten password</td>\n<td>They reset it themselves</td>\n<td>a reset link to the profile's personal email (through Resend); admins can still reset</td>\n</tr>\n<tr>\n<td>7</td>\n<td>Names</td>\n<td>With their title</td>\n<td>a Title field; \"Apostle Bryant Sanders\" on faces, the Directory, mail and the greeting; the username stays first.last</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Accounts on day one</td>\n<td>Everyone from a list</td>\n<td>the guided setup (and <code>arisectl directory import people.csv</code>) creates them all: name, title, department(s), personal email, phone, birthday</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Profile fields</td>\n<td>Personal email, mobile phone, birthday, title &amp; department</td>\n<td>all four</td>\n</tr>\n<tr>\n<td>10</td>\n<td>Who sees profile details</td>\n<td>Staff and admins</td>\n<td>members see none</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Desktop settings</td>\n<td>Follow the account</td>\n<td>wallpaper, theme, Dock and sounds saved on the server, the same on every device</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Where homes live</td>\n<td>Wait for Friday's specs</td>\n<td>decided with the OptiPlex's disk size</td>\n</tr>\n<tr>\n<td>13</td>\n<td>Home quota until the Synology</td>\n<td>50 GB each</td>\n<td>a 50 GB quota per home, shown in Storage and Finder</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Previous Versions</td>\n<td>90 days</td>\n<td>Finder offers 90 days; restic keeps its 30/12/24 for restores by Bradly</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Backups until the Synology</td>\n<td>Arise-Home over Tailscale</td>\n<td>restic to the home node until the Synology is ready (the nightly job reports red until one of the two exists)</td>\n</tr>\n<tr>\n<td>16</td>\n<td>The Church folder</td>\n<td>Everyone writes</td>\n<td>every account adds, edits and moves to Trash there</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Department folders</td>\n<td>All staff write</td>\n<td>any staff member edits any department's folder; admins see all; department accounts write their own</td>\n</tr>\n<tr>\n<td>18</td>\n<td>A Pastors folder</td>\n<td>Yes, pastors only</td>\n<td><code>pastors</code> share for Apostle Bryant and Pastor Vanessa only; hidden from every other account in Finder and Spotlight, admins included; root access to it is logged</td>\n</tr>\n<tr>\n<td>19</td>\n<td>Sharing with a person</td>\n<td>\"Shared with me\"</td>\n<td>Share with… a person; it shows in their Finder sidebar with a notification</td>\n</tr>\n<tr>\n<td>20</td>\n<td>An admin opens someone's home</td>\n<td>Allowed, in the audit log</td>\n<td>each opening is recorded</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Claude and staff homes</td>\n<td>Only when Bradly names the file</td>\n<td>CLAUDE.md rule</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Own sign-in history</td>\n<td>Yes, on the profile</td>\n<td>the last ten sign-ins, device and time</td>\n</tr>\n<tr>\n<td>23</td>\n<td>The network scan's list</td>\n<td>Admins only</td>\n<td></td>\n</tr>\n<tr>\n<td>24</td>\n<td>Desktop icons</td>\n<td>Yes, like a Mac</td>\n<td>the Desktop folder's files on the wallpaper</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Menu-bar stats</td>\n<td>Admins only</td>\n<td>staff and members: clock, notifications, Control Center</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Staff in a browser on their Mac</td>\n<td>The simple portal</td>\n<td>the desktop is for admins and the closet monitor</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Monitor text size</td>\n<td>Larger</td>\n<td>about 125% on the closet monitor only</td>\n</tr>\n<tr>\n<td>28</td>\n<td>Staff notifications</td>\n<td>Calendar reminders, shared with them, internal mail, the Sunday checklist, and \"Every department has their own checklist\"</td>\n<td>all of these; see 29</td>\n</tr>\n<tr>\n<td>29</td>\n<td>Who edits a department's checklist</td>\n<td>The department's leader</td>\n<td>a leader per department; admins edit any; members tick</td>\n</tr>\n<tr>\n<td>30</td>\n<td>When department lists reset</td>\n<td>Before each service</td>\n<td>reset the night before Sunday Service and Glory Night; each list has its own nudge time</td>\n</tr>\n<tr>\n<td>31</td>\n<td>Sign-in faces</td>\n<td>Nobody preselected</td>\n<td></td>\n</tr>\n<tr>\n<td>32</td>\n<td>A new home folder</td>\n<td>A \"Start here\" note</td>\n<td>one page in every new home, beside the five folders</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The first admin sign-in</td>\n<td>A guided setup</td>\n<td>people (the list), shares, Synology, Discord, Resend, Tailscale; skippable, resumable</td>\n</tr>\n<tr>\n<td>34</td>\n<td>The idle glance view</td>\n<td>Clock, next service, verse</td>\n<td>nothing about the server's health to passers-by</td>\n</tr>\n<tr>\n<td>35</td>\n<td>The mark</td>\n<td>Keep the flame</td>\n<td></td>\n</tr>\n<tr>\n<td>36</td>\n<td>Alexandria</td>\n<td>A group and share now</td>\n<td><code>alexandria</code> group and share from day one</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Guest passes</td>\n<td>No guests</td>\n<td>speakers keep emailing the media team</td>\n</tr>\n<tr>\n<td>38</td>\n<td>A leaver's mail</td>\n<td>Export to their files</td>\n<td>saved as a file into the folder of whoever takes their files, then the mailbox goes</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Service names</td>\n<td>Sunday Service and Glory Night</td>\n<td>everywhere people see them</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"still-needed\">Still needed</h2>\n<ul>\n<li>Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.</li>\n<li>The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (97).</li>\n<li>\n<p>The four Discord webhook URLs into /etc/arise/secrets/discord.toml (101).</p>\n</li>\n<li>\n<p>Sunday: questions 1 to 7.</p>\n</li>\n<li>Where the Synology is plugged in: on Netgear A's network it mounts directly; elsewhere it gets the Tailscale package. No cable moves either way.</li>\n<li>The full list of department accounts (27) and the people in staff and media (24).</li>\n<li>The UPS model (8), for <code>nut</code>.</li>\n<li>Friday: the Resend account, the domain to verify in it, the API key into <code>/etc/arise/secrets/resend-api-key</code>, the Wix contacts export.</li>\n<li>The printer's brand and model (round 2, 6 and 26), for CUPS.</li>\n<li>A Discord webhook URL for the failures and the Sunday all-green (round 2, 40).</li>\n</ul>",
+"html": "<h1 id=\"answers-from-bradly-oct-28-2026-and-what-they-decide\">Answers from Bradly (Oct 28 2026) and what they decide</h1>\n<p>The multiple-choice questions in docs/QUESTIONS.md, answered in the chat\npop-ups. Questions 1 to 7 (the OptiPlex and the Synology) come Sunday.\nWhere an answer changes the plan, the change is named here and made in the\nfile it points to. Nothing in this file is assumed; every line is his answer.</p>\n<h2 id=\"the-box-the-closet\">The box, the closet</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1 to 7</td>\n<td><strong>Sunday</strong></td>\n<td>model, RAM, drives, Synology model and RAID, what is on it, its login, whether it moves to the Hub</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Pineville has a UPS</td>\n<td>the server plugs into it on day 1; <code>nut</code> auto-shutdown moves from IDEAS into the day-1 plan once the UPS model is known (a USB cable from the UPS to the server is needed)</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Closet is cool and has a network cable</td>\n<td>wired, as planned</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"pineville-network\">Pineville network</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>10</td>\n<td>Cisco model: photo of the sticker to come</td>\n<td>until then: see 11</td>\n</tr>\n<tr>\n<td>11</td>\n<td>\"I think it's unmanaged\"</td>\n<td>an unmanaged switch has no VLANs. The VLAN plan in docs/NETWORK.md becomes: VLANs on the router if it can, or a managed switch later (an estimate: a 24-port managed gigabit switch is $150 to $300). Day 1 does not need VLANs; the server works on a flat network</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Several routers, each its own network</td>\n<td>the server lives behind ONE of them, on the network the staff Macs and the media Mac use. No two of those networks may share a subnet with Alexandria or the Hub. The list of those networks and their subnets is still needed (a photo of each router's LAN page)</td>\n</tr>\n<tr>\n<td>13</td>\n<td>A separate router (not the ISP box)</td>\n<td>DHCP, DNS hand-out and any port forward live there; it may be able to do VLANs itself</td>\n</tr>\n<tr>\n<td>14</td>\n<td>The router hands out addresses</td>\n<td>the one DNS setting that makes the domain work is on that router: point its DNS at the server</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Over 50 Mbit/s upload</td>\n<td>plenty for the sync, the VPN and the stream together</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Dynamic public IP, can forward a port</td>\n<td>Tailscale needs neither; nothing is forwarded (see 36)</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Guest Wi-Fi is a separate network or VLAN</td>\n<td>good; confirm it cannot reach the server's network once the router list is known</td>\n</tr>\n<tr>\n<td>18</td>\n<td>Cameras, thermostat, locks: not sure</td>\n<td>check when photographing the routers; the NDI cameras (50) are on the media network by necessity</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"alexandria\">Alexandria</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>19</td>\n<td>A single Mac</td>\n<td>no route box needed (21): that Mac runs Tailscale itself and binds to the domain over it; docs/NETWORK.md option A</td>\n</tr>\n<tr>\n<td>20</td>\n<td>ISP box, upload unknown</td>\n<td>fine for one Mac</td>\n</tr>\n<tr>\n<td>21</td>\n<td>No spot for an always-on box</td>\n<td>see 19</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Never streams from Alexandria</td>\n<td>no bandwidth rule there</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"people-and-accounts\">People and accounts</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>23</td>\n<td>Usernames are <code>first.last</code></td>\n<td><code>bradly.dyer</code>, <code>bryant.sanders</code>, <code>vanessa.sanders</code>, <code>kristina.robinson</code>. The Mac enrol script maps an old local name to the new one with <code>--map old=first.last</code></td>\n</tr>\n<tr>\n<td>24</td>\n<td>Staff and media only, for now</td>\n<td>first accounts: the admins below, the staff, the media team; volunteers through department accounts (27)</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Admins: Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly</td>\n<td>four members of <code>Domain Admins</code>; each gets the admin desktop; SSH keys only for Bradly unless asked</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Passwords never expire; 12 characters minimum; lockout after 10 failures</td>\n<td>the default in docs/DIRECTORY.md stays</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Department accounts exist: Children's Department, Media, Inedge, and others</td>\n<td>shared department logins instead of personal volunteer accounts: one directory user per department, in its own group, with its own share (37). The full list of departments is still needed</td>\n</tr>\n<tr>\n<td>28</td>\n<td>No kids check-in station yet</td>\n<td>nothing to join; the <code>Kids-Check-in</code> group waits</td>\n</tr>\n<tr>\n<td>29</td>\n<td>A shared church Google account exists; one other person knows it</td>\n<td>it is the Tailscale login (42) and the YouTube token's owner</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"macs\">Macs</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>30</td>\n<td>Six to ten Macs</td>\n<td>enrol them one at a time over two or three days (SETUP-GUIDE day 6)</td>\n</tr>\n<tr>\n<td>31</td>\n<td>No Windows PCs</td>\n<td>the \"joining a Windows PC\" parts are reference only; Guacamole needs only VNC (macOS Screen Sharing)</td>\n</tr>\n<tr>\n<td>32</td>\n<td>One person per login, except the media Mac</td>\n<td>enrol pairs each local user with <code>first.last</code>; the media Mac keeps a shared <code>media</code> login</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The media Mac's video is small enough to move to the server</td>\n<td>it goes to the new <code>recordings</code> share on the Synology (51)</td>\n</tr>\n<tr>\n<td>34</td>\n<td>Apostle Bryant's and Pastor Vanessa's personal Macs leave the building</td>\n<td>personal Macs: do NOT bind them to the domain. They get Tailscale and the dashboard portal, and the home-sync agent if they want a folder backed up. Binding a personal Mac hands its login to the church directory, which is the wrong direction for a personal machine</td>\n</tr>\n<tr>\n<td>35</td>\n<td>Nothing is managed</td>\n<td>no MDM to untangle</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"files-and-shares\">Files and shares</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>36</td>\n<td>Tailscale only, nothing exposed</td>\n<td>no port forward, no public Caddy door; <code>public_url</code> stays empty; share links work for people on Tailscale (a link to someone outside needs the public door, so it is off until he says otherwise)</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Shares: staff, leadership, media, kids, graphics, plus Children's Department, Inedge, Worship / music, Recordings</td>\n<td>nine shares, each with a group: <code>childrens-department</code>, <code>inedge</code>, <code>worship</code>, <code>recordings</code> added to <code>config/samba/smb.conf.template</code> and docs/DIRECTORY.md</td>\n</tr>\n<tr>\n<td>38</td>\n<td>Proclaim assets: synced local copy on the media Mac</td>\n<td>Syncthing between the media Mac and the <code>graphics</code> share (templates/syncthing)</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Share links: 7 days, everyone</td>\n<td>the default stays</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Giving, payroll and counselling records live on a local Mac that will not be on the server</td>\n<td>nothing to configure; that Mac is not enrolled</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Data per year: no idea</td>\n<td>the dashboard's disk widget answers it after a month; Synology sizing waits for 4</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"remote-access-and-security\">Remote access and security</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>42</td>\n<td>One church Tailscale login for every device</td>\n<td>the shared Google account (29); free plan</td>\n</tr>\n<tr>\n<td>43</td>\n<td>Everyone with an account may reach the server from home</td>\n<td>every account gets the portal address; staff laptops get the Tailscale app</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Remote desktop into the media Mac only</td>\n<td>one Guacamole connection (VNC to macOS Screen Sharing); sleep off on that Mac</td>\n</tr>\n<tr>\n<td>45</td>\n<td>No cyber insurance or written policy</td>\n<td>the defaults stand</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"automator-backups-the-note\">Automator, backups, the note</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>46</td>\n<td>The automator keeps running on the Windows PC until the server's timer is on, then stops</td>\n<td>SETUP-GUIDE day 3 keeps that order</td>\n</tr>\n<tr>\n<td>47</td>\n<td>More backup history</td>\n<td><code>keep_daily = 30, keep_weekly = 12, keep_monthly = 24</code> in <code>config/arise.toml.example</code>; how much Synology space that needs waits for 4</td>\n</tr>\n<tr>\n<td>48</td>\n<td>Off-site copy: nowhere yet</td>\n<td>stays open; a fire still takes the server and the Synology together</td>\n</tr>\n<tr>\n<td>49</td>\n<td>No daily note</td>\n<td><code>[notify]</code> stays empty; <code>arise-notify.timer</code> sends nothing; the dashboard's Needs-you list is the only alarm. The installer does not enable the timer</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"livestream-and-recordings\">Livestream and recordings</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>50</td>\n<td>StreamYard with the OBS virtual camera; NDI from the media Mac running Proclaim for lower thirds; the cameras are NDI too</td>\n<td>NDI is the heaviest thing on the church network: 100 to 200 Mbit/s per full-NDI source, discovery by mDNS. Rules in docs/NETWORK.md: every NDI device and the streaming Mac on the same gigabit wired segment, never Wi-Fi; the server may share that segment (an unmanaged gigabit switch copes) but its nightly backup must not run during a service; no VPN profile on the streaming Mac; Proclaim's media Mac is a Mac (follow-up), so it is enrolled like the others</td>\n</tr>\n<tr>\n<td>51</td>\n<td>Recordings go to YouTube AND the server</td>\n<td>a <code>recordings</code> share on the Synology; the media Mac copies each service there (Syncthing folder or a drag); restic EXCLUDES <code>recordings</code> by default (a 6 GB file a week would swallow the backup history) and the Synology's own RAID is its protection until an off-site copy exists (48)</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"day-to-day\">Day to day</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>52</td>\n<td>No second person yet</td>\n<td>the printed checklists in docs/MOVING-DAY.md and docs/SETUP-GUIDE.md matter more; a second admin exists (25), so at least the dashboard is not single-person</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"the-pineville-equipment-oct-28-later-the-same-day\">The Pineville equipment (Oct 28, later the same day)</h2>\n<table>\n<thead>\n<tr>\n<th>Fact</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Modem → Netgear router A → the switch → Netgear router B in the office; the Google Mesh (2 or 3 points) hangs off Netgear A; the switch is unmanaged and may be a Netgear, not a Cisco</td>\n<td>three stacked networks (double NAT behind A). The server goes wired on the switch, on A's network, with a DHCP reservation. B and the Mesh hand out the server as DNS. docs/NETWORK.md § The Pineville network as it is</td>\n</tr>\n<tr>\n<td>The office user is wired to Netgear B</td>\n<td>the office Mac joins the domain through B's NAT; it works because every directory and share connection is started by the Mac</td>\n</tr>\n<tr>\n<td>The media / streaming Mac is on the Mesh Wi-Fi; the NDI cameras are split between the Mesh and the switch</td>\n<td>NDI discovery does not cross the NAT; sources are added by address. Guacamole cannot reach that Mac through the NAT, so the media Mac runs Tailscale and Guacamole uses its Tailscale address</td>\n</tr>\n<tr>\n<td><strong>Bradly: leave the network as it is; leave the streaming Mac on Wi-Fi; the infrastructure cannot be changed at all, not even a router setting</strong></td>\n<td>no re-wiring, no AP mode, no VLANs, no DHCP reservation, no DNS change on any router. Static address in netplan on the server; <code>/etc/resolver</code> file on each Mac (<code>bind-mac.sh --dns</code>); Tailscale for everything the NATs block, including the Synology if it is not on Netgear A's network. NETWORK.md § The Pineville network as it is</td>\n</tr>\n<tr>\n<td>Alexandria's equipment: unknown</td>\n<td>one Mac with Tailscale needs nothing from the router there</td>\n</tr>\n<tr>\n<td>The NDI cameras are on their own unmanaged switch, which plugs into the Mesh (not into Netgear A's switch)</td>\n<td>the cameras and the streaming Mac share the Mesh's network, so NDI discovery works between them as it does today; nothing on the server side is involved. The Network app cannot see them (they are behind the Mesh's NAT) and does not need to</td>\n</tr>\n<tr>\n<td>Router A's own settings page does not show the things on the switch</td>\n<td>expected: a router lists only the DHCP leases it remembers. The Network app's ARP scan asks the wire itself. NETWORK.md § Why Router A's own page does not show them</td>\n</tr>\n<tr>\n<td>Router B is 10.0.0.1 (certain; the office printer was set to about 10.0.0.8). Router A is 192.168.0.1 or 10.0.0.1 (exact addresses on Friday)</td>\n<td>if A were also 10.0.0.1, B's network would overlap its upstream and nothing behind B could reach the server; the plan assumes A is 192.168.0.1 until Friday. <code>[[routers]]</code> for Netgear B gets <code>host = \"10.0.0.1\"</code></td>\n</tr>\n<tr>\n<td>Security cameras (PoE) are on Router A's switch, do not work, and Router A does not list them</td>\n<td>most likely no power (the switch is probably not a PoE switch) or factory addresses from another range. The Network app's Wide scan and Find cameras tell the two apart; Frigate records them once they are reachable. NETWORK.md § The security cameras. New hardware (a PoE switch or injectors) is the only fix for the first case</td>\n</tr>\n<tr>\n<td>\"It needs to check EVERYTHING that is connected to the switch\"</td>\n<td>the <strong>Network</strong> app (16) and <code>arisectl devices scan</code>: an hourly ARP scan of Netgear A's wire with names, makers, kinds, joined-or-not, first and last seen, and a flag on anything new. Behind-the-NAT devices show as their router, by the nature of NAT</td>\n</tr>\n<tr>\n<td><strong>Bradly: no IP address, network setting or router change of any kind</strong></td>\n<td>the server keeps the address Netgear A gives it and pins it on itself (install.sh step 2b); no device changes address; every Mac-side setting is a file on that Mac; Tailscale does the rest. There is nothing left on the list that touches a router, and the router pages no longer need a photo</td>\n</tr>\n</tbody>\n</table>\n<p>| Mass email to the church family through Resend; contacts exported from Wix; \"emails will come from Arisenow.church@gmail.com or something like that\"; Proclaim does the lobby signage | the <strong>Mail</strong> app (19) and <code>arisectl mail</code>: Wix CSV import into a Resend audience (unsubscribes handled by Resend), the house template, a test send, broadcasts with a typed <code>send</code>. Resend cannot send FROM gmail.com: <code>from_email</code> must be at a domain verified in Resend (arisecenla.church, or arisenow.church if the church owns it); the Gmail is the reply-to. Proclaim has no Linux version; it stays on its Mac, and <code>/signage</code> is for a screen with no Mac behind it |</p>\n<h2 id=\"round-2-oct-28-the-same-night-fifty-more\">Round 2 (Oct 28, the same night): fifty more</h2>\n<p>Fifty pop-up questions about what to add, improve and polish. His words are\nquoted where he typed them. The build order is his (50): Feel first.\ndocs/ROADMAP.md turns these into releases.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Boot like a product?</td>\n<td>Splash, no sound</td>\n<td>a Plymouth theme in the house style; silent boot</td>\n</tr>\n<tr>\n<td>2</td>\n<td>YouTube Partner progress widget?</td>\n<td>Yes, desktop only</td>\n<td>subscribers toward 1,000 and watch hours toward 4,000 from the automator's numbers; not on the lobby sign</td>\n</tr>\n<tr>\n<td>3</td>\n<td>House Lights Down mode on Sunday morning?</td>\n<td>Yes, automatic</td>\n<td>from an hour before a service the desktop dims admin noise and shows stream, checklist, countdown, one-tap doors; off after</td>\n</tr>\n<tr>\n<td>4</td>\n<td>A sermon podcast feed?</td>\n<td>Yes, build it</td>\n<td>ffmpeg pulls audio from each recording, an RSS feed for Spotify and Apple, the 16:9 art; episodes automatic, titles approved by Bradly</td>\n</tr>\n<tr>\n<td>5</td>\n<td>Time Machine backups of the Macs?</td>\n<td>Yes, every church Mac</td>\n<td>a Time Machine share on the Synology; needs space about equal to each Mac's used disk (estimate)</td>\n</tr>\n<tr>\n<td>6</td>\n<td>A print server?</td>\n<td>\"It's not an HP printer. It's a different one. But I'd like all devices to be able to print from it\"</td>\n<td>CUPS with AirPrint on the server once the model is known; the printer sits behind router B, which the server can reach</td>\n</tr>\n<tr>\n<td>7</td>\n<td>A morning report written by Claude?</td>\n<td>Yes, every morning</td>\n<td>a 06:00 run on the box's own data; summarises, never invents</td>\n</tr>\n<tr>\n<td>8</td>\n<td>A clip cutter for Shorts?</td>\n<td>No</td>\n<td>nothing built; cutting stays on the Mac</td>\n</tr>\n<tr>\n<td>9</td>\n<td>The portal as a phone home-screen app?</td>\n<td>Yes</td>\n<td>a web app manifest; Add to Home Screen on iPhone and Android</td>\n</tr>\n<tr>\n<td>10</td>\n<td>Push notifications?</td>\n<td>Yes, to me only</td>\n<td>web push to Bradly's phone: failed backup, stream down, new device</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Two-step sign-in for admins?</td>\n<td>\"2 step authentication using Microsoft Authenticator\"; Oct 28: \"2fa is optional, but if they do opt in, then it uses Microsoft Authenticator\"</td>\n<td>Two-step is optional for everyone; whoever turns it on enrols Microsoft Authenticator (TOTP, no Microsoft account needed). Nobody is forced</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Who ticks the Sunday checklist?</td>\n<td>Anyone signed in</td>\n<td>members included; the audit log says who</td>\n</tr>\n<tr>\n<td>13</td>\n<td>Jellyfin for whom?</td>\n<td>Staff only for now</td>\n<td>no lobby channel, no family access yet</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Recordings kept how long?</td>\n<td>Forever (YouTube is also the archive)</td>\n<td>nothing is ever deleted; the Synology's size is the only limit</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Transcript pages per sermon?</td>\n<td>Yes, for admins and staff</td>\n<td>a cleaned, searchable, printable page under Sermons; no sung words</td>\n</tr>\n<tr>\n<td>16</td>\n<td>The website pulling from the server?</td>\n<td>Not from the server; the site stays separate</td>\n<td>no public feed is built for the site</td>\n</tr>\n<tr>\n<td>17</td>\n<td>What may Claude do on its own?</td>\n<td>Draft YouTube titles and descriptions for approval; explain any failure in plain English; answer staff questions in the portal</td>\n<td>three Claude features, all read-only on the box, nothing live without Bradly's approval</td>\n</tr>\n<tr>\n<td>18</td>\n<td>Where does the morning report land?</td>\n<td>Dashboard only</td>\n<td>a widget and a page; no email, no push for it</td>\n</tr>\n<tr>\n<td>19</td>\n<td>A name for the OS?</td>\n<td>ariseOS</td>\n<td>the splash, the About window, the docs say ariseOS; \"Arise Server\" stays the name of the service and the repo</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Codenames?</td>\n<td>Books of the Bible</td>\n<td>the next release is \"Genesis\"; docs/ROADMAP.md</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Guest speakers' accounts?</td>\n<td>\"They email the media team everything they need\"</td>\n<td>no guest accounts, no expiry feature</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Who makes share links to outsiders?</td>\n<td>Everyone, as now</td>\n<td>7 days, revocable; unchanged</td>\n</tr>\n<tr>\n<td>23</td>\n<td>An audit trail?</td>\n<td>Yes, admins see it</td>\n<td>sign-ins, shares, user changes, checklist ticks, kept a year, nothing deleted from the dashboard</td>\n</tr>\n<tr>\n<td>24</td>\n<td>When someone leaves?</td>\n<td>\"Disable the login after 30 days just in case they come back. Move the files to the next appropriate member or account.\"</td>\n<td>an offboarding step in Directory: a 30-day grace timer, then disable; a \"move files to\" picker</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Which folders mirror with Syncthing?</td>\n<td>The thumbnails folder (the automator's output) and the office documents share, plus Proclaim assets</td>\n<td>three Syncthing pairs; nothing else</td>\n</tr>\n<tr>\n<td>26</td>\n<td>The printer?</td>\n<td>On router B; \"it's a weird brand\"; info coming</td>\n<td>CUPS waits for the model</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Kids check-in?</td>\n<td>Not planned</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>28</td>\n<td>A volunteer rota?</td>\n<td>Keep what we use now</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>29</td>\n<td>When is the Hub built?</td>\n<td>No date yet</td>\n<td>the move is written up, not scheduled</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Pineville's VPN after the move?</td>\n<td>Decide at the move</td>\n<td>both options stay in MOVING-DAY</td>\n</tr>\n<tr>\n<td>31</td>\n<td>A second domain controller later?</td>\n<td>Yes, plan for it</td>\n<td>a \"second DC\" installer mode goes on the roadmap</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Hardware purchases?</td>\n<td>None of these yet</td>\n<td>no PoE switch, second SSD or Coral stick for now</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The wallpaper?</td>\n<td>The ink and red stage, as now</td>\n<td>unchanged</td>\n</tr>\n<tr>\n<td>34</td>\n<td>Desktop sounds?</td>\n<td>All of them, quiet</td>\n<td>dock click, checklist chime, failure tone, all low</td>\n</tr>\n<tr>\n<td>35</td>\n<td>About-window flair?</td>\n<td>Fun, do it</td>\n<td>the week's verse, service count, hours streamed, the latest title, from real data</td>\n</tr>\n<tr>\n<td>36</td>\n<td>A light \"Bone\" theme?</td>\n<td>Yes, a switch in Control Center</td>\n<td>per browser; the monitor stays House Lights Down</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Newsletter rhythm?</td>\n<td>Only when there is news</td>\n<td>no reminder, no schedule</td>\n</tr>\n<tr>\n<td>38</td>\n<td>SMS alerts?</td>\n<td>Not now</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Members edit their own contact details?</td>\n<td>No, staff keep the list</td>\n<td>one source: the Mail app's contacts</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Discord posts?</td>\n<td>Yes, failures and the Sunday \"all green\"</td>\n<td>a webhook; the daily note stays off</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Channel stats in the dashboard?</td>\n<td>Yes, a Channel page under Sermons</td>\n<td>views, top video, Shorts count from the automator's data; no extra quota</td>\n</tr>\n<tr>\n<td>42</td>\n<td>Thumbnails and podcast art made on the server?</td>\n<td>Yes, on the server</td>\n<td>pick a frame in Sermons; the house layout rendered in both sizes; Bradly approves before anything is set</td>\n</tr>\n<tr>\n<td>43</td>\n<td>The hold list editable in the dashboard?</td>\n<td>Yes</td>\n<td>add, remove, a note and a name per hold; holds.json stays the source</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Stream watch on Sundays?</td>\n<td>Yes</td>\n<td>Uptime Kuma pings the live page and StreamYard every 30 s; push, Discord and a red monitor if it drops</td>\n</tr>\n<tr>\n<td>45</td>\n<td>Training?</td>\n<td>A built-in walkthrough on first sign-in</td>\n<td>five steps in the portal, once per person</td>\n</tr>\n<tr>\n<td>46</td>\n<td>A closet-door card?</td>\n<td>Yes</td>\n<td>a one-page PDF the installer writes: the commands, the Tailscale address, the backups, who to call</td>\n</tr>\n<tr>\n<td>47</td>\n<td>A restore drill?</td>\n<td>Yes, monthly, automatic</td>\n<td>one random file restored from last night's backup to a scratch folder and compared; the result in the dashboard</td>\n</tr>\n<tr>\n<td>48</td>\n<td>UPS shutdown timing?</td>\n<td>When the battery is nearly flat</td>\n<td>nut shuts the box down on the low-battery signal, not on a timer</td>\n</tr>\n<tr>\n<td>49</td>\n<td>The showpiece?</td>\n<td>The desktop on the monitor</td>\n<td>polish goes there first: the shell, the screensaver, Sunday mode</td>\n</tr>\n<tr>\n<td>50</td>\n<td>Build order?</td>\n<td>Feel first</td>\n<td>v0.7 \"Genesis\" is the Feel block; docs/ROADMAP.md</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-3-oct-28-what-windows-11-and-macos-have-and-the-basics-any-os-needs\">Round 3 (Oct 28): what Windows 11 and macOS have, and the basics any OS needs</h2>\n<p>Forty pop-up questions. Bradly's words quoted where he typed them. Builds as\nv0.8 \"Exodus\"; docs/PARITY.md is the full map of what the two desktops have\nand where ariseOS stands on each.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Trash for the shares?</td>\n<td>30 days, then it empties itself</td>\n<td>a Trash on every share (Samba recycle for the Macs, the portal too); anyone puts back their own file; <code>arise-trash.timer</code> empties what is older than 30 days; emptying early is Bradly's click</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Previous Versions in Finder?</td>\n<td>Yes, everyone for their own files</td>\n<td>right-click a file, see the nightly copies, put one back beside the original; members for their own, admins for anything</td>\n</tr>\n<tr>\n<td>3</td>\n<td>A Settings app, one place?</td>\n<td>Yes, build it</td>\n<td>System Settings becomes the one window: appearance, users, sharing, backups, updates, time, notifications, about</td>\n</tr>\n<tr>\n<td>4</td>\n<td>A Software Update app, who clicks?</td>\n<td>Security automatic, I click the rest</td>\n<td>security patches stay unattended; everything else is listed with a badge and waits for his click, then installs in the window (25)</td>\n</tr>\n<tr>\n<td>5</td>\n<td>An App Store?</td>\n<td>\"The 24 app templates should already be preinstalled, but definitely an App Store for other Linux programs that are free!\"</td>\n<td>all 24 templates deployed at install (the heavy ones stopped until started, with the RAM shown); a catalogue of further free self-hosted apps in the Store</td>\n</tr>\n<tr>\n<td>6</td>\n<td>Activity Monitor?</td>\n<td>Yes, admins</td>\n<td>processes and containers, CPU, memory, disk, network; End Process with a confirm</td>\n</tr>\n<tr>\n<td>7</td>\n<td>A Logs app?</td>\n<td>Yes, admins</td>\n<td>the journal by service, the arise logs, search, the last error highlighted</td>\n</tr>\n<tr>\n<td>8</td>\n<td>An Automations app?</td>\n<td>Yes</td>\n<td>every timer live: next run, last result, run a preview, pause one; the real automator still refused while its timer is on</td>\n</tr>\n<tr>\n<td>9</td>\n<td>A Storage pane?</td>\n<td>Yes</td>\n<td>disk by share and by app, the biggest files, a \"not changed in a year\" list; deleting stays his click</td>\n</tr>\n<tr>\n<td>10</td>\n<td>A church Calendar everyone can subscribe to?</td>\n<td>Yes, one calendar</td>\n<td>services and events on the server; an ICS feed every Mac and phone subscribes to; staff add events</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Notes?</td>\n<td>Trilium (the template)</td>\n<td>the Notes icon opens Trilium in a window; no second notes app</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Photos?</td>\n<td>Yes, Immich for staff</td>\n<td>the Immich template; staff phones upload over Tailscale</td>\n</tr>\n<tr>\n<td>13</td>\n<td>A Weather widget?</td>\n<td>Yes</td>\n<td>Pineville from Open-Meteo, no key; a line in the morning report</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Calculator and Clock?</td>\n<td>Yes, both</td>\n<td>both in Launchpad and Spotlight; Spotlight answers a sum</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Edit a text file in Finder?</td>\n<td>Yes</td>\n<td>.txt and .md open in place with a Markdown preview</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Compress, Get Info, Recents?</td>\n<td>All three</td>\n<td>zip a folder to download; file info; what you touched this week</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Screen Sharing of the closet monitor?</td>\n<td>Yes, me only</td>\n<td>wayvnc on the monitor's display, reached through Guacamole over Tailscale; Bradly first, admins later if he says</td>\n</tr>\n<tr>\n<td>18</td>\n<td>\"Open on my Mac\"?</td>\n<td>Yes</td>\n<td>a button in the portal's Finder opens the same folder in the Mac's Finder over the share</td>\n</tr>\n<tr>\n<td>19</td>\n<td>Snap windows?</td>\n<td>Yes</td>\n<td>drag to an edge for half, a corner for a quarter; Ctrl/Cmd+arrow tiles</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Hot corners on the monitor?</td>\n<td>No</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>21</td>\n<td>A break-glass local admin?</td>\n<td>Yes</td>\n<td><code>arise-rescue</code>: console and SSH only, never the dashboard; its password on the closet card; every use logged and pushed</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Disk encryption?</td>\n<td>Encrypt the data disk, TPM unlocks it</td>\n<td>LUKS chosen at the Ubuntu install; <code>arisectl encrypt tpm</code> binds the key to the Dell's TPM so it boots alone; the passphrase stays the fallback on the closet card</td>\n</tr>\n<tr>\n<td>23</td>\n<td>OS rollback?</td>\n<td>Yes, snapshot before every update</td>\n<td>a system snapshot (Timeshift) before each update, the last five kept; church files are in the backup, not the snapshot</td>\n</tr>\n<tr>\n<td>24</td>\n<td>Reinstall from backup?</td>\n<td>\"Yes, with the synology holding the backup to the server as well!\"</td>\n<td><code>arisectl reinstall</code> rebuilds a fresh Ubuntu from the Synology's restic repository: config, the domain's database, users, shares, apps, secrets. The Synology holds the server's backup, as it does today; read that way, nothing changes about where the backup lives</td>\n</tr>\n<tr>\n<td>25</td>\n<td>The maintenance window?</td>\n<td>Saturday 03:30</td>\n<td>updates he has clicked, and any reboot they need, apply Saturday 03:30; never during a service</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Log retention?</td>\n<td>1 year</td>\n<td>the journal and the arise logs kept a year</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Failed sign-in lockout?</td>\n<td>None</td>\n<td>no fail2ban, no domain lockout; everything is behind Tailscale or inside the building</td>\n</tr>\n<tr>\n<td>28</td>\n<td>A virus scan of the shares?</td>\n<td>Weekly scan, quarantine with a report</td>\n<td>ClamAV Sunday night over the shares (video skipped); a found file moved aside; the list in the dashboard and a push</td>\n</tr>\n<tr>\n<td>29</td>\n<td>HTTPS inside the building?</td>\n<td>Church CA, padlock on every Mac</td>\n<td>Caddy's internal CA in front of the dashboard; <code>enroll-mac.sh</code> trusts the root once; phones on Tailscale use Tailscale's certificate</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Monitor power?</td>\n<td>Off overnight, 23:00 to 06:00</td>\n<td>the panel sleeps at 23:00 and wakes at 06:00; a key wakes it anytime</td>\n</tr>\n<tr>\n<td>31</td>\n<td>Restart and Shut Down in the flame menu?</td>\n<td>Yes</td>\n<td>admins, a confirm, refused during a service; \"Restart the dashboard\" and \"Restart the domain\" as gentler steps</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Accessibility?</td>\n<td>Yes</td>\n<td>larger text, reduce motion, high contrast in Control Center; Tab reaches everything</td>\n</tr>\n<tr>\n<td>33</td>\n<td>Auto theme by daylight?</td>\n<td>Manual only</td>\n<td>the theme stays whatever was last picked</td>\n</tr>\n<tr>\n<td>34</td>\n<td>A What's New note after updates?</td>\n<td>Yes</td>\n<td>ten lines at most, in About and the morning report, from CHANGELOG.md</td>\n</tr>\n<tr>\n<td>35</td>\n<td>A Help app?</td>\n<td>Yes</td>\n<td>the docs rendered in the dashboard, searchable; F1 or Ctrl+? opens it; a shortcut sheet</td>\n</tr>\n<tr>\n<td>36</td>\n<td>Password rules at change?</td>\n<td>Yes</td>\n<td>a strength meter and the domain's rules in plain words</td>\n</tr>\n<tr>\n<td>37</td>\n<td>A licence?</td>\n<td>MIT</td>\n<td>LICENSE at the root, Bradly's name on it</td>\n</tr>\n<tr>\n<td>38</td>\n<td>Idle sign-out in a browser?</td>\n<td>Never, until they sign out</td>\n<td>the sign-in cookie lasts a year; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>39</td>\n<td>A Font library?</td>\n<td>Yes</td>\n<td><code>Media/Fonts</code> on the share; every enrolled Mac installs what is there on the hourly sync</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Resource caps on the apps?</td>\n<td>Yes, cap every app</td>\n<td>memory and CPU limits from each template; the domain and the dashboard always have room</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-4-oct-28-later-one-hundred-more-the-whole-os\">Round 4 (Oct 28, later): one hundred more, the whole OS</h2>\n<p>Bradly: \"Ask another 100 questions covering the entirety of the OS to make\nit the best thing ever! This is going to be the final batch until I get the\ninfo from the equipment.\" He also pasted a list of free desktop programs\n(LibreOffice, OnlyOffice, Thunderbird, GIMP, Krita, Inkscape, Kdenlive,\nShotcut, VLC, Dolphin, Ark, Flameshot, GParted, Heroic, Wine, Okular, Samba,\nNextcloud, Postfix+Dovecot, CUPS, PostgreSQL, Nginx, Docker, restic, Netdata)\nwith \"If you can use any of these as well, use them! If not then they can be\nin the App Store!\" and \"Any and all apps installed should match our theme,\ncolors, etc! Not the native app stylings.\" The codename is his: Exodus.</p>\n<p>Desktop programs cannot run inside a browser desktop as themselves; they run\non the server in a container and open in a browser window (the way Kasm and\nlinuxserver.io do it), saving to the shares. That is what \"in the Store\"\nmeans below.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question, in a few words</th>\n<th>Answer</th>\n<th>What it decides</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>The desktop programs (GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity) in the browser?</td>\n<td>In the Store, started when needed</td>\n<td>installed and ready, stopped until Open, stop themselves after an hour idle; the memory cost shown</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Documents in the browser?</td>\n<td>OnlyOffice Docs, opened from Finder</td>\n<td>click a .docx in the portal, edit in place, saved to the share</td>\n</tr>\n<tr>\n<td>3</td>\n<td>An internal mail server?</td>\n<td>Yes, an internal-only mail server</td>\n<td>Postfix + Dovecot on the box; see 5 to 7</td>\n</tr>\n<tr>\n<td>4</td>\n<td>The theme rule for apps?</td>\n<td>Set everything each app allows; frame the rest</td>\n<td>house red, ink, the flame, Anton and Oswald wherever an app takes them; an app that takes nothing keeps its look inside our window</td>\n</tr>\n<tr>\n<td>5</td>\n<td>Who gets a mailbox?</td>\n<td>Staff and departments, first.last@ad.arisecenla.com</td>\n<td>one box per staff or department account</td>\n</tr>\n<tr>\n<td>6</td>\n<td>How is it read?</td>\n<td>\"They should get it through their personal email, apple mail, or whatever mail service they use on their phone.\"</td>\n<td>each account's mail is forwarded out through Resend's relay to the person's own address; nothing inbound from the internet</td>\n</tr>\n<tr>\n<td>7</td>\n<td>Where does the personal address come from, and replies?</td>\n<td>a field on their Directory account; replies go back to the sender's personal address (Reply-To)</td>\n<td>admins type it once; the person can change it</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Proclaim under Wine on the server?</td>\n<td>Try it as an experiment, not relied on</td>\n<td>a Store entry marked experimental, off by default</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Games?</td>\n<td>Heroic + a few FOSS games on the lobby TV</td>\n<td>a \"Game night\" Store entry, off by default</td>\n</tr>\n<tr>\n<td>10</td>\n<td>The lobby TV?</td>\n<td>Keep Proclaim; the server's sign page is a backup</td>\n<td>nothing changes on the TV</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Announcements?</td>\n<td>Staff, in the Calendar app</td>\n<td>an event marked \"announce\" shows on the sign and in the week widget</td>\n</tr>\n<tr>\n<td>12</td>\n<td>The Dock?</td>\n<td>Auto-hide, slides up from the bottom</td>\n<td>mouse at the bottom edge brings it back</td>\n</tr>\n<tr>\n<td>13</td>\n<td>The Dock's default set?</td>\n<td>Finder, Overview, Sunday, Sermons, Calendar, Mail, Store, Settings, Terminal</td>\n<td>each person pins or unpins their own</td>\n</tr>\n<tr>\n<td>14</td>\n<td>The sign-in screen?</td>\n<td>A list of faces to click, like a Mac</td>\n<td>see 16</td>\n</tr>\n<tr>\n<td>15</td>\n<td>A greeting after sign-in?</td>\n<td>\"Good morning, Bradly\" with the day's verse reference</td>\n<td>a three-second toast</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Whose faces, and on the monitor?</td>\n<td>Each person uploads their own; admins and staff listed on the monitor</td>\n<td>members type their name on their own devices; no photo = initials on red</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Clock and dates?</td>\n<td>12-hour, Sunday first, US dates, °F</td>\n<td></td>\n</tr>\n<tr>\n<td>18</td>\n<td>The screensaver?</td>\n<td>Clock, next service, the verse, the channel's thumbnails slowly</td>\n<td>plus the weather and the week's announcements</td>\n</tr>\n<tr>\n<td>19</td>\n<td>The lock and sign-in line?</td>\n<td>\"Arise Church · Pineville\" and the next service</td>\n<td></td>\n</tr>\n<tr>\n<td>20</td>\n<td>Folder layout?</td>\n<td>\"Each user has a folder, admin access them all! Users can't access other users folders. So documents would all merge into one document folder for admins, photos, etc.\"</td>\n<td>a personal folder each; admins get merged views (All Documents, All Photos, …) with the owner labelled; members never see another person's folder</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Home quota?</td>\n<td>\"Depends on the synology storage. I still need to get drives for it.\"</td>\n<td>no quota until the Synology's drives are known (see 30)</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Biggest upload?</td>\n<td>10 GB, resumable</td>\n<td>chunked uploads that continue after a drop</td>\n</tr>\n<tr>\n<td>23</td>\n<td>Share link expiry?</td>\n<td>Never, until removed</td>\n<td>changeable per link</td>\n</tr>\n<tr>\n<td>24</td>\n<td>Starting folders in a home?</td>\n<td>Documents, Photos, Videos, Music, Downloads</td>\n<td>created at first sign-in; these are what the admin's merged views merge</td>\n</tr>\n<tr>\n<td>25</td>\n<td>A shared space?</td>\n<td>Yes: one Church folder for all, plus a folder per department</td>\n<td></td>\n</tr>\n<tr>\n<td>26</td>\n<td>Windows PCs?</td>\n<td>\"Yes add windows pc capabilities just in case we get them at a location\"</td>\n<td>Windows joins the domain the same way; the shares as network drives; a join script and doc</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Downloading recordings?</td>\n<td>Admins and Media; everyone can stream in the browser</td>\n<td></td>\n</tr>\n<tr>\n<td>28</td>\n<td>An off-site backup copy?</td>\n<td>Not now</td>\n<td></td>\n</tr>\n<tr>\n<td>29</td>\n<td>Back up the recordings?</td>\n<td>\"The synology isn't even setup yet. It needs 4 new hard drives. Will get the model of it for you Friday so you can recommend a setup for user data, storage, etc.\"</td>\n<td>a Synology layout recommendation waits for the model on Friday</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Where the restic key lives?</td>\n<td>The closet card only</td>\n<td></td>\n</tr>\n<tr>\n<td>31</td>\n<td>A USB drive plugged into the server?</td>\n<td>\"It auto syncs everything to the appropriate folder or location\" → Into the folder of whoever is signed in on the monitor</td>\n<td>a plugged-in drive is imported, sorted by type (Photos, Videos, Documents, Audio), virus-scanned, into the signed-in person's home; the stick is never changed; a push when done</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Phone photos without cables?</td>\n<td>Through the portal's upload only</td>\n<td>Immich stays the library; the phone uploads through the portal</td>\n</tr>\n<tr>\n<td>33</td>\n<td>SSH?</td>\n<td>Keys only, passwords off; arise-rescue is the exception at the console</td>\n<td></td>\n</tr>\n<tr>\n<td>34</td>\n<td>Keep Cockpit?</td>\n<td>Keep it, admins only, for the rare deep thing</td>\n<td>linked from Settings</td>\n</tr>\n<tr>\n<td>35</td>\n<td>Disk-space warning?</td>\n<td>75%</td>\n<td>a push at 75%</td>\n</tr>\n<tr>\n<td>36</td>\n<td>Temperature alerts?</td>\n<td>Just the morning report line</td>\n<td></td>\n</tr>\n<tr>\n<td>37</td>\n<td>A weekly summary?</td>\n<td>Yes, Monday morning, in the dashboard and a push</td>\n<td></td>\n</tr>\n<tr>\n<td>38</td>\n<td>Push at night?</td>\n<td>Everything, any hour</td>\n<td>no quiet hours</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Tailscale access?</td>\n<td>Admins now; staff when they ask</td>\n<td></td>\n</tr>\n<tr>\n<td>40</td>\n<td>A screen per campus after the move?</td>\n<td>Yes, any old PC or a Raspberry Pi per campus, same desktop, a campus badge</td>\n<td>a kiosk image that boots into the dashboard over Tailscale</td>\n</tr>\n<tr>\n<td>41</td>\n<td>Wake-on-LAN for the Macs?</td>\n<td>No</td>\n<td></td>\n</tr>\n<tr>\n<td>42</td>\n<td>Remote screen of a church Mac?</td>\n<td>\"I never miss a service\"</td>\n<td>nothing built</td>\n</tr>\n<tr>\n<td>43</td>\n<td>May Claude fix things itself?</td>\n<td>Fix small things itself, tell me after</td>\n<td>restart a stuck service, re-run a failed backup, clear a full log; bigger waits for him</td>\n</tr>\n<tr>\n<td>44</td>\n<td>Who can talk to Claude on the box?</td>\n<td>\"Claude is available to me only\"</td>\n<td>Bradly only; members get the help box</td>\n</tr>\n<tr>\n<td>45</td>\n<td>Who edits Claude's notes (CLAUDE.md on the box)?</td>\n<td>Claude edits freely</td>\n<td></td>\n</tr>\n<tr>\n<td>46</td>\n<td>\"Ask Claude about this\" on red items?</td>\n<td>Yes, everywhere something is red</td>\n<td>opens Claude with the facts pasted in; Bradly only (44)</td>\n</tr>\n<tr>\n<td>47</td>\n<td>What buzzes the phone?</td>\n<td>Everything: failures (backup, stream, domain, disk, UPS), Sunday all-green and the Monday weekly, security (new device, arise-rescue used, a virus found), housekeeping (updates waiting, an import finished, a quota warning)</td>\n<td></td>\n</tr>\n<tr>\n<td>48</td>\n<td>The phone home screen?</td>\n<td>Needs-you list, next service, backups, stream, the checklist</td>\n<td></td>\n</tr>\n<tr>\n<td>49</td>\n<td>A member's first screen?</td>\n<td>Their files, the Sunday list, this week's calendar, the verse</td>\n<td></td>\n</tr>\n<tr>\n<td>50</td>\n<td>Members see who else has an account?</td>\n<td>No; only staff and admins see the list</td>\n<td></td>\n</tr>\n<tr>\n<td>51</td>\n<td>Default Bible translation?</td>\n<td>KJV</td>\n<td>public domain, offline</td>\n</tr>\n<tr>\n<td>52</td>\n<td>A Songs app for the CCLI report?</td>\n<td>Yes</td>\n<td>every song per service from the automator's credits; a count per song; an export in CCLI's shape; numbers only from the song bank</td>\n</tr>\n<tr>\n<td>53</td>\n<td>Where ariseOS updates come from?</td>\n<td>GitHub releases, checked daily, installed on his click in the window</td>\n<td>What's New shown before the click</td>\n</tr>\n<tr>\n<td>54</td>\n<td>Password again for dangerous clicks?</td>\n<td>Yes, password again, remembered for five minutes</td>\n<td>on top of typing the name</td>\n</tr>\n<tr>\n<td>55</td>\n<td>The Synology's four drives?</td>\n<td>\"Probably will just have 3 as one big drive, and 1 for backups of documents or something. Need to have important items backed up on there only. The other 3 drives are one big drive.\"</td>\n<td>three drives as one volume (recordings, media, Time Machine); the fourth drive alone holds the server's restic backups and the documents; the layout proposal waits for the model</td>\n</tr>\n<tr>\n<td>56</td>\n<td>Drive size?</td>\n<td>4 TB each</td>\n<td>about 8 TB usable on the three-drive volume with one-drive protection, 4 TB on the backup drive</td>\n</tr>\n<tr>\n<td>57</td>\n<td>Where files live?</td>\n<td>\"Depends on the files. But the server disk should be utilized too!\"</td>\n<td>homes, shares and the apps on the server's disk; recordings, photos and backups on the Synology; Storage shows both</td>\n</tr>\n<tr>\n<td>58</td>\n<td>Time Machine space?</td>\n<td>\"Time Machine set to hold 2 Mac backups at a time per device\"</td>\n<td>the share keeps the two newest backups per Mac and thins older ones</td>\n</tr>\n<tr>\n<td>59</td>\n<td>The install itself?</td>\n<td>A short on-screen wizard, flags still work</td>\n<td>church or staging, admin password, Synology, Tailscale, encrypt; then it runs</td>\n</tr>\n<tr>\n<td>60</td>\n<td>First thing on the monitor after install?</td>\n<td>The sign-in screen only</td>\n<td>no QR on screen; the closet card carries it</td>\n</tr>\n<tr>\n<td>61</td>\n<td>Power back after a cut?</td>\n<td>Yes, auto power-on; the installer tells you the BIOS setting</td>\n<td>the box comes back on its own; the TPM unlocks the disk</td>\n</tr>\n<tr>\n<td>62</td>\n<td>Internet down?</td>\n<td>Everything inside keeps working; YouTube, mail, weather and Claude wait</td>\n<td>an \"offline\" chip; the automator skips the night with a note</td>\n</tr>\n<tr>\n<td>63</td>\n<td>The per-campus screen?</td>\n<td>The same desktop, signed in as a campus account, badge in the bar</td>\n<td>a kiosk image that boots, joins Tailscale, opens the dashboard</td>\n</tr>\n<tr>\n<td>64</td>\n<td>What campuses can do?</td>\n<td>Everything an admin or member can, by who signs in</td>\n<td>same rules everywhere</td>\n</tr>\n<tr>\n<td>65</td>\n<td>Move day?</td>\n<td>\"I'll probably move everything on a day nobody is there. So there should only be Down time for maintenance that day.\"</td>\n<td>no Pineville cache box; MOVING-DAY.md plans one quiet day</td>\n</tr>\n<tr>\n<td>66</td>\n<td>The Campuses app?</td>\n<td>Each campus: online, its screen, its devices, who signed in there</td>\n<td>live from Tailscale and the sign-ins</td>\n</tr>\n<tr>\n<td>67</td>\n<td>What the server gives a Windows PC?</td>\n<td>A join script, drive letters, and the church certificate; nothing else</td>\n<td>one PowerShell file from the dashboard; no group policy</td>\n</tr>\n<tr>\n<td>68</td>\n<td>Mail attachments?</td>\n<td>Larger attachments, 100 MB</td>\n<td></td>\n</tr>\n<tr>\n<td>69</td>\n<td>Who may send internal mail?</td>\n<td>\"anybody with an account that was registered.\"</td>\n<td>every domain account may send; delivery is inside and to personal addresses only</td>\n</tr>\n<tr>\n<td>70</td>\n<td>Two people in one document?</td>\n<td>They edit together, live</td>\n<td>OnlyOffice co-editing; saved to the share when the last closes</td>\n</tr>\n<tr>\n<td>71</td>\n<td>Window chrome?</td>\n<td>Mac-style, top-left</td>\n<td></td>\n</tr>\n<tr>\n<td>72</td>\n<td>Where Store apps open?</td>\n<td>In a window on the desktop, with a pop-out to a tab</td>\n<td></td>\n</tr>\n<tr>\n<td>73</td>\n<td>What Spotlight searches?</td>\n<td>Also inside documents, the calendar, mail subjects, the Bible, and sums</td>\n<td>a nightly text index of the shares</td>\n</tr>\n<tr>\n<td>74</td>\n<td>Quick Look previews?</td>\n<td>Images, PDFs, video with scrubbing, audio, text, Office files</td>\n<td>Office files through OnlyOffice; video streamed, not downloaded</td>\n</tr>\n<tr>\n<td>75</td>\n<td>Songs per service?</td>\n<td>The automator's credited songs, confirmed by you per service</td>\n<td>tick \"reported\"; export in CCLI's shape</td>\n</tr>\n<tr>\n<td>76</td>\n<td>Thumbnail approval?</td>\n<td>\"Option A, Even though i'll still probably do everything Sunday and Monday night through Claude Web.\"</td>\n<td>a push with the image, Approve or Change; the Sermons app too</td>\n</tr>\n<tr>\n<td>77</td>\n<td>Post the live link to Discord?</td>\n<td>Yes, to a channel you name</td>\n<td>the watcher posts once when the stream starts</td>\n</tr>\n<tr>\n<td>78</td>\n<td>A checklist nudge?</td>\n<td>Yes, one push at 9:30</td>\n<td>names the open items</td>\n</tr>\n<tr>\n<td>79</td>\n<td>Audit log kept?</td>\n<td>Forever</td>\n<td></td>\n</tr>\n<tr>\n<td>80</td>\n<td>Who exports the mail list?</td>\n<td>Admins only, and the export is logged</td>\n<td></td>\n</tr>\n<tr>\n<td>81</td>\n<td>Immich and faces?</td>\n<td>Staff only can see Immich; no sharing links from it</td>\n<td>public sharing off</td>\n</tr>\n<tr>\n<td>82</td>\n<td>A leaver's mailbox?</td>\n<td>Mailbox deleted with the account</td>\n<td>files still move to the next person (round 2, 24)</td>\n</tr>\n<tr>\n<td>83</td>\n<td>Easter eggs?</td>\n<td>Yes, a few quiet ones</td>\n<td>the Konami code lights the flame; a verse typed in Spotlight shows it; the About flame flickers on the anniversary</td>\n</tr>\n<tr>\n<td>84</td>\n<td>A founding date?</td>\n<td>\"All i know is 2018\"</td>\n<td>the year only; no day is invented; the flicker waits for a date</td>\n</tr>\n<tr>\n<td>85</td>\n<td>Which events make a sound?</td>\n<td>Checklist tick, a failure, the lock, a finished import, the greeting</td>\n<td></td>\n</tr>\n<tr>\n<td>86</td>\n<td>A startup sound?</td>\n<td>No, silent</td>\n<td></td>\n</tr>\n<tr>\n<td>87</td>\n<td>Scanning?</td>\n<td>\"Scans land in the Signed-in person's documents, the Local mac, and an Option to Share.\"</td>\n<td>scan-to-share when the printer can; a copy to the Mac; a share link offered</td>\n</tr>\n<tr>\n<td>88</td>\n<td>Jellyfin libraries?</td>\n<td>Service recordings, worship, graphics loops, podcast audio</td>\n<td>read from the Synology</td>\n</tr>\n<tr>\n<td>89</td>\n<td>Internal chat?</td>\n<td>\"Church doesn't use Discord, I'll be using it for Server monitoring and Alerts. As well as Anything Else that i can do with it. The Church doesn't have a Groupchat app or anything.\"</td>\n<td>Discord is Bradly's monitoring channel, not the church's chat; no chat server runs; Mattermost and Element stay stopped in the Store</td>\n</tr>\n<tr>\n<td>90</td>\n<td>Nextcloud?</td>\n<td>In the Store, stopped, for whoever wants it</td>\n<td></td>\n</tr>\n<tr>\n<td>91</td>\n<td>One disk: split it?</td>\n<td>\"It depends on the Storage of the Optiplex. I'll have FULL specs for you Friday.\"</td>\n<td>the partition plan waits for the Dell's disk size; both shapes are in INSTALL.md</td>\n</tr>\n<tr>\n<td>92</td>\n<td>Reboot with people signed in?</td>\n<td>\"Reboot after everybody is signed out, but there's never anybody at the church saturday anyway, so it should be fine!\"</td>\n<td>the Saturday reboot waits until nobody is signed in, then goes; a note in the weekly if it had to wait</td>\n</tr>\n<tr>\n<td>93</td>\n<td>A prayer-request box?</td>\n<td>No; prayer requests stay off the server</td>\n<td>like counselling records</td>\n</tr>\n<tr>\n<td>94</td>\n<td>Birthdays in the weekly?</td>\n<td>Yes, in the weekly, if the field exists</td>\n<td>never guessed; staff only</td>\n</tr>\n<tr>\n<td>95</td>\n<td>(unprompted) The automator's backups?</td>\n<td>\"The Arise Automator will need to keep backups on my personal PC like it does now! i'll make sure the automator has the Repo up to date as well so it syncs to the Synology or wherever correctly!\"</td>\n<td>the PC stays the automator's working copy and keeps its own backups; the server pulls the automator from the GitHub repo Bradly keeps current (the 04:00 mirror), runs the nightly job from that copy, and restic backs it up to the Synology; nothing on the server overwrites the PC</td>\n</tr>\n<tr>\n<td>96</td>\n<td>Which machine runs the real 02:05 job?</td>\n<td>The server runs it; the PC keeps the copy and the dev work</td>\n<td>the PC's timer goes off at the move; the server's timer is the only writer; holds.json lives in the repo</td>\n</tr>\n<tr>\n<td>97</td>\n<td>How the server gets YouTube access?</td>\n<td>\"Give me a markdown on what to ask that specific chat about how we can do it since it handles ALL the automations, and i'll let you know.\"</td>\n<td>docs/ASK-THE-AUTOMATOR-CHAT.md is that markdown; the decision waits for the automator chat's answer</td>\n</tr>\n<tr>\n<td>97b</td>\n<td>The automator chat's answers (Oct 28)</td>\n<td>SERVER_HANDOFF.md in Rehchu/arise-youtube-automation, commit 'Server-ready automator', pasted here by Bradly</td>\n<td>the server gets its own Desktop OAuth client and token, signed in headless; runner.json on the PC decides who runs (the PC until Bradly switches); ariseOS caps 4,000 (2,000 Sun/Mon); docs/AUTOMATOR.md carries it out</td>\n</tr>\n<tr>\n<td>97c</td>\n<td>The revised handoff (Oct 28, Bradly's decisions)</td>\n<td>the four job-state files move to ARISE_STATE_DIR and are untracked; <code>sunday-playlist-reassign</code> parked; the server's cap 6,000 every day; both repos on the server as a searchable archive for Claude</td>\n<td>docs/AUTOMATOR.md, docs/ARCHIVE.md; the revision commit still has to be pushed from the PC</td>\n</tr>\n<tr>\n<td>97d</td>\n<td>(unprompted) Working on the automator from the server</td>\n<td>\"The chat will be accessible from Claude desktop when it's installed on there. He can work on it from the server when it's up\"</td>\n<td>Claude Desktop (Linux beta) on the box, Bradly only; claude.ai/code in Firefox and <code>claude --teleport</code> also reach the automator chat; never in the job's checkout (docs/CLAUDE-ON-THE-BOX.md)</td>\n</tr>\n<tr>\n<td>98b</td>\n<td>(unprompted) The repos on the server</td>\n<td>\"We would need designated folders for all the repos or download all the arise repos to the server and keep them synced with GitHub and the server\"; then: two-way every 15 minutes with automatic pushes; the 8 Arise repos; one fine-grained token; the search archive stays at the 2 repos</td>\n<td>/srv/arise/repos (docs/REPOS.md); AriseHub pull-only and the automator's main held back by default, because a push there deploys or contradicts the handoff</td>\n</tr>\n<tr>\n<td>98</td>\n<td>Trash on the media share?</td>\n<td>7 days on the media share</td>\n<td>30 days everywhere else; the Storage pane shows the Trash's size</td>\n</tr>\n<tr>\n<td>99</td>\n<td>A staff tier?</td>\n<td>Yes: admin, staff, member, by group</td>\n<td>staff = anyone in Staff or Media; Photos, Notes, transcripts, calendar events, internal mail are theirs</td>\n</tr>\n<tr>\n<td>100</td>\n<td>Transcripts from where?</td>\n<td>Whisper on the server overnight; YouTube captions as the fallback</td>\n<td>one recording a night after the backup; never during a service; sung words never written</td>\n</tr>\n<tr>\n<td>101</td>\n<td>Discord channels?</td>\n<td>\"Add a #daily to option 1 and then it's approved so 4 channels total! i'll get discord setup right now if you'd like!\"</td>\n<td>four webhooks: #alerts, #sunday, #weekly, #daily (the morning report goes to #daily); docs/DISCORD.md says what to set up</td>\n</tr>\n<tr>\n<td>102</td>\n<td>The monitor when nobody is signed in?</td>\n<td>Yes, the glance view when idle; sign in for anything else</td>\n<td>next service, backups, attention, stream; nothing clickable, no names or files</td>\n</tr>\n<tr>\n<td>103</td>\n<td>Immich's library?</td>\n<td>Watch Media/Photos and every staff member's Photos folder</td>\n<td>external, read-only; deleting in Immich never deletes a file</td>\n</tr>\n<tr>\n<td>104</td>\n<td>Department accounts?</td>\n<td>\"Staff can be assigned individual accounts, but they're also assigned to a department or multiple departments. when they log in with their individual login, they get access to the department account stuff as well!\"</td>\n<td>everyone has their own account; departments are groups with their own share folder; membership grants the department's files and mail; a shared department login is not needed</td>\n</tr>\n<tr>\n<td>105</td>\n<td>A rehearsal at home?</td>\n<td>Yes, rehearse the install and the reinstall at home first</td>\n<td>REINSTALL.md gets the rehearsal checklist</td>\n</tr>\n<tr>\n<td>106</td>\n<td>(unprompted) Two Windows PCs at the church</td>\n<td>\"we have 2 Windows PCs at the Church, so technically, One could be at Arise Church Alexandria, while the other is at Pineville, or i Run One from my house that is linked to the Pineville location so i can do EVERYTHING from the server at my house, and it sync to the main server at the Pineville location.\"</td>\n<td>the two PCs become the two ariseOS nodes (107 to 115)</td>\n</tr>\n<tr>\n<td>107</td>\n<td>What becomes of the two PCs?</td>\n<td>\"One at the Pineville Location, and One at my house with the FULL OS installed on it (the one that i can actually push updates and stuff through and maintenance the other one so i don't have to travel to the church)\"</td>\n<td>both wiped; Arise-Pineville is the church's server, Arise-Home is Bradly's control node and replica</td>\n</tr>\n<tr>\n<td>108</td>\n<td>The home node, exactly?</td>\n<td>\"THE FULL OS installed on the 2nd windows PC wiping Windows Completely!\"</td>\n<td>a full ariseOS install, node mode \"home\"</td>\n</tr>\n<tr>\n<td>109</td>\n<td>Which machine is the Pineville server?</td>\n<td>The strongest machine, whichever it is</td>\n<td>decided from Friday's specs</td>\n</tr>\n<tr>\n<td>110</td>\n<td>Node names?</td>\n<td>\"the two will be Arise-Pineville and Arise-Home. when i get a third one it will be Arise-Alexandria.\"</td>\n<td>hostnames arise-pineville, arise-home, arise-alexandria (lower-case on the wire, shown as he wrote them); this replaces the fixed name arise-server in the contract: docs/NODES.md</td>\n</tr>\n<tr>\n<td>111</td>\n<td>The Dell?</td>\n<td>\"I only have 2 windows pcs right now, one is an optiplex, the other is an Unknown. I will get you the makes and models of both of them friday so you'll have EXACT information to work with.\"</td>\n<td>the OptiPlex is one of the two; roles assigned on Friday</td>\n</tr>\n<tr>\n<td>112</td>\n<td>What Arise-Home carries?</td>\n<td>The domain, all shares and homes mirrored, backups; apps live at Pineville (then see 115)</td>\n<td>second domain controller; Syncthing both ways for shares and homes; a full restic copy at home (the off-site backup, free)</td>\n</tr>\n<tr>\n<td>113</td>\n<td>Takeover when Pineville dies?</td>\n<td>Automatic takeover after an hour down</td>\n<td>Home promotes itself after an hour unreachable, with a fence so the nightly job and the timers never run on both: the primary role is a record both nodes read; a returning Pineville sees Home holds it and stays standby until Bradly hands it back</td>\n</tr>\n<tr>\n<td>114</td>\n<td>A Nodes page to push updates from home?</td>\n<td>Yes, a Nodes page on both; updates still take a snapshot first</td>\n<td>health, doctor, Update now, Open dashboard, Run a command, over Tailscale SSH with keys; refused during a service</td>\n</tr>\n<tr>\n<td>115</td>\n<td>Arise-Home on the home network, and its apps?</td>\n<td>Invisible to the home network except through Tailscale; \"whatever pineville's server is doing, my home server should be doing. it should be FULLY SYNCED back and forth.\"</td>\n<td>node mode home: DNS and the domain on the Tailscale interface only. Apps: Home runs the same apps; their data is copied from the primary to the standby every night (app folders, databases dumped) so Home can take over with yesterday's state. Two-way live sync of app databases is not safe and is not built; files and the domain are the two-way parts. Said plainly in NODES.md</td>\n</tr>\n<tr>\n<td>116</td>\n<td>(unprompted, Oct 28) The automator's account</td>\n<td>\"the Automator doesn't need its own profile, it can run on mine! Since nobody else will have access to Claude, unless they log into their own account via the dashboard on web\"</td>\n<td>the 02:05 job runs as Bradly's own Linux account (<code>[owner] user</code>, set by install.sh from the account that ran sudo, or <code>--owner</code>); no arise-yt; the units get User= from a drop-in and refuse to run as root without one</td>\n</tr>\n<tr>\n<td>117</td>\n<td>(unprompted, Oct 28) Claude's access</td>\n<td>\"My login of Claude must have full file access to modify, update, ect.\"</td>\n<td>his account: every ariseOS group, sudo without a password (<code>/etc/sudoers.d/arise-owner</code>, visudo-checked); Claude Code on the box gets the ariseOS folders with edits accepted; Claude Desktop on the monitor opens as his account. A credential's content is still never read into a chat (his own rule); <code>arisectl owner</code> shows it all</td>\n</tr>\n<tr>\n<td>118</td>\n<td>(unprompted, Oct 28) Songs</td>\n<td>\"I'd also need the song list searchable as well! And I'd have to add the lyrics most likely from proclaim!\"</td>\n<td>the Automator app's Songs tab: song_bank.json searchable by title, number, writer or a line of the lyrics; lyrics pasted or imported (SongSelect .txt/.usr, ChordPro, text) into <code>/srv/arise/songs/lyrics</code>, backed up, never in git, never in a description</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-5-oct-28-night-the-final-batch-how-it-is-set-up-out-of-the-box\">Round 5 (Oct 28, night): the final batch, how it is set up out of the box</h2>\n<p>Asked as pop-ups, 36 questions plus two follow-ups. \"Other\" answers are quoted.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question</th>\n<th>Answer</th>\n<th>What it changes</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>The directory's domain</td>\n<td><strong>arisecenla.com</strong> (\"Yes, we own .com at Wix\")</td>\n<td>the realm becomes <strong>AD.ARISECENLA.COM</strong> (NetBIOS ARISE unchanged); mail first.last@ad.arisecenla.com. The website stays arisecenla.church. Replaces the .church realm everywhere before the install</td>\n</tr>\n<tr>\n<td>2</td>\n<td>DNS at Wix</td>\n<td>Only email records</td>\n<td>SPF and DKIM for the sending domain; nothing at Wix points at the server (rule 7 holds)</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Sending domain</td>\n<td>mail.arisecenla.com</td>\n<td>Resend and the server's own mail send from it; its records go in Wix's DNS for arisecenla.com</td>\n</tr>\n<tr>\n<td>4</td>\n<td>Email on the domain today</td>\n<td>None</td>\n<td>nothing to work around; no MX is touched</td>\n</tr>\n<tr>\n<td>5</td>\n<td>A new account's first password</td>\n<td>Temporary, changed at the first sign-in</td>\n<td>the Directory app sets a temporary password and the flag; sign-in asks for a new one before anything else</td>\n</tr>\n<tr>\n<td>6</td>\n<td>A forgotten password</td>\n<td>They reset it themselves</td>\n<td>a reset link to the profile's personal email (through Resend); admins can still reset</td>\n</tr>\n<tr>\n<td>7</td>\n<td>Names</td>\n<td>With their title</td>\n<td>a Title field; \"Apostle Bryant Sanders\" on faces, the Directory, mail and the greeting; the username stays first.last</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Accounts on day one</td>\n<td>Everyone from a list</td>\n<td>the guided setup (and <code>arisectl directory import people.csv</code>) creates them all: name, title, department(s), personal email, phone, birthday</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Profile fields</td>\n<td>Personal email, mobile phone, birthday, title &amp; department</td>\n<td>all four</td>\n</tr>\n<tr>\n<td>10</td>\n<td>Who sees profile details</td>\n<td>Staff and admins</td>\n<td>members see none</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Desktop settings</td>\n<td>Follow the account</td>\n<td>wallpaper, theme, Dock and sounds saved on the server, the same on every device</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Where homes live</td>\n<td>Wait for Friday's specs</td>\n<td>decided with the OptiPlex's disk size</td>\n</tr>\n<tr>\n<td>13</td>\n<td>Home quota until the Synology</td>\n<td>50 GB each</td>\n<td>a 50 GB quota per home, shown in Storage and Finder</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Previous Versions</td>\n<td>90 days</td>\n<td>Finder offers 90 days; restic keeps its 30/12/24 for restores by Bradly</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Backups until the Synology</td>\n<td>Arise-Home over Tailscale</td>\n<td>restic to the home node until the Synology is ready (the nightly job reports red until one of the two exists)</td>\n</tr>\n<tr>\n<td>16</td>\n<td>The Church folder</td>\n<td>Everyone writes</td>\n<td>every account adds, edits and moves to Trash there</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Department folders</td>\n<td>All staff write</td>\n<td>any staff member edits any department's folder; admins see all; department accounts write their own</td>\n</tr>\n<tr>\n<td>18</td>\n<td>A Pastors folder</td>\n<td>Yes, pastors only</td>\n<td><code>pastors</code> share for Apostle Bryant and Pastor Vanessa only; hidden from every other account in Finder and Spotlight, admins included; root access to it is logged</td>\n</tr>\n<tr>\n<td>19</td>\n<td>Sharing with a person</td>\n<td>\"Shared with me\"</td>\n<td>Share with… a person; it shows in their Finder sidebar with a notification</td>\n</tr>\n<tr>\n<td>20</td>\n<td>An admin opens someone's home</td>\n<td>Allowed, in the audit log</td>\n<td>each opening is recorded</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Claude and staff homes</td>\n<td>Only when Bradly names the file</td>\n<td>CLAUDE.md rule</td>\n</tr>\n<tr>\n<td>22</td>\n<td>Own sign-in history</td>\n<td>Yes, on the profile</td>\n<td>the last ten sign-ins, device and time</td>\n</tr>\n<tr>\n<td>23</td>\n<td>The network scan's list</td>\n<td>Admins only</td>\n<td></td>\n</tr>\n<tr>\n<td>24</td>\n<td>Desktop icons</td>\n<td>Yes, like a Mac</td>\n<td>the Desktop folder's files on the wallpaper</td>\n</tr>\n<tr>\n<td>25</td>\n<td>Menu-bar stats</td>\n<td>Admins only</td>\n<td>staff and members: clock, notifications, Control Center</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Staff in a browser on their Mac</td>\n<td>The simple portal</td>\n<td>the desktop is for admins and the closet monitor</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Monitor text size</td>\n<td>Larger</td>\n<td>about 125% on the closet monitor only</td>\n</tr>\n<tr>\n<td>28</td>\n<td>Staff notifications</td>\n<td>Calendar reminders, shared with them, internal mail, the Sunday checklist, and \"Every department has their own checklist\"</td>\n<td>all of these; see 29</td>\n</tr>\n<tr>\n<td>29</td>\n<td>Who edits a department's checklist</td>\n<td>The department's leader</td>\n<td>a leader per department; admins edit any; members tick</td>\n</tr>\n<tr>\n<td>30</td>\n<td>When department lists reset</td>\n<td>Before each service</td>\n<td>reset the night before Sunday Service and Glory Night; each list has its own nudge time</td>\n</tr>\n<tr>\n<td>31</td>\n<td>Sign-in faces</td>\n<td>Nobody preselected</td>\n<td></td>\n</tr>\n<tr>\n<td>32</td>\n<td>A new home folder</td>\n<td>A \"Start here\" note</td>\n<td>one page in every new home, beside the five folders</td>\n</tr>\n<tr>\n<td>33</td>\n<td>The first admin sign-in</td>\n<td>A guided setup</td>\n<td>people (the list), shares, Synology, Discord, Resend, Tailscale; skippable, resumable</td>\n</tr>\n<tr>\n<td>34</td>\n<td>The idle glance view</td>\n<td>Clock, next service, verse</td>\n<td>nothing about the server's health to passers-by</td>\n</tr>\n<tr>\n<td>35</td>\n<td>The mark</td>\n<td>Keep the flame</td>\n<td></td>\n</tr>\n<tr>\n<td>36</td>\n<td>Alexandria</td>\n<td>A group and share now</td>\n<td><code>alexandria</code> group and share from day one</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Guest passes</td>\n<td>No guests</td>\n<td>speakers keep emailing the media team</td>\n</tr>\n<tr>\n<td>38</td>\n<td>A leaver's mail</td>\n<td>Export to their files</td>\n<td>saved as a file into the folder of whoever takes their files, then the mailbox goes</td>\n</tr>\n<tr>\n<td>39</td>\n<td>Service names</td>\n<td>Sunday Service and Glory Night</td>\n<td>everywhere people see them</td>\n</tr>\n<tr>\n<td>40</td>\n<td>(unprompted, Oct 29) The domain</td>\n<td>\"we don't have to use ad.arisecenla.com but I know it needs to go through the Wix domain. We don't own the .church through Wix, it's through godaddy and we don't have access to it.\"</td>\n<td>the directory and mail live under arisecenla.com (Wix DNS); the exact subdomain is asked in round 6; nothing depends on arisecenla.church's DNS</td>\n</tr>\n<tr>\n<td>41</td>\n<td>(unprompted, Oct 29) Who uses the server OS</td>\n<td>\"staff shouldn't have access to the actual server OS the staff and volunteers use the Mac as normal, with everything syncing flawlessly. Admins, Kristina, and myself will use the OS directly in the closet.\"</td>\n<td><code>[web] staff_access = \"none\"</code> by default: a staff or member sign-in gets \"your files are on your Mac\"; supersedes 26. Mac sync and Mac account setup and removal are round 6</td>\n</tr>\n<tr>\n<td>42</td>\n<td>(unprompted, Oct 29) The browser</td>\n<td>\"Firefox in the OS should be a full web browser as well.\"</td>\n<td><code>open_web = true</code> by default; the allow-list stays a setting</td>\n</tr>\n<tr>\n<td>43</td>\n<td>(unprompted, Oct 29) Mac profiles</td>\n<td>\"I'm going to need to know how the server sets up and removes profiles from the Mac as well, if the server even does it. If not it needs to\"</td>\n<td>today: enroll-mac.sh binds a Mac; a person's Mac account appears at their first sign-in there; the home-sync agent copies Desktop and Documents every 15 minutes. Nothing removes a profile from a Mac yet. Apple removed network-home syncing in macOS 10.12, so syncing needs a sync client. Round 6 settles both</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"round-6-oct-29-the-macs-syncing-who-uses-the-os-the-domain-firefox\">Round 6 (Oct 29): the Macs, syncing, who uses the OS, the domain, Firefox</h2>\n<p>Forty pop-up questions after round 5's 40 to 43. The Macs are where staff and\nvolunteers work; the closet OS is the admins'.</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Question</th>\n<th>Answer</th>\n<th>What it changes</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>How the server manages the Macs</td>\n<td>A small ariseOS helper</td>\n<td>a launchd helper on each church Mac checks the server every few minutes (church network or Tailscale) and carries out its tasks; no MDM, no Apple certificate</td>\n</tr>\n<tr>\n<td>2</td>\n<td>A new person on a Mac</td>\n<td>Sign in at any church Mac</td>\n<td>their Mac profile is made at the login window on first sign-in (the AD bind does this)</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Which Macs</td>\n<td>Any church Mac</td>\n<td></td>\n</tr>\n<tr>\n<td>4</td>\n<td>When an account is disabled</td>\n<td>Checked, then removed</td>\n<td>the helper confirms their files are on the server, then deletes their Mac profile and folder on every church Mac, logged</td>\n</tr>\n<tr>\n<td>5</td>\n<td>A profile unused on one Mac</td>\n<td>Never removed</td>\n<td>only leaving removes it</td>\n</tr>\n<tr>\n<td>6</td>\n<td>Retiring a Mac</td>\n<td>A Retire button</td>\n<td>checks every profile synced, removes it from the domain and the helper; Bradly erases it by hand</td>\n</tr>\n<tr>\n<td>7</td>\n<td>The Mac admin account</td>\n<td>A hidden server-run admin</td>\n<td><code>ariseadmin</code> on every Mac, its own random password kept on the server for admins, changed every 30 days</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Staff rights on Macs</td>\n<td>Standard users</td>\n<td></td>\n</tr>\n<tr>\n<td>9</td>\n<td>The Mac login window</td>\n<td>A list of faces</td>\n<td>everyone who has used that Mac shows, plus Other…</td>\n</tr>\n<tr>\n<td>10</td>\n<td>FileVault</td>\n<td>On, keys on the server</td>\n<td>each Mac's recovery key escrowed to the server, admins only</td>\n</tr>\n<tr>\n<td>11</td>\n<td>A lost or stolen Mac</td>\n<td>Cut it off</td>\n<td>disable its computer account, revoke its Tailscale and its Nextcloud sessions; no remote erase</td>\n</tr>\n<tr>\n<td>12</td>\n<td>macOS updates</td>\n<td>Security overnight</td>\n<td>the helper installs security updates overnight, never during a service, and asks for a restart; major versions wait for Bradly</td>\n</tr>\n<tr>\n<td>13</td>\n<td>What syncs</td>\n<td>Desktop and Documents</td>\n<td></td>\n</tr>\n<tr>\n<td>14</td>\n<td>The sync app</td>\n<td>Nextcloud client</td>\n<td>Nextcloud on the server over the home folders and shares (AD sign-in), the desktop client on every Mac: Finder badges, files on demand, versions</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Conflicts</td>\n<td>Newest wins</td>\n<td>the newer copy keeps the name; the older one goes to that home's Trash on the server (30 days), not deleted</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Shares on the Mac</td>\n<td>In the Finder sidebar</td>\n<td>Church, department and Shared-with-me folders on demand through Nextcloud's Finder integration</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Off-site laptops</td>\n<td>Sync over Tailscale</td>\n<td></td>\n</tr>\n<tr>\n<td>18</td>\n<td>Big files</td>\n<td>Sync everything</td>\n<td>no size limit</td>\n</tr>\n<tr>\n<td>19</td>\n<td>Phones</td>\n<td>The Nextcloud app</td>\n<td>over Tailscale; files only, not the server OS</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Staff passwords and two-step</td>\n<td>On the Mac + the reset page</td>\n<td>two-step is turned on for them by an admin</td>\n</tr>\n<tr>\n<td>21</td>\n<td>Who uses the closet OS</td>\n<td>All four admins</td>\n<td>Bradly, Kristina, Apostle Bryant, Pastor Vanessa</td>\n</tr>\n<tr>\n<td>22</td>\n<td>The pastors</td>\n<td>Full admins, as now</td>\n<td></td>\n</tr>\n<tr>\n<td>23</td>\n<td>Kristina's powers</td>\n<td>The same as Bradly's</td>\n<td>every admin and system power, sudo without a password included; Claude stays Bradly's (24)</td>\n</tr>\n<tr>\n<td>24</td>\n<td>Claude for Kristina</td>\n<td>No, Claude stays Bradly's</td>\n<td></td>\n</tr>\n<tr>\n<td>25</td>\n<td>The directory name</td>\n<td>ad.arisecenla.com</td>\n<td>realm AD.ARISECENLA.COM, NetBIOS ARISE (as built)</td>\n</tr>\n<tr>\n<td>26</td>\n<td>Where the website lives</td>\n<td>Both addresses show it</td>\n<td>nothing in ariseOS depends on either</td>\n</tr>\n<tr>\n<td>27</td>\n<td>Who adds the Wix email records</td>\n<td>Bradly</td>\n<td>docs give him the exact SPF and DKIM records for mail.arisecenla.com</td>\n</tr>\n<tr>\n<td>28</td>\n<td>Staff addresses</td>\n<td>first.last@ad.arisecenla.com</td>\n<td>internal, forwarded to personal email</td>\n</tr>\n<tr>\n<td>29</td>\n<td>Firefox profiles</td>\n<td>One per admin</td>\n<td>switched when an admin signs in at the monitor</td>\n</tr>\n<tr>\n<td>30</td>\n<td>Saved passwords</td>\n<td>On, per admin</td>\n<td></td>\n</tr>\n<tr>\n<td>31</td>\n<td>Ad blocker</td>\n<td>uBlock Origin</td>\n<td>installed for every admin</td>\n</tr>\n<tr>\n<td>32</td>\n<td>Search engine</td>\n<td>Google</td>\n<td></td>\n</tr>\n<tr>\n<td>33</td>\n<td>Downloads</td>\n<td>The admin's own Downloads</td>\n<td></td>\n</tr>\n<tr>\n<td>34</td>\n<td>Add-ons</td>\n<td>Admins add any</td>\n<td></td>\n</tr>\n<tr>\n<td>35</td>\n<td>Web filter</td>\n<td>Malware only</td>\n<td>Firefox's Safe Browsing; nothing else blocked</td>\n</tr>\n<tr>\n<td>36</td>\n<td>The Macs' browsers</td>\n<td>Certificate + bookmarks</td>\n<td>the church certificate and a Church bookmarks folder in Safari and Chrome, by the helper</td>\n</tr>\n<tr>\n<td>37</td>\n<td>Enrolling a Mac</td>\n<td>One Terminal line</td>\n<td>shown in the dashboard: joins the domain, installs the helper, Nextcloud, Tailscale and the certificate</td>\n</tr>\n<tr>\n<td>38</td>\n<td>Printers</td>\n<td>Added by the helper</td>\n<td></td>\n</tr>\n<tr>\n<td>39</td>\n<td>Nextcloud's web page</td>\n<td>App and web, files only</td>\n<td>over Tailscale</td>\n</tr>\n<tr>\n<td>40</td>\n<td>Department logins</td>\n<td>Sync like a person</td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"still-needed\">Still needed</h2>\n<ul>\n<li>Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.</li>\n<li>The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (97).</li>\n<li>\n<p>The four Discord webhook URLs into /etc/arise/secrets/discord.toml (101).</p>\n</li>\n<li>\n<p>Sunday: questions 1 to 7.</p>\n</li>\n<li>Where the Synology is plugged in: on Netgear A's network it mounts directly; elsewhere it gets the Tailscale package. No cable moves either way.</li>\n<li>The full list of department accounts (27) and the people in staff and media (24).</li>\n<li>The UPS model (8), for <code>nut</code>.</li>\n<li>Friday: the Resend account, the domain to verify in it, the API key into <code>/etc/arise/secrets/resend-api-key</code>, the Wix contacts export.</li>\n<li>The printer's brand and model (round 2, 6 and 26), for CUPS.</li>\n<li>A Discord webhook URL for the failures and the Sunday all-green (round 2, 40).</li>\n</ul>",
 "demo": true
 },
 "GET /help/ARCHITECTURE": {
@@ -13399,7 +13431,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "BROWSER",
 "title": "The browser: Firefox in the ariseOS look",
-"html": "<h1 id=\"the-browser-firefox-in-the-ariseos-look\">The browser: Firefox in the ariseOS look</h1>\n<p>Bradly asked (Oct 28) for Firefox, from github.com/mozilla-firefox/firefox, as\nthe OS's web browser, themed to match. This is how it is done and why.</p>\n<h2 id=\"what-runs\">What runs</h2>\n<p>The closet monitor runs <strong>Firefox</strong>, Mozilla's own build of that repository,\nfrom Mozilla's apt repository (packages.mozilla.org). It is not the Ubuntu\nsnap. <code>cage</code> shows it full screen on tty1 as the <code>arise-kiosk</code> user\n(<code>config/systemd/arise-kiosk.service</code> runs <code>/usr/local/bin/arise-browser</code>).</p>\n<p>Firefox is not compiled on the box. A build from source takes several hours on\na large machine and more than 40 GB of disk, and every security release would\nmean another one. Mozilla's build of the same code, customised through the\nlayers Firefox supports for exactly this, gets every update the day Mozilla\nships it. The source repository is still used: every policy, preference and\ntoolbar element below was checked against it (main, Firefox 161), and the\ntests validate the policy against Firefox's own schema\n(<code>tests/fixtures/firefox-policies-schema.json</code>).</p>\n<h2 id=\"how-it-is-themed\">How it is themed</h2>\n<table>\n<thead>\n<tr>\n<th>Layer</th>\n<th>File on the box</th>\n<th>From the repo</th>\n<th>What it does</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Enterprise policy</td>\n<td><code>/etc/firefox/policies/policies.json</code></td>\n<td>written by <code>scripts/arise-browser-policies.py</code> from <code>[browser]</code> in arise.toml</td>\n<td>the desktop as home page; no telemetry, studies, Pocket, sponsored tiles, Firefox account, AI sidebar, password saving; dark theme; compact; uBlock Origin; the church certificate trusted; the site list</td>\n</tr>\n<tr>\n<td>Theme</td>\n<td><code>/var/lib/arise/browser/chrome/userChrome.css</code></td>\n<td><code>config/firefox/chrome/userChrome.css</code></td>\n<td>ink toolbars, square corners, Oswald caps tabs, the active tab's red top rule, a red ring on the address field, ink menus with red highlights, clutter buttons removed</td>\n</tr>\n<tr>\n<td>Page theme</td>\n<td><code>.../chrome/userContent.css</code></td>\n<td><code>config/firefox/chrome/userContent.css</code></td>\n<td>Firefox's own pages (blank, errors, add-ons, the \"blocked\" page) in ink and red; websites keep their design and are asked for their dark mode</td>\n</tr>\n<tr>\n<td>Startup config</td>\n<td><code>&amp;lt;firefox&gt;/ariseos.cfg</code> + <code>defaults/pref/autoconfig.js</code></td>\n<td><code>config/firefox/</code></td>\n<td>the new-tab page</td>\n</tr>\n<tr>\n<td>New tab</td>\n<td><code>http://127.0.0.1:4147/newtab.html</code></td>\n<td><code>web/newtab.html</code></td>\n<td>the clock, the next service, the verse of the day, tiles for the desktop, Claude, ChatGPT, Grok, YouTube Studio, StreamYard, the church site and the Bible</td>\n</tr>\n<tr>\n<td>Fonts</td>\n<td><code>/usr/local/share/fonts/arise/</code></td>\n<td>Google Fonts (OFL)</td>\n<td>Anton and Oswald, so the look holds with the internet down</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"how-it-behaves\">How it behaves</h2>\n<ul>\n<li><strong>The desktop is the first tab, and its toolbars step aside.</strong> When the\n  selected tab is the ariseOS desktop (page title \"ariseOS\"), Firefox hides its\n  own bars, so the monitor shows only the desktop, edge to edge. That tab has\n  no close button.</li>\n<li><strong>Anything the desktop opens arrives as a tab</strong> with the themed bar (Claude,\n  YouTube Studio, StreamYard). Closing it returns to the desktop. The\n  dashboard's title must stay exactly \"ariseOS\" for this; a test pins it.</li>\n<li><strong>A new tab</strong> is the ariseOS new tab. Its \"The desktop\" and \"Bible\" tiles\n  close the tab and hand back to the desktop instead of opening a second one.</li>\n<li><strong>Sites are a list, not the open web</strong> (<code>open_web = false</code>). The box, the\n  Assistants, YouTube and Google sign-in, StreamYard, the church site, GitHub\n  and Tailscale are on it. Any other site shows Firefox's \"blocked\" page with\n  \"Not on the monitor's list\". Add sites to <code>allow</code> in <code>[browser]</code>, or set\n  <code>open_web = true</code>, then run <code>sudo arisectl browser apply</code>. Only pages and\n  frames are judged, so scripts, images and fonts from CDNs load as usual.</li>\n<li><strong>Nothing personal is kept.</strong> The monitor is shared: no saved passwords,\n  card or address autofill. Sign-ins stay as cookies, like the old browser.\n  Camera, microphone, location and notification prompts are blocked.</li>\n<li><strong>Updates.</strong> apt installs Firefox updates with the security updates\n  (<code>/etc/apt/apt.conf.d/52arise-firefox</code>); Firefox's own updater is off.</li>\n<li><strong>If Firefox is ever missing,</strong> the launcher falls back to Epiphany, the old\n  browser, so the monitor is never blank. <code>arisectl browser status</code> says which\n  is in use.</li>\n</ul>\n<h2 id=\"commands\">Commands</h2>\n<pre><code>sudo bash /opt/arise/scripts/arise-browser-setup     install or repair Firefox, the theme, the policy (installer step 6d runs it)\nsudo bash /opt/arise/scripts/arise-browser-setup --dry-run\nsudo arisectl browser status                          version, policy, theme files, the monitor\nsudo arisectl browser apply                           rewrite the policy from arise.toml, copy the theme, restart the monitor\narisectl browser policy                               print the policy that would be written\n</code></pre>\n<h2 id=\"not-verified-here\">Not verified here</h2>\n<p>Mozilla's servers are blocked from the sandbox this was built in, so Firefox\nitself has not run with this configuration yet. Checked: the policy against\nFirefox's schema, every preference against Firefox's allowed list, the toolbar\nids and theme variables against the source, the new-tab page in a browser,\nthe setup script's dry run. The first real run is on the Dell (or the home PC)\nat install; <code>arisectl browser status</code> is the check. If Firefox renames a\ntoolbar element in a later version, the theme degrades to Firefox's own dark\nlook, never to a broken window.</p>\n<h2 id=\"not-built-and-why\">Not built, and why</h2>\n<ul>\n<li><strong>A rebranded build</strong> (\"ariseOS Browser\"). Mozilla's trademark policy does\n  not allow a modified binary to keep the Firefox name, and an unbranded\n  rebuild would lose Mozilla's update stream. The theme carries the identity.</li>\n<li><strong>Firefox on the Macs.</strong> The Macs keep whatever browser their users like;\n  the dashboard works in Safari, Chrome and Firefox alike.</li>\n</ul>",
+"html": "<h1 id=\"the-browser-firefox-in-the-ariseos-look\">The browser: Firefox in the ariseOS look</h1>\n<p>Bradly asked (Oct 28) for Firefox, from github.com/mozilla-firefox/firefox, as\nthe OS's web browser, themed to match. This is how it is done and why.</p>\n<h2 id=\"what-runs\">What runs</h2>\n<p>The closet monitor runs <strong>Firefox</strong>, Mozilla's own build of that repository,\nfrom Mozilla's apt repository (packages.mozilla.org). It is not the Ubuntu\nsnap. <code>cage</code> shows it full screen on tty1 as the <code>arise-kiosk</code> user\n(<code>config/systemd/arise-kiosk.service</code> runs <code>/usr/local/bin/arise-browser</code>).</p>\n<p>Firefox is not compiled on the box. A build from source takes several hours on\na large machine and more than 40 GB of disk, and every security release would\nmean another one. Mozilla's build of the same code, customised through the\nlayers Firefox supports for exactly this, gets every update the day Mozilla\nships it. The source repository is still used: every policy, preference and\ntoolbar element below was checked against it (main, Firefox 161), and the\ntests validate the policy against Firefox's own schema\n(<code>tests/fixtures/firefox-policies-schema.json</code>).</p>\n<h2 id=\"how-it-is-themed\">How it is themed</h2>\n<table>\n<thead>\n<tr>\n<th>Layer</th>\n<th>File on the box</th>\n<th>From the repo</th>\n<th>What it does</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Enterprise policy</td>\n<td><code>/etc/firefox/policies/policies.json</code></td>\n<td>written by <code>scripts/arise-browser-policies.py</code> from <code>[browser]</code> in arise.toml</td>\n<td>the desktop as home page; no telemetry, studies, Pocket, sponsored tiles, Firefox account, AI sidebar, password saving; dark theme; compact; uBlock Origin; the church certificate trusted; the site list</td>\n</tr>\n<tr>\n<td>Theme</td>\n<td><code>/var/lib/arise/browser/chrome/userChrome.css</code></td>\n<td><code>config/firefox/chrome/userChrome.css</code></td>\n<td>ink toolbars, square corners, Oswald caps tabs, the active tab's red top rule, a red ring on the address field, ink menus with red highlights, clutter buttons removed</td>\n</tr>\n<tr>\n<td>Page theme</td>\n<td><code>.../chrome/userContent.css</code></td>\n<td><code>config/firefox/chrome/userContent.css</code></td>\n<td>Firefox's own pages (blank, errors, add-ons, the \"blocked\" page) in ink and red; websites keep their design and are asked for their dark mode</td>\n</tr>\n<tr>\n<td>Startup config</td>\n<td><code>&amp;lt;firefox&gt;/ariseos.cfg</code> + <code>defaults/pref/autoconfig.js</code></td>\n<td><code>config/firefox/</code></td>\n<td>the new-tab page</td>\n</tr>\n<tr>\n<td>New tab</td>\n<td><code>http://127.0.0.1:4147/newtab.html</code></td>\n<td><code>web/newtab.html</code></td>\n<td>the clock, the next service, the verse of the day, tiles for the desktop, Claude, ChatGPT, Grok, YouTube Studio, StreamYard, the church site and the Bible</td>\n</tr>\n<tr>\n<td>Fonts</td>\n<td><code>/usr/local/share/fonts/arise/</code></td>\n<td>Google Fonts (OFL)</td>\n<td>Anton and Oswald, so the look holds with the internet down</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"how-it-behaves\">How it behaves</h2>\n<ul>\n<li><strong>The desktop is the first tab, and its toolbars step aside.</strong> When the\n  selected tab is the ariseOS desktop (page title \"ariseOS\"), Firefox hides its\n  own bars, so the monitor shows only the desktop, edge to edge. That tab has\n  no close button.</li>\n<li><strong>Anything the desktop opens arrives as a tab</strong> with the themed bar (Claude,\n  YouTube Studio, StreamYard). Closing it returns to the desktop. The\n  dashboard's title must stay exactly \"ariseOS\" for this; a test pins it.</li>\n<li><strong>A new tab</strong> is the ariseOS new tab. Its \"The desktop\" and \"Bible\" tiles\n  close the tab and hand back to the desktop instead of opening a second one.</li>\n<li><strong>A full web browser</strong> (Bradly, Oct 29: \"Firefox in the OS should be a full\n  web browser as well\"). Any site opens; only the admins use the closet OS.\n  <code>open_web = false</code> in <code>[browser]</code> brings back the old list (the box, the\n  Assistants, YouTube and Google sign-in, StreamYard, the church sites, GitHub,\n  Tailscale, plus <code>allow</code>), then <code>sudo arisectl browser apply</code>.</li>\n<li><strong>Nothing personal is kept.</strong> The monitor is shared: no saved passwords,\n  card or address autofill. Sign-ins stay as cookies, like the old browser.\n  Camera, microphone, location and notification prompts are blocked.</li>\n<li><strong>Updates.</strong> apt installs Firefox updates with the security updates\n  (<code>/etc/apt/apt.conf.d/52arise-firefox</code>); Firefox's own updater is off.</li>\n<li><strong>If Firefox is ever missing,</strong> the launcher falls back to Epiphany, the old\n  browser, so the monitor is never blank. <code>arisectl browser status</code> says which\n  is in use.</li>\n</ul>\n<h2 id=\"commands\">Commands</h2>\n<pre><code>sudo bash /opt/arise/scripts/arise-browser-setup     install or repair Firefox, the theme, the policy (installer step 6d runs it)\nsudo bash /opt/arise/scripts/arise-browser-setup --dry-run\nsudo arisectl browser status                          version, policy, theme files, the monitor\nsudo arisectl browser apply                           rewrite the policy from arise.toml, copy the theme, restart the monitor\narisectl browser policy                               print the policy that would be written\n</code></pre>\n<h2 id=\"not-verified-here\">Not verified here</h2>\n<p>Mozilla's servers are blocked from the sandbox this was built in, so Firefox\nitself has not run with this configuration yet. Checked: the policy against\nFirefox's schema, every preference against Firefox's allowed list, the toolbar\nids and theme variables against the source, the new-tab page in a browser,\nthe setup script's dry run. The first real run is on the Dell (or the home PC)\nat install; <code>arisectl browser status</code> is the check. If Firefox renames a\ntoolbar element in a later version, the theme degrades to Firefox's own dark\nlook, never to a broken window.</p>\n<h2 id=\"not-built-and-why\">Not built, and why</h2>\n<ul>\n<li><strong>A rebranded build</strong> (\"ariseOS Browser\"). Mozilla's trademark policy does\n  not allow a modified binary to keep the Firefox name, and an unbranded\n  rebuild would lose Mozilla's update stream. The theme carries the identity.</li>\n<li><strong>Firefox on the Macs.</strong> The Macs keep whatever browser their users like;\n  the dashboard works in Safari, Chrome and Firefox alike.</li>\n</ul>",
 "demo": true
 },
 "GET /help/CLAUDE-ON-THE-BOX": {

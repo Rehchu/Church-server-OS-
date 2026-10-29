@@ -925,6 +925,15 @@ def cmd_owner(a):
     print(f"  groups     {' '.join(groups) or '(none)'}")
     sud = Path("/etc/sudoers.d/arise-owner")
     (ok if sud.exists() else warn)(f"sudo without a password: {'on' if sud.exists() else 'not set up'} ({sud})")
+    # Round 6, 23: [owners] users have the same powers (groups and sudo); the job and Claude stay the owner's.
+    others = [str(u) for u in ((load().raw.get("owners") or {}).get("users") or [])]
+    sud_txt = sud.read_text() if sud.exists() else ""
+    for o in others:
+        try:
+            pwd.getpwnam(o)
+        except KeyError:
+            warn(f"also an owner: {o}, but no Linux account by that name here (make one, then: sudo arisectl owner setup)"); continue
+        (ok if f"{o} ALL=" in sud_txt else warn)(f"also an owner: {o}" + ("" if f"{o} ALL=" in sud_txt else " (not in the sudo rule yet: sudo arisectl owner setup)"))
     for unit in ("arise-automator.service", "arise-automator-preview.service"):
         d = Path(f"/etc/systemd/system/{unit}.d/10-owner.conf")
         txt = d.read_text() if d.exists() else ""

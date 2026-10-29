@@ -2091,6 +2091,98 @@ def api_public_faces(request: Request):
     return {"faces": faces}
 
 
+# ----- round 6: the closet OS for the four admins, Firefox per admin, two-step for staff ---------
+from . import kiosk_profiles  # noqa: E402
+
+
+@app.get("/api/kiosk/profile")
+def api_kiosk_profile(who=auth):
+    """Whose Firefox profile the monitor is running now ("neutral" when locked)."""
+    return {"current": kiosk_profiles.current(), "user": who["user"], "demo": load().demo}
+
+
+class KioskProfile(BaseModel):
+    action: str = "switch"
+
+
+@app.post("/api/kiosk/profile")
+def api_kiosk_profile_set(body: KioskProfile, request: Request, who=auth):
+    """switch: an admin who just signed in at the monitor gets their own Firefox profile.
+    neutral: the screen locked. Only from the monitor itself."""
+    if not kiosk_profiles.on_monitor(_ip(request), request.headers.get("x-forwarded-for", "")):
+        raise HTTPException(403, {"message": "Only the closet monitor switches its own browser"})
+    if body.action == "neutral":
+        return kiosk_profiles.neutral()
+    if body.action != "switch":
+        return {"ok": False, "err": "action is switch or neutral"}
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "The closet desktop is the administrators'"})
+    r = kiosk_profiles.switch(who["user"], request.cookies.get(COOKIE) or "")
+    if r.get("ok") and not r.get("already"):
+        audit.record(who["user"], "kiosk.profile", who["user"], detail="Firefox profile on the monitor")
+    return r
+
+
+class Handoff(BaseModel):
+    token: str
+
+
+@app.post("/api/auth/handoff")
+def api_auth_handoff(body: Handoff, request: Request, response: Response):
+    """The restarted Firefox trades its one-time token for the admin's session (one minute, once)."""
+    if not kiosk_profiles.on_monitor(_ip(request), request.headers.get("x-forwarded-for", "")):
+        raise HTTPException(403, {"message": "Only on the closet monitor"})
+    got = kiosk_profiles.handoff_take(body.token)
+    if not got:
+        raise HTTPException(401, {"message": "That hand-over has expired; sign in again"})
+    session, user = got
+    if session:
+        response.set_cookie(COOKIE, session, httponly=True, samesite="lax", max_age=int(load().web.session_hours) * 3600)
+    return {"ok": True, "user": user}
+
+
+def _directory_user(name: str) -> bool:
+    try:
+        return any(u.get("name") == name for u in directory.list_users().get("users", []))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+@app.post("/api/directory/users/{name}/2fa/setup")
+def api_dir_user_2fa_setup(name: str, who=admin):
+    """Staff don't use the OS (round 6, 20): an admin starts two-step for them and shows them the code
+    to scan in Microsoft Authenticator, then types the six digits the person reads off their phone."""
+    if not _directory_user(name):
+        return {"ok": False, "err": "no such user"}
+    r = twofa.setup(name)
+    if r.get("ok"):
+        audit.record(who["user"], "twofa.setup.for", name)
+    return r
+
+
+@app.post("/api/directory/users/{name}/2fa/enable")
+def api_dir_user_2fa_enable(name: str, body: Code, who=admin):
+    if not _directory_user(name):
+        return {"ok": False, "err": "no such user"}
+    r = twofa.enable(name, body.code)
+    if r.get("ok"):
+        audit.record(who["user"], "twofa.on.for", name)
+    return r
+
+
+@app.post("/api/directory/users/{name}/2fa/disable")
+def api_dir_user_2fa_disable(name: str, who=recent):
+    """Off again, by an admin who just typed their own password again."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    if not _directory_user(name):
+        return {"ok": False, "err": "no such user"}
+    r = twofa.disable(name, "", "", by_admin=True)
+    if r.get("ok"):
+        audit.record(who["user"], "twofa.off.for", name)
+    return r
+
+
 # ----- the dashboard -----------------------------------------------------------
 WEB = cfg.web_dir
 if WEB.is_dir():

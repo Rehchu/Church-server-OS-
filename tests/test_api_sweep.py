@@ -266,6 +266,13 @@ CALLS = {
     ("GET", "/api/kiosk/scale"): ("/api/kiosk/scale", None, None),
     ("POST", "/api/kiosk/scale"): ("/api/kiosk/scale", {"scale": 1.25}, None),
     ("GET", "/api/public/faces"): ("/api/public/faces", None, None),
+    # round 6: Firefox per admin on the monitor; two-step for staff, by an admin
+    ("GET", "/api/kiosk/profile"): ("/api/kiosk/profile", None, None),
+    ("POST", "/api/kiosk/profile"): ("/api/kiosk/profile", {"action": "neutral"}, None),
+    ("POST", "/api/auth/handoff"): ("/api/auth/handoff", {"token": "not-a-token"}, None),
+    ("POST", "/api/directory/users/{name}/2fa/setup"): ("/api/directory/users/office/2fa/setup", None, None),
+    ("POST", "/api/directory/users/{name}/2fa/enable"): ("/api/directory/users/office/2fa/enable", {"code": "123456"}, None),
+    ("POST", "/api/directory/users/{name}/2fa/disable"): ("/api/directory/users/office/2fa/disable", None, None),
     ("GET", "/{path:path}"): ("/", None, None),
 }
 

@@ -1,0 +1,105 @@
+#!/bin/sh
+# ariseOS: whose Firefox profile the closet monitor runs (round 6, 29-33).
+#
+#   arise-browser-profile switch <user> <url>   an admin signed in at the monitor
+#   arise-browser-profile neutral [url]         the screen locked: a fresh profile, no history
+#   arise-browser-profile current               who is in the browser now ("neutral" when locked)
+#
+# Run as root by the dashboard (server/arise_server/kiosk_profiles.py), never by hand
+# in normal use. The monitor's Firefox runs as arise-kiosk (scripts/arise-browser, a loop
+# that restarts Firefox with whatever /run/arise-kiosk/want names). Each admin's profile
+# is /var/lib/arise/browser/profiles/<user>: root-owned, 0700, while they are away, so the
+# kiosk cannot open it; it is lent to arise-kiosk only while that admin is signed in. Their
+# saved passwords, history and add-ons stay in it. Downloads go to their own home's
+# Downloads, which the kiosk may write into only while it is their turn (an ACL taken
+# back when the screen locks; the files are then handed to the admin).
+set -u
+STATE=/run/arise-kiosk
+BASE=/var/lib/arise/browser
+TEMPLATE=$BASE/template
+PROFILES=$BASE/profiles
+KIOSK=arise-kiosk
+CONF=/etc/arise/arise.toml
+DEFAULT_URL=http://127.0.0.1:4147/?kiosk=1
+
+homes_root() {   # [directory] homes_path, else <data_root>/homes
+  python3 -c 'import sys, tomllib
+try:
+    c = tomllib.load(open(sys.argv[1], "rb"))
+    print((c.get("directory") or {}).get("homes_path") or (((c.get("system") or {}).get("data_root")) or "/srv/arise") + "/homes")
+except Exception:
+    print("/srv/arise/homes")' "$CONF" 2>/dev/null || echo /srv/arise/homes
+}
+valid() { printf '%s' "$1" | grep -Eq '^[a-z0-9][a-z0-9._-]{0,63}$'; }
+current() { u=$(cat "$STATE/current" 2>/dev/null); valid "$u" && echo "$u" || echo neutral; }
+
+# Put an admin's profile away: root's again, and their Downloads closed to the kiosk.
+put_away() {
+  u="$1"; [ "$u" = neutral ] && return 0
+  p="$PROFILES/$u"
+  [ -d "$p" ] && chown -R root:root "$p" && chmod 0700 "$p"
+  dl="$(homes_root)/$u/Downloads"
+  if [ -d "$dl" ]; then
+    setfacl -x "u:$KIOSK" "$dl" 2>/dev/null
+    # What the kiosk saved while it was their turn becomes theirs.
+    find "$dl" -user "$KIOSK" -exec chown "$u" {} + 2>/dev/null
+  fi
+}
+
+# Stop the browser; scripts/arise-browser starts it again with the new profile.
+restart_browser() {
+  pkill -TERM -u "$KIOSK" -x firefox 2>/dev/null; pkill -TERM -u "$KIOSK" -x firefox-bin 2>/dev/null
+  i=0; while pgrep -u "$KIOSK" -x 'firefox|firefox-bin' >/dev/null 2>&1 && [ $i -lt 20 ]; do sleep 0.5; i=$((i+1)); done
+  pkill -KILL -u "$KIOSK" -x firefox 2>/dev/null; pkill -KILL -u "$KIOSK" -x firefox-bin 2>/dev/null
+}
+
+want() {   # profile url
+  umask 027
+  printf 'profile=%s\nurl=%s\n' "$1" "$2" > "$STATE/want.tmp" && chgrp "$KIOSK" "$STATE/want.tmp" 2>/dev/null
+  mv -f "$STATE/want.tmp" "$STATE/want"
+}
+
+case "${1:-}" in
+  current) current; exit 0 ;;
+  switch|neutral) ;;
+  *) echo "arise-browser-profile switch <user> <url> | neutral [url] | current" >&2; exit 2 ;;
+esac
+[ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
+install -d -m 0755 "$STATE"
+install -d -m 0711 -o root -g root "$PROFILES"
+touch "$STATE/switching"   # the launcher waits while this is here
+prev=$(current)
+
+if [ "$1" = neutral ]; then
+  url="${2:-$DEFAULT_URL}"
+  want neutral "$url"; echo neutral > "$STATE/current"
+  restart_browser
+  put_away "$prev"
+  rm -f "$STATE/switching"
+  exit 0
+fi
+
+user="${2:-}"; url="${3:-$DEFAULT_URL}"
+valid "$user" || { rm -f "$STATE/switching"; echo "not a user name: $user" >&2; exit 2; }
+case "$url" in http://127.0.0.1:*|http://localhost:*) ;; *) rm -f "$STATE/switching"; echo "the monitor opens only this box's own pages" >&2; exit 2 ;; esac
+p="$PROFILES/$user"
+install -d -m 0700 "$p" "$p/chrome"
+# The house theme is refreshed on every switch, so a theme update reaches every admin.
+[ -d "$TEMPLATE/chrome" ] && cp -f "$TEMPLATE"/chrome/* "$p/chrome/" 2>/dev/null
+dl="$(homes_root)/$user/Downloads"
+{
+  [ -f "$TEMPLATE/user.js" ] && cat "$TEMPLATE/user.js"
+  if [ -d "$(dirname "$dl")" ]; then
+    printf 'user_pref("browser.download.dir", "%s");\n' "$dl"
+  fi
+} > "$p/user.js"
+if [ -d "$(dirname "$dl")" ]; then
+  install -d "$dl" 2>/dev/null && chown "$user" "$dl" 2>/dev/null
+  setfacl -m "u:$KIOSK:rwx" "$dl" 2>/dev/null
+fi
+want "$p" "$url"; echo "$user" > "$STATE/current"
+restart_browser
+[ "$prev" != "$user" ] && put_away "$prev"
+chown -R "$KIOSK:" "$p"; chmod 0700 "$p"
+rm -f "$STATE/switching"
+exit 0

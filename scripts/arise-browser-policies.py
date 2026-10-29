@@ -83,8 +83,10 @@ def build(cfg: dict) -> dict:
         "UserMessaging": {"ExtensionRecommendations": False, "FeatureRecommendations": False, "UrlbarInterventions": False,
                           "SkipOnboarding": True, "MoreFromMozilla": False, "FirefoxLabs": False, "Locked": True},
         "GenerativeAI": {"Enabled": False, "Locked": True},   # Claude lives in Assistants, signed in as the church
-        "PasswordManagerEnabled": False,          # a shared closet screen keeps no passwords; Vaultwarden does
-        "OfferToSaveLogins": False,
+        # Round 6, 29-30: one Firefox profile per admin, switched at sign-in (scripts/arise-browser-profile),
+        # so each admin's saved passwords live in their own profile only.
+        "PasswordManagerEnabled": True,
+        "OfferToSaveLogins": True,
         "AutofillCreditCardEnabled": False,
         "AutofillAddressEnabled": False,
         "BlockAboutConfig": True,
@@ -94,12 +96,21 @@ def build(cfg: dict) -> dict:
         "Certificates": {"Install": [CADDY_ROOT]},   # the church CA: the padlock on the box's own pages
         "EnableTrackingProtection": {"Value": True, "Cryptomining": True, "Fingerprinting": True},
         "ExtensionSettings": {
-            "*": {"installation_mode": "blocked", "blocked_install_message": "Add-ons on the closet monitor are set by the server."},
+            "*": {"installation_mode": "allowed"},   # round 6, 34: admins add any add-on to their own profile
             "uBlock0@raymondhill.net": {"installation_mode": "force_installed",
                                         "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"},
         },
+        "SearchEngines": {"Default": "Google"},   # round 6, 32 (release Firefox honours this policy from 139)
         "Preferences": {
             "toolkit.legacyUserProfileCustomizations.stylesheets": pref(True),   # the house theme (userChrome.css)
+            # Round 6, 35: Safe Browsing (malware and phishing) on; no other filtering.
+            "browser.safebrowsing.malware.enabled": pref(True),
+            "browser.safebrowsing.phishing.enabled": pref(True),
+            "browser.safebrowsing.downloads.enabled": pref(True),
+            # Round 6, 33: downloads go straight to the signed-in admin's Downloads
+            # (browser.download.dir is written into each admin's profile by arise-browser-profile).
+            "browser.download.useDownloadDir": pref(True),
+            "browser.download.folderList": pref(2, "default"),
             "extensions.activeThemeID": pref("firefox-compact-dark@mozilla.org", "default"),
             "browser.uidensity": pref(1),
             "browser.theme.toolbar-theme": pref(0),
