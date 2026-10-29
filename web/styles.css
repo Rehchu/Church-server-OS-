@@ -800,6 +800,9 @@ ul.plain{list-style:none;padding:0;margin:6px 0} ul.plain li{padding:4px 0;borde
 .deskicons .deskico{position:absolute;pointer-events:auto;width:88px;background:none;border:0;color:inherit;cursor:default}
 .deskicons .deskico span:last-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .deskicons .deskico:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+@media(max-width:900px){.deskicons{position:static;display:flex;gap:6px;overflow-x:auto;pointer-events:auto;padding:2px 0 4px;scrollbar-width:none;flex:0 0 auto}
+  .deskicons::-webkit-scrollbar{display:none}.deskicons:empty{display:none}
+  .deskicons .deskico{position:static;flex:0 0 auto;width:84px}}
 /* the unread count on the clock (notifications, 28) */
 #barClock.has-unread{position:relative}
 #barClock.has-unread::after{content:attr(data-unread);position:absolute;top:6px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;line-height:16px;text-align:center;font-weight:600}

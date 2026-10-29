@@ -397,6 +397,10 @@ async function everyControl(browser, url, role) {
 /* ---------------- the phone ---------------- */
 async function phone(browser, url) {
   const p = await newPage(browser, url, { width: 390, height: 844 });
+  // The Desktop's files sit in a row above the widgets, never on top of them.
+  await settle(p, 800);
+  const ov = await p.evaluate(() => { const ic = [...document.querySelectorAll('.deskico')].map(e => e.getBoundingClientRect()); const ws = [...document.querySelectorAll('#widgets > :not(#deskIcons)')].map(e => e.getBoundingClientRect()); return { n: ic.length, hit: ic.filter(a => ws.some(c => a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top)).length }; });
+  rec('phone · desktop', 'Desktop files do not cover the widgets', ov.n > 0 && ov.hit === 0, `${ov.hit} of ${ov.n} icons on a widget`);
   const ids = await p.evaluate(() => window.arise.APPS.filter(a => !a.hidden).map(a => a.id));
   for (const id of ids) {
     await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)));

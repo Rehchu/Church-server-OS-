@@ -2838,8 +2838,14 @@ function deskAuto(i) {
   const col = Math.floor(i / perCol), row = i % perCol;
   return [Math.max(0, W - 22 - DESK_W - col * DESK_W), top + row * DESK_H];
 }
+// On a phone the stage is the scrolling column of widgets, so the Desktop's files sit in a row
+// at its top instead of at their large-screen positions (where they landed on the widgets).
+let deskRz = 0;
+window.addEventListener('resize', () => { clearTimeout(deskRz); deskRz = setTimeout(paintDesk, 200); });
 function paintDesk() {
   const box = $('#deskIcons'); if (!box) return;
+  const host = isPhone() ? $('#widgets') : $('#stage');
+  if (host && box.parentElement !== host) host.prepend(box);
   const p = DESK.loc ? DESK.loc.path : '';
   let auto = 0;
   box.innerHTML = DESK.entries.map(e => {
@@ -2850,7 +2856,7 @@ function paintDesk() {
   $$('.deskico', box).forEach(b => {
     const name = b.dataset.dn, dir = b.dataset.dir === '1', path = (p === '/' ? '' : p) + '/' + name;
     const open = () => { if (dir) { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: DESK.loc.root, path, sel: null }); openApp('files'); } else if (isText(name)) editText(DESK.loc.root, path, name); else quickLook(DESK.loc.root, path, name); };
-    b.onclick = e => { e.stopPropagation(); $$('.ico').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); };
+    b.onclick = e => { e.stopPropagation(); if (isPhone()) return open(); $$('.ico').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); };
     b.ondblclick = open;
     b.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); open(); } };
     b.oncontextmenu = e => { e.preventDefault(); e.stopPropagation(); ctxMenu(e.clientX, e.clientY, [['Open', open], ['Get Info', () => getInfo(name, dir, path, DESK.loc.root)], null, ['Move to Trash…', () => deskTrash(path, name)]]); };
