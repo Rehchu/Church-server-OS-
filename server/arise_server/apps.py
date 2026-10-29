@@ -97,6 +97,8 @@ def idle_sweep(log=print) -> dict:
     import time
     cfg = load()
     if not available():
+        if not _sample_mode():
+            return {"ok": True, "demo": False, "stopped": [], "out": "Docker is not running: nothing to sweep"}
         return {"ok": True, "demo": True, "stopped": [], "out": "(sample) nothing to sweep"}
     state_p = cfg.state_dir / "idle-apps.json"
     st = read_json(state_p, default=None) or {}
@@ -131,6 +133,16 @@ def idle_sweep(log=print) -> dict:
 def available() -> bool:
     cfg = load()
     return bool(which("docker")) and cfg.apps.docker and not cfg.demo and run(["docker", "info"], timeout=10)["ok"]
+
+
+DOCKER_DOWN = "Docker is not running here (docker info failed), so nothing was done: sudo systemctl start docker, then try again"
+
+
+def _sample_mode() -> bool:
+    """The sample apps are the preview's only. On a real box with Docker down (or Docker off in
+    arise.toml) every app call says so instead: the install rehearsal found deploys "succeeding"
+    into the sample list, and the Apps page listing sample apps as this box's."""
+    return bool(load().demo)
 
 
 # ----- the templates ----------------------------------------------------------------
@@ -298,6 +310,8 @@ def _sample_app(name: str) -> dict | None:
 def list_apps() -> dict:
     cfg = load()
     if not available():
+        if not _sample_mode():
+            return {"demo": False, "apps": [], "docker": False, "error": DOCKER_DOWN, "ram_total_mb": ram_total_mb(), "reserve_mb": RESERVE_MB}
         return {"demo": True, "apps": _sample_apps(), "docker": False, "ram_total_mb": 16384, "reserve_mb": RESERVE_MB}
     r = run(["docker", "compose", "ls", "--all", "--format", "json"], timeout=20)
     rows = []
@@ -471,6 +485,8 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     lim.update({k: v for k, v in (meta.get("limits") or {}).items() if k in lim})
     autostart = bool(meta.get("autostart", True)) if start is None else bool(start)
     if not available():
+        if not _sample_mode():
+            return {"ok": False, "err": DOCKER_DOWN}
         if _sample_app(name):
             return {"ok": False, "err": f"{name} is already installed"}
         ports = [str(p) for p in (meta.get("ports") or [])]
@@ -643,6 +659,8 @@ def act(name: str, action: str, confirm: str = "") -> dict:
     if action == "remove" and confirm != name:
         return {"ok": False, "err": "type the app name to confirm; the data folder is kept"}
     if not available():
+        if not _sample_mode():
+            return {"ok": False, "err": DOCKER_DOWN}
         a = _sample_app(name)
         if not a:
             return {"ok": False, "err": f"{name} is not installed"}
@@ -680,6 +698,8 @@ def logs(name: str, lines: int = 200) -> dict:
     if not NAME_RE.match(name or ""):
         return {"text": "bad app name"}
     if not available():
+        if not _sample_mode():
+            return {"demo": False, "name": name, "text": DOCKER_DOWN}
         return {"demo": True, "name": name, "text": f"(demo) {name} | server listening on :80\n(demo) {name} | GET / 200"}
     cfg = load()
     dest = os.path.join(cfg.apps.root, name)

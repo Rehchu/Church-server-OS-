@@ -44,5 +44,37 @@ class Rehearsal(unittest.TestCase):
         self.assertIn("useradd -u 1502 -g arise-repos", (ROOT / "scripts" / "arise-repos-setup").read_text())
 
 
+class DockerDown(unittest.TestCase):
+    """A real box (not the preview) with Docker not running: no sample app is ever shown or "deployed"."""
+    def test_no_sample_apps_on_a_real_box(self):
+        import os
+        import sys
+        import tempfile
+        from unittest import mock
+        sys.path.insert(0, str(ROOT / "server"))
+        from arise_server import apps, config
+        with tempfile.TemporaryDirectory() as t:
+            conf = Path(t) / "arise.toml"
+            conf.write_text(f'[system]\ndata_root = "{t}/data"\n[paths]\nstate_dir = "{t}/state"\nlog_dir = "{t}/state"\n[apps]\nroot = "{t}/apps"\n')
+            old = {k: os.environ.get(k) for k in ("ARISE_CONFIG", "ARISE_DEMO")}
+            os.environ["ARISE_CONFIG"] = str(conf)
+            os.environ.pop("ARISE_DEMO", None)
+            config.load(force=True)
+            try:
+                with mock.patch.object(apps, "available", return_value=False):
+                    listing = apps.list_apps()
+                    self.assertEqual(listing["apps"], [])
+                    self.assertFalse(listing["demo"])
+                    self.assertFalse(listing["docker"])
+                    for r in (apps.deploy("bookstack"), apps.act("bookstack", "start")):
+                        self.assertFalse(r["ok"])
+                        self.assertIn("Docker is not running", r["err"])
+                    self.assertIn("Docker is not running", apps.logs("bookstack")["text"])
+            finally:
+                for k, v in old.items():
+                    os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+                config.load(force=True)
+
+
 if __name__ == "__main__":
     unittest.main()
