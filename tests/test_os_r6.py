@@ -208,3 +208,10 @@ class Routes(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class KioskOpen(unittest.TestCase):
+    def test_kiosk_open_refuses_a_proxied_request(self):
+        src = (Path(__file__).resolve().parents[1] / "server" / "arise_server" / "main.py").read_text()
+        i = src.index('def api_kiosk_open')
+        self.assertIn('kiosk_profiles.on_monitor(host, request.headers.get("x-forwarded-for", ""))', src[i:i + 700])

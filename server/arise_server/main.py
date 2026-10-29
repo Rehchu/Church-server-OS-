@@ -1470,7 +1470,8 @@ def api_kiosk_claude_desktop(body: DesktopAction, who=auth):
 def api_kiosk_open(body: OpenUrl, request: Request, who=auth):
     """Only the kiosk itself (localhost) may ask the monitor to open a site."""
     host = (request.client.host if request.client else "") or ""
-    if host not in ("127.0.0.1", "::1") and not load().demo:
+    # Not through Caddy either: it proxies from 127.0.0.1 too, and always adds X-Forwarded-For.
+    if not kiosk_profiles.on_monitor(host, request.headers.get("x-forwarded-for", "")) and not load().demo:
         return {"ok": False, "err": "only the closet monitor can open windows on itself; from a browser the site opens in a new tab"}
     return church.open_on_kiosk(body.url)
 
