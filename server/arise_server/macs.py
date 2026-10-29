@@ -134,6 +134,19 @@ def secret_get(mac_id: str) -> dict:
         return {}
 
 
+def keep_previous(cur: dict, kv: dict, keep: int = 5) -> dict:
+    """Pure: the new values over the old, with each replaced password or key kept in
+    <kind>_previous (newest first, five). A stolen Mac key can then send a wrong FileVault
+    key, but it can never make the server forget the right one."""
+    out = dict(cur)
+    for k in ("ariseadmin", "filevault"):
+        if k in kv and cur.get(k) and cur[k] != kv[k]:
+            prev = [{"value": cur[k], "at": cur.get(f"{k}_at")}] + list(cur.get(f"{k}_previous") or [])
+            out[f"{k}_previous"] = prev[:keep]
+    out.update(kv)
+    return out
+
+
 def secret_put(mac_id: str, **kv):
     if load().demo:
         from . import demo_state
@@ -145,8 +158,7 @@ def secret_put(mac_id: str, **kv):
         os.chmod(d, 0o700)
     except OSError:
         pass
-    cur = secret_get(mac_id)
-    cur.update(kv)
+    cur = keep_previous(secret_get(mac_id), kv)
     p = _secret_path(mac_id)
     tmp = p.with_suffix(".tmp")
     fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
@@ -822,7 +834,7 @@ def reveal(mac_id: str, kind: str, by: str) -> dict:
     if not s.get(kind):
         return {"ok": False, "err": "not escrowed yet: it arrives after the Mac's next check-in"}
     audit.record(by, f"macs.reveal.{kind}", m["name"])
-    return {"ok": True, "value": s[kind], "since": s.get(f"{kind}_at"), "demo": load().demo}
+    return {"ok": True, "value": s[kind], "since": s.get(f"{kind}_at"), "previous": s.get(f"{kind}_previous") or [], "demo": load().demo}
 
 
 def config_for_helper() -> dict:

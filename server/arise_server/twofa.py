@@ -82,6 +82,37 @@ def verify_code(secret: str, code: str, at: float | None = None, window: int = 1
     return bool(t.verify(code, for_time=at, valid_window=window))
 
 
+def code_step(secret: str, code: str, at: float | None = None, window: int = 1) -> int | None:
+    """Pure: which 30-second step this code belongs to (one either side of now), or None."""
+    code = "".join(ch for ch in str(code or "") if ch.isdigit())
+    if len(code) != 6 or not secret:
+        return None
+    try:
+        import pyotp
+    except ImportError:
+        return None
+    t = pyotp.TOTP(secret)
+    now = time.time() if at is None else at
+    for off in range(-window, window + 1):
+        when = now + off * t.interval
+        if t.at(when) == code:
+            return int(when // t.interval)
+    return None
+
+
+_last_step: dict[str, int] = {}
+
+
+def fresh_code(user: str, secret: str, code: str, at: float | None = None) -> bool:
+    """The code matches and is newer than the last one this person signed in with: a code
+    seen over a shoulder at the closet cannot be used a second time."""
+    step = code_step(secret, code, at)
+    if step is None or step <= _last_step.get(user, -1):
+        return False
+    _last_step[user] = step
+    return True
+
+
 def code_at(secret: str, at: float) -> str:
     """The code a phone would show at this moment (for the tests)."""
     import pyotp
@@ -267,8 +298,10 @@ def finish(pending: str, code: str, max_age: int = PENDING_SECONDS) -> dict:
     with _lock:
         if nonce in _dead:
             return {"ok": False, "err": "Three wrong codes. Sign in again.", "left": 0, "expired": True}
-        good = bool(rec.get("on")) and verify_code(rec.get("secret", ""), code)
+        good = bool(rec.get("on")) and fresh_code(user, rec.get("secret", ""), code)
         a = pending_attempt(nonce, good)
+        if good:
+            _dead.add(nonce)   # a pending sign-in is spent once it has worked
     if not a["ok"]:
         if a["dead"]:
             return {"ok": False, "err": "Three wrong codes. Sign in again.", "left": 0, "expired": True}
