@@ -1,0 +1,358 @@
+#!/bin/bash
+# arise-mac-helper: the church Mac's side of ariseOS (docs/MACS.md).
+#
+# A LaunchDaemon (com.arisechurch.helper) runs this as root at boot and every five
+# minutes. It tells the server what this Mac is and who has an account on it, takes
+# the tasks the server hands back, does each one, and reports. The server is the
+# church's own Active Directory (Samba, on arise-server); no Microsoft licence anywhere.
+#
+#   /usr/local/arise/helper/arise-mac-helper            one check-in (what the daemon runs)
+#   /usr/local/arise/helper/arise-mac-helper --facts    print what it would report, change nothing
+#
+# What it may do: make and remove AD (mobile) accounts on this Mac, convert or link a
+# local account when an admin chose that in the Macs app, keep the hidden ariseadmin
+# account and FileVault's recovery key escrowed on the server, add printers and the
+# church bookmarks, install security updates overnight, keep Tailscale on, retire the Mac.
+# What it never does: erase the Mac, read the contents of anyone's files (a removal
+# compares names, sizes and dates only), remove a profile without the server first
+# confirming every file of theirs is on the server, or act during a service (the
+# server answers HOLD then). bash 3.2 (the one macOS ships): no associative arrays.
+set -u
+
+VERSION="1.0.0"
+BASE=/usr/local/arise/helper
+DB=/var/db/arise
+CONF="$DB/helper.conf"
+KEYF="$DB/helper.key"
+CACERT="$DB/arise-ca.crt"
+LOG=/var/log/arise-helper.log
+CMA=/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount
+TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale
+
+log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG"; }
+die() { log "ERROR $*"; exit 1; }
+
+# Percent-decoding for the server's TASK lines (k=v, values percent-encoded).
+urldec() { local s="${1//+/ }"; printf '%b' "${s//%/\\x}"; }
+arg() {   # arg <name> "<k=v k=v ...>"
+  local want="$1" kv
+  for kv in $2; do case "$kv" in "$want="*) urldec "${kv#*=}"; return 0 ;; esac; done
+  return 1
+}
+
+[ "$(id -u)" = 0 ] || { echo "run as root (the LaunchDaemon does)" >&2; exit 1; }
+mkdir -p "$DB" "$DB/convert" && chmod 700 "$DB"
+SERVER=""; MAC_ID=""; KEY=""
+load_conf() {
+  [ -f "$CONF" ] || die "not enrolled: no $CONF (enrol with the one Terminal line from the Macs app)"
+  # helper.conf holds two lines, SERVER=... and MAC_ID=...; read them, never source them
+  SERVER="$(sed -n 's/^SERVER=//p' "$CONF" | head -1)"
+  MAC_ID="$(sed -n 's/^MAC_ID=//p' "$CONF" | head -1)"
+  KEY="$(cat "$KEYF" 2>/dev/null)"
+  [ -n "$SERVER" ] && [ -n "$MAC_ID" ] && [ -n "$KEY" ] || die "helper.conf or helper.key is incomplete"
+}
+
+api() {   # api <path> [curl args...]
+  local path="$1"; shift
+  local ca=(); case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
+  curl -fsS --max-time 120 "${ca[@]}" -H "X-Arise-Mac: $MAC_ID:$KEY" "$SERVER/api/macs/agent/$path" "$@"
+}
+report() {   # report <task id> <done|failed|refused|skipped> <detail>
+  log "task $1: $2 $3"
+  api result --data-urlencode "id=$1" --data-urlencode "state=$2" --data-urlencode "detail=$3" >/dev/null 2>&1 || log "could not report $1 (it is sent again next time)"
+}
+
+# ----- facts -----------------------------------------------------------------------------
+console_user() { stat -f %Su /dev/console 2>/dev/null; }
+is_mobile() {   # an AD account cached on this Mac
+  dscl . -read "/Users/$1" AuthenticationAuthority 2>/dev/null | grep -q "LocalCachedUser" && return 0
+  dscl . -read "/Users/$1" OriginalNodeName 2>/dev/null | grep -q "Active Directory"
+}
+accounts() {   # user|kind|uid|admin|home|signed_in|realname|last_login
+  local me u uid kind adm home real
+  me="$(console_user)"
+  dscl . -list /Users UniqueID | while read -r u uid; do
+    case "$u" in _*|root|daemon|nobody|ariseadmin) continue ;; esac
+    [ "$uid" -ge 500 ] 2>/dev/null || continue
+    if is_mobile "$u"; then kind=mobile; else kind=local; fi
+    if dseditgroup -o checkmember -m "$u" admin >/dev/null 2>&1; then adm=1; else adm=0; fi
+    home="$(dscl . -read "/Users/$u" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+    real="$(dscl . -read "/Users/$u" RealName 2>/dev/null | sed -n '2p;1s/^RealName: //p' | sed 's/^ *//' | grep -v '^RealName:$' | head -1)"
+    printf '%s|%s|%s|%s|%s|%s|%s|\n' "$u" "$kind" "$uid" "$adm" "$home" "$([ "$u" = "$me" ] && echo 1 || echo 0)" "${real//|/ }"
+  done
+}
+fv_state() { fdesetup status 2>/dev/null | grep -q "On" && echo on || echo off; }
+ts_state() { if [ -x "$TS" ]; then "$TS" status >/dev/null 2>&1 && echo up || echo down; else echo "not installed"; fi; }
+facts() {
+  printf 'macos=%s\nmodel=%s\nserial=%s\nfilevault=%s\ntailscale=%s\n' "$(sw_vers -productVersion)" "$(sysctl -n hw.model)" \
+    "$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/{print $4}')" "$(fv_state)" "$(ts_state)"
+}
+
+# ----- the checked removal (round 6, 4) ----------------------------------------------------
+manifest() {   # manifest <home> <folders csv>: rel<TAB>size<TAB>mtime, never the contents
+  local home="$1" f
+  for f in ${2//,/ }; do
+    [ -d "$home/$f" ] || continue
+    ( cd "$home" && find "$f" -type f ! -name .DS_Store ! -name '._*' -print0 2>/dev/null | xargs -0 stat -f "%N	%z	%m" 2>/dev/null )
+  done
+}
+server_has_it_all() {   # server_has_it_all <user> <home> <bases> <folders>: prints the server's answer
+  local out tmp; tmp="$(mktemp)"
+  manifest "$2" "$4" > "$tmp"
+  out="$(api check --data-urlencode "user=$1" --data-urlencode "bases=$3" --data-urlencode "manifest@$tmp" 2>&1)"
+  rm -f "$tmp"
+  printf '%s\n' "$out"
+  case "$out" in OK*) return 0 ;; *) return 1 ;; esac
+}
+
+t_add_account() {   # make the AD (mobile) account now, so their face is on the login window
+  local id="$1" user; user="$(arg user "$2")" || { report "$id" failed "no user"; return; }
+  if dscl . -read "/Users/$user" >/dev/null 2>&1; then report "$id" done "already on this Mac"; return; fi
+  if ! id "$user" >/dev/null 2>&1; then report "$id" failed "the directory does not answer for $user (is this Mac bound? dsconfigad -show)"; return; fi
+  if "$CMA" -n "$user" -v >>"$LOG" 2>&1; then report "$id" done "mobile account made"; else report "$id" failed "createmobileaccount refused (see $LOG)"; fi
+}
+
+t_remove_profile() {
+  local id="$1" user home bases folders ans
+  user="$(arg user "$2")"; bases="$(arg bases "$2")"; folders="$(arg folders "$2" || echo Desktop,Documents)"
+  [ -n "$user" ] || { report "$id" failed "no user"; return; }
+  if ! dscl . -read "/Users/$user" >/dev/null 2>&1; then report "$id" done "not on this Mac"; return; fi
+  is_mobile "$user" || { report "$id" refused "$user is a local account here; only AD accounts are removed"; return; }
+  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in; tried again next time"; return; }
+  home="$(dscl . -read "/Users/$user" NFSHomeDirectory | awk '{print $2}')"
+  case "$home" in /Users/?*) ;; *) report "$id" refused "$user's home is '$home', not under /Users; left for an admin"; return ;; esac
+  if ! ans="$(server_has_it_all "$user" "$home" "$bases" "$folders")"; then
+    report "$id" refused "the server does not have all of $user's files yet: $(printf '%s' "$ans" | head -3 | tr '\n' ' ')"; return
+  fi
+  if sysadminctl -deleteUser "$user" >>"$LOG" 2>&1 || { dscl . -delete "/Users/$user" && rm -rf "$home"; }; then
+    report "$id" done "removed after the server confirmed ${ans#OK } files"
+  else report "$id" failed "could not delete $user (see $LOG)"; fi
+}
+
+# ----- an existing local account: convert (becomes the server user) or link ----------------
+t_convert_local() {
+  local id="$1" old user adm home new uid rec
+  old="$(arg local "$2")"; user="$(arg user "$2")"; adm="$(arg admin "$2" || echo 0)"
+  [ -n "$old" ] && [ -n "$user" ] || { report "$id" failed "local and user are needed"; return; }
+  dscl . -read "/Users/$old" >/dev/null 2>&1 || { report "$id" failed "$old is not on this Mac"; return; }
+  is_mobile "$old" && { report "$id" done "$old is already a directory account"; return; }
+  [ "$(console_user)" = "$old" ] && { report "$id" refused "$old is signed in: sign them out first"; return; }
+  id "$user" >/dev/null 2>&1 || { report "$id" failed "the directory does not answer for $user"; return; }
+  home="$(dscl . -read "/Users/$old" NFSHomeDirectory | awk '{print $2}')"
+  case "$home" in /Users/?*) ;; *) report "$id" refused "$old's home is '$home', not under /Users; convert it by hand"; return ;; esac
+  rec="$DB/convert/$old.plist"
+  # The rollback record first: everything needed to put the local account back.
+  /usr/bin/defaults write "$rec" old "$old"
+  /usr/bin/defaults write "$rec" user "$user"
+  /usr/bin/defaults write "$rec" uid "$(dscl . -read "/Users/$old" UniqueID | awk '{print $2}')"
+  /usr/bin/defaults write "$rec" gid "$(dscl . -read "/Users/$old" PrimaryGroupID | awk '{print $2}')"
+  /usr/bin/defaults write "$rec" home "$home"
+  /usr/bin/defaults write "$rec" realname "$(dscl . -read "/Users/$old" RealName | sed -n '2p' | sed 's/^ *//')"
+  /usr/bin/defaults write "$rec" shell "$(dscl . -read "/Users/$old" UserShell | awk '{print $2}')"
+  /usr/bin/defaults write "$rec" admin "$(dseditgroup -o checkmember -m "$old" admin >/dev/null 2>&1 && echo 1 || echo 0)"
+  /usr/bin/defaults write "$rec" shadowhash "$(dscl . -read "/Users/$old" dsAttrTypeNative:ShadowHashData 2>/dev/null | tail -n +2 | tr -d ' \n')"
+  /usr/bin/defaults write "$rec" at "$(date '+%Y-%m-%dT%H:%M:%S')"
+  chmod 600 "$rec"
+  new="$home"; [ "$old" != "$user" ] && [ ! -e "/Users/$user" ] && new="/Users/$user"
+  dscl . -delete "/Users/$old" || { report "$id" failed "could not remove the local record (nothing changed)"; return; }
+  [ "$new" != "$home" ] && mv "$home" "$new"
+  if ! "$CMA" -n "$user" -h "$new" -v >>"$LOG" 2>&1; then
+    [ "$new" != "$home" ] && mv "$new" "$home"
+    report "$id" failed "createmobileaccount refused; undo with the Undo button (the rollback record is $rec)"; return
+  fi
+  uid="$(id -u "$user")"
+  chown -R "$uid:staff" "$new"
+  [ "$adm" = 1 ] && dseditgroup -o edit -a "$user" -t user admin
+  /usr/bin/defaults write "$rec" new_home "$new"
+  report "$id" done "$old is now $user, home $new, every file kept; they sign in with their server password"
+}
+
+t_unconvert() {   # the rollback: the local account back as it was
+  local id="$1" old user rec home uid gid hash
+  old="$(arg local "$2")"; rec="$DB/convert/$old.plist"
+  [ -f "$rec" ] || { report "$id" failed "no rollback record for $old"; return; }
+  user="$(defaults read "$rec" user)"; home="$(defaults read "$rec" home)"; uid="$(defaults read "$rec" uid)"; gid="$(defaults read "$rec" gid)"
+  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in"; return; }
+  dscl . -delete "/Users/$user" 2>/dev/null
+  local cur; cur="$(defaults read "$rec" new_home 2>/dev/null || echo "$home")"
+  [ "$cur" != "$home" ] && [ -d "$cur" ] && mv "$cur" "$home"
+  dscl . -create "/Users/$old"
+  dscl . -create "/Users/$old" UniqueID "$uid"; dscl . -create "/Users/$old" PrimaryGroupID "$gid"
+  dscl . -create "/Users/$old" NFSHomeDirectory "$home"; dscl . -create "/Users/$old" UserShell "$(defaults read "$rec" shell)"
+  dscl . -create "/Users/$old" RealName "$(defaults read "$rec" realname)"
+  hash="$(defaults read "$rec" shadowhash 2>/dev/null)"
+  [ -n "$hash" ] && dscl . -create "/Users/$old" dsAttrTypeNative:ShadowHashData "$hash" 2>>"$LOG"
+  [ "$(defaults read "$rec" admin)" = 1 ] && dseditgroup -o edit -a "$old" -t user admin
+  chown -R "$uid:$gid" "$home"
+  mv "$rec" "$rec.undone"
+  report "$id" done "$old is a local account again (if its old password does not work, reset it in System Settings as ariseadmin)"
+}
+
+t_link_local() {   # the local account stays as it is; its files sync to the server user
+  local id="$1" old user; old="$(arg local "$2")"; user="$(arg user "$2")"
+  dscl . -read "/Users/$old" >/dev/null 2>&1 || { report "$id" failed "$old is not on this Mac"; return; }
+  /usr/bin/defaults write "$DB/links.plist" "$old" "$user"
+  report "$id" done "$old stays local, linked to $user; Nextcloud signs in as $user for it"
+}
+
+# ----- the Mac's own settings ------------------------------------------------------------
+t_login_window() {
+  local mode; mode="$(arg mode "$2" || api config 2>/dev/null | awk '$1=="LOGIN"{print $2; exit}')"
+  [ "$mode" = name ] || mode=faces   # [macs] login_window on the server
+  if [ "$mode" = faces ]; then defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool false
+  else defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool true; fi
+  defaults write /Library/Preferences/com.apple.loginwindow SHOWOTHERUSERS_MANAGED -bool true
+  report "$1" done "login window: $mode, plus Other..."
+}
+
+t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 6, 7)
+  local id="$1" pw
+  if [ -s "$DB/ariseadmin.pending" ]; then pw="$(cat "$DB/ariseadmin.pending")"
+  else pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"; fi
+  if ! dscl . -read /Users/ariseadmin >/dev/null 2>&1; then
+    sysadminctl -addUser ariseadmin -fullName "Arise Admin" -password "$pw" -admin -home /var/ariseadmin >>"$LOG" 2>&1 || { report "$id" failed "could not make ariseadmin"; return; }
+    dscl . -create /Users/ariseadmin IsHidden 1
+  elif [ ! -s "$DB/ariseadmin.pending" ]; then
+    sysadminctl -resetPasswordFor ariseadmin -newPassword "$pw" >>"$LOG" 2>&1 || { report "$id" failed "could not change ariseadmin's password"; return; }
+  fi
+  ( umask 077; printf '%s' "$pw" > "$DB/ariseadmin.pending" )
+  if api secret --data-urlencode "kind=ariseadmin" --data-urlencode "value=$pw" >/dev/null 2>&1; then
+    rm -f "$DB/ariseadmin.pending"; report "$id" done "rotated and escrowed"
+  else report "$id" failed "changed, but the server did not take it: kept here and sent next time"; fi
+}
+
+t_filevault() {   # on, deferred to the next sign-in; the recovery key escrowed (round 6, 10)
+  local id="$1" key
+  if [ -f "$DB/fv.plist" ]; then
+    key="$(defaults read "$DB/fv.plist" RecoveryKey 2>/dev/null)"
+    if [ -n "$key" ] && api secret --data-urlencode "kind=filevault" --data-urlencode "value=$key" >/dev/null 2>&1; then
+      rm -f "$DB/fv.plist"; report "$id" done "FileVault on; recovery key escrowed"; return
+    fi
+  fi
+  if [ "$(fv_state)" = on ]; then report "$id" done "FileVault already on (its key was escrowed at enrolment, or turn it off and on to escrow)"; return; fi
+  if fdesetup enable -defer "$DB/fv.plist" -forceatlogin 0 -dontaskatlogout >>"$LOG" 2>&1; then
+    report "$id" skipped "FileVault turns on at the next sign-in; the key is escrowed after that"
+  else report "$id" failed "fdesetup refused (see $LOG)"; fi
+}
+
+t_printers() {
+  local id="$1" n=0 kind name uri drv loc
+  api config 2>/dev/null | while read -r kind name uri drv loc; do
+    [ "$kind" = PRINTER ] || continue
+    lpadmin -p "$(urldec "$name")" -E -v "$(urldec "$uri")" -m "$(urldec "${drv:-everywhere}")" -L "$(urldec "${loc:-}")" >>"$LOG" 2>&1 && n=$((n + 1))
+    echo "$n" > "$DB/printers.count"
+  done
+  report "$id" done "$(cat "$DB/printers.count" 2>/dev/null || echo 0) printer(s) from the server"
+}
+
+xmlesc() { printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
+t_bookmarks() {   # the Church folder: Chrome's managed bookmarks, and .webloc files for Safari
+  local id="$1" kind name url dir=/Library/Arise/Church\ Links tmp n=0
+  mkdir -p "$dir"; tmp="$(mktemp)"
+  printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>ManagedBookmarks</key><array><dict><key>toplevel_name</key><string>Church</string></dict>\n' > "$tmp"
+  while read -r kind name url; do
+    [ "$kind" = BOOKMARK ] || continue
+    name="$(urldec "$name")"; url="$(urldec "$url")"
+    local xn xu; xn="$(xmlesc "$name")"; xu="$(xmlesc "$url")"
+    printf '<dict><key>name</key><string>%s</string><key>url</key><string>%s</string></dict>\n' "$xn" "$xu" >> "$tmp"
+    printf '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict><key>URL</key><string>%s</string></dict></plist>\n' "$xu" > "$dir/${name//\//-}.webloc"
+    n=$((n + 1))
+  done < <(api config 2>/dev/null)
+  printf '</array></dict></plist>\n' >> "$tmp"
+  mkdir -p "/Library/Managed Preferences" && mv "$tmp" "/Library/Managed Preferences/com.google.Chrome.plist" && chmod 644 "/Library/Managed Preferences/com.google.Chrome.plist"
+  report "$id" done "$n church bookmarks (Chrome's Church folder; Safari: $dir)"
+}
+
+t_certificate() {
+  if security verify-cert -c "$CACERT" >/dev/null 2>&1; then report "$1" done "the church certificate is trusted"
+  else report "$1" failed "the church certificate is not trusted: run the enrol line again in Terminal (macOS asks an admin to approve it)"; fi
+}
+
+t_updates() {   # security and background updates only, overnight; never a new macOS (round 6, 12)
+  local id="$1" labels l n=0 me uid su=/Library/Preferences/com.apple.SoftwareUpdate
+  # Apple's own unattended security channel on, new macOS versions off (Bradly clicks those).
+  defaults write "$su" AutomaticCheckEnabled -bool true
+  defaults write "$su" AutomaticDownload -bool true
+  defaults write "$su" CriticalUpdateInstall -bool true
+  defaults write "$su" ConfigDataInstall -bool true
+  defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool false 2>/dev/null
+  defaults write "$su" AutomaticallyInstallMacOSUpdates -bool false
+  labels="$(softwareupdate --list 2>/dev/null | awk -F'Label: ' '/Label:/{print $2}')"
+  printf '%s\n' "$labels" | while IFS= read -r l; do
+    [ -n "$l" ] || continue
+    case "$l" in *[Ss]ecurity*|*XProtect*|*MRT*|*Gatekeeper*|*"Background Security"*|*"Rapid Security"*) ;; *) continue ;; esac
+    softwareupdate --install "$l" >>"$LOG" 2>&1 && n=$((n + 1)); echo "$n" > "$DB/updates.count"
+  done
+  n="$(cat "$DB/updates.count" 2>/dev/null || echo 0)"; rm -f "$DB/updates.count"
+  if softwareupdate --list 2>/dev/null | grep -qi "restart"; then
+    me="$(console_user)"; uid="$(id -u "$me" 2>/dev/null)"
+    [ -n "$uid" ] && [ "$me" != root ] && launchctl asuser "$uid" osascript -e 'display dialog "A security update for this church Mac is ready. Please restart when you can." buttons {"Later"} default button 1 with title "Arise Church"' >/dev/null 2>&1 &
+  fi
+  report "$id" done "$n security update(s) installed; new macOS versions wait for Bradly"
+}
+
+t_tailscale() {
+  local st; st="$(ts_state)"
+  if [ "$st" = "not installed" ]; then
+    curl -fsSL -o /tmp/tailscale.pkg https://pkgs.tailscale.com/stable/Tailscale-latest-macos.pkg >>"$LOG" 2>&1 && installer -pkg /tmp/tailscale.pkg -target / >>"$LOG" 2>&1
+    rm -f /tmp/tailscale.pkg; st="$(ts_state)"
+  fi
+  # Off-site, the server is reached at its church address through its advertised Tailscale route
+  # (docs/REMOTE-ACCESS.md): the check-ins, Nextcloud and the shares all keep working (round 6, 17).
+  [ "$st" = up ] && "$TS" set --accept-routes=true >>"$LOG" 2>&1
+  case "$st" in up) report "$1" done "Tailscale is up, using the church route" ;; down) report "$1" skipped "Tailscale is installed but signed out: sign in once with the church's Tailscale login" ;; *) report "$1" failed "Tailscale could not be installed" ;; esac
+}
+
+t_nextcloud() {   # R6-SYNC fills tasks/nextcloud.sh: install and set up the Nextcloud client for this user
+  local id="$1" user local_; user="$(arg user "$2")"; local_="$(arg local "$2" || echo "$user")"
+  local tmp out ca=(); tmp="$(mktemp)"
+  case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
+  # the server's copy wins, so a Mac enrolled before the script existed gets it too
+  if curl -fsS --max-time 60 "${ca[@]}" "$SERVER/mac/nextcloud.sh" -o "$tmp" 2>/dev/null && bash -n "$tmp" 2>/dev/null; then
+    mkdir -p "$BASE/tasks"; install -m 755 -o root -g wheel "$tmp" "$BASE/tasks/nextcloud.sh"
+  fi
+  rm -f "$tmp"
+  if [ -x "$BASE/tasks/nextcloud.sh" ]; then
+    if out="$("$BASE/tasks/nextcloud.sh" --user "$user" --local "$local_" --server "$SERVER" 2>&1)"; then
+      printf '%s\n' "$out" >> "$LOG"; report "$id" done "Nextcloud set up for $local_ as $user"
+    else printf '%s\n' "$out" >> "$LOG"; report "$id" failed "nextcloud.sh: $(printf '%s\n' "$out" | tail -1)"; fi
+  else report "$id" skipped "no Nextcloud set-up on this Mac yet ($BASE/tasks/nextcloud.sh)"; fi
+}
+
+t_retire() {   # every AD account's files confirmed on the server, then leave the domain and go
+  local id="$1" folders u home bad=""
+  folders="$(arg folders "$2" || echo Desktop,Documents)"
+  for u in $(accounts | awk -F'|' '$2=="mobile"{print $1}'); do
+    home="$(dscl . -read "/Users/$u" NFSHomeDirectory | awk '{print $2}')"
+    server_has_it_all "$u" "$home" "" "$folders" >/dev/null || bad="$bad $u"
+  done
+  [ -n "$bad" ] && { report "$id" refused "not everything is on the server yet for:$bad"; return; }
+  dsconfigad -force -remove -u none -p none >>"$LOG" 2>&1
+  report "$id" done "left the domain; the helper removes itself now. Erase this Mac by hand (System Settings > General > Transfer or Reset)."
+  launchctl bootout system /Library/LaunchDaemons/com.arisechurch.helper.plist 2>/dev/null
+  rm -rf /Library/LaunchDaemons/com.arisechurch.helper.plist "$BASE" "$DB"
+}
+
+# ----- one check-in ----------------------------------------------------------------------
+case "${1:-}" in
+  --facts)    facts; exit 0 ;;      # what enrol.sh and the check-in send; changes nothing
+  --accounts) accounts; exit 0 ;;
+  --version)  echo "$VERSION"; exit 0 ;;
+esac
+load_conf
+FORM=(--data-urlencode "helper=$VERSION" --data-urlencode "accounts=$(accounts)")
+while IFS= read -r line; do FORM+=(--data-urlencode "$line"); done <<EOF_FACTS
+$(facts)
+EOF_FACTS
+OUT="$(api checkin "${FORM[@]}" 2>&1)" || die "check-in failed: $OUT"
+case "$OUT" in HOLD*) log "the server says a service is on: nothing done"; exit 0 ;; esac
+printf '%s\n' "$OUT" | while read -r word id kind rest; do
+  [ "$word" = TASK ] || continue
+  log "task $id: $kind $rest"
+  case "$kind" in
+    add_account|remove_profile|convert_local|unconvert|link_local|login_window|ariseadmin|filevault|printers|bookmarks|certificate|updates|tailscale|nextcloud|retire)
+      "t_$kind" "$id" "$rest" ;;
+    *) report "$id" skipped "this helper ($VERSION) does not know $kind" ;;
+  esac
+done
+exit 0

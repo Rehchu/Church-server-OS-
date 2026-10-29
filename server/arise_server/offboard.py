@@ -170,6 +170,13 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                 from . import profiles
                 r["mailbox"] = profiles.mailbox_export(e["name"], dest_dir(cfg.directory.homes_path, e["move_to"], e["name"], now))
             e["mailbox_exported"] = bool(r["mailbox"].get("ok"))
+            # Round 6, 4: their profile comes off every church Mac, through the checked path
+            # (the helper proves each file is on the server first; macs.py, docs/MACS.md).
+            try:
+                from . import macs
+                r["macs"] = macs.queue_removals(e["name"], by=by, moved_to=(r.get("files") or {}).get("to"))
+            except Exception as ex:  # noqa: BLE001 - a Mac problem never stops the leaving sweep
+                r["macs"] = {"ok": False, "err": str(ex)}
             e["done"] = now.isoformat(timespec="seconds")
             e["result"] = r
             results.append(r)
