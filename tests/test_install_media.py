@@ -98,6 +98,28 @@ class Builder(unittest.TestCase):
         self.assertIn("set timeout=-1", s)   # the erasing entry never boots by itself
         self.assertIn("Install by hand", s)
 
+    def test_grub_edit_on_ubuntus_real_menu(self):
+        # tests/fixtures/ubuntu-24.04.5-live-server-grub.cfg is /boot/grub/grub.cfg from
+        # ubuntu-24.04.5-live-server-amd64.iso (read from releases.ubuntu.com, Oct 29 2026)
+        code = [b for b in re.findall(r"<<'PY'\n(.*?)\nPY\n", BUILDER.read_text(), re.S)
+                if "menuentry" in b][0]
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "grub.cfg"
+            subprocess.run(["python3", "-c", code,
+                            str(ROOT / "tests" / "fixtures" / "ubuntu-24.04.5-live-server-grub.cfg"),
+                            str(out)], check=True)
+            g = out.read_text()
+        entries = [a or b for a, b in re.findall(r'''(?m)^menuentry\s+(?:"([^"]*)"|'([^']*)')''', g)]
+        self.assertEqual(entries[0], "Install ariseOS (ERASES this computer's largest disk)")
+        self.assertEqual(entries[1], "Install by hand (the plain Ubuntu installer)")
+        first, second = re.findall(r"(?ms)^menuentry.*?^\}", g)[:2]
+        self.assertRegex(first, r"(?m)^\tlinux\t/casper/vmlinuz\s+autoinstall ---$")
+        self.assertNotIn("autoinstall", second)
+        self.assertEqual(g.count("autoinstall"), 1)
+        self.assertIn("set timeout=-1", g)
+        self.assertNotIn("set timeout=30", g)
+        self.assertIn("Ubuntu Server with the HWE kernel", g)   # the rest stays as Ubuntu made it
+
     def test_media_carries_the_committed_tree(self):
         s = BUILDER.read_text()
         self.assertIn("git -C \"$ROOT\" archive", s)
