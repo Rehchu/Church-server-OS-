@@ -2330,7 +2330,9 @@ function lockScreen(idle) {
   lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; kioskNeutral(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
-function churchLine() { const c = S.church; const n = c?.next; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }
+// The next service names its campus when it is not the home one (Alexandria's 10:00 is not Pineville's 10:30).
+function nextLine(n, city) { if (!n) return ''; const home = (city || 'Pineville').split(',')[0]; return ` · next: ${n.name}${n.site && n.site !== home ? ' in ' + n.site : ''}, ${n.day} ${fmtSvc(n.time)}`; }
+function churchLine() { const c = S.church; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${nextLine(c?.next, c?.city)}`; }
 function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); const h = $('#lock .lock__hint'); if (h) h.textContent = churchLine() + ($('#lock').classList.contains('idle') ? ' · press a key' : ''); }
 $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw').value; $('#lockPw').value = '';
   if (S.demo && !(S.demoOnly && window.AriseMock)) { $('#lock').hidden = true; return; }
@@ -2367,7 +2369,7 @@ function showLogin(err) {
     <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px" id="loginRealm">arise-server</div></div></div>`;
   api('/public/sign-in').then(si => { const el = $('#loginRealm'); if (el && si.realm) el.textContent = `${si.host || 'arise-server'} · ${si.realm}`; }).catch(() => {});
   const lfg = $('#lforgot'); if (lfg) lfg.onclick = () => showLogin({ forgot: true, user: ($('#lu')?.value || remembered).trim() });
-  api('/public/signage').then(sg => { const n = sg.next; const el = $('#loginNext'); if (el) el.textContent = `${sg.name || 'Arise Church'} · ${(sg.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }).catch(() => {});
+  api('/public/signage').then(sg => { const n = sg.next; const el = $('#loginNext'); if (el) el.textContent = `${sg.name || 'Arise Church'} · ${(sg.city || 'Pineville').split(',')[0]}${nextLine(n, sg.city)}`; }).catch(() => {});
   const f = $('#lf'); if (!f) return;
   const fail = msg => { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = msg; };
   if (codeStep) {
@@ -2513,7 +2515,7 @@ V.macs = async () => {
   return `<div class="fade"><div class="row row--between" style="margin-bottom:12px"><div><div class="kicker">The church Macs</div><h2 style="margin:0">${ms.length} Macs · ${ms.filter(x => x.online).length} online${r.demo ? ' · sample' : ''}</h2>
       <p class="note" style="margin:6px 0 0">The server is the church's own Active Directory: no Microsoft licence. Every server user gets an account on every church Mac within minutes; a disabled one comes off once the server has all their files. ${esc(r.note || '')}</p></div>
       <button class="btn" id="macEnrol">Enrol a Mac</button></div>
-    <table class="tbl"><thead><tr><th>Mac</th><th>macOS</th><th>Accounts</th><th>FileVault</th><th>Tailscale</th><th>Seen</th><th>Tasks</th></tr></thead><tbody>${ms.map(row).join('') || '<tr><td colspan="7" class="muted">No church Macs yet. Enrol a Mac.</td></tr>'}</tbody></table>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mac</th><th>macOS</th><th>Accounts</th><th>FileVault</th><th>Tailscale</th><th>Seen</th><th>Tasks</th></tr></thead><tbody>${ms.map(row).join('') || '<tr><td colspan="7" class="muted">No church Macs yet. Enrol a Mac.</td></tr>'}</tbody></table></div>
     <p class="note" style="margin-top:12px">Never given an account on the Macs: ${(r.exclude || []).map(esc).join(', ')}. Add names to <code>[macs] exclude</code> in arise.toml.</p></div>`;
 };
 function macDetailHtml(d) {
@@ -2532,10 +2534,10 @@ function macDetailHtml(d) {
       <button class="btn btn--ghost btn--sm" data-mtask="printers">Printers again</button><button class="btn btn--ghost btn--sm" data-mtask="bookmarks">Bookmarks again</button><button class="btn btn--ghost btn--sm" data-mtask="updates">Security updates tonight</button><button class="btn btn--ghost btn--sm" data-mtask="tailscale">Tailscale</button>
       <span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="macRetire">Retire…</button><button class="btn btn--danger btn--sm" id="macCut">Cut off…</button></div>` : ''}
     <h3 class="macs-h">Accounts on this Mac</h3>
-    <table class="tbl"><thead><tr><th>Account</th><th>Kind</th><th>Rights</th><th></th><th>Your choice</th><th></th></tr></thead><tbody>${(d.accounts || []).map(acc).join('') || '<tr><td colspan="6" class="muted">The helper has not reported yet.</td></tr>'}</tbody></table>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Account</th><th>Kind</th><th>Rights</th><th></th><th>Your choice</th><th></th></tr></thead><tbody>${(d.accounts || []).map(acc).join('') || '<tr><td colspan="6" class="muted">The helper has not reported yet.</td></tr>'}</tbody></table></div>
     <p class="note" style="margin-top:8px">A local account is never changed until you choose. <b>Convert</b>: it becomes the server user, files kept, and can be undone. <b>Link</b>: it stays as it is and its files sync as the server user. <b>Leave alone</b>: nothing happens.</p>
     <h3 class="macs-h">Tasks</h3>
-    <table class="tbl"><thead><tr><th>#</th><th>What</th><th>State</th><th>By</th><th>When</th><th>Result</th></tr></thead><tbody>${(d.tasks || []).map(tk).join('') || '<tr><td colspan="6" class="muted">None yet.</td></tr>'}</tbody></table></div>`;
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>What</th><th>State</th><th>By</th><th>When</th><th>Result</th></tr></thead><tbody>${(d.tasks || []).map(tk).join('') || '<tr><td colspan="6" class="muted">None yet.</td></tr>'}</tbody></table></div></div>`;
 }
 function macChoose(d, a) {
   modal(`<h2>${esc(a.user)} on ${esc(d.name)}</h2><p class="note" style="margin-bottom:12px">${esc(a.realname || '')}${a.admin ? ' · an admin on this Mac' : ''}${a.signed_in ? ' · <b>signed in now</b>: Convert waits until they sign out' : ''}</p>
@@ -2624,7 +2626,7 @@ boot();
     let a = { events: [] }; try { a = await api('/audit?limit=60'); } catch {}
     return html.replace(/<\/div>\s*$/, '') + `<div class="panel panel--flat" style="margin-top:14px"><div class="panel__hd"><h3>Audit log</h3><span class="sub">who did what · kept forever · nothing here deletes it</span></div>
       <div class="toolbar"><input class="search" id="auQ" placeholder="Find: a name, an action, a file"><label class="row" style="gap:6px;font-size:13px"><input type="checkbox" id="auFail"> failed only</label></div>
-      <div class="tbl-wrap"><table class="tbl" id="auT"><thead><tr><th>When</th><th>Who</th><th>What</th><th>On</th><th></th></tr></thead><tbody>${auditRows(a.events)}</tbody></table></div></div></div>`;
+      <div class="tbl-wrap"><table class="tbl" id="auT"><thead><tr><th>When</th><th>Who</th><th>What</th><th>On</th><th></th></tr></thead><tbody>${auditRows(a.events)}</tbody></table></div></div></div></div>`;
   };
   V.security.after = root => {
     secAfter && secAfter(root);
@@ -2718,7 +2720,7 @@ async function profileSheet(user) {
     ${fld('personal_email', 'Personal email', 'name@gmail.com', 'Church mail forwards here, and "Forgot your password?" sends its link here. Staff do not use the dashboard, so an admin enters it for them.')}
     <div class="row" style="gap:10px;align-items:flex-start">${fld('mobile', 'Mobile phone', '318-555-0100', '')}${fld('birthday', 'Birthday', 'March 14', 'Month and day only, for the Monday weekly.')}</div>
     <p class="note">Staff and administrators see these details; members never do.</p>
-    ${si ? `<h3 style="margin:16px 0 6px">Your last sign-ins</h3><div class="tbl-wrap"><table class="tbl" id="pfSignins"><tbody>${(si.signins || []).map(x => `<tr><td class="dim">${fmtT(x.t)}</td><td>${esc(x.how || '')}</td><td class="mono dim" style="font-size:12px">${esc(x.ip || '')}</td><td>${x.ok === false ? '<span class="pill warn">not signed in</span>' : ''}</td></tr>`).join('') || '<tr><td class="dim">None recorded yet</td></tr>'}</tbody></table></div><p class="note">One that was not you? Change your password and tell Bradly.</p>` : ''}
+    ${si ? `<h3 style="margin:16px 0 6px">Your last sign-ins</h3><div class="tbl-wrap"><table class="tbl" id="pfSignins"><tbody>${(si.signins || []).map(x => `<tr><td class="dim">${fmtT(x.t)}</td><td>${esc(x.how || '')}</td><td class="mono dim" style="font-size:12px">${esc(x.ip || '')}</td><td>${x.ok === false ? '<span class="pill warn">not signed in</span>' : ''}</td></tr>`).join('') || '<tr><td class="dim">None recorded yet</td></tr>'}</tbody></table></div></div><p class="note">One that was not you? Change your password and tell Bradly.</p>` : ''}
     <div class="acts"><button class="btn btn--ghost" data-close>Close</button>${can.size ? '<button class="btn" id="pfSave">Save</button>' : ''}</div>`, m => {
     const sv = $('#pfSave', m); if (!sv) return;
     sv.onclick = async e => { const body = {};
@@ -2738,7 +2740,7 @@ function profilesWire(root) {
     <div id="ipOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn btn--ghost" id="ipCheck">Check</button><button class="btn" id="ipGo" disabled>Create the accounts</button></div>`, m => {
     const out = $('#ipOut', m), go = $('#ipGo', m);
     $('#ipFile', m).onchange = async e => { const f = e.target.files[0]; if (f) $('#ipCsv', m).value = await f.text(); };
-    const paint = r => { out.innerHTML = `<div class="tbl-wrap" style="max-height:40vh"><table class="tbl" id="ipRows"><thead><tr><th>Line</th><th>User</th><th>Name</th><th>Groups</th><th>Result</th>${r.apply ? '<th>Temporary password</th>' : ''}</tr></thead><tbody>${r.rows.map(x => `<tr><td class="dim">${x.line}</td><td class="mono">${esc(x.user)}</td><td>${esc((x.title ? x.title + ' ' : '') + x.display)}</td><td>${(x.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td>${x.ok ? `<span class="pill ok">${x.created ? 'created' : 'ready'}</span>` : `<span class="pill bad">refused</span> ${esc(x.err)}`}${(x.warnings || []).map(w => `<br><small class="muted">${esc(w)}</small>`).join('')}</td>${r.apply ? `<td class="mono">${esc(x.temporary_password || '')}</td>` : ''}</tr>`).join('')}</tbody></table></div>
+    const paint = r => { out.innerHTML = `<div class="tbl-wrap" style="max-height:40vh"><div class="tbl-wrap"><table class="tbl" id="ipRows"><thead><tr><th>Line</th><th>User</th><th>Name</th><th>Groups</th><th>Result</th>${r.apply ? '<th>Temporary password</th>' : ''}</tr></thead><tbody>${r.rows.map(x => `<tr><td class="dim">${x.line}</td><td class="mono">${esc(x.user)}</td><td>${esc((x.title ? x.title + ' ' : '') + x.display)}</td><td>${(x.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td>${x.ok ? `<span class="pill ok">${x.created ? 'created' : 'ready'}</span>` : `<span class="pill bad">refused</span> ${esc(x.err)}`}${(x.warnings || []).map(w => `<br><small class="muted">${esc(w)}</small>`).join('')}</td>${r.apply ? `<td class="mono">${esc(x.temporary_password || '')}</td>` : ''}</tr>`).join('')}</tbody></table></div></div>
       <p class="note">${r.apply ? `${r.created} created. The temporary passwords are shown here once and are not kept anywhere: print this window or copy them before you close it.` : `${r.rows.filter(x => x.ok).length} ready, ${r.refused} refused. Mail addresses are first.last@${esc(r.mail_domain)}.`}</p>${r.apply ? '<button class="btn btn--ghost btn--xs" id="ipPrint">Print</button>' : ''}`;
       const pr = $('#ipPrint', m); if (pr) pr.onclick = () => window.print(); };
     $('#ipCheck', m).onclick = async e => { const r = await act(e.target, () => api('/directory/import', { method: 'POST', body: { csv: $('#ipCsv', m).value, apply: false } })); if (!r) return; paint(r); go.disabled = !r.rows.some(x => x.ok); };
@@ -3103,16 +3105,16 @@ function staffTwofaOn(name) {
     };
     return `<div class="fade">
       <div class="grid" style="margin-bottom:14px">
-        <div class="c3 panel ${st.running === false ? 'panel--bad' : 'panel--ok'}"><div class="stat"><span class="stat__l">Nextcloud</span><span class="stat__v" style="font-size:22px">${st.running ? 'running' : st.running === false ? 'stopped' : 'unknown'}</span><span class="stat__n mono" style="font-size:11.5px">${esc(st.url || '')}</span></div></div>
+        <div class="c3 panel ${st.running === false ? 'panel--bad' : 'panel--ok'}"><div class="stat"><span class="stat__l">Nextcloud</span><span class="stat__v" style="font-size:22px">${st.running ? 'running' : st.running === false ? 'stopped' : 'unknown'}</span><span class="stat__n mono" style="font-size:11.5px;overflow-wrap:anywhere">${esc(st.url || '')}</span></div></div>
         <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Devices</span><span class="stat__v">${nDev}</span><span class="stat__n">${synced.length} of ${people.length} people syncing</span></div></div>
         <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Conflicts settled</span><span class="stat__v">${cs.length}</span><span class="stat__n">newest wins; the older copy is in the Trash</span></div></div>
         <div class="c3 panel ${full.length ? 'panel--warn' : 'panel--flat'}"><div class="stat"><span class="stat__l">Storage</span><span class="stat__v">${full.length}<small>near ${esc(qgb)}</small></span><span class="stat__n">each home against its quota</span></div></div>
       </div>
       <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>People</h3><span class="sub">${esc((st.sync_folders || []).join(' and '))} in full on every Mac · the shares on demand in Finder's sidebar · phones in the Nextcloud app</span>
         <div class="row" style="margin-left:auto;gap:6px"><button class="btn btn--ghost btn--xs" id="syncSweep">Settle conflicts now</button></div></div>
-        <table class="tbl"><thead><tr><th>Person</th><th>Devices</th><th>Last sync</th><th>Conflicts</th><th>Storage</th><th></th></tr></thead><tbody>${people.map(row).join('')}</tbody></table></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Person</th><th>Devices</th><th>Last sync</th><th>Conflicts</th><th>Storage</th><th></th></tr></thead><tbody>${people.map(row).join('')}</tbody></table></div></div>
       <div class="panel panel--flat"><div class="panel__hd"><h3>Recent conflicts</h3><span class="sub">two copies changed at once: the newer keeps the name, the older goes to that folder's Trash (Put Back works)</span></div>
-        ${cs.length ? `<table class="tbl"><thead><tr><th>When</th><th>File</th><th>Kept</th><th>Older copy</th></tr></thead><tbody>${cs.map(c => `<tr><td>${fmtT(c.t)}</td><td class="mono" style="font-size:12px">${esc(c.file)}</td><td>${esc(c.kept)}</td><td class="mono dim" style="font-size:12px">${esc(c.trash || '—')}</td></tr>`).join('')}</tbody></table>` : '<p class="muted" style="font-size:13px">No conflicts yet.</p>'}
+        ${cs.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>When</th><th>File</th><th>Kept</th><th>Older copy</th></tr></thead><tbody>${cs.map(c => `<tr><td>${fmtT(c.t)}</td><td class="mono" style="font-size:12px">${esc(c.file)}</td><td>${esc(c.kept)}</td><td class="mono dim" style="font-size:12px">${esc(c.trash || '—')}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted" style="font-size:13px">No conflicts yet.</p>'}
       </div></div>`;
   };
   V.sync.after = root => {
