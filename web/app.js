@@ -1492,6 +1492,13 @@ V.calendar.after = root => {
   $('#calSub', root).onclick = subscribeModal; const add = $('#calAdd', root); if (add) add.onclick = () => eventModal(null);
   $$('[data-ev]', root).forEach(b => b.onclick = () => { const it = (S.calData.items || []).concat(S.calData.upcoming || []).find(x => x.id === b.dataset.ev); if (it) eventDetails(it); });
   $$('.calm__d[data-day]', root).forEach(d => d.ondblclick = e => { if (isMember() || e.target.closest('button')) return; eventModal({ start: d.dataset.day + 'T18:30' }, true); });
+  // On a phone the month's events are 4 px bars: a tap on the day opens its event, or lists them.
+  $$('.calm__d[data-day]', root).forEach(d => d.addEventListener('click', e => {
+    if (!isPhone()) return; const evs = $$('[data-ev]', d); if (!evs.length) return; e.preventDefault(); e.stopPropagation();
+    if (evs.length === 1) return evs[0].click();
+    const m = modal(`<h2>${esc(new Date(d.dataset.day + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }))}</h2><div style="display:grid;gap:8px;margin-top:12px">${evs.map((b, i) => `<button class="btn btn--ghost" data-pick="${i}" style="justify-content:flex-start;text-align:left">${esc(b.title || b.textContent)}</button>`).join('')}</div><div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`);
+    $$('[data-pick]', m).forEach(x => x.onclick = () => { m.close(); evs[+x.dataset.pick].click(); });
+  }, true));
 };
 function eventDetails(it) {
   const when = `${fmtDay(it.start)} · ${fmtClock(it.start)}${it.end ? ' to ' + fmtClock(it.end) : ''}`;
@@ -2023,6 +2030,17 @@ function drag(el, handle) {
   handle.addEventListener('pointerup', e => { if (!on) return; on = false; const z = snapZone(e.clientX, e.clientY); snapGhost(null); if (z) snapTo(el.dataset.app, z); }); handle.addEventListener('pointercancel', () => { on = false; snapGhost(null); });
 }
 const seqs = {};
+// Every table in a window scrolls sideways inside its own box when it is wider than the window
+// (a phone), instead of pushing the window wider or running off its edge. Tables drawn later by
+// a tab or a search are caught too.
+function wrapTables(root) {
+  for (const t of root.querySelectorAll('.win__body table.tbl')) {
+    if (t.parentElement.classList.contains('tbl-wrap')) continue;
+    const w = document.createElement('div'); w.className = 'tbl-wrap'; t.replaceWith(w); w.appendChild(t);
+  }
+}
+let wrapRaf = 0;
+new MutationObserver(() => { if (wrapRaf) return; wrapRaf = requestAnimationFrame(() => { wrapRaf = 0; wrapTables(document); }); }).observe(document.documentElement, { childList: true, subtree: true });
 async function rerender(id) {
   const w = S.wins[id]; const fn = V[id]; if (!w || !fn) return;
   S.lastView = id;
@@ -2073,7 +2091,10 @@ const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('abou
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
-  $$('button', m).forEach(b => { b.onclick = e => { e.stopPropagation(); openMenu(b, list[+b.dataset.m][1]); }; b.onmouseenter = () => { if (menuOpen && menuOpen !== b) openMenu(b, list[+b.dataset.m][1]); }; });
+  // On a phone only the app's name shows in the bar (File, View, Window and Help would push the
+  // clock off the screen), so its menu carries every group, each under its own heading.
+  const all = () => list.flatMap((g, i) => i === 0 ? g[1] : [null, { h: g[0] }, ...g[1].filter(x => x !== null)]);
+  $$('button', m).forEach(b => { b.onclick = e => { e.stopPropagation(); openMenu(b, +b.dataset.m === 0 && matchMedia('(max-width: 520px)').matches ? all() : list[+b.dataset.m][1]); }; b.onmouseenter = () => { if (menuOpen && menuOpen !== b) openMenu(b, list[+b.dataset.m][1]); }; });
 }
 function openMenu(btn, items) {
   const d = $('#menuDrop');
@@ -2263,7 +2284,7 @@ function dockPins() { const k = 'dock.' + (isMember() ? 'member' : 'admin'); try
 function pinApp(id, on) { const pins = dockPins().filter(x => x !== id); if (on) pins.push(id); PREF.set('dock.' + (isMember() ? 'member' : 'admin'), JSON.stringify(pins)); buildDock(); tone('click'); toast(on ? `${appOf(id).name} kept in the Dock` : `${appOf(id).name} removed from the Dock (it still shows while open)`); }
 const dockApps = () => { const pins = dockPins(); const vis = visibleApps().filter(a => !a.hidden); return vis.filter(a => pins.includes(a.id)).sort((a, b) => pins.indexOf(a.id) - pins.indexOf(b.id)).concat(vis.filter(a => !pins.includes(a.id) && S.wins[a.id])); };
 function applyDockHide() { const on = PREF.get('dock.hide', '1') === '1' && !isPhone(); document.body.classList.toggle('dockhide', on); let edge = $('#dockEdge'); if (!edge) { edge = document.createElement('div'); edge.id = 'dockEdge'; edge.setAttribute('aria-hidden', 'true'); $('#desk').appendChild(edge); edge.onmouseenter = () => dockShow(true); $('#dock').onmouseleave = () => dockShow(false, 400); $('#dock').onmouseenter = () => dockShow(true); } }
-function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock').classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock').classList.remove('show'), after || 0); }
+function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock')?.classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock')?.classList.remove('show'), after || 0); }   // the sign-in page may have replaced the desktop by then
 function buildDock() {
   const d = $('#dock');
   d.innerHTML = dockApps().map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
@@ -2391,7 +2412,7 @@ function showLogin(err) {
     catch (er) { fail(er.message); }
     finally { b.classList.remove('busy'); } };
 }
-function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
+function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', matchMedia('(max-width: 520px)').matches ? { hour: 'numeric', minute: '2-digit' } : { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
 
 /* ---------------- keyboard + kiosk + boot ---------------- */
 document.addEventListener('keydown', e => {

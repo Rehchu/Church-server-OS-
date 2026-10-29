@@ -843,3 +843,107 @@ ul.plain{list-style:none;padding:0;margin:6px 0} ul.plain li{padding:4px 0;borde
 .macs-secret{font-size:16px;letter-spacing:.06em;text-align:center}
 .macs-pick{display:grid;gap:8px}
 .macs-pick .chk{line-height:1.45}
+
+/* ---------- round 7 audit: phone and tablet ---------- */
+/* The menu bar never pushes Spotlight, Control Center and the clock off the screen: the
+   menus give way first, and on a phone they fold into the app's own menu (setAppMenus). */
+.bar .menus{flex:0 1 auto;min-width:0;overflow:hidden}
+@media(max-width:520px){
+  .menus button:not(.app){display:none}
+  #stVpn,#stBk{display:none}
+  .demo-badge{font-size:0;padding:3px 6px}.demo-badge::after{content:"Sample";font-size:9px;letter-spacing:.16em}
+  .win__sub{display:none}
+}
+.win__sub{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* Touch screens: every button at least 40 px tall, and the window dots get a 40 px target
+   (the dot itself stays 12 px). */
+@media(pointer:coarse){
+  .btn,.btn--sm,.btn--xs{min-height:40px}
+  .win__dots{gap:0}
+  .win__dots button{width:40px;height:40px;background:transparent!important;border:0;position:relative}
+  .win__dots button::after{content:"";position:absolute;left:14px;top:14px;width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.4);background:#3a3a40}
+  .win__dots .x::after{background:var(--red)} .win__dots .m::after{background:#8a8a90} .win__dots .z::after{background:#F4F2F0}
+  .win__dots button:hover{transform:none}
+  .bar__ico{width:40px;height:34px}
+  summary{min-height:40px;display:flex;align-items:center}
+}
+@media(max-width:900px){
+  /* the dock is a solid bar on a phone: no sermon times showing through it */
+  .dock{background:rgba(10,10,12,.97)}
+  /* toasts sit above the dock, not on it */
+  .toasts{left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-width:none}
+  /* the Terminal's last lines clear the dock */
+  .win--term .win__body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+  /* Help: the list takes at most a third, the page the rest (a grid row sized itself to the whole list) */
+  .help{display:flex;flex-direction:column}
+  .help__side{flex:0 0 auto;max-height:34%}
+  .help__doc{flex:1 1 auto;min-height:0}
+}
+/* Sign-in and the lock screen fit a phone: the name and password boxes shrink together
+   instead of pushing the arrow off the screen, and the arrow is a 44 px target. */
+.lock__form{max-width:100%}
+.lock__form input{min-width:0;flex:1 1 auto}
+.lock__form button{flex:0 0 44px;width:44px;min-height:40px}
+.lock__hint{max-width:100%;overflow-wrap:anywhere}
+.login{grid-template-columns:minmax(0,1fr)}.login__box{max-width:100%;min-width:0}.login__box form{max-width:100%}
+@media(max-width:520px){.login{padding:16px}.login__box{padding:24px 16px}.lock__form input{font-size:16px}}
+/* Touch: the rest of the small targets (menu bar, Finder's toolbar and sidebar, segmented
+   switches, chips, notification rows, a group member's remove ×). */
+@media(pointer:coarse){
+  .seg button,.chip,.finder__side button,.finder__tb button,button.widget__row{min-height:40px}
+  .finder__tb button{min-width:40px}
+  .btn{min-width:40px;justify-content:center}
+  .tag__x{padding:12px 10px;margin:-12px -6px -12px 0}
+}
+@media(pointer:coarse) and (max-width:900px){
+  .bar{height:44px;gap:4px;padding:0 6px 0 2px}
+  .bar__logo{width:40px;height:40px}
+  .bar__pill,.bar__clock,.demo-badge{min-height:40px;display:inline-flex;align-items:center}
+  .bar__ico{height:40px}
+  .menus button.app{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+}
+@media(pointer:coarse) and (max-width:700px){.finder{grid-template-rows:auto auto 1fr 44px}.finder__path button{min-height:40px;min-width:40px;padding:0 6px}}
+@media(pointer:coarse){.tag__x{padding:12px 18px;margin:-12px -12px -12px -6px}}
+/* Phone menu bar: the app's menu is one "Menu" button (the window already says which app),
+   so nothing is cut to "AR…"; the unread count sits clear of the time. */
+@media(max-width:520px){
+  .menus button.app{font-size:0;padding:0 8px}
+  .menus button.app::after{content:"Menu";font-size:12px;letter-spacing:.1em}
+  .bar{gap:2px}
+  .bar__pill{padding:2px 7px}
+  #barClock.has-unread{padding-right:20px}
+  #barClock.has-unread::after{top:3px;right:0}
+}
+/* Tablet (and any narrow window): the live numbers and the pills' words go before the menus
+   or the clock do; VPN, backups and the numbers are all in Control Center. */
+@media(max-width:900px){
+  .bar__stat,.bar__live,.bar__pilltxt,#stVpn,#stBk{display:none}
+  .demo-badge{letter-spacing:.1em}
+}
+/* Laptops and the closet monitor at a low resolution: the numbers give way in steps, so the
+   app's menus keep their room and the clock never leaves the screen. */
+@media(max-width:1400px){.bar__live,.bar__stat,.bar__host{display:none}}
+@media(max-width:1200px){.bar__pilltxt{display:none}}
+@media(max-width:1440px){.demo-badge{font-size:0}.demo-badge::after{content:"Sample";font-size:10px;letter-spacing:.18em}}
+/* On a phone or tablet the window padding is 14 px, so the edge-to-edge apps (Finder, Settings, app frames) pull out by 14 px, not the desktop gutter: no 7 px sideways scroll. */
+@media(max-width:900px){.win__body{--gut:14px}}
+/* touch: the remove × keeps its 40 px target without reaching into the next tag */
+@media(pointer:coarse){.tag__x{margin:0}}
+/* a video with no picture yet: its title keeps clear of the running time in the corner */
+.vthumb__ph{padding-right:64px}
+/* the unread count sits beside the time, never on it (every size) */
+#barClock.has-unread{padding-right:24px}
+#barClock.has-unread::after{right:3px}
+/* Help on a phone or tablet: the list scrolls inside its third instead of spilling over the page */
+@media(max-width:900px){.help__side{overflow:hidden}.help__list{flex:1 1 auto}}
+/* checklist ticks keep their size whatever the length of the line beside them */
+.sun__item input{flex:0 0 auto}
+@media(pointer:coarse){.sun__item input{width:22px;height:22px;margin-top:2px}}
+/* the lock screen keeps a margin on a phone */
+@media(max-width:520px){.lock__in{padding:0 16px;max-width:100%}}
+/* a panel heading wraps on a phone: its note takes a full line instead of a narrow column beside the button */
+@media(max-width:700px){.panel__hd{flex-wrap:wrap}.panel__hd .sub{flex:1 1 100%;order:3}}
+@media(max-width:900px){.help__side{border-bottom:1px solid var(--line2);margin-bottom:14px}}
+@media(pointer:coarse) and (max-width:900px){.bar__pill{min-width:40px;justify-content:center}}
+/* the narrowest phones: the preview badge gives way (the Needs-you card already says "sample data") so Menu, the pills and the clock fit */
+@media(max-width:420px){.demo-badge{display:none!important}}

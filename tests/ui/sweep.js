@@ -28,8 +28,8 @@ const INSTRUMENT = () => {
   document.addEventListener('DOMContentLoaded', () => { const t = document.getElementById('toasts'); if (t) new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) window.__toasts.push({ cls: n.className, text: n.textContent }); }).observe(t, { childList: true }); });
 };
 
-async function newPage(browser, url, viewport = { width: 1440, height: 900 }, storage) {
-  const ctx = await browser.newContext({ viewport, storageState: storage });
+async function newPage(browser, url, viewport = { width: 1440, height: 900 }, storage, device = {}) {
+  const ctx = await browser.newContext({ viewport, storageState: storage, ...device });
   await ctx.addInitScript(INSTRUMENT);
   const p = await ctx.newPage(); p.ctx = ctx;
   p.on('pageerror', e => p.evaluate(m => window.__errs && window.__errs.push('pageerror: ' + m), e.message).catch(() => {}));
@@ -395,8 +395,61 @@ async function everyControl(browser, url, role) {
 }
 
 /* ---------------- the phone ---------------- */
+/* What a phone screen must never do, checked the same way for every app (round 7 audit):
+   - the window scrolls sideways, or something runs past its edge outside a scroller
+   - visible text or controls sit on top of each other (an open panel, the dock and toasts
+     are layers above the page and do not count against what is under them)
+   - a button, chip or switch smaller than 40 px either way (a month's event bars are not
+     targets on a phone: a tap on the day opens them)
+   - the window's last row ends under the dock */
+const LAYOUT = (scopeSel) => {
+  const scope = document.querySelector(scopeSel) || document.body, body = scope.querySelector('.win__body') || scope, out = [];
+  const inClip = e => { const r = e.getBoundingClientRect(); for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') { const c = a.getBoundingClientRect(); if (r.right <= c.left || r.left >= c.right || r.bottom <= c.top || r.top >= c.bottom) return false; } } return true; };
+  const vis = e => { const r = e.getBoundingClientRect(); if (r.width < 1 || r.height < 1 || e.closest('[hidden]')) return false; const cs = getComputedStyle(e); return cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05 && inClip(e); };
+  const name = e => `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''} "${(e.innerText || e.value || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 30)}"`;
+  const LAYER = '#launchpad, #spot, #cc, #nc, #menuDrop, #ctx, dialog, .walk, #lock, .dock, .toasts';
+  if (body.scrollWidth > body.clientWidth + 2) out.push(`the window scrolls sideways by ${body.scrollWidth - body.clientWidth}px`);
+  const leaves = [...scope.querySelectorAll('*')].filter(e => !e.closest('svg') && vis(e) && ([...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(e.tagName)));
+  const br = body.getBoundingClientRect();
+  for (const e of leaves) {
+    const r = e.getBoundingClientRect(); let a = e.parentElement, clip = null;
+    for (; a && a !== body.parentElement; a = a.parentElement) if (getComputedStyle(a).overflowX !== 'visible') { clip = a; break; }
+    const cr = (clip || body).getBoundingClientRect();
+    if ((r.right > cr.right + 2 || r.left < cr.left - 2) && !(clip && clip !== body && /auto|scroll/.test(getComputedStyle(clip).overflowX))) out.push(`${name(e)} runs past ${clip && clip !== body ? name(clip) : 'the window'} by ${Math.round(r.right - cr.right)}px`);
+  }
+  const rects = e => (['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(e.tagName) || getComputedStyle(e).display !== 'inline') ? [e.getBoundingClientRect()] : [...e.getClientRects()];
+  const items = leaves.map(e => ({ e, rs: rects(e).filter(r => r.width > 4 && r.height > 4), l: e.closest(LAYER) })).filter(x => x.rs.length);
+  let n = 0;
+  for (let i = 0; i < items.length && n < 5; i++) for (let j = i + 1; j < items.length && n < 5; j++) {
+    const A = items[i], B = items[j]; if (A.l !== B.l || A.e.contains(B.e) || B.e.contains(A.e)) continue;
+    hit: for (const ra of A.rs) for (const rb of B.rs) { const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left), oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top); if (ox > 6 && oy > 6) { const t = document.elementFromPoint(Math.max(ra.left, rb.left) + ox / 2, Math.max(ra.top, rb.top) + oy / 2); if (t && (A.e.contains(t) || B.e.contains(t) || t.contains(A.e) || t.contains(B.e))) { out.push(`${name(A.e)} overlaps ${name(B.e)}`); n++; } break hit; } }
+  }
+  for (const e of scope.querySelectorAll('button, a.btn, [role=button], select, summary')) { if (!vis(e) || e.matches('.calm__ev')) continue; const r = e.getBoundingClientRect(); if (r.height < 39.5 || r.width < 35.5) out.push(`${name(e)} is ${Math.round(r.width)}×${Math.round(r.height)}, too small to tap`); }
+  // tick boxes in one list are one size (a long line beside one used to squeeze it)
+  const ticks = {}; for (const e of scope.querySelectorAll('input[type=checkbox], input[type=radio]')) { if (!vis(e)) continue; const k = (e.closest('label')?.className || '-') + '|' + (e.parentElement?.parentElement?.className || ''); (ticks[k] = ticks[k] || []).push(e.getBoundingClientRect().width); }
+  for (const [k, ws] of Object.entries(ticks)) if (ws.length > 1 && Math.max(...ws) - Math.min(...ws) > 2) out.push(`tick boxes in ${k.split('|')[0]} are ${Math.round(Math.min(...ws))} to ${Math.round(Math.max(...ws))}px wide`);
+  const dock = document.querySelector('.dock'); if (dock && body !== scope) { const d = dock.getBoundingClientRect(), r = body.getBoundingClientRect(), pad = parseFloat(getComputedStyle(body).paddingBottom) || 0; if (d.height && r.bottom - pad > d.top + 4) out.push(`the window's last ${Math.round(r.bottom - pad - d.top)}px sit under the dock`); }
+  return out;
+};
 async function phone(browser, url) {
-  const p = await newPage(browser, url, { width: 390, height: 844 });
+  // An iPad and a narrow window: the same menu bar rule, with a window open (its menus show then).
+  for (const [w, h, what] of [[820, 1180, 'iPad'], [1024, 768, 'iPad landscape']]) {
+    const tb = await newPage(browser, url, { width: w, height: h }, undefined, { isMobile: true, hasTouch: true });
+    await app(tb, 'directory'); await settle(tb, 300);
+    const off = await tb.evaluate(() => ['#spotBtn', '#ccBtn', '#barClock'].filter(s => { const r = document.querySelector(s)?.getBoundingClientRect(); return !r || r.right > innerWidth + 1 || r.width < 1; }));
+    rec(`${what} · menu bar`, 'Spotlight, Control Center and the clock are on the screen', !off.length, off.join(', ') + ' off the screen');
+    await tb.ctx.close();
+  }
+  const p = await newPage(browser, url, { width: 390, height: 844 }, undefined, { isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  // The menu bar keeps Spotlight, Control Center and the clock on the screen.
+  const bar = await p.evaluate(() => ['#spotBtn', '#ccBtn', '#barClock'].filter(s => { const r = document.querySelector(s)?.getBoundingClientRect(); return !r || r.right > innerWidth + 1 || r.width < 1; })
+    .concat([...document.querySelectorAll('#menus button.app')].filter(b => b.scrollWidth > b.clientWidth + 1 || b.parentElement.scrollWidth > b.parentElement.clientWidth + 1).map(() => 'the Menu label (cut off)')));
+  rec('phone · menu bar', 'Spotlight, Control Center and the clock are on the screen', !bar.length, bar.join(', ') + ' off the screen');
+  // A toast sits above the dock, not on it.
+  await p.evaluate(() => window.arise.toast('sweep toast', 'warn', 3000)); await settle(p, 300);
+  const tst = await p.evaluate(() => { const t = [...document.querySelectorAll('.toast')].pop()?.getBoundingClientRect(), d = document.querySelector('.dock').getBoundingClientRect(); return t ? Math.round(t.bottom - d.top) : null; });
+  rec('phone · toasts', 'a toast sits above the dock', tst !== null && tst <= 0, `${tst}px into the dock`);
+  rec('phone · desktop', 'the desktop has no layout faults', ...(f => [!f.length, f.join(' · ')])(await p.evaluate(LAYOUT, '#stage')));
   // The Desktop's files sit in a row above the widgets, never on top of them.
   await settle(p, 800);
   const ov = await p.evaluate(() => { const ic = [...document.querySelectorAll('.deskico')].map(e => e.getBoundingClientRect()); const ws = [...document.querySelectorAll('#widgets > :not(#deskIcons)')].map(e => e.getBoundingClientRect()); return { n: ic.length, hit: ic.filter(a => ws.some(c => a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top)).length }; });
@@ -407,7 +460,21 @@ async function phone(browser, url) {
     await app(p, id); await settle(p, 200);
     const o = await p.evaluate(() => ({ page: document.documentElement.scrollWidth - innerWidth, body: document.body.scrollWidth - innerWidth }));
     rec(`phone · ${id}`, 'no sideways scroll', o.page <= 1 && o.body <= 1, `page +${o.page}px, body +${o.body}px`);
+    // every tab of the app, the same layout rules
+    const tabs = await p.evaluate(id => { const w = document.querySelector('#wb-' + id)?.closest('.win'); return w ? [...w.querySelectorAll('.tabs button[data-t], .settings__nav button')].length : 0; }, id);
+    for (let t = 0; t < Math.max(1, tabs); t++) {
+      if (t) { await p.evaluate(([id, t]) => [...document.querySelector('#wb-' + id).closest('.win').querySelectorAll('.tabs button[data-t], .settings__nav button')][t]?.click(), [id, t]); await settle(p, 500); }
+      const f = await p.evaluate(([id, src]) => { const w = document.querySelector('#wb-' + id)?.closest('.win'); if (!w) return []; w.dataset.sweep = '1'; const r = (0, eval)('(' + src + ')')('.win[data-sweep]'); delete w.dataset.sweep; return r; }, [id, LAYOUT.toString()]);
+      rec(`phone · ${id}${t ? ' · tab ' + (t + 1) : ''}`, 'no overlap, overflow, tiny targets or rows under the dock', !f.length, f.slice(0, 6).join(' · '));
+    }
     if (['files', 'directory', 'calendar', 'sunday', 'apps', 'settings'].includes(id)) await p.screenshot({ path: path.join(OUT, `phone-${id}.png`) });
+  }
+  // The sign-in screen fits the phone: the arrow is on the screen.
+  await p.evaluate(() => Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)));
+  for (const [what, open] of [['lock screen', 'lockScreen'], ['sign-in page', 'showLogin']]) {
+    await p.evaluate(f => window.arise[f](), open); await settle(p, 700);
+    const lk = await p.evaluate(() => { const b = [...document.querySelectorAll('#lf button, .lock__form button')].find(x => x.getBoundingClientRect().width > 0); const r = b && b.getBoundingClientRect(); return r ? Math.round(r.right - innerWidth) : null; });
+    rec(`phone · ${what}`, `the ${what} fits the phone`, lk !== null && lk <= 0, `the arrow is ${lk}px past the edge`);
   }
   const e = await errs(p); rec('phone', 'no page errors', !e.length, e.join(' | '));
   await p.ctx.close();
