@@ -13,7 +13,7 @@ import urllib.request
 from datetime import datetime
 
 from .config import load
-from .util import now_iso, read_json, run, which, write_json
+from .util import read_text, now_iso, read_json, run, which, write_json
 
 ARISE_HOME = "/opt/arise"
 
@@ -115,6 +115,16 @@ def daily_report(attention: list[dict], summary: dict) -> dict:
     else:
         lines.append("✅ All clear: services up, last automator run clean, backups ok, Synology mounted.")
     lines.append(f"Automator: {summary.get('automator', '')} · Backups: {summary.get('backup', '')}")
+    # Round 7, 145: a failed 02:05 run, in the report's own words, job by job.
+    if summary.get("automator_failed"):
+        try:
+            from . import automator, reports
+            why = reports.explain_failure(read_text(automator._paths()["latest"], ""))
+            if why:
+                lines.append("What the 02:05 report says went wrong:")
+                lines += [f"  · {w}" for w in why]
+        except Exception:  # noqa: BLE001
+            pass
     text = "\n".join(lines)
     result = {"when": now_iso(), "sent": False, "text": text}
     if attention or not n["only_when_attention"]:

@@ -17,6 +17,7 @@ copied into a title, description, Short or git.
 from __future__ import annotations
 
 import json
+from datetime import datetime
 import os
 import re
 import threading
@@ -492,6 +493,165 @@ def import_files(files: list[dict], by: str) -> dict:
     return {"ok": True, "demo": load().demo, "results": results,
             "linked": sum(1 for r in results if r.get("matched_by")), "unlinked": sum(1 for r in results if r.get("ok") and not r.get("matched_by")),
             "failed": sum(1 for r in results if not r.get("ok"))}
+
+
+# ----- the Lyrics inbox (round 7, 99 and 100) -------------------------------------------
+# Bradly exports songs from Proclaim (or SongSelect) and drops the files into "Lyrics inbox" in
+# Nextcloud; he and the worship leader ([songs] inbox_users) see that folder. Every few minutes
+# the server imports whatever landed there with the same rules as the Songs tab's Import, then
+# moves each file to Imported/ (or Not imported/ with the reason). The lyrics stay in the
+# lyrics store on this server; nothing is copied anywhere else.
+INBOX_MAX = 2_000_000
+INBOX_KEEP = 60
+
+
+def inbox_dir() -> Path:
+    return Path(load().system.data_root) / "shares" / "lyrics-inbox"
+
+
+def inbox_users() -> list[str]:
+    raw = load().raw
+    sc = (raw.get("songs") if isinstance(raw, dict) else None) or {}
+    users = [str(u) for u in (sc.get("inbox_users") or [])]
+    owner = str(getattr(load().owner, "user", "") or "")
+    if owner and owner not in users:
+        users.insert(0, owner)
+    return users
+
+
+def _inbox_log_path() -> Path:
+    return Path(load().state_dir) / "songs-inbox.json"
+
+
+def inbox_log() -> dict:
+    if load().demo:
+        from . import demo_state
+        return demo_state.get("songs.inbox", lambda: {"runs": [{"at": "2026-10-28T21:10", "files": 2, "linked": 1, "unlinked": 1, "failed": 0,
+                                                                  "results": [{"name": "Make Room.txt", "ok": True, "title": "Make Room", "matched_by": "CCLI number"},
+                                                                              {"name": "Sample song.txt", "ok": True, "title": "Sample song", "matched_by": None,
+                                                                               "note": "kept, not linked: no song in song_bank.json has that title"}]}],
+                                                        "folder": "Lyrics inbox", "users": inbox_users(), "demo": True})
+    try:
+        d = json.loads(_inbox_log_path().read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        d = {}
+    return {"runs": d.get("runs", [])[:20], "folder": "Lyrics inbox", "users": inbox_users(), "path": str(inbox_dir()), "demo": False}
+
+
+def _move_aside(f: Path, sub: str) -> None:
+    dest = f.parent / sub
+    dest.mkdir(exist_ok=True)
+    target = dest / f.name
+    if target.exists():
+        target = dest / f"{f.stem} {datetime.now():%Y-%m-%d %H%M%S}{f.suffix}"
+    os.replace(f, target)
+
+
+def inbox_scan(by: str = "the Lyrics inbox") -> dict:
+    """Import everything at the top of the inbox. Files that are not lyrics stay where they are."""
+    if load().demo:
+        return {"ok": True, "demo": True, "files": 0, "note": "the sample has no inbox"}
+    d = inbox_dir()
+    if not d.is_dir():
+        return {"ok": True, "files": 0, "note": f"no inbox yet ({d})"}
+    picked = [f for f in sorted(d.iterdir()) if f.is_file() and not f.is_symlink() and not f.name.startswith(".")
+              and f.name.lower().endswith(IMPORT_TYPES) and f.stat().st_size <= INBOX_MAX]
+    if not picked:
+        return {"ok": True, "files": 0}
+    files = []
+    for f in picked:
+        try:
+            files.append({"name": f.name, "text": f.read_bytes().decode("utf-8-sig", errors="replace"), "_p": f})
+        except OSError:
+            continue
+    r = import_files([{"name": x["name"], "text": x["text"]} for x in files], by)
+    for x, res in zip(files, r["results"]):
+        try:
+            _move_aside(x["_p"], "Imported" if res.get("ok") else "Not imported")
+        except OSError:
+            pass
+    run = {"at": datetime.now().isoformat(timespec="minutes"), "files": len(files), "linked": r["linked"], "unlinked": r["unlinked"],
+           "failed": r["failed"], "results": [{k: v for k, v in res.items() if k in ("name", "ok", "title", "matched_by", "note", "err")} for res in r["results"]]}
+    lp = _inbox_log_path()
+    try:
+        old = json.loads(lp.read_text(encoding="utf-8")).get("runs", [])
+    except (OSError, ValueError):
+        old = []
+    lp.parent.mkdir(parents=True, exist_ok=True)
+    lp.write_text(json.dumps({"runs": [run] + old[:INBOX_KEEP - 1]}, indent=1), encoding="utf-8")
+    from . import audit
+    audit.record(by, "songs.inbox", f"{len(files)} file(s)", detail=f"{r['linked']} linked, {r['unlinked']} kept unlinked, {r['failed']} failed")
+    return {"ok": True, **run}
+
+
+# ----- the CCLI song-usage report (round 7, 106) ----------------------------------------
+# What was sung and how often, for the church's CCLI reporting: titles and numbers exactly as
+# song_bank.json (or the set list) has them, never a guessed number, never a lyric.
+def quarter_of(d) -> tuple[str, str, str]:
+    """Pure: a date -> (label, first day, last day) of its quarter, e.g. ('2026 Q4', '2026-10-01', '2026-12-31')."""
+    from datetime import date as _date
+    if isinstance(d, str):
+        d = _date.fromisoformat(d[:10])
+    q = (d.month - 1) // 3
+    first = _date(d.year, q * 3 + 1, 1)
+    last = _date(d.year + (q == 3), (q * 3 + 3) % 12 + 1, 1)
+    from datetime import timedelta as _td
+    return f"{d.year} Q{q + 1}", first.isoformat(), (last - _td(days=1)).isoformat()
+
+
+def usage_report(start: str, end: str, setlists: list[dict] | None = None, songs: list[dict] | None = None) -> dict:
+    """Pure given its inputs: every song in the set lists between two dates (inclusive)."""
+    setlists = setlists if setlists is not None else _setlists()
+    if songs is None:
+        songs, _ = bank()
+    by_ccli = {s["ccli"]: s for s in songs if s.get("ccli")}
+    by_title = {norm_title(s["title"]): s for s in songs}
+    rows: dict = {}
+    services = 0
+    for sl in setlists:
+        dte = str(sl.get("date") or "")[:10]
+        if not dte or not (start <= dte <= end):
+            continue
+        services += 1
+        for item in sl.get("songs", []):
+            num = str(item.get("ccli") or "").strip() or None
+            known = by_ccli.get(num) if num else by_title.get(norm_title(item.get("title", "")))
+            title = (known or {}).get("title") or item.get("title") or "?"
+            ccli = num or (known or {}).get("ccli")
+            k = ccli or "t:" + norm_title(title)
+            r = rows.setdefault(k, {"title": title, "ccli": ccli, "times": 0, "dates": [], "original": bool((known or {}).get("original"))})
+            r["times"] += 1
+            r["dates"].append(dte)
+    out = sorted(rows.values(), key=lambda r: (-r["times"], r["title"].lower()))
+    return {"from": start, "to": end, "services": services, "songs": out,
+            "no_number": [r["title"] for r in out if not r["ccli"] and not r["original"]],
+            "note": "From the set lists. A song with no CCLI number here has none banked: look it up in SongSelect; nothing is guessed."}
+
+
+def usage_csv(rep: dict) -> str:
+    import csv
+    import io
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["Title", "CCLI song number", "Times used", "Dates"])
+    for r in rep["songs"]:
+        w.writerow([r["title"], r["ccli"] or ("Arise original" if r["original"] else ""), r["times"], " ".join(r["dates"])])
+    return buf.getvalue()
+
+
+def write_quarter_report(today=None) -> dict:
+    """The quarterly report for the quarter that just ended, into <data_root>/songs/reports/."""
+    from datetime import date as _date, timedelta as _td
+    today = today or _date.today()
+    label, first, last = quarter_of(_date(today.year, ((today.month - 1) // 3) * 3 + 1, 1) - _td(days=1))
+    rep = usage_report(first, last)
+    if load().demo:
+        return {"ok": True, "demo": True, "label": label, **rep}
+    out = Path(load().system.data_root) / "songs" / "reports"
+    out.mkdir(parents=True, exist_ok=True)
+    f = out / f"ccli-usage-{label.replace(' ', '-')}.csv"
+    f.write_text(usage_csv(rep), encoding="utf-8")
+    return {"ok": True, "label": label, "file": str(f), **rep}
 
 
 # ----- sample data: songs and numbers Bradly banked (CLAUDE.md), no lyrics -----------

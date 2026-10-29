@@ -326,12 +326,16 @@ def search(q: str, kind: str = "transcript", history: bool = False, private: boo
     cat, facts, held = catalogue.load(a), _facts(), _held()
     groups: dict = {}
     files = []
+    hidden = set()
     for h in res["results"]:
         p = h["provenance"]
         hit = {"kind": h["kind"], "snippet": _mark(h.get("snippet")), "link": h.get("link"), "sec": p.get("start_sec"),
                "at": hms(p["start_sec"]) if p.get("start_sec") is not None else None, "repo": p["repo"], "path": p["path"],
                "lines": p.get("lines"), "history": bool(h.get("history")), "private": bool(h.get("private")), "title": h.get("title")}
         vid = h.get("video_id")
+        if vid and vid in held:
+            hidden.add(vid)          # round 7, 105: videos on the hold list stay out of search
+            continue
         if vid:
             g = groups.get(vid)
             if not g:
@@ -342,7 +346,7 @@ def search(q: str, kind: str = "transcript", history: bool = False, private: boo
         elif len(files) < 40:
             files.append(hit)
     words = q.lower().replace('"', "").split()
-    titles = [_row(v, r, facts.get(v), held) for v, r in cat.items() if words and all(w in (r.get("title") or "").lower() for w in words)]
+    titles = [_row(v, r, facts.get(v), held) for v, r in cat.items() if v not in held and words and all(w in (r.get("title") or "").lower() for w in words)]
     titles.sort(key=lambda r: r["date"] or "", reverse=True)
     songs = []
     if re.fullmatch(r"(?i)(ccli\s*#?\s*)?\d{4,8}", q) or kind in ("song", "all"):
@@ -351,7 +355,7 @@ def search(q: str, kind: str = "transcript", history: bool = False, private: boo
         except Exception:  # noqa: BLE001
             songs = []
     return {"query": q, "kind": kind, "count": len(res["results"]), "videos": list(groups.values()), "files": files,
-            "titles": titles[:12], "songs": songs, "lyrics": LYRICS_NOTE, "private_allowed": may_private(who)}
+            "titles": titles[:12], "songs": songs, "lyrics": LYRICS_NOTE, "private_allowed": may_private(who), "held_hidden": len(hidden)}
 
 
 def document(repo: str, path: str, start: int | None = None, who: dict | None = None) -> dict:
@@ -520,7 +524,11 @@ def demo_transcript(vid: str) -> dict:
 def demo_search(q: str, kind: str) -> dict:
     words = [w for w in re.findall(r"\w+", q.lower()) if w]
     groups, titles = [], []
+    hidden = 0
     for v in DEMO_VIDEOS:
+        if v.get("held"):
+            hidden += 1 if words and (all(w in v["title"].lower() for w in words) or v.get("transcript")) else 0
+            continue             # round 7, 105: held videos stay out of search
         if words and all(w in v["title"].lower() for w in words):
             titles.append(demo_row(v))
         if kind not in ("transcript", "all") or not v.get("transcript"):
@@ -537,4 +545,4 @@ def demo_search(q: str, kind: str) -> dict:
         if hits:
             groups.append({**demo_row(v), "hits": hits[:12]})
     return {"query": q, "kind": kind, "demo": True, "count": sum(len(g["hits"]) for g in groups), "videos": groups, "files": [],
-            "titles": titles, "songs": [], "lyrics": LYRICS_NOTE, "private_allowed": False}
+            "titles": titles, "songs": [], "lyrics": LYRICS_NOTE, "private_allowed": False, "held_hidden": hidden}

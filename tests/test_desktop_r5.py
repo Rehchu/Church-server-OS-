@@ -79,7 +79,7 @@ class Checklists(RealConfig):
         sat = T("2026-10-24 21:00")
         r = c.edit("Inedge", admin, items=["Room set up", "Sound check"], leader="inedge", now=sat)
         self.assertTrue(r["ok"], r)
-        self.assertEqual(r["nudge"], {"Sunday Service": "08:45", "Glory Night": "17:45"})   # 75 minutes before the earliest start
+        self.assertEqual(r["nudge"], {"Sunday Service": "09:00", "Glory Night": "18:00"})   # the call times (round 7, 90)
         self.assertFalse(c.edit("Inedge", admin, nudge={"Sunday Service": "10:15"}, now=sat)["ok"])   # at or after 10:00: refused
         self.assertFalse(c.edit("Inedge", leader, nudge={"Sunday Service": "08:00"}, now=sat)["ok"])  # the time is the admins'
         self.assertTrue(c.edit("Inedge", leader, items=["Room set up", "Sound check", "Doors"], now=sat)["ok"])   # the leader edits items
@@ -99,12 +99,12 @@ class Checklists(RealConfig):
         from arise_server import checklists as c, notify
         admin = {"user": "bradly", "role": "admin"}
         c.edit("Media", admin, items=["Cameras", "Lower thirds"], leader="kristina.robinson", now=T("2026-10-24 21:00"))
-        due = [d for d in c.due_nudges(T("2026-10-25 08:45")) if d["key"].startswith("dept:Media:")]
+        due = [d for d in c.due_nudges(T("2026-10-25 09:00")) if d["key"].startswith("dept:Media:")]   # call time (round 7, 90)
         self.assertEqual([d["key"] for d in due], ["dept:Media:2026-10-25 Sunday Service"])
         self.assertIn("kristina.robinson", due[0]["to"])
-        self.assertEqual(c.due_nudges(T("2026-10-25 08:46")), [])
-        r1 = notify.tick(T("2026-10-25 08:45"))
-        r2 = notify.tick(T("2026-10-25 08:45"))
+        self.assertEqual(c.due_nudges(T("2026-10-25 09:01")), [])
+        r1 = notify.tick(T("2026-10-25 09:00"))
+        r2 = notify.tick(T("2026-10-25 09:00"))
         self.assertEqual((r1["sent"] >= 1, r2["sent"]), (True, 0))                          # keyed: never twice
         self.assertIn("Media checklist: 2 of 2 left", notify.feed("kristina.robinson")["items"][0]["text"])
 

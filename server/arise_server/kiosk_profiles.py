@@ -15,6 +15,7 @@ Firefox opens /?kiosk=1&handoff=<token>, which trades it back for the cookie.
 """
 from __future__ import annotations
 
+import os
 import re
 import secrets
 import subprocess
@@ -108,3 +109,50 @@ def neutral() -> dict:
     if current() == "neutral":
         return {"ok": True, "already": True, "user": "neutral"}
     return {**_run(["neutral"]), "user": "neutral"}
+
+
+# ----- after a restart, the owner's desktop (round 7, 107) -----------------------------
+# "After a restart, the monitor shows: Your desktop." Once per boot, within the first
+# AUTOLOGIN_MINUTES of it, only from the monitor (the route checks on_monitor). The marker in
+# /run (a tmpfs, empty at every boot) makes it once. It still locks after ten idle minutes.
+# [kiosk] autologin = "owner" (the default) means the dashboard's admin user; "" or "off" turns it off.
+AUTOLOGIN_MINUTES = 15
+
+
+def autologin_user() -> str | None:
+    cfg = load()
+    k = (cfg.raw.get("kiosk") if isinstance(cfg.raw, dict) else None) or {}
+    v = str(k.get("autologin", "owner") or "").strip().lower()
+    if v in ("", "off", "none", "no", "false"):
+        return None
+    user = cfg.web.admin_user if v == "owner" else v
+    return user if USER_RE.match(user or "") else None
+
+
+def autologin_take(now: float | None = None, boot: float | None = None) -> tuple[str, str] | None:
+    """(session token, user) once per boot, or None."""
+    user = autologin_user()
+    if not user:
+        return None
+    now = now if now is not None else time.time()
+    if boot is None:
+        try:
+            import psutil
+            boot = psutil.boot_time()
+        except Exception:  # noqa: BLE001
+            return None
+    if now - boot > AUTOLOGIN_MINUTES * 60:
+        return None
+    mark = STATE / "autologin-used"
+    with _lock:
+        if not load().demo:
+            try:
+                STATE.mkdir(parents=True, exist_ok=True)
+                fd = os.open(str(mark), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+                os.close(fd)
+            except FileExistsError:
+                return None
+            except OSError:
+                return None
+    from .auth import _serializer
+    return _serializer().dumps({"u": user, "r": "admin", "v": "local", "t": int(now)}), user

@@ -12,6 +12,9 @@ from .config import load
 
 LAT, LON = 31.32, -92.43
 PLACE = "Pineville, LA"
+# Round 7, 111: both campuses on the screensaver and the widget. [church] weather_places
+# overrides: [{name, lat, lon}, ...]; the first is the main one.
+PLACES = [{"name": "Pineville, LA", "lat": 31.32, "lon": -92.43}, {"name": "Alexandria, LA", "lat": 31.31, "lon": -92.45}]
 URL = ("https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
        "&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation"
        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max"
@@ -46,20 +49,33 @@ def icon(code) -> str:
 
 
 _cache = {"at": 0.0, "data": None}
+_caches: dict = {}
 _lock = threading.Lock()
 
 
-def _sample() -> dict:
+def places() -> list[dict]:
+    raw = load().raw
+    c = (raw.get("church") if isinstance(raw, dict) else None) or {}
+    out = []
+    for pl in c.get("weather_places") or PLACES:
+        try:
+            out.append({"name": str(pl["name"])[:60], "lat": float(pl["lat"]), "lon": float(pl["lon"])})
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out or list(PLACES)
+
+
+def _sample(place: str = PLACE, shift: int = 0) -> dict:
     from datetime import date, timedelta
     today = date.today()
-    days = [(0, 74, 52, 0), (2, 71, 50, 10), (61, 66, 55, 80), (3, 68, 54, 30), (1, 72, 51, 5), (0, 75, 53, 0)]
-    return shape({"current": {"temperature_2m": 68.4, "apparent_temperature": 68.0, "weather_code": 1, "wind_speed_10m": 6.3, "precipitation": 0.0},
+    days = [(0, 74 + shift, 52, 0), (2, 71 + shift, 50, 10), (61, 66, 55, 80), (3, 68, 54, 30), (1, 72, 51, 5), (0, 75, 53, 0)]
+    return shape({"current": {"temperature_2m": 68.4 + shift, "apparent_temperature": 68.0 + shift, "weather_code": 1, "wind_speed_10m": 6.3, "precipitation": 0.0},
                   "daily": {"time": [(today + timedelta(days=i)).isoformat() for i in range(6)], "weather_code": [d[0] for d in days],
                             "temperature_2m_max": [d[1] for d in days], "temperature_2m_min": [d[2] for d in days], "precipitation_probability_max": [d[3] for d in days]}},
-                 demo=True)
+                 demo=True, place=place)
 
 
-def shape(raw: dict, demo: bool = False) -> dict:
+def shape(raw: dict, demo: bool = False, place: str = PLACE) -> dict:
     """Open-Meteo's answer in the dashboard's shape. Pure."""
     cur = raw.get("current") or {}
     d = raw.get("daily") or {}
@@ -69,7 +85,7 @@ def shape(raw: dict, demo: bool = False) -> dict:
                      "words": words((d.get("weather_code") or [None] * 9)[i]), "icon": icon((d.get("weather_code") or [None] * 9)[i]),
                      "hi": _r((d.get("temperature_2m_max") or [None] * 9)[i]), "lo": _r((d.get("temperature_2m_min") or [None] * 9)[i]),
                      "rain": (d.get("precipitation_probability_max") or [None] * 9)[i]})
-    return {"ok": True, "place": PLACE, "demo": demo, "source": "Open-Meteo",
+    return {"ok": True, "place": place, "demo": demo, "source": "Open-Meteo",
             "now": {"temp": _r(cur.get("temperature_2m")), "feels": _r(cur.get("apparent_temperature")), "code": cur.get("weather_code"),
                     "words": words(cur.get("weather_code")), "icon": icon(cur.get("weather_code")), "wind": _r(cur.get("wind_speed_10m")), "rain": cur.get("precipitation")},
             "days": days}
@@ -89,10 +105,11 @@ def fetch(force: bool = False) -> dict:
         if not force and _cache["data"] and time.time() - _cache["at"] < TTL:
             return _cache["data"]
         try:
-            req = urllib.request.Request(URL.format(lat=LAT, lon=LON), headers={"User-Agent": "ariseOS/weather"})
+            pl = places()[0]
+            req = urllib.request.Request(URL.format(lat=pl["lat"], lon=pl["lon"]), headers={"User-Agent": "ariseOS/weather"})
             with urllib.request.urlopen(req, timeout=8) as r:
                 raw = json.loads(r.read().decode("utf-8"))
-            data = shape(raw)
+            data = shape(raw, place=pl["name"])
             data["fetched"] = time.strftime("%Y-%m-%dT%H:%M")
             _cache.update(at=time.time(), data=data)
             return data
@@ -101,6 +118,36 @@ def fetch(force: bool = False) -> dict:
             if stale:
                 return {**stale, "stale": True, "why": str(e)[:160]}
             return {"ok": False, "place": PLACE, "why": f"could not reach Open-Meteo: {str(e)[:160]}"}
+
+
+def fetch_place(pl: dict, force: bool = False) -> dict:
+    """One place, cached half an hour like the main one."""
+    if load().demo:
+        return _sample(pl["name"], shift=1 if pl["name"] != PLACE else 0)
+    if pl["name"] == places()[0]["name"]:
+        return fetch(force)
+    with _lock:
+        c = _caches.get(pl["name"]) or {"at": 0.0, "data": None}
+        if not force and c["data"] and time.time() - c["at"] < TTL:
+            return c["data"]
+        try:
+            req = urllib.request.Request(URL.format(lat=pl["lat"], lon=pl["lon"]), headers={"User-Agent": "ariseOS/weather"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = shape(json.loads(r.read().decode("utf-8")), place=pl["name"])
+            data["fetched"] = time.strftime("%Y-%m-%dT%H:%M")
+            _caches[pl["name"]] = {"at": time.time(), "data": data}
+            return data
+        except Exception as e:  # noqa: BLE001
+            if c["data"]:
+                return {**c["data"], "stale": True, "why": str(e)[:160]}
+            return {"ok": False, "place": pl["name"], "why": f"could not reach Open-Meteo: {str(e)[:160]}"}
+
+
+def all_places(force: bool = False) -> dict:
+    """The main place's answer, as before, plus every place under "places" (round 7, 111)."""
+    pls = places()
+    main = fetch_place(pls[0], force)
+    return {**main, "places": [main] + [fetch_place(pl, force) for pl in pls[1:]]}
 
 
 def summary(data: dict | None = None) -> str:
