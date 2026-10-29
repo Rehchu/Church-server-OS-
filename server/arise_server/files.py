@@ -20,6 +20,8 @@ DEMO_TREE = {
     "/homes/bryant.sanders": [("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
     "/homes/vanessa.sanders": [("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
     "/homes/bradly": [("Desktop", True), ("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
+    "/homes/bradly/Desktop": [("Glory Night run sheet.md", False, 2_400), ("Outpour graphics", True), ("stage-wide.jpg", False, 3_900_000), ("Start here.md", False, 1_100)],
+    "/homes/bradly/Desktop/Outpour graphics": [("outpour-lower-third.png", False, 420_000)],
     "/homes/bradly/Photos": [("2026-10-19 baptisms", True), ("stage-wide.jpg", False, 3_900_000)],
     "/homes/bradly/Downloads": [("proclaim-6.4.dmg", False, 310_000_000)],
     "/homes/bradly/Documents": [("Sunday setlist 2026-10-26.pdf", False, 182_000), ("Proclaim backgrounds", True), ("THUMB_2026-10-26_whose_hand.jpg", False, 412_000)],
@@ -54,6 +56,27 @@ DEMO_TEXT = {
 # Every home starts with these (Bradly, Oct 28): made at first sign-in, by the
 # dashboard (ensure_home) and by Samba's root preexec on the [homes] share.
 HOME_FOLDERS = ("Documents", "Photos", "Videos", "Music", "Downloads")
+# Round 5: a Desktop folder (shown on the wallpaper, 24) and a one-page "Start here" (32) in every new home.
+NEW_HOME_EXTRA = ("Desktop",)
+START_HERE = "Start here.md"
+
+
+def start_here_note(home: str, new: bool) -> str | None:
+    """Put config/home/Start here.md into a home made just now. An existing home is never touched,
+    and a note the person deleted is not put back (only a brand-new home gets one)."""
+    if not new:
+        return None
+    src = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "config", "home", START_HERE)
+    dst = os.path.join(home, START_HERE)
+    try:
+        if os.path.exists(dst) or not os.path.exists(src):
+            return None
+        with open(src, encoding="utf-8") as f, open(dst, "w", encoding="utf-8") as g:
+            g.write(f.read())
+        os.chmod(dst, 0o600)
+        return dst
+    except OSError:
+        return None
 
 
 def ensure_home(user: str) -> dict:
@@ -67,10 +90,13 @@ def ensure_home(user: str) -> dict:
     try:
         if not os.path.isdir(home):
             os.makedirs(home, mode=0o700); made.append(home)
-        for f in HOME_FOLDERS:
+        for f in HOME_FOLDERS + NEW_HOME_EXTRA:
             d = os.path.join(home, f)
             if not os.path.isdir(d):
                 os.makedirs(d, mode=0o700); made.append(d)
+        note = start_here_note(home, new=home in made)
+        if note:
+            made.append(note)
         try:
             import pwd
             pw = pwd.getpwnam(user)

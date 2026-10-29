@@ -108,12 +108,27 @@ def current_user(request: Request) -> dict:
 
 
 def _check_path(request: Request, who: dict):
-    """Members reach only the portal routes; everything else is the admin's."""
+    """Members reach only the portal routes; everything else is the admin's.
+    With [web] staff_access = "none" (the default since round 5) they reach only
+    the sign-in routes: the dashboard shows them the 'your files are on your Mac' page."""
     if who.get("role") == "admin":
         return
     path = request.url.path
-    if not any(path == m.rstrip("/") or path.startswith(m) for m in MEMBER_OK):
-        raise HTTPException(403, {"message": "That part of the dashboard is for the administrator"})
+    if not member_ok(path, who.get("role", "member"), staff_access()):
+        raise HTTPException(403, {"message": "That part of the dashboard is for the administrator", "staff_access": staff_access()})
+
+
+# ---- staff and member web access (Bradly, after round 5) ----------------------------
+# "staff shouldn't have access to the actual server OS; the staff and volunteers use
+# the Mac as normal, with everything syncing. Admins, Kristina, and myself will use the
+# OS directly in the closet." So: "none" (the default) or "portal" (the member portal).
+STAFF_ACCESS = ("none", "portal")
+NONE_OK = ("/api/auth/", "/api/public/", "/api/health")
+
+
+def staff_access() -> str:
+    v = os.environ.get("ARISE_STAFF_ACCESS") or str(load().web.get("staff_access", "none") or "none")
+    return v if v in STAFF_ACCESS else "none"
 
 
 REAUTH_SECONDS = 300
@@ -171,8 +186,9 @@ def require_admin(request: Request) -> dict:
     return who
 
 
-def member_ok(path: str, role: str) -> bool:
+def member_ok(path: str, role: str, access: str = "portal") -> bool:
     """Pure helper for the tests: may this role call this path?"""
     if role == "admin":
         return True
-    return any(path == m.rstrip("/") or path.startswith(m) for m in MEMBER_OK)
+    allowed = NONE_OK if access == "none" else MEMBER_OK
+    return any(path == m.rstrip("/") or path.startswith(m) for m in allowed)

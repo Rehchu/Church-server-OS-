@@ -113,10 +113,15 @@ def who_gets() -> list[str]:
     return list(dict.fromkeys([cfg.web.admin_user] + list(raw.get("users") or [])))
 
 
+def send_to(users: list[str], title: str, body: str, url: str = "/", tag: str = "", throttle_s: int = 0) -> dict:
+    """To the devices these people turned push on for themselves (round 5, 28: staff
+    notifications). Someone with no subscription simply gets nothing here."""
+    return send(title, body, url, tag, throttle_s, users=users)
+
+
 def send(title: str, body: str, url: str = "/", tag: str = "", throttle_s: int = 3600, users: list[str] | None = None) -> dict:
-    """To every device of every person in who_gets() (or of `users`, round 5: a share
-    tells the person it was shared with). The same tag is not sent again within
-    throttle_s, so a red item does not buzz every five minutes."""
+    """To every device of every person in who_gets() (or `users`). The same tag is not sent
+    again within throttle_s, so a red item does not buzz every five minutes."""
     now = time.time()
     if tag and now - _last_sent.get(tag, 0) < throttle_s:
         return {"ok": True, "skipped": "throttled"}

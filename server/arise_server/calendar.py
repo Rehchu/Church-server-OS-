@@ -8,6 +8,7 @@ in their titles.
 from __future__ import annotations
 
 import os
+import re
 import secrets
 from datetime import date, datetime, timedelta
 
@@ -65,8 +66,13 @@ def _clean(body: dict) -> dict | None:
     end = str(body.get("end", "") or "").strip()[:16]
     if end and (not _parse(end) or _parse(end) < _parse(start)):
         end = ""
+    # Who is in it (round 5, 28): users and @groups, reminded 30 minutes before by notify.tick.
+    people = body.get("people") or []
+    if isinstance(people, str):
+        people = [p for p in re.split(r"[,\s]+", people) if p]
+    people = [str(p).strip()[:64] for p in people if re.fullmatch(r"@?[\w.\- ']{1,64}", str(p).strip())][:40]
     return {"title": title, "start": start, "end": end, "where": str(body.get("where", "") or "").strip()[:120],
-            "note": str(body.get("note", "") or "").strip()[:1000]}
+            "note": str(body.get("note", "") or "").strip()[:1000], "people": people}
 
 
 def _parse(s: str) -> datetime | None:

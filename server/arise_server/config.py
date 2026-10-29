@@ -31,6 +31,7 @@ DEFAULTS = {
         "admin_password_hash": "",
         "session_hours": 8760,           # a year: browsers never sign out until they choose to (round 3, 38); the kiosk still locks at ten minutes
         "member_login": True,            # any directory user may sign in (members see their own files)
+        "staff_access": "none",          # "none": staff and members get "your files are on your Mac"; "portal": the member portal (after round 5)
         "admins_group": "Domain Admins", # members of this group get the admin desktop
         "public_url": "",                # e.g. https://arise.arisecenla.church - used in share links; empty = the request's host
         "secret_file": _root("/etc/arise/secrets/web-secret", r"C:\Arise\config\secrets\web-secret"),

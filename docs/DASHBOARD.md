@@ -151,6 +151,42 @@ list of references, text from the Bible app's source.
 | **The administrator** (`admin_user` in `arise.toml`, or anyone in `admins_group`, default *Domain Admins*) | the local dashboard password from `arisectl admin set-password`, or their directory password | everything above |
 | **Any directory user** (`member_login = true`) | their domain password, the same one the Macs and the shares use | the **portal**: Finder with *My files* (their home folder, which starts with Documents, Photos, Videos, Music and Downloads) and the shares their groups allow (read-only where the share's write list leaves them out), Upload, New Folder, Quick Look, Get Info, Download, Trash, Previous Versions of their own files, **Share Link**, Sermons, Bible, Campuses, Calendar, Calculator, Clock, Help, Assistants, Sunday, Spotlight over their own places, **Change Password** (with the meter and the domain's rules in words), **Two-step sign-in**, Lock, Sign Out. Notes and Photos when they are in Staff or Media |
 
+**Staff use their Macs (round 5, after 26).** With `[web] staff_access = "none"`,
+the default, a member's sign-in gets one page, *Your files are on your Mac …
+ask Bradly*, and every member API call but sign-in and sign-out is refused
+(403). `"portal"` brings the row above back. The closet desktop is for the
+administrators.
+
+### Round 5 on the desktop
+
+- **The Desktop folder** sits on the wallpaper as icons, like a Mac: the
+  administrator's is `homes/<user>/Desktop`. Double-click opens, right-click
+  for the menu, drag to place (remembered per person in
+  `/var/lib/arise/desktop/<user>.json`), drag a Finder file onto the wallpaper
+  to move it there. Every new home gets `Desktop` and a `Start here.md` note
+  (`config/home/Start here.md`; Samba's `[homes]` preexec does the same).
+- **Notifications**: the clock carries a red count; the Notification Centre
+  lists them. Calendar reminders go 30 minutes ahead to the event's *Who's in
+  it*, the Sunday checklist nudges Staff at 9:30 when items are left, each
+  department list nudges its group at its own time, and anything shared with
+  someone tells them. Feed in `/var/lib/arise/notifications.json`, push to the
+  person's own devices, email when `[notify] email_staff = true`. Nothing is
+  sent during a service. `POST /api/notifications` (admin) adds one by hand.
+- **Department checklists** under the Sunday checklist: one per
+  `[church] departments` group. The leader (or any admin) edits it, members
+  tick it, each service gets a fresh round (the list moves on at 8 PM the
+  night before), the finished round goes to History, and each list has its
+  own nudge time per service. For now only the administrators tick them
+  here; staff get theirs another way after Bradly's answers.
+- **Text size on the closet monitor**: Settings → *The monitor & setup*,
+  100–150%, 125% by default. Saving writes `/var/lib/arise/kiosk-scale` and
+  restarts the kiosk browser; refused during a service.
+- **The guided setup** opens the first time an administrator signs in: people,
+  shares, the Synology, Discord, Resend, Tailscale. *Later* puts it away;
+  Settings opens it again. State in `/var/lib/arise/setup.json`.
+- **Sign-in faces** on the closet monitor (`?kiosk=1`): the administrators as
+  initials, nobody preselected; the name field starts empty everywhere.
+
 A member who opens an admin app by its address gets *That part of the
 dashboard is for the administrator* (HTTP 403); the server enforces it, not
 the page. Login is a Kerberos check against the domain controller itself

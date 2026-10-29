@@ -216,6 +216,8 @@ class Flows(unittest.TestCase):
 
     def setUp(self):
         os.environ["ARISE_DEMO"] = "1"
+        os.environ["ARISE_STAFF_ACCESS"] = "portal"   # signs in as staff through the dashboard (the "portal" setting)
+        self.addCleanup(os.environ.pop, "ARISE_STAFF_ACCESS", None)
         config.load(force=True)
         demo_state.reset()
         profiles._rate.clear()

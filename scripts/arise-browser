@@ -7,6 +7,10 @@
 # closes back to the desktop.
 PROFILE=/var/lib/arise/browser
 URL="${1:-http://127.0.0.1:4147/?kiosk=1}"
+# The monitor's text size (round 5, 27): /var/lib/arise/kiosk-scale, written by the dashboard
+# (Settings -> The monitor); 1.25 when it is not there. ariseos.cfg hands it to Firefox.
+ARISE_KIOSK_SCALE=$(cat /var/lib/arise/kiosk-scale 2>/dev/null | tr -cd '0-9.' | cut -c1-4)
+export ARISE_KIOSK_SCALE="${ARISE_KIOSK_SCALE:-1.25}"
 export MOZ_ENABLE_WAYLAND=1
 export MOZ_DBUS_REMOTE=0
 # a crashed session must not leave a lock that stops the next start

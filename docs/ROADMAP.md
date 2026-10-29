@@ -70,8 +70,8 @@ decisions not yet built, grouped. Costs are honest estimates.
 | Trash on the media share | 7 days there, 30 everywhere else (98) | nothing | small |
 | Whisper transcripts | one recording a night transcribed on the box after the backup, captions as the fallback; feeds the chapters and the transcript pages (100) | nothing | a day, then a CPU night per service |
 | Discord, four channels | #alerts, #sunday, #weekly, #daily through four webhooks in `/etc/arise/secrets/discord.toml` (101; docs/DISCORD.md); the Sunday live link (77), the 9:30 checklist nudge (78), the Monday weekly (37), birthdays in the weekly if the Wix field exists (94) | the four webhook URLs | a day |
-| The glance view | the closet monitor idle shows next service, backups, attention, the stream; nothing clickable (102) | nothing | small |
-| Faces at sign-in | a list of faces on the monitor for admins and staff, each person uploads their own, initials on red otherwise (14, 16) | photos | a day |
+| The glance view | the closet monitor idle shows the clock, the next service and the verse, nothing else; nothing clickable (102; round 5, 34: built) | nothing | done |
+| Faces at sign-in | faces on the closet monitor's sign-in, nobody preselected; the administrators only, since staff use their Macs (14, 16; round 5, 31). Initials now; each person's own photo when profiles land | photos | initials done |
 | Immich's library | watch Media/Photos and every staff member's Photos folder, read-only; no public share links (103, 81) | nothing | small |
 | Departments as groups | each person has their own account; a department is a group with its share folder and mail; membership grants it (104) | the department list | small |
 | USB import | a plugged-in drive sorted by type into the signed-in person's home, scanned, the stick untouched, a push when done (31) | nothing | a day |

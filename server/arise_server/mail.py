@@ -288,6 +288,18 @@ def send_notice(to: str, subject: str, text: str) -> dict:
     return _call("POST", "/emails", body)
 
 
+def send_note(to: str, subject: str, text: str) -> dict:
+    """One short plain email (a staff notification, round 5, 28), through Resend."""
+    m = cfg_mail()
+    if not EMAIL_RE.match(to or ""):
+        return {"ok": False, "err": "that is not an email address"}
+    if load().demo:
+        return {"ok": True, "demo": True}
+    if not m["from_email"]:
+        return {"ok": False, "err": "set [mail] from_email in arise.toml first"}
+    return _call("POST", "/emails", {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject[:120], "text": text[:4000]})
+
+
 def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:
     m = cfg_mail()
     if not (subject or "").strip():

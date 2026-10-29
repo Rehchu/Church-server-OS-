@@ -41,7 +41,11 @@ def client(user="bradly"):
 
 
 class Base(unittest.TestCase):
+    # These tests sign in as staff and members through the dashboard: the "portal" setting.
+    # The default since Oct 28 is "none" (staff use their Macs), pinned in test_desktop_r5.
     def setUp(self):
+        os.environ["ARISE_STAFF_ACCESS"] = "portal"
+        self.addCleanup(os.environ.pop, "ARISE_STAFF_ACCESS", None)
         self.cfg = config.load(force=True)
         demo_state.reset()
         sharing._seen_home.clear()
