@@ -1037,25 +1037,28 @@ fi
 # No key yet? SSH is closed until one is added; the closet monitor still signs
 # in, and arise-rescue (round 3, 21) works there too: at the console ONLY,
 # never over SSH (DenyUsers).
-ADMIN_HOME="$(getent passwd "$ADMIN_USER" | cut -d: -f6 || true)"
+# The key goes to Bradly's own Linux account (the owner, the one he SSHes in as), falling back
+# to the dashboard admin's name when no owner is known.
+KEY_USER="${OWNER:-$ADMIN_USER}"
+ADMIN_HOME="$(getent passwd "$KEY_USER" | cut -d: -f6 || true)"
 KEYS_FILE="${ADMIN_HOME:-/nonexistent}/.ssh/authorized_keys"
 if [ -n "$SSH_KEY" ] && [ -z "$ADMIN_HOME" ]; then
-  warn "--ssh-key given but the admin user $ADMIN_USER has no home on this box yet (step 5 makes it); re-run after the domain is up"
+  warn "--ssh-key given but the admin user $KEY_USER has no home on this box yet (step 5 makes it); re-run after the domain is up"
 fi
 if [ -n "$SSH_KEY" ] && [ -n "$ADMIN_HOME" ]; then
   case "$SSH_KEY" in ssh-ed25519\ *|ssh-rsa\ *|ecdsa-sha2-*|sk-ssh-ed25519*) ;; *) die "--ssh-key does not look like a public key (ssh-ed25519 AAAA… or ssh-rsa AAAA…)";; esac
-  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] append the --ssh-key to $KEYS_FILE (0600, owned by $ADMIN_USER)"
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] append the --ssh-key to $KEYS_FILE (0600, owned by $KEY_USER)"
   else
     mkdir -p "$ADMIN_HOME/.ssh"; chmod 700 "$ADMIN_HOME/.ssh"
     touch "$KEYS_FILE"; grep -qxF "$SSH_KEY" "$KEYS_FILE" || printf '%s\n' "$SSH_KEY" >> "$KEYS_FILE"
-    chmod 600 "$KEYS_FILE"; chown -R "$ADMIN_USER:" "$ADMIN_HOME/.ssh" 2>/dev/null || true
-    note "ssh key enrolled for $ADMIN_USER"
+    chmod 600 "$KEYS_FILE"; chown -R "$KEY_USER:" "$ADMIN_HOME/.ssh" 2>/dev/null || true
+    note "ssh key enrolled for $KEY_USER"
   fi
 fi
 HAS_KEYS=0
 if [ -s "$KEYS_FILE" ] && grep -qvE '^\s*(#|$)' "$KEYS_FILE"; then HAS_KEYS=1; fi
 if [ "$DRY_RUN" = 1 ]; then
-  note "[dry-run] write /etc/ssh/sshd_config.d/00-arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $ADMIN_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
+  note "[dry-run] write /etc/ssh/sshd_config.d/00-arise.conf (keys only: PasswordAuthentication no; DenyUsers arise-rescue; key for $KEY_USER: $([ "$HAS_KEYS" = 1 ] && echo present || echo 'NONE yet'))"
 else
   mkdir -p /etc/ssh/sshd_config.d
   rm -f /etc/ssh/sshd_config.d/arise.conf   # the old name (sorted after 50-cloud-init.conf, so it lost)
