@@ -7,7 +7,8 @@ How the pieces fit:
   user's files in <data>/<user>/files; ariseOS makes that a link to
   /homes/<user> inside the container (the host's /srv/arise/homes/<user>), so
   the Mac over SMB, the dashboard's Finder and every Nextcloud client see one
-  set of files. Desktop and Documents sync in full on the Macs (row 13).
+  set of files. Desktop, Documents, Downloads, Pictures and Music sync in full on the Macs
+  (row 13; round 7, 42 and 43), the Photos and Music library packages left out.
 * The shares are Nextcloud "Local" storages over the same folders: Church
   (everyone), each department (two mounts at one place: read-write for staff,
   admins and the department's own login, read-only for the department's people,
@@ -332,7 +333,7 @@ def _home_owner(user: str) -> tuple[int, int] | None:
 
 
 def ensure_sync_folders(user: str, homes: str | None = None) -> list[str]:
-    """Desktop and Documents in the person's server home, theirs, so the first sync has somewhere to land."""
+    """The synced folders ([cloud] sync_folders) in the person's server home, theirs, so the first sync has somewhere to land."""
     cfg = load()
     base = os.path.join(homes or paths()["homes"], user)
     made = []

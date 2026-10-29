@@ -50,7 +50,8 @@ DEFAULTS = {
         "container": "arise-app-nextcloud",
         "www_uid": 33,                  # the official image's www-data; the ACLs give it rwX on homes and shares
         "data_dir": "",                 # empty: /srv/arise/apps/nextcloud/data (Nextcloud's own records; the files are the homes)
-        "sync_folders": ["Desktop", "Documents"],   # row 13: what each Mac profile syncs in full
+        # row 13, then round 7, 42 and 43: what each Mac profile syncs in full
+        "sync_folders": ["Desktop", "Documents", "Downloads", "Pictures", "Music"],
         "conflicts": "newest",          # row 15: the newer copy keeps the name; the older goes to the Trash
         "client_version": "3.14.3",     # the Nextcloud desktop client the Mac helper installs
         "client_team_id": "NKUJUXUJ3B", # Nextcloud GmbH's Apple Developer ID team; the pkg's signature must name it

@@ -850,7 +850,8 @@ const macGet = id => get('GET /macs/' + id);
 function macTouch(d) {
   for (const a of d.accounts || []) if (a.kind === 'local') {
     const c = a.choice;
-    a.state = c && c.action === 'convert' && c.state !== 'done' ? 'converting to ' + c.user : c && c.action === 'link' ? 'linked to ' + c.user : c && c.action === 'leave' ? 'left alone' : c && c.action === 'convert' ? 'converted to ' + c.user : 'waiting for your choice';
+    a.state = c && c.action === 'convert' && c.state !== 'done' ? 'converting to ' + c.user : c && c.action === 'link' ? 'linked to ' + c.user : c && c.action === 'leave' ? 'left alone' : c && c.action === 'convert' ? 'converted to ' + c.user
+      : d.watch && /^would /.test(a.state || '') ? a.state : 'waiting for your choice';
   }
   d.pending = (d.tasks || []).filter(t => ['queued', 'sent'].includes(t.state)).length;
   d.failed = (d.tasks || []).filter(t => ['failed', 'refused'].includes(t.state)).length;
@@ -896,8 +897,49 @@ route('POST', /^\/macs\/([^/]+)\/local$/, (b, mm) => {
 });
 route('POST', /^\/macs\/([^/]+)\/task$/, (b, m) => {
   const d = macGet(m[1]); if (!d || d.status !== 'active') return fail('no such church Mac');
-  if (!['ariseadmin', 'printers', 'bookmarks', 'certificate', 'updates', 'tailscale', 'login_window', 'filevault'].includes(b.kind)) return fail('not a task an admin starts by hand');
-  const t = macQueue(d, b.kind, {}); macTouch(d); return ok({ task: t.id });
+  if (!['ariseadmin', 'printers', 'bookmarks', 'certificate', 'updates', 'tailscale', 'login_window', 'filevault', 'welcome', 'mac_settings', 'apps', 'dnsfilter'].includes(b.kind)) return fail('not a task an admin starts by hand');
+  if (b.kind === 'dnsfilter' && b.mode && !['on', 'off'].includes(b.mode)) return fail('the DNS filter is on or off');
+  const t = macQueue(d, b.kind, b.mode ? { mode: b.mode } : {}); macTouch(d); return ok({ task: t.id });
+});
+// Round 7, 4: Switch on. In the preview the default links happen at once (on the box, at each Mac's next check-in).
+route('POST', /^\/macs\/live$/, b => {
+  const r = needRecent(); if (r) return r;
+  const on = !!b.on, L = get('GET /macs'); if (L) { L.watch = !on; L.would = 0; }
+  for (const k of Object.keys(G).filter(k => /^GET \/macs\/mac-/.test(k))) {
+    const d = G[k]; d.watch = !on;
+    if (on) {
+      for (const a of d.accounts || []) {
+        const w = String(a.state || ''), mk = w.match(/^would make (\S+) and link (\S+) to it$/), ln = w.match(/^would link (\S+) to (\S+)$/);
+        const user = mk ? mk[1] : ln ? ln[2] : null; if (!user || a.kind !== 'local' || a.choice) continue;
+        if (mk && !userOf(user)) {
+          const pw = token(4) + '-' + token(4) + '-' + token(4);
+          users().push({ name: user, display: a.realname || '', groups: [], enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${user}`, must_change: true });
+          X.pw[user] = pw; mustSet(user, true); touch('GET /directory/users');
+          (X.macTemp = X.macTemp || {})[d.id + '/' + user] = pw; d.temp_waiting = [...(d.temp_waiting || []), user];
+        }
+        a.choice = { action: 'link', user, by: 'the default (round 7, 23)', at: isoSec(), state: 'queued', made: !!mk };
+        macQueue(d, 'link_local', { local: a.user, user, admin: '0' }); macQueue(d, 'nextcloud', { user, local: a.user });
+      }
+      d.would = [];
+    }
+    macTouch(d);
+  }
+  auditAdd(on ? 'macs.live' : 'macs.watch', 'the Mac helper'); touch('GET /macs');
+  return ok({ watch: !on });
+});
+route('POST', /^\/macs\/([^/]+)\/media$/, (b, m) => {
+  const d = macGet(m[1]); if (!d || d.status !== 'active') return fail('no such church Mac');
+  d.media = !!b.on; if (!(d.tasks || []).some(t => t.kind === 'apps' && ['queued', 'sent'].includes(t.state))) macQueue(d, 'apps', {});
+  const L = get('GET /macs'); const row = (L?.macs || []).find(x => x.id === d.id); if (row) row.media = d.media;
+  auditAdd('macs.media', d.name); macTouch(d); return ok({ media: d.media });
+});
+route('POST', /^\/macs\/([^/]+)\/temp-password$/, (b, m) => {
+  const r = needRecent(); if (r) return r;
+  const d = macGet(m[1]); if (!d) return fail('no such church Mac');
+  const key = d.id + '/' + String(b.user || ''), pw = (X.macTemp || {})[key];
+  if (!pw) return fail(`no temporary password is waiting for ${b.user} (it was shown already, or they chose their own)`);
+  delete X.macTemp[key]; d.temp_waiting = (d.temp_waiting || []).filter(u => u !== b.user);
+  auditAdd('macs.temp_password.shown', b.user); macTouch(d); return ok({ user: b.user, temporary_password: pw });
 });
 route('POST', /^\/macs\/([^/]+)\/retire$/, (b, m) => {
   const r = needRecent(); if (r) return r;

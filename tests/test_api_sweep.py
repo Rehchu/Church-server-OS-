@@ -282,6 +282,10 @@ CALLS = {
     ("POST", "/api/macs/{mac_id}/retire"): ("/api/macs/mac-0000000000c3/retire", {"confirm": "KIDS-MAC"}, None),
     ("POST", "/api/macs/{mac_id}/cutoff"): ("/api/macs/mac-0000000000c3/cutoff", {"confirm": "KIDS-MAC"}, None),
     ("POST", "/api/macs/{mac_id}/reveal"): ("/api/macs/mac-0000000000a1/reveal", {"kind": "filevault"}, None),
+    # round 7: watch mode's switch (4), the media Mac (31), a default link's temporary password (23)
+    ("POST", "/api/macs/live"): ("/api/macs/live", {"on": True}, None),
+    ("POST", "/api/macs/{mac_id}/media"): ("/api/macs/mac-0000000000a1/media", {"on": True}, None),
+    ("POST", "/api/macs/{mac_id}/temp-password"): ("/api/macs/mac-0000000000b2/temp-password", {"user": "levi.mercer"}, None),
     ("POST", "/api/macs/agent/enrol"): None,
     ("POST", "/api/macs/agent/checkin"): None,
     ("POST", "/api/macs/agent/result"): None,

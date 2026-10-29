@@ -34,10 +34,29 @@ Apostle Bryant's and Pastor Vanessa's own Macs, a volunteer's laptop, and any
 Mac that was only bound by hand with `bind-mac.sh`. Personal Macs keep
 Tailscale and the dashboard (docs/MAC-MIGRATION.md § Personal Macs).
 
+## Watch mode first (round 7, 4)
+
+The helper starts in **watch mode** (`[macs] watch = true`, the default). In
+watch mode the helper still checks in every five minutes and reports what it
+finds, and the server still makes the whole plan, but it hands out **no task**
+except a notice (a notice changes nothing on the Mac). Each check-in's answer
+starts with `WATCH <n>`: the number of tasks that would run.
+
+The Macs app shows a **Watch mode** bar with what would happen on each Mac, line
+by line ("would make levi.mercer and link levi to it", "would run: The church
+apps"), and Needs You carries one line until it is switched on.
+
+**Switch on** is in that bar, for admins only. It asks for the word `on` and the
+admin's password again, and is written in the audit log (`macs.live`). It is
+for the whole box, not per Mac. **Back to watch mode** is the same, with the
+word `watch` (`macs.watch`). The switch is kept in the state file; it wins over
+`[macs] watch` from then on.
+
 ## Enrolling a Mac (round 6, 37)
 
-1. Open the **Macs** app and press **Enrol a Mac**. Type the name on the Mac's
-   label (`OFFICE-MAC-02`) and press **Make the line**.
+1. Open the **Macs** app and press **Enrol a Mac**. A name is optional: leave
+   it empty and the Mac keeps the name it has (round 7, 35); type one
+   (`OFFICE-MAC-02`) only to rename it. Press **Make the line**.
 2. On the Mac, open Terminal, paste the line, and press Return. It asks for the
    Mac's own password (sudo), then for the domain administrator's password.
 
@@ -65,12 +84,19 @@ Why it looks like that:
 
 What `mac/helper/enrol.sh` does, in order. It is safe to run again.
 
+0. **A Time Machine backup** (round 7, 6). When the Mac has a Time Machine
+   destination (`tmutil destinationinfo` names one), it runs
+   `tmutil startbackup --block` before anything changes. When there is none, or
+   the backup cannot run, it says so and goes on. `--no-backup` skips it.
 1. **DNS.** It points the Mac at the server for the church domain only,
    through `/etc/resolver/ad.arisecenla.com`. No router is touched.
 2. **The certificate.** It trusts the church certificate in the System
    keychain. macOS asks for approval once; a daemon cannot do this by itself.
 3. **The domain.** It joins the domain with `mac/bind-mac.sh`, unchanged,
-   which checks DNS, the SRV records and the clock first.
+   which checks DNS, the SRV records and the clock first. The Mac keeps its
+   name; only the domain's computer account takes a short plain form of it
+   (15 letters, digits and dashes: "Office Mac 2" joins as `Office-Mac-2`),
+   which the server keeps as the Mac's `ad_name` for **Cut off**.
 4. **The key.** It trades the token for the Mac's own key. The key is kept in
    `/var/db/arise/helper.key` (root, 0600). The server keeps only its sha256.
 5. **The helper.** It installs the helper at `/usr/local/arise/helper/`, with
@@ -85,9 +111,14 @@ What `mac/helper/enrol.sh` does, in order. It is safe to run again.
    - the printers
    - the bookmarks
    - Tailscale
+   - the welcome page, the Mac's settings, the church apps, the DNS filter
+     (all below)
    - an account for every server user
 
-7. **Full Disk Access, by hand, once.** macOS hides everyone's Desktop and
+   In watch mode these wait in the Macs app as "would run" until Switch on.
+
+7. **Full Disk Access, by hand, once: Bradly, while enrolling** (round 7, 39).
+   macOS hides everyone's Desktop and
    Documents even from root, and no script can grant the exception. Enrolment
    opens System Settings > Privacy & Security > Full Disk Access; add
    `/usr/local/arise/helper/arise-mac-helper` and `/bin/bash` there. Until
@@ -96,8 +127,9 @@ What `mac/helper/enrol.sh` does, in order. It is safe to run again.
    the server refuses any listing that came back unread, has items but no
    files, or holds a file name with a tab or a line break.
 
-At the end it lists the local accounts already on the Mac. Nothing happens to
-them until an admin chooses (below).
+At the end it lists the local accounts already on the Mac. Each is linked to a
+server user by default (below); in watch mode that is only shown as "would
+link" or "would make … and link" until Switch on.
 
 ## Accounts, on their own (the directory)
 
@@ -110,6 +142,10 @@ mobile (AD) account made on every church Mac with:
 
 So their face is on the login window before they ever sign in there. A new
 user reaches every church Mac within about five minutes (one check-in).
+
+A person who already has a **linked local account** on a Mac gets no second,
+mobile account there (round 7, 25): they keep signing in to their own account,
+which syncs as them.
 
 Some users never get an account:
 
@@ -125,15 +161,18 @@ profile then comes off every church Mac where they have one, like this:
 1. The server queues `remove_profile` for each of those Macs. Offboarding
    queues it too, and puts the folder their files were moved to first in the
    list of places to look.
-2. The helper sends the server a list of every file in their Desktop and
-   Documents (`[macs] sync_folders`). The list has the name, size and date of
-   each file, never its contents.
+2. The helper sends the server a list of every file in their Desktop,
+   Documents, Downloads, Pictures and Music (`[macs] sync_folders`, round 7, 42
+   and 43). The list has the name, size and date of each file, never its
+   contents. Library packages (`Photos Library.photoslibrary`,
+   `Music Library.musiclibrary` and the rest, see docs/SYNC.md) are left out of
+   the list, because they never sync.
 3. The server checks each one against its own copy, in places the **server**
    chooses: their home, and where offboarding moved it. It never looks where
    the Mac says to. A file counts only when the server has it at the same
    size, and the copy on the Mac is not newer.
 4. Only when every file counts does anything change. First the rest of their
-   Mac folder (Downloads, Pictures, Music: what does not sync) is kept as a
+   Mac folder (the library packages and whatever else does not sync) is kept as a
    compressed disk image in `/Users/Deleted Users/<user>-<date>.dmg` on that
    Mac, the way macOS's own Delete User can; if that copy cannot be made,
    nothing is removed. Then the account is deleted, with
@@ -153,12 +192,34 @@ Some accounts are never removed by this path:
 - **A profile that is only unused** (round 6, 5). It is never removed; only a
   disabled user's is.
 
-## Accounts already on a Mac: Convert, Link, or Leave alone
+## Accounts already on a Mac: linked by default (round 7, 23, 25, 26)
 
-Each local account the helper finds waits in the Mac's card as **waiting for
-your choice**. Nothing is automatic. The admin presses **Choose…**:
+Every local account the helper finds is **linked** by default to a server user
+(Bradly, round 7, 23, and his follow-up):
 
-- **Convert.** The account becomes the server user.
+- **A clear match links to that user.** A clear match is a server user with the
+  same short name, or `first.last` made from the account's full name where that
+  server user's own name agrees (or none is on file).
+- **No clear match: a server user is made, then linked.** Its name is
+  `first.last` from the account's full name, `first.last2` when that name is
+  already someone else's (row 12). It gets a temporary password, which waits in
+  the Mac's 0600 secrets file until an admin presses **Show it once** in the
+  Mac's card (password again, audited, then forgotten). The person chooses
+  their own at the first sign-in (round 5, 5).
+- **A full name that is not a first and a last name** (a one-word name such as
+  "Media") waits for a choice by hand.
+
+In watch mode none of this happens: the card says "would link kristina to
+kristina.robinson" or "would make levi.mercer and link levi to it", and nobody
+is made until Switch on. The box's own accounts (`[macs] exclude` and the list
+below) are never linked.
+
+The admin can still change any account's choice with **Choose…**. A new choice
+cancels the default's open link and sync tasks for that account.
+
+- **Convert** stays available per account.
+
+- **Convert** (by hand only). The account becomes the server user.
   - The Mac's helper stops if the person is signed in.
   - It writes a rollback record: `/var/db/arise/convert/<old>.plist`, 0600,
     with the UID, groups, home, shell and password hash.
@@ -174,15 +235,13 @@ your choice**. Nothing is automatic. The admin presses **Choose…**:
   - It refuses when the account holds the Mac's Secure Token and FileVault is
     on (see "Not verified" below): Link is the answer there.
 - **Link.** The local account stays exactly as it is. The Nextcloud client in
-  that account signs in as the server user, so its Desktop and Documents sync
-  to that person's server home.
+  that account signs in as the server user, so its synced folders go to that
+  person's server home. This is the default.
 - **Leave alone.** Nothing happens to it, ever.
 
-The Macs app suggests a server user from the account's full name, for example
-"Kristina Robinson" becomes `kristina.robinson`. It is only a suggestion. If
-the chosen server user does not exist yet, it is made first with a temporary
-password. The admin sees that password once, and the person chooses their own
-at the first sign-in (round 5, 5).
+The Macs app's **Choose…** suggests the default's server user. If the chosen
+server user does not exist yet, it is made first with a temporary password,
+shown to the admin once.
 
 Convert and Link also queue the `nextcloud` task for that person.
 
@@ -197,7 +256,12 @@ to the server once before converting it.
 
 | Task | What happens on the Mac |
 |---|---|
-| `login_window` | A list of faces, plus Other… (`[macs] login_window = "faces"`, or `"name"`) |
+| `login_window` | A list of faces, plus Other… (`[macs] login_window = "faces"`, or `"name"`), and the login window text, word for word: "Arise Church: sign in with your church account. Help: Bradly" (round 7, 27; `[macs] login_text`) |
+| `welcome` | Round 7, 3: at each person's first sign-in on that Mac, `Welcome to Arise Church.html` on their Desktop: their login, where their files are (the synced folders), and who to ask (`[macs] help`: Bradly, Kristina, Ronnie). A small LaunchAgent (`com.arisechurch.session`, in every session) puts it there once, and shows waiting notices |
+| `mac_settings` | Guest User on (round 7, 33; macOS wipes it at sign-out). App Store installs need an admin (round 7, 30): `restrict-store-require-admin-to-install` in `com.apple.appstore`. Staff stay standard users. **No screen lock and no automatic sign-out are ever set** (round 7, 28 and 29) |
+| `apps` | Round 7, 31: the church apps from each maker's own address, refused unless signed by the expected Developer ID team and notarized (below) |
+| `dnsfilter` | Round 7, 71 and 72: every network service's DNS goes to a malware and adult filter (Cloudflare for Families). `/etc/resolver/ad.arisecenla.com` keeps the church domain on the server. The servers each had before are kept; **DNS filter off** in the card puts them back. Personal devices are never touched |
+| `notice` | Round 7, 84: a Mac notification for one person, shown now if they are signed in, else at their next sign-in. Goes out in watch mode too |
 | `ariseadmin` | A hidden admin with a random password. The password is changed every 30 days and kept on the server. If the server cannot be reached, the new password is kept on the Mac (root only) and sent at the next check-in |
 | `filevault` | `fdesetup enable -defer`: FileVault turns on at the next sign-in, and the recovery key goes to the server after that |
 | `printers` | `lpadmin`, from `[macs] printers` |
@@ -224,7 +288,57 @@ The app then lists what to revoke by hand: the Mac's Tailscale machine, and
 each person's Nextcloud sessions on it. There is no remote erase.
 
 **Never during a service.** On Sundays at 10:30 and Mondays at 19:00, the
-server answers every check-in with `HOLD` and hands out nothing.
+server answers every check-in with `HOLD` and hands out nothing. On `HOLD` the
+helper also quits the Nextcloud client in each signed-in session, so it does
+not use the church's upload during the stream, and reopens it at the first
+check-in after the service (round 7, 92). In watch mode there is no `HOLD`
+(nothing on the Mac changes) and nothing goes out.
+
+## The church apps (round 7, 31)
+
+Nextcloud, Firefox, Google Chrome and Zoom go on every church Mac. Each is
+downloaded from its maker's own address and installed only when
+`pkgutil --check-signature` shows "Developer ID Installer: … (TEAM)" for the
+expected team and `spctl` says it is notarized. An app already there, signed by
+that team, is left alone.
+
+| App | Apple Team ID | Download |
+|---|---|---|
+| Firefox | `43AQ936H96` (Mozilla) | `https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US` |
+| Google Chrome | `EQHXZ8M8AV` (Google) | Google's `googlechrome.pkg` at `dl.google.com/chrome/mac/stable/` |
+| Zoom | `BJ4HAAB9B3` (Zoom Video Communications) | `https://zoom.us/client/latest/ZoomInstallerIT.pkg` |
+| Nextcloud | `NKUJUXUJ3B` (Nextcloud GmbH) | the `nextcloud` task installs the client |
+
+Source for the Team IDs: Installomator's labels, which the Mac admin community
+keeps against each maker's signing identity
+(`github.com/Installomator/Installomator`, `fragments/labels/firefoxpkg.sh`,
+`googlechromepkg.sh`, `zoom.sh`, `nextcloud.sh`), checked Oct 29.
+
+**Proclaim is not in the list yet.** It belongs only on the media Mac (the
+**This is the media Mac** box in its card), but its Team ID could not be
+confirmed from a source we trust: one third-party app catalogue gives a value,
+nothing from Faithlife or Installomator does. Rather than guess, it is left out.
+To add it, on a Mac with Proclaim installed run
+`codesign -dv --verbose=4 /Applications/Proclaim.app 2>&1 | grep TeamIdentifier`
+and add it to `[macs] apps` with `media_only = true` (the example is in
+`config/arise.toml.example`). An entry without a real 10-character Team ID is
+ignored.
+
+## The disk, a silent Mac, and telling a person something
+
+- **The disk** (round 7, 40). Each check-in reports how full the Mac's disk is.
+  At 90% the person at the Mac gets a notification ("This Mac's disk is nearly
+  full"), and Bradly gets one alert line: a push and Discord #alerts, once a
+  week per Mac. The card and Needs You show it too.
+- **A silent Mac** (round 7, 82). A church Mac not heard from in three days is a
+  Needs You line (`macs.silent_macs()` gives the list).
+- **Notices** (round 7, 84). `notices.notify_person(user, title, body,
+  kind="info")` in `server/arise_server/notices.py` is the one call other parts
+  of the server make to tell a staff member something: an email to their
+  personal address (`mail.send_one`), and a Mac notification on every church
+  Mac where they have an account (mobile, or a linked local account). The
+  notification is shown with `osascript` taking the text as arguments, so the
+  text is never read as AppleScript.
 
 ## What the helper never does
 
@@ -234,6 +348,9 @@ server answers every check-in with `HOLD` and hands out nothing.
 - remove a profile the server has not confirmed is safely on the server
 - act on a Mac nobody enrolled
 - install a new macOS version
+- set a screen lock or an automatic sign-out (round 7, 28 and 29)
+- install an app that is not signed by its maker's expected team
+- touch a personal Mac's DNS (or anything else on it)
 - put a secret in its log (`/var/log/arise-helper.log`), a task or a result
 
 ## Syncing files: Nextcloud, with the old agent as the fallback
@@ -241,8 +358,9 @@ server answers every check-in with `HOLD` and hands out nothing.
 macOS removed the home sync of mobile accounts in 10.12 (Sierra). A mobile
 account still caches the login, but nothing copies the files back.
 
-Round 6, 13 and 14, are the plan: Desktop and Documents sync through the
-Nextcloud client, which the `nextcloud` task sets up. Until that is in, and on
+Round 6, 13 and 14, are the plan, with round 7, 42 and 43: Desktop, Documents,
+Downloads, Pictures and Music sync through the Nextcloud client, which the
+`nextcloud` task sets up (library packages excluded: docs/SYNC.md). Until that is in, and on
 any Mac where it is not running, `mac/arise-home-sync.sh` keeps doing the job
 every 15 minutes.
 
@@ -259,10 +377,15 @@ The helper is bash 3.2, the bash macOS ships, so the server speaks plain text.
 ```
 TASK <id> <kind> k=v k=v
 HOLD <reason>
+WATCH <n>          watch mode: n tasks would run (only notices follow)
 NONE
 ```
 
 The values are percent-encoded, so each `k=v` is one word.
+
+`GET /api/macs/agent/config` gives the configuration tasks one item a line:
+`LOGIN`, `LOGINTEXT`, `PRINTER`, `BOOKMARK`, `APP <name> <bundle> <team> <url>`,
+`DNS`, `HELP`, `FOLDERS`, `CHURCH`.
 
 **Helper to server.** The helper posts forms with `curl --data-urlencode`. Its
 own door is `/api/macs/agent/*`, opened by the header
@@ -348,3 +471,21 @@ to run them under the real version; this box runs them under its own bash.
 - the Tailscale download address
 - `sysadminctl -deleteUser` asking for an admin's Secure Token on newer macOS
 - `samba-tool user disable NAME$` for a computer account
+
+**Round 7, also for that first run:**
+
+- `restrict-store-require-admin-to-install` without an MDM. Apple documents it
+  as an MDM restriction ("Require admin password to install or update apps");
+  the helper writes it to `/Library/Preferences` and `/Library/Managed
+  Preferences`, and whether the App Store reads it from there on current macOS
+  is not proven.
+- `LoginwindowText` on the login window
+- the session LaunchAgent (`/Library/LaunchAgents/com.arisechurch.session.plist`)
+  writing the welcome page and showing notices, and `osascript display
+  notification` run through `launchctl asuser`
+- `networksetup -setdnsservers` per service, and `Empty` on DNS filter off
+- `tmutil destinationinfo` / `startbackup --block` at enrolment
+- `pkgutil --check-signature` and `spctl -a -t install` on each app's package,
+  and Chrome's and Zoom's packages installing with `installer -pkg`
+- quitting and reopening the Nextcloud client in each session for a service
+- `sysadminctl -guestAccount on`

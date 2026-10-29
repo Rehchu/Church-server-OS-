@@ -37,10 +37,12 @@ ACCOUNTS = ("jane.doe|mobile|1104|0|/Users/jane.doe|0|Jane Doe|\n"
 
 
 @contextmanager
-def real_mode(tmp: Path, extra: str = ""):
+def real_mode(tmp: Path, extra: str = "", watch: bool = False):
+    """Real mode against a temp folder. The helper is switched on (watch = false) unless a test
+    is about watch mode (round 7, 4)."""
     conf = tmp / "arise.toml"
     conf.write_text(f'[system]\ndata_root = "{tmp}/data"\n[web]\nadmin_user = "bradly"\n[directory]\nenabled = true\nhomes_path = "{tmp}/homes"\n'
-                    f'[paths]\nstate_dir = "{tmp}/state"\nlog_dir = "{tmp}/state"\n' + extra)
+                    f'[paths]\nstate_dir = "{tmp}/state"\nlog_dir = "{tmp}/state"\n[macs]\nwatch = {"true" if watch else "false"}\n' + extra)
     old = {k: os.environ.get(k) for k in ("ARISE_CONFIG", "ARISE_DEMO", "ARISE_MACS_SECRETS")}
     os.environ["ARISE_CONFIG"] = str(conf)
     os.environ["ARISE_MACS_SECRETS"] = str(tmp / "secrets" / "macs")
@@ -106,6 +108,45 @@ class Pure(unittest.TestCase):
         # an open task is not queued twice
         open_t = [{"kind": "remove_profile", "state": "sent", "args": {"user": "old.timer"}}]
         self.assertNotIn(("remove_profile", {"user": "old.timer"}), macs.plan_accounts(m, USERS, [], open_t))
+
+    def test_default_link_plan(self):
+        """Round 7, 23 and Bradly's follow-up: a clear match links; no clear match makes first.last
+        (first.last2 when the name is someone else's), then links; a one-word name waits."""
+        users = [u for u in USERS if u["name"] != "john.smith"] + [{"name": "john.smith", "enabled": True, "display": "Johnny Smithers"}]
+        acc = ("kristina|local|501|1|/Users/kristina|0|Kristina Robinson|\n"
+               "jane.doe|local|502|0|/Users/jane.doe|0|J D|\n"
+               "jsmith|local|503|0|/Users/jsmith|0|John Smith|\n"
+               "levi|local|504|0|/Users/levi|0|Levi Mercer|\n"
+               "media|local|505|0|/Users/media|0|Media|\n"
+               "guest|local|506|0|/Users/guest|0|Guest|\n"
+               "done|local|507|0|/Users/done|0|Done Already|\n"
+               "old.timer|mobile|1105|0|/Users/old.timer|0|Old Timer|\n")
+        m = {"accounts": macs.parse_accounts(acc), "choices": {"done": {"action": "leave"}}}
+        plan = {p["local"]: p for p in macs.plan_links(m, users)}
+        self.assertEqual(plan["kristina"], {"local": "kristina", "user": "kristina.robinson", "make": False})   # first.last, no display on file
+        self.assertEqual((plan["jane.doe"]["user"], plan["jane.doe"]["make"]), ("jane.doe", False))              # the same short name
+        self.assertEqual((plan["jsmith"]["user"], plan["jsmith"]["make"]), ("john.smith2", True))                # someone else's name: the next one
+        self.assertEqual((plan["levi"]["user"], plan["levi"]["make"], plan["levi"]["display"]), ("levi.mercer", True, "Levi Mercer"))
+        self.assertIsNone(plan["media"]["user"])                                                                  # one word: by hand
+        for gone in ("guest", "old.timer", "done"):
+            self.assertNotIn(gone, plan)
+        self.assertEqual(macs.would_text(plan["levi"]), "would make levi.mercer and link levi to it")
+        self.assertEqual(macs.would_text(plan["kristina"]), "would link kristina to kristina.robinson")
+        self.assertTrue(macs.would_text(plan["media"]).startswith("would leave media waiting"))
+        self.assertNotIn("levi", {p["local"] for p in macs.plan_links(m, users, exclude=["levi"])})
+        # a linked account gets no second (mobile) account on that Mac (round 7, 25)
+        m2 = {"accounts": macs.parse_accounts(acc), "choices": {}}
+        self.assertNotIn(("add_account", {"user": "kristina.robinson"}), macs.plan_accounts(m2, USERS, [], [], linking={"kristina.robinson"}))
+        m2["choices"] = {"kristina": {"action": "link", "user": "kristina.robinson"}}
+        self.assertNotIn(("add_account", {"user": "kristina.robinson"}), macs.plan_accounts(m2, USERS, [], []))
+
+    def test_names(self):
+        self.assertEqual(macs.unique_name("john.smith", {"jane.doe"}), "john.smith")
+        self.assertEqual(macs.unique_name("john.smith", {"john.smith", "john.smith2"}), "john.smith3")
+        self.assertEqual(macs.ad_name("Office Mac 2"), "Office-Mac-2")
+        self.assertEqual(len(macs.ad_name("A very long Mac name indeed")), 15)
+        self.assertEqual(macs.ad_name("!!!"), "MAC")
+        self.assertEqual([macs.parse_disk(v) for v in ("87%", "90", "", "x", "101", None)], [87, 90, None, None, None, None])
 
     def test_a_failing_task_backs_off_and_old_tasks_are_pruned(self):
         from datetime import datetime, timedelta
@@ -193,7 +234,9 @@ class RealMode(unittest.TestCase):
             for k in ("certificate", "login_window", "ariseadmin", "filevault", "printers", "bookmarks", "tailscale", "add_account", "remove_profile"):
                 self.assertIn(k, kinds)
             adds = {a["user"] for k, a in got if k == "add_account"}
-            self.assertEqual(adds, {"john.smith", "kristina.robinson"})
+            self.assertEqual(adds, {"john.smith"})                                             # Kristina has a linked local account (round 7, 25)
+            self.assertEqual(next(a for k, a in got if k == "link_local"), {"local": "kristina", "user": "kristina.robinson", "admin": "0"})
+            self.assertIn({"user": "kristina.robinson", "local": "kristina"}, [a for k, a in got if k == "nextcloud"])
             rm = next(a for k, a in got if k == "remove_profile")
             self.assertEqual(rm["user"], "old.timer")
             self.assertTrue(rm["bases"].endswith("/homes/old.timer"))
@@ -280,7 +323,8 @@ class RealMode(unittest.TestCase):
             macs.checkin(m, {"accounts": ACCOUNTS})
             self.assertFalse(macs.retire(r["mac_id"], "wrong", "bradly")["ok"])
             no = macs.retire(r["mac_id"], "OFFICE-MAC-02", "bradly")
-            self.assertFalse(no["ok"]); self.assertIn("kristina", no["err"])
+            self.assertFalse(no["ok"]); self.assertIn("guest", no["err"])
+            self.assertNotIn("kristina", no["err"])                                           # linked by default: chosen already
             for local in ("kristina", "guest"):
                 self.assertTrue(macs.choose_local(r["mac_id"], local, "leave", "", "bradly")["ok"])
             self.assertTrue(macs.retire(r["mac_id"], "OFFICE-MAC-02", "bradly")["ok"])
@@ -313,6 +357,125 @@ class RealMode(unittest.TestCase):
             got = tasks_of(macs.checkin(m, {}))
             self.assertEqual(next(a for k, a in got if k == "link_local")["admin"], "0")
             self.assertEqual(next(a for k, a in got if k == "nextcloud"), {"user": "jane.doe", "local": "kristina"})
+            # the default's link to kristina.robinson was replaced, not left to run as well
+            old = [t for t in macs._read()["tasks"][r["mac_id"]] if t["kind"] == "link_local" and t["args"]["user"] == "kristina.robinson"]
+            self.assertTrue(old and all(t["state"] == "cancelled" for t in old))
+
+    def test_watch_mode_reports_and_hands_out_nothing(self):
+        """Round 7, 4: the helper checks in, the plan is made, nothing but a notice goes out."""
+        with real_mode(self.tmp, watch=True):
+            self.assertTrue(macs.watch_mode())
+            _, r = self.enrol()
+            m = macs.agent_auth(f"{r['mac_id']}:{r['key']}")
+            with mock.patch("arise_server.directory.add_user") as add:
+                out = macs.checkin(m, {"accounts": ACCOUNTS + "levi|local|503|0|/Users/levi|0|Levi Mercer|\n", "disk_used": "93%"})
+            add.assert_not_called()                                                             # nobody is made in watch mode
+            self.assertEqual(out[0].split(" ")[0], "WATCH"); self.assertGreater(int(out[0].split(" ")[1]), 5)
+            self.assertEqual([k for k, _ in tasks_of(out)], ["notice"])                       # the disk notice only
+            cur = macs._read()["macs"][r["mac_id"]]
+            self.assertIn("would make levi.mercer and link levi to it", cur["would"])
+            self.assertIn("would link kristina to kristina.robinson", cur["would"])
+            self.assertNotIn("kristina", cur.get("choices") or {})
+            lines = [a["text"] for a in macs.attention()]
+            self.assertTrue(any("watch mode" in t for t in lines)); self.assertTrue(any("93% full" in t for t in lines))
+            with mock.patch("arise_server.church.in_service_now", return_value={"name": "Glory Night"}):
+                self.assertEqual(tasks_of(macs.checkin(m, {})), [])                            # not even a notice during a service
+            self.assertTrue(macs.set_live(True, "bradly")["ok"])
+            self.assertFalse(macs.watch_mode())
+            self.assertIn("macs.live", (self.tmp / "state" / "audit.jsonl").read_text())
+            self.assertIn("link_local", [k for k, _ in tasks_of(macs.checkin(m, {}))])
+            macs.set_live(False, "bradly")
+            self.assertTrue(macs.watch_mode())
+
+    def test_live_default_link_makes_the_user_and_shows_the_password_once(self):
+        with real_mode(self.tmp):
+            _, r = self.enrol()
+            m = macs.agent_auth(f"{r['mac_id']}:{r['key']}")
+            acc = ACCOUNTS + "levi|local|503|0|/Users/levi|0|Levi Mercer|\n"
+            with mock.patch("arise_server.directory.add_user", return_value={"ok": True}) as add, \
+                 mock.patch("arise_server.profiles.temp_password", return_value="Temp-Pass-1234"):
+                got = tasks_of(macs.checkin(m, {"accounts": acc}))
+            add.assert_called_once()
+            self.assertEqual(add.call_args[0][:2], ("levi.mercer", "Temp-Pass-1234"))
+            self.assertTrue(add.call_args[1]["temporary"]); self.assertEqual(add.call_args[1]["display"], "Levi Mercer")
+            self.assertIn({"local": "levi", "user": "levi.mercer", "admin": "0"}, [a for k, a in got if k == "link_local"])
+            self.assertNotIn("Temp-Pass-1234", (self.tmp / "state" / "macs" / "macs.json").read_text())
+            d = macs.detail(r["mac_id"])
+            self.assertIn("levi.mercer", d["temp_waiting"])
+            t = macs.temp_take(r["mac_id"], "levi.mercer", "bradly")
+            self.assertEqual(t["temporary_password"], "Temp-Pass-1234")
+            self.assertFalse(macs.temp_take(r["mac_id"], "levi.mercer", "bradly")["ok"])          # once
+            audit_log = (self.tmp / "state" / "audit.jsonl").read_text()
+            self.assertIn("macs.temp_password.shown", audit_log); self.assertNotIn("Temp-Pass-1234", audit_log)
+            # the choice is recorded as the default, and the Mac is now one of Levi's
+            self.assertEqual(macs._read()["macs"][r["mac_id"]]["choices"]["levi"]["by"], "the default (round 7, 23)")
+            self.assertIn((r["mac_id"], "levi"), macs.macs_of_person("levi.mercer"))
+            # a failed make links nothing
+            with mock.patch("arise_server.directory.add_user", return_value={"ok": False, "err": "no"}):
+                got = tasks_of(macs.checkin(m, {"accounts": acc + "amy|local|504|0|/Users/amy|0|Amy Lane|\n"}))
+            self.assertNotIn("amy", [a.get("local") for k, a in got if k == "link_local"])
+
+    def test_disk_notice_once_a_week_and_person_notices(self):
+        with real_mode(self.tmp):
+            _, r = self.enrol()
+            m = macs.agent_auth(f"{r['mac_id']}:{r['key']}")
+            macs.checkin(m, {"accounts": ACCOUNTS})
+            with mock.patch("arise_server.notices.alert_admins") as alert:
+                got = tasks_of(macs.checkin(m, {"disk_used": "91"}, now=datetime(2026, 11, 3, 12, 0)))
+                self.assertEqual(next(a for k, a in got if k == "notice")["user"], "")             # whoever is signed in
+                alert.assert_called_once()
+                self.assertIn("91% full", alert.call_args[0][0])
+                self.assertFalse(tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 4, 12, 0))))
+                self.assertTrue(tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 11, 12, 0))))
+            self.assertEqual(macs._read()["macs"][r["mac_id"]]["disk_used"], 92)
+            # a notice reaches every Mac where the person has an account: mobile, or a linked local one
+            self.assertEqual(macs.queue_notice("jane.doe", "Hello", "Body"), ["OFFICE-MAC-02"])
+            self.assertEqual(macs.queue_notice("kristina.robinson", "Hi", "x"), ["OFFICE-MAC-02"])
+            self.assertEqual(macs.queue_notice("nobody.here", "Hi", "x"), [])
+            n = [t["args"] for t in macs._read()["tasks"][r["mac_id"]] if t["kind"] == "notice" and t["args"]["title"] == "Hi"]
+            self.assertEqual(n, [{"user": "kristina", "title": "Hi", "body": "x", "kind": "info"}])
+            from arise_server import notices
+            with mock.patch.object(notices, "personal_email", return_value="jane@example.org"), \
+                 mock.patch("arise_server.mail.send_one", return_value={"ok": True}) as send:
+                out = notices.notify_person("Jane.Doe", "Your password", "It changes Friday.", kind="warn")
+            self.assertEqual(send.call_args[0][:2], ("jane@example.org", "Your password"))
+            self.assertEqual((out["ok"], out["email"]["ok"], out["macs"]), (True, True, ["OFFICE-MAC-02"]))
+            with mock.patch.object(notices, "personal_email", return_value=None):
+                out = notices.notify_person("jane.doe", "T", "B", kind="nonsense")
+            self.assertFalse(out["email"]["ok"]); self.assertEqual(out["macs"], ["OFFICE-MAC-02"])
+            self.assertFalse(notices.notify_person("", "T", "B")["ok"])
+            # Bradly's alert goes once per key, and never shows the webhook address
+            os.environ["ARISE_DISCORD_TOML"] = str(self.tmp / "none.toml"); self.addCleanup(os.environ.pop, "ARISE_DISCORD_TOML", None)
+            with mock.patch("arise_server.push.send", return_value={"ok": True}) as push:
+                self.assertTrue(notices.alert_admins("disk full", key="k1")["ok"])
+                self.assertTrue(notices.alert_admins("disk full", key="k1").get("duplicate"))
+            push.assert_called_once()
+
+    def test_silent_and_the_helpers_config(self):
+        with real_mode(self.tmp, extra='apps = [{name = "Firefox", app = "Firefox.app", team = "43AQ936H96", url = "https://example.org/f.pkg"},'
+                                     ' {name = "Proclaim", app = "Proclaim.app", team = "ABCDEFGHIJ", url = "", media_only = true},'
+                                     ' {name = "Bad", app = "Bad.app", team = "guess"}]\n'):
+            _, r = self.enrol()
+            m = macs.agent_auth(f"{r['mac_id']}:{r['key']}")
+            macs.checkin(m, {}, now=datetime(2026, 10, 1, 12, 0))
+            self.assertEqual([x["name"] for x in macs.silent_macs()], ["OFFICE-MAC-02"])
+            self.assertTrue(any("has not checked in" in a["text"] for a in macs.attention()))
+            cfg = macs.config_lines(macs._read()["macs"][r["mac_id"]])
+            self.assertIn("LOGINTEXT Arise%20Church%3A%20sign%20in%20with%20your%20church%20account.%20Help%3A%20Bradly", cfg)
+            self.assertIn("APP Firefox Firefox.app 43AQ936H96 https", cfg)
+            self.assertNotIn("Proclaim", cfg); self.assertNotIn("Bad.app", cfg)                 # not the media Mac; no real Team ID
+            self.assertIn("DNS 1.1.1.3 1.0.0.3", cfg)
+            self.assertIn("HELP Bradly%20Dyer Kristina%20Robinson Ronnie", cfg)
+            self.assertIn("FOLDERS Desktop Documents Downloads Pictures Music", cfg)
+            self.assertTrue(macs.set_media(r["mac_id"], True, "bradly")["ok"])
+            self.assertIn("APP Proclaim Proclaim.app ABCDEFGHIJ -", macs.config_lines(macs._read()["macs"][r["mac_id"]]))
+            self.assertTrue(any(t["kind"] == "apps" for t in macs._read()["tasks"][r["mac_id"]]))
+            # the default apps carry only the four confirmed Team IDs; Proclaim waits for Bradly (round 7, 31)
+            self.assertEqual({a["team"] for a in macs.DEFAULT_APPS}, {"43AQ936H96", "EQHXZ8M8AV", "BJ4HAAB9B3", "NKUJUXUJ3B"})
+            self.assertNotIn("Proclaim", [a["name"] for a in macs.DEFAULT_APPS])
+            self.assertEqual(macs.LOGIN_TEXT, "Arise Church: sign in with your church account. Help: Bradly")
+            self.assertTrue(macs.run_task(r["mac_id"], "dnsfilter", "bradly", {"mode": "off"})["ok"])
+            self.assertFalse(macs.run_task(r["mac_id"], "dnsfilter", "bradly", {"mode": "maybe"})["ok"])
 
 
 class Api(unittest.TestCase):
@@ -348,7 +511,7 @@ class Api(unittest.TestCase):
         self.assertEqual(names, ["KIDS-MAC", "MEDIA-MAC-01", "OFFICE-MAC-01"])
         d = a.get("/api/macs/mac-0000000000b2").json()
         k = next(x for x in d["accounts"] if x["user"] == "levi")
-        self.assertEqual((k["state"], k["suggest"], k["suggest_exists"]), ("waiting for your choice", "levi.mercer", False))
+        self.assertEqual((k["state"], k["suggest"], k["suggest_exists"]), ("would make levi.mercer and link levi to it", "levi.mercer", False))
         r = a.post("/api/macs/mac-0000000000b2/local", json={"local": "levi", "action": "convert", "user": "levi.mercer", "display": "Levi Mercer"}).json()
         self.assertTrue(r["ok"], r)
         self.assertEqual(r["made"]["user"], "levi.mercer")                                # made first, temporary password
@@ -372,6 +535,12 @@ class Api(unittest.TestCase):
         self.assertEqual(a.post("/api/macs/agent/enrol", data={"token": tok}).status_code, 403)                 # used
         with mock.patch("arise_server.church.in_service_now", return_value=None):
             out = a.post("/api/macs/agent/checkin", headers=hdr, data={"helper": "1.0.0", "accounts": ACCOUNTS}).text
+        self.assertFalse([ln for ln in out.splitlines() if ln.startswith("TASK ")])           # watch mode: nothing handed out (round 7, 4)
+        self.assertTrue([ln for ln in out.splitlines() if ln.startswith("WATCH ")])
+        self.assertFalse(self.member().post("/api/macs/live", json={"on": True}).status_code == 200)   # admins only
+        self.assertTrue(a.post("/api/macs/live", json={"on": True}).json()["ok"])
+        with mock.patch("arise_server.church.in_service_now", return_value=None):
+            out = a.post("/api/macs/agent/checkin", headers=hdr, data={"helper": "1.0.0", "accounts": ACCOUNTS}).text
         lines = [ln for ln in out.splitlines() if ln.startswith("TASK ")]
         self.assertTrue(lines)
         tid = lines[0].split(" ")[1]
@@ -382,6 +551,21 @@ class Api(unittest.TestCase):
         self.assertIn("BOOKMARK", cfg)
         self.assertEqual(a.get("/api/macs/agent/config").status_code, 401)
         self.assertIn(kv["MAC_ID"], [m["id"] for m in a.get("/api/macs").json()["macs"]])
+
+    def test_watch_switch_media_and_temp_password_routes(self):
+        a, mem = self.admin, self.member()
+        self.assertTrue(a.get("/api/macs").json()["watch"])                                      # the sample starts in watch mode
+        for path, body in (("/api/macs/live", {"on": True}), ("/api/macs/mac-0000000000a1/media", {"on": True}),
+                           ("/api/macs/mac-0000000000a1/temp-password", {"user": "levi.mercer"})):
+            self.assertEqual(mem.post(path, json=body).status_code, 403, path)
+        r = a.post("/api/macs/mac-0000000000a1/media", json={"on": False}).json()
+        self.assertTrue(r["ok"]); self.assertFalse(r["media"])
+        self.assertFalse(a.post("/api/macs/mac-0000000000a1/temp-password", json={"user": "nobody.here"}).json()["ok"])
+        self.assertEqual(a.post("/api/macs/mac-0000000000a1/temp-password", json={"user": "../x"}).status_code, 400)
+        self.assertTrue(a.post("/api/macs/live", json={"on": True}).json()["ok"])
+        self.assertFalse(a.get("/api/macs").json()["watch"])
+        d = a.get("/api/macs/mac-0000000000b2").json()
+        self.assertFalse(d["watch"])
 
     def test_scripts_are_served_and_nothing_else(self):
         a = self.admin

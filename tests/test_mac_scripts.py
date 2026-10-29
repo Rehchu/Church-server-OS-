@@ -131,6 +131,63 @@ class HelperOrdering(unittest.TestCase):
         self.assertIn("--extended-attributes", m)
 
 
+class Round7(unittest.TestCase):
+    """Round 7's Mac answers, read from the scripts (docs/ANSWERS.md, Round 7)."""
+    src = HELPER.read_text()
+    enrol = (MAC / "helper" / "enrol.sh").read_text()
+
+    def test_no_screen_lock_and_no_automatic_sign_out(self):
+        # rows 28 and 29: never set either, anywhere on the Mac side
+        for f in SCRIPTS:
+            s = f.read_text()
+            for key in ("askForPassword", "autoLogOutDelay", "idleTime", "screensaver"):
+                self.assertNotIn(key, re.sub(r"#.*", "", s), f"{f.name}: {key}")
+
+    def test_mac_settings(self):
+        ms = self.src[self.src.index("t_mac_settings() {"):]
+        ms = ms[:ms.index("\n}\n")]
+        self.assertIn("sysadminctl -guestAccount on", ms)                                 # row 33
+        self.assertIn("restrict-store-require-admin-to-install -bool true", ms)           # row 30
+        self.assertNotIn("dseditgroup -o edit -a", ms)                                     # nobody is made an admin
+
+    def test_notices_are_never_parsed_as_applescript(self):
+        sn = functions(self.src, "show_notice")
+        self.assertIn("'on run argv'", sn)
+        self.assertIn('"$3" "$4"', sn)
+        self.assertNotIn('\\"$3', sn)
+
+    def test_apps_check_the_signature_first(self):
+        a = self.src[self.src.index("t_apps() {"):]
+        a = a[:a.index("\n}\n")]
+        self.assertLess(a.index("pkg_ok"), a.index("installer -pkg"))
+        p = functions(self.src, "pkg_ok")
+        self.assertIn("pkgutil --check-signature", p)
+        self.assertIn("Developer ID Installer", p)
+
+    def test_service_pause(self):
+        # row 92: a service pauses Nextcloud in every session, and the next visit without one reopens it
+        self.assertRegex(self.src, r"\n  HOLD\*\) nc_pause;")
+        main = self.src[self.src.index("HOLD*) nc_pause"):]
+        self.assertIn("nc_resume", main)
+        self.assertIn('"$DB/nc-paused"', functions(self.src, "nc_pause"))
+
+    def test_enrol_keeps_the_name_and_backs_up_first(self):
+        # row 35: the name changes only with --name
+        i = self.enrol.index('scutil --set ComputerName "$NAME"')
+        self.assertIn('if [ -n "$NAME" ]', self.enrol[max(0, i - 300):i])
+        self.assertIn('scutil --get ComputerName', self.enrol)
+        # row 6: Time Machine first when a destination answers, before the bind
+        self.assertLess(self.enrol.index("tmutil startbackup --block"), self.enrol.index('bash "$TMP/bind-mac.sh"'))
+        self.assertIn("--no-backup", self.enrol)
+
+    def test_dns_filter_keeps_the_church_domain_on_the_server(self):
+        d = self.src[self.src.index("t_dnsfilter() {"):]
+        d = d[:d.index("\n}\n")]
+        self.assertIn("networksetup -setdnsservers", d)
+        self.assertIn("dns-before", d)                                                      # reversible
+        self.assertNotIn("/etc/resolver/ad.arisecenla.com", re.sub(r"#.*", "", d).replace('[ -f "/etc/resolver', ""))   # left alone
+
+
 @unittest.skipUnless(BASH, "no bash here")
 class HelperFunctions(unittest.TestCase):
     """The helper's functions themselves, with fake macOS commands on PATH."""
@@ -225,13 +282,42 @@ class HelperFunctions(unittest.TestCase):
         (home / "Desktop" / ".DS_Store").write_text("")
         (home / "Documents").mkdir()
         (home / "Documents" / "odd\tname.txt").write_text("")
-        r = self.run_fn(["manifest"], f'manifest "{home}" Desktop,Documents,Downloads')
+        # a library package never syncs (round 7, 43), so the check leaves it out, inside and all
+        (home / "Pictures" / "Photos Library.photoslibrary" / "originals").mkdir(parents=True)
+        (home / "Pictures" / "Photos Library.photoslibrary" / "originals" / "IMG_1.heic").write_text("x")
+        (home / "Music" / "Music Library.musiclibrary").mkdir(parents=True)
+        (home / "Music" / "Music Library.musiclibrary" / "Library.musicdb").write_text("x")
+        (home / "Music" / "song.m4a").write_text("x")
+        r = self.run_fn(["skipped_pkg", "find_skip", "manifest"], f'{self.skip_line()}\nmanifest "{home}" Desktop,Documents,Downloads,Pictures,Music')
         lines = r.stdout.splitlines()
         self.assertIn("Desktop/a.txt\t3", "\n".join(lines))
-        self.assertIn("#folder\tDesktop\tread\t1\t0", lines)
+        self.assertIn("#folder\tDesktop\tread\t1\t0", lines, r.stderr)
         self.assertIn("#folder\tDocuments\tread\t1\t1", lines)       # the name with a tab is counted
         self.assertIn("#folder\tDownloads\tabsent\t0\t0", lines)
+        self.assertIn("#folder\tPictures\tread\t0\t0", lines)        # only the library: nothing to sync
+        self.assertIn("#folder\tMusic\tread\t1\t0", lines)
+        self.assertIn("Music/song.m4a\t1", r.stdout)
+        self.assertNotIn("library", r.stdout.lower().replace("#folder", ""))
         self.assertNotIn(".DS_Store", r.stdout)
+
+    def skip_line(self) -> str:
+        return next(ln for ln in self.src.splitlines() if ln.startswith("SKIP_PKGS="))
+
+    def test_library_packages_are_skipped_and_match_nextclouds_list(self):
+        r = self.run_fn(["skipped_pkg"], self.skip_line() + '\nfor n in "Photos Library.photoslibrary" "Music Library.musiclibrary" '
+                        '"iMovie Library.imovielibrary" "Photo Booth Library" "Photos notes.txt" "photoslibrary"; do '
+                        'skipped_pkg "$n" && echo skip || echo keep; done')
+        self.assertEqual(r.stdout.split(), ["skip", "skip", "skip", "skip", "keep", "keep"], r.stderr)
+        # the patterns stay patterns even with a matching file in the current folder
+        (self.tmp / "x.photoslibrary").mkdir()
+        r = subprocess.run([BASH, "-c", "set -u\n%s\n%s\nfind_skip" % (self.skip_line(), functions(self.src, "find_skip"))],
+                           capture_output=True, text=True, cwd=self.tmp)
+        self.assertIn("*.photoslibrary", r.stdout.splitlines()); self.assertNotIn("x.photoslibrary", r.stdout)
+        nc = (MAC / "helper" / "tasks" / "nextcloud.sh").read_text()
+        m = re.search(r"^NC_SKIP='([^']*)'", nc, re.M)
+        self.assertTrue(m, "nextcloud.sh has NC_SKIP")
+        self.assertEqual(set(m.group(1).split()) - {"Photo", "Booth", "Library"},
+                         set(self.skip_line().split("'")[1].split()))
 
 
 if __name__ == "__main__":

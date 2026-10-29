@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-29T02:08:35",
+"last_run": "2026-10-29T02:08:49",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
@@ -67,6 +67,18 @@ window.ARISE_DEMO_DATA = {
 {
 "level": "warn",
 "text": "No config at /etc/arise/arise.toml: running on defaults with sample data. Run the installer or `arisectl doctor`."
+},
+{
+"level": "warn",
+"text": "The Mac helper is in watch mode: 4 task(s) on 3 Mac(s) would run. Read them in Macs, then press Switch on."
+},
+{
+"level": "warn",
+"text": "KIDS-MAC's disk is 91% full."
+},
+{
+"level": "warn",
+"text": "KIDS-MAC: the helper has no Full Disk Access, so no profile can be removed from it."
 }
 ]
 },
@@ -78,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T04:08:35"
+"since": "2026-10-15T04:08:49"
 }
 ]
 },
@@ -157,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T06:08:35",
+"last_logon": "2026-10-29T06:08:49",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -171,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T07:08:35",
+"last_logon": "2026-10-28T07:08:49",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -185,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T04:08:35",
+"last_logon": "2026-10-27T04:08:49",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -199,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-23T07:08:35",
+"last_logon": "2026-10-23T07:08:49",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -227,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T07:08:35",
+"last_logon": "2026-10-26T07:08:49",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -241,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-20T07:08:35",
+"last_logon": "2026-10-20T07:08:49",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -258,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T03:08:35",
+"last_logon": "2026-10-28T03:08:49",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -275,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T07:08:35",
+"last_logon": "2026-10-27T07:08:49",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -291,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T00:08:35",
+"last_logon": "2026-10-28T00:08:49",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -397,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-29T06:08:35",
+"last_seen": "2026-10-29T06:08:49",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-28T07:08:35",
+"last_seen": "2026-10-28T07:08:49",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-27T07:08:35",
+"last_seen": "2026-10-27T07:08:49",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-29T07:04:35",
+"last_seen": "2026-10-29T07:04:49",
 "ip": "192.168.1.20"
 }
 ]
@@ -1946,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-20T07:08:35",
+"last_check": "2026-10-20T07:08:49",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1978,7 +1990,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-29T02:08:35",
+"last_run": "2026-10-29T02:08:49",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
@@ -2100,17 +2112,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-29T02:08:35",
+"when": "2026-10-29T02:08:49",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-29T02:08:35",
+"when": "2026-10-29T02:08:49",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-29T02:08:35",
+"when": "2026-10-29T02:08:49",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2200,7 +2212,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2217,7 +2229,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2234,7 +2246,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2251,7 +2263,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2268,7 +2280,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-27T07:08:35",
+"updated": "2026-10-27T07:08:49",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2285,7 +2297,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2302,7 +2314,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2319,7 +2331,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-28T07:08:35",
+"updated": "2026-10-28T07:08:49",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2336,7 +2348,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2353,7 +2365,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-26T07:08:35",
+"updated": "2026-10-26T07:08:49",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3201,7 +3213,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-28T05:08:35",
+"last": "2026-10-28T05:08:49",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3240,7 +3252,10 @@ window.ARISE_DEMO_DATA = {
 "data_dir": "",
 "sync_folders": [
 "Desktop",
-"Documents"
+"Documents",
+"Downloads",
+"Pictures",
+"Music"
 ],
 "conflicts": "newest",
 "client_version": "3.14.3",
@@ -4319,7 +4334,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-29T07:08:35+00:00",
+"last_check": "2026-10-29T07:08:50+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4332,7 +4347,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-29T03:08:35",
+"t": "2026-10-29T03:08:50",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4340,7 +4355,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T02:08:35",
+"t": "2026-10-28T02:08:50",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4348,7 +4363,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T07:08:35",
+"t": "2026-10-27T07:08:50",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4356,7 +4371,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T05:08:35",
+"t": "2026-10-26T05:08:50",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4364,7 +4379,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T07:08:35",
+"t": "2026-10-24T07:08:50",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4372,7 +4387,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T06:08:35",
+"t": "2026-10-24T06:08:50",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4380,7 +4395,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T04:08:35",
+"t": "2026-10-23T04:08:50",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4388,7 +4403,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T04:08:35",
+"t": "2026-10-23T04:08:50",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4851,8 +4866,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "MACS",
 "title": "The church Macs",
-"size": 18296,
-"lines": 351,
+"size": 27548,
+"lines": 492,
 "blurb": "The server is the church's own Active Directory. It is a Samba AD domain"
 },
 {
@@ -4991,8 +5006,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "SYNC",
 "title": "Sync: every Mac and phone, through Nextcloud",
-"size": 10517,
-"lines": 185,
+"size": 12315,
+"lines": 207,
 "blurb": "Round 6, rows 13 to 19, 39 and 40 (docs/ANSWERS.md). This page is how it works, what to do"
 },
 {
@@ -5092,7 +5107,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-29T07:08:36+00:00",
+"checked_at": "2026-10-29T07:08:50+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5117,7 +5132,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-29T07:08:36+00:00",
+"queued_at": "2026-10-29T07:08:50+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5130,11 +5145,11 @@ window.ARISE_DEMO_DATA = {
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-29T07:08:36+00:00"
+"last_check": "2026-10-29T07:08:50+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793257716.0647318,
+"t": 1793257730.697554,
 "processes": [
 {
 "pid": 470,
@@ -5144,7 +5159,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792048116.064719,
+"since": 1792048130.6975214,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5161,7 +5176,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792048116.0647175,
+"since": 1792048130.6975198,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5178,7 +5193,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792048116.0646966,
+"since": 1792048130.697463,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5195,7 +5210,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792048116.0647054,
+"since": 1792048130.697475,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5212,7 +5227,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792048116.0647128,
+"since": 1792048130.6974857,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5229,7 +5244,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792048116.064702,
+"since": 1792048130.69747,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5246,7 +5261,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792048116.064704,
+"since": 1792048130.6974733,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5263,7 +5278,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792048116.0647092,
+"since": 1792048130.6974807,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5280,7 +5295,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792048116.0647197,
+"since": 1792048130.6975229,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5297,7 +5312,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792048116.064711,
+"since": 1792048130.6974828,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5314,7 +5329,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792048116.0647216,
+"since": 1792048130.6975362,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5331,7 +5346,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792048116.0647156,
+"since": 1792048130.6975176,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5348,7 +5363,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792048116.0647206,
+"since": 1792048130.697525,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5365,7 +5380,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792048116.0647142,
+"since": 1792048130.6975148,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -7886,7 +7901,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7901,7 +7916,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7916,7 +7931,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7931,7 +7946,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7946,7 +7961,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7961,7 +7976,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7976,7 +7991,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 },
 {
@@ -7991,11 +8006,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T07:08:36+00:00",
+"when": "2026-10-29T07:08:51+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-29T07:08:36+00:00",
+"last": "2026-10-29T07:08:51+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8467,7 +8482,10 @@ window.ARISE_DEMO_DATA = {
 "mounts": 9,
 "sync_folders": [
 "Desktop",
-"Documents"
+"Documents",
+"Downloads",
+"Pictures",
+"Music"
 ],
 "conflicts": "newest",
 "people": 3,
@@ -12426,15 +12444,18 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T07:08:36",
+"enrolled": "2026-10-20T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T01:08:36",
+"last_checkin": "2026-10-29T01:08:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T07:08:36",
+"ariseadmin_at": "2026-10-20T07:08:50",
 "church_owned": true,
+"disk_used": 91,
+"media": false,
+"silent_days": 0,
 "online": false,
 "mobile": 1,
 "local": 0,
@@ -12448,15 +12469,18 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T07:08:36",
+"enrolled": "2026-10-26T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:06:36",
+"last_checkin": "2026-10-29T07:06:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T07:08:36",
+"ariseadmin_at": "2026-10-26T07:08:50",
 "church_owned": true,
+"disk_used": 64,
+"media": true,
+"silent_days": 0,
 "online": true,
 "mobile": 1,
 "local": 1,
@@ -12470,19 +12494,22 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T07:08:36",
+"enrolled": "2026-10-28T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:04:36",
+"last_checkin": "2026-10-29T07:04:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T07:08:36",
+"ariseadmin_at": "2026-10-28T07:08:50",
 "church_owned": true,
+"disk_used": 58,
+"media": false,
+"silent_days": 0,
 "online": true,
 "mobile": 1,
 "local": 2,
-"pending": 0,
+"pending": 4,
 "failed": 0
 }
 ],
@@ -12497,6 +12524,9 @@ window.ARISE_DEMO_DATA = {
 "guest",
 "krbtgt"
 ],
+"watch": true,
+"live": null,
+"would": 4,
 "note": "Only Macs enrolled with the helper are church Macs. A personal Mac is never enrolled and never touched."
 },
 "GET /macs/mac-0000000000c3": {
@@ -12508,15 +12538,18 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T07:08:36",
+"enrolled": "2026-10-20T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T01:08:36",
+"last_checkin": "2026-10-29T01:08:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T07:08:36",
+"ariseadmin_at": "2026-10-20T07:08:50",
 "church_owned": true,
+"disk_used": 91,
+"media": false,
+"silent_days": 0,
 "online": false,
 "mobile": 1,
 "local": 0,
@@ -12531,7 +12564,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-25T07:08:36"
+"last_login": "2026-10-25T07:08:50"
 }
 ],
 "tasks": [
@@ -12542,12 +12575,15 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-28T11:08:36",
+"made": "2026-10-28T11:08:50",
 "by": "the overnight window",
-"finished": "2026-10-28T12:08:36",
+"finished": "2026-10-28T12:08:50",
 "detail": "softwareupdate: no network"
 }
 ],
+"watch": true,
+"would": [],
+"temp_waiting": [],
 "has_secret": {
 "ariseadmin": true,
 "filevault": true
@@ -12562,15 +12598,18 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T07:08:36",
+"enrolled": "2026-10-26T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:06:36",
+"last_checkin": "2026-10-29T07:06:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T07:08:36",
+"ariseadmin_at": "2026-10-26T07:08:50",
 "church_owned": true,
+"disk_used": 64,
+"media": true,
+"silent_days": 0,
 "online": true,
 "mobile": 1,
 "local": 1,
@@ -12585,7 +12624,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-28T07:08:36"
+"last_login": "2026-10-28T07:08:50"
 },
 {
 "user": "media",
@@ -12595,12 +12634,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-29T04:08:36",
+"last_login": "2026-10-29T04:08:50",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-27T07:08:36",
+"at": "2026-10-27T07:08:50",
 "state": "done"
 },
 "suggest": "media.team",
@@ -12617,9 +12656,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-27T07:08:36",
+"made": "2026-10-27T07:08:50",
 "by": "bradly",
-"finished": "2026-10-27T07:08:36",
+"finished": "2026-10-27T07:08:50",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -12629,12 +12668,15 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-26T07:08:36",
+"made": "2026-10-26T07:08:50",
 "by": "the directory",
-"finished": "2026-10-26T07:08:36",
+"finished": "2026-10-26T07:08:50",
 "detail": "mobile account made"
 }
 ],
+"watch": true,
+"would": [],
+"temp_waiting": [],
 "has_secret": {
 "ariseadmin": true,
 "filevault": true
@@ -12649,19 +12691,22 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T07:08:36",
+"enrolled": "2026-10-28T07:08:50",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T07:04:36",
+"last_checkin": "2026-10-29T07:04:50",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T07:08:36",
+"ariseadmin_at": "2026-10-28T07:08:50",
 "church_owned": true,
+"disk_used": 58,
+"media": false,
+"silent_days": 0,
 "online": true,
 "mobile": 1,
 "local": 2,
-"pending": 0,
+"pending": 4,
 "failed": 0,
 "accounts": [
 {
@@ -12672,7 +12717,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-27T07:08:36"
+"last_login": "2026-10-27T07:08:50"
 },
 {
 "user": "levi",
@@ -12682,11 +12727,11 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-24T07:08:36",
+"last_login": "2026-10-24T07:08:50",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
-"state": "waiting for your choice"
+"state": "would make levi.mercer and link levi to it"
 },
 {
 "user": "guest",
@@ -12705,13 +12750,45 @@ window.ARISE_DEMO_DATA = {
 ],
 "tasks": [
 {
+"id": "t9",
+"kind": "dnsfilter",
+"args": {},
+"state": "queued",
+"made": "2026-10-29T05:08:50",
+"by": "enrolment"
+},
+{
+"id": "t8",
+"kind": "apps",
+"args": {},
+"state": "queued",
+"made": "2026-10-29T05:08:50",
+"by": "enrolment"
+},
+{
+"id": "t7",
+"kind": "mac_settings",
+"args": {},
+"state": "queued",
+"made": "2026-10-29T05:08:50",
+"by": "enrolment"
+},
+{
+"id": "t6",
+"kind": "welcome",
+"args": {},
+"state": "queued",
+"made": "2026-10-29T05:08:50",
+"by": "enrolment"
+},
+{
 "id": "t4",
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-28T07:08:36",
+"made": "2026-10-28T07:08:50",
 "by": "enrolment",
-"finished": "2026-10-28T07:08:36",
+"finished": "2026-10-28T07:08:50",
 "detail": "1 printer"
 },
 {
@@ -12721,12 +12798,17 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-28T07:08:36",
+"made": "2026-10-28T07:08:50",
 "by": "the directory",
-"finished": "2026-10-28T07:08:36",
+"finished": "2026-10-28T07:08:50",
 "detail": "mobile account made"
 }
 ],
+"watch": true,
+"would": [
+"would make levi.mercer and link levi to it"
+],
+"temp_waiting": [],
 "has_secret": {
 "ariseadmin": true,
 "filevault": true
@@ -14137,7 +14219,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "MACS",
 "title": "The church Macs",
-"html": "<h1 id=\"the-church-macs\">The church Macs</h1>\n<p>The server is the church's own Active Directory. It is a Samba AD domain\ncontroller on <code>arise-server</code> (realm <code>AD.ARISECENLA.COM</code>, NetBIOS <code>ARISE</code>).\nThere is no Microsoft licence and no Microsoft server anywhere, and no Apple\nMDM or Apple certificate either (round 6, 1).</p>\n<p>Bradly (Oct 29): \"this should run like Active Directory and actually add and\nremove user accounts from the local Macs on the network (not the private ones\nthat people own) ... We don't want to pay for Active Directory, we want the\nserver to be our own Active Directory.\"</p>\n<p>This page covers:</p>\n<ul>\n<li>how a Mac becomes a church Mac</li>\n<li>what the server then does to it on its own</li>\n<li>what waits for an admin</li>\n<li>what it never does</li>\n</ul>\n<p>The code is in:</p>\n<ul>\n<li><code>server/arise_server/macs.py</code></li>\n<li><code>mac/helper/</code></li>\n<li>the <strong>Macs</strong> app on the dashboard (admins only)</li>\n</ul>\n<h2 id=\"which-macs\">Which Macs</h2>\n<p>Only a Mac enrolled with the one Terminal line below is a church Mac. That Mac\ncarries <code>church_owned</code> in the server's records, and enrolment is the only thing\nthat sets it.</p>\n<p>A Mac nobody enrolled is never listed and never touched. That includes\nApostle Bryant's and Pastor Vanessa's own Macs, a volunteer's laptop, and any\nMac that was only bound by hand with <code>bind-mac.sh</code>. Personal Macs keep\nTailscale and the dashboard (docs/MAC-MIGRATION.md § Personal Macs).</p>\n<h2 id=\"enrolling-a-mac-round-6-37\">Enrolling a Mac (round 6, 37)</h2>\n<ol>\n<li>Open the <strong>Macs</strong> app and press <strong>Enrol a Mac</strong>. Type the name on the Mac's\n   label (<code>OFFICE-MAC-02</code>) and press <strong>Make the line</strong>.</li>\n<li>On the Mac, open Terminal, paste the line, and press Return. It asks for the\n   Mac's own password (sudo), then for the domain administrator's password.</li>\n</ol>\n<p>The line works <strong>once</strong>, for <strong>one hour</strong>. It looks like this:</p>\n<pre><code>curl -fsSL http://192.168.1.20:4147/ca.crt -o /tmp/arise-ca.crt &amp;&amp;\n[ &quot;$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)&quot; = &quot;&amp;lt;the certificate's fingerprint&gt;&quot; ] &amp;&amp;\ncurl -fsSL --cacert /tmp/arise-ca.crt --resolve arise-server.ad.arisecenla.com:443:192.168.1.20 \\\n  https://arise-server.ad.arisecenla.com/mac/enrol.sh |\nsudo bash -s -- --token &amp;lt;one-time&gt; --dns 192.168.1.20 --name OFFICE-MAC-02 --server https://arise-server.ad.arisecenla.com\n</code></pre>\n<p>Why it looks like that:</p>\n<ul>\n<li><strong>The address, not the name.</strong> A new Mac cannot look up\n  <code>arise-server.ad.arisecenla.com</code> yet, so the line uses the server's address.\n  Writing the <code>/etc/resolver</code> file that teaches it the name is the first thing\n  enrolment does. Set <code>[macs] server_ip</code> if the guessed address is wrong.</li>\n<li><strong>The fingerprint check.</strong> The church certificate comes first, and the line\n  checks its fingerprint against the one the server printed. The script then\n  arrives over HTTPS that the Mac can verify. Before Caddy has ever run, there\n  is no certificate, and the line falls back to plain http on the church\n  network.</li>\n</ul>\n<p>What <code>mac/helper/enrol.sh</code> does, in order. It is safe to run again.</p>\n<ol>\n<li><strong>DNS.</strong> It points the Mac at the server for the church domain only,\n   through <code>/etc/resolver/ad.arisecenla.com</code>. No router is touched.</li>\n<li><strong>The certificate.</strong> It trusts the church certificate in the System\n   keychain. macOS asks for approval once; a daemon cannot do this by itself.</li>\n<li><strong>The domain.</strong> It joins the domain with <code>mac/bind-mac.sh</code>, unchanged,\n   which checks DNS, the SRV records and the clock first.</li>\n<li><strong>The key.</strong> It trades the token for the Mac's own key. The key is kept in\n   <code>/var/db/arise/helper.key</code> (root, 0600). The server keeps only its sha256.</li>\n<li><strong>The helper.</strong> It installs the helper at <code>/usr/local/arise/helper/</code>, with\n   the LaunchDaemon <code>com.arisechurch.helper</code>, which runs at boot and every\n   five minutes.</li>\n<li><strong>The first check-in.</strong> It runs the helper once. The server then hands out\n   the first tasks:</li>\n<li>the certificate check</li>\n<li>the login window</li>\n<li><code>ariseadmin</code></li>\n<li>FileVault</li>\n<li>the printers</li>\n<li>the bookmarks</li>\n<li>Tailscale</li>\n<li>\n<p>an account for every server user</p>\n</li>\n<li>\n<p><strong>Full Disk Access, by hand, once.</strong> macOS hides everyone's Desktop and\n   Documents even from root, and no script can grant the exception. Enrolment\n   opens System Settings &gt; Privacy &amp; Security &gt; Full Disk Access; add\n   <code>/usr/local/arise/helper/arise-mac-helper</code> and <code>/bin/bash</code> there. Until\n   then the Mac's card says <strong>no Full Disk Access</strong>, and no profile is ever\n   removed from that Mac: the helper reports a folder it could not read, and\n   the server refuses any listing that came back unread, has items but no\n   files, or holds a file name with a tab or a line break.</p>\n</li>\n</ol>\n<p>At the end it lists the local accounts already on the Mac. Nothing happens to\nthem until an admin chooses (below).</p>\n<h2 id=\"accounts-on-their-own-the-directory\">Accounts, on their own (the directory)</h2>\n<p><strong>Every server user gets an account.</strong> Every enabled directory user gets a\nmobile (AD) account made on every church Mac with:</p>\n<pre><code>/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n &amp;lt;user&gt; -v\n</code></pre>\n<p>So their face is on the login window before they ever sign in there. A new\nuser reaches every church Mac within about five minutes (one check-in).</p>\n<p>Some users never get an account:</p>\n<ul>\n<li>the names in <code>[macs] exclude</code></li>\n<li>the box's own accounts, whatever the config says: <code>administrator</code>,\n  <code>krbtgt</code>, <code>guest</code>, <code>arise-rescue</code>, <code>arise</code>, <code>arise-kiosk</code>, <code>arise-git</code>,\n  <code>arise-kb</code>, <code>ariseadmin</code></li>\n</ul>\n<p><strong>A disabled user's profile comes off by the checked path, and only that\npath.</strong> A user is disabled by hand or by offboarding's day-30 sweep. Their\nprofile then comes off every church Mac where they have one, like this:</p>\n<ol>\n<li>The server queues <code>remove_profile</code> for each of those Macs. Offboarding\n   queues it too, and puts the folder their files were moved to first in the\n   list of places to look.</li>\n<li>The helper sends the server a list of every file in their Desktop and\n   Documents (<code>[macs] sync_folders</code>). The list has the name, size and date of\n   each file, never its contents.</li>\n<li>The server checks each one against its own copy, in places the <strong>server</strong>\n   chooses: their home, and where offboarding moved it. It never looks where\n   the Mac says to. A file counts only when the server has it at the same\n   size, and the copy on the Mac is not newer.</li>\n<li>Only when every file counts does anything change. First the rest of their\n   Mac folder (Downloads, Pictures, Music: what does not sync) is kept as a\n   compressed disk image in <code>/Users/Deleted Users/&amp;lt;user&gt;-&amp;lt;date&gt;.dmg</code> on that\n   Mac, the way macOS's own Delete User can; if that copy cannot be made,\n   nothing is removed. Then the account is deleted, with\n   <code>sysadminctl -deleteUser</code>. Deleting the disk image later is Bradly's click. Otherwise the task is refused, says how many\n   files are missing or newer on the Mac, and is tried again at the next\n   check-in.</li>\n</ol>\n<p>The server also refuses the check unless a removal of that person is really\nwaiting on that Mac. So a Mac's key is not a way to probe other people's\nfolders.</p>\n<p>Some accounts are never removed by this path:</p>\n<ul>\n<li><strong>A signed-in person.</strong> Their removal waits.</li>\n<li><strong>A local account.</strong> Only AD accounts are removed this way.</li>\n<li><strong>An account with a home outside <code>/Users</code>.</strong> It is left for an admin.</li>\n<li><strong>A profile that is only unused</strong> (round 6, 5). It is never removed; only a\n  disabled user's is.</li>\n</ul>\n<h2 id=\"accounts-already-on-a-mac-convert-link-or-leave-alone\">Accounts already on a Mac: Convert, Link, or Leave alone</h2>\n<p>Each local account the helper finds waits in the Mac's card as <strong>waiting for\nyour choice</strong>. Nothing is automatic. The admin presses <strong>Choose…</strong>:</p>\n<ul>\n<li><strong>Convert.</strong> The account becomes the server user.</li>\n<li>The Mac's helper stops if the person is signed in.</li>\n<li>It writes a rollback record: <code>/var/db/arise/convert/&amp;lt;old&gt;.plist</code>, 0600,\n    with the UID, groups, home, shell and password hash.</li>\n<li>It deletes only the local record (<code>dscl . -delete</code>) and keeps the home.\n    The home moves to <code>/Users/&amp;lt;first.last&gt;</code> if that is free.</li>\n<li>It runs <code>createmobileaccount -n &amp;lt;first.last&gt; -h &amp;lt;home&gt;</code> and gives the\n    files to the AD uid.</li>\n<li>Admin rights carry over only if the local account had them. Staff are\n    standard users (round 6, 8).</li>\n<li><strong>Undo</strong> puts the local account back from the record. If\n    <code>createmobileaccount</code> fails partway, the helper does the Undo by itself,\n    so nobody is left without an account to sign in to.</li>\n<li>It refuses when the account holds the Mac's Secure Token and FileVault is\n    on (see \"Not verified\" below): Link is the answer there.</li>\n<li><strong>Link.</strong> The local account stays exactly as it is. The Nextcloud client in\n  that account signs in as the server user, so its Desktop and Documents sync\n  to that person's server home.</li>\n<li><strong>Leave alone.</strong> Nothing happens to it, ever.</li>\n</ul>\n<p>The Macs app suggests a server user from the account's full name, for example\n\"Kristina Robinson\" becomes <code>kristina.robinson</code>. It is only a suggestion. If\nthe chosen server user does not exist yet, it is made first with a temporary\npassword. The admin sees that password once, and the person chooses their own\nat the first sign-in (round 5, 5).</p>\n<p>Convert and Link also queue the <code>nextcloud</code> task for that person.</p>\n<p><strong>Retire</strong> is refused until every local account on the Mac has a choice and\nevery AD account's files are on the server.</p>\n<p><code>mac/migrate-mac-user.sh</code> and <code>enroll-mac.sh --map</code> stay as they were. Use\nthem for a Mac that cannot run the helper, or to copy an old account's files\nto the server once before converting it.</p>\n<h2 id=\"the-rest-of-what-the-helper-does\">The rest of what the helper does</h2>\n<table>\n<thead>\n<tr>\n<th>Task</th>\n<th>What happens on the Mac</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>login_window</code></td>\n<td>A list of faces, plus Other… (<code>[macs] login_window = \"faces\"</code>, or <code>\"name\"</code>)</td>\n</tr>\n<tr>\n<td><code>ariseadmin</code></td>\n<td>A hidden admin with a random password. The password is changed every 30 days and kept on the server. If the server cannot be reached, the new password is kept on the Mac (root only) and sent at the next check-in</td>\n</tr>\n<tr>\n<td><code>filevault</code></td>\n<td><code>fdesetup enable -defer</code>: FileVault turns on at the next sign-in, and the recovery key goes to the server after that</td>\n</tr>\n<tr>\n<td><code>printers</code></td>\n<td><code>lpadmin</code>, from <code>[macs] printers</code></td>\n</tr>\n<tr>\n<td><code>bookmarks</code></td>\n<td>A <strong>Church</strong> folder in Chrome (managed bookmarks), and <code>.webloc</code> links in <code>/Library/Arise/Church Links</code> for Safari</td>\n</tr>\n<tr>\n<td><code>certificate</code></td>\n<td>Checks that the church certificate is trusted. Trusting it needs a person at the Mac, so enrolment does that part</td>\n</tr>\n<tr>\n<td><code>updates</code></td>\n<td>Overnight, 01:00 to 05:00, once a night, never during a service. Turns on Apple's automatic security responses and installs security-labelled updates. Asks for a restart in a dialog. Never a new macOS</td>\n</tr>\n<tr>\n<td><code>tailscale</code></td>\n<td>Installs Tailscale if it is missing and turns on \"use Tailscale subnets\" (<code>--accept-routes</code>), so a laptop off-site reaches the server at its church address through the route the server advertises (docs/REMOTE-ACCESS.md): check-ins, Nextcloud and the shares carry on away from church. Someone signs it in once with the church login; the server's route is approved once in the Tailscale admin</td>\n</tr>\n<tr>\n<td><code>nextcloud</code></td>\n<td>Runs <code>/usr/local/arise/helper/tasks/nextcloud.sh --user &amp;lt;first.last&gt; --local &amp;lt;short name&gt; --server &amp;lt;url&gt;</code>. The Nextcloud work supplies that script; until it exists, the task reports <em>skipped</em></td>\n</tr>\n<tr>\n<td><code>retire</code></td>\n<td>Checks every AD account's files as above, then <code>dsconfigad -remove</code>, then removes the helper. Erasing the Mac is Bradly's to do</td>\n</tr>\n</tbody>\n</table>\n<p>The ariseadmin password and the FileVault key are kept in\n<code>/etc/arise/secrets/macs/&amp;lt;mac&gt;.json</code> (0600, root). To see one, an admin\npresses <strong>Show admin password</strong> or <strong>Show FileVault key</strong> and types their\npassword again (remembered for five minutes). Each look is written in the\naudit log; the value never is.</p>\n<p><strong>Cut off</strong> is for a lost or stolen Mac (round 6, 11):</p>\n<ul>\n<li>the Mac's key stops working at once</li>\n<li>its waiting tasks are cancelled</li>\n<li>its computer account is disabled (<code>samba-tool user disable NAME$</code>)</li>\n</ul>\n<p>The app then lists what to revoke by hand: the Mac's Tailscale machine, and\neach person's Nextcloud sessions on it. There is no remote erase.</p>\n<p><strong>Never during a service.</strong> On Sundays at 10:30 and Mondays at 19:00, the\nserver answers every check-in with <code>HOLD</code> and hands out nothing.</p>\n<h2 id=\"what-the-helper-never-does\">What the helper never does</h2>\n<ul>\n<li>erase a Mac, or delete a local account</li>\n<li>read the contents of anyone's files (a removal compares names, sizes and\n  dates)</li>\n<li>remove a profile the server has not confirmed is safely on the server</li>\n<li>act on a Mac nobody enrolled</li>\n<li>install a new macOS version</li>\n<li>put a secret in its log (<code>/var/log/arise-helper.log</code>), a task or a result</li>\n</ul>\n<h2 id=\"syncing-files-nextcloud-with-the-old-agent-as-the-fallback\">Syncing files: Nextcloud, with the old agent as the fallback</h2>\n<p>macOS removed the home sync of mobile accounts in 10.12 (Sierra). A mobile\naccount still caches the login, but nothing copies the files back.</p>\n<p>Round 6, 13 and 14, are the plan: Desktop and Documents sync through the\nNextcloud client, which the <code>nextcloud</code> task sets up. Until that is in, and on\nany Mac where it is not running, <code>mac/arise-home-sync.sh</code> keeps doing the job\nevery 15 minutes.</p>\n<p>The checked removal compares against the person's home on the server\n(<code>/srv/arise/homes/&amp;lt;user&gt;/Desktop</code>, <code>…/Documents</code>). So whatever syncs the\nfiles has to land them there.</p>\n<h2 id=\"the-protocol-for-whoever-works-on-it\">The protocol, for whoever works on it</h2>\n<p>The helper is bash 3.2, the bash macOS ships, so the server speaks plain text.</p>\n<p><strong>Server to helper.</strong> Each answer is lines:</p>\n<pre><code>TASK &amp;lt;id&gt; &amp;lt;kind&gt; k=v k=v\nHOLD &amp;lt;reason&gt;\nNONE\n</code></pre>\n<p>The values are percent-encoded, so each <code>k=v</code> is one word.</p>\n<p><strong>Helper to server.</strong> The helper posts forms with <code>curl --data-urlencode</code>. Its\nown door is <code>/api/macs/agent/*</code>, opened by the header\n<code>X-Arise-Mac: &amp;lt;mac_id&gt;:&amp;lt;key&gt;</code>. Only an active, church-owned Mac with the right\nkey gets in.</p>\n<p><strong>Files.</strong> <code>/mac/&amp;lt;name&gt;</code> serves only the helper's own files: <code>enrol.sh</code>, the\nhelper, its plist, <code>bind-mac.sh</code>, <code>migrate-mac-user.sh</code>, and <code>nextcloud.sh</code>.</p>\n<h2 id=\"not-verified-on-a-real-mac-yet\">Not verified on a real Mac yet</h2>\n<p>There is no Mac where this was built. <code>tests/test_mac_scripts.py</code> reads every\nscript for anything bash 3.2 (the one macOS ships) cannot run, and runs the\nhelper's own functions with stand-ins for <code>dscl</code>, <code>stat -f</code>, <code>sysadminctl</code>,\n<code>fdesetup</code> and <code>softwareupdate</code>. Point <code>ARISE_BASH32</code> at a bash 3.2.57 binary\nto run them under the real version; this box runs them under its own bash.</p>\n<p><strong>Checked against the documentation (Oct 29), and fixed where they were wrong:</strong></p>\n<ul>\n<li>An empty array under <code>set -u</code> (<code>\"${ca[@]}\"</code>) stops bash 3.2 dead with\n  \"unbound variable\"; only bash 4.4 changed that (bash CHANGES, 4.4 a.). It\n  would have stopped every check-in to a server without a certificate yet. Every\n  such expansion is now <code>${a[@]+\"${a[@]}\"}</code>, and the test fails on a new one.</li>\n<li><code>dig</code> reads <code>/etc/resolv.conf</code> only and never sees <code>/etc/resolver/&amp;lt;domain&gt;</code>,\n  so <code>bind-mac.sh</code> could not find the server on a Mac that keeps the router's\n  DNS. It asks <code>dscacheutil -q host</code> (the system resolver, the one\n  <code>dsconfigad</code> uses) and points <code>dig</code> at the domain's nameserver for the SRV\n  records.</li>\n<li>macOS 15.4 replaced rsync 2.6.9 with openrsync, which takes only part of\n  rsync's options. <code>migrate-mac-user.sh</code> no longer passes <code>-X</code> (rsync 3's; Apple's\n  2.6.9 says <code>-E</code>): it asks <code>rsync --help</code>. The old home-sync stands down when\n  its rsync has no <code>--backup-dir</code>, rather than overwrite a server copy.</li>\n<li><code>curl -H @file</code> and <code>-H @-</code> need curl 7.55 (macOS 10.13 and later).</li>\n<li>The Full Disk Access link\n  <code>x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles</code>\n  opens the pane on Sonoma and Sequoia; the admin still presses + and adds the\n  helper. It is opened in the signed-in person's session (<code>open</code> as root has no\n  window).</li>\n<li><code>fdesetup status</code> says \"FileVault is Off, but will be enabled after the next\n  restart.\" when it is deferred: only \"FileVault is On\" counts as on now.</li>\n<li>The task loop reads the server's answer on stdin, and <code>enrol.sh</code> arrives\n  through <code>curl | sudo bash</code>: a command that reads stdin would have eaten the\n  next tasks, or the rest of the script. Tasks get <code>&amp;lt;/dev/null</code>, and <code>enrol.sh</code>\n  runs from a <code>main</code> that bash has read in full.</li>\n<li><code>sysadminctl</code> exits 0 even when it did nothing, so a removal and <code>ariseadmin</code>\n  are checked against the account record afterwards, never its exit code.</li>\n<li>Retire removed its files after <code>launchctl bootout</code>, which ends the script\n  itself; the files go first now, then the job.</li>\n<li>Updates: a new macOS is an upgrade, and macOS installs updates within its own\n  version (Apple's platform guide), so \"Install macOS updates\" is on and the\n  helper installs, itself, only patches for the macOS the Mac runs (minor\n  versions, Security Updates, Rapid Security Responses / Background Security\n  Improvements, Safari). On Apple silicon a macOS update wants a volume\n  owner's password, which root alone cannot give: those wait for macOS's own\n  overnight install.</li>\n<li><code>ariseadmin</code>: an account with a Secure Token keeps FileVault in step only when\n  its password is changed with the old one, so the helper keeps the current one\n  (root, 0600) and uses <code>dscl . -passwd</code> with it.</li>\n</ul>\n<p><strong>Still for a first run on one church Mac:</strong></p>\n<ul>\n<li><code>createmobileaccount</code>'s options (<code>-n</code>, <code>-h &amp;lt;home&gt;</code>, <code>-v</code>): Apple publishes no\n  manual page for it; the helper uses the forms admins have used for years.</li>\n<li>whether \"Install macOS updates\" (<code>AutomaticallyInstallMacOSUpdates</code>) ever\n  offers a new major macOS on its own. Apple's guide says upgrades need the\n  person; nothing tests the key itself.</li>\n<li>whether the restart notice reaches the person (<code>launchctl asuser</code> plus\n  <code>sudo -u</code>, kept alive by <code>AbandonProcessGroup</code>)</li>\n<li><code>createmobileaccount -h &amp;lt;home&gt;</code> on a converted account</li>\n<li>whether a converted account gets a Secure Token. Until that is tried, the\n  helper refuses to Convert an account that holds a Secure Token when\n  FileVault is on, or when it is the only token holder on the Mac: deleting\n  the local record takes the token with it, and nothing can give the new\n  account one without a holder's password. The card then says <strong>Choose Link\n  instead</strong>. To convert such a Mac anyway, first give <code>ariseadmin</code> a token by\n  hand (<code>sudo sysadminctl -secureTokenOn ariseadmin -password - -adminUser\n  &amp;lt;holder&gt; -adminPassword -</code>), then Convert, then grant the new account one\n  the same way.</li>\n<li>restoring a password hash (<code>ShadowHashData</code>) on Undo. If it does not take,\n  the message says to reset the password as <code>ariseadmin</code>.</li>\n<li><code>dsconfigad -force -remove</code> on Retire</li>\n<li>Chrome reading <code>/Library/Managed Preferences</code> without an MDM</li>\n<li>the Tailscale download address</li>\n<li><code>sysadminctl -deleteUser</code> asking for an admin's Secure Token on newer macOS</li>\n<li><code>samba-tool user disable NAME$</code> for a computer account</li>\n</ul>",
+"html": "<h1 id=\"the-church-macs\">The church Macs</h1>\n<p>The server is the church's own Active Directory. It is a Samba AD domain\ncontroller on <code>arise-server</code> (realm <code>AD.ARISECENLA.COM</code>, NetBIOS <code>ARISE</code>).\nThere is no Microsoft licence and no Microsoft server anywhere, and no Apple\nMDM or Apple certificate either (round 6, 1).</p>\n<p>Bradly (Oct 29): \"this should run like Active Directory and actually add and\nremove user accounts from the local Macs on the network (not the private ones\nthat people own) ... We don't want to pay for Active Directory, we want the\nserver to be our own Active Directory.\"</p>\n<p>This page covers:</p>\n<ul>\n<li>how a Mac becomes a church Mac</li>\n<li>what the server then does to it on its own</li>\n<li>what waits for an admin</li>\n<li>what it never does</li>\n</ul>\n<p>The code is in:</p>\n<ul>\n<li><code>server/arise_server/macs.py</code></li>\n<li><code>mac/helper/</code></li>\n<li>the <strong>Macs</strong> app on the dashboard (admins only)</li>\n</ul>\n<h2 id=\"which-macs\">Which Macs</h2>\n<p>Only a Mac enrolled with the one Terminal line below is a church Mac. That Mac\ncarries <code>church_owned</code> in the server's records, and enrolment is the only thing\nthat sets it.</p>\n<p>A Mac nobody enrolled is never listed and never touched. That includes\nApostle Bryant's and Pastor Vanessa's own Macs, a volunteer's laptop, and any\nMac that was only bound by hand with <code>bind-mac.sh</code>. Personal Macs keep\nTailscale and the dashboard (docs/MAC-MIGRATION.md § Personal Macs).</p>\n<h2 id=\"watch-mode-first-round-7-4\">Watch mode first (round 7, 4)</h2>\n<p>The helper starts in <strong>watch mode</strong> (<code>[macs] watch = true</code>, the default). In\nwatch mode the helper still checks in every five minutes and reports what it\nfinds, and the server still makes the whole plan, but it hands out <strong>no task</strong>\nexcept a notice (a notice changes nothing on the Mac). Each check-in's answer\nstarts with <code>WATCH &amp;lt;n&gt;</code>: the number of tasks that would run.</p>\n<p>The Macs app shows a <strong>Watch mode</strong> bar with what would happen on each Mac, line\nby line (\"would make levi.mercer and link levi to it\", \"would run: The church\napps\"), and Needs You carries one line until it is switched on.</p>\n<p><strong>Switch on</strong> is in that bar, for admins only. It asks for the word <code>on</code> and the\nadmin's password again, and is written in the audit log (<code>macs.live</code>). It is\nfor the whole box, not per Mac. <strong>Back to watch mode</strong> is the same, with the\nword <code>watch</code> (<code>macs.watch</code>). The switch is kept in the state file; it wins over\n<code>[macs] watch</code> from then on.</p>\n<h2 id=\"enrolling-a-mac-round-6-37\">Enrolling a Mac (round 6, 37)</h2>\n<ol>\n<li>Open the <strong>Macs</strong> app and press <strong>Enrol a Mac</strong>. A name is optional: leave\n   it empty and the Mac keeps the name it has (round 7, 35); type one\n   (<code>OFFICE-MAC-02</code>) only to rename it. Press <strong>Make the line</strong>.</li>\n<li>On the Mac, open Terminal, paste the line, and press Return. It asks for the\n   Mac's own password (sudo), then for the domain administrator's password.</li>\n</ol>\n<p>The line works <strong>once</strong>, for <strong>one hour</strong>. It looks like this:</p>\n<pre><code>curl -fsSL http://192.168.1.20:4147/ca.crt -o /tmp/arise-ca.crt &amp;&amp;\n[ &quot;$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)&quot; = &quot;&amp;lt;the certificate's fingerprint&gt;&quot; ] &amp;&amp;\ncurl -fsSL --cacert /tmp/arise-ca.crt --resolve arise-server.ad.arisecenla.com:443:192.168.1.20 \\\n  https://arise-server.ad.arisecenla.com/mac/enrol.sh |\nsudo bash -s -- --token &amp;lt;one-time&gt; --dns 192.168.1.20 --name OFFICE-MAC-02 --server https://arise-server.ad.arisecenla.com\n</code></pre>\n<p>Why it looks like that:</p>\n<ul>\n<li><strong>The address, not the name.</strong> A new Mac cannot look up\n  <code>arise-server.ad.arisecenla.com</code> yet, so the line uses the server's address.\n  Writing the <code>/etc/resolver</code> file that teaches it the name is the first thing\n  enrolment does. Set <code>[macs] server_ip</code> if the guessed address is wrong.</li>\n<li><strong>The fingerprint check.</strong> The church certificate comes first, and the line\n  checks its fingerprint against the one the server printed. The script then\n  arrives over HTTPS that the Mac can verify. Before Caddy has ever run, there\n  is no certificate, and the line falls back to plain http on the church\n  network.</li>\n</ul>\n<p>What <code>mac/helper/enrol.sh</code> does, in order. It is safe to run again.</p>\n<ol>\n<li><strong>A Time Machine backup</strong> (round 7, 6). When the Mac has a Time Machine\n   destination (<code>tmutil destinationinfo</code> names one), it runs\n   <code>tmutil startbackup --block</code> before anything changes. When there is none, or\n   the backup cannot run, it says so and goes on. <code>--no-backup</code> skips it.</li>\n<li><strong>DNS.</strong> It points the Mac at the server for the church domain only,\n   through <code>/etc/resolver/ad.arisecenla.com</code>. No router is touched.</li>\n<li><strong>The certificate.</strong> It trusts the church certificate in the System\n   keychain. macOS asks for approval once; a daemon cannot do this by itself.</li>\n<li><strong>The domain.</strong> It joins the domain with <code>mac/bind-mac.sh</code>, unchanged,\n   which checks DNS, the SRV records and the clock first. The Mac keeps its\n   name; only the domain's computer account takes a short plain form of it\n   (15 letters, digits and dashes: \"Office Mac 2\" joins as <code>Office-Mac-2</code>),\n   which the server keeps as the Mac's <code>ad_name</code> for <strong>Cut off</strong>.</li>\n<li><strong>The key.</strong> It trades the token for the Mac's own key. The key is kept in\n   <code>/var/db/arise/helper.key</code> (root, 0600). The server keeps only its sha256.</li>\n<li><strong>The helper.</strong> It installs the helper at <code>/usr/local/arise/helper/</code>, with\n   the LaunchDaemon <code>com.arisechurch.helper</code>, which runs at boot and every\n   five minutes.</li>\n<li><strong>The first check-in.</strong> It runs the helper once. The server then hands out\n   the first tasks:</li>\n<li>the certificate check</li>\n<li>the login window</li>\n<li><code>ariseadmin</code></li>\n<li>FileVault</li>\n<li>the printers</li>\n<li>the bookmarks</li>\n<li>Tailscale</li>\n<li>the welcome page, the Mac's settings, the church apps, the DNS filter\n     (all below)</li>\n<li>an account for every server user</li>\n</ol>\n<p>In watch mode these wait in the Macs app as \"would run\" until Switch on.</p>\n<ol>\n<li><strong>Full Disk Access, by hand, once: Bradly, while enrolling</strong> (round 7, 39).\n   macOS hides everyone's Desktop and\n   Documents even from root, and no script can grant the exception. Enrolment\n   opens System Settings &gt; Privacy &amp; Security &gt; Full Disk Access; add\n   <code>/usr/local/arise/helper/arise-mac-helper</code> and <code>/bin/bash</code> there. Until\n   then the Mac's card says <strong>no Full Disk Access</strong>, and no profile is ever\n   removed from that Mac: the helper reports a folder it could not read, and\n   the server refuses any listing that came back unread, has items but no\n   files, or holds a file name with a tab or a line break.</li>\n</ol>\n<p>At the end it lists the local accounts already on the Mac. Each is linked to a\nserver user by default (below); in watch mode that is only shown as \"would\nlink\" or \"would make … and link\" until Switch on.</p>\n<h2 id=\"accounts-on-their-own-the-directory\">Accounts, on their own (the directory)</h2>\n<p><strong>Every server user gets an account.</strong> Every enabled directory user gets a\nmobile (AD) account made on every church Mac with:</p>\n<pre><code>/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n &amp;lt;user&gt; -v\n</code></pre>\n<p>So their face is on the login window before they ever sign in there. A new\nuser reaches every church Mac within about five minutes (one check-in).</p>\n<p>A person who already has a <strong>linked local account</strong> on a Mac gets no second,\nmobile account there (round 7, 25): they keep signing in to their own account,\nwhich syncs as them.</p>\n<p>Some users never get an account:</p>\n<ul>\n<li>the names in <code>[macs] exclude</code></li>\n<li>the box's own accounts, whatever the config says: <code>administrator</code>,\n  <code>krbtgt</code>, <code>guest</code>, <code>arise-rescue</code>, <code>arise</code>, <code>arise-kiosk</code>, <code>arise-git</code>,\n  <code>arise-kb</code>, <code>ariseadmin</code></li>\n</ul>\n<p><strong>A disabled user's profile comes off by the checked path, and only that\npath.</strong> A user is disabled by hand or by offboarding's day-30 sweep. Their\nprofile then comes off every church Mac where they have one, like this:</p>\n<ol>\n<li>The server queues <code>remove_profile</code> for each of those Macs. Offboarding\n   queues it too, and puts the folder their files were moved to first in the\n   list of places to look.</li>\n<li>The helper sends the server a list of every file in their Desktop,\n   Documents, Downloads, Pictures and Music (<code>[macs] sync_folders</code>, round 7, 42\n   and 43). The list has the name, size and date of each file, never its\n   contents. Library packages (<code>Photos Library.photoslibrary</code>,\n   <code>Music Library.musiclibrary</code> and the rest, see docs/SYNC.md) are left out of\n   the list, because they never sync.</li>\n<li>The server checks each one against its own copy, in places the <strong>server</strong>\n   chooses: their home, and where offboarding moved it. It never looks where\n   the Mac says to. A file counts only when the server has it at the same\n   size, and the copy on the Mac is not newer.</li>\n<li>Only when every file counts does anything change. First the rest of their\n   Mac folder (the library packages and whatever else does not sync) is kept as a\n   compressed disk image in <code>/Users/Deleted Users/&amp;lt;user&gt;-&amp;lt;date&gt;.dmg</code> on that\n   Mac, the way macOS's own Delete User can; if that copy cannot be made,\n   nothing is removed. Then the account is deleted, with\n   <code>sysadminctl -deleteUser</code>. Deleting the disk image later is Bradly's click. Otherwise the task is refused, says how many\n   files are missing or newer on the Mac, and is tried again at the next\n   check-in.</li>\n</ol>\n<p>The server also refuses the check unless a removal of that person is really\nwaiting on that Mac. So a Mac's key is not a way to probe other people's\nfolders.</p>\n<p>Some accounts are never removed by this path:</p>\n<ul>\n<li><strong>A signed-in person.</strong> Their removal waits.</li>\n<li><strong>A local account.</strong> Only AD accounts are removed this way.</li>\n<li><strong>An account with a home outside <code>/Users</code>.</strong> It is left for an admin.</li>\n<li><strong>A profile that is only unused</strong> (round 6, 5). It is never removed; only a\n  disabled user's is.</li>\n</ul>\n<h2 id=\"accounts-already-on-a-mac-linked-by-default-round-7-23-25-26\">Accounts already on a Mac: linked by default (round 7, 23, 25, 26)</h2>\n<p>Every local account the helper finds is <strong>linked</strong> by default to a server user\n(Bradly, round 7, 23, and his follow-up):</p>\n<ul>\n<li><strong>A clear match links to that user.</strong> A clear match is a server user with the\n  same short name, or <code>first.last</code> made from the account's full name where that\n  server user's own name agrees (or none is on file).</li>\n<li><strong>No clear match: a server user is made, then linked.</strong> Its name is\n  <code>first.last</code> from the account's full name, <code>first.last2</code> when that name is\n  already someone else's (row 12). It gets a temporary password, which waits in\n  the Mac's 0600 secrets file until an admin presses <strong>Show it once</strong> in the\n  Mac's card (password again, audited, then forgotten). The person chooses\n  their own at the first sign-in (round 5, 5).</li>\n<li><strong>A full name that is not a first and a last name</strong> (a one-word name such as\n  \"Media\") waits for a choice by hand.</li>\n</ul>\n<p>In watch mode none of this happens: the card says \"would link kristina to\nkristina.robinson\" or \"would make levi.mercer and link levi to it\", and nobody\nis made until Switch on. The box's own accounts (<code>[macs] exclude</code> and the list\nbelow) are never linked.</p>\n<p>The admin can still change any account's choice with <strong>Choose…</strong>. A new choice\ncancels the default's open link and sync tasks for that account.</p>\n<ul>\n<li>\n<p><strong>Convert</strong> stays available per account.</p>\n</li>\n<li>\n<p><strong>Convert</strong> (by hand only). The account becomes the server user.</p>\n</li>\n<li>The Mac's helper stops if the person is signed in.</li>\n<li>It writes a rollback record: <code>/var/db/arise/convert/&amp;lt;old&gt;.plist</code>, 0600,\n    with the UID, groups, home, shell and password hash.</li>\n<li>It deletes only the local record (<code>dscl . -delete</code>) and keeps the home.\n    The home moves to <code>/Users/&amp;lt;first.last&gt;</code> if that is free.</li>\n<li>It runs <code>createmobileaccount -n &amp;lt;first.last&gt; -h &amp;lt;home&gt;</code> and gives the\n    files to the AD uid.</li>\n<li>Admin rights carry over only if the local account had them. Staff are\n    standard users (round 6, 8).</li>\n<li><strong>Undo</strong> puts the local account back from the record. If\n    <code>createmobileaccount</code> fails partway, the helper does the Undo by itself,\n    so nobody is left without an account to sign in to.</li>\n<li>It refuses when the account holds the Mac's Secure Token and FileVault is\n    on (see \"Not verified\" below): Link is the answer there.</li>\n<li><strong>Link.</strong> The local account stays exactly as it is. The Nextcloud client in\n  that account signs in as the server user, so its synced folders go to that\n  person's server home. This is the default.</li>\n<li><strong>Leave alone.</strong> Nothing happens to it, ever.</li>\n</ul>\n<p>The Macs app's <strong>Choose…</strong> suggests the default's server user. If the chosen\nserver user does not exist yet, it is made first with a temporary password,\nshown to the admin once.</p>\n<p>Convert and Link also queue the <code>nextcloud</code> task for that person.</p>\n<p><strong>Retire</strong> is refused until every local account on the Mac has a choice and\nevery AD account's files are on the server.</p>\n<p><code>mac/migrate-mac-user.sh</code> and <code>enroll-mac.sh --map</code> stay as they were. Use\nthem for a Mac that cannot run the helper, or to copy an old account's files\nto the server once before converting it.</p>\n<h2 id=\"the-rest-of-what-the-helper-does\">The rest of what the helper does</h2>\n<table>\n<thead>\n<tr>\n<th>Task</th>\n<th>What happens on the Mac</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>login_window</code></td>\n<td>A list of faces, plus Other… (<code>[macs] login_window = \"faces\"</code>, or <code>\"name\"</code>), and the login window text, word for word: \"Arise Church: sign in with your church account. Help: Bradly\" (round 7, 27; <code>[macs] login_text</code>)</td>\n</tr>\n<tr>\n<td><code>welcome</code></td>\n<td>Round 7, 3: at each person's first sign-in on that Mac, <code>Welcome to Arise Church.html</code> on their Desktop: their login, where their files are (the synced folders), and who to ask (<code>[macs] help</code>: Bradly, Kristina, Ronnie). A small LaunchAgent (<code>com.arisechurch.session</code>, in every session) puts it there once, and shows waiting notices</td>\n</tr>\n<tr>\n<td><code>mac_settings</code></td>\n<td>Guest User on (round 7, 33; macOS wipes it at sign-out). App Store installs need an admin (round 7, 30): <code>restrict-store-require-admin-to-install</code> in <code>com.apple.appstore</code>. Staff stay standard users. <strong>No screen lock and no automatic sign-out are ever set</strong> (round 7, 28 and 29)</td>\n</tr>\n<tr>\n<td><code>apps</code></td>\n<td>Round 7, 31: the church apps from each maker's own address, refused unless signed by the expected Developer ID team and notarized (below)</td>\n</tr>\n<tr>\n<td><code>dnsfilter</code></td>\n<td>Round 7, 71 and 72: every network service's DNS goes to a malware and adult filter (Cloudflare for Families). <code>/etc/resolver/ad.arisecenla.com</code> keeps the church domain on the server. The servers each had before are kept; <strong>DNS filter off</strong> in the card puts them back. Personal devices are never touched</td>\n</tr>\n<tr>\n<td><code>notice</code></td>\n<td>Round 7, 84: a Mac notification for one person, shown now if they are signed in, else at their next sign-in. Goes out in watch mode too</td>\n</tr>\n<tr>\n<td><code>ariseadmin</code></td>\n<td>A hidden admin with a random password. The password is changed every 30 days and kept on the server. If the server cannot be reached, the new password is kept on the Mac (root only) and sent at the next check-in</td>\n</tr>\n<tr>\n<td><code>filevault</code></td>\n<td><code>fdesetup enable -defer</code>: FileVault turns on at the next sign-in, and the recovery key goes to the server after that</td>\n</tr>\n<tr>\n<td><code>printers</code></td>\n<td><code>lpadmin</code>, from <code>[macs] printers</code></td>\n</tr>\n<tr>\n<td><code>bookmarks</code></td>\n<td>A <strong>Church</strong> folder in Chrome (managed bookmarks), and <code>.webloc</code> links in <code>/Library/Arise/Church Links</code> for Safari</td>\n</tr>\n<tr>\n<td><code>certificate</code></td>\n<td>Checks that the church certificate is trusted. Trusting it needs a person at the Mac, so enrolment does that part</td>\n</tr>\n<tr>\n<td><code>updates</code></td>\n<td>Overnight, 01:00 to 05:00, once a night, never during a service. Turns on Apple's automatic security responses and installs security-labelled updates. Asks for a restart in a dialog. Never a new macOS</td>\n</tr>\n<tr>\n<td><code>tailscale</code></td>\n<td>Installs Tailscale if it is missing and turns on \"use Tailscale subnets\" (<code>--accept-routes</code>), so a laptop off-site reaches the server at its church address through the route the server advertises (docs/REMOTE-ACCESS.md): check-ins, Nextcloud and the shares carry on away from church. Someone signs it in once with the church login; the server's route is approved once in the Tailscale admin</td>\n</tr>\n<tr>\n<td><code>nextcloud</code></td>\n<td>Runs <code>/usr/local/arise/helper/tasks/nextcloud.sh --user &amp;lt;first.last&gt; --local &amp;lt;short name&gt; --server &amp;lt;url&gt;</code>. The Nextcloud work supplies that script; until it exists, the task reports <em>skipped</em></td>\n</tr>\n<tr>\n<td><code>retire</code></td>\n<td>Checks every AD account's files as above, then <code>dsconfigad -remove</code>, then removes the helper. Erasing the Mac is Bradly's to do</td>\n</tr>\n</tbody>\n</table>\n<p>The ariseadmin password and the FileVault key are kept in\n<code>/etc/arise/secrets/macs/&amp;lt;mac&gt;.json</code> (0600, root). To see one, an admin\npresses <strong>Show admin password</strong> or <strong>Show FileVault key</strong> and types their\npassword again (remembered for five minutes). Each look is written in the\naudit log; the value never is.</p>\n<p><strong>Cut off</strong> is for a lost or stolen Mac (round 6, 11):</p>\n<ul>\n<li>the Mac's key stops working at once</li>\n<li>its waiting tasks are cancelled</li>\n<li>its computer account is disabled (<code>samba-tool user disable NAME$</code>)</li>\n</ul>\n<p>The app then lists what to revoke by hand: the Mac's Tailscale machine, and\neach person's Nextcloud sessions on it. There is no remote erase.</p>\n<p><strong>Never during a service.</strong> On Sundays at 10:30 and Mondays at 19:00, the\nserver answers every check-in with <code>HOLD</code> and hands out nothing. On <code>HOLD</code> the\nhelper also quits the Nextcloud client in each signed-in session, so it does\nnot use the church's upload during the stream, and reopens it at the first\ncheck-in after the service (round 7, 92). In watch mode there is no <code>HOLD</code>\n(nothing on the Mac changes) and nothing goes out.</p>\n<h2 id=\"the-church-apps-round-7-31\">The church apps (round 7, 31)</h2>\n<p>Nextcloud, Firefox, Google Chrome and Zoom go on every church Mac. Each is\ndownloaded from its maker's own address and installed only when\n<code>pkgutil --check-signature</code> shows \"Developer ID Installer: … (TEAM)\" for the\nexpected team and <code>spctl</code> says it is notarized. An app already there, signed by\nthat team, is left alone.</p>\n<table>\n<thead>\n<tr>\n<th>App</th>\n<th>Apple Team ID</th>\n<th>Download</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Firefox</td>\n<td><code>43AQ936H96</code> (Mozilla)</td>\n<td><code>https://download.mozilla.org/?product=firefox-pkg-latest-ssl&amp;os=osx&amp;lang=en-US</code></td>\n</tr>\n<tr>\n<td>Google Chrome</td>\n<td><code>EQHXZ8M8AV</code> (Google)</td>\n<td>Google's <code>googlechrome.pkg</code> at <code>dl.google.com/chrome/mac/stable/</code></td>\n</tr>\n<tr>\n<td>Zoom</td>\n<td><code>BJ4HAAB9B3</code> (Zoom Video Communications)</td>\n<td><code>https://zoom.us/client/latest/ZoomInstallerIT.pkg</code></td>\n</tr>\n<tr>\n<td>Nextcloud</td>\n<td><code>NKUJUXUJ3B</code> (Nextcloud GmbH)</td>\n<td>the <code>nextcloud</code> task installs the client</td>\n</tr>\n</tbody>\n</table>\n<p>Source for the Team IDs: Installomator's labels, which the Mac admin community\nkeeps against each maker's signing identity\n(<code>github.com/Installomator/Installomator</code>, <code>fragments/labels/firefoxpkg.sh</code>,\n<code>googlechromepkg.sh</code>, <code>zoom.sh</code>, <code>nextcloud.sh</code>), checked Oct 29.</p>\n<p><strong>Proclaim is not in the list yet.</strong> It belongs only on the media Mac (the\n<strong>This is the media Mac</strong> box in its card), but its Team ID could not be\nconfirmed from a source we trust: one third-party app catalogue gives a value,\nnothing from Faithlife or Installomator does. Rather than guess, it is left out.\nTo add it, on a Mac with Proclaim installed run\n<code>codesign -dv --verbose=4 /Applications/Proclaim.app 2&gt;&amp;1 | grep TeamIdentifier</code>\nand add it to <code>[macs] apps</code> with <code>media_only = true</code> (the example is in\n<code>config/arise.toml.example</code>). An entry without a real 10-character Team ID is\nignored.</p>\n<h2 id=\"the-disk-a-silent-mac-and-telling-a-person-something\">The disk, a silent Mac, and telling a person something</h2>\n<ul>\n<li><strong>The disk</strong> (round 7, 40). Each check-in reports how full the Mac's disk is.\n  At 90% the person at the Mac gets a notification (\"This Mac's disk is nearly\n  full\"), and Bradly gets one alert line: a push and Discord #alerts, once a\n  week per Mac. The card and Needs You show it too.</li>\n<li><strong>A silent Mac</strong> (round 7, 82). A church Mac not heard from in three days is a\n  Needs You line (<code>macs.silent_macs()</code> gives the list).</li>\n<li><strong>Notices</strong> (round 7, 84). <code>notices.notify_person(user, title, body,\n  kind=\"info\")</code> in <code>server/arise_server/notices.py</code> is the one call other parts\n  of the server make to tell a staff member something: an email to their\n  personal address (<code>mail.send_one</code>), and a Mac notification on every church\n  Mac where they have an account (mobile, or a linked local account). The\n  notification is shown with <code>osascript</code> taking the text as arguments, so the\n  text is never read as AppleScript.</li>\n</ul>\n<h2 id=\"what-the-helper-never-does\">What the helper never does</h2>\n<ul>\n<li>erase a Mac, or delete a local account</li>\n<li>read the contents of anyone's files (a removal compares names, sizes and\n  dates)</li>\n<li>remove a profile the server has not confirmed is safely on the server</li>\n<li>act on a Mac nobody enrolled</li>\n<li>install a new macOS version</li>\n<li>set a screen lock or an automatic sign-out (round 7, 28 and 29)</li>\n<li>install an app that is not signed by its maker's expected team</li>\n<li>touch a personal Mac's DNS (or anything else on it)</li>\n<li>put a secret in its log (<code>/var/log/arise-helper.log</code>), a task or a result</li>\n</ul>\n<h2 id=\"syncing-files-nextcloud-with-the-old-agent-as-the-fallback\">Syncing files: Nextcloud, with the old agent as the fallback</h2>\n<p>macOS removed the home sync of mobile accounts in 10.12 (Sierra). A mobile\naccount still caches the login, but nothing copies the files back.</p>\n<p>Round 6, 13 and 14, are the plan, with round 7, 42 and 43: Desktop, Documents,\nDownloads, Pictures and Music sync through the Nextcloud client, which the\n<code>nextcloud</code> task sets up (library packages excluded: docs/SYNC.md). Until that is in, and on\nany Mac where it is not running, <code>mac/arise-home-sync.sh</code> keeps doing the job\nevery 15 minutes.</p>\n<p>The checked removal compares against the person's home on the server\n(<code>/srv/arise/homes/&amp;lt;user&gt;/Desktop</code>, <code>…/Documents</code>). So whatever syncs the\nfiles has to land them there.</p>\n<h2 id=\"the-protocol-for-whoever-works-on-it\">The protocol, for whoever works on it</h2>\n<p>The helper is bash 3.2, the bash macOS ships, so the server speaks plain text.</p>\n<p><strong>Server to helper.</strong> Each answer is lines:</p>\n<pre><code>TASK &amp;lt;id&gt; &amp;lt;kind&gt; k=v k=v\nHOLD &amp;lt;reason&gt;\nWATCH &amp;lt;n&gt;          watch mode: n tasks would run (only notices follow)\nNONE\n</code></pre>\n<p>The values are percent-encoded, so each <code>k=v</code> is one word.</p>\n<p><code>GET /api/macs/agent/config</code> gives the configuration tasks one item a line:\n<code>LOGIN</code>, <code>LOGINTEXT</code>, <code>PRINTER</code>, <code>BOOKMARK</code>, <code>APP &amp;lt;name&gt; &amp;lt;bundle&gt; &amp;lt;team&gt; &amp;lt;url&gt;</code>,\n<code>DNS</code>, <code>HELP</code>, <code>FOLDERS</code>, <code>CHURCH</code>.</p>\n<p><strong>Helper to server.</strong> The helper posts forms with <code>curl --data-urlencode</code>. Its\nown door is <code>/api/macs/agent/*</code>, opened by the header\n<code>X-Arise-Mac: &amp;lt;mac_id&gt;:&amp;lt;key&gt;</code>. Only an active, church-owned Mac with the right\nkey gets in.</p>\n<p><strong>Files.</strong> <code>/mac/&amp;lt;name&gt;</code> serves only the helper's own files: <code>enrol.sh</code>, the\nhelper, its plist, <code>bind-mac.sh</code>, <code>migrate-mac-user.sh</code>, and <code>nextcloud.sh</code>.</p>\n<h2 id=\"not-verified-on-a-real-mac-yet\">Not verified on a real Mac yet</h2>\n<p>There is no Mac where this was built. <code>tests/test_mac_scripts.py</code> reads every\nscript for anything bash 3.2 (the one macOS ships) cannot run, and runs the\nhelper's own functions with stand-ins for <code>dscl</code>, <code>stat -f</code>, <code>sysadminctl</code>,\n<code>fdesetup</code> and <code>softwareupdate</code>. Point <code>ARISE_BASH32</code> at a bash 3.2.57 binary\nto run them under the real version; this box runs them under its own bash.</p>\n<p><strong>Checked against the documentation (Oct 29), and fixed where they were wrong:</strong></p>\n<ul>\n<li>An empty array under <code>set -u</code> (<code>\"${ca[@]}\"</code>) stops bash 3.2 dead with\n  \"unbound variable\"; only bash 4.4 changed that (bash CHANGES, 4.4 a.). It\n  would have stopped every check-in to a server without a certificate yet. Every\n  such expansion is now <code>${a[@]+\"${a[@]}\"}</code>, and the test fails on a new one.</li>\n<li><code>dig</code> reads <code>/etc/resolv.conf</code> only and never sees <code>/etc/resolver/&amp;lt;domain&gt;</code>,\n  so <code>bind-mac.sh</code> could not find the server on a Mac that keeps the router's\n  DNS. It asks <code>dscacheutil -q host</code> (the system resolver, the one\n  <code>dsconfigad</code> uses) and points <code>dig</code> at the domain's nameserver for the SRV\n  records.</li>\n<li>macOS 15.4 replaced rsync 2.6.9 with openrsync, which takes only part of\n  rsync's options. <code>migrate-mac-user.sh</code> no longer passes <code>-X</code> (rsync 3's; Apple's\n  2.6.9 says <code>-E</code>): it asks <code>rsync --help</code>. The old home-sync stands down when\n  its rsync has no <code>--backup-dir</code>, rather than overwrite a server copy.</li>\n<li><code>curl -H @file</code> and <code>-H @-</code> need curl 7.55 (macOS 10.13 and later).</li>\n<li>The Full Disk Access link\n  <code>x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles</code>\n  opens the pane on Sonoma and Sequoia; the admin still presses + and adds the\n  helper. It is opened in the signed-in person's session (<code>open</code> as root has no\n  window).</li>\n<li><code>fdesetup status</code> says \"FileVault is Off, but will be enabled after the next\n  restart.\" when it is deferred: only \"FileVault is On\" counts as on now.</li>\n<li>The task loop reads the server's answer on stdin, and <code>enrol.sh</code> arrives\n  through <code>curl | sudo bash</code>: a command that reads stdin would have eaten the\n  next tasks, or the rest of the script. Tasks get <code>&amp;lt;/dev/null</code>, and <code>enrol.sh</code>\n  runs from a <code>main</code> that bash has read in full.</li>\n<li><code>sysadminctl</code> exits 0 even when it did nothing, so a removal and <code>ariseadmin</code>\n  are checked against the account record afterwards, never its exit code.</li>\n<li>Retire removed its files after <code>launchctl bootout</code>, which ends the script\n  itself; the files go first now, then the job.</li>\n<li>Updates: a new macOS is an upgrade, and macOS installs updates within its own\n  version (Apple's platform guide), so \"Install macOS updates\" is on and the\n  helper installs, itself, only patches for the macOS the Mac runs (minor\n  versions, Security Updates, Rapid Security Responses / Background Security\n  Improvements, Safari). On Apple silicon a macOS update wants a volume\n  owner's password, which root alone cannot give: those wait for macOS's own\n  overnight install.</li>\n<li><code>ariseadmin</code>: an account with a Secure Token keeps FileVault in step only when\n  its password is changed with the old one, so the helper keeps the current one\n  (root, 0600) and uses <code>dscl . -passwd</code> with it.</li>\n</ul>\n<p><strong>Still for a first run on one church Mac:</strong></p>\n<ul>\n<li><code>createmobileaccount</code>'s options (<code>-n</code>, <code>-h &amp;lt;home&gt;</code>, <code>-v</code>): Apple publishes no\n  manual page for it; the helper uses the forms admins have used for years.</li>\n<li>whether \"Install macOS updates\" (<code>AutomaticallyInstallMacOSUpdates</code>) ever\n  offers a new major macOS on its own. Apple's guide says upgrades need the\n  person; nothing tests the key itself.</li>\n<li>whether the restart notice reaches the person (<code>launchctl asuser</code> plus\n  <code>sudo -u</code>, kept alive by <code>AbandonProcessGroup</code>)</li>\n<li><code>createmobileaccount -h &amp;lt;home&gt;</code> on a converted account</li>\n<li>whether a converted account gets a Secure Token. Until that is tried, the\n  helper refuses to Convert an account that holds a Secure Token when\n  FileVault is on, or when it is the only token holder on the Mac: deleting\n  the local record takes the token with it, and nothing can give the new\n  account one without a holder's password. The card then says <strong>Choose Link\n  instead</strong>. To convert such a Mac anyway, first give <code>ariseadmin</code> a token by\n  hand (<code>sudo sysadminctl -secureTokenOn ariseadmin -password - -adminUser\n  &amp;lt;holder&gt; -adminPassword -</code>), then Convert, then grant the new account one\n  the same way.</li>\n<li>restoring a password hash (<code>ShadowHashData</code>) on Undo. If it does not take,\n  the message says to reset the password as <code>ariseadmin</code>.</li>\n<li><code>dsconfigad -force -remove</code> on Retire</li>\n<li>Chrome reading <code>/Library/Managed Preferences</code> without an MDM</li>\n<li>the Tailscale download address</li>\n<li><code>sysadminctl -deleteUser</code> asking for an admin's Secure Token on newer macOS</li>\n<li><code>samba-tool user disable NAME$</code> for a computer account</li>\n</ul>\n<p><strong>Round 7, also for that first run:</strong></p>\n<ul>\n<li><code>restrict-store-require-admin-to-install</code> without an MDM. Apple documents it\n  as an MDM restriction (\"Require admin password to install or update apps\");\n  the helper writes it to <code>/Library/Preferences</code> and <code>/Library/Managed\n  Preferences</code>, and whether the App Store reads it from there on current macOS\n  is not proven.</li>\n<li><code>LoginwindowText</code> on the login window</li>\n<li>the session LaunchAgent (<code>/Library/LaunchAgents/com.arisechurch.session.plist</code>)\n  writing the welcome page and showing notices, and <code>osascript display\n  notification</code> run through <code>launchctl asuser</code></li>\n<li><code>networksetup -setdnsservers</code> per service, and <code>Empty</code> on DNS filter off</li>\n<li><code>tmutil destinationinfo</code> / <code>startbackup --block</code> at enrolment</li>\n<li><code>pkgutil --check-signature</code> and <code>spctl -a -t install</code> on each app's package,\n  and Chrome's and Zoom's packages installing with <code>installer -pkg</code></li>\n<li>quitting and reopening the Nextcloud client in each session for a service</li>\n<li><code>sysadminctl -guestAccount on</code></li>\n</ul>",
 "demo": true
 },
 "GET /help/MOVING-DAY": {
@@ -14270,7 +14352,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "SYNC",
 "title": "Sync: every Mac and phone, through Nextcloud",
-"html": "<h1 id=\"sync-every-mac-and-phone-through-nextcloud\">Sync: every Mac and phone, through Nextcloud</h1>\n<p>Round 6, rows 13 to 19, 39 and 40 (docs/ANSWERS.md). This page is how it works, what to do\nwhen a file looks wrong, and what has not been tried on real hardware yet. Staff get\ndocs/STAFF-FILES.md instead.</p>\n<h2 id=\"what-a-person-sees\">What a person sees</h2>\n<ul>\n<li><strong>On a church Mac</strong>, their Desktop and Documents are the same files as their home folder on\n  the server, kept in full on the Mac, so they work with no network too (row 13).</li>\n<li>In Finder's sidebar, under Locations, <strong>Nextcloud</strong> holds Church, their department folders,\n  Pastors (the two pastors only), Alexandria and Shared with me. Those files download when\n  they are opened and show a cloud badge until then (row 16).</li>\n<li><strong>Off-site</strong>, the same thing works over Tailscale (row 17). There is no size limit (row 18).</li>\n<li><strong>On a phone</strong>, the Nextcloud app shows the same folders. Files only: nothing of the server\n  OS (rows 19 and 39). The same through the web page, https://cloud.ad.arisecenla.com.</li>\n<li><strong>Department logins</strong> (media-mac, inedge, childrens.department) sync like a person (row 40).</li>\n</ul>\n<h2 id=\"how-it-is-built\">How it is built</h2>\n<pre><code> Mac (Nextcloud client)  ─┐\n Phone (Nextcloud app)   ─┼─ https://cloud.ad.arisecenla.com ─ Caddy (church certificate)\n Web page                ─┘                                      │\n                                                    127.0.0.1:8091 (never the internet)\n                                                                 │\n                                    Nextcloud 29 container (templates/nextcloud)\n                                    ├── each person's files = /srv/arise/homes/&amp;lt;user&gt;\n                                    ├── Church, departments  = /srv/arise/shares/&amp;lt;folder&gt;\n                                    ├── Pastors               = /srv/arise/pastors\n                                    └── Shared with me        = /srv/arise/shared/&amp;lt;user&gt;\n</code></pre>\n<ul>\n<li><strong>Nothing is copied.</strong> A person's Nextcloud files folder is a link to their server home, and\n  the shares are mounted over the same folders Samba serves. A file saved on a Mac shows in the\n  dashboard's Finder and over SMB, and the other way round.</li>\n<li><strong>Sign-in is the domain's.</strong> Nextcloud reads the directory over LDAPS as <code>arise-nextcloud</code>, a\n  read-only account <code>arisectl cloud setup</code> makes. The login is first.last. A disabled account\n  stops syncing at the next check (at most ten minutes).</li>\n<li><strong>No device holds a domain password.</strong> Every Mac and phone signs in with its own <em>app\n  password</em>, which only Nextcloud can check and which you can cut off on its own. The server\n  issues it, shows it once, and keeps only a fingerprint of it. Nextcloud is set to keep no\n  copy of a domain password either, not even for a web sign-in.</li>\n<li><strong>Who sees which folder</strong> follows the same rule as the Samba lines (sharing.py): Church is\n  everyone's; a department folder is written by all staff, admins and the department's own\n  login, and read by the department's people; Pastors is the two pastors' only, admins\n  included. tests/test_cloud.py checks the two agree for every kind of person.</li>\n<li><strong>Nextcloud's own sharing is off.</strong> Sharing is the server's Share with…, so the dashboard, SMB\n  and the clients never disagree about who has what.</li>\n<li><strong>Changes made over SMB reach the clients</strong> through <code>arise-cloud-watch</code>, which tells Nextcloud\n  to rescan just the folder that changed, a few seconds later.</li>\n<li><strong>File locking:</strong> Redis. Two Macs saving one file at the same moment get a conflict copy,\n  not a lost save.</li>\n</ul>\n<h2 id=\"conflicts-newest-wins-row-15\">Conflicts: newest wins (row 15)</h2>\n<p>When the same file changed in two places before they synced, the client keeps both, naming one\n<code>Budget (conflicted copy 2026-10-29 101500).xlsx</code>. Every hour (<code>arise-cloud-conflicts.timer</code>,\nnever during a service) the server settles each pair:</p>\n<ul>\n<li>the <strong>newer</strong> copy keeps the real name;</li>\n<li>the <strong>older</strong> copy goes to that folder's <strong>Trash</strong> (the same 30-day Trash as a delete in\n  Finder), with a record so <strong>Put Back</strong> returns it to where it was;</li>\n<li>each one is written to <code>/var/lib/arise/cloud-conflicts.jsonl</code> and shows in the Sync panel.</li>\n</ul>\n<p>Nothing is deleted by this. <code>sudo arisectl cloud sweep --dry-run</code> shows what it would do.</p>\n<h2 id=\"when-a-file-looks-wrong\">When a file looks wrong</h2>\n<ol>\n<li><strong>The newest version is not the one you wanted.</strong> Open the Trash of that folder (Finder on\n   the dashboard, or the share's <code>.Trash</code> over SMB): the other copy is there under the same\n   name. Put Back, or drag it out.</li>\n<li><strong>A file is missing on a Mac.</strong> Click the Nextcloud icon in the Mac's menu bar: it says what\n   it is doing, and lists anything it could not sync and why (a name with a character the\n   server refuses, a file open in an app). The file is still on the server: look in the\n   dashboard's Finder.</li>\n<li><strong>Something deleted on the Mac came back.</strong> The server still had it and the Mac was offline.\n   Delete it again once the Mac is back on the network.</li>\n<li><strong>A Mac says it is signed out.</strong> Its device was cut off. On that Mac, in Nextcloud → Settings,\n   remove the account (the files on the Mac and the server stay), then run the Nextcloud task for\n   that Mac again in the Macs app: it gets a new app password. While the client still holds the\n   account the task leaves it alone, so a re-run never signs a working Mac out.</li>\n<li><strong>Nothing syncs anywhere.</strong> <code>sudo arisectl cloud status</code>, then <code>docker ps</code> for\n   <code>arise-app-nextcloud</code>. <code>sudo arisectl app restart nextcloud</code> is the small fix.</li>\n</ol>\n<h2 id=\"the-sync-panel-admins\">The Sync panel (admins)</h2>\n<p>Dashboard → Sync. For each person: their devices and when each last synced, how many conflicts\nwere settled for them, and their storage against the 50 GB home quota (a warning line, never a\nwall: round 7, 45; they and Bradly are told at 80% and 95%). <strong>New device…</strong> makes an\napp password for a phone or a Mac set up by hand (shown once). <strong>Cut off</strong> stops one device;\n<strong>Cut off all</strong> (typed name) stops every sign-in the person has: a lost phone, someone leaving.\nTheir files stay, and the person is told (round 7, 74). Nextcloud keeps earlier versions of a\nfile for a year (<code>versions_retention_obligation = auto, 365</code>, round 7, 46). The same from the\ncommand line:</p>\n<pre><code>sudo arisectl cloud status\nsudo arisectl cloud people\nsudo arisectl cloud app-password jane.doe &quot;Jane's iPhone&quot;\nsudo arisectl cloud revoke jane.doe &quot;Jane's iPhone&quot;      # one device\nsudo arisectl cloud revoke jane.doe                      # every sign-in\nsudo arisectl cloud sweep [--dry-run]\nsudo arisectl cloud setup [--dry-run]                    # safe to run again\n</code></pre>\n<h2 id=\"setting-up-a-mac\">Setting up a Mac</h2>\n<p>The Mac helper does it (the Macs app's <code>nextcloud</code> task, mac/helper/tasks/nextcloud.sh):</p>\n<ol>\n<li>installs the official <strong>Nextcloud desktop client</strong> (the File Provider build), refusing any\n   package that is not signed by Nextcloud GmbH (Apple team NKUJUXUJ3B) and notarised;</li>\n<li>asks the server for that person's device app password, which the server gives only for a\n   task an admin queued on that Mac;</li>\n<li>takes a local disk snapshot, then, inside the person's own session, signs the client in\n   and adds Desktop and Documents as full sync folders. The first sync <strong>merges</strong>: what is on\n   the Mac and what is on the server both stay; where both have the same file with different\n   contents, both are kept and the hourly sweep settles them as above;</li>\n<li>if the person is not signed in at that moment, it finishes at their next sign-in.</li>\n</ol>\n<p>A <strong>local account linked to a server user</strong> (round 6, kept local) gets exactly the same, signed\nin as the server user: its Desktop and Documents sync to that person's server home. The local\nlogin itself is not touched.</p>\n<p><strong>The first time</strong> the client runs, macOS asks the person once to let Nextcloud use the Desktop\nand Documents folders. They click Allow (docs/STAFF-FILES.md says so).</p>\n<p><strong>iCloud's Desktop &amp; Documents</strong> must be off on that account; the task stops and says so if it\nis on.</p>\n<h2 id=\"setting-up-a-phone\">Setting up a phone</h2>\n<p>Phones are not enrolled, so two things are done by hand, once (docs/STAFF-FILES.md has the\nperson's half):</p>\n<ol>\n<li><strong>The church certificate.</strong> cloud.ad.arisecenla.com is signed by the church's own authority\n   (Caddy's <code>tls internal</code>), which a phone does not trust until it has the root:\n   http://arise-server:4147/ca.crt, opened on the phone on the church network. An iPhone then\n   needs Settings → General → About → Certificate Trust Settings → turn it on. Without it the\n   Nextcloud app refuses the server.</li>\n<li><strong>A device password</strong>: Sync → the person → New device… → \"Kristina's iPhone\". They type it in\n   the app's \"Log in with an app password\", never their domain password.</li>\n</ol>\n<p>Off-site the phone needs Tailscale on.</p>\n<h2 id=\"the-name-in-dns\">The name in DNS</h2>\n<p><code>cloud.ad.arisecenla.com</code> is a CNAME to this box in the domain's own DNS; the installer adds it.\nBy hand:</p>\n<pre><code>sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com cloud CNAME arise-server.ad.arisecenla.com -U administrator\n</code></pre>\n<p>The Macs and phones off-site resolve it the same way as the dashboard's name: Tailscale's split\nDNS for ad.arisecenla.com. No router, no port forward, nothing on the internet (rule 7).</p>\n<h2 id=\"pieces\">Pieces</h2>\n<table>\n<thead>\n<tr>\n<th>Where</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>templates/nextcloud/</code></td>\n<td>the containers: Nextcloud 29, MariaDB, Redis, cron; published on 127.0.0.1:8091</td>\n</tr>\n<tr>\n<td><code>server/arise_server/cloud.py</code></td>\n<td>the mounts, the domain sign-in, app passwords, the conflict sweep, the watcher</td>\n</tr>\n<tr>\n<td><code>config/caddy/Caddyfile</code></td>\n<td><code>cloud.ad.arisecenla.com</code> on the church certificate</td>\n</tr>\n<tr>\n<td><code>config/systemd/arise-cloud-*</code></td>\n<td>the watcher, and the hourly conflict sweep</td>\n</tr>\n<tr>\n<td><code>mac/helper/tasks/nextcloud.sh</code></td>\n<td>the Mac side</td>\n</tr>\n<tr>\n<td><code>/etc/arise/secrets/apps/nextcloud.env</code></td>\n<td>its passwords (database, the arise-sync admin, the directory account); root only</td>\n</tr>\n<tr>\n<td><code>[cloud]</code> in arise.toml</td>\n<td>the host name, the folders that sync in full, the client version</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"not-yet-tried-on-real-hardware-oct-29\">Not yet tried on real hardware (Oct 29)</h2>\n<p>Built and tested on a Linux box with no Docker daemon and no Mac. The Python side and the\nscript's config editing are tested; these have not run anywhere yet:</p>\n<ul>\n<li>Nextcloud 29 serving a person's files through the link to their home\n  (<code>localstorage.allowsymlinks</code>), and the read-only/read-write pair of mounts at one place\n  resolving by priority the way <code>files_external:import</code> is given it;</li>\n<li>the LDAPS sign-in against Samba from inside the container (the DC's own certificate authority\n  is mounted for it);</li>\n<li>the desktop client's command-line sign-in, the second folder pair written into its config,\n  and the File Provider turning on from its settings, on a real Mac.</li>\n</ul>\n<p>The first church Mac is the test. If any of it misbehaves, the fallback for that piece is in\nthe code comments next to it.</p>",
+"html": "<h1 id=\"sync-every-mac-and-phone-through-nextcloud\">Sync: every Mac and phone, through Nextcloud</h1>\n<p>Round 6, rows 13 to 19, 39 and 40 (docs/ANSWERS.md). This page is how it works, what to do\nwhen a file looks wrong, and what has not been tried on real hardware yet. Staff get\ndocs/STAFF-FILES.md instead.</p>\n<h2 id=\"what-a-person-sees\">What a person sees</h2>\n<ul>\n<li><strong>On a church Mac</strong>, their Desktop, Documents, Downloads, Pictures and Music are the same\n  files as their home folder on the server, kept in full on the Mac, so they work with no\n  network too (row 13; Downloads, Pictures and Music since round 7, 42 and 43). The list is\n  <code>[cloud] sync_folders</code> (and <code>[macs] sync_folders</code>); the server hands it to the Mac's\n  <code>nextcloud</code> task, the removal check and the welcome page, so all three agree.</li>\n<li><strong>Library packages do not sync</strong> (round 7, 43): <code>Photos Library.photoslibrary</code>,\n  <code>Music Library.musiclibrary</code>, and the other app libraries (<code>*.photolibrary</code>,\n  <code>*.migratedphotolibrary</code>, <code>*.tvlibrary</code>, <code>*.aplibrary</code>, <code>*.imovielibrary</code>, <code>*.fcpbundle</code>,\n  <code>Photo Booth Library</code>). Each is one app's private database of thousands of small files that\n  change together while the app is open. A sync client copies them one file at a time, so the\n  server copy is a half-written database, two Macs fighting over one library corrupt it, and a\n  large photo library would fill the server and the church's upload. The photos and songs in\n  them are the person's to export to Pictures or Music, which do sync. The Mac's\n  <code>nextcloud</code> task writes these patterns into the client's own <code>sync-exclude.lst</code>, and the\n  removal check leaves them out of its list too (they never reach the server, so they stay in\n  the disk image a removal keeps).</li>\n<li><strong>During a service</strong> (round 7, 92) the Mac helper quits the Nextcloud client in every\n  signed-in session, so nothing uploads over the stream's connection, and reopens it at the\n  first check-in after.</li>\n<li>In Finder's sidebar, under Locations, <strong>Nextcloud</strong> holds Church, their department folders,\n  Pastors (the two pastors only), Alexandria and Shared with me. Those files download when\n  they are opened and show a cloud badge until then (row 16).</li>\n<li><strong>Off-site</strong>, the same thing works over Tailscale (row 17). There is no size limit (row 18).</li>\n<li><strong>On a phone</strong>, the Nextcloud app shows the same folders. Files only: nothing of the server\n  OS (rows 19 and 39). The same through the web page, https://cloud.ad.arisecenla.com.</li>\n<li><strong>Department logins</strong> (media-mac, inedge, childrens.department) sync like a person (row 40).</li>\n</ul>\n<h2 id=\"how-it-is-built\">How it is built</h2>\n<pre><code> Mac (Nextcloud client)  ─┐\n Phone (Nextcloud app)   ─┼─ https://cloud.ad.arisecenla.com ─ Caddy (church certificate)\n Web page                ─┘                                      │\n                                                    127.0.0.1:8091 (never the internet)\n                                                                 │\n                                    Nextcloud 29 container (templates/nextcloud)\n                                    ├── each person's files = /srv/arise/homes/&amp;lt;user&gt;\n                                    ├── Church, departments  = /srv/arise/shares/&amp;lt;folder&gt;\n                                    ├── Pastors               = /srv/arise/pastors\n                                    └── Shared with me        = /srv/arise/shared/&amp;lt;user&gt;\n</code></pre>\n<ul>\n<li><strong>Nothing is copied.</strong> A person's Nextcloud files folder is a link to their server home, and\n  the shares are mounted over the same folders Samba serves. A file saved on a Mac shows in the\n  dashboard's Finder and over SMB, and the other way round.</li>\n<li><strong>Sign-in is the domain's.</strong> Nextcloud reads the directory over LDAPS as <code>arise-nextcloud</code>, a\n  read-only account <code>arisectl cloud setup</code> makes. The login is first.last. A disabled account\n  stops syncing at the next check (at most ten minutes).</li>\n<li><strong>No device holds a domain password.</strong> Every Mac and phone signs in with its own <em>app\n  password</em>, which only Nextcloud can check and which you can cut off on its own. The server\n  issues it, shows it once, and keeps only a fingerprint of it. Nextcloud is set to keep no\n  copy of a domain password either, not even for a web sign-in.</li>\n<li><strong>Who sees which folder</strong> follows the same rule as the Samba lines (sharing.py): Church is\n  everyone's; a department folder is written by all staff, admins and the department's own\n  login, and read by the department's people; Pastors is the two pastors' only, admins\n  included. tests/test_cloud.py checks the two agree for every kind of person.</li>\n<li><strong>Nextcloud's own sharing is off.</strong> Sharing is the server's Share with…, so the dashboard, SMB\n  and the clients never disagree about who has what.</li>\n<li><strong>Changes made over SMB reach the clients</strong> through <code>arise-cloud-watch</code>, which tells Nextcloud\n  to rescan just the folder that changed, a few seconds later.</li>\n<li><strong>File locking:</strong> Redis. Two Macs saving one file at the same moment get a conflict copy,\n  not a lost save.</li>\n</ul>\n<h2 id=\"conflicts-newest-wins-row-15\">Conflicts: newest wins (row 15)</h2>\n<p>When the same file changed in two places before they synced, the client keeps both, naming one\n<code>Budget (conflicted copy 2026-10-29 101500).xlsx</code>. Every hour (<code>arise-cloud-conflicts.timer</code>,\nnever during a service) the server settles each pair:</p>\n<ul>\n<li>the <strong>newer</strong> copy keeps the real name;</li>\n<li>the <strong>older</strong> copy goes to that folder's <strong>Trash</strong> (the same 30-day Trash as a delete in\n  Finder), with a record so <strong>Put Back</strong> returns it to where it was;</li>\n<li>each one is written to <code>/var/lib/arise/cloud-conflicts.jsonl</code> and shows in the Sync panel.</li>\n</ul>\n<p>Nothing is deleted by this. <code>sudo arisectl cloud sweep --dry-run</code> shows what it would do.</p>\n<h2 id=\"when-a-file-looks-wrong\">When a file looks wrong</h2>\n<ol>\n<li><strong>The newest version is not the one you wanted.</strong> Open the Trash of that folder (Finder on\n   the dashboard, or the share's <code>.Trash</code> over SMB): the other copy is there under the same\n   name. Put Back, or drag it out.</li>\n<li><strong>A file is missing on a Mac.</strong> Click the Nextcloud icon in the Mac's menu bar: it says what\n   it is doing, and lists anything it could not sync and why (a name with a character the\n   server refuses, a file open in an app). The file is still on the server: look in the\n   dashboard's Finder.</li>\n<li><strong>Something deleted on the Mac came back.</strong> The server still had it and the Mac was offline.\n   Delete it again once the Mac is back on the network.</li>\n<li><strong>A Mac says it is signed out.</strong> Its device was cut off. On that Mac, in Nextcloud → Settings,\n   remove the account (the files on the Mac and the server stay), then run the Nextcloud task for\n   that Mac again in the Macs app: it gets a new app password. While the client still holds the\n   account the task leaves it alone, so a re-run never signs a working Mac out.</li>\n<li><strong>Nothing syncs anywhere.</strong> <code>sudo arisectl cloud status</code>, then <code>docker ps</code> for\n   <code>arise-app-nextcloud</code>. <code>sudo arisectl app restart nextcloud</code> is the small fix.</li>\n</ol>\n<h2 id=\"the-sync-panel-admins\">The Sync panel (admins)</h2>\n<p>Dashboard → Sync. For each person: their devices and when each last synced, how many conflicts\nwere settled for them, and their storage against the 50 GB home quota (a warning line, never a\nwall: round 7, 45; they and Bradly are told at 80% and 95%). <strong>New device…</strong> makes an\napp password for a phone or a Mac set up by hand (shown once). <strong>Cut off</strong> stops one device;\n<strong>Cut off all</strong> (typed name) stops every sign-in the person has: a lost phone, someone leaving.\nTheir files stay, and the person is told (round 7, 74). Nextcloud keeps earlier versions of a\nfile for a year (<code>versions_retention_obligation = auto, 365</code>, round 7, 46). The same from the\ncommand line:</p>\n<pre><code>sudo arisectl cloud status\nsudo arisectl cloud people\nsudo arisectl cloud app-password jane.doe &quot;Jane's iPhone&quot;\nsudo arisectl cloud revoke jane.doe &quot;Jane's iPhone&quot;      # one device\nsudo arisectl cloud revoke jane.doe                      # every sign-in\nsudo arisectl cloud sweep [--dry-run]\nsudo arisectl cloud setup [--dry-run]                    # safe to run again\n</code></pre>\n<h2 id=\"setting-up-a-mac\">Setting up a Mac</h2>\n<p>The Mac helper does it (the Macs app's <code>nextcloud</code> task, mac/helper/tasks/nextcloud.sh):</p>\n<ol>\n<li>installs the official <strong>Nextcloud desktop client</strong> (the File Provider build), refusing any\n   package that is not signed by Nextcloud GmbH (Apple team NKUJUXUJ3B) and notarised;</li>\n<li>asks the server for that person's device app password, which the server gives only for a\n   task an admin queued on that Mac;</li>\n<li>takes a local disk snapshot, then, inside the person's own session, signs the client in\n   adds the synced folders (Desktop, Documents, Downloads, Pictures, Music: the server's\n   <code>FOLDERS=</code> list) as full sync folders, and writes the library exclusions above into the\n   client's <code>sync-exclude.lst</code>. The first sync <strong>merges</strong>: what is on\n   the Mac and what is on the server both stay; where both have the same file with different\n   contents, both are kept and the hourly sweep settles them as above;</li>\n<li>if the person is not signed in at that moment, it finishes at their next sign-in.</li>\n</ol>\n<p>A <strong>local account linked to a server user</strong> (round 6, kept local) gets exactly the same, signed\nin as the server user: its synced folders go to that person's server home. The local login\nitself is not touched. Since round 7, 23 every local account is linked like this by default\n(docs/MACS.md).</p>\n<p><strong>The first time</strong> the client runs, macOS asks the person once to let Nextcloud use each of\nthose folders. They click Allow (docs/STAFF-FILES.md says so).</p>\n<p><strong>iCloud's Desktop &amp; Documents</strong> must be off on that account; the task stops and says so if it\nis on.</p>\n<h2 id=\"setting-up-a-phone\">Setting up a phone</h2>\n<p>Phones are not enrolled, so two things are done by hand, once (docs/STAFF-FILES.md has the\nperson's half):</p>\n<ol>\n<li><strong>The church certificate.</strong> cloud.ad.arisecenla.com is signed by the church's own authority\n   (Caddy's <code>tls internal</code>), which a phone does not trust until it has the root:\n   http://arise-server:4147/ca.crt, opened on the phone on the church network. An iPhone then\n   needs Settings → General → About → Certificate Trust Settings → turn it on. Without it the\n   Nextcloud app refuses the server.</li>\n<li><strong>A device password</strong>: Sync → the person → New device… → \"Kristina's iPhone\". They type it in\n   the app's \"Log in with an app password\", never their domain password.</li>\n</ol>\n<p>Off-site the phone needs Tailscale on.</p>\n<h2 id=\"the-name-in-dns\">The name in DNS</h2>\n<p><code>cloud.ad.arisecenla.com</code> is a CNAME to this box in the domain's own DNS; the installer adds it.\nBy hand:</p>\n<pre><code>sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com cloud CNAME arise-server.ad.arisecenla.com -U administrator\n</code></pre>\n<p>The Macs and phones off-site resolve it the same way as the dashboard's name: Tailscale's split\nDNS for ad.arisecenla.com. No router, no port forward, nothing on the internet (rule 7).</p>\n<h2 id=\"pieces\">Pieces</h2>\n<table>\n<thead>\n<tr>\n<th>Where</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>templates/nextcloud/</code></td>\n<td>the containers: Nextcloud 29, MariaDB, Redis, cron; published on 127.0.0.1:8091</td>\n</tr>\n<tr>\n<td><code>server/arise_server/cloud.py</code></td>\n<td>the mounts, the domain sign-in, app passwords, the conflict sweep, the watcher</td>\n</tr>\n<tr>\n<td><code>config/caddy/Caddyfile</code></td>\n<td><code>cloud.ad.arisecenla.com</code> on the church certificate</td>\n</tr>\n<tr>\n<td><code>config/systemd/arise-cloud-*</code></td>\n<td>the watcher, and the hourly conflict sweep</td>\n</tr>\n<tr>\n<td><code>mac/helper/tasks/nextcloud.sh</code></td>\n<td>the Mac side</td>\n</tr>\n<tr>\n<td><code>/etc/arise/secrets/apps/nextcloud.env</code></td>\n<td>its passwords (database, the arise-sync admin, the directory account); root only</td>\n</tr>\n<tr>\n<td><code>[cloud]</code> in arise.toml</td>\n<td>the host name, the folders that sync in full, the client version</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"not-yet-tried-on-real-hardware-oct-29\">Not yet tried on real hardware (Oct 29)</h2>\n<p>Built and tested on a Linux box with no Docker daemon and no Mac. The Python side and the\nscript's config editing are tested; these have not run anywhere yet:</p>\n<ul>\n<li>Nextcloud 29 serving a person's files through the link to their home\n  (<code>localstorage.allowsymlinks</code>), and the read-only/read-write pair of mounts at one place\n  resolving by priority the way <code>files_external:import</code> is given it;</li>\n<li>the LDAPS sign-in against Samba from inside the container (the DC's own certificate authority\n  is mounted for it);</li>\n<li>the desktop client's command-line sign-in, the second folder pair written into its config,\n  and the File Provider turning on from its settings, on a real Mac;</li>\n<li>the five folder pairs, and the client reading the patterns added to <code>sync-exclude.lst</code>;</li>\n<li>quitting the client for a service and reopening it in the person's session afterwards.</li>\n</ul>\n<p>The first church Mac is the test. If any of it misbehaves, the fallback for that piece is in\nthe code comments next to it.</p>",
 "demo": true
 },
 "GET /help/SYNOLOGY": {
