@@ -7,8 +7,8 @@ the design or the hardware. Every memory figure is a typical idle number
 from the projects' own docs or common experience, labelled as an estimate;
 the Dell's real RAM (question 1, Sunday) decides how many run at once.
 The OS is called **ariseOS** (round 2, 19); Arise Server stays the name of
-the service and the repo. Releases are named after books of the Bible from
-the next one on: v0.7 "Genesis" (docs/ROADMAP.md).
+the service and the repo. Releases are named after books of the Bible: v0.7 "Genesis", then
+v0.8 "Exodus", the one installed now (docs/ROADMAP.md).
 
 ## The shape of the machine
 
@@ -19,7 +19,7 @@ always on, with typical idle memory (estimates):
 |---|---|---|
 | Samba AD DC | the directory, DNS, Kerberos, the shares | 200 to 400 MB |
 | arise-web | the dashboard and the desktop on the monitor | 100 MB |
-| cage + Epiphany | the kiosk browser | 300 to 500 MB |
+| cage + Firefox | the kiosk browser (Epiphany only if Firefox is missing) | 300 to 500 MB |
 | Docker | the engine, idle | 100 MB |
 | restic, the automator | nightly, then gone | 0 idle, up to 1 GB while running |
 
@@ -45,7 +45,7 @@ question somebody at the church actually asks.
 | Patchman | System Settings → Updates (packages, security count, Arise itself) | Patchman is for a fleet; this is one box |
 | Portainer | the Apps app for daily work | kept as an optional template for the hard days, below |
 | OpenLP headless | Proclaim runs the slides, on the media Mac | nothing to serve |
-| Nextcloud | the member portal: sign in from anywhere, own files, shares, upload, download, share links; Syncthing for folders that must mirror | for files, the portal and SMB already do it; Nextcloud is a template below for the calendar and documents side |
+| Nextcloud | now built in (round 6, 14): `templates/nextcloud`, started by the installer, serves the home folders and shares to every Mac and phone (docs/SYNC.md) | — |
 
 ### Installed and running after `install.sh` (the church set)
 
@@ -83,7 +83,7 @@ table. Deploy the day the question is asked, not before.
 | `synapse` | the same question, encrypted, with the Element apps | 400 MB+ | Mattermost or this, never both |
 | `kimai` | "timesheets for the hourly staff" | under 200 MB | SQLite, one container |
 | `trilium` | "a study notebook that is not Apple Notes" | 150 MB | one notebook per deployment; deploy twice for two people |
-| `nextcloud` | "a shared calendar, documents in the browser, phone photo upload" | 1 GB | the shares are mounted into it, not copied; its LDAP app ties it to the domain; needs 16 GB to sit beside the rest |
+| `nextcloud` | the Macs' and phones' sync (round 6, 14; docs/SYNC.md), started by the installer | 1 GB | the homes and shares are mounted into it, not copied; LDAPS ties it to the domain |
 | `moodle` | "a new-members course with a quiz" | 1 GB+ | heavy; deploy when someone will build the course |
 | `phplist` | "the weekly email to the families" | 250 MB | only through an SMTP relay; Mailchimp's free tier is simpler until the list is big |
 | Ansible | not a service: a tool for the day there is a second server or a dozen Macs to push one change to | 0 | today `install.sh` and `enroll-mac.sh` are the automation; an Ansible playbook would wrap them, not replace them |
@@ -162,7 +162,7 @@ for a in netdata bookstack jellyfin; do sudo arisectl app deploy $a; done
 
 Add `portainer`, `churchcrm`, `frigate`, `netalertx`, `uptime-kuma`,
 `syncthing`, `vaultwarden`, `guacamole`, `owncast`, `nginx-rtmp`, `icecast`,
-`mattermost`, `synapse`, `kimai`, `trilium`, `nextcloud`, `moodle`,
-`phplist` the same way, when and if each one is wanted. Twenty-two
-templates; the box runs the ones somebody asked for. Remove one with `arisectl app remove <name>`; its folder stays
+`mattermost`, `synapse`, `kimai`, `trilium`, `moodle`,
+`phplist` the same way, when and if each one is wanted (`nextcloud` the
+installer already started). Twenty-six templates; the box runs the ones somebody asked for. Remove one with `arisectl app remove <name>`; its folder stays
 until a person deletes it.

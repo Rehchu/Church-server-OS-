@@ -17,9 +17,11 @@ Send the specs when you have them and the install gets tuned; nothing in
 these steps changes.
 
 **One thing before any path:** the old PC must be on **Ethernet**, not Wi‑Fi,
-and should get a **fixed address** (a DHCP reservation on the router for its
-MAC address is enough). A domain controller that changes address, or drops
-off Wi‑Fi at 2 AM, takes every Mac's login with it.
+and keeps a **fixed address**: the installer pins the address the router
+already gives it on the server itself (`/etc/netplan/60-arise-pinned.yaml`,
+§ 5). Nothing on the router changes (docs/ANSWERS.md, 111 and 118). A
+domain controller that changes address, or drops off Wi‑Fi at 2 AM, takes
+every Mac's login with it.
 
 ---
 
@@ -497,9 +499,9 @@ somewhere else. The full story, with the trade-offs, is
      login, so it is yours to run. Then install the Tailscale app on every
      off-site Mac, PC and phone, approve the subnet route and set the split
      DNS for `ad.arisecenla.com` in the admin console. No port forward.
-   - `--with-wireguard`: native WireGuard on UDP 51820. Forward that one port
-     on the Pineville router, set `[remote] wg_endpoint` in `arise.toml`, add
-     devices from Dashboard → Remote or `sudo arisectl remote add-peer <name>`.
+   - `--with-wireguard`: native WireGuard on UDP 51820. **Not used at Arise:**
+     it needs a port forwarded on the router, and Bradly chose Tailscale only
+     with nothing forwarded (docs/ANSWERS.md 36, 111). Kept for another church.
 3. **Remote desktop.** `sudo arisectl app deploy guacamole`, do the one-time
    database step in its template notes, open `http://arise-server:8084/guacamole`,
    change `guacadmin`, add the Macs (VNC) and PCs (RDP).
@@ -511,7 +513,7 @@ somewhere else. The full story, with the trade-offs, is
 5. **The firewall** is always set: incoming denied by default, SSH allowed,
    the domain controller, dashboard and apps allowed from the LAN and the VPN
    only. No fail2ban and no lockout, by Bradly's choice (round 3, 27). Nothing
-   is ever forwarded on the router except UDP 51820 when WireGuard is chosen.
+   is forwarded on the router (Tailscale only, docs/ANSWERS.md 36).
 
 Check it from your phone's hotspot with the Tailscale app on: if
 `http://arise-server:4147` opens, the closet can close.

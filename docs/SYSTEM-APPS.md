@@ -56,7 +56,7 @@ Processes (psutil: CPU, memory, read/write, the container they run in) and
 containers (`docker stats`), sortable, refreshed every three seconds while
 open, the whole answer cached three seconds server-side. **End** asks for
 the PID and refuses the processes the box cannot live without: PID 1,
-systemd, Samba, Docker, SSH, the dashboard, cage and Epiphany, the UPS
+systemd, Samba, Docker, SSH, the dashboard, cage and the kiosk browser, the UPS
 monitor (`activity.may_kill`, pinned by the tests). TERM first, KILL a
 second later if it ignored that.
 

@@ -107,11 +107,15 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 | 02:05 | `arise-automator.timer` | the nightly YouTube job |
 | 03:00 | `arise-backup.timer` | restic to the Synology (30/12/24 kept) |
 | 04:00 | `arise-mirror.timer` | GitHub mirror refresh |
+| 04:15 | `arise-archive.timer` | the archive index, new files only (not Wednesdays) |
+| Wed 04:15 | `arise-archive-rebuild.timer` | the archive index, rebuilt in full |
 | 04:30 | `arise-trash.timer` | the 30-day Trash sweep |
+| 05:15 | `arise-offboard.timer` | leavers: disabled, then their files moved after 30 days |
 | 07:00 | `arise-notify.timer` | the daily note (off: no webhook set; Discord's #daily is the plan) |
 | hourly | `arise-devices.timer` | the network scan |
 | hourly | `arise-cloud-conflicts.timer` | Nextcloud conflicts: newest wins, the older copy to the Trash (skips services) |
 | every 15 min | `arise-idle-apps.timer` | idle desktop programs stopped |
+| every 15 min | `arise-repos.timer` | the Arise repos synced two-way with GitHub |
 | monthly | `arise-drill.timer` | the restore drill |
 | Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |
 | Sun 23:30 | `arise-clamscan.timer` | the virus scan of the shares |

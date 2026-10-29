@@ -23,7 +23,7 @@ power-on for the GRUB menu when something has to be chosen.
 ## The desktop on the monitor (`--kiosk`)
 
 `arise-kiosk.service` starts `cage` (a one-window Wayland compositor, no
-desktop environment underneath) running Epiphany in application mode, pointed
+desktop environment underneath) running Firefox through `arise-browser` (Epiphany only if Firefox is missing), pointed
 at `http://127.0.0.1:4147/?kiosk=1`, as the unprivileged user `arise-kiosk`
 (uid 1501, groups `video`, `input`, `render`). It waits for `arise-web` to
 answer `/api/health` before it draws anything, so the first thing on screen is

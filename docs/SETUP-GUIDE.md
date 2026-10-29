@@ -65,15 +65,17 @@ groups). The dashboard reads them: a member of `Domain Admins` (or the
 
 | Role | Directory group | Church Mac (bound) | Personal Mac (not bound) | Off-site, any device | Phone |
 |---|---|---|---|---|---|
-| **Admin**: Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly (answer 25) | `Domain Admins` | everything: all shares, the dashboard as admin, the Terminal | the dashboard as admin over Tailscale; the home-sync agent if wanted | same, over Tailscale | dashboard as admin over Tailscale |
-| **Staff** (pastors, paid staff) | `Staff` | own home folder on the server, `staff` share, their own mobile account | the dashboard portal over Tailscale; the home-sync agent if wanted | dashboard member portal: own home, `staff` share, upload, download, share links; Tailscale on the Mac for full SMB | dashboard member portal |
-| **Leadership** | `Leadership` (+ `Staff`) | the above plus the `leadership` share | same | same plus `leadership` in the portal | dashboard member portal |
-| **Media** | `Media` | the above plus the `media`, `graphics` and `recordings` shares, the StreamYard and Proclaim Macs | same | same plus those shares in the portal | dashboard member portal |
-| **Department** (one shared login per department: Children's Department, Inedge, Worship, others to come; answer 27) | one group per department (`Childrens-Department`, `Inedge`, `Worship`) | the department's share and the department's home folder | — | dashboard member portal: the department share | dashboard member portal |
+| **Admin**: Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly (answer 25; round 6, 21 to 23) | `Domain Admins` | everything: all shares; the OS itself at the closet monitor, each with their own Firefox profile | the dashboard as admin over Tailscale | same, over Tailscale | the dashboard as admin over Tailscale; the Nextcloud app |
+| **Staff** (pastors, paid staff) | `Staff` | their AD account, made on every church Mac ahead of time by the helper (docs/MACS.md); Desktop and Documents sync to their server home through Nextcloud; the shares in Finder's sidebar | never enrolled; the Nextcloud app or web page over Tailscale, files only | Nextcloud over Tailscale | the Nextcloud app over Tailscale |
+| **Leadership** | `Leadership` (+ `Staff`) | the above plus the `leadership` share | same | same | same |
+| **Media** | `Media` | the above plus the `media`, `graphics` and `recordings` shares, the StreamYard and Proclaim Macs | same | same | same |
+| **Department** (one shared login per department: Children's Department, Inedge, Worship, others to come; answer 27) | one group per department (`Childrens-Department`, `Inedge`, `Worship`) | the department's login, synced like a person (round 6, 40): its share and its home folder | — | Nextcloud over Tailscale | the Nextcloud app |
 | **Guest** | no account | the guest Wi-Fi, already separate from the staff network (answer 17) | — | nothing | nothing |
 
-SSH is Bradly's only; the other three admins get the admin desktop in the
-dashboard, not a shell, unless they ask. Volunteers do not get personal
+Staff, departments and volunteers never sign in to the server OS: with
+`[web] staff_access = "none"` (the default, round 5, 41) a non-admin sign-in
+on the dashboard is told their files are on their Mac. SSH is Bradly's only;
+the other three admins get the admin desktop, not a shell, unless they ask. Volunteers do not get personal
 accounts (answer 24); they use a department login. The `Volunteers` group
 stays in the directory, empty, for the day that changes.
 
@@ -155,17 +157,20 @@ opens on the LAN, the domain exists, nobody is in it yet.
 
 ### Day 2 — the directory, DNS, the first Mac
 
-1. docs/DIRECTORY.md § DNS on the church network. The staff router hands
-   out addresses (answer 14), so its DHCP page is where the server becomes
-   the **only** DNS. This is the step people skip and then nothing binds.
-   Verify with the two `dig` lines on a Mac.
+1. docs/DIRECTORY.md § DNS on the church network. The routers keep the DNS
+   they hand out today; nothing on them changes (ANSWERS 111, 118).
+   Enrolment writes a resolver file on each Mac that sends only
+   `ad.arisecenla.com` to the server. Verify with the two `dig` lines on a
+   Mac.
 2. Create yourself and the groups (§ 4 below): `bradly.dyer` in
    `Domain Admins`, `Staff` and `Media`.
-3. Bind **one** church Mac, yours, with `mac/enroll-mac.sh`
-   (docs/MAC-MIGRATION.md). Log out, log in as `bradly.dyer`, watch Desktop
-   and Documents land in `smb://arise-server/homes/bradly.dyer`. Make a file on the Mac, see it in the
-   dashboard's Finder within fifteen minutes (that is the home-sync agent).
-   Do not bind a second Mac until this one is boring.
+3. Enrol **one** church Mac, yours: Macs app → **Enrol a Mac**, paste the
+   one Terminal line on the Mac (docs/MACS.md). Grant the helper Full Disk
+   Access when enrolment asks. Log out, log in as `bradly.dyer`, and watch
+   Desktop and Documents sync to your server home through Nextcloud
+   (docs/SYNC.md). Make a file on the Mac and see it in the dashboard's
+   Finder a few seconds later. Do not enrol a second Mac until this one is
+   boring.
 
 ### Day 3 — the automator, the Synology, backups
 
@@ -217,9 +222,9 @@ Where a Mac's local account name is not `first.last`, pass
 **Personal Macs are not bound.** Apostle Bryant's and Pastor Vanessa's own
 Macs leave the building (answer 34); binding a personal Mac hands its login
 to the church directory, which is the wrong direction for a personal
-machine. They get the Tailscale app, the dashboard address, and the
-home-sync agent if they want a folder kept on the server
-(docs/MAC-MIGRATION.md § Personal Macs).
+machine. They get the Tailscale app and, if they want their files there, the
+Nextcloud app (files only, round 6, 19 and 39). The helper never touches a
+personal Mac.
 
 The media Mac runs Proclaim and sends NDI (answer 50); it is a Mac, so it
 is enrolled like the others, with a shared `media` login (answer 32). Its
@@ -325,9 +330,9 @@ password change, which goes to the domain.
 
 | Where | Church Macs | Personal Macs | What it needs first |
 |---|---|---|---|
-| **Pineville** (server on the LAN) | `mac/enroll-mac.sh` (docs/MAC-MIGRATION.md) | not bound: Tailscale + the dashboard | the server as the only DNS from the staff router's DHCP; the Mac on the server's network (docs/NETWORK.md) |
-| **Alexandria** (one Mac) | Tailscale on the Mac, signed in, start at login; then the same script | — | the split-DNS rule |
-| **The Hub** (before the move) | Tailscale on the Mac, then the same script | not bound: Tailscale + the dashboard | the split-DNS rule |
+| **Pineville** (server on the LAN) | the one Terminal line from the Macs app (docs/MACS.md) | never enrolled: Tailscale + the Nextcloud app | the resolver file enrolment writes; the Mac on the server's network (docs/NETWORK.md) |
+| **Alexandria** (one Mac) | Tailscale on the Mac, signed in, start at login; then the same Terminal line | — | the split-DNS rule |
+| **The Hub** (before the move) | Tailscale on the Mac, then the same Terminal line | never enrolled: Tailscale + the Nextcloud app | the split-DNS rule |
 | **A church laptop that moves between sites** | bind it at whichever site; it is a mobile account, it works everywhere and offline | — | Tailscale on it, so it is "home" from anywhere |
 
 There are no Windows PCs today (answer 31); docs/DIRECTORY.md § Joining a
@@ -340,6 +345,13 @@ know which building a Mac is in.
 ---
 
 ## 6. What a remote member does
+
+**By default this is Nextcloud, not the dashboard.** With
+`[web] staff_access = "none"` (round 5, 41) staff and volunteers open the
+Nextcloud app or `https://cloud.ad.arisecenla.com` over Tailscale and see
+their own files and the shares their groups allow (docs/STAFF-FILES.md).
+The steps below are the dashboard portal, for the day an admin turns it on
+with `staff_access = "portal"`.
 
 Someone on the staff, at home, with a file to drop off and a video to
 collect:
@@ -376,14 +388,15 @@ That is the whole portal. It is deliberately small.
 
 After `mac/enroll-mac.sh`:
 
-- Login is the directory username and password. The first login at church
-  takes a minute while the mobile account is made. After that the Mac works
-  with the server up or down, on site or at home: the account and password
-  are cached.
-- Desktop and Documents are kept on the server (`/Volumes/<user>` when the
-  share is mounted, synced every 15 minutes by `arise-home-sync` when the
-  server is reachable). Downloads, Pictures, Movies, Music stay on the Mac.
-  Add folders to the sync list in the script if a person needs more.
+- Login is the directory username and password. The helper makes every
+  server account on every church Mac ahead of time, so their face is on the
+  login window before their first sign-in (round 6, 41). After that the Mac
+  works with the server up or down, on site or at home: the account and
+  password are cached.
+- Desktop and Documents sync to the server through the Nextcloud client
+  (docs/SYNC.md), on the church network or over Tailscale. Downloads,
+  Pictures, Movies, Music stay on the Mac. `arise-home-sync` is the
+  fallback on a Mac where Nextcloud is not running.
 - Shares appear under Network in the Finder, or `⌘K` →
   `smb://arise-server/shares/staff`. No password prompt: Kerberos from the
   login carries it.
@@ -391,16 +404,14 @@ After `mac/enroll-mac.sh`:
   Documents show the last synced copy, the shares are not there. With
   Tailscale installed and signed in, everything is the same as at church,
   just slower.
-- A Mac that already had local users before enrolment: the script makes a
-  directory user for each local user it finds (`first.last`, with `--map`
-  where the local name differs; a one-time password each), copies that
-  person's Desktop and Documents to their server home, and leaves the old
-  local account in place, renamed, until you delete it yourself. Nothing is
-  deleted by the script.
+- A Mac that already had local users before enrolment: each local account
+  waits on the Macs page for an admin's choice: **Convert** (it becomes the
+  server user, files kept, with Undo), **Link** (it stays as it is and its
+  Desktop and Documents sync as the server user) or **Leave alone**
+  (docs/MACS.md). Nothing happens to it before that choice.
 - A personal Mac (Apostle Bryant's, Pastor Vanessa's) does none of this. It
-  is not bound. It runs Tailscale and opens the dashboard; the home-sync
-  agent can be installed on it alone if a folder should be kept on the
-  server (docs/MAC-MIGRATION.md § Personal Macs).
+  is never enrolled. It runs Tailscale and the Nextcloud app if its owner
+  wants their files there.
 
 ---
 

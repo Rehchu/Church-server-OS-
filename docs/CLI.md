@@ -145,3 +145,24 @@ arisectl mail import <wix.csv>          parse, show the count, ask, then add (ab
 arisectl mail test <to> <subject>       send one test email; the body comes from stdin
 ```
 Sending to everyone is the dashboard's job (it asks for the word `send`).
+
+## The rest of the verbs
+
+```
+arisectl directory import <people.csv> [--apply]   the day-one people list (round 5, 8); checks only until --apply
+arisectl quota [status]                  each home against its 50 GB quota
+arisectl quota apply                     write the filesystem quota (setquota) for every home
+arisectl sites                           the campuses and what answers at each
+arisectl ups                             the UPS through NUT (not configured until the model is known)
+arisectl link list|revoke <token>|sweep  the Finder's share links; sweep drops the expired ones
+arisectl browser [status]|apply|policy   the closet monitor's Firefox: the theme, the policies (docs/BROWSER.md)
+arisectl owner [status]                  Bradly's account: groups, sudo, the 02:05 job's drop-in; [owners] users too
+arisectl owner setup [NAME]              make NAME the owner (default: [owner] user, then whoever ran sudo)
+arisectl repos [status]|sync [NAME]|setup   the Arise repos, two-way with GitHub every 15 minutes (docs/REPOS.md)
+arisectl offboard list|mark <name> --to <who>|cancel <name>|sweep   someone leaving (round 2, 24): 30 days, then the files move
+arisectl audit [words] [--who U] [--failed] [--limit N]   the audit log, newest first, read-only
+arisectl remote status|add-peer <name>   the VPN; add-peer is the WireGuard path, not used at Arise
+arisectl notify test|send                the daily note (off: no webhook set)
+arisectl archive status|build [--full]|search <words>|setup   the searchable archive of both repos (docs/ARCHIVE.md)
+arisectl service-now [--quiet]           exit 1 during a service: the timers' ExecCondition gate
+```
