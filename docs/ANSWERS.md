@@ -419,6 +419,54 @@ Asked as pop-ups, 36 questions plus two follow-ups. "Other" answers are quoted.
 | 42 | (unprompted, Oct 29) The browser | "Firefox in the OS should be a full web browser as well." | `open_web = true` by default; the allow-list stays a setting |
 | 43 | (unprompted, Oct 29) Mac profiles | "I'm going to need to know how the server sets up and removes profiles from the Mac as well, if the server even does it. If not it needs to" | today: enroll-mac.sh binds a Mac; a person's Mac account appears at their first sign-in there; the home-sync agent copies Desktop and Documents every 15 minutes. Nothing removes a profile from a Mac yet. Apple removed network-home syncing in macOS 10.12, so syncing needs a sync client. Round 6 settles both |
 
+## Round 6 (Oct 29): the Macs, syncing, who uses the OS, the domain, Firefox
+
+Forty pop-up questions after round 5's 40 to 43. The Macs are where staff and
+volunteers work; the closet OS is the admins'.
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 1 | How the server manages the Macs | A small ariseOS helper | a launchd helper on each church Mac checks the server every few minutes (church network or Tailscale) and carries out its tasks; no MDM, no Apple certificate |
+| 2 | A new person on a Mac | Sign in at any church Mac | their Mac profile is made at the login window on first sign-in (the AD bind does this) |
+| 3 | Which Macs | Any church Mac | |
+| 4 | When an account is disabled | Checked, then removed | the helper confirms their files are on the server, then deletes their Mac profile and folder on every church Mac, logged |
+| 5 | A profile unused on one Mac | Never removed | only leaving removes it |
+| 6 | Retiring a Mac | A Retire button | checks every profile synced, removes it from the domain and the helper; Bradly erases it by hand |
+| 7 | The Mac admin account | A hidden server-run admin | `ariseadmin` on every Mac, its own random password kept on the server for admins, changed every 30 days |
+| 8 | Staff rights on Macs | Standard users | |
+| 9 | The Mac login window | A list of faces | everyone who has used that Mac shows, plus Other… |
+| 10 | FileVault | On, keys on the server | each Mac's recovery key escrowed to the server, admins only |
+| 11 | A lost or stolen Mac | Cut it off | disable its computer account, revoke its Tailscale and its Nextcloud sessions; no remote erase |
+| 12 | macOS updates | Security overnight | the helper installs security updates overnight, never during a service, and asks for a restart; major versions wait for Bradly |
+| 13 | What syncs | Desktop and Documents | |
+| 14 | The sync app | Nextcloud client | Nextcloud on the server over the home folders and shares (AD sign-in), the desktop client on every Mac: Finder badges, files on demand, versions |
+| 15 | Conflicts | Newest wins | the newer copy keeps the name; the older one goes to that home's Trash on the server (30 days), not deleted |
+| 16 | Shares on the Mac | In the Finder sidebar | Church, department and Shared-with-me folders on demand through Nextcloud's Finder integration |
+| 17 | Off-site laptops | Sync over Tailscale | |
+| 18 | Big files | Sync everything | no size limit |
+| 19 | Phones | The Nextcloud app | over Tailscale; files only, not the server OS |
+| 20 | Staff passwords and two-step | On the Mac + the reset page | two-step is turned on for them by an admin |
+| 21 | Who uses the closet OS | All four admins | Bradly, Kristina, Apostle Bryant, Pastor Vanessa |
+| 22 | The pastors | Full admins, as now | |
+| 23 | Kristina's powers | The same as Bradly's | every admin and system power, sudo without a password included; Claude stays Bradly's (24) |
+| 24 | Claude for Kristina | No, Claude stays Bradly's | |
+| 25 | The directory name | ad.arisecenla.com | realm AD.ARISECENLA.COM, NetBIOS ARISE (as built) |
+| 26 | Where the website lives | Both addresses show it | nothing in ariseOS depends on either |
+| 27 | Who adds the Wix email records | Bradly | docs give him the exact SPF and DKIM records for mail.arisecenla.com |
+| 28 | Staff addresses | first.last@ad.arisecenla.com | internal, forwarded to personal email |
+| 29 | Firefox profiles | One per admin | switched when an admin signs in at the monitor |
+| 30 | Saved passwords | On, per admin | |
+| 31 | Ad blocker | uBlock Origin | installed for every admin |
+| 32 | Search engine | Google | |
+| 33 | Downloads | The admin's own Downloads | |
+| 34 | Add-ons | Admins add any | |
+| 35 | Web filter | Malware only | Firefox's Safe Browsing; nothing else blocked |
+| 36 | The Macs' browsers | Certificate + bookmarks | the church certificate and a Church bookmarks folder in Safari and Chrome, by the helper |
+| 37 | Enrolling a Mac | One Terminal line | shown in the dashboard: joins the domain, installs the helper, Nextcloud, Tailscale and the certificate |
+| 38 | Printers | Added by the helper | |
+| 39 | Nextcloud's web page | App and web, files only | over Tailscale |
+| 40 | Department logins | Sync like a person | |
+
 ## Still needed
 
 - Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
