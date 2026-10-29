@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-28T02:35:36",
+"last_run": "2026-10-28T02:04:57",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -78,56 +78,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-14T19:35:36"
+"since": "2026-10-14T20:04:57"
 }
 ]
 },
@@ -157,8 +157,12 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T21:35:36",
-"home": "\\\\arise-server\\homes\\bradly"
+"last_logon": "2026-10-28T22:04:57",
+"home": "\\\\arise-server\\homes\\bradly",
+"must_change": false,
+"title": "",
+"full_name": "Bradly Dyer",
+"has_personal_email": false
 },
 {
 "name": "media-mac",
@@ -167,8 +171,12 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T22:35:36",
-"home": "\\\\arise-server\\homes\\media-mac"
+"last_logon": "2026-10-27T23:04:57",
+"home": "\\\\arise-server\\homes\\media-mac",
+"must_change": false,
+"title": "",
+"full_name": "Media Booth Mac",
+"has_personal_email": false
 },
 {
 "name": "office",
@@ -177,8 +185,12 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T19:35:36",
-"home": "\\\\arise-server\\homes\\office"
+"last_logon": "2026-10-26T20:04:57",
+"home": "\\\\arise-server\\homes\\office",
+"must_change": false,
+"title": "",
+"full_name": "Church Office",
+"has_personal_email": false
 },
 {
 "name": "kids-checkin",
@@ -187,8 +199,12 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T22:35:36",
-"home": "\\\\arise-server\\homes\\kids-checkin"
+"last_logon": "2026-10-22T23:04:57",
+"home": "\\\\arise-server\\homes\\kids-checkin",
+"must_change": false,
+"title": "",
+"full_name": "Kids Check-in",
+"has_personal_email": false
 },
 {
 "name": "guest-speaker",
@@ -198,7 +214,11 @@ window.ARISE_DEMO_DATA = {
 ],
 "enabled": false,
 "last_logon": null,
-"home": "\\\\arise-server\\homes\\guest-speaker"
+"home": "\\\\arise-server\\homes\\guest-speaker",
+"must_change": false,
+"title": "",
+"full_name": "Guest Speaker (loaner)",
+"has_personal_email": false
 },
 {
 "name": "childrens.department",
@@ -207,8 +227,12 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T22:35:36",
-"home": "\\\\arise-server\\homes\\childrens.department"
+"last_logon": "2026-10-25T23:04:57",
+"home": "\\\\arise-server\\homes\\childrens.department",
+"must_change": false,
+"title": "",
+"full_name": "Children's Department",
+"has_personal_email": false
 },
 {
 "name": "inedge",
@@ -217,8 +241,12 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-19T22:35:36",
-"home": "\\\\arise-server\\homes\\inedge"
+"last_logon": "2026-10-19T23:04:57",
+"home": "\\\\arise-server\\homes\\inedge",
+"must_change": false,
+"title": "",
+"full_name": "Inedge",
+"has_personal_email": false
 }
 ]
 },
@@ -295,28 +323,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-28T21:35:36",
+"last_seen": "2026-10-28T22:04:57",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-27T22:35:36",
+"last_seen": "2026-10-27T23:04:57",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-26T22:35:36",
+"last_seen": "2026-10-26T23:04:57",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-28T22:31:36",
+"last_seen": "2026-10-28T23:00:57",
 "ip": "192.168.1.20"
 }
 ]
@@ -1752,7 +1780,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-19T22:35:36",
+"last_check": "2026-10-19T23:04:57",
 "keep": {
 "daily": 14,
 "weekly": 8,
@@ -1761,7 +1789,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-28T02:35:36",
+"last_run": "2026-10-28T02:04:57",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-29T02:05:00",
@@ -1883,17 +1911,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:04:57",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:04:57",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-28T17:35:36",
+"when": "2026-10-28T18:04:57",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -1983,7 +2011,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2000,7 +2028,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2017,7 +2045,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2034,7 +2062,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2051,7 +2079,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-26T22:35:36",
+"updated": "2026-10-26T23:04:57",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2068,7 +2096,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2085,7 +2113,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2102,7 +2130,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-27T22:35:36",
+"updated": "2026-10-27T23:04:57",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2119,7 +2147,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2136,7 +2164,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-25T22:35:36",
+"updated": "2026-10-25T23:04:57",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -2984,7 +3012,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-27T20:35:36",
+"last": "2026-10-27T21:04:57",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3176,7 +3204,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-28T22:35"
+"when": "2026-10-28T23:04"
 },
 {
 "user": "bradly",
@@ -3410,8 +3438,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-26T22:35",
-"expires": "2026-11-02T22:35",
+"created": "2026-10-26T23:04",
+"expires": "2026-11-02T23:04",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -3755,7 +3783,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5004,
+"in_minutes": 4975,
 "in_words": "3 days"
 },
 "verse": {
@@ -3889,7 +3917,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 5004,
+"in_minutes": 4975,
 "in_words": "3 days"
 },
 "verse": {
@@ -3936,7 +3964,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-28T22:35"
+"now": "2026-10-28T23:04"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4038,7 +4066,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "apt_upgradable": 3,
 "arise_behind": 0,
-"last_check": "2026-10-28T22:35:37+00:00",
+"last_check": "2026-10-28T23:04:58+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4051,7 +4079,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-28T18:35:37",
+"t": "2026-10-28T19:04:58",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4059,7 +4087,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T17:35:37",
+"t": "2026-10-27T18:04:58",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4067,7 +4095,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T22:35:37",
+"t": "2026-10-26T23:04:58",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4075,7 +4103,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T20:35:37",
+"t": "2026-10-25T21:04:58",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4083,7 +4111,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T22:35:37",
+"t": "2026-10-23T23:04:58",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4091,7 +4119,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T21:35:37",
+"t": "2026-10-23T22:04:58",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4099,7 +4127,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T19:35:37",
+"t": "2026-10-22T20:04:58",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4107,7 +4135,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-22T19:35:37",
+"t": "2026-10-22T20:04:58",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4507,8 +4535,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "DIRECTORY",
 "title": "The directory — Arise Server as the church's Active Directory",
-"size": 15125,
-"lines": 312,
+"size": 18840,
+"lines": 369,
 "blurb": "The server runs Samba as an Active Directory Domain Controller. That is"
 },
 {
@@ -4598,8 +4626,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "PORTAL-GUIDE",
 "title": "The portal guide",
-"size": 2306,
-"lines": 62,
+"size": 2886,
+"lines": 72,
 "blurb": "This is the page members see in the Help app. It is short on purpose: the"
 },
 {
@@ -4687,7 +4715,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "PORTAL-GUIDE",
 "title": "The portal guide",
-"html": "<h1 id=\"the-portal-guide\">The portal guide</h1>\n<p>This is the page members see in the Help app. It is short on purpose: the\nportal is the server's desktop with only your own things in it.</p>\n<h2 id=\"signing-in\">Signing in</h2>\n<p>Open the dashboard address the media team gave you (on the church network it\nis <code>http://arise-server:4147</code>; away from the building it needs Tailscale on\nfirst). Sign in with your church name, written <code>first.last</code>, and the same\npassword you use on a church Mac. One password for the Macs, the shares and\nthis page.</p>\n<p>Forgotten it? Ask the media team; an administrator resets it. Nobody else can\nsee it.</p>\n<h2 id=\"your-files\">Your files</h2>\n<p>Finder opens on <strong>My files</strong>, your home folder on the server. The shared\nfolders your groups allow sit under it. Drag a file onto a folder to upload\nit, or press <strong>Upload</strong>. Double-click to open; right-click for more. What you\nsave on a church Mac is here too, and what you put here appears on the Mac.</p>\n<p>A deleted file goes to the Trash for 30 days before it is gone. Right-click a\nfile and pick <strong>Previous Versions</strong> to get last night's copy back.</p>\n<h2 id=\"share-links\">Share links</h2>\n<p>Right-click any file or folder and pick <strong>Share Link…</strong>. Anyone with the link\ncan download it for seven days, no sign-in needed. <strong>Shared Links…</strong> in the\nflame menu lists yours; remove one there when it has done its job.</p>\n<h2 id=\"the-sunday-list\">The Sunday list</h2>\n<p>The <strong>Sunday</strong> app has the service checklist and the countdown to the next\nservice. Anyone signed in may tick an item; it shows who ticked it and when.\nThe list clears itself each week.</p>\n<h2 id=\"the-calendar\">The calendar</h2>\n<p>The <strong>Calendar</strong> app has the services and the church's events. Press\n<strong>Subscribe</strong> to put it in the Calendar app on your Mac or phone; it keeps\nitself up to date.</p>\n<h2 id=\"the-phone-app\">The phone app</h2>\n<p>On a phone, open the dashboard in the browser and choose <strong>Add to Home\nScreen</strong> (Safari: the share button; Chrome: the three dots). It then opens\nlike an app. Alerts go to the administrator only.</p>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Two-step sign-in is optional. If you turn it on, from the flame menu, you\nscan a code once with <strong>Microsoft Authenticator</strong> and type the six digits it\nshows when you sign in. Nobody is made to turn it on.</p>\n<h2 id=\"help-and-who-to-ask\">Help, and who to ask</h2>\n<p><strong>Help</strong> (this app, or F1) has this guide. Press <strong>Show me around</strong> in\nControl Center for the five-step tour again. For anything else, the media\nteam: they run the server.</p>",
+"html": "<h1 id=\"the-portal-guide\">The portal guide</h1>\n<p>This is the page members see in the Help app. It is short on purpose: the\nportal is the server's desktop with only your own things in it.</p>\n<h2 id=\"signing-in\">Signing in</h2>\n<p>Open the dashboard address the media team gave you (on the church network it\nis <code>http://arise-server:4147</code>; away from the building it needs Tailscale on\nfirst). Sign in with your church name, written <code>first.last</code>, and the same\npassword you use on a church Mac. One password for the Macs, the shares and\nthis page.</p>\n<p>Your first password is a temporary one: at your first login, on a church Mac\nor here, you choose your own.</p>\n<p>Forgotten it? Click <strong>Forgot your password?</strong> on the sign-in screen, or open\n<code>http://arise-server:4147/reset</code> from any browser. A link goes to the personal\nemail on your profile (flame menu → <strong>My Profile</strong>), and works once, for 30\nminutes. No personal email on file? Ask the media team; an administrator\nresets it. Nobody else can see your password.</p>\n<p><strong>My Profile</strong> keeps your phone, personal email and birthday (month and day\nonly), which staff can see and members cannot, and lists your last ten\nsign-ins: one that was not you means change your password.</p>\n<h2 id=\"your-files\">Your files</h2>\n<p>Finder opens on <strong>My files</strong>, your home folder on the server. The shared\nfolders your groups allow sit under it. Drag a file onto a folder to upload\nit, or press <strong>Upload</strong>. Double-click to open; right-click for more. What you\nsave on a church Mac is here too, and what you put here appears on the Mac.</p>\n<p>A deleted file goes to the Trash for 30 days before it is gone. Right-click a\nfile and pick <strong>Previous Versions</strong> to get last night's copy back.</p>\n<h2 id=\"share-links\">Share links</h2>\n<p>Right-click any file or folder and pick <strong>Share Link…</strong>. Anyone with the link\ncan download it for seven days, no sign-in needed. <strong>Shared Links…</strong> in the\nflame menu lists yours; remove one there when it has done its job.</p>\n<h2 id=\"the-sunday-list\">The Sunday list</h2>\n<p>The <strong>Sunday</strong> app has the service checklist and the countdown to the next\nservice. Anyone signed in may tick an item; it shows who ticked it and when.\nThe list clears itself each week.</p>\n<h2 id=\"the-calendar\">The calendar</h2>\n<p>The <strong>Calendar</strong> app has the services and the church's events. Press\n<strong>Subscribe</strong> to put it in the Calendar app on your Mac or phone; it keeps\nitself up to date.</p>\n<h2 id=\"the-phone-app\">The phone app</h2>\n<p>On a phone, open the dashboard in the browser and choose <strong>Add to Home\nScreen</strong> (Safari: the share button; Chrome: the three dots). It then opens\nlike an app. Alerts go to the administrator only.</p>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Two-step sign-in is optional. If you turn it on, from the flame menu, you\nscan a code once with <strong>Microsoft Authenticator</strong> and type the six digits it\nshows when you sign in. Nobody is made to turn it on.</p>\n<h2 id=\"help-and-who-to-ask\">Help, and who to ask</h2>\n<p><strong>Help</strong> (this app, or F1) has this guide. Press <strong>Show me around</strong> in\nControl Center for the five-step tour again. For anything else, the media\nteam: they run the server.</p>",
 "demo": true
 },
 "GET /help/README": {
@@ -4762,7 +4790,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-28T22:35:37+00:00",
+"checked_at": "2026-10-28T23:04:58+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -4787,7 +4815,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-28T22:35:37+00:00",
+"queued_at": "2026-10-28T23:04:58+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -4795,16 +4823,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-23T22:35",
+"when": "2026-10-23T23:04",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-28T22:35:37+00:00"
+"last_check": "2026-10-28T23:04:58+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793226937.2474759,
+"t": 1793228698.1724882,
 "processes": [
 {
 "pid": 470,
@@ -4814,7 +4842,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792017337.2474542,
+"since": 1792019098.172472,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -4831,7 +4859,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792017337.2474525,
+"since": 1792019098.172471,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -4848,7 +4876,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792017337.2474244,
+"since": 1792019098.172448,
 "io": {
 "read": 10000000,
 "write": 0
@@ -4865,7 +4893,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792017337.2474353,
+"since": 1792019098.172461,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -4882,7 +4910,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792017337.247445,
+"since": 1792019098.172468,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -4899,7 +4927,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792017337.2474298,
+"since": 1792019098.1724536,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -4916,7 +4944,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792017337.2474327,
+"since": 1792019098.1724598,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -4933,7 +4961,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792017337.2474403,
+"since": 1792019098.1724648,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -4950,7 +4978,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792017337.2474558,
+"since": 1792019098.1724725,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -4967,7 +4995,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792017337.247443,
+"since": 1792019098.1724665,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -4984,7 +5012,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792017337.2474592,
+"since": 1792019098.1724758,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5001,7 +5029,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792017337.2474499,
+"since": 1792019098.1724703,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5018,7 +5046,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792017337.2474573,
+"since": 1792019098.172475,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5035,7 +5063,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792017337.247447,
+"since": 1792019098.172469,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5155,8 +5183,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-28T23:00:00",
-"last": "2026-10-27T23:00:00",
+"next": "2026-10-29T00:00:00",
+"last": "2026-10-28T00:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5215,8 +5243,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-off.service",
 "name": "Monitor off",
 "what": "23:00: the closet panel goes to sleep.",
-"next": "2026-10-28T23:00:00",
-"last": "2026-10-27T23:00:00",
+"next": "2026-10-29T23:00:00",
+"last": "2026-10-28T23:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5313,7 +5341,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-28T16:35",
+"as_of": "2026-10-28T17:04",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5386,62 +5414,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-28T22:35"
+"mtime": "2026-10-28T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-21T22:35"
+"mtime": "2026-10-21T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-14T22:35"
+"mtime": "2026-10-14T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-07T22:35"
+"mtime": "2026-10-07T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-09-30T22:35"
+"mtime": "2026-09-30T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-23T22:35"
+"mtime": "2026-09-23T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-16T22:35"
+"mtime": "2026-09-16T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-09T22:35"
+"mtime": "2026-09-09T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-02T22:35"
+"mtime": "2026-09-02T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-26T22:35"
+"mtime": "2026-08-26T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-19T22:35"
+"mtime": "2026-08-19T23:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-12T22:35"
+"mtime": "2026-08-12T23:04"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5458,17 +5486,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:04"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:04"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-15T22:35"
+"mtime": "2025-06-15T23:04"
 }
 ],
 "old_days": 365
@@ -7078,6 +7106,19 @@ window.ARISE_DEMO_DATA = {
 "logo_url": "http://arise-server:4147/icons/icon-512.png"
 }
 },
+"GET /public/sign-in": {
+"church": "Arise Church",
+"host": "arise-server",
+"realm": "AD.ARISECENLA.COM",
+"mail_domain": "ad.arisecenla.com",
+"rules": [
+"At least 12 characters",
+"Three of the four kinds: capitals, small letters, numbers, symbols",
+"Not your name or any part of it",
+"Never expires"
+],
+"demo": true
+},
 "GET /me/2fa": {
 "demo": true,
 "user": "demo",
@@ -7106,7 +7147,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7121,7 +7162,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7136,7 +7177,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7151,7 +7192,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7166,7 +7207,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7181,7 +7222,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7196,7 +7237,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 },
 {
@@ -7211,11 +7252,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-28T22:35:37+00:00",
+"when": "2026-10-28T23:04:58+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-28T22:35:37+00:00",
+"last": "2026-10-28T23:04:58+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -7579,7 +7620,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-26T22:35",
+"when": "2026-10-26T23:04",
 "from": "portal"
 },
 {
@@ -7591,7 +7632,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-16T22:35",
+"when": "2026-10-16T23:04",
 "from": "mac"
 },
 {
@@ -7603,7 +7644,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-01T22:35",
+"when": "2026-10-01T23:04",
 "from": "mac"
 }
 ],
@@ -12270,7 +12311,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "DIRECTORY",
 "title": "The directory — Arise Server as the church's Active Directory",
-"html": "<h1 id=\"the-directory-arise-server-as-the-churchs-active-directory\">The directory — Arise Server as the church's Active Directory</h1>\n<p>The server runs <strong>Samba as an Active Directory Domain Controller</strong>. That is\nnot \"like\" Active Directory; it is the same protocol set Microsoft ships, so\nMacs, Windows PCs and the Synology all join it the normal way and treat it as\nAD. One account per person, one password, every device.</p>\n<h2 id=\"what-you-get\">What you get</h2>\n<table>\n<thead>\n<tr>\n<th>Piece</th>\n<th>What it does for the church</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Kerberos</strong></td>\n<td>Single sign-on. Log in once at the Mac; shares and the NAS open without a second password.</td>\n</tr>\n<tr>\n<td><strong>LDAP</strong></td>\n<td>The user and group database. The dashboard, <code>arisectl</code>, the NAS and the Macs all read from it.</td>\n</tr>\n<tr>\n<td><strong>DNS</strong></td>\n<td>The DC runs its own DNS for the realm. Every joined device finds the DC through it. This is the part that most often goes wrong, see below.</td>\n</tr>\n<tr>\n<td><strong>Group Policy (GPO)</strong></td>\n<td>Rules pushed to Windows PCs (wallpaper, drive maps, password rules). Macs ignore GPO; they get settings from the bind options instead.</td>\n</tr>\n<tr>\n<td><strong>Home shares</strong></td>\n<td>Each user has <code>\\\\arise-server\\homes\\&amp;lt;user&gt;</code> (or the same folder on the Synology once it is joined).</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"active-directory-and-what-makes-this-one-better\">Active Directory, and what makes this one better</h2>\n<p>First the honest part. This <strong>is</strong> Active Directory: Samba 4 implements the\nsame Kerberos, LDAP, DNS and SMB that a Windows Server domain controller\ndoes. A Mac binds to it with Apple's own Directory Utility. A Windows 10 or 11\nPro PC joins it from the System dialog. The Synology joins it as an AD member.\nGroup Policy objects can be stored and applied to Windows PCs. One account,\none password, every device, and when someone leaves one click disables them\neverywhere.</p>\n<p>What a Windows Server domain does not give a church of this size, and this\ndoes:</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Windows Server AD</th>\n<th>Arise Server</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Where people see their files when they are not at church</td>\n<td>nowhere without extra products</td>\n<td>the <strong>dashboard</strong>: any member signs in from anywhere, browses their own home and the shares they belong to, uploads, downloads, shares a file with a link, changes their password</td>\n</tr>\n<tr>\n<td>Creating a person</td>\n<td>Active Directory Users and Computers on a Windows PC</td>\n<td>three ways: the Directory app in the dashboard, the same desktop on the closet monitor, <code>arisectl user add</code> over SSH</td>\n</tr>\n<tr>\n<td>Reaching it from Alexandria or the Hub</td>\n<td>a site-to-site VPN appliance</td>\n<td>Tailscale (or WireGuard) built in; the server is the same name from every campus</td>\n</tr>\n<tr>\n<td>Backups of the domain itself</td>\n<td>a separate backup product</td>\n<td>restic nightly at 03:00, plus a weekly <code>samba-tool domain backup offline</code></td>\n</tr>\n<tr>\n<td>Where the Macs' work ends up</td>\n<td>nowhere unless you buy into folder redirection scripts</td>\n<td>the server home share at login and a fifteen-minute sync (docs/MAC-MIGRATION.md)</td>\n</tr>\n<tr>\n<td>Which computer sits at which campus</td>\n<td>not a concept</td>\n<td>the Campuses app</td>\n</tr>\n<tr>\n<td>Cost</td>\n<td>a Windows Server licence plus CALs per person</td>\n<td>the old OptiPlex</td>\n</tr>\n</tbody>\n</table>\n<p>What it does <strong>not</strong> do, so nobody expects it later: no Microsoft Entra ID\n(Azure AD) sync, no Microsoft 365 accounts, no Intune or any other MDM (device\nmanagement, pushing settings and apps to Macs). If the church ever wants MDM,\nthe free option to look at is a self-hosted <strong>MicroMDM</strong> or <strong>NanoMDM</strong>; both\nare an idea only, nothing here depends on them. Group Policy editing still\nneeds the RSAT tools on one Windows PC. See the full list at the end of this\ndocument.</p>\n<h2 id=\"creating-people-three-ways\">Creating people, three ways</h2>\n<p>All three end in the same <code>samba-tool user create</code> and the same home folder;\npick whichever is in front of you.</p>\n<p><strong>1. The dashboard, from anywhere</strong> (<code>http://arise-server:4147</code>, or over the\nVPN): Directory → Users → <strong>Add</strong>. Username (<code>first.last</code>, lower case:\n<code>jane.smith</code>; answer 23), full name, a first password, groups. The row shows green\nwhen the home folder exists. Members can then change their own password under\nflame menu → Change Password.</p>\n<p><strong>2. The desktop on the closet monitor</strong>: it is the same dashboard, full\nscreen, so it is the same Directory app. Spotlight (⌘Space, or Ctrl+Space on\nthe Windows keyboard) → type <code>directory</code> → Enter → Users → Add.</p>\n<p><strong>3. SSH, from any Mac or PC</strong>:</p>\n<pre><code class=\"language-bash\">ssh bradly.dyer@arise-server\nsudo arisectl user add jane.smith --display &quot;Jane Smith&quot; --groups Staff,Media\n#   prompts for the first password; add --password P to give it on the line\nsudo arisectl user passwd jane.smith      # change it later\nsudo arisectl group addmember Leadership jane.smith\nsudo arisectl user list\n</code></pre>\n<p>A church Mac with people already on it does not need any of this:\n<code>mac/enroll-mac.sh</code> creates every local account's twin in the directory for\nyou, as <code>first.last</code>, with <code>--map oldname=first.last</code> where the Mac's name\ndiffers (docs/MAC-MIGRATION.md, \"The automatic way\").</p>\n<h2 id=\"the-names-and-why-not-local\">The names, and why not <code>.local</code></h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Realm (Kerberos / DNS)</td>\n<td><code>AD.ARISECENLA.COM</code></td>\n</tr>\n<tr>\n<td>NetBIOS (short) name</td>\n<td><code>ARISE</code></td>\n</tr>\n<tr>\n<td>Domain controller</td>\n<td><code>arise-server.ad.arisecenla.com</code></td>\n</tr>\n</tbody>\n</table>\n<p>The realm is a <strong>subdomain of the domain the church already owns</strong>\n(<code>arisecenla.church</code>). That is Microsoft's and Samba's recommended practice: it\nnever collides with a public name, and the public website at\n<code>arisecenla.church</code> keeps resolving normally because the DC only answers for\n<code>ad.arisecenla.com</code>.</p>\n<p>Do <strong>not</strong> use <code>arise.local</code>. macOS reserves the <code>.local</code> suffix for Bonjour\n(mDNS). A Mac asked to find a <code>.local</code> domain controller tries multicast first,\nwaits, and the bind either times out or works one day and not the next. This is\nthe single most common reason Mac–AD binding fails, and renaming a realm after\nthe fact means rebuilding the domain.</p>\n<h2 id=\"dns-on-the-church-network-read-this-before-anything-else\">DNS on the church network — read this before anything else</h2>\n<p>AD does not work unless every device asks the <strong>domain controller</strong> for the\nchurch domain's names. Devices find the DC by looking up SRV records\n(<code>_ldap._tcp.ad.arisecenla.com</code>, <code>_kerberos._tcp...</code>) that only the DC's\nDNS holds.</p>\n<p><strong>Bradly's rule (Oct 28): no router, switch or Mesh setting changes, at\nall.</strong> So the routers keep handing out whatever DNS they hand out today, and\nthe church domain is wired in on each device instead:</p>\n<ol>\n<li>The server has a <strong>static address</strong> set in netplan on the server itself\n   (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Looking at that\n   range on the router page is allowed; changing anything there is not.</li>\n<li>Every church Mac gets a <strong>per-domain resolver file</strong>,\n   <code>/etc/resolver/ad.arisecenla.com</code>, holding <code>nameserver &amp;lt;server ip&gt;</code>.\n   <code>mac/bind-mac.sh --dns &amp;lt;server ip&gt;</code> writes it (and <code>enroll-mac.sh --dns</code>\n   passes it through). macOS then asks the server only for names ending in\n   <code>ad.arisecenla.com</code> and keeps the router's DNS for everything else, so\n   the internet keeps working even when the server is off.</li>\n<li>Any device on <strong>Tailscale</strong> gets the same thing from the tailnet's split\n   DNS rule (docs/REMOTE-ACCESS.md step 5), wherever it is. The two do not\n   conflict.</li>\n<li>The server still <strong>forwards</strong> anything it is asked that is not the church\n   domain to <code>1.1.1.1</code> (<code>dns_forwarder</code> in <code>arise.toml</code>), for its own sake.</li>\n</ol>\n<p>Check from any Mac on the network:</p>\n<pre><code class=\"language-bash\">dig +short arise-server.ad.arisecenla.com\ndig +short _ldap._tcp.ad.arisecenla.com SRV\n</code></pre>\n<p>Both must print an answer. <code>dig</code> ignores <code>/etc/resolver</code>, so on a Mac that\nuses the resolver file test with <code>dscacheutil -q host -a name\narise-server.ad.arisecenla.com</code> instead. Empty output means the Mac is not\nasking the DC; nothing below will work until that is fixed.</p>\n<p>If the server is ever off, the Macs lose only the church domain's names; the\ninternet keeps working because the router's DNS is untouched. That is the\none advantage of this layout over the usual \"router hands out the DC\" setup.</p>\n<h2 id=\"organisational-units-and-groups-the-proposal\">Organisational units and groups — the proposal</h2>\n<p>Keep it small. A church of this size does not need a tree of OUs.</p>\n<pre><code>DC=ad,DC=arisecenla,DC=com\n├── OU=People\n│   ├── OU=Staff\n│   └── OU=Volunteers\n├── OU=Computers\n│   ├── OU=Macs\n│   └── OU=PCs\n└── OU=Groups\n</code></pre>\n<p>Groups (security groups, created by <code>install.sh</code>) and the share each one\nopens (answers 25, 27 and 37):</p>\n<table>\n<thead>\n<tr>\n<th>Group</th>\n<th>Who</th>\n<th>What it unlocks</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>Domain Admins</code></td>\n<td>Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly</td>\n<td>everything in the dashboard; also the account that binds Macs. SSH is Bradly's only</td>\n</tr>\n<tr>\n<td><code>Staff</code></td>\n<td>paid staff and pastors</td>\n<td>the <code>staff</code> share, their own home share</td>\n</tr>\n<tr>\n<td><code>Leadership</code></td>\n<td>the senior pastors and whoever they name</td>\n<td>the <code>leadership</code> share</td>\n</tr>\n<tr>\n<td><code>Media</code></td>\n<td>Bradly and the media team; the shared <code>media</code> login on the media Mac</td>\n<td>the <code>media</code>, <code>graphics</code> and <code>recordings</code> shares, the StreamYard and Proclaim Macs</td>\n</tr>\n<tr>\n<td><code>Childrens-Department</code></td>\n<td>the Children's Department login</td>\n<td>the <code>childrens-department</code> share, and <code>kids</code></td>\n</tr>\n<tr>\n<td><code>Inedge</code></td>\n<td>the Inedge login</td>\n<td>the <code>inedge</code> share</td>\n</tr>\n<tr>\n<td><code>Worship</code></td>\n<td>the worship / music login</td>\n<td>the <code>worship</code> share</td>\n</tr>\n<tr>\n<td><code>Volunteers</code></td>\n<td>nobody today: volunteers use a department login (answer 24)</td>\n<td>kept for the day that changes</td>\n</tr>\n<tr>\n<td><code>Kids-Check-in</code></td>\n<td>nobody today: there is no check-in station yet (answer 28)</td>\n<td>the check-in machine login, later</td>\n</tr>\n</tbody>\n</table>\n<p>Other departments get the same shape when their names come. Bradly's rule\nsince round 4 (104): <strong>everyone has their own account</strong>; a department is a\n<em>group</em> with its own share folder (and, when the mail server comes, its own\naddress), and being in the group is what opens it. The shared department\nlogins in the table above are the sample data's shape from round 1 and are\nnot needed. Round 4 (99) also adds a <strong>staff tier</strong> in the dashboard: anyone\nin <code>Staff</code> or <code>Media</code> sees Photos, Notes and, later, the transcripts and the\ncalendar's edit buttons; that tier is the next block, not yet in the code. Nine shares in all today: <code>staff</code>, <code>leadership</code>,\n<code>media</code>, <code>kids</code>, <code>graphics</code>, <code>childrens-department</code>, <code>inedge</code>, <code>worship</code>,\n<code>recordings</code>. <code>recordings</code> is on the Synology, holds every Sunday's video\n(answer 51), and is excluded from restic because a file of several GB a\nweek would swallow the backup history; the Synology's RAID is its\nprotection until there is an off-site copy. The examples below use a\nmade-up person on purpose.</p>\n<h2 id=\"password-policy\">Password policy</h2>\n<p>Samba's defaults after <code>samba-tool domain provision</code>:</p>\n<table>\n<thead>\n<tr>\n<th>Setting</th>\n<th>Default</th>\n<th></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Minimum length</td>\n<td>7</td>\n<td>fine</td>\n</tr>\n<tr>\n<td>Complexity</td>\n<td>on</td>\n<td>upper + lower + digit or symbol</td>\n</tr>\n<tr>\n<td>Maximum age</td>\n<td>42 days</td>\n<td><strong>too short for a church</strong> — people forget, Bradly gets the call</td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>off</td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>Bradly's choice (answer 26, then round 3, 27): never expires, 12 characters\nminimum, <strong>no lockout</strong>. The settings the installer's step 5b applies:</p>\n<pre><code class=\"language-bash\">samba-tool domain passwordsettings set --max-pwd-age=0        # never expires\nsamba-tool domain passwordsettings set --min-pwd-length=12\nsamba-tool domain passwordsettings set --complexity=on\nsamba-tool domain passwordsettings set --account-lockout-threshold=0   # none (round 3, 27)\n</code></pre>\n<p>The dashboard shows these rules in words, with a strength meter, when\nsomeone changes their password (<code>GET /api/me/password/rules</code>). Two-step\nsign-in is optional per person on top (docs/SECURITY.md).</p>\n<p>See the current policy any time with <code>samba-tool domain passwordsettings show</code>.</p>\n<h2 id=\"adding-people\">Adding people</h2>\n<p><strong>From the CLI</strong>, on the server (or over SSH):</p>\n<pre><code class=\"language-bash\">sudo arisectl user add jane.smith --display &quot;Jane Smith&quot; --groups Staff,Media\nsudo arisectl user passwd jane.smith   # prompts; the person can also change it in the dashboard\nsudo arisectl group addmember Leadership jane.smith\nsudo arisectl user list\n</code></pre>\n<p>Under the hood that is <code>samba-tool user create</code>, <code>samba-tool group addmembers</code>\nand a <code>mkdir</code> + <code>chown</code> of <code>/srv/arise/homes/jane.smith</code> (or the NAS home when\n<code>homes_path</code> points there).</p>\n<p><strong>From the dashboard</strong>: Directory → Users → <strong>Add</strong>. Same fields, same result,\nand the row shows green once the home folder exists.</p>\n<p><strong>Removing</strong> someone is Bradly's click, twice: the dashboard asks for the\nusername typed back before <code>samba-tool user delete</code> runs, and it never deletes\nthe home folder. Disable instead of delete when someone leaves; their files\nstay readable to Domain Admins.</p>\n<h2 id=\"joining-a-windows-pc\">Joining a Windows PC</h2>\n<p>Bradly (round 4, 26): \"add windows pc capabilities just in case we get them\nat a location\". The two Windows PCs the church has become the ariseOS nodes\n(docs/NODES.md), so today this is still reference. The decided shape (67)\nis a join script from the dashboard that joins, maps the shares as drives\nand trusts the church certificate, nothing else; not yet built. Windows 10/11\n<strong>Pro</strong> or better (Home edition cannot join a domain):</p>\n<ol>\n<li>Make sure the PC's DNS is the server (it will be, from DHCP).</li>\n<li>Settings → System → About → <strong>Domain or workgroup</strong> → Change → Domain:\n   <code>ad.arisecenla.com</code>.</li>\n<li>Credentials: <code>ARISE\\administrator</code> (or Bradly's Domain Admin account).</li>\n<li>Reboot. Log in as <code>ARISE\\jane.smith</code>.</li>\n</ol>\n<p>Macs: see <code>docs/MAC-MIGRATION.md</code>. The Synology: <code>docs/SYNOLOGY.md</code>.</p>\n<h2 id=\"backing-up-the-domain-controller\">Backing up the domain controller</h2>\n<p>The <code>config</code> job in <code>backups.yaml</code> already covers the three things that <em>are</em>\nthe domain:</p>\n<pre><code>/etc/samba/smb.conf\n/var/lib/samba/private      # sam.ldb and the rest of the directory database\n/etc/arise\n</code></pre>\n<p>restic snapshots them nightly at 03:00. Also take a logical export now and then\n(it is small and human-readable):</p>\n<pre><code class=\"language-bash\">samba-tool domain backup offline --targetdir=/srv/arise/backups/dc-offline\n</code></pre>\n<p><code>install.sh</code> adds that to a weekly timer. Those tarballs are inside the\n<code>shares</code>/<code>backups</code> paths restic already snapshots.</p>\n<h2 id=\"recovering\">Recovering</h2>\n<p><strong>The server died, the disk is gone.</strong> Reinstall Ubuntu + Arise Server with\n<code>install.sh --skip-domain</code>, mount the Synology, restore the <code>config</code> job\n(<code>arisectl backup restore latest --tag config --target /</code>, see docs/BACKUPS.md), and it\nrestores <code>/var/lib/samba/private</code> and <code>/etc/samba</code> before starting\n<code>samba-ad-dc</code>. Same hostname, same IP, same realm; every joined device carries\non as if nothing happened (Kerberos tickets are good for 10 hours, so fix it\nthe same day). Alternatively use the offline tarball:</p>\n<pre><code class=\"language-bash\">samba-tool domain backup restore --backup-file=&amp;lt;tar&gt; --newservername=arise-server --targetdir=/var/lib/samba\n</code></pre>\n<p><strong>A single user's password is lost.</strong> <code>arisectl user passwd &amp;lt;name&gt;</code>.</p>\n<p><strong>The DC is fine but a Mac says \"unable to contact domain\".</strong> It is DNS. Run\nthe two <code>dig</code> lines above on that Mac.</p>\n<h2 id=\"what-this-does-not-do\">What this does not do</h2>\n<p>Honest list, so nobody expects it later:</p>\n<ul>\n<li><strong>No Microsoft Entra ID (Azure AD) sync.</strong> Accounts here do not become\n  Microsoft 365 accounts. If the church ever needs that, Entra Connect wants a\n  Windows Server; Samba is not supported as a source.</li>\n<li><strong>No Exchange, no email.</strong> Mail stays where it is (Google).</li>\n<li><strong>Group Policy editing needs RSAT on a Windows PC.</strong> The DC <em>stores</em> GPOs\n  and PCs <em>apply</em> them, but the editor (<code>gpmc.msc</code>) is a Windows tool. Install\n  RSAT on one Windows 11 Pro PC joined to the domain and edit from there.\n  Macs do not read GPO at all.</li>\n<li><strong>One DC.</strong> A second DC (another old PC) is possible with\n  <code>samba-tool domain join ... DC</code> and is the proper answer to \"what if the\n  server is off\"; not in scope until there is a second box.</li>\n<li><strong>Samba's AD is one major version behind Microsoft's</strong> on a few features\n  (no Windows Server 2025 functional level). Nothing the church uses needs\n  them.</li>\n</ul>",
+"html": "<h1 id=\"the-directory-arise-server-as-the-churchs-active-directory\">The directory — Arise Server as the church's Active Directory</h1>\n<p>The server runs <strong>Samba as an Active Directory Domain Controller</strong>. That is\nnot \"like\" Active Directory; it is the same protocol set Microsoft ships, so\nMacs, Windows PCs and the Synology all join it the normal way and treat it as\nAD. One account per person, one password, every device.</p>\n<h2 id=\"what-you-get\">What you get</h2>\n<table>\n<thead>\n<tr>\n<th>Piece</th>\n<th>What it does for the church</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Kerberos</strong></td>\n<td>Single sign-on. Log in once at the Mac; shares and the NAS open without a second password.</td>\n</tr>\n<tr>\n<td><strong>LDAP</strong></td>\n<td>The user and group database. The dashboard, <code>arisectl</code>, the NAS and the Macs all read from it.</td>\n</tr>\n<tr>\n<td><strong>DNS</strong></td>\n<td>The DC runs its own DNS for the realm. Every joined device finds the DC through it. This is the part that most often goes wrong, see below.</td>\n</tr>\n<tr>\n<td><strong>Group Policy (GPO)</strong></td>\n<td>Rules pushed to Windows PCs (wallpaper, drive maps, password rules). Macs ignore GPO; they get settings from the bind options instead.</td>\n</tr>\n<tr>\n<td><strong>Home shares</strong></td>\n<td>Each user has <code>\\\\arise-server\\homes\\&amp;lt;user&gt;</code> (or the same folder on the Synology once it is joined).</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"active-directory-and-what-makes-this-one-better\">Active Directory, and what makes this one better</h2>\n<p>First the honest part. This <strong>is</strong> Active Directory: Samba 4 implements the\nsame Kerberos, LDAP, DNS and SMB that a Windows Server domain controller\ndoes. A Mac binds to it with Apple's own Directory Utility. A Windows 10 or 11\nPro PC joins it from the System dialog. The Synology joins it as an AD member.\nGroup Policy objects can be stored and applied to Windows PCs. One account,\none password, every device, and when someone leaves one click disables them\neverywhere.</p>\n<p>What a Windows Server domain does not give a church of this size, and this\ndoes:</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Windows Server AD</th>\n<th>Arise Server</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Where people see their files when they are not at church</td>\n<td>nowhere without extra products</td>\n<td>the <strong>dashboard</strong>: any member signs in from anywhere, browses their own home and the shares they belong to, uploads, downloads, shares a file with a link, changes their password</td>\n</tr>\n<tr>\n<td>Creating a person</td>\n<td>Active Directory Users and Computers on a Windows PC</td>\n<td>three ways: the Directory app in the dashboard, the same desktop on the closet monitor, <code>arisectl user add</code> over SSH</td>\n</tr>\n<tr>\n<td>Reaching it from Alexandria or the Hub</td>\n<td>a site-to-site VPN appliance</td>\n<td>Tailscale (or WireGuard) built in; the server is the same name from every campus</td>\n</tr>\n<tr>\n<td>Backups of the domain itself</td>\n<td>a separate backup product</td>\n<td>restic nightly at 03:00, plus a weekly <code>samba-tool domain backup offline</code></td>\n</tr>\n<tr>\n<td>Where the Macs' work ends up</td>\n<td>nowhere unless you buy into folder redirection scripts</td>\n<td>the server home share at login and a fifteen-minute sync (docs/MAC-MIGRATION.md)</td>\n</tr>\n<tr>\n<td>Which computer sits at which campus</td>\n<td>not a concept</td>\n<td>the Campuses app</td>\n</tr>\n<tr>\n<td>Cost</td>\n<td>a Windows Server licence plus CALs per person</td>\n<td>the old OptiPlex</td>\n</tr>\n</tbody>\n</table>\n<p>What it does <strong>not</strong> do, so nobody expects it later: no Microsoft Entra ID\n(Azure AD) sync, no Microsoft 365 accounts, no Intune or any other MDM (device\nmanagement, pushing settings and apps to Macs). If the church ever wants MDM,\nthe free option to look at is a self-hosted <strong>MicroMDM</strong> or <strong>NanoMDM</strong>; both\nare an idea only, nothing here depends on them. Group Policy editing still\nneeds the RSAT tools on one Windows PC. See the full list at the end of this\ndocument.</p>\n<h2 id=\"creating-people-three-ways\">Creating people, three ways</h2>\n<p>All three end in the same <code>samba-tool user create</code> and the same home folder;\npick whichever is in front of you.</p>\n<p><strong>1. The dashboard, from anywhere</strong> (<code>http://arise-server:4147</code>, or over the\nVPN): Directory → Users → <strong>Add</strong>. Username (<code>first.last</code>, lower case:\n<code>jane.smith</code>; answer 23), full name, a first password, groups. The row shows green\nwhen the home folder exists. Members can then change their own password under\nflame menu → Change Password.</p>\n<p><strong>2. The desktop on the closet monitor</strong>: it is the same dashboard, full\nscreen, so it is the same Directory app. Spotlight (⌘Space, or Ctrl+Space on\nthe Windows keyboard) → type <code>directory</code> → Enter → Users → Add.</p>\n<p><strong>3. SSH, from any Mac or PC</strong>:</p>\n<pre><code class=\"language-bash\">ssh bradly.dyer@arise-server\nsudo arisectl user add jane.smith --display &quot;Jane Smith&quot; --groups Staff,Media\n#   prompts for the first password; add --password P to give it on the line\nsudo arisectl user passwd jane.smith      # change it later\nsudo arisectl group addmember Leadership jane.smith\nsudo arisectl user list\n</code></pre>\n<p>A church Mac with people already on it does not need any of this:\n<code>mac/enroll-mac.sh</code> creates every local account's twin in the directory for\nyou, as <code>first.last</code>, with <code>--map oldname=first.last</code> where the Mac's name\ndiffers (docs/MAC-MIGRATION.md, \"The automatic way\").</p>\n<h2 id=\"the-names-and-why-not-local\">The names, and why not <code>.local</code></h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Realm (Kerberos / DNS)</td>\n<td><code>AD.ARISECENLA.COM</code></td>\n</tr>\n<tr>\n<td>NetBIOS (short) name</td>\n<td><code>ARISE</code></td>\n</tr>\n<tr>\n<td>Domain controller</td>\n<td><code>arise-server.ad.arisecenla.com</code></td>\n</tr>\n</tbody>\n</table>\n<p>The realm is a <strong>subdomain of the domain the church already owns</strong>\n(<code>arisecenla.church</code>). That is Microsoft's and Samba's recommended practice: it\nnever collides with a public name, and the public website at\n<code>arisecenla.church</code> keeps resolving normally because the DC only answers for\n<code>ad.arisecenla.com</code>.</p>\n<p>Do <strong>not</strong> use <code>arise.local</code>. macOS reserves the <code>.local</code> suffix for Bonjour\n(mDNS). A Mac asked to find a <code>.local</code> domain controller tries multicast first,\nwaits, and the bind either times out or works one day and not the next. This is\nthe single most common reason Mac–AD binding fails, and renaming a realm after\nthe fact means rebuilding the domain.</p>\n<h2 id=\"dns-on-the-church-network-read-this-before-anything-else\">DNS on the church network — read this before anything else</h2>\n<p>AD does not work unless every device asks the <strong>domain controller</strong> for the\nchurch domain's names. Devices find the DC by looking up SRV records\n(<code>_ldap._tcp.ad.arisecenla.com</code>, <code>_kerberos._tcp...</code>) that only the DC's\nDNS holds.</p>\n<p><strong>Bradly's rule (Oct 28): no router, switch or Mesh setting changes, at\nall.</strong> So the routers keep handing out whatever DNS they hand out today, and\nthe church domain is wired in on each device instead:</p>\n<ol>\n<li>The server has a <strong>static address</strong> set in netplan on the server itself\n   (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Looking at that\n   range on the router page is allowed; changing anything there is not.</li>\n<li>Every church Mac gets a <strong>per-domain resolver file</strong>,\n   <code>/etc/resolver/ad.arisecenla.com</code>, holding <code>nameserver &amp;lt;server ip&gt;</code>.\n   <code>mac/bind-mac.sh --dns &amp;lt;server ip&gt;</code> writes it (and <code>enroll-mac.sh --dns</code>\n   passes it through). macOS then asks the server only for names ending in\n   <code>ad.arisecenla.com</code> and keeps the router's DNS for everything else, so\n   the internet keeps working even when the server is off.</li>\n<li>Any device on <strong>Tailscale</strong> gets the same thing from the tailnet's split\n   DNS rule (docs/REMOTE-ACCESS.md step 5), wherever it is. The two do not\n   conflict.</li>\n<li>The server still <strong>forwards</strong> anything it is asked that is not the church\n   domain to <code>1.1.1.1</code> (<code>dns_forwarder</code> in <code>arise.toml</code>), for its own sake.</li>\n</ol>\n<p>Check from any Mac on the network:</p>\n<pre><code class=\"language-bash\">dig +short arise-server.ad.arisecenla.com\ndig +short _ldap._tcp.ad.arisecenla.com SRV\n</code></pre>\n<p>Both must print an answer. <code>dig</code> ignores <code>/etc/resolver</code>, so on a Mac that\nuses the resolver file test with <code>dscacheutil -q host -a name\narise-server.ad.arisecenla.com</code> instead. Empty output means the Mac is not\nasking the DC; nothing below will work until that is fixed.</p>\n<p>If the server is ever off, the Macs lose only the church domain's names; the\ninternet keeps working because the router's DNS is untouched. That is the\none advantage of this layout over the usual \"router hands out the DC\" setup.</p>\n<h2 id=\"organisational-units-and-groups-the-proposal\">Organisational units and groups — the proposal</h2>\n<p>Keep it small. A church of this size does not need a tree of OUs.</p>\n<pre><code>DC=ad,DC=arisecenla,DC=com\n├── OU=People\n│   ├── OU=Staff\n│   └── OU=Volunteers\n├── OU=Computers\n│   ├── OU=Macs\n│   └── OU=PCs\n└── OU=Groups\n</code></pre>\n<p>Groups (security groups, created by <code>install.sh</code>) and the share each one\nopens (answers 25, 27 and 37):</p>\n<table>\n<thead>\n<tr>\n<th>Group</th>\n<th>Who</th>\n<th>What it unlocks</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>Domain Admins</code></td>\n<td>Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly</td>\n<td>everything in the dashboard; also the account that binds Macs. SSH is Bradly's only</td>\n</tr>\n<tr>\n<td><code>Staff</code></td>\n<td>paid staff and pastors</td>\n<td>the <code>staff</code> share, their own home share</td>\n</tr>\n<tr>\n<td><code>Leadership</code></td>\n<td>the senior pastors and whoever they name</td>\n<td>the <code>leadership</code> share</td>\n</tr>\n<tr>\n<td><code>Media</code></td>\n<td>Bradly and the media team; the shared <code>media</code> login on the media Mac</td>\n<td>the <code>media</code>, <code>graphics</code> and <code>recordings</code> shares, the StreamYard and Proclaim Macs</td>\n</tr>\n<tr>\n<td><code>Childrens-Department</code></td>\n<td>the Children's Department login</td>\n<td>the <code>childrens-department</code> share, and <code>kids</code></td>\n</tr>\n<tr>\n<td><code>Inedge</code></td>\n<td>the Inedge login</td>\n<td>the <code>inedge</code> share</td>\n</tr>\n<tr>\n<td><code>Worship</code></td>\n<td>the worship / music login</td>\n<td>the <code>worship</code> share</td>\n</tr>\n<tr>\n<td><code>Volunteers</code></td>\n<td>nobody today: volunteers use a department login (answer 24)</td>\n<td>kept for the day that changes</td>\n</tr>\n<tr>\n<td><code>Kids-Check-in</code></td>\n<td>nobody today: there is no check-in station yet (answer 28)</td>\n<td>the check-in machine login, later</td>\n</tr>\n</tbody>\n</table>\n<p>Other departments get the same shape when their names come. Bradly's rule\nsince round 4 (104): <strong>everyone has their own account</strong>; a department is a\n<em>group</em> with its own share folder (and, when the mail server comes, its own\naddress), and being in the group is what opens it. The shared department\nlogins in the table above are the sample data's shape from round 1 and are\nnot needed. Round 4 (99) also adds a <strong>staff tier</strong> in the dashboard: anyone\nin <code>Staff</code> or <code>Media</code> sees Photos, Notes and, later, the transcripts and the\ncalendar's edit buttons; that tier is the next block, not yet in the code. Nine shares in all today: <code>staff</code>, <code>leadership</code>,\n<code>media</code>, <code>kids</code>, <code>graphics</code>, <code>childrens-department</code>, <code>inedge</code>, <code>worship</code>,\n<code>recordings</code>. <code>recordings</code> is on the Synology, holds every Sunday's video\n(answer 51), and is excluded from restic because a file of several GB a\nweek would swallow the backup history; the Synology's RAID is its\nprotection until there is an off-site copy. The examples below use a\nmade-up person on purpose.</p>\n<h2 id=\"password-policy\">Password policy</h2>\n<p>Samba's defaults after <code>samba-tool domain provision</code>:</p>\n<table>\n<thead>\n<tr>\n<th>Setting</th>\n<th>Default</th>\n<th></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Minimum length</td>\n<td>7</td>\n<td>fine</td>\n</tr>\n<tr>\n<td>Complexity</td>\n<td>on</td>\n<td>upper + lower + digit or symbol</td>\n</tr>\n<tr>\n<td>Maximum age</td>\n<td>42 days</td>\n<td><strong>too short for a church</strong> — people forget, Bradly gets the call</td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>off</td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>Bradly's choice (answer 26, then round 3, 27): never expires, 12 characters\nminimum, <strong>no lockout</strong>. The settings the installer's step 5b applies:</p>\n<pre><code class=\"language-bash\">samba-tool domain passwordsettings set --max-pwd-age=0        # never expires\nsamba-tool domain passwordsettings set --min-pwd-length=12\nsamba-tool domain passwordsettings set --complexity=on\nsamba-tool domain passwordsettings set --account-lockout-threshold=0   # none (round 3, 27)\n</code></pre>\n<p>The dashboard shows these rules in words, with a strength meter, when\nsomeone changes their password (<code>GET /api/me/password/rules</code>). Two-step\nsign-in is optional per person on top (docs/SECURITY.md).</p>\n<p>See the current policy any time with <code>samba-tool domain passwordsettings show</code>.</p>\n<h2 id=\"adding-people\">Adding people</h2>\n<p><strong>From the CLI</strong>, on the server (or over SSH):</p>\n<pre><code class=\"language-bash\">sudo arisectl user add jane.smith --display &quot;Jane Smith&quot; --groups Staff,Media\nsudo arisectl user passwd jane.smith   # prompts; the person can also change it in the dashboard\nsudo arisectl group addmember Leadership jane.smith\nsudo arisectl user list\n</code></pre>\n<p>Under the hood that is <code>samba-tool user create</code>, <code>samba-tool group addmembers</code>\nand a <code>mkdir</code> + <code>chown</code> of <code>/srv/arise/homes/jane.smith</code> (or the NAS home when\n<code>homes_path</code> points there).</p>\n<p><strong>From the dashboard</strong>: Directory → Users → <strong>Add</strong>. Same fields, same result,\nand the row shows green once the home folder exists.</p>\n<p><strong>Removing</strong> someone is Bradly's click, twice: the dashboard asks for the\nusername typed back before <code>samba-tool user delete</code> runs, and it never deletes\nthe home folder. Disable instead of delete when someone leaves; their files\nstay readable to Domain Admins.</p>\n<h2 id=\"first-passwords-resets-and-profiles-round-5\">First passwords, resets and profiles (round 5)</h2>\n<p>Staff and volunteers use their Macs, not the dashboard, so everything here works\nfrom a Mac's login window too.</p>\n<ul>\n<li><strong>A first password is temporary</strong> (round 5, 5). Directory → New user and\n  Password, <code>arisectl user add/passwd</code>, and the people list all set it with\n  <code>--must-change-at-next-login</code>: AD's own flag (pwdLastSet = 0). A Mac's login\n  window asks for a new password at the next login; so does the dashboard's\n  sign-in (and the lock screen), which hands the change to <code>kinit</code> as that\n  person, so the domain's rules apply exactly as on the Mac. The Directory list\n  shows \"new password due\" until it is done. Untick \"Temporary\" for the rare\n  password that should stay (<code>arisectl user passwd --permanent</code>).</li>\n<li><strong>\"Forgot your password?\"</strong> (round 5, 6) on the sign-in screen, and the page\n  <code>http://arise-server:4147/reset</code> on its own (it needs no desktop): a link to\n  the personal email on the person's profile, sent through Resend from\n  <code>[mail] from_email</code> (an address at mail.arisecenla.com, round 5, 3). The link\n  works once, for 30 minutes; only its sha256 is kept\n  (<code>/var/lib/arise/password-resets.json</code>, 0600). The page never says whether an\n  account exists, and it allows three requests an hour per account. Every\n  request and every reset is in the audit log. Admins can still reset. The link\n  opens wherever the person can reach the server: inside the church, or over\n  Tailscale.</li>\n<li><strong>Profiles</strong> (round 5, 7 to 10): title, departments, personal email, mobile\n  and birthday (month and day only), kept in <code>/var/lib/arise/profiles.json</code>\n  (0640). The domain keeps what it enforces (account, password, groups, the\n  must-change flag); the dashboard's file keeps the rest, because AD has no\n  birthday or \"personal email\" in this sense and each write would be an\n  ldbmodify against the domain's database for data only the dashboard reads.\n  The title goes before the name everywhere people see it (\"Apostle Bryant\n  Sanders\"; the greeting says \"Apostle Bryant\"). Everyone edits their own phone,\n  personal email and birthday (flame menu → My Profile); admins edit everything\n  (Directory → Profile). Staff and admins see the details; members never do,\n  which the server enforces (<code>/api/people</code>).</li>\n<li><strong>Settings follow the account</strong> (round 5, 11): theme, sounds, Dock, text size\n  and the accessibility switches are saved with the profile, so the monitor, a\n  Mac and a phone look the same. The browser keeps a copy for when the server\n  cannot be reached.</li>\n<li><strong>Your own sign-ins</strong> (round 5, 22): My Profile lists the last ten, with the\n  device and address, failed tries included.</li>\n<li><strong>The day-one people list</strong> (round 5, 8): <code>sudo arisectl directory import\n  people.csv</code> checks every row and changes nothing; <code>--apply</code> creates them. The\n  guided setup has the same (<code>POST /api/directory/import</code>). Columns: <code>first, last,\n  title, departments, personal_email, mobile, birthday, role</code> (role: admin, staff\n  or member; departments separated by <code>;</code>). User names are made as first.last\n  (accents dropped); duplicates, existing accounts and bad names are refused per\n  row. The temporary passwords are printed once, on that screen, and kept\n  nowhere else.</li>\n<li><strong>A leaver's mail</strong> (round 5, 38): the 30-day sweep exports their Maildir as\n  an mbox file into the \"From &lt;name&gt;\" folder of whoever takes their files,\n  before anything else happens to the mailbox. There is no internal mail server\n  yet; the sweep says so.</li>\n</ul>\n<p>The realm and the mail domain are read from <code>arise.toml</code> (<code>[directory] realm</code>,\n<code>[mail] domain</code>, which defaults to the realm in lower case) wherever they are\nshown or written: the sign-in screen, the reset page and email, the import.</p>\n<h2 id=\"joining-a-windows-pc\">Joining a Windows PC</h2>\n<p>Bradly (round 4, 26): \"add windows pc capabilities just in case we get them\nat a location\". The two Windows PCs the church has become the ariseOS nodes\n(docs/NODES.md), so today this is still reference. The decided shape (67)\nis a join script from the dashboard that joins, maps the shares as drives\nand trusts the church certificate, nothing else; not yet built. Windows 10/11\n<strong>Pro</strong> or better (Home edition cannot join a domain):</p>\n<ol>\n<li>Make sure the PC's DNS is the server (it will be, from DHCP).</li>\n<li>Settings → System → About → <strong>Domain or workgroup</strong> → Change → Domain:\n   <code>ad.arisecenla.com</code>.</li>\n<li>Credentials: <code>ARISE\\administrator</code> (or Bradly's Domain Admin account).</li>\n<li>Reboot. Log in as <code>ARISE\\jane.smith</code>.</li>\n</ol>\n<p>Macs: see <code>docs/MAC-MIGRATION.md</code>. The Synology: <code>docs/SYNOLOGY.md</code>.</p>\n<h2 id=\"backing-up-the-domain-controller\">Backing up the domain controller</h2>\n<p>The <code>config</code> job in <code>backups.yaml</code> already covers the three things that <em>are</em>\nthe domain:</p>\n<pre><code>/etc/samba/smb.conf\n/var/lib/samba/private      # sam.ldb and the rest of the directory database\n/etc/arise\n</code></pre>\n<p>restic snapshots them nightly at 03:00. Also take a logical export now and then\n(it is small and human-readable):</p>\n<pre><code class=\"language-bash\">samba-tool domain backup offline --targetdir=/srv/arise/backups/dc-offline\n</code></pre>\n<p><code>install.sh</code> adds that to a weekly timer. Those tarballs are inside the\n<code>shares</code>/<code>backups</code> paths restic already snapshots.</p>\n<h2 id=\"recovering\">Recovering</h2>\n<p><strong>The server died, the disk is gone.</strong> Reinstall Ubuntu + Arise Server with\n<code>install.sh --skip-domain</code>, mount the Synology, restore the <code>config</code> job\n(<code>arisectl backup restore latest --tag config --target /</code>, see docs/BACKUPS.md), and it\nrestores <code>/var/lib/samba/private</code> and <code>/etc/samba</code> before starting\n<code>samba-ad-dc</code>. Same hostname, same IP, same realm; every joined device carries\non as if nothing happened (Kerberos tickets are good for 10 hours, so fix it\nthe same day). Alternatively use the offline tarball:</p>\n<pre><code class=\"language-bash\">samba-tool domain backup restore --backup-file=&amp;lt;tar&gt; --newservername=arise-server --targetdir=/var/lib/samba\n</code></pre>\n<p><strong>A single user's password is lost.</strong> <code>arisectl user passwd &amp;lt;name&gt;</code>.</p>\n<p><strong>The DC is fine but a Mac says \"unable to contact domain\".</strong> It is DNS. Run\nthe two <code>dig</code> lines above on that Mac.</p>\n<h2 id=\"what-this-does-not-do\">What this does not do</h2>\n<p>Honest list, so nobody expects it later:</p>\n<ul>\n<li><strong>No Microsoft Entra ID (Azure AD) sync.</strong> Accounts here do not become\n  Microsoft 365 accounts. If the church ever needs that, Entra Connect wants a\n  Windows Server; Samba is not supported as a source.</li>\n<li><strong>No Exchange, no email.</strong> Mail stays where it is (Google).</li>\n<li><strong>Group Policy editing needs RSAT on a Windows PC.</strong> The DC <em>stores</em> GPOs\n  and PCs <em>apply</em> them, but the editor (<code>gpmc.msc</code>) is a Windows tool. Install\n  RSAT on one Windows 11 Pro PC joined to the domain and edit from there.\n  Macs do not read GPO at all.</li>\n<li><strong>One DC.</strong> A second DC (another old PC) is possible with\n  <code>samba-tool domain join ... DC</code> and is the proper answer to \"what if the\n  server is off\"; not in scope until there is a second box.</li>\n<li><strong>Samba's AD is one major version behind Microsoft's</strong> on a few features\n  (no Windows Server 2025 functional level). Nothing the church uses needs\n  them.</li>\n</ul>",
 "demo": true
 },
 "GET /help/DISCORD": {

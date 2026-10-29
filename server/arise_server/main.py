@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import VERSION, CODENAME, apps, automator, backups, bible, channel, church, songs, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
+from . import VERSION, CODENAME, apps, automator, backups, bible, channel, church, profiles, songs, devices, directory, files, mail, metrics, nas, push, remote, routers, security, sermons, services, shares, sites, system, twofa
 from . import activity, automations, monitor, storage, updates
 from . import auth as _auth
 from . import links
@@ -111,7 +111,7 @@ class Login(BaseModel):
 
 
 @app.post("/api/auth/login")
-def api_login(body: Login, response: Response):
+def api_login(body: Login, response: Response, request: Request):
     c = load()
     if not c.demo and not c.web.admin_password_hash:
         raise HTTPException(401, {"setup": True, "message": "No admin password yet. On the server run: sudo arisectl admin set-password"})
@@ -126,12 +126,17 @@ def api_login(body: Login, response: Response):
             audit.record(body.user[:64], "auth.login", ok=False, detail="wrong user or password")
             raise HTTPException(401, {"message": "Wrong user or password"})
     tok, who = got
+    if who.get("expired"):
+        # A temporary password (round 5, 5): right, but the domain asks for their own first. The page asks for
+        # a new one and posts old + new to /api/auth/login/new-password; nothing is held on the server meanwhile.
+        audit.record(who["user"], "auth.login", ok=False, ip=_ip(request), detail="temporary password: a new one is needed")
+        return {"ok": True, "need_new_password": True, "user": who["user"], "rules": directory.password_rules().get("words", [])}
     if tok and not c.demo and twofa.enrolled(who["user"]):
         # Two-step is on for this person: the session token waits behind a code (five minutes, three tries).
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
-    audit.record(who["user"], "auth.login", detail=who.get("via", ""))
+    audit.record(who["user"], "auth.login", ip=_ip(request), detail=f"{who.get('via', '')} · {profiles.device_of(request.headers.get('user-agent', ''))}")
     if not c.demo and who.get("via") != "demo":
         files.ensure_home(who["user"])   # Documents, Photos, Videos, Music, Downloads from the first sign-in
     return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
@@ -183,6 +188,117 @@ def api_logout(response: Response):
     return {"ok": True}
 
 
+def _ip(request: Request) -> str:
+    return request.client.host if request.client else ""
+
+
+class NewPassword(BaseModel):
+    user: str
+    old: str
+    new: str
+
+
+@app.post("/api/auth/login/new-password")
+def api_login_new_password(body: NewPassword, response: Response, request: Request):
+    """The temporary password is replaced by their own, then the sign-in carries on (two-step if it is on).
+    The same change a Mac's login window asks for; the domain's rules apply."""
+    c = load()
+    user = (body.user or "").strip().lower()
+    r = directory.change_expired(user, body.old, body.new)
+    if not r.get("ok"):
+        time.sleep(0.5)
+        audit.record(user[:64], "auth.login.newpassword", ok=False, ip=_ip(request), detail=r.get("err", "")[:120])
+        return {"ok": False, "err": r.get("err", "the domain refused that password"), "rules": directory.password_rules().get("words", [])}
+    got = login(user, body.new)
+    if not got or not got[0]:
+        return {"ok": False, "err": "The new password is set; sign in with it"}
+    tok, who = got
+    audit.record(user, "auth.login.newpassword", ip=_ip(request), detail=f"temporary password replaced · {profiles.device_of(request.headers.get('user-agent', ''))}")
+    if not c.demo and twofa.enrolled(user):
+        return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, user), "user": user}
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    if not c.demo:
+        files.ensure_home(user)
+    return {"ok": True, "user": user, "role": who["role"], "demo": c.demo}
+
+
+class Forgot(BaseModel):
+    user: str
+
+
+def _base_url(request: Request) -> str:
+    pub = (load().web.get("public_url") or "").strip()
+    return pub or str(request.base_url).rstrip("/")
+
+
+@app.post("/api/auth/forgot")
+def api_forgot(body: Forgot, request: Request):
+    """A reset link to the personal email on file (round 5, 6). The answer never says whether the account exists."""
+    return profiles.forgot(body.user, _base_url(request), _ip(request))
+
+
+@app.get("/api/auth/reset/check")
+def api_reset_check(t: str = ""):
+    return profiles.check_reset(t)
+
+
+class Reset(BaseModel):
+    token: str
+    new: str
+
+
+@app.post("/api/auth/reset")
+def api_reset(body: Reset, request: Request):
+    return profiles.finish_reset(body.token, body.new, _ip(request))
+
+
+# ----- profiles, settings that follow the account, sign-ins (round 5) ----------------
+class ProfileEdit(BaseModel):
+    personal_email: str | None = None
+    mobile: str | None = None
+    birthday: str | None = None
+    title: str | None = None
+    departments: list[str] | None = None
+
+
+@app.get("/api/me/profile")
+def api_me_profile(who=auth):
+    return profiles.profile(who["user"], who)
+
+
+@app.put("/api/me/profile")
+def api_me_profile_edit(body: ProfileEdit, who=auth):
+    return profiles.update(who["user"], body.model_dump(exclude_none=True), who)
+
+
+@app.get("/api/me/signins")
+def api_me_signins(who=auth):
+    return profiles.signins(who["user"])
+
+
+@app.get("/api/me/prefs")
+def api_me_prefs(who=auth):
+    return profiles.prefs(who["user"])
+
+
+class Prefs(BaseModel):
+    prefs: dict
+
+
+@app.put("/api/me/prefs")
+def api_me_prefs_save(body: Prefs, who=auth):
+    return profiles.save_prefs(who["user"], body.prefs)
+
+
+@app.get("/api/people")
+def api_people(who=auth):
+    """Staff and admins only (round 5, 10); members get a refusal, from here, not from the page."""
+    r = profiles.people(who)
+    if not r.get("ok"):
+        raise HTTPException(403, {"message": r["err"]})
+    return r
+
+
 @app.get("/api/auth/me")
 def api_me(request: Request):
     try:
@@ -193,6 +309,10 @@ def api_me(request: Request):
     who["roots"] = files.roots(who)
     who["links_days"] = load().links.days
     who["claude"] = who["user"] in church.claude_users()  # Claude on the box is Bradly's (round 4, 44)
+    if who["user"] != "demo":   # the title and the full name (round 5, 7): faces, the greeting, mail
+        p = profiles.profile(who["user"], who)
+        who.update(display=p.get("display", who["user"]), name=p.get("name", who["user"]), title=p.get("title", ""),
+                   greeting=profiles.greeting_name(who["user"], p.get("display", "")), staff=profiles.is_staff(who))
     return who
 
 
@@ -473,10 +593,13 @@ class NewUser(BaseModel):
     password: str
     display: str = ""
     groups: list[str] = []
+    title: str = ""
+    temporary: bool = True     # round 5, 5: they choose their own at the first login, on a Mac or here
 
 
 class Password(BaseModel):
     password: str
+    temporary: bool = True
 
 
 class Confirm(BaseModel):
@@ -499,17 +622,50 @@ def dir_status(_=admin):
 
 @app.get("/api/directory/users")
 def dir_users(_=admin):
-    return directory.list_users()
+    r = directory.list_users()
+    profiles.decorate(r.get("users", []))
+    return r
 
 
 @app.post("/api/directory/users")
-def dir_user_add(body: NewUser, _=admin):
-    return directory.add_user(body.name, body.password, body.display, body.groups)
+def dir_user_add(body: NewUser, who=admin):
+    if body.title:
+        _good, errs = profiles.clean({"title": body.title}, ("title",))
+        if errs:
+            return {"ok": False, "err": "; ".join(errs)}
+    r = directory.add_user(body.name, body.password, body.display, body.groups, temporary=body.temporary)
+    if (r.get("ok") or r.get("created")) and body.title:
+        profiles.update(body.name, {"title": body.title}, who)
+    if r.get("ok") or r.get("created"):
+        r["must_change"] = body.temporary
+    return r
 
 
 @app.post("/api/directory/users/{name}/reset-password")
-def dir_user_pw(name: str, body: Password, _=admin):
-    return directory.set_password(name, body.password)
+def dir_user_pw(name: str, body: Password, who=admin):
+    return profiles.admin_reset(name, body.password, body.temporary, who["user"])
+
+
+@app.get("/api/directory/users/{name}/profile")
+def dir_user_profile(name: str, who=admin):
+    return profiles.profile(name, who)
+
+
+@app.put("/api/directory/users/{name}/profile")
+def dir_user_profile_edit(name: str, body: ProfileEdit, who=admin):
+    return profiles.update(name, body.model_dump(exclude_none=True), who)
+
+
+class PeopleImport(BaseModel):
+    csv: str
+    apply: bool = False
+
+
+@app.post("/api/directory/import")
+def dir_import(body: PeopleImport, who=admin):
+    """The day-one people list (round 5, 8): checked first; with apply, the accounts are made with
+    temporary passwords, which come back in this answer only (never logged, never kept)."""
+    return profiles.import_people(body.csv, body.apply, who["user"])
 
 
 @app.post("/api/directory/users/{name}/enable")
@@ -1246,6 +1402,15 @@ def api_kiosk_open(body: OpenUrl, request: Request, who=auth):
     return church.open_on_kiosk(body.url)
 
 
+@app.get("/api/public/sign-in")
+def api_public_sign_in():
+    """No login: what the sign-in screen and the reset page say about this box, read from the config
+    (the realm and mail domain are never written into a page by hand), and the password rules in words."""
+    c = load()
+    return {"church": c.church.name, "host": c.system.hostname, "realm": c.directory.realm.upper(),
+            "mail_domain": profiles.mail_domain(), "rules": directory.password_rules().get("words", []), "demo": c.demo}
+
+
 @app.get("/api/public/signage")
 def api_signage():
     """No login: the lobby screen's feed (service times, the next one, the verse, the latest titles)."""
@@ -1675,6 +1840,15 @@ def api_leaving_start(name: str, body: Leaving, who=admin):
 def api_leaving_cancel(name: str, who=admin):
     return offboard.cancel(name, who["user"])
 
+
+
+# ----- the reset page: on its own, no desktop (staff use their Macs, Oct 28) ------
+@app.get("/reset", include_in_schema=False)
+def reset_page():
+    p = cfg.web_dir / "reset.html"
+    if not p.is_file():
+        raise HTTPException(404, {"message": "Not found"})
+    return FileResponse(p, media_type="text/html", headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
 
 
 # ----- the dashboard -----------------------------------------------------------

@@ -40,6 +40,21 @@ CALLS = {
     ("POST", "/api/demo/reset"): ("/api/demo/reset", None, None),
     ("POST", "/api/auth/login"): ("/api/auth/login", {"user": "office", "password": "anything"}, None),
     ("POST", "/api/auth/login/code"): ("/api/auth/login/code", {"pending": "x", "code": "123456"}, None),
+    # round 5: the first-login password, the reset link, profiles, settings that follow the account
+    ("POST", "/api/auth/login/new-password"): ("/api/auth/login/new-password", {"user": "office", "old": "x", "new": "Own-Pass-7777!"}, None),
+    ("POST", "/api/auth/forgot"): ("/api/auth/forgot", {"user": "office"}, None),
+    ("GET", "/api/auth/reset/check"): ("/api/auth/reset/check", None, {"t": "not-a-token"}),
+    ("POST", "/api/auth/reset"): ("/api/auth/reset", {"token": "not-a-token", "new": "Own-Pass-7777!"}, None),
+    ("GET", "/api/public/sign-in"): ("/api/public/sign-in", None, None),
+    ("GET", "/api/me/profile"): ("/api/me/profile", None, None),
+    ("PUT", "/api/me/profile"): ("/api/me/profile", {"mobile": "318-555-0100"}, None),
+    ("GET", "/api/me/signins"): ("/api/me/signins", None, None),
+    ("GET", "/api/me/prefs"): ("/api/me/prefs", None, None),
+    ("PUT", "/api/me/prefs"): ("/api/me/prefs", {"prefs": {"theme": "bone"}}, None),
+    ("GET", "/api/people"): ("/api/people", None, None),
+    ("GET", "/api/directory/users/{name}/profile"): ("/api/directory/users/office/profile", None, None),
+    ("PUT", "/api/directory/users/{name}/profile"): ("/api/directory/users/office/profile", {"title": "Minister"}, None),
+    ("POST", "/api/directory/import"): ("/api/directory/import", {"csv": "first,last\nJane,Doe\n", "apply": False}, None),
     ("POST", "/api/auth/reauth"): ("/api/auth/reauth", {"password": "anything"}, None),
     ("POST", "/api/auth/logout"): ("/api/auth/logout", None, None),
     ("GET", "/api/auth/me"): ("/api/auth/me", None, None),
@@ -377,7 +392,8 @@ class Flows(unittest.TestCase):
 
     def test_user_create_disable_enable_password_delete(self):
         c = self.c
-        r = c.post("/api/directory/users", json={"name": "jane.doe", "password": "password123", "display": "Jane Doe", "groups": ["Staff"]}).json()
+        # temporary: False is the plain flow; a temporary first password (the default, round 5) is tests/test_profiles.py's
+        r = c.post("/api/directory/users", json={"name": "jane.doe", "password": "password123", "display": "Jane Doe", "groups": ["Staff"], "temporary": False}).json()
         self.assertTrue(r["ok"], r)
         u = self.users()["jane.doe"]
         self.assertTrue(u["enabled"]); self.assertEqual(u["display"], "Jane Doe"); self.assertIn("Staff", u["groups"])
@@ -395,7 +411,7 @@ class Flows(unittest.TestCase):
         self.assertTrue(c.post("/api/directory/users/jane.doe/enable").json()["ok"])
         self.assertTrue(self.users()["jane.doe"]["enabled"])
         # a new password works, the old one does not
-        self.assertTrue(c.post("/api/directory/users/jane.doe/reset-password", json={"password": "another-pass"}).json()["ok"])
+        self.assertTrue(c.post("/api/directory/users/jane.doe/reset-password", json={"password": "another-pass", "temporary": False}).json()["ok"])
         self.assertEqual(TestClient(app).post("/api/auth/login", json={"user": "jane.doe", "password": "password123"}).status_code, 401)
         self.assertEqual(TestClient(app).post("/api/auth/login", json={"user": "jane.doe", "password": "another-pass"}).status_code, 200)
         # she changes her own password from the flame menu

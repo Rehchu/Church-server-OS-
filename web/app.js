@@ -272,10 +272,10 @@ V.directory = async () => {
     <div class="tabs" id="dirTabs"><button class="active" data-t="users">Users</button><button data-t="groups">Groups</button><button data-t="shares">Shares</button><button data-t="computers">Computers</button></div>
     <div data-tab="shares" hidden>${sharesHtml(sh.shares || [])}</div>
     <div data-tab="users">
-      <div class="toolbar"><input class="search" placeholder="Find a user" id="uq"><span class="spacer"></span><button class="btn btn--sm" id="addUser">+ New user</button></div>
+      <div class="toolbar"><input class="search" placeholder="Find a user" id="uq"><span class="spacer"></span><button class="btn btn--ghost btn--sm" id="importPeople">Import a people list</button><button class="btn btn--sm" id="addUser">+ New user</button></div>
       <div class="panel panel--flat tbl-wrap"><table class="tbl" id="uTable"><thead><tr><th>User</th><th>Name</th><th>Groups</th><th>Last login</th><th>Home</th><th></th></tr></thead><tbody>
-      ${users.map(u => `<tr data-q="${esc((u.name + ' ' + u.display).toLowerCase())}"><td><b>${esc(u.name)}</b> ${u.enabled ? '' : '<span class="pill warn">disabled</span>'}${twofaOn.has(u.name) ? ' <span class="pill info" title="Two-step sign-in is on">two-step</span>' : ''}</td><td>${esc(u.display)}</td><td>${(u.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td class="dim">${u.last_logon ? fmtT(u.last_logon) : 'never'}</td><td class="mono dim" style="font-size:12px">${esc(u.home || '')}</td>
-        <td class="acts"><button class="btn btn--ghost btn--xs" data-pw="${esc(u.name)}">Password</button><button class="btn btn--ghost btn--xs" data-tog="${esc(u.name)}" data-en="${u.enabled ? 0 : 1}">${u.enabled ? 'Disable' : 'Enable'}</button><button class="btn btn--danger btn--xs" data-del="${esc(u.name)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No users yet</td></tr>'}
+      ${users.map(u => `<tr data-q="${esc((u.name + ' ' + u.display).toLowerCase())}"><td><b>${esc(u.name)}</b> ${u.enabled ? '' : '<span class="pill warn">disabled</span>'}${twofaOn.has(u.name) ? ' <span class="pill info" title="Two-step sign-in is on">two-step</span>' : ''}${u.must_change ? ' <span class="pill warn" title="A temporary password: they choose their own at the next login">new password due</span>' : ''}</td><td>${esc(u.full_name || u.display)}</td><td>${(u.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td class="dim">${u.last_logon ? fmtT(u.last_logon) : 'never'}</td><td class="mono dim" style="font-size:12px">${esc(u.home || '')}</td>
+        <td class="acts"><button class="btn btn--ghost btn--xs" data-prof="${esc(u.name)}">Profile</button><button class="btn btn--ghost btn--xs" data-pw="${esc(u.name)}">Password</button><button class="btn btn--ghost btn--xs" data-tog="${esc(u.name)}" data-en="${u.enabled ? 0 : 1}">${u.enabled ? 'Disable' : 'Enable'}</button><button class="btn btn--danger btn--xs" data-del="${esc(u.name)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No users yet</td></tr>'}
       </tbody></table></div>
     </div>
     <div data-tab="groups" hidden>
@@ -295,19 +295,20 @@ V.directory.after = root => {
   sharesAfter(root, 'directory');
   $('#uq').oninput = e => { const q = e.target.value.toLowerCase(); $$('#uTable tbody tr').forEach(tr => tr.hidden = q && !(tr.dataset.q || '').includes(q)); };
   $('#addUser').onclick = () => modal(`<h2>New user</h2>
-    <div class="field"><label>Full name</label><input id="nuDisp" placeholder="Shown on the Mac login" autocomplete="off"></div>
+    <div class="row" style="gap:10px;align-items:flex-start"><div class="field" style="flex:0 0 130px"><label>Title</label><input id="nuTitle" placeholder="Pastor" autocomplete="off"><span class="hint">Apostle, Pastor, Minister… or blank.</span></div>
+    <div class="field" style="flex:1"><label>Full name</label><input id="nuDisp" placeholder="Shown on the Mac login" autocomplete="off"></div></div>
     <div class="field"><label>User name</label><input id="nuName" placeholder="first.last" autocomplete="off" autocapitalize="none" spellcheck="false"><span class="hint">first.last, lowercase. This is what they type on the Mac and here.</span></div>
-    <div class="field"><label>Password</label><input id="nuPw" type="password" autocomplete="new-password"><span class="hint">8+ characters. They can change it after the first sign-in.</span></div>
+    <div class="field"><label>Password</label><input id="nuPw" type="password" autocomplete="new-password"><label class="chk" style="margin-top:8px"><input type="checkbox" id="nuTemp" checked> Temporary: they choose their own at their first login, on their Mac or here</label></div>
     <div class="field"><label>Groups</label><div class="checks" id="nuGroups">${(S.dirGroups || []).map(g => `<label><input type="checkbox" value="${esc(g)}"> ${esc(g)}</label>`).join('')}</div><span class="hint">The groups decide which shares they see. Domain Admins makes them an administrator.</span></div>
     <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nuGo">Create</button></div>`, m => {
     const disp = $('#nuDisp', m), nm = $('#nuName', m);
     disp.oninput = () => { if (nm.dataset.typed) return; nm.value = disp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 .-]/g, '').trim().split(/\s+/).filter(Boolean).join('.'); };
     nm.oninput = () => { nm.dataset.typed = '1'; };
-    $('#nuGo', m).onclick = async e => { const r = await act(e.target, () => api('/directory/users', { method: 'POST', body: { name: nm.value.trim(), display: disp.value.trim(), password: $('#nuPw', m).value, groups: $$('#nuGroups input:checked', m).map(c => c.value) } }), 'User created'); if (r && r.ok !== false) { m.close(); rerender('directory'); } };
+    $('#nuGo', m).onclick = async e => { const r = await act(e.target, () => api('/directory/users', { method: 'POST', body: { name: nm.value.trim(), display: disp.value.trim(), title: $('#nuTitle', m).value.trim(), temporary: $('#nuTemp', m).checked, password: $('#nuPw', m).value, groups: $$('#nuGroups input:checked', m).map(c => c.value) } }), 'User created'); if (r && r.ok !== false) { m.close(); rerender('directory'); } };
     disp.focus();
   });
   $$('[data-rmm]', root).forEach(b => b.onclick = () => confirmType(`Take ${b.dataset.u} out of ${b.dataset.rmm}`, b.dataset.u, `They lose what the <b>${esc(b.dataset.rmm)}</b> group gives: its shares, and the administrator's rights if it is Domain Admins. Their account and files stay.`, async () => { const r = await api(`/directory/groups/${encodeURIComponent(b.dataset.rmm)}/members/${encodeURIComponent(b.dataset.u)}`, { method: 'DELETE' }); if (r.ok === false) throw new Error(r.err); toast(`${b.dataset.u} is out of ${b.dataset.rmm}`); rerender('directory'); }));
-  $$('[data-pw]').forEach(b => b.onclick = () => modal(`<h2>Reset password</h2><p class="note" style="margin-bottom:14px">For <b>${esc(b.dataset.pw)}</b>. Their Mac asks for the new one at next login; the cached mobile account updates then.</p><div class="field"><label>New password</label><input id="rpPw" type="password"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="rpGo">Set</button></div>`, m => { $('#rpGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(b.dataset.pw)}/reset-password`, { method: 'POST', body: { password: $('#rpPw', m).value } }), 'Password set'); if (r && r.ok !== false) m.close(); }; }));
+  $$('[data-pw]').forEach(b => b.onclick = () => modal(`<h2>Reset password</h2><p class="note" style="margin-bottom:14px">For <b>${esc(b.dataset.pw)}</b>. Their Mac asks for the new one at next login; the cached mobile account updates then. They can also reset it themselves: "Forgot your password?" sends a link to the personal email on their profile.</p><div class="field"><label>New password</label><input id="rpPw" type="password"><label class="chk" style="margin-top:8px"><input type="checkbox" id="rpTemp" checked> Temporary: they choose their own at the next login</label></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="rpGo">Set</button></div>`, m => { $('#rpGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(b.dataset.pw)}/reset-password`, { method: 'POST', body: { password: $('#rpPw', m).value, temporary: $('#rpTemp', m).checked } }), 'Password set'); if (r && r.ok !== false) m.close(); }; }));
   $$('[data-tog]').forEach(b => b.onclick = async () => { const r = await act(b, () => api(`/directory/users/${encodeURIComponent(b.dataset.tog)}/${b.dataset.en === '1' ? 'enable' : 'disable'}`, { method: 'POST' }), b.dataset.en === '1' ? 'Enabled' : 'Disabled'); if (r && r.ok !== false) rerender('directory'); });
   $$('[data-del]').forEach(b => b.onclick = () => confirmType('Delete user', b.dataset.del, `This removes the account from the domain. <b>The home folder stays on disk</b> - nothing in it is deleted. Deleting is your click, not the server's.`, async () => { const r = await withReauth(() => api(`/directory/users/${encodeURIComponent(b.dataset.del)}`, { method: 'DELETE', body: { confirm: b.dataset.del } })); if (r.ok === false) throw new Error(r.err); toast('User deleted'); rerender('directory'); }));
   $('#addGroup').onclick = () => modal(`<h2>New group</h2><div class="field"><label>Name</label><input id="ngName" placeholder="Praise-Team"></div><div class="field"><label>Description</label><input id="ngDesc"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="ngGo">Create</button></div>`, m => { $('#ngGo', m).onclick = async e => { const r = await act(e.target, () => api('/directory/groups', { method: 'POST', body: { name: $('#ngName', m).value.trim(), description: $('#ngDesc', m).value.trim() } }), 'Group created'); if (r && r.ok !== false) { m.close(); rerender('directory'); } }; });
@@ -1618,7 +1619,7 @@ function greet() {
   if (S.kiosk || !S.user) return;
   try { if (sessionStorage.getItem('arise.greeted') === S.user) return; sessionStorage.setItem('arise.greeted', S.user); } catch {}
   const h = new Date().getHours(); const part = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; const ref = S.church?.verse?.ref;
-  toast(`Good ${part}, ${firstName() || 'there'}.${ref ? ' Today: ' + ref + '.' : ''}`, 'ok', 3000);
+  toast(`Good ${part}, ${S.me?.greeting || firstName() || 'there'}.${ref ? ' Today: ' + ref + '.' : ''}`, 'ok', 3000);
 }
 async function whatsNewToast() {
   try { const w = await api('/about/whatsnew'); if (!w.version) return; const seen = PREF.get('seen', ''); if (seen !== w.version) { PREF.set('seen', w.version); if (seen) { toast(`ariseOS is now v${w.version} “${w.codename}”. What's new is in About.`, 'ok', 9000); tone('done'); } } } catch {}
@@ -2016,8 +2017,8 @@ function menuItems(id) {
   const view = [['Refresh', () => id && rerender(id), '⌘R'], null, ['Show Widgets', () => toggleNC(true)], ['Control Center', () => toggleCC(true)], ['Spotlight', () => toggleSpot(true), '⌘Space']];
   return [[a ? a.name : 'ariseOS', a ? [['About ' + a.name, () => toast(a.what)], null, ['Hide ' + a.name, () => minApp(id), '⌘H'], ['Quit ' + a.name, () => closeApp(id), '⌘Q']] : [['About This Server', () => openApp('about')]]], ['File', file], ['View', view], ['Window', win], ['Help', help]];
 }
-const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], ...(S.demoOnly ? [null, { h: 'Preview' }, ...previewMenu().slice(2)] : [])]
-  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Security', () => openApp('security')], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ...POWER_MENU(), ...(S.demoOnly ? [null, { h: 'Preview' }, ...previewMenu().slice(2)] : [])];
+const FLAME_MENU = () => isMember() ? [['About This Server', () => openApp('about')], null, ['My Profile…', () => profileSheet()], ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Shared Links…', () => linksModal()], ['Launchpad', () => toggleLaunchpad(true)], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], ...(S.demoOnly ? [null, { h: 'Preview' }, ...previewMenu().slice(2)] : [])]
+  : [['About This Server', () => openApp('about')], null, ['System Settings…', () => openApp('settings')], ['My Profile…', () => profileSheet()], ['Change Password…', () => changePassword()], ['Two-step sign-in…', () => twofaModal()], ['Security', () => openApp('security')], ['Launchpad', () => toggleLaunchpad(true)], null, ['Run backups now', () => runAllBackups()], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started: a dry run, nothing written'))], null, ['Lock Screen', () => lockScreen(), '⌃⌘Q'], ['Sign Out ' + (S.user || ''), () => signOut()], null, ...POWER_MENU(), ...(S.demoOnly ? [null, { h: 'Preview' }, ...previewMenu().slice(2)] : [])];
 function setAppMenus(id) {
   const m = $('#menus'); const list = menuItems(id);
   m.innerHTML = list.map((g, i) => `<button class="${i === 0 ? 'app' : ''}" data-m="${i}">${esc(g[0])}</button>`).join('');
@@ -2290,6 +2291,7 @@ $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw
     return;
   }
   try { const r = await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } });
+    if (r && r.need_new_password) { showLogin({ newpw: true, user: r.user || S.user, old: pw, rules: r.rules }); return; }   // an admin's reset since they locked
     if (r && r.need_code) { S.lockPending = r.pending; pwBox.type = 'text'; pwBox.inputMode = 'numeric'; pwBox.autocomplete = 'one-time-code'; pwBox.placeholder = '6 digits from Authenticator'; pwBox.focus(); return; }
     $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
 function lockReset() { S.lockPending = null; const b = $('#lockPw'); b.type = 'password'; b.inputMode = ''; b.autocomplete = 'current-password'; b.placeholder = 'Password'; }
@@ -2301,15 +2303,18 @@ function showLogin(err) {
   stopDesktop();
   const remembered = (() => { try { return localStorage.getItem('arise.user') || ''; } catch { return ''; } })();
   const codeStep = !!(err && err.code);
+  if (err && (err.newpw || err.forgot || err.reset)) return loginStep(err);   // round 5: profiles block below
   document.body.innerHTML = `<div class="login"><div class="login__box">
     <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
     ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>`
     : codeStep ? `<p>Two-step sign-in is on for <b>${esc(err.user || remembered)}</b>. Open <b>Microsoft Authenticator</b> and type the six digits it shows for ariseOS.</p>
     <form id="lf" class="lock__form"><input id="lc" inputmode="numeric" pattern="[0-9 ]*" placeholder="6 digits" autocomplete="one-time-code" maxlength="7" style="width:160px;text-align:center;letter-spacing:.3em"><button type="submit" aria-label="Continue">→</button></form><button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`
     : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
-    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form>`}
+    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form><button class="btn btn--ghost btn--xs" id="lforgot" style="margin-top:12px">Forgot your password?</button>`}
     ${S.demoOnly && window.AriseMock ? `<p class="login__preview">Preview: sign in as ${window.AriseMock.sampleNames().slice(0, 4).map(u => `<b>${esc(u.name)}</b> (${u.role})`).join(', ')} with any password, or as someone you added, with theirs.</p>` : ''}
-    <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px">arise-server · AD.ARISECENLA.COM</div></div></div>`;
+    <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px" id="loginRealm">arise-server</div></div></div>`;
+  api('/public/sign-in').then(si => { const el = $('#loginRealm'); if (el && si.realm) el.textContent = `${si.host || 'arise-server'} · ${si.realm}`; }).catch(() => {});
+  const lfg = $('#lforgot'); if (lfg) lfg.onclick = () => showLogin({ forgot: true, user: ($('#lu')?.value || remembered).trim() });
   api('/public/signage').then(sg => { const n = sg.next; const el = $('#loginNext'); if (el) el.textContent = `${sg.name || 'Arise Church'} · ${(sg.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }).catch(() => {});
   const f = $('#lf'); if (!f) return;
   const fail = msg => { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').appendChild(t); } t.textContent = msg; };
@@ -2324,7 +2329,9 @@ function showLogin(err) {
   $('#lp').focus();
   f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
     try { const user = $('#lu').value; try { localStorage.setItem('arise.user', user); } catch {}
-      const r = await api('/auth/login', { method: 'POST', body: { user, password: $('#lp').value } });
+      const pw = $('#lp').value;
+      const r = await api('/auth/login', { method: 'POST', body: { user, password: pw } });
+      if (r && r.need_new_password) { showLogin({ newpw: true, user: r.user || user, old: pw, rules: r.rules }); return; }
       if (r && r.need_code) { showLogin({ code: true, pending: r.pending, user: r.user || user }); return; }
       location.reload(); }
     catch (er) { fail(er.message); }
@@ -2397,6 +2404,7 @@ async function boot() {
     const me = await api('/auth/me');
     if (me.error) { if (me.error.setup) return showLogin({ setup: true }); return showLogin(me.error); }
     S.authed = true; S.user = me.user || 'bradly'; S.role = me.role || 'admin'; S.me = me;
+    await prefsPull();   // settings that follow the account (round 5, 11)
     applyTheme();
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && !S.demoOnly) navigator.serviceWorker.register('/sw.js').catch(() => {});
     if (!S.kiosk && !me.demo) setTimeout(() => walkthrough(false), 1200);
@@ -2464,5 +2472,115 @@ boot();
   }
 }
 
-window.arise = { api, cleanDesc, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
+
+/* ---- profiles (round 5): the first-login password, "Forgot your password?", the profile,
+   settings that follow the account, the day-one people list ---- */
+// Settings that follow the account (round 5, 11): the same localStorage keys, kept on the server too.
+const SYNC_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text))$/;
+let _prefsT = null, _prefsLive = false;
+const _prefSet = PREF.set;
+PREF.set = (k, v) => { _prefSet(k, v); if (_prefsLive && SYNC_RE.test(k)) { clearTimeout(_prefsT); _prefsT = setTimeout(prefsPush, 800); } };
+function localPrefs() { const out = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('arise.') && SYNC_RE.test(k.slice(6))) out[k.slice(6)] = localStorage.getItem(k); } } catch {} return out; }
+async function prefsPush() { if (!S.authed) return; try { await api('/me/prefs', { method: 'PUT', body: { prefs: localPrefs() } }); } catch {} }   // offline: localStorage still has them
+async function prefsPull() {
+  try {
+    const r = await api('/me/prefs'); const srv = r.prefs || {};
+    if (!Object.keys(srv).length) { _prefsLive = true; if (Object.keys(localPrefs()).length) prefsPush(); return; }   // the first device sets them
+    for (const [k, v] of Object.entries(srv)) if (SYNC_RE.test(k)) _prefSet(k, v);
+    _prefsLive = true;
+    try { applyA11y(); applyDockHide(); buildDock(); } catch {}
+  } catch { _prefsLive = true; }
+}
+
+// The sign-in's extra steps: a temporary password replaced, a reset asked for, a reset finished.
+function loginStep(st) {
+  stopDesktop();
+  const box = inner => { document.body.innerHTML = `<div class="login"><div class="login__box"><div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>${inner}<div class="lock__hint" id="loginRealm" style="margin-top:14px">arise-server</div></div></div>`;
+    api('/public/sign-in').then(si => { const el = $('#loginRealm'); if (el && si.realm) el.textContent = `${si.host} · ${si.realm}`; }).catch(() => {}); };
+  const fail = (msg, rules) => { let t = $('.login .toast'); if (!t) { t = document.createElement('div'); t.className = 'toast bad'; t.style.marginTop = '12px'; $('.login__box').insertBefore(t, $('#loginRealm')); } t.innerHTML = esc(msg) + ((rules || []).length ? `<ul class="login__rules">${rules.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''); };
+  const rulesHtml = r => (r || []).length ? `<ul class="login__rules">${r.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : '';
+  if (st.newpw) {
+    box(`<p>Welcome, <b>${esc(st.user)}</b>. That was a temporary password: choose your own now. It is the one for your Mac and everything else at church.</p>${rulesHtml(st.rules)}
+      <form id="lf" class="login__stack"><input id="ln1" type="password" placeholder="New password" autocomplete="new-password"><input id="ln2" type="password" placeholder="The same again" autocomplete="new-password"><button class="btn" type="submit">Set it and sign in</button></form>
+      <button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`);
+    $('#ln1').focus(); $('#lback').onclick = () => showLogin(null);
+    $('#lf').onsubmit = async e => { e.preventDefault(); if ($('#ln1').value !== $('#ln2').value) return fail('The two passwords are not the same.');
+      const b = $('#lf button'); b.classList.add('busy');
+      try { const r = await api('/auth/login/new-password', { method: 'POST', body: { user: st.user, old: st.old, new: $('#ln1').value } });
+        if (r.ok === false) return fail(r.err, r.rules);
+        if (r.need_code) return showLogin({ code: true, pending: r.pending, user: r.user });
+        location.reload(); }
+      catch (er) { fail(er.message); } finally { b.classList.remove('busy'); } };
+    return;
+  }
+  if (st.forgot) {
+    box(`<p>Type your user name (first.last). If your profile has a personal email, a link to choose a new password goes there. It works for 30 minutes.</p>
+      <form id="lf" class="lock__form"><input id="lfu" value="${esc(st.user || '')}" placeholder="first.last" autocomplete="username" autocapitalize="none" spellcheck="false" style="width:200px"><button type="submit" aria-label="Send">→</button></form><div id="lfOut"></div>
+      <button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Back to sign-in</button>`);
+    $('#lfu').focus(); $('#lback').onclick = () => showLogin(null);
+    $('#lf').onsubmit = async e => { e.preventDefault(); const b = $('#lf button'); b.classList.add('busy');
+      try { const r = await api('/auth/forgot', { method: 'POST', body: { user: $('#lfu').value.trim() } });
+        $('#lfOut').innerHTML = `<p class="login__ok">${esc(r.message || '')}</p>` + (r.sample_link ? `<p class="login__preview">Sample: there is no mail here. The email would carry this link. <button class="btn btn--xs" id="lfOpen">Open it</button></p>` : '');
+        const o = $('#lfOpen'); if (o) o.onclick = () => showLogin({ reset: r.sample_link.split('t=')[1] }); }
+      catch (er) { fail(er.message); } finally { b.classList.remove('busy'); } };
+    return;
+  }
+  if (st.reset) {   // on the box people open /reset; here for the preview, which has only this page
+    box(`<p>Checking the link…</p>`);
+    api('/auth/reset/check?t=' + encodeURIComponent(st.reset)).then(async c => {
+      if (!c.ok) { box(`<p>${esc(c.err)}</p><button class="btn btn--ghost btn--xs" id="lback">Back to sign-in</button>`); $('#lback').onclick = () => showLogin(null); return; }
+      const si = await api('/public/sign-in').catch(() => ({}));
+      box(`<p>A new password for <b>${esc(c.name)}</b>.</p>${rulesHtml(si.rules)}<form id="lf" class="login__stack"><input id="ln1" type="password" placeholder="New password" autocomplete="new-password"><input id="ln2" type="password" placeholder="The same again" autocomplete="new-password"><button class="btn" type="submit">Set my password</button></form>`);
+      $('#ln1').focus();
+      $('#lf').onsubmit = async e => { e.preventDefault(); if ($('#ln1').value !== $('#ln2').value) return fail('The two passwords are not the same.');
+        const r = await api('/auth/reset', { method: 'POST', body: { token: st.reset, new: $('#ln1').value } }).catch(er => ({ ok: false, err: er.message }));
+        if (r.ok === false) return fail(r.err, r.rules);
+        box(`<p class="login__ok">${esc(r.message)}</p><button class="btn btn--xs" id="lback">Sign in</button>`); $('#lback').onclick = () => showLogin(null); };
+    });
+  }
+}
+
+// My Profile (round 5, 9 to 11, 22): the details, and the last ten sign-ins.
+async function profileSheet(user) {
+  const self = !user || user === S.user;
+  const [p, si] = await Promise.all([api(self ? '/me/profile' : `/directory/users/${encodeURIComponent(user)}/profile`), self ? api('/me/signins').catch(() => ({ signins: [] })) : Promise.resolve(null)]);
+  if (p.ok === false) return toast(p.err, 'bad');
+  const can = new Set(p.can_edit || []);
+  const fld = (k, label, ph, hint) => `<div class="field"><label>${label}</label><input id="pf_${k}" value="${esc(p[k] || '')}" placeholder="${esc(ph)}" ${can.has(k) ? '' : 'disabled'} autocomplete="off">${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+  modal(`<h2>${esc(p.name)}</h2><p class="muted mono" style="font-size:12px">${esc(p.user)} · ${esc(p.mail)}</p>
+    <div class="row" style="gap:10px;align-items:flex-start">${fld('title', 'Title', 'Pastor', can.has('title') ? 'Shown before the name: faces, Directory, mail, the greeting.' : 'Set by an administrator.')}
+    <div class="field" style="flex:1"><label>Departments</label><input id="pf_departments" value="${esc((p.departments || []).join(', '))}" placeholder="Media, Worship" ${can.has('departments') ? '' : 'disabled'}></div></div>
+    ${fld('personal_email', 'Personal email', 'name@gmail.com', 'Church mail forwards here, and "Forgot your password?" sends its link here.')}
+    <div class="row" style="gap:10px;align-items:flex-start">${fld('mobile', 'Mobile phone', '318-555-0100', '')}${fld('birthday', 'Birthday', 'March 14', 'Month and day only, for the Monday weekly.')}</div>
+    <p class="note">Staff and administrators see these details; members never do.</p>
+    ${si ? `<h3 style="margin:16px 0 6px">Your last sign-ins</h3><div class="tbl-wrap"><table class="tbl" id="pfSignins"><tbody>${(si.signins || []).map(x => `<tr><td class="dim">${fmtT(x.t)}</td><td>${esc(x.how || '')}</td><td class="mono dim" style="font-size:12px">${esc(x.ip || '')}</td><td>${x.ok === false ? '<span class="pill warn">not signed in</span>' : ''}</td></tr>`).join('') || '<tr><td class="dim">None recorded yet</td></tr>'}</tbody></table></div><p class="note">One that was not you? Change your password and tell Bradly.</p>` : ''}
+    <div class="acts"><button class="btn btn--ghost" data-close>Close</button>${can.size ? '<button class="btn" id="pfSave">Save</button>' : ''}</div>`, m => {
+    const sv = $('#pfSave', m); if (!sv) return;
+    sv.onclick = async e => { const body = {};
+      for (const k of ['title', 'personal_email', 'mobile', 'birthday']) if (can.has(k)) body[k] = $('#pf_' + k, m).value.trim();
+      if (can.has('departments')) body.departments = $('#pf_departments', m).value.split(',').map(x => x.trim()).filter(Boolean);
+      const r = await act(e.target, () => api(self ? '/me/profile' : `/directory/users/${encodeURIComponent(user)}/profile`, { method: 'PUT', body }), 'Profile saved');
+      if (r && r.ok !== false) { m.close(); if (!self && S.wins?.directory) rerender('directory'); } };
+  });
+}
+
+// The Directory's Profile buttons and the day-one people list (round 5, 8).
+function profilesWire(root) {
+  $$('[data-prof]', root).forEach(b => b.onclick = () => profileSheet(b.dataset.prof));
+  const imp = $('#importPeople', root); if (!imp) return;
+  imp.onclick = () => modal(`<h2>Import a people list</h2><p class="note">A CSV with these columns, the first line naming them: <code>first, last, title, departments, personal_email, mobile, birthday, role</code> (role: admin, staff or member; departments separated by ; ). Every account gets a temporary password; each person chooses their own at their first login, on their Mac or here.</p>
+    <div class="field"><label>The list</label><textarea id="ipCsv" rows="7" spellcheck="false" placeholder="first,last,title,departments,personal_email,mobile,birthday,role&#10;Bryant,Sanders,Apostle,Leadership,,,,admin"></textarea><label class="btn btn--ghost btn--xs" for="ipFile" style="margin-top:8px">Choose a CSV file</label><input type="file" id="ipFile" accept=".csv,text/csv" hidden></div>
+    <div id="ipOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn btn--ghost" id="ipCheck">Check</button><button class="btn" id="ipGo" disabled>Create the accounts</button></div>`, m => {
+    const out = $('#ipOut', m), go = $('#ipGo', m);
+    $('#ipFile', m).onchange = async e => { const f = e.target.files[0]; if (f) $('#ipCsv', m).value = await f.text(); };
+    const paint = r => { out.innerHTML = `<div class="tbl-wrap" style="max-height:40vh"><table class="tbl" id="ipRows"><thead><tr><th>Line</th><th>User</th><th>Name</th><th>Groups</th><th>Result</th>${r.apply ? '<th>Temporary password</th>' : ''}</tr></thead><tbody>${r.rows.map(x => `<tr><td class="dim">${x.line}</td><td class="mono">${esc(x.user)}</td><td>${esc((x.title ? x.title + ' ' : '') + x.display)}</td><td>${(x.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td>${x.ok ? `<span class="pill ok">${x.created ? 'created' : 'ready'}</span>` : `<span class="pill bad">refused</span> ${esc(x.err)}`}${(x.warnings || []).map(w => `<br><small class="muted">${esc(w)}</small>`).join('')}</td>${r.apply ? `<td class="mono">${esc(x.temporary_password || '')}</td>` : ''}</tr>`).join('')}</tbody></table></div>
+      <p class="note">${r.apply ? `${r.created} created. The temporary passwords are shown here once and are not kept anywhere: print this window or copy them before you close it.` : `${r.rows.filter(x => x.ok).length} ready, ${r.refused} refused. Mail addresses are first.last@${esc(r.mail_domain)}.`}</p>${r.apply ? '<button class="btn btn--ghost btn--xs" id="ipPrint">Print</button>' : ''}`;
+      const pr = $('#ipPrint', m); if (pr) pr.onclick = () => window.print(); };
+    $('#ipCheck', m).onclick = async e => { const r = await act(e.target, () => api('/directory/import', { method: 'POST', body: { csv: $('#ipCsv', m).value, apply: false } })); if (!r) return; paint(r); go.disabled = !r.rows.some(x => x.ok); };
+    go.onclick = async e => { const r = await act(e.target, () => api('/directory/import', { method: 'POST', body: { csv: $('#ipCsv', m).value, apply: true } }), 'Accounts created'); if (!r) return; paint(r); go.disabled = true; $('#ipCheck', m).disabled = true; m.addEventListener('close', () => rerender('directory'), { once: true }); };
+  });
+}
+{ const _dirAfterR5 = V.directory.after; V.directory.after = root => { _dirAfterR5(root); profilesWire(root); }; }
+
+window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();

@@ -778,3 +778,10 @@ mark{background:rgba(214,34,45,.28);color:var(--text);padding:0 2px}
 .sgtext:focus{border-color:var(--red);outline:none}
 .sgres{max-height:50vh;overflow:auto;margin-bottom:12px} .sgres__r{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px}
 .sgres__r .pill{flex:0 0 74px;justify-content:center}
+
+/* ---- profiles (round 5): the sign-in's extra steps ---- */
+.login__stack{display:grid;gap:8px;margin-top:12px}
+.login__stack input{background:var(--scrim);border:1px solid var(--line);color:var(--text);padding:11px 12px;font:300 15px Oswald,sans-serif}
+.login__stack input:focus{border-color:var(--red);outline:none}
+.login__rules{margin:8px 0 0 18px;padding:0;font-size:12.5px;color:var(--text2);text-align:left}
+.login__ok{margin-top:12px;padding:10px 12px;border-left:3px solid var(--ok);background:var(--panel2);font-size:14px;line-height:1.5;text-align:left}

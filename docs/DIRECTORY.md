@@ -234,6 +234,63 @@ username typed back before `samba-tool user delete` runs, and it never deletes
 the home folder. Disable instead of delete when someone leaves; their files
 stay readable to Domain Admins.
 
+## First passwords, resets and profiles (round 5)
+
+Staff and volunteers use their Macs, not the dashboard, so everything here works
+from a Mac's login window too.
+
+- **A first password is temporary** (round 5, 5). Directory → New user and
+  Password, `arisectl user add/passwd`, and the people list all set it with
+  `--must-change-at-next-login`: AD's own flag (pwdLastSet = 0). A Mac's login
+  window asks for a new password at the next login; so does the dashboard's
+  sign-in (and the lock screen), which hands the change to `kinit` as that
+  person, so the domain's rules apply exactly as on the Mac. The Directory list
+  shows "new password due" until it is done. Untick "Temporary" for the rare
+  password that should stay (`arisectl user passwd --permanent`).
+- **"Forgot your password?"** (round 5, 6) on the sign-in screen, and the page
+  `http://arise-server:4147/reset` on its own (it needs no desktop): a link to
+  the personal email on the person's profile, sent through Resend from
+  `[mail] from_email` (an address at mail.arisecenla.com, round 5, 3). The link
+  works once, for 30 minutes; only its sha256 is kept
+  (`/var/lib/arise/password-resets.json`, 0600). The page never says whether an
+  account exists, and it allows three requests an hour per account. Every
+  request and every reset is in the audit log. Admins can still reset. The link
+  opens wherever the person can reach the server: inside the church, or over
+  Tailscale.
+- **Profiles** (round 5, 7 to 10): title, departments, personal email, mobile
+  and birthday (month and day only), kept in `/var/lib/arise/profiles.json`
+  (0640). The domain keeps what it enforces (account, password, groups, the
+  must-change flag); the dashboard's file keeps the rest, because AD has no
+  birthday or "personal email" in this sense and each write would be an
+  ldbmodify against the domain's database for data only the dashboard reads.
+  The title goes before the name everywhere people see it ("Apostle Bryant
+  Sanders"; the greeting says "Apostle Bryant"). Everyone edits their own phone,
+  personal email and birthday (flame menu → My Profile); admins edit everything
+  (Directory → Profile). Staff and admins see the details; members never do,
+  which the server enforces (`/api/people`).
+- **Settings follow the account** (round 5, 11): theme, sounds, Dock, text size
+  and the accessibility switches are saved with the profile, so the monitor, a
+  Mac and a phone look the same. The browser keeps a copy for when the server
+  cannot be reached.
+- **Your own sign-ins** (round 5, 22): My Profile lists the last ten, with the
+  device and address, failed tries included.
+- **The day-one people list** (round 5, 8): `sudo arisectl directory import
+  people.csv` checks every row and changes nothing; `--apply` creates them. The
+  guided setup has the same (`POST /api/directory/import`). Columns: `first, last,
+  title, departments, personal_email, mobile, birthday, role` (role: admin, staff
+  or member; departments separated by `;`). User names are made as first.last
+  (accents dropped); duplicates, existing accounts and bad names are refused per
+  row. The temporary passwords are printed once, on that screen, and kept
+  nowhere else.
+- **A leaver's mail** (round 5, 38): the 30-day sweep exports their Maildir as
+  an mbox file into the "From <name>" folder of whoever takes their files,
+  before anything else happens to the mailbox. There is no internal mail server
+  yet; the sweep says so.
+
+The realm and the mail domain are read from `arise.toml` (`[directory] realm`,
+`[mail] domain`, which defaults to the realm in lower case) wherever they are
+shown or written: the sign-in screen, the reset page and email, the import.
+
 ## Joining a Windows PC
 
 Bradly (round 4, 26): "add windows pc capabilities just in case we get them

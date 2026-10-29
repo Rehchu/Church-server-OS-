@@ -123,7 +123,8 @@ def list_users() -> dict:
     if not available():
         if not load().demo:
             return {"demo": False, "users": [], "error": _no_domain()["err"]}
-        return {"demo": True, "users": _users()}
+        mc = demo_state.get("dir.mustchange", set())
+        return {"demo": True, "users": [dict(u, must_change=u["name"].lower() in mc) for u in _users()]}
     r = run(["samba-tool", "user", "list"], timeout=20)
     if not r["ok"]:
         return {"demo": False, "users": [], "error": _failed(r, "could not list the users")["err"]}
@@ -153,6 +154,8 @@ def parse_user_show(name: str, text: str, hostname: str = "arise-server") -> dic
                 d["groups"].append(m.group(1))
         elif k == "homeDirectory" and v:
             d["home"] = v
+        elif k == "pwdLastSet":
+            d["must_change"] = v == "0"   # 0 = "must change at next logon"
     return d
 
 
@@ -164,7 +167,9 @@ def _user_detail(name: str) -> dict:
     return d
 
 
-def add_user(name: str, password: str, display: str = "", groups: list[str] | None = None) -> dict:
+def add_user(name: str, password: str, display: str = "", groups: list[str] | None = None, temporary: bool = False) -> dict:
+    """temporary: the password is a first one; AD makes them choose their own at the next login,
+    on a Mac's login window or here (round 5, 5: pwdLastSet = 0)."""
     name = (name or "").strip()
     if not _ok_name(name):
         return {"ok": False, "err": "name: letters, digits, dot, dash, underscore; 2-64 chars; starts with a letter (first.last)"}
@@ -187,10 +192,14 @@ def add_user(name: str, password: str, display: str = "", groups: list[str] | No
             row = {"name": name, "display": (display or "").strip() or name, "groups": [], "enabled": True, "last_logon": None, "home": f"\\\\{host}\\homes\\{name}"}
             _users().append(row)
             demo_state.get("dir.passwords", {})[name.lower()] = password
+            if temporary:
+                demo_state.get("dir.mustchange", set()).add(name.lower())
             for g in groups:
                 _add_member_demo(_g(g), row)
         return {"ok": True, "demo": True, "out": f"(sample) created {name}", "user": row}
     cmd = ["samba-tool", "user", "create", name, password, "--home-directory", f"\\\\{load().system.hostname}\\homes\\{name}", "--home-drive", "H:"]
+    if temporary:
+        cmd.append("--must-change-at-next-login")
     if display:
         parts = display.strip().split(" ")
         cmd += ["--given-name", parts[0]]
@@ -223,7 +232,8 @@ def _mkhome(name: str):
         pass
 
 
-def set_password(name: str, password: str) -> dict:
+def set_password(name: str, password: str, temporary: bool = False) -> dict:
+    """temporary: an admin's reset; they choose their own at the next login (Mac or here)."""
     if not _ok_name(name):
         return {"ok": False, "err": "bad name"}
     if len(password or "") < 8:
@@ -234,9 +244,11 @@ def set_password(name: str, password: str) -> dict:
         if not _u(name):
             return {"ok": False, "err": f"no such user: {name}"}
         demo_state.get("dir.passwords", {})[name.lower()] = password
-        return {"ok": True, "demo": True, "out": f"(sample) new password for {name}"}
-    r = run(["samba-tool", "user", "setpassword", name, f"--newpassword={password}"], timeout=30)
-    return {"ok": True, "out": f"new password set for {name}"} if r["ok"] else _failed(r, f"could not set {name}'s password", password)
+        mc = demo_state.get("dir.mustchange", set())
+        (mc.add if temporary else mc.discard)(name.lower())
+        return {"ok": True, "demo": True, "out": f"(sample) new password for {name}", "must_change": bool(temporary)}
+    r = run(["samba-tool", "user", "setpassword", name, f"--newpassword={password}"] + (["--must-change-at-next-login"] if temporary else []), timeout=30)
+    return {"ok": True, "out": f"new password set for {name}", "must_change": bool(temporary)} if r["ok"] else _failed(r, f"could not set {name}'s password", password)
 
 
 def enable_user(name: str, enabled: bool) -> dict:
@@ -435,6 +447,72 @@ def authenticate(name: str, password: str) -> bool:
         except (subprocess.TimeoutExpired, OSError):
             return False
     return False
+
+
+# ---- "must change at next logon": the sign-in tells a wrong password from an expired one ----
+EXPIRED_RE = re.compile(r"(?i)password (has )?expired|key has expired|must change (it|your password)|password change required")
+
+
+def classify_kinit(code: int, text: str) -> str:
+    """Pure: kinit's answer -> 'ok' | 'expired' | 'bad'. An expired password was the right one:
+    the KDC only says so after the password checked out."""
+    if code == 0:
+        return "ok"
+    return "expired" if EXPIRED_RE.search(text or "") else "bad"
+
+
+def check_login(name: str, password: str) -> str:
+    """'ok', 'expired' (right password, but AD says choose a new one first) or 'bad'."""
+    if not _ok_name(name) or not password:
+        return "bad"
+    if not available():
+        if not load().demo:
+            return "bad"
+        if not authenticate(name, password):
+            return "bad"
+        return "expired" if name.lower() in demo_state.get("dir.mustchange", set()) else "ok"
+    if not which("kinit"):
+        return "ok" if authenticate(name, password) else "bad"
+    realm = load().directory.realm.upper()
+    try:
+        p = subprocess.run(["kinit", f"{name}@{realm}"], input=password + "\n", capture_output=True, text=True, timeout=15,
+                           env=dict(os.environ, KRB5CCNAME="MEMORY:arise-check"))
+    except (subprocess.TimeoutExpired, OSError):
+        return "bad"
+    return classify_kinit(p.returncode, (p.stdout or "") + (p.stderr or ""))
+
+
+def change_expired(name: str, old: str, new: str) -> dict:
+    """The person chooses their own password in place of a temporary one. Through kinit's own
+    change (the kpasswd protocol), as that person, so the domain's rules apply exactly as at a Mac."""
+    if not _ok_name(name):
+        return {"ok": False, "err": "bad name"}
+    if len(new or "") < 8:
+        return {"ok": False, "err": "at least 8 characters"}
+    if new == old:
+        return {"ok": False, "err": "choose a password different from the temporary one"}
+    state = check_login(name, old)
+    if state == "bad":
+        return {"ok": False, "err": "Wrong user or password"}
+    if not available():
+        if not load().demo:
+            return _no_domain()
+        demo_state.get("dir.passwords", {})[name.lower()] = new
+        demo_state.get("dir.mustchange", set()).discard(name.lower())
+        return {"ok": True, "demo": True}
+    if state == "ok":   # nothing to change on the domain's side; an ordinary change
+        r = run(["samba-tool", "user", "setpassword", name, f"--newpassword={new}"], timeout=30)
+        return {"ok": True} if r["ok"] else _failed(r, "the domain refused the new password", new)
+    realm = load().directory.realm.upper()
+    try:
+        p = subprocess.run(["kinit", f"{name}@{realm}"], input=f"{old}\n{new}\n{new}\n", capture_output=True, text=True, timeout=20,
+                           env=dict(os.environ, KRB5CCNAME="MEMORY:arise-change"))
+    except (subprocess.TimeoutExpired, OSError) as e:
+        return {"ok": False, "err": f"could not reach the domain: {e}"}
+    if p.returncode == 0:
+        return {"ok": True}
+    msg = [ln for ln in ((p.stderr or "") + (p.stdout or "")).splitlines() if ln.strip() and "password" in ln.lower()]
+    return {"ok": False, "err": _redact((msg[-1] if msg else "the domain refused the new password").strip(), new).replace(old, "********")}
 
 
 def is_admin(name: str) -> bool:

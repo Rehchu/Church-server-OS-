@@ -64,6 +64,8 @@ from_name = "Arise Church"
 from_email = ""           # e.g. "news@mail.arisecenla.com" once the domain is verified in Resend
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
+# domain = ""             # first.last@<domain>: empty = the directory's realm in lower case (round 5, 1). Never typed anywhere else.
+# maildir_root = "/srv/arise/mail"   # where the internal mail server (planned) keeps Maildirs; a leaver's mail is exported from here (round 5, 38)
 
 # Push notifications to phones (answer 10: Bradly only). The admin_user always
 # may subscribe; add more names here to widen it. Keys are made on the box.

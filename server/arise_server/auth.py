@@ -57,20 +57,25 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
-MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/", "/api/push/", "/api/about/week", "/api/about/whatsnew", "/api/calendar", "/api/weather", "/api/help")
+MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/", "/api/push/", "/api/about/week", "/api/about/whatsnew", "/api/calendar", "/api/weather", "/api/help", "/api/people")
 
 
-def login(user: str, password: str) -> tuple[str, dict] | None:
+def login(user: str, password: str) -> tuple[str | None, dict] | None:
     """Returns (token, who) or None. The admin user is checked against the bcrypt
-    hash in arise.toml; everyone else against the directory (Kerberos)."""
+    hash in arise.toml; everyone else against the directory (Kerberos). A right but
+    expired (temporary) password returns (None, {"user", "expired": True})."""
     from . import directory
     cfg = load()
     user = (user or "").strip().lower()
     who = None
     if user == cfg.web.admin_user and cfg.web.admin_password_hash and verify_password(password, cfg.web.admin_password_hash):
         who = {"user": user, "role": "admin", "via": "local"}
-    elif cfg.web.get("member_login", True) and directory.authenticate(user, password):
-        who = {"user": user, "role": "admin" if directory.is_admin(user) else "member", "via": "directory"}
+    elif cfg.web.get("member_login", True):
+        state = directory.check_login(user, password)
+        if state == "expired":   # the right password, but a temporary one: choose their own first (round 5, 5)
+            return None, {"user": user, "expired": True}
+        if state == "ok":
+            who = {"user": user, "role": "admin" if directory.is_admin(user) else "member", "via": "directory"}
     if not who:
         return None
     return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"]}), who

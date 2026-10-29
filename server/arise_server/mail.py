@@ -262,6 +262,19 @@ def send_test(to: str, subject: str, body_md: str) -> dict:
     return _call("POST", "/emails", body)
 
 
+def send_one(to: str, subject: str, text: str) -> dict:
+    """One plain message to one person (a password reset link). From [mail] from_email
+    (an address at the sending domain verified in Resend, round 5, 3)."""
+    m = cfg_mail()
+    if not EMAIL_RE.match(to or ""):
+        return {"ok": False, "err": "that is not an email address"}
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) no mail is sent from the sample"}
+    if not m["from_email"]:
+        return {"ok": False, "err": "set [mail] from_email in arise.toml first (an address at a domain verified in Resend)"}
+    return _call("POST", "/emails", {"from": f"{m['from_name']} <{m['from_email']}>", "to": [to], "subject": subject, "text": text})
+
+
 def create_broadcast(subject: str, body_md: str, name: str = "") -> dict:
     m = cfg_mail()
     if not (subject or "").strip():
