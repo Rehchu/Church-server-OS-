@@ -1,6 +1,6 @@
 # ariseOS: round 7 questions (Oct 29)
 
-Bradly: "keep working till you think it is perfect! If you have to, ask 150 questions". 152 questions in 15 sections. The first option is the recommendation. Answered on the Round 7 page (saved for Claude to read); recorded in ANSWERS.md as they come in.
+Bradly: "keep working till you think it is perfect! If you have to, ask 150 questions". 155 questions in 16 sections. The first option is the recommendation. Answered on the Round 7 page (saved for Claude to read); recorded in ANSWERS.md as they come in.
 
 
 ## Install day
@@ -225,3 +225,11 @@ Your Claude only; nobody else talks to it.
 150. **Staff training?** (a) Ten minutes at a staff meeting and the one-page guide *(recommended)*; (b) The guide only
 151. **What would make you say this is the best server ever?** Anything at all. (typed answer)
 152. **Anything I haven't asked?** (typed answer)
+
+## Found while checking
+
+Three places where the code and an earlier answer don't quite meet.
+
+153. **Cut off a lost Mac: remove it from Tailscale too?** Today Cut off kills its key, its domain account and its Nextcloud sign-ins, then tells you to remove it in the Tailscale console. (a) Yes: keep a Tailscale API key on the server so Cut off removes it *(recommended)*; (b) No, I'll remove it in the console
+154. **Removed Mac profiles are kept as disk images in /Users/Deleted Users on that Mac. They pile up.** Deleting is your click. (a) List them in the January clean-up report for you to delete *(recommended)*; (b) Keep them forever; (c) Copy each one to the Synology, then list it for you
+155. **Staff email addresses (first.last@ad.arisecenla.com) forwarding to their personal email: the mail server isn't built yet.** Round 6, 28 and round 5, 38. (a) Build it next: forwarding only, plus exporting a leaver's mail *(recommended)*; (b) Not needed yet
