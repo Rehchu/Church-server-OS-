@@ -131,6 +131,26 @@ At the end it lists the local accounts already on the Mac. Each is linked to a
 server user by default (below); in watch mode that is only shown as "would
 link" or "would make … and link" until Switch on.
 
+### A Mac where you're not an admin (the office Mac)
+
+Enrolment needs a Mac admin once. On the office Mac that is the pastor's account
+(Oct 29).
+
+1. The pastor signs in, or types their password while you sit at the Mac. Your
+   own standard account cannot do this step: macOS refuses `sudo` from a
+   standard account, even with an admin's password.
+2. Terminal, paste the enrol line, Return. The pastor types their password
+   for `sudo` and for the certificate prompt. You type the domain
+   administrator's password, which is the server's.
+3. Full Disk Access (step 7 above): macOS asks for an admin name and password.
+   The pastor types theirs.
+
+After that the hidden `ariseadmin` exists on that Mac. Its password is on the
+Mac's card in the Macs app (Show admin password); use it for any later admin
+prompt there instead of asking the pastor again. The pastor's own account is
+linked (round 7, 23): it stays an admin, with the same password, files and
+FileVault unlock, and its files sync to their server account.
+
 ## Accounts, on their own (the directory)
 
 **Every server user gets an account.** Every enabled directory user gets a
