@@ -66,6 +66,8 @@ async function flows(browser, url) {
   const p = await newPage(browser, url); step.page = p; p.setDefaultTimeout(6000);
   const A = 'admin';
   await step(A, 'the desktop boots with no error', async () => { const e = await errs(p); return e.length ? 'errors: ' + e.join(' | ') : true; });
+  // Most flows sign in as staff and members through the dashboard: the portal setting. The default ("none": staff use their Macs) has its own step below.
+  await p.evaluate(() => window.AriseMock.setStaffAccess('portal'));
 
   // Directory: users
   await app(p, 'directory');
@@ -288,7 +290,7 @@ async function flows(browser, url) {
   // sign-in: john.smith (a member, with the password set when he was made)
   await step('Sign-in', 'Sign out shows the sign-in screen', async () => { await flame(p, 'Sign Out'); await settle(p, 1500); return await exists(p, '.login #lf'); });
   await step('Sign-in', 'a wrong password is refused', async () => { await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'wrong-one'); await p.click('#lf button'); await settle(p, 400); return (await text(p, '.login .toast')).includes('Wrong'); });
-  await step('Sign-in', 'with staff access "none" (the default) john.smith gets "your files are on your Mac"', async () => { await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'longpassword1'); await p.click('#lf button'); await settle(p, 1800); const t = await text(p, '.onmac'); const desk = await exists(p, '#stage'); await p.click('#omOut'); await settle(p, 1500); return /on your Mac/.test(t) && !desk && await exists(p, '.login #lf') ? true : `${t.slice(0, 60)} desktop=${desk}`; });
+  await step('Sign-in', 'with staff access "none" (the default) john.smith gets "your files are on your Mac"', async () => { await p.evaluate(() => window.AriseMock.setStaffAccess('none')); await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'longpassword1'); await p.click('#lf button'); await settle(p, 1800); const t = await text(p, '.onmac'); const desk = await exists(p, '#stage'); await p.click('#omOut'); await settle(p, 1500); return /on your Mac/.test(t) && !desk && await exists(p, '.login #lf') ? true : `${t.slice(0, 60)} desktop=${desk}`; });
   await p.evaluate(() => window.AriseMock.setStaffAccess('portal'));   // the portal stays a setting ([web] staff_access = "portal"): sweep it too
   await step('Sign-in', 'john.smith signs in with his password and gets the portal', async () => { await p.fill('#lu', 'john.smith'); await p.fill('#lp', 'longpassword1'); await p.click('#lf button'); await settle(p, 1800); return await p.evaluate(() => document.body.classList.contains('member') && window.arise.S.user === 'john.smith'); });
   await step('Member', 'Finder opens on My files: six folders and the Start here note', async () => { await app(p, 'files'); const n = (await p.$$('#fMain .fi')).length; const t = await text(p, '#fMain'); return n === 7 && /Start here/.test(t) && /Desktop/.test(t) ? true : `${n}: ${t.slice(0, 120)}`; });

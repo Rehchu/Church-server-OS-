@@ -292,7 +292,9 @@ class Browser(unittest.TestCase):
         self.assertEqual(doc["policies"]["Preferences"]["toolkit.legacyUserProfileCustomizations.stylesheets"]["Value"], True)
 
     def test_site_list_and_open_web(self):
-        m, doc = self._build({"browser": {"allow": ["bible.com"]}, "system": {"hostname": "arise-pineville"}})
+        _, full = self._build({})
+        self.assertNotIn("WebsiteFilter", full["policies"])          # a full web browser by default (Bradly, Oct 29)
+        m, doc = self._build({"browser": {"open_web": False, "allow": ["bible.com"]}, "system": {"hostname": "arise-pineville"}})
         ex = doc["policies"]["WebsiteFilter"]["Exceptions"]
         for need in ("*://127.0.0.1/*", "*://claude.ai/*", "*://studio.youtube.com/*" if False else "*://*.youtube.com/*", "*://*.google.com/*", "*://bible.com/*", "*://arise-pineville/*", "*://challenges.cloudflare.com/*"):
             self.assertIn(need, ex)

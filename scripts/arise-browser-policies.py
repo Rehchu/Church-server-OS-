@@ -6,7 +6,7 @@
 Reads [browser] from arise.toml:
 
     [browser]
-    open_web = false     # true: any site; false: only the list below and the built-in one
+    open_web = true      # true (the default since Oct 29): any site; false: only the list below and the built-in one
     allow = []           # extra sites, as host names ("bible.com") or match patterns
 
 Every policy name and preference here was checked against Firefox's own
@@ -126,7 +126,7 @@ def build(cfg: dict) -> dict:
             "browser.display.use_system_colors": pref(False),
         },
     }
-    if not b.get("open_web", False):
+    if not b.get("open_web", True):   # a full web browser by default (Bradly, Oct 29); false brings the allow-list back
         p["WebsiteFilter"] = {"Block": ["<all_urls>"], "Exceptions": patterns(allow)}
     return {"policies": p}
 

@@ -41,12 +41,11 @@ tests validate the policy against Firefox's own schema
   dashboard's title must stay exactly "ariseOS" for this; a test pins it.
 - **A new tab** is the ariseOS new tab. Its "The desktop" and "Bible" tiles
   close the tab and hand back to the desktop instead of opening a second one.
-- **Sites are a list, not the open web** (`open_web = false`). The box, the
-  Assistants, YouTube and Google sign-in, StreamYard, the church site, GitHub
-  and Tailscale are on it. Any other site shows Firefox's "blocked" page with
-  "Not on the monitor's list". Add sites to `allow` in `[browser]`, or set
-  `open_web = true`, then run `sudo arisectl browser apply`. Only pages and
-  frames are judged, so scripts, images and fonts from CDNs load as usual.
+- **A full web browser** (Bradly, Oct 29: "Firefox in the OS should be a full
+  web browser as well"). Any site opens; only the admins use the closet OS.
+  `open_web = false` in `[browser]` brings back the old list (the box, the
+  Assistants, YouTube and Google sign-in, StreamYard, the church sites, GitHub,
+  Tailscale, plus `allow`), then `sudo arisectl browser apply`.
 - **Nothing personal is kept.** The monitor is shared: no saved passwords,
   card or address autofill. Sign-ins stay as cookies, like the old browser.
   Camera, microphone, location and notification prompts are blocked.
