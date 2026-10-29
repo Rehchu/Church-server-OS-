@@ -30,7 +30,7 @@ GETS = [
     "/logs/file/updates.log", "/logs/file/install.log", "/logs/file/backup.log", "/apps/theme/jellyfin", "/apps/theme/homepage", "/apps/theme/nextcloud", "/apps/theme/immich", "/apps/theme/grafana", "/apps/theme/owncast", "/apps/theme/bookstack", "/apps/theme/uptime-kuma", "/apps/theme/onlyoffice",
     "/notifications", "/checklists", "/setup", "/kiosk/scale", "/public/faces", "/desktop",
     "/storage/quotas", "/backups/targets", "/files/shared", "/files/quota", "/files/share/people",
-    "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
+    "/public/sign-in", "/me/2fa", "/directory/2fa", "/auth/pin/status", "/directory/pins", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/cloud", "/cloud/people", "/cloud/conflicts?limit=20",
     "/pastors/breakglass", "/directory/unused", "/contacts",
     "/backups/offsite", "/upkeep/changes?limit=12", "/upkeep/january", "/upkeep/health", "/help/contacts", "/discord", "/mail/forwarding",

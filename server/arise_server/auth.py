@@ -81,7 +81,31 @@ def login(user: str, password: str) -> tuple[str | None, dict] | None:
             who = {"user": user, "role": "admin" if directory.is_admin(user) else "member", "via": "directory"}
     if not who:
         return None
-    return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"], "t": int(time.time())}), who
+    # "fp": the full password was typed for this session (a PIN session has none), so setting a
+    # PIN right after a password sign-in needs no second password (round 7, 162).
+    now = int(time.time())
+    return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"], "t": now, "fp": now}), who
+
+
+def pin_token(user: str, scope: str) -> tuple[str, dict] | None:
+    """A session from a PIN (round 7, 160 and 162). The same session as a password sign-in,
+    except: no "fp" and never an "ra" (the password-again clicks still ask the password, 161),
+    and a staff PIN ("checklist") reaches the phone checklist only."""
+    from . import directory
+    cfg = load()
+    user = (user or "").strip().lower()
+    if user == cfg.web.admin_user:
+        who = {"user": user, "role": "admin", "via": "local"}
+    else:
+        if not cfg.demo:
+            live = live_state(user)
+            if live is not None and not live[0]:
+                return None   # a disabled account: no PIN gets it in
+        who = {"user": user, "role": "admin" if directory.is_admin(user) else "member", "via": "directory"}
+    if who["role"] != "admin":
+        scope = "checklist"
+    who["pin"] = scope
+    return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"], "t": int(time.time()), "pin": scope}), who
 
 
 def current_user(request: Request) -> dict:
@@ -93,6 +117,8 @@ def current_user(request: Request) -> dict:
             try:
                 d = _serializer().loads(tok, max_age=int(cfg.web.session_hours) * 3600)
                 who = {"user": d["u"], "role": d.get("r", "admin"), "demo": True}
+                if d.get("pin"):
+                    who["pin"] = d["pin"]
             except BadSignature:
                 pass
         _check_path(request, who)
@@ -116,6 +142,8 @@ def current_user(request: Request) -> dict:
                 raise HTTPException(401, {"message": "This account is disabled"})
             role = "admin" if is_adm else "member"
     who = {"user": data["u"], "role": role, "demo": False}
+    if data.get("pin"):
+        who["pin"] = data["pin"]
     _check_path(request, who)
     return who
 
@@ -153,8 +181,16 @@ def session_current(token_data: dict, after: float) -> bool:
 
 
 def revoke_sessions(user: str, now: float | None = None) -> None:
-    """Every session of this person issued before now stops working (all their devices)."""
-    if load().demo or not user:
+    """Every session of this person issued before now stops working (all their devices).
+    Their PIN, if they have one, waits for their next full-password sign-in (round 7, 160)."""
+    if not user:
+        return
+    try:
+        from . import pins
+        pins.switch_off(user, "the password changed or the account was switched off")
+    except Exception:  # noqa: BLE001 - a PIN record never blocks a sign-out
+        pass
+    if load().demo:
         return
     with _SESS_LOCK:
         d = _valid_after_all()
@@ -239,7 +275,10 @@ def clear_failures(keys: list[str]) -> None:
 def _check_path(request: Request, who: dict):
     """Members reach only the portal routes; everything else is the admin's.
     With [web] staff_access = "none" (the default since round 5) they reach only
-    the sign-in routes: the dashboard shows them the 'your files are on your Mac' page."""
+    the sign-in routes: the dashboard shows them the 'your files are on your Mac' page.
+    A staff PIN session (round 7, 162) reaches the phone checklist only, whatever staff_access says."""
+    if who.get("pin") == "checklist" and not member_ok(request.url.path, "member", "none"):
+        raise HTTPException(403, {"message": "A PIN opens the checklist only. Sign in with your password for the rest"})
     if who.get("role") == "admin":
         return
     path = request.url.path
@@ -274,6 +313,20 @@ def reauth_token(request: Request) -> str | None:
         return None
     d["ra"] = int(__import__("time").time())
     return _serializer().dumps(d)
+
+
+FULL_PW_SECONDS = 600
+
+
+def full_password_recent(request: Request, within: int = FULL_PW_SECONDS) -> bool:
+    """Was this session signed in with the full password in the last ten minutes? Setting a
+    PIN right after a password sign-in needs no second password; a PIN session never has it."""
+    try:
+        d = _serializer().loads(request.cookies.get(COOKIE) or "", max_age=int(load().web.session_hours) * 3600)
+    except BadSignature:
+        return False
+    fp = d.get("fp")
+    return bool(fp) and not d.get("pin") and 0 <= __import__("time").time() - float(fp) <= within
 
 
 def recent_auth_ok(token_data: dict, now: float, within: int = REAUTH_SECONDS) -> bool:

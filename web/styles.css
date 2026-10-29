@@ -472,6 +472,7 @@ pre.log{background:var(--scrim);border:1px solid var(--line2);padding:14px 16px;
 .lock__form{display:flex;gap:0;margin-top:6px}
 .lock__form input{width:220px;background:rgba(255,255,255,.08);border:1px solid var(--line);padding:9px 12px;color:#fff;font-weight:300}
 .lock__form input:focus{outline:none;border-color:var(--red)}
+.lock__pin{margin-top:10px}
 .lock__form button{width:38px;background:var(--red);color:#fff;font-size:16px}
 .lock__hint{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:40px}
 .lock.idle .lock__form,.lock.idle .lock__name,.lock.idle .lock__avatar{display:none}

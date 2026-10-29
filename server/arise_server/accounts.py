@@ -394,6 +394,11 @@ def rename(old: str, new: str, by: str, confirm: str = "") -> dict:
     moved = _rename_records(old, new)
     from .auth import revoke_sessions
     revoke_sessions(old)
+    try:
+        from . import pins
+        pins.remove(old, by=by)   # a PIN belongs to a name: they set a new one after the rename
+    except Exception:  # noqa: BLE001
+        pass
     _queue_mac_rename(old, new)
     try:
         from . import cloud

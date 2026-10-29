@@ -65,6 +65,73 @@ dangerous routes can take the same one). Without the stamp the route answers
 403 `{reauth: true}`, and the dashboard's `withReauth(fn)` turns that into a
 password box and runs `fn` again. Sample mode never asks.
 
+## Sign-in PINs (round 7, 160 to 162)
+
+Each person may set a PIN of 4 to 8 digits for themselves, in **My Profile →
+Sign-in PIN**, after typing their full password. Typing it at sign-in counts
+for ten minutes; after that, or in a PIN session, the sheet asks for it again.
+
+- **Admins (160):** the PIN works on the sign-in page and the lock screen,
+  anywhere the dashboard answers (church Wi-Fi, Tailscale).
+- **Staff (162):** the PIN opens the phone checklist (`/checklist`), on the
+  phone it was set on, and nothing else. A random mark in a cookie
+  (`arise_pin_device`, 400 days, httponly) ties it to that phone; the server
+  keeps only the mark's sha256. A PIN session that asks for anything but
+  `/api/auth/`, `/api/public/`, `/api/health` or `/api/checklist/` gets 403,
+  even with `[web] staff_access = "portal"`.
+- **Never by PIN (161):** a PIN session has no "typed the password recently"
+  stamp (`fp`) and no reauth stamp (`ra`). `POST /api/auth/reauth` checks the
+  password and never a PIN. So deletes, emptying a Trash, the FileVault and
+  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask
+  for the full password. A leader's password reset on the checklist asks for
+  the leader's own password every time.
+
+**Refused PINs:** one digit again and again (`1111`), a repeated chunk
+(`1212`, `123123`), runs up or down (`1234`, `4321`), the keypad column
+`2580` and its reverse, the PINs people choose most often, the birthday on
+file as MMDD or DDMM, and the end of the mobile number on file.
+
+**Stored:** `/var/lib/arise/pins.json`, mode 0600, one bcrypt hash per
+person (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no
+PIN costs the same time against a dummy hash. The PIN is never stored, never
+logged and never sent back in an answer, and admins never see one.
+
+**Guessing:** the device that guesses waits, the same throttle as passwords,
+by address and never by account (round 4, 27). Separately, ten wrong PINs
+for one account, from any devices, switch that account's PIN off. Bradly
+gets Discord #alerts and a push, and the audit log gets `auth.pin.off`. The
+password always works, and the next full-password sign-in switches the PIN
+back on. A password change, an admin or leader reset, or disabling the
+account also switches the PIN off, because they all go through
+`revoke_sessions`. Deleting or renaming the account removes it.
+
+**Admins:** Directory → **Sign-in PINs** lists who has one, what it opens,
+and whether it is switched off. **Remove** deletes it, and the audit log
+records `auth.pin.remove` with the admin's name. Nobody can see or set
+someone else's PIN.
+
+**The domain never sees a PIN.** It is checked against the hash on this
+box. Kerberos and Samba still check passwords only. A password sign-in runs
+`kinit` into a memory-only cache (`MEMORY:arise-login`) that is thrown away
+straight after, so no Kerberos ticket outlives the sign-in either way. What
+differs for a PIN session:
+
+- No `fp` stamp, so setting or changing a PIN asks for the password.
+- No reauth stamp until the password is typed.
+- A staff PIN session reaches the checklist only.
+- The audit log says `auth.pin` instead of `auth.login`.
+
+The rest is the same: the session cookie, two-step (the six digits are still
+asked after a PIN), the new-device email, and the home folder. A Mac sign-in,
+a share mount and the Nextcloud app's device passwords never take a PIN.
+
+**Open for Bradly:** an admin PIN session can open the root **Terminal**
+window, because row 161 does not list it. If it should need the full
+password, that is one line in `main.py`, its websocket route.
+
+Rules: `server/arise_server/pins.py`. Tests: `tests/test_pins.py`, plus the
+PIN steps in `tests/ui/sweep.js`.
+
 ## The break-glass admin: arise-rescue
 
 For the day the domain is down and nobody can sign in. A **local** Ubuntu

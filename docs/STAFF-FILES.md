@@ -58,6 +58,19 @@ phone needs Tailscale on. To change someone's details, ask Bradly.
 
 The phone shows your files and the church folders. That is all it does.
 
+## The checklist on your phone, with a PIN
+
+The checklist page (`/checklist`) shows your department's list for the next
+service. Sign in once with your church login and password. The page then
+offers **A PIN for this phone**: 4 to 8 digits that open the checklist on
+that phone only. Pick something nobody could guess, not 1234 and not your
+birthday. After that the page asks for the PIN. Your password always works
+too: tap **Use my password instead**.
+
+The PIN opens the checklist and nothing else. Ten wrong PINs switch it off
+until you sign in with your password again, and Bradly is told. If you
+change your password, the PIN switches off until your next password sign-in.
+
 ## In a web browser
 
 The same address, `https://cloud.ad.arisecenla.com`, works in a browser on the church network

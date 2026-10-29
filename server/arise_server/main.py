@@ -162,6 +162,9 @@ def api_login(body: Login, response: Response, request: Request):
         # a new one and posts old + new to /api/auth/login/new-password; nothing is held on the server meanwhile.
         audit.record(who["user"], "auth.login", ok=False, ip=_ip(request), detail="temporary password: a new one is needed")
         return {"ok": True, "need_new_password": True, "user": who["user"], "rules": directory.password_rules().get("words", [])}
+    if not c.demo or who.get("via") != "demo":
+        from . import pins
+        pins.full_signin(who.get("user", ""))   # round 7, 160: the password switches a PIN back on (a temporary one doesn't)
     if tok and not c.demo and twofa.enrolled(who["user"]):
         # Two-step is on for this person: the session token waits behind a code (five minutes, three tries).
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
@@ -237,6 +240,112 @@ def api_logout(response: Response):
     return {"ok": True}
 
 
+# ----- sign-in PINs (round 7, 160 to 162; server/arise_server/pins.py) -----------------------
+from . import pins  # noqa: E402
+
+
+class PinLogin(BaseModel):
+    user: str
+    pin: str
+
+
+@app.post("/api/auth/pin")
+def api_auth_pin(body: PinLogin, response: Response, request: Request):
+    """A PIN instead of the full password. Admins: anywhere (160). Staff: the phone checklist,
+    on the phone it was set on (162). The device that guesses waits; ten wrong PINs for one
+    account switch its PIN off until a password sign-in. The password always works."""
+    c = load()
+    user = (body.user or "").strip().lower()[:64]
+    keys = [f"ip:{_ip(request)}"]   # the device waits, never the account (round 4, 27)
+    if not c.demo and _auth.too_many(keys):
+        audit.record(user or "?", "auth.pin", ok=False, ip=_ip(request), detail="too many wrong tries from this device: waiting")
+        raise HTTPException(429, {"message": "Too many wrong tries from this device. Wait fifteen minutes, or sign in with your password"})
+    r = pins.verify(user, body.pin, request.cookies.get(pins.DEVICE_COOKIE, ""))
+    if not r.get("ok"):
+        if not c.demo:
+            _auth.note_failure(keys)
+        time.sleep(0.3)
+        audit.record(user or "?", "auth.pin", ok=False, ip=_ip(request), detail="switched off" if r.get("off") else "wrong PIN")
+        raise HTTPException(401, {"message": r.get("err", "Wrong PIN"), "off": bool(r.get("off"))})
+    got = _auth.pin_token(user, r["scope"])
+    if not got:
+        audit.record(user, "auth.pin", ok=False, ip=_ip(request), detail="the account is disabled")
+        raise HTTPException(401, {"message": "This account is disabled"})
+    if not c.demo:
+        _auth.clear_failures(keys)
+    tok, who = got
+    if not c.demo and twofa.enrolled(user):
+        # Two-step stays two-step: the PIN stands in for the password, not for the six digits.
+        return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, user), "user": user}
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
+    audit.record(user, "auth.pin", ip=_ip(request), detail=f"{r['scope']} · {profiles.device_of(request.headers.get('user-agent', ''))}")
+    _new_device(user, request)
+    if not c.demo and r["scope"] == "full":
+        files.ensure_home(user)
+    return {"ok": True, "user": user, "role": who["role"], "pin": r["scope"], "demo": c.demo}
+
+
+@app.get("/api/auth/pin/status")
+def api_auth_pin_status(request: Request, who=auth):
+    """My PIN: set or not, its reach, switched off or not. Never the PIN."""
+    st = pins.status(who["user"], request.cookies.get(pins.DEVICE_COOKIE, ""))
+    return {**st, "user": who["user"], "kind": "full" if who.get("role") == "admin" else "checklist",
+            "password_needed": not _auth.full_password_recent(request), "this_session_by_pin": bool(who.get("pin"))}
+
+
+class PinSet(BaseModel):
+    pin: str
+    password: str = ""
+
+
+@app.post("/api/auth/pin/set")
+def api_auth_pin_set(body: PinSet, response: Response, request: Request, who=auth):
+    """Set or change my PIN: after my full password (typed now, or the sign-in of the last ten
+    minutes; never from a PIN session). Admins get a PIN for anywhere; staff a PIN for the
+    phone checklist on this phone, which gets a device mark (a cookie)."""
+    c = load()
+    user = who["user"]
+    if who.get("pin") or not _auth.full_password_recent(request):
+        keys = ["reauth:" + user.lower()]
+        if not c.demo and _auth.too_many(keys):
+            raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes"})
+        ok = bool(body.password) and (c.demo or check_password_for(user, body.password))
+        if not ok:
+            if not c.demo:
+                _auth.note_failure(keys)
+            time.sleep(0.5)
+            raise HTTPException(401, {"message": "Type your password (not a PIN) to set a PIN", "password_needed": True})
+    prof = profiles._read().get(user.lower(), {}) or {}
+    scope = "full" if who.get("role") == "admin" else "checklist"
+    r = pins.set_pin(user, body.pin, scope, prof.get("birthday", ""), prof.get("mobile", ""))
+    if not r.get("ok"):
+        return r
+    if r.get("device_mark"):
+        response.set_cookie(pins.DEVICE_COOKIE, r["device_mark"], httponly=True, samesite="lax", secure=_https(request),
+                            max_age=pins.DEVICE_DAYS * 86400, path="/")
+    return {"ok": True, "scope": scope,
+            "next": "Your PIN signs you in anywhere the dashboard opens. The password-again clicks still ask for your password." if scope == "full"
+            else "Your PIN opens your checklist on this phone. Everything else still needs your password."}
+
+
+@app.delete("/api/auth/pin")
+def api_auth_pin_remove(response: Response, who=auth):
+    response.delete_cookie(pins.DEVICE_COOKIE, path="/")
+    return pins.remove(who["user"])
+
+
+@app.get("/api/directory/pins")
+def api_directory_pins(_=admin):
+    """Who has a PIN (names only, never a PIN): Directory shows it and offers Remove."""
+    return {"pins": pins.everyone(), "demo": load().demo}
+
+
+@app.delete("/api/directory/users/{name}/pin")
+def api_directory_pin_remove(name: str, who=admin):
+    """An admin takes someone's PIN away (audited). An admin never sees or sets one."""
+    return pins.remove(name, by=who["user"])
+
+
 def _ip(request: Request) -> str:
     return request.client.host if request.client else ""
 
@@ -274,6 +383,8 @@ def api_login_new_password(body: NewPassword, response: Response, request: Reque
     if not got or not got[0]:
         return {"ok": False, "err": "The new password is set; sign in with it"}
     tok, who = got
+    from . import pins as _pins
+    _pins.full_signin(user)   # their own new password: a PIN comes back on (round 7, 160)
     audit.record(user, "auth.login.newpassword", ip=_ip(request), detail=f"temporary password replaced · {profiles.device_of(request.headers.get('user-agent', ''))}")
     if not c.demo and twofa.enrolled(user):
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, user), "user": user}
@@ -2885,10 +2996,22 @@ def api_checklist_people(who=auth):
 
 class LeaderReset(BaseModel):
     user: str
+    password: str = ""
 
 
 @app.post("/api/checklist/reset")
-def api_checklist_reset(body: LeaderReset, who=auth):
+def api_checklist_reset(body: LeaderReset, request: Request, who=auth):
+    """A leader resets someone's password: with the leader's own full password, typed now
+    (round 7, 162: a PIN never does this)."""
+    c = load()
+    keys = ["reauth:" + who["user"].lower()]
+    if not c.demo and _auth.too_many(keys):
+        raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes"})
+    if not body.password or not (c.demo or check_password_for(who["user"], body.password)):
+        if not c.demo:
+            _auth.note_failure(keys)
+        time.sleep(0.5)
+        raise HTTPException(401, {"message": "Type your own password to reset someone else's", "password_needed": True})
     return checklists.leader_reset(who, body.user)
 
 

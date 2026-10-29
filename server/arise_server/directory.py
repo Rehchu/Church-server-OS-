@@ -297,6 +297,11 @@ def delete_user(name: str, confirm: str) -> dict:
         return _failed(r, f"could not delete {name}")
     from .auth import revoke_sessions
     revoke_sessions(name)
+    try:
+        from . import pins
+        pins.remove(name, by="directory (the account was deleted)")
+    except Exception:  # noqa: BLE001
+        pass
     return {"ok": True, "out": f"deleted {name}; the home folder is kept"}
 
 

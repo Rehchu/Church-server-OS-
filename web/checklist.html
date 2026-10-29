@@ -45,6 +45,8 @@ body{padding:env(safe-area-inset-top,0) max(16px,env(safe-area-inset-right,0)) c
 .cl__lead .btn{margin-top:10px;min-height:46px}
 .cl__pw{margin-top:12px;padding:12px;background:var(--ink);border:1px dashed var(--line2);font-family:ui-monospace,Menlo,monospace;font-size:20px;user-select:all;word-break:break-all}
 .cl__toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--panel2);border-left:3px solid var(--red);padding:10px 14px;font-size:15px;max-width:calc(100vw - 32px);box-sizing:border-box}
+.cl__in{width:100%;box-sizing:border-box;background:var(--ink);border:1px solid var(--line2);color:var(--text);font:inherit;font-size:17px;padding:10px;min-height:46px}
+.cl__link{display:block;width:100%;margin-top:10px;background:none;border:0;color:var(--redL);font:inherit;font-size:13px;letter-spacing:.1em;text-transform:uppercase;min-height:44px;cursor:pointer}
 .cl__sample{margin-top:10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--warn)}
 </style></head>
 <body>
@@ -75,21 +77,36 @@ const toast = t => { const d = document.createElement('div'); d.className = 'cl_
 const fmt = iso => { try { return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); } catch { return ''; } };
 const fmtCall = t => { if (!t) return ''; const [h, m] = t.split(':').map(Number); return new Date(2000, 0, 1, h, m).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
 
-function signIn(msg) {
+// Round 7, 162: after one full sign-in on this phone, a PIN for this page, on this phone. The phone
+// remembers the name only (the PIN itself is never stored here; the server keeps a hash).
+const PIN_KEY = 'arise.checklist.pin';
+const pinUser = () => { try { return localStorage.getItem(PIN_KEY) || ''; } catch { return ''; } };
+const setPinUser = u => { try { u ? localStorage.setItem(PIN_KEY, u) : localStorage.removeItem(PIN_KEY); } catch {} };
+
+function signIn(msg, byPassword) {
+  const remembered = pinUser(), byPin = !!remembered && !byPassword;
   $('#cl').innerHTML = `<div class="cl__top"><h1>Checklist</h1></div>
-    <form class="cl__sign" id="sf"><h2>Sign in</h2><p>With your church account, the one you use on the Macs. This page shows your department's checklist for the next service.</p>
-      <label for="su">Your name (first.last)</label><input id="su" autocomplete="username" autocapitalize="none" spellcheck="false" required>
-      <label for="sp">Password</label><input id="sp" type="password" autocomplete="current-password" required>
+    <form class="cl__sign" id="sf"><h2>Sign in</h2><p>${byPin ? `Your PIN for this phone, <b>${esc(remembered)}</b>.` : "With your church account, the one you use on the Macs. This page shows your department's checklist for the next service."}</p>
+      <label for="su"${byPin ? ' hidden' : ''}>Your name (first.last)</label><input id="su" autocomplete="username" autocapitalize="none" spellcheck="false" required value="${esc(remembered)}"${byPin ? ' hidden' : ''}>
+      ${byPin ? '<label for="sp">PIN</label><input id="sp" type="password" inputmode="numeric" maxlength="8" autocomplete="off" required>'
+      : '<label for="sp">Password</label><input id="sp" type="password" autocomplete="current-password" required>'}
       <div id="sc" hidden><label for="scode">The six digits in Microsoft Authenticator</label><input id="scode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
       <div id="sn" hidden><label for="snew">Choose your own password</label><input id="snew" type="password" autocomplete="new-password"><p class="cl__by" id="snr"></p></div>
       <button class="btn" type="submit">Sign in</button><div class="cl__err" id="se">${esc(msg || '')}</div>
+      ${remembered ? `<button class="cl__link" id="sw" type="button">${byPin ? 'Use my password instead' : 'Use my PIN'}</button>` : ''}
       ${MOCK ? '<div class="cl__sample">Preview: sample data, nothing leaves this page</div>' : ''}</form>`;
+  const sw = $('#sw'); if (sw) sw.onclick = () => signIn('', byPin);
+  $('#sp').focus();
   $('#sf').onsubmit = async e => {
     e.preventDefault(); $('#se').textContent = '';
     const user = $('#su').value.trim().toLowerCase(), pw = $('#sp').value;
     try {
       let r;
       if (S.pending) r = await api('/auth/login/code', { method: 'POST', body: { pending: S.pending, code: $('#scode').value.trim() } });
+      else if (byPin) {
+        try { r = await api('/auth/pin', { method: 'POST', body: { user, pin: pw } }); }
+        catch (er) { $('#sp').value = ''; $('#se').textContent = er.message; if (/switched off|phone it was set on/.test(er.message)) { if (/phone it was set on/.test(er.message)) setPinUser(''); signIn(er.message, true); } return; }
+      }
       else if (!$('#sn').hidden) r = await api('/auth/login/new-password', { method: 'POST', body: { user, old: pw, new: $('#snew').value } });
       else r = await api('/auth/login', { method: 'POST', body: { user, password: pw } });
       if (r.ok === false) { $('#se').textContent = r.err || 'That did not work'; return; }
@@ -104,6 +121,8 @@ async function load() {
   try { S.data = await api('/checklist/mine'); }
   catch (e) { if (e.status === 401 || e.status === 403) return signIn(e.status === 403 ? e.message : ''); $('#cl').innerHTML = `<p class="cl__empty">${esc(e.message)}</p>`; return; }
   if (S.data.leads && S.data.leads.length) { try { S.people = await api('/checklist/people'); } catch { S.people = null; } }
+  try { S.pin = await api('/auth/pin/status'); } catch { S.pin = null; }
+  if (S.pin && S.pin.set && S.pin.this_device) setPinUser(S.pin.user);
   paint();
 }
 
@@ -114,10 +133,34 @@ function paint() {
     ${n ? `<div class="cl__svc">Next: <b>${esc(n.name)}</b>${n.site ? ` · ${esc(n.site)}` : ''} · ${esc(n.day)} ${esc(fmtCall(n.time))}${d.call_time ? ` · call time <b>${esc(fmtCall(d.call_time))}</b>` : ''}</div>` : ''}
     ${lists.length ? lists.map(listHtml).join('') : '<p class="cl__empty">You are not in a department with a checklist. Ask your department leader or Bradly.</p>'}
     ${leaderHtml()}
+    ${pinHtml()}
     ${MOCK ? '<div class="cl__sample">Preview: sample data, nothing leaves this page</div>' : ''}`;
   $('#so').onclick = async () => { try { await api('/auth/logout', { method: 'POST' }); } catch {} signIn(); };
   document.querySelectorAll('[data-tick]').forEach(b => b.onclick = () => tick(b.dataset.dept, +b.dataset.tick, b));
   const go = $('#lrGo'); if (go) go.onclick = leaderReset;
+  const pg = $('#pinGo'); if (pg) pg.onclick = setPin;
+}
+
+// A staff PIN for this phone (162). Admins set theirs in My Profile on the desktop.
+function pinHtml() {
+  const st = S.pin; if (!st || st.kind !== 'checklist' || st.this_session_by_pin) return '';
+  if (st.set && st.this_device && !st.off) return `<section class="cl__lead" id="pinBox"><h2>PIN for this phone</h2><p>On. Next time this phone asks for your PIN, not your password. Your password always works too.</p></section>`;
+  return `<section class="cl__lead" id="pinBox"><h2>A PIN for this phone</h2><p>4 to 8 digits instead of your password, on this page and this phone only. Not one digit again and again, not a run like 1234, not your birthday.${st.set ? ' It replaces the PIN you set on another phone.' : ''}</p>
+    <label for="pinA" class="cl__by">PIN</label><input id="pinA" class="cl__in" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+    <label for="pinB" class="cl__by">The same again</label><input id="pinB" class="cl__in" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+    ${st.password_needed ? '<label for="pinPw" class="cl__by">Your password</label><input id="pinPw" class="cl__in" type="password" autocomplete="current-password">' : ''}
+    <button class="btn" id="pinGo" type="button">Set the PIN</button><div id="pinOut"></div></section>`;
+}
+async function setPin() {
+  const a = $('#pinA').value, b = $('#pinB').value, pw = $('#pinPw'), out = $('#pinOut');
+  if (!/^\d{4,8}$/.test(a)) { out.innerHTML = '<div class="cl__err">A PIN is 4 to 8 digits, nothing else.</div>'; return; }
+  if (a !== b) { out.innerHTML = '<div class="cl__err">The two PINs are not the same.</div>'; return; }
+  const body = { pin: a }; if (pw) body.password = pw.value;
+  $('#pinA').value = ''; $('#pinB').value = ''; if (pw) pw.value = '';
+  try { const r = await api('/auth/pin/set', { method: 'POST', body });
+    if (r.ok === false) { out.innerHTML = `<div class="cl__err">${esc(r.err)}</div>`; return; }
+    setPinUser(S.data.user || (S.pin && S.pin.user)); toast('PIN set for this phone'); load(); }
+  catch (e) { out.innerHTML = `<div class="cl__err">${esc(e.message)}</div>`; }
 }
 
 function listHtml(l) {
@@ -132,7 +175,7 @@ function listHtml(l) {
 function leaderHtml() {
   const p = S.people; if (!p || !(S.data.leads || []).length) return '';
   return `<section class="cl__lead"><h2>Leader: reset a password</h2><p>For someone in ${esc(S.data.leads.map(deptName).join(', '))} who can't sign in. They get a temporary password and choose their own at the next sign-in.</p>
-    ${p.people.length ? `<label for="lrUser" class="cl__by">Who</label><select id="lrUser">${p.people.map(u => `<option>${esc(u)}</option>`).join('')}</select><button class="btn" id="lrGo" type="button">Reset their password</button>` : '<p>Nobody in your department to reset.</p>'}
+    ${p.people.length ? `<label for="lrUser" class="cl__by">Who</label><select id="lrUser">${p.people.map(u => `<option>${esc(u)}</option>`).join('')}</select><label for="lrPw" class="cl__by">Your own password (not a PIN)</label><input id="lrPw" class="cl__in" type="password" autocomplete="current-password"><button class="btn" id="lrGo" type="button">Reset their password</button>` : '<p>Nobody in your department to reset.</p>'}
     <div id="lrOut"></div></section>`;
 }
 
@@ -144,9 +187,10 @@ async function tick(dept, i, btn) {
 }
 
 async function leaderReset() {
-  const u = $('#lrUser').value;
+  const u = $('#lrUser').value, pw = $('#lrPw').value; $('#lrPw').value = '';
+  if (!pw) { $('#lrOut').innerHTML = '<div class="cl__err">Type your own password first. A PIN never resets someone else.</div>'; return; }
   try {
-    const r = await api('/checklist/reset', { method: 'POST', body: { user: u } });
+    const r = await api('/checklist/reset', { method: 'POST', body: { user: u, password: pw } });
     if (r.ok === false) { $('#lrOut').innerHTML = `<div class="cl__err">${esc(r.err)}</div>`; return; }
     $('#lrOut').innerHTML = `<div class="cl__pw" aria-label="Temporary password">${esc(r.temporary_password)}</div><p class="cl__by">${esc(r.next)} It is shown once.</p>`;
   } catch (e) { $('#lrOut').innerHTML = `<div class="cl__err">${esc(e.message)}</div>`; }
