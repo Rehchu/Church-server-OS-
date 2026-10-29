@@ -124,9 +124,17 @@ t_remove_profile() {
   if ! ans="$(server_has_it_all "$user" "$home" "$bases" "$folders")"; then
     report "$id" refused "the server does not have all of $user's files yet: $(printf '%s' "$ans" | head -3 | tr '\n' ' ')"; return
   fi
+  # Only Desktop and Documents sync; anything else of theirs on this Mac (Downloads, Pictures, Music)
+  # is kept as a disk image first, the way macOS's own "Delete user" can. Deleting the image is Bradly's click.
+  local keep="/Users/Deleted Users/$user-$(date '+%Y%m%d-%H%M').dmg"
+  mkdir -p "/Users/Deleted Users" && chmod 700 "/Users/Deleted Users"
+  if ! hdiutil create -quiet -srcfolder "$home" -format UDZO -volname "$user" "$keep" >>"$LOG" 2>&1; then
+    report "$id" refused "could not keep a copy of the rest of $user's Mac folder (disk full?); nothing removed"; return
+  fi
+  chmod 600 "$keep"
   if sysadminctl -deleteUser "$user" >>"$LOG" 2>&1 || { dscl . -delete "/Users/$user" && rm -rf "$home"; }; then
-    report "$id" done "removed after the server confirmed ${ans#OK } files"
-  else report "$id" failed "could not delete $user (see $LOG)"; fi
+    report "$id" done "removed after the server confirmed ${ans#OK } files; the rest of their Mac folder is kept in $keep"
+  else report "$id" failed "could not delete $user (see $LOG); the copy $keep stays"; fi
 }
 
 # ----- an existing local account: convert (becomes the server user) or link ----------------

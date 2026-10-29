@@ -123,8 +123,12 @@ profile then comes off every church Mac where they have one, like this:
    chooses: their home, and where offboarding moved it. It never looks where
    the Mac says to. A file counts only when the server has it at the same
    size, and the copy on the Mac is not newer.
-4. Only when every file counts is the account deleted, with
-   `sysadminctl -deleteUser`. Otherwise the task is refused, says how many
+4. Only when every file counts does anything change. First the rest of their
+   Mac folder (Downloads, Pictures, Music: what does not sync) is kept as a
+   compressed disk image in `/Users/Deleted Users/<user>-<date>.dmg` on that
+   Mac, the way macOS's own Delete User can; if that copy cannot be made,
+   nothing is removed. Then the account is deleted, with
+   `sysadminctl -deleteUser`. Deleting the disk image later is Bradly's click. Otherwise the task is refused, says how many
    files are missing or newer on the Mac, and is tried again at the next
    check-in.
 

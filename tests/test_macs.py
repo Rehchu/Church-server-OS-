@@ -389,6 +389,10 @@ class Scripts(unittest.TestCase):
         self.assertIn('/Users/?*) ;;', src)                                                     # the rm -rf guard
         self.assertNotIn("eraseinstall", src); self.assertNotIn("diskutil erase", src)
         self.assertNotIn(". \"$CONF\"", src)                                                    # helper.conf is read, never sourced
+        # A removal keeps the rest of the Mac folder as a disk image first, and stops if it cannot.
+        rm = src[src.index("t_remove_profile() {"):src.index("t_convert_local() {")]
+        self.assertLess(rm.index("hdiutil create"), rm.index("sysadminctl -deleteUser"))
+        self.assertIn('could not keep a copy', rm)
 
 
 if __name__ == "__main__":
