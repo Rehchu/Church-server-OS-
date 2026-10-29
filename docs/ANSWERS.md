@@ -469,6 +469,168 @@ volunteers work; the closet OS is the admins'.
 | 41 | (unprompted, Oct 29) Active Directory, for real | "this should run like Active Directory and actually add and remove user accounts from the local Macs on the network (not the private ones that people own). And local accounts already on the Mac need to be synced to the server and converted to the server user. Or leave the local accounts that are there and still have the option for the server (linked with the local account). We don't want to pay for Active Directory, we want the server to be our own Active Directory" | Samba AD is the directory (no Microsoft licence). On enrolled church Macs only, the helper adds every server account ahead of time and removes leavers; each existing local account is Converted to its server user (files kept), Linked (stays local, syncs as the server user) or Left alone, per account on the Macs page. Questions 41 to 44 in docs/QUESTIONS-ROUND-6.md settle the defaults |
 | 42 | (unprompted, Oct 29) DNS | "I can only change dns settings on arisecenla.com through Wix, I don't have access to arisecenla.church through godaddy" | every name ariseOS needs is under arisecenla.com: the directory (ad.), the sending domain (mail.) and its two email records in Wix; arisecenla.church is only ever linked to as the website |
 
+## Round 7 (Oct 29): 155 questions on the Round 7 page
+
+Bradly: "keep working till you think it is perfect! If you have to, ask 150 questions". Asked on the Round 7 page (docs/QUESTIONS-ROUND-7.md); every one answered the same night. Where an answer changes an earlier one, this row wins.
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 1 | Who is in the room on install day? | Just you |  |
+| 2 | Do staff get a heads-up before their Macs change? | Tell them in person |  |
+| 3 | What should staff see the first time they sign in with their church account? | A one-page welcome on the desktop: their login, where files are, who to ask |  |
+| 4 | Should the Mac helper start in watch mode, where it reports what it would do and changes nothing? | Yes, until I switch it on | the helper starts in watch mode: it reports the tasks it would run and runs none until Bradly switches it on in the Macs app |
+| 5 | Which church Mac joins first? | The media Mac | the media Mac is enrolled first |
+| 6 | Before the helper touches a Mac, a full Time Machine backup of it first? | Only if the Synology is ready | enrolment takes a Time Machine backup first when the Synology's Time Machine share answers; otherwise it goes ahead |
+| 7 | If something goes wrong on install day, how far back do we go? | Just that Mac, with Undo |  |
+| 8 | A printed one-page how-to for staff? | Taped beside each Mac | a printable one-page staff guide, taped beside each church Mac |
+| 9 | Who can make accounts for new staff? | Any of the four admins |  |
+| 10 | A new staff member's first day: what happens by itself once the account is made? | Their face on every church Mac, a welcome email to their personal address, their department folders |  |
+| 11 | Titles in names: "Apostle Bryant Sanders" or "Bryant Sanders"? | Title everywhere | titles show everywhere, the login faces included (the Mac's RealName carries the title) |
+| 12 | Two people with the same first.last? | Add a number: john.smith2 | a second john.smith becomes john.smith2 without asking |
+| 13 | Someone changes their last name. | Rename the account; files and Mac profile keep working; the old address still delivers | a rename verb: the AD account, the home folder and the Mac profile follow; mail to the old address still arrives once mail is built (155) |
+| 14 | Someone leaves. When is the account switched off? | I choose each time; the default is their last day |  |
+| 15 | Department account passwords: who knows them? | Everyone in the department | department passwords are known to everyone in the department (kept in that department's Vaultwarden vault, 117) |
+| 16 | When should a department password change? | Whenever someone leaves that department |  |
+| 17 | Tell you when someone hasn't signed in for a long time? | Yes, after 90 days | a Discord #alerts line for any account unused for 90 days |
+| 18 | Staff birthdays? | On the admins' calendar |  |
+| 19 | Someone has no personal email for the reset link. | Their department leader can reset it | department leaders get a reset for their department's people (the phone page of 89) |
+| 20 | Profile photos on the login faces? | They choose their own; initials until they do |  |
+| 21 | Staff phone numbers in the directory: who sees them? | All staff | staff phone numbers are visible to all staff |
+| 22 | Should the pastors' closet desktop be simpler than yours? | Ask them on install week |  |
+| 23 | A church Mac already has local accounts. What happens to each one? | Link them all | every local account found on a church Mac is linked: it stays as it is and its files sync to the matching server user; no Convert by default |
+| 24 | Convert = the local account becomes the matching server user (first.last), every file and setting kept. Link = it stays local with its own password, and its Desktop and Documents sync to a server user. Is that right? | Yes, that's what I mean |  |
+| 25 | Put every server account on every church Mac ahead of time, so their face is on the login window before they ever sign in? | Everyone on every church Mac | every server account on every church Mac (as built), except where a local account is linked to that person (no second face for one person) |
+| 26 | After a conversion, which password? | Keep the old local one (that is what Link is for) | after linking, the local password stays; Convert stays available per account |
+| 27 | A line under the faces on the login window? | "Arise Church: sign in with your church account. Help: Bradly" | the login window shows "Arise Church: sign in with your church account. Help: Bradly" |
+| 28 | Lock a church Mac's screen after how long idle? | Never | the helper never turns on a screen lock |
+| 29 | Shared Macs (media booth, kids): sign out by themselves when idle? | Never, anywhere | no automatic sign-out on any Mac |
+| 30 | Can staff install apps themselves? | Ask an admin for everything | standard users, and the Mac App Store asks for an admin too |
+| 31 | Apps every church Mac gets by itself? | Nextcloud, Firefox, Chrome, Zoom; Proclaim on the media Mac | the helper installs Nextcloud, Firefox, Chrome and Zoom on every church Mac, and Proclaim on the media Mac, each checked against its maker's signing identity |
+| 32 | Apple IDs on church Macs? | Each person signs in with their own, if they want |  |
+| 33 | The built-in Guest User on church Macs? | On for visitors, wiped at sign-out | the built-in Guest User is on, wiped at sign-out |
+| 34 | USB drives and SD cards on church Macs? | Allowed |  |
+| 35 | Church Mac names? | Keep the names they have | Macs keep the names they have; enrolment no longer asks for one |
+| 36 | Staff bringing their own Mac or laptop? | The Nextcloud app and the web only |  |
+| 37 | Is any Windows PC still used by staff after Friday (not the server)? | No |  |
+| 38 | Church iPads or iPhones to manage? | None now; ask me later |  |
+| 39 | Who grants Full Disk Access on each Mac? | Me, while enrolling | Full Disk Access is granted by Bradly during enrolment |
+| 40 | When a church Mac's disk is nearly full? | Tell me and the person at 90% | at 90% full the helper tells the person (a Mac notification) and Bradly |
+| 41 | Raw service recordings on the media Mac? | They go to the recordings share only; never synced |  |
+| 42 | Downloads folders on church Macs? | Synced | Downloads syncs too |
+| 43 | Pictures and Music folders? | Both | Pictures and Music sync too; the Photos and Music library packages inside them stay out (syncing a live library corrupts it) |
+| 44 | Warn people as they near 50 GB? | Yes, at 80% and 95% | warnings at 80% and 95% of 50 GB, by email and a Mac notification |
+| 45 | Someone reaches 50 GB. | Let them go over; tell you | the 50 GB quota is soft: nobody is stopped; Bradly is told |
+| 46 | Earlier versions of a file kept for? | A year | earlier versions kept a year |
+| 47 | Sending a file to someone outside the church (a guest speaker)? | Admins can make a link that ends after 7 days | only admins make outside links, and each ends after 7 days |
+| 48 | The Church folder: who can delete things in it? | Anyone (it goes to the Trash) |  |
+| 49 | Event photos? | A Photos share on the Synology, staff drop them in | a Photos share on the Synology |
+| 50 | Where does the Proclaim library live? | In Proclaim's own cloud | the Proclaim library stays in Proclaim's own cloud |
+| 51 | Department folders in Finder's sidebar: names? | Plain: Media, Worship, Children's Department |  |
+| 52 | Any file types never allowed on the shares? | Allow everything |  |
+| 53 | An off-site copy: Arise-Home (your house) is far enough from Pineville. Use it as the off-site copy? | Yes, Arise-Home is the off-site copy | Arise-Home is the off-site copy |
+| 54 | What goes to Arise-Home? | Everything except raw recordings | everything goes to Arise-Home except raw recordings |
+| 55 | Restoring a file for staff? | They use Previous Versions themselves; admins for anything older |  |
+| 56 | The monthly restore drill's result? | A line in Discord #weekly | the restore drill's result is a line in Discord #weekly |
+| 57 | Where does the recovery card (the closet card) live? | Taped inside the closet | the closet card is taped inside the closet |
+| 58 | Who else knows the disk passphrase and the backup password? | Kristina | Kristina knows the disk passphrase and the backup password |
+| 59 | The server is down on a Sunday morning and you can't be reached. | Kristina follows the closet card |  |
+| 60 | A leaver's files after the 30-day hold: kept in the backups for? | Forever, on the Synology | a leaver's files are copied to the Synology after the 30-day hold and kept forever |
+| 61 | Copy the Macs' Time Machine backups to Arise-Home too? | No |  |
+| 62 | YouTube: keep a copy of every title, description and thumbnail on the server? | Yes, a nightly copy of the channel's text and thumbnails | a nightly copy of the channel's titles, descriptions and thumbnails, taken from the automator's own snapshots and the public thumbnail addresses (no quota) |
+| 63 | Google accounts (soundmedia and others): a yearly reminder to export them? | Yes, every January | a January reminder to export the Google accounts |
+| 64 | Backups can't reach the Synology. Tell you after? | One missed night | backups that miss one night are reported |
+| 65 | Two-step sign-in: required for the four admins? | Optional for everyone, as now |  |
+| 66 | Who reads the audit log? | All four admins | all four admins read the audit log |
+| 67 | How long is the audit log kept? | Forever | the audit log is kept forever |
+| 68 | An admin opens a file in someone's home folder. | The audit log is enough |  |
+| 69 | Both pastors are unreachable and something in the Pastors folder is needed. | You, with both pastors told afterwards | Bradly can open the Pastors folder in an emergency; both pastors are emailed at once and it is in the audit log (Claude still never opens it) |
+| 70 | Someone signs in from a new device. | Email them, and tell you | a sign-in from a new device emails the person and tells Bradly |
+| 71 | A filter for adult and malware sites on the church Macs? | Malware and adult sites blocked on church Macs | church Macs use a DNS filter that blocks malware and adult sites; the church domain still resolves through the server; personal devices are untouched |
+| 72 | The kids Mac? | The same as the other church Macs | the kids Mac gets the same filter |
+| 73 | Who gets the arise-rescue password? | The closet card and Kristina | the arise-rescue password is on the closet card and with Kristina |
+| 74 | A phone with Nextcloud on it is lost. | Cut it off from the Sync panel; the person is told |  |
+| 75 | The network scan's list of devices: kept for? | A year | the network scan's device list is kept a year |
+| 76 | May Claude read the audit log to explain what happened? | Yes | Claude may read the audit log |
+| 77 | Who else sees Discord #alerts? | Only you | Discord #alerts is Bradly's only |
+| 78 | When is the Sunday "all green" post? | An hour before each service | the all-green post goes out an hour before each service |
+| 79 | An all-green post before Glory Night too? | Yes | Glory Night gets its all-green post too |
+| 80 | The Monday report holds? | Backups, storage, Macs, sign-ins, updates, the channel's numbers |  |
+| 81 | A short monthly note to the pastors: what the server did, in five plain lines? | Yes | a monthly note to the pastors, drafted by Claude and sent once Bradly approves it (144) |
+| 82 | A church Mac hasn't checked in for? | Three days | a church Mac silent for three days is reported |
+| 83 | Stream watch on Glory Night as well as Sunday? | Yes |  |
+| 84 | How do staff get notices (nearing the quota, a new device, a reset link)? | A Mac notification from the helper, and email | staff notices arrive as a Mac notification from the helper and an email |
+| 85 | The channel's progress toward the Partner Program in the Monday report? | Yes | the Monday report shows the channel's progress toward 1,000 subscribers and 4,000 watch hours |
+| 86 | A Discord line when a new staff account is made or one is switched off? | Yes, #alerts | Discord #alerts gets a line when an account is made or switched off |
+| 87 | The closet monitor during a service? | Service mode: stream health, the checklists, the run sheet | the closet monitor goes to service mode during a service: stream health, the checklists, the run sheet |
+| 88 | Who sees other departments' checklists? | Department leaders and admins | department leaders and admins see every department's checklist |
+| 89 | How do departments tick their checklist, since staff don't use the dashboard? | On their phones, through a simple checklist page on Tailscale or church Wi-Fi | a phone checklist page that staff sign in to on church Wi-Fi or Tailscale; it is the only dashboard page staff can open |
+| 90 | Call times? | Sunday 09:00, Glory Night 18:00 | call times: Sunday 09:00, Glory Night 18:00 |
+| 91 | During a service the server holds back: | Updates, restarts, Mac changes, and heavy syncing | during a service the server holds updates, restarts, Mac changes and heavy syncing |
+| 92 | Slow Nextcloud syncing during a service so the stream keeps its bandwidth? | Yes | during a service the church Macs pause Nextcloud syncing and resume after |
+| 93 | Does Alexandria's 10:00 service count as a service for those holds? | Yes | Alexandria's 10:00 counts as a service |
+| 94 | Special services (Easter, The Outpour, conferences)? | Add them in Calendar and they count as services | Calendar events marked as services count as services |
+| 95 | After a service, remind the media team to copy the recording to the recordings share? | No |  |
+| 96 | Is the Proclaim machine one of the church Macs? | Yes, the media Mac |  |
+| 97 | When do you plan to switch the runner to the server? | Not decided |  |
+| 98 | Run a plan-only preview on the server each night before the switch? | No; only in the switch week |  |
+| 99 | Lyrics from Proclaim: how will they come over? | I export them; a Lyrics inbox folder in Nextcloud imports whatever lands there | a Lyrics inbox folder in Nextcloud: files dropped there are imported into the Songs tab |
+| 100 | Who may add lyrics? | You and the worship leader (through the inbox folder) | Bradly and the worship leader can drop lyrics into the inbox |
+| 101 | Transcript search for the pastors (finding a past sermon)? | At the closet only, like now |  |
+| 102 | Spotify podcast uploads from the server? | Later |  |
+| 103 | Build service thumbnails on the server (the house layout)? | Later |  |
+| 104 | After the switch, the PC? | Kept ready as the backup runner | the PC stays ready as the backup runner after the switch |
+| 105 | Videos on the hold list in transcript search? | Left out | held videos stay out of transcript search |
+| 106 | Song usage report for CCLI (what was sung, how often)? | Yes, quarterly | a quarterly song-usage report for CCLI, from the set lists and credits |
+| 107 | After a restart, the monitor shows? | Your desktop | after a restart the monitor opens Bradly's desktop; it still locks after ten idle minutes |
+| 108 | The text console (Ctrl+Alt+F2) at the closet? | Available to admins | the text console is available to admins |
+| 109 | Light mode? | Dark by default; each admin may pick light | dark by default; each admin may pick light |
+| 110 | Announcements on the screensaver come from? | The Calendar | screensaver announcements come from the Calendar |
+| 111 | Weather on the screensaver? | Pineville and Alexandria | weather for Pineville and Alexandria |
+| 112 | Is the closet monitor a touchscreen? | No |  |
+| 113 | Show the live stream, muted, on the closet monitor during services? | No |  |
+| 114 | Can each admin choose their own widgets? | Yes | each admin chooses their own widgets |
+| 115 | Hide apps an admin never uses from their Launchpad? | Yes, per admin | each admin can hide apps from their Launchpad |
+| 116 | A shared notes board on the desktop for the four admins? | Yes | a shared notes board on the desktop for the four admins |
+| 117 | Vaultwarden (the password manager)? | Admins, plus a vault for each department's shared passwords | Vaultwarden for admins, with a vault for each department's shared passwords |
+| 118 | Staff asking for IT help? | The IT portal on AriseHub; tickets reach you in Discord | staff ask for help through the AriseHub IT portal; its tickets reach Bradly in Discord |
+| 119 | Church equipment list (cameras, mics, laptops)? | In the IT portal | the equipment list lives in the IT portal |
+| 120 | Does the church use Google Calendar now? | No |  |
+| 121 | Internet speed tested every hour and charted, to show the provider when it's slow? | Yes | an hourly internet speed test, charted |
+| 122 | A sermon library inside the building (Jellyfin) for the lobby or the office? | No |  |
+| 123 | Immich for event photos (like Google Photos, on the Synology)? | Later |  |
+| 124 | Room or equipment booking? | No |  |
+| 125 | Uptime Kuma's status page for staff (is the internet, the printer, Nextcloud up)? | No, admins only |  |
+| 126 | Anything the old PC does today that the server must keep doing? | The old pc is just there existing, unused. |  |
+| 127 | The internet provider and plan speed at Pineville? | Optimum business plan highest plan | Pineville's internet: Optimum Business, the highest plan |
+| 128 | Which router network is the Synology on? | Netgear nighthawk router A | the Synology is on the Netgear Nighthawk, router A |
+| 129 | Who gets Tailscale? | Admins' phones and laptops, and staff laptops that go home | Tailscale for admins' phones and laptops and staff laptops that go home |
+| 130 | Whose account owns Tailscale? | A church Google account | Tailscale belongs to a church Google account |
+| 131 | The Wix DNS records for arisecenla.com? | Walk me through it with screenshots | a step-by-step guide for the Wix DNS records |
+| 132 | The name on email the server sends? | Arise Church IT | server mail comes from "Arise Church IT" |
+| 133 | arisecenla.church (GoDaddy, no access): any plan? | Leave it; the server uses arisecenla.com |  |
+| 134 | Does Alexandria have any church Macs? | Yes (1) | Alexandria has one church Mac |
+| 135 | Who may press Install for ariseOS updates? | Any admin | any admin may install ariseOS updates |
+| 136 | Update Arise-Home first, then Pineville a week later? | Yes | Arise-Home updates first; Pineville a week later |
+| 137 | Disk, fan and temperature warnings? | The defaults (SMART, 80°C) |  |
+| 138 | Replace the server's disk? | When its health check warns |  |
+| 139 | A January clean-up report: unused accounts, the biggest files, empty shares? | Yes | a January clean-up report |
+| 140 | A record of every change made on the box (by you, Kristina or Claude) in About? | Yes | every change on the box is recorded in About |
+| 141 | Who do we call if you are away for a week? | Me or Kristina, or Ronnie | if Bradly is away: Bradly, Kristina or Ronnie |
+| 142 | A spare part on the shelf? | Nothing | no spare parts kept |
+| 143 | Claude and the ariseOS repo on the box? | As now: commit only when you say |  |
+| 144 | Claude writes the pastors' monthly note in plain words? | Yes, you approve it first | Claude drafts the pastors' monthly note; Bradly approves it |
+| 145 | Claude reads the 02:05 report and explains any failure in the morning note? | Yes | Claude explains a failed 02:05 run in the morning note |
+| 146 | Claude may run a plan-only automator preview by itself? | Once a week | Claude may run one plan-only automator preview a week |
+| 147 | A help chat for staff (no server powers)? | Yes, a help chat that can only answer | a staff help chat that can only answer questions, no server powers |
+| 148 | Walk the pastors through the closet desktop on install week? | Yes |  |
+| 149 | Kristina's training? | An hour at the closet and a written guide |  |
+| 150 | Staff training? | Ten minutes at a staff meeting and the one-page guide |  |
+| 151 | What would make you say this is the best server ever? | It was made for how Arise Church runs its service | "It was made for how Arise Church runs its service" |
+| 152 | Anything I haven't asked? | Any contact information for anybody |  |
+| 153 | Cut off a lost Mac: remove it from Tailscale too? | No, I'll remove it in the console | Cut off doesn't touch Tailscale; Bradly removes the Mac in the console |
+| 154 | Removed Mac profiles are kept as disk images in /Users/Deleted Users on that Mac. They pile up. | Keep them forever | removed-profile disk images are kept forever |
+| 155 | Staff email addresses (first.last@ad.arisecenla.com) forwarding to their personal email: the mail server isn't built yet. | Build it next: forwarding only, plus exporting a leaver's mail | build mail next: forwarding to personal email only, and exporting a leaver's mail |
+
 ## Still needed
 
 - Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
