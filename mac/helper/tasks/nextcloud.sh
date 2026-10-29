@@ -173,7 +173,7 @@ fi
 [[ "$L_USER" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || fail "--local must be a macOS short name"
 L_UID="$(id -u "$L_USER" 2>/dev/null)" || fail "there is no macOS account $L_USER on this Mac (a domain account appears at its first sign-in here)"
 [ "$L_UID" -ge 500 ] || fail "$L_USER is a system account"
-L_HOME="$(dscl . -read "/Users/$L_USER" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+L_HOME="$(dscl . -read "/Users/$L_USER" NFSHomeDirectory 2>/dev/null | sed -n 's/^NFSHomeDirectory: *//p' | head -1)"
 [ -d "$L_HOME" ] || fail "$L_USER has no home folder on this Mac yet"
 case "$L_HOME" in /Users/*) ;; *) fail "$L_USER's home is $L_HOME, not a local folder: Nextcloud syncs a local home only" ;; esac
 if [ -d "$L_HOME/Library/Mobile Documents/com~apple~CloudDocs/Desktop" ]; then
@@ -245,7 +245,8 @@ else
   MAC_ID="$(sed -n 's/^MAC_ID=//p' "$CONF" 2>/dev/null | head -1)"; KEY="$(cat "$KEYF" 2>/dev/null)"
   [ -n "$SERVER" ] && [ -n "$MAC_ID" ] && [ -n "$KEY" ] || fail "this Mac is not enrolled with the helper (no $CONF)"
   ca=(); case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
-  ans="$(curl -fsS --max-time 120 "${ca[@]}" -H @- "$SERVER/api/cloud/agent/app-password" \
+  # ${ca[@]+...}: bash 3.2 (macOS) calls an empty "${ca[@]}" unbound under set -u.
+  ans="$(curl -fsS --max-time 120 ${ca[@]+"${ca[@]}"} -H @- "$SERVER/api/cloud/agent/app-password" \
           --data-urlencode "user=$S_USER" --data-urlencode "local=$L_USER" --data-urlencode "model=$DEVICE_MODEL" <<< "X-Arise-Mac: $MAC_ID:$KEY" 2>&1)" \
     || fail "the server gave no app password: $(printf '%s' "$ans" | tail -1)"
   case "$ans" in ERROR*) fail "the server refused: ${ans#ERROR }" ;; esac

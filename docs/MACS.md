@@ -274,10 +274,63 @@ helper, its plist, `bind-mac.sh`, `migrate-mac-user.sh`, and `nextcloud.sh`.
 
 ## Not verified on a real Mac yet
 
-There is no Mac where this was built. These steps follow Apple's documented
-tools but were checked only with `bash -n`, and need a first run on one church
-Mac before the rest:
+There is no Mac where this was built. `tests/test_mac_scripts.py` reads every
+script for anything bash 3.2 (the one macOS ships) cannot run, and runs the
+helper's own functions with stand-ins for `dscl`, `stat -f`, `sysadminctl`,
+`fdesetup` and `softwareupdate`. Point `ARISE_BASH32` at a bash 3.2.57 binary
+to run them under the real version; this box runs them under its own bash.
 
+**Checked against the documentation (Oct 29), and fixed where they were wrong:**
+
+- An empty array under `set -u` (`"${ca[@]}"`) stops bash 3.2 dead with
+  "unbound variable"; only bash 4.4 changed that (bash CHANGES, 4.4 a.). It
+  would have stopped every check-in to a server without a certificate yet. Every
+  such expansion is now `${a[@]+"${a[@]}"}`, and the test fails on a new one.
+- `dig` reads `/etc/resolv.conf` only and never sees `/etc/resolver/<domain>`,
+  so `bind-mac.sh` could not find the server on a Mac that keeps the router's
+  DNS. It asks `dscacheutil -q host` (the system resolver, the one
+  `dsconfigad` uses) and points `dig` at the domain's nameserver for the SRV
+  records.
+- macOS 15.4 replaced rsync 2.6.9 with openrsync, which takes only part of
+  rsync's options. `migrate-mac-user.sh` no longer passes `-X` (rsync 3's; Apple's
+  2.6.9 says `-E`): it asks `rsync --help`. The old home-sync stands down when
+  its rsync has no `--backup-dir`, rather than overwrite a server copy.
+- `curl -H @file` and `-H @-` need curl 7.55 (macOS 10.13 and later).
+- The Full Disk Access link
+  `x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles`
+  opens the pane on Sonoma and Sequoia; the admin still presses + and adds the
+  helper. It is opened in the signed-in person's session (`open` as root has no
+  window).
+- `fdesetup status` says "FileVault is Off, but will be enabled after the next
+  restart." when it is deferred: only "FileVault is On" counts as on now.
+- The task loop reads the server's answer on stdin, and `enrol.sh` arrives
+  through `curl | sudo bash`: a command that reads stdin would have eaten the
+  next tasks, or the rest of the script. Tasks get `</dev/null`, and `enrol.sh`
+  runs from a `main` that bash has read in full.
+- `sysadminctl` exits 0 even when it did nothing, so a removal and `ariseadmin`
+  are checked against the account record afterwards, never its exit code.
+- Retire removed its files after `launchctl bootout`, which ends the script
+  itself; the files go first now, then the job.
+- Updates: a new macOS is an upgrade, and macOS installs updates within its own
+  version (Apple's platform guide), so "Install macOS updates" is on and the
+  helper installs, itself, only patches for the macOS the Mac runs (minor
+  versions, Security Updates, Rapid Security Responses / Background Security
+  Improvements, Safari). On Apple silicon a macOS update wants a volume
+  owner's password, which root alone cannot give: those wait for macOS's own
+  overnight install.
+- `ariseadmin`: an account with a Secure Token keeps FileVault in step only when
+  its password is changed with the old one, so the helper keeps the current one
+  (root, 0600) and uses `dscl . -passwd` with it.
+
+**Still for a first run on one church Mac:**
+
+- `createmobileaccount`'s options (`-n`, `-h <home>`, `-v`): Apple publishes no
+  manual page for it; the helper uses the forms admins have used for years.
+- whether "Install macOS updates" (`AutomaticallyInstallMacOSUpdates`) ever
+  offers a new major macOS on its own. Apple's guide says upgrades need the
+  person; nothing tests the key itself.
+- whether the restart notice reaches the person (`launchctl asuser` plus
+  `sudo -u`, kept alive by `AbandonProcessGroup`)
 - `createmobileaccount -h <home>` on a converted account
 - whether a converted account gets a Secure Token. Until that is tried, the
   helper refuses to Convert an account that holds a Secure Token when

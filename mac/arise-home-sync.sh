@@ -151,10 +151,16 @@ EXCLUDES=(
   "*/Library/Caches/*" "*.tmp" "*.part" "*.crdownload" "~$*" ".~lock.*"
   "node_modules" ".git/objects" "*.vmdk" "*.vdi" "*.sparsebundle"
 )
-RSYNC_EX=(); for e in "${EXCLUDES[@]}"; do RSYNC_EX+=(--exclude "$e"); done
+RSYNC_EX=(); for e in ${EXCLUDES[@]+"${EXCLUDES[@]}"}; do RSYNC_EX+=(--exclude "$e"); done
 
+# Newest wins only because the server's older copy is moved aside first (--backup-dir). An rsync
+# without it (openrsync on some macOS 15 builds) would overwrite instead, so this copy stands down.
+case "$(rsync --help 2>&1)" in
+  *--backup-dir*) ;;
+  *) log "this Mac's rsync has no --backup-dir (openrsync?): nothing synced, so no server copy is overwritten; Nextcloud is the way (docs/SYNC.md)"; exit 0 ;;
+esac
 RSYNC_OPTS=(-rltD --update --no-perms --no-owner --no-group --max-size="$MAX_SIZE" --timeout=120 --partial
-            --backup --backup-dir="$CONFLICTS" "${RSYNC_EX[@]}")
+            --backup --backup-dir="$CONFLICTS" ${RSYNC_EX[@]+"${RSYNC_EX[@]}"})
 # -rltD not -a: SMB cannot store Unix permissions or owners and -a makes rsync
 # complain every run. --update is the newest-wins rule. --backup moves the
 # server's older copy aside before it is overwritten (that is the conflict copy).
@@ -170,7 +176,7 @@ for f in $FOLDERS; do
   mkdir -p "$MOUNT/$f" 2>/dev/null
   # --backup-dir must be absolute and must NOT be on the share; it is under the
   # Mac's own Library so a conflict copy is never written over SMB.
-  out=$(rsync "${RSYNC_OPTS[@]}" --stats "$src/" "$MOUNT/$f/" 2>&1)
+  out=$(rsync ${RSYNC_OPTS[@]+"${RSYNC_OPTS[@]}"} --stats "$src/" "$MOUNT/$f/" 2>&1)
   rc=$?
   n=$(printf '%s\n' "$out" | awk '/Number of regular files transferred/{print $NF}')
   b=$(printf '%s\n' "$out" | awk '/Total transferred file size/{print $(NF-1)}')

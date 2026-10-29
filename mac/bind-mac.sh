@@ -59,8 +59,8 @@ if [ -n "$DNS_IP" ]; then
   step "The church certificate (padlock on the dashboard)"
   CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
   if curl -fsS -m 8 -o "$CA_TMP" "http://$DNS_IP:4147/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
-    if security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then
-      say "already trusted (Caddy Local Authority is in the System keychain)"
+    if security verify-cert -c "$CA_TMP" >/dev/null 2>&1; then
+      say "already trusted (the church certificate checks out against this Mac's trust settings)"
     elif security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then
       say "trusted: the church root certificate is in the System keychain"
     else
@@ -74,13 +74,19 @@ fi
 
 step "DNS — does this Mac use the domain controller?"
 say "resolvers: $(scutil --dns | awk '/nameserver\[0\]/{print $3}' | sort -u | tr '\n' ' ')"
-A=$(dig +short "$DC_HOST" 2>/dev/null | head -1)
+# dig reads only /etc/resolv.conf: it never sees /etc/resolver/<domain>, which is how this Mac
+# reaches the church DNS. dscacheutil asks the system resolver (what dsconfigad and every app use),
+# and dig is pointed at the domain's own nameserver for the SRV records.
+NS="$DNS_IP"
+[ -n "$NS" ] || NS="$(awk '$1=="nameserver"{print $2; exit}' "/etc/resolver/${REALM_LC}" 2>/dev/null)"
+A=$(dscacheutil -q host -a name "$DC_HOST" 2>/dev/null | awk '/^ip_address:/{print $2; exit}')
+[ -n "$A" ] || A=$(dig +short ${NS:+@"$NS"} "$DC_HOST" 2>/dev/null | head -1)
 [ -n "$A" ] || die "cannot resolve $DC_HOST. This Mac is not using the server for DNS. Run again with --dns <server ip> (writes /etc/resolver/${REALM_LC}; no router change), or set the Mac's DNS to the server in System Settings > Network, then: sudo dscacheutil -flushcache"
 say "$DC_HOST -> $A"
-SRV=$(dig +short "_ldap._tcp.${REALM_LC}" SRV 2>/dev/null | head -1)
+SRV=$(dig +short ${NS:+@"$NS"} "_ldap._tcp.${REALM_LC}" SRV 2>/dev/null | head -1)
 [ -n "$SRV" ] || die "no SRV record for _ldap._tcp.${REALM_LC}. DNS answers but it is not the DC's DNS."
 say "_ldap._tcp SRV -> $SRV"
-KSRV=$(dig +short "_kerberos._tcp.${REALM_LC}" SRV 2>/dev/null | head -1)
+KSRV=$(dig +short ${NS:+@"$NS"} "_kerberos._tcp.${REALM_LC}" SRV 2>/dev/null | head -1)
 [ -n "$KSRV" ] || die "no SRV record for _kerberos._tcp.${REALM_LC}"
 say "_kerberos._tcp SRV -> $KSRV"
 

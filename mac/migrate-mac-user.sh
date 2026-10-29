@@ -36,7 +36,7 @@ done
 [ "$(id -u)" -eq 0 ] || die "run with sudo"
 [ "$(uname)" = "Darwin" ] || die "this script is for macOS"
 [ -n "$FROM" ] && [ -n "$TO" ] || die "--from <localuser> and --to <domainuser> are both required"
-SRC=$(dscl . -read "/Users/$FROM" NFSHomeDirectory 2>/dev/null | awk '{print $2}')
+SRC=$(dscl . -read "/Users/$FROM" NFSHomeDirectory 2>/dev/null | sed -n 's/^NFSHomeDirectory: *//p' | head -1)
 [ -n "$SRC" ] && [ -d "$SRC" ] || die "no local user '$FROM' with a home folder"
 [ -z "$SHARE" ] && SHARE="smb://${SERVER}/homes/${TO}"
 command -v rsync >/dev/null || die "rsync not found (it ships with macOS; something is wrong)"
@@ -86,11 +86,11 @@ step "Sizes before (this takes a minute on a big home)"
   echo
   printf '%-34s %10s %12s\n' "BEFORE (on the Mac)" "files" "size"
 } > "$MANIFEST"
-for f in "${FOLDERS[@]}"; do
+for f in ${FOLDERS[@]+"${FOLDERS[@]}"}; do
   r=$(measure "$SRC/$f"); n=${r%%	*}; b=${r##*	}
   printf '%-34s %10s %12s\n' "$f" "$n" "$(human "$b")" | tee -a "$MANIFEST" | sed 's/^/  /'
 done
-for a in "${APPSUPPORT[@]}"; do
+for a in ${APPSUPPORT[@]+"${APPSUPPORT[@]}"}; do
   d="$SRC/Library/Application Support/$a"
   [ -d "$d" ] || continue
   r=$(measure "$d"); n=${r%%	*}; b=${r##*	}
@@ -108,24 +108,31 @@ done
 
 [ $DRY -eq 1 ] && say "" && say "dry run: see the plan above, nothing copied. Manifest at $MANIFEST" && exit 0
 
+# -X is rsync 3's flag: Apple's rsync 2.6.9 spells extended attributes -E, and openrsync (macOS
+# 15.4 and later) takes neither. So the flags come from what this Mac's rsync says it knows.
+RSYNC_HELP="$(rsync --help 2>&1)"
+RSYNC_META=(-rlt)
+case "$RSYNC_HELP" in *--hard-links*) RSYNC_META+=(-H) ;; esac
+case "$RSYNC_HELP" in *--extended-attributes*) RSYNC_META+=(-E) ;; *--xattrs*) RSYNC_META+=(-X) ;; esac
+case "$RSYNC_HELP" in *--progress*) RSYNC_META+=(--progress) ;; esac
 RSYNC_EX=()
-for e in "${EXCLUDES[@]}"; do RSYNC_EX+=(--exclude "$e"); done
+for e in ${EXCLUDES[@]+"${EXCLUDES[@]}"}; do RSYNC_EX+=(--exclude "$e"); done
 
 step "Copying"
 FAIL=0
-for f in "${FOLDERS[@]}"; do
+for f in ${FOLDERS[@]+"${FOLDERS[@]}"}; do
   [ -d "$SRC/$f" ] || continue
   say "-- $f"
   mkdir -p "$MOUNT/$f"
-  rsync -aHX --progress --no-perms --no-owner --no-group "${RSYNC_EX[@]}" "$SRC/$f/" "$MOUNT/$f/" 2>&1 | tail -3 | sed 's/^/    /'
+  rsync "${RSYNC_META[@]}" ${RSYNC_EX[@]+"${RSYNC_EX[@]}"} "$SRC/$f/" "$MOUNT/$f/" 2>&1 | tail -3 | sed 's/^/    /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || { say "   rsync reported errors in $f (see above)"; FAIL=1; }
 done
-for a in "${APPSUPPORT[@]}"; do
+for a in ${APPSUPPORT[@]+"${APPSUPPORT[@]}"}; do
   d="$SRC/Library/Application Support/$a"
   [ -d "$d" ] || continue
   say "-- Application Support/$a"
   mkdir -p "$MOUNT/Library/Application Support/$a"
-  rsync -aHX --progress --no-perms --no-owner --no-group "${RSYNC_EX[@]}" "$d/" "$MOUNT/Library/Application Support/$a/" 2>&1 | tail -3 | sed 's/^/    /'
+  rsync "${RSYNC_META[@]}" ${RSYNC_EX[@]+"${RSYNC_EX[@]}"} "$d/" "$MOUNT/Library/Application Support/$a/" 2>&1 | tail -3 | sed 's/^/    /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || { say "   rsync reported errors in $a"; FAIL=1; }
 done
 
@@ -135,7 +142,7 @@ step "Sizes after (on the share)"
   printf '%-34s %10s %12s\n' "AFTER (on the server)" "files" "size"
 } >> "$MANIFEST"
 MISMATCH=0
-for f in "${FOLDERS[@]}"; do
+for f in ${FOLDERS[@]+"${FOLDERS[@]}"}; do
   [ -d "$SRC/$f" ] || continue
   r1=$(measure "$SRC/$f"); n1=${r1%%	*}
   r2=$(measure "$MOUNT/$f"); n2=${r2%%	*}; b2=${r2##*	}

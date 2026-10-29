@@ -57,7 +57,8 @@ load_conf() {
 api() {   # api <path> [curl args...]
   local path="$1"; shift
   local ca=(); case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
-  curl -fsS --max-time 120 "${ca[@]}" -H @"$DB/helper.hdr" "$SERVER/api/macs/agent/$path" "$@"
+  # ${ca[@]+...}: macOS's bash 3.2 calls an empty "${ca[@]}" unbound under set -u (fixed only in 4.4).
+  curl -fsS --max-time 120 ${ca[@]+"${ca[@]}"} -H @"$DB/helper.hdr" "$SERVER/api/macs/agent/$path" "$@"
 }
 report() {   # report <task id> <done|failed|refused|skipped> <detail>
   log "task $1: $2 $3"
@@ -66,6 +67,9 @@ report() {   # report <task id> <done|failed|refused|skipped> <detail>
 
 # ----- facts -----------------------------------------------------------------------------
 console_user() { stat -f %Su /dev/console 2>/dev/null; }
+home_of() { dscl . -read "/Users/$1" NFSHomeDirectory 2>/dev/null | sed -n 's/^NFSHomeDirectory: *//p' | head -1; }
+# Signed in on the screen, behind fast user switching, or over ssh: any process of theirs counts.
+in_use() { [ "$(console_user)" = "$1" ] || pgrep -u "$1" >/dev/null 2>&1; }
 is_mobile() {   # an AD account cached on this Mac
   dscl . -read "/Users/$1" AuthenticationAuthority 2>/dev/null | grep -q "LocalCachedUser" && return 0
   dscl . -read "/Users/$1" OriginalNodeName 2>/dev/null | grep -q "Active Directory"
@@ -78,12 +82,12 @@ accounts() {   # user|kind|uid|admin|home|signed_in|realname|last_login
     [ "$uid" -ge 500 ] 2>/dev/null || continue
     if is_mobile "$u"; then kind=mobile; else kind=local; fi
     if dseditgroup -o checkmember -m "$u" admin >/dev/null 2>&1; then adm=1; else adm=0; fi
-    home="$(dscl . -read "/Users/$u" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+    home="$(home_of "$u")"
     real="$(dscl . -read "/Users/$u" RealName 2>/dev/null | sed -n '2p;1s/^RealName: //p' | sed 's/^ *//' | grep -v '^RealName:$' | head -1)"
     printf '%s|%s|%s|%s|%s|%s|%s|\n' "$u" "$kind" "$uid" "$adm" "$home" "$([ "$u" = "$me" ] && echo 1 || echo 0)" "${real//|/ }"
   done
 }
-fv_state() { fdesetup status 2>/dev/null | grep -q "On" && echo on || echo off; }
+fv_state() { fdesetup status 2>/dev/null | grep -q "^FileVault is On" && echo on || echo off; }
 ts_state() { if [ -x "$TS" ]; then "$TS" status >/dev/null 2>&1 && echo up || echo down; else echo "not installed"; fi; }
 facts() {
   printf 'macos=%s\nmodel=%s\nserial=%s\nfilevault=%s\ntailscale=%s\n' "$(sw_vers -productVersion)" "$(sysctl -n hw.model)" \
@@ -135,9 +139,13 @@ t_remove_profile() {
   [ -n "$user" ] || { report "$id" failed "no user"; return; }
   if ! dscl . -read "/Users/$user" >/dev/null 2>&1; then report "$id" done "not on this Mac"; return; fi
   is_mobile "$user" || { report "$id" refused "$user is a local account here; only AD accounts are removed"; return; }
-  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in; tried again next time"; return; }
-  home="$(dscl . -read "/Users/$user" NFSHomeDirectory | awk '{print $2}')"
-  case "$home" in /Users/?*) ;; *) report "$id" refused "$user's home is '$home', not under /Users; left for an admin"; return ;; esac
+  in_use "$user" && { report "$id" refused "$user is signed in (or has something running); tried again next time"; return; }
+  home="$(home_of "$user")"
+  case "$home" in
+    /Users/Shared|/Users/Shared/*|"/Users/Deleted Users"*) report "$id" refused "$user's home is '$home'; left for an admin"; return ;;
+    /Users/?*) ;;
+    *) report "$id" refused "$user's home is '$home', not under /Users; left for an admin"; return ;;
+  esac
   if ! ans="$(server_has_it_all "$user" "$home" "$bases" "$folders")"; then
     report "$id" refused "the server does not have all of $user's files yet: $(printf '%s' "$ans" | head -3 | tr '\n' ' ')"; return
   fi
@@ -149,7 +157,10 @@ t_remove_profile() {
     report "$id" refused "could not keep a copy of the rest of $user's Mac folder (disk full?); nothing removed"; return
   fi
   chmod 600 "$keep"
-  if sysadminctl -deleteUser "$user" >>"$LOG" 2>&1 || { dscl . -delete "/Users/$user" && rm -rf "$home"; }; then
+  # sysadminctl exits 0 even when it did nothing, so the record itself is the answer.
+  sysadminctl -deleteUser "$user" >>"$LOG" 2>&1
+  if dscl . -read "/Users/$user" >/dev/null 2>&1; then dscl . -delete "/Users/$user" >>"$LOG" 2>&1 && rm -rf "$home"; fi
+  if ! dscl . -read "/Users/$user" >/dev/null 2>&1; then
     report "$id" done "removed after the server confirmed ${ans#OK } files; the rest of their Mac folder is kept in $keep"
   else report "$id" failed "could not delete $user (see $LOG); the copy $keep stays"; fi
 }
@@ -174,9 +185,9 @@ t_convert_local() {
   [ -n "$old" ] && [ -n "$user" ] || { report "$id" failed "local and user are needed"; return; }
   dscl . -read "/Users/$old" >/dev/null 2>&1 || { report "$id" failed "$old is not on this Mac"; return; }
   is_mobile "$old" && { report "$id" done "$old is already a directory account"; return; }
-  [ "$(console_user)" = "$old" ] && { report "$id" refused "$old is signed in: sign them out first"; return; }
+  in_use "$old" && { report "$id" refused "$old is signed in (fast user switching counts): sign them out first"; return; }
   id "$user" >/dev/null 2>&1 || { report "$id" failed "the directory does not answer for $user"; return; }
-  home="$(dscl . -read "/Users/$old" NFSHomeDirectory | awk '{print $2}')"
+  home="$(home_of "$old")"
   case "$home" in /Users/?*) ;; *) report "$id" refused "$old's home is '$home', not under /Users; convert it by hand"; return ;; esac
   if has_token "$old"; then
     if [ "$(fv_state)" = on ]; then
@@ -236,7 +247,7 @@ t_unconvert() {   # the rollback: the local account back as it was
   old="$(arg local "$2")"; rec="$DB/convert/$old.plist"
   [ -f "$rec" ] || { report "$id" failed "no rollback record for $old"; return; }
   user="$(defaults read "$rec" user)"
-  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in"; return; }
+  in_use "$user" && { report "$id" refused "$user is signed in"; return; }
   restore_local "$rec"
   report "$id" done "$old is a local account again (if its old password does not work, reset it in System Settings as ariseadmin)"
 }
@@ -262,15 +273,26 @@ t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 
   # The new password is kept on disk (root, 0600) before it is set, so a crash between the
   # two never loses it; setting the same one again is harmless. curl reads it from that file:
   # on the command line, any signed-in user could see it with ps.
-  local id="$1" pw p="$DB/ariseadmin.pending"
+  # The current one is kept as well (root, 0600; the server holds it anyway): an account with a
+  # Secure Token must change its password with the old one (dscl -passwd), or FileVault's copy of
+  # it goes stale. sysadminctl's exit code is not trusted: the record is checked instead.
+  local id="$1" pw cur p="$DB/ariseadmin.pending" c="$DB/ariseadmin.current"
   if [ -s "$p" ]; then pw="$(cat "$p")"
   else pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"; ( umask 077; printf '%s' "$pw" > "$p" ); fi
+  cur="$(cat "$c" 2>/dev/null)"
   if ! dscl . -read /Users/ariseadmin >/dev/null 2>&1; then
-    sysadminctl -addUser ariseadmin -fullName "Arise Admin" -password "$pw" -admin -home /var/ariseadmin >>"$LOG" 2>&1 || { report "$id" failed "could not make ariseadmin"; return; }
+    sysadminctl -addUser ariseadmin -fullName "Arise Admin" -password "$pw" -admin -home /var/ariseadmin >>"$LOG" 2>&1
+    dscl . -read /Users/ariseadmin >/dev/null 2>&1 || { report "$id" failed "could not make ariseadmin (see $LOG)"; return; }
     dscl . -create /Users/ariseadmin IsHidden 1
+    createhomedir -c -u ariseadmin >/dev/null 2>&1
+  elif [ -n "$cur" ] && [ "$cur" = "$pw" ]; then :   # set last time; only the escrow was left
+  elif [ -n "$cur" ] && dscl . -passwd /Users/ariseadmin "$cur" "$pw" >>"$LOG" 2>&1; then :
+  elif has_token ariseadmin; then
+    report "$id" failed "ariseadmin holds a Secure Token and its current password is not known on this Mac; set it once by hand (docs/MACS.md)"; return
   else
     sysadminctl -resetPasswordFor ariseadmin -newPassword "$pw" >>"$LOG" 2>&1 || { report "$id" failed "could not change ariseadmin's password"; return; }
   fi
+  ( umask 077; printf '%s' "$pw" > "$c" )
   if api secret --data-urlencode "kind=ariseadmin" --data-urlencode "value@$p" >/dev/null 2>&1; then
     rm -f "$p"; report "$id" done "rotated and escrowed"
   else report "$id" failed "changed, but the server did not take it: kept here and sent next time"; fi
@@ -294,6 +316,7 @@ t_filevault() {   # on, deferred to the next sign-in; the recovery key escrowed 
 
 t_printers() {
   local id="$1" n=0 kind name uri drv loc
+  rm -f "$DB/printers.count"
   api config 2>/dev/null | while read -r kind name uri drv loc; do
     [ "$kind" = PRINTER ] || continue
     lpadmin -p "$(urldec "$name")" -E -v "$(urldec "$uri")" -m "$(urldec "${drv:-everywhere}")" -L "$(urldec "${loc:-}")" >>"$LOG" 2>&1 && n=$((n + 1))
@@ -325,27 +348,49 @@ t_certificate() {
   else report "$1" failed "the church certificate is not trusted: run the enrol line again in Terminal (macOS asks an admin to approve it)"; fi
 }
 
-t_updates() {   # security and background updates only, overnight; never a new macOS (round 6, 12)
-  local id="$1" labels l n=0 me uid su=/Library/Preferences/com.apple.SoftwareUpdate
-  # Apple's own unattended security channel on, new macOS versions off (Bradly clicks those).
+# pick_updates <current major>: reads `softwareupdate --list` on stdin, prints the labels to install.
+# Each item is a "* Label: X" line and a "Title: ..., Version: V, ..." line. Kept: anything whose
+# version is in the current major (15.1 -> 15.1.1, 26.0 -> 26.0.1), Security Updates and Rapid
+# Security Responses / Background Security Improvements, and Safari's own patches; never a
+# different major (a new macOS).
+pick_updates() {
+  awk -v major="$1" '
+    /^[[:space:]]*\* Label: / { if (lab != "") decide(); lab = $0; sub(/^[[:space:]]*\* Label: /, "", lab); ver = ""; next }
+    /Version: / && lab != "" { v = $0; sub(/.*Version: /, "", v); sub(/,.*/, "", v); ver = v }
+    END { if (lab != "") decide() }
+    function decide(  m) {
+      m = ver; sub(/\..*/, "", m)
+      if (lab ~ /[Ss]ecurity|XProtect|MRT|Gatekeeper/ || lab ~ /^Safari/) print lab
+      else if (ver != "" && m == major && lab ~ /^macOS/) print lab
+      lab = ""
+    }'
+}
+
+t_updates() {   # security patches for this macOS, overnight; never a new macOS (round 6, 12)
+  local id="$1" l n=0 me uid major su=/Library/Preferences/com.apple.SoftwareUpdate
+  # Apple's own channel: check, download, install the critical/config data (XProtect, MRT) and
+  # macOS updates. macOS installs updates within its own major version only; a new macOS is an
+  # upgrade, which it never does by itself (Bradly clicks those).
   defaults write "$su" AutomaticCheckEnabled -bool true
   defaults write "$su" AutomaticDownload -bool true
   defaults write "$su" CriticalUpdateInstall -bool true
   defaults write "$su" ConfigDataInstall -bool true
-  defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool false 2>/dev/null
-  defaults write "$su" AutomaticallyInstallMacOSUpdates -bool false
-  labels="$(softwareupdate --list 2>/dev/null | awk -F'Label: ' '/Label:/{print $2}')"
-  printf '%s\n' "$labels" | while IFS= read -r l; do
+  defaults write "$su" AutomaticallyInstallMacOSUpdates -bool true
+  major="$(sw_vers -productVersion | cut -d. -f1)"
+  # On Apple silicon a macOS update also needs a volume owner's password; root alone cannot give
+  # it, so those wait for macOS's own overnight install above (the log says which ones did not take).
+  softwareupdate --list 2>/dev/null | pick_updates "$major" > "$DB/updates.list"
+  while IFS= read -r l; do
     [ -n "$l" ] || continue
-    case "$l" in *[Ss]ecurity*|*XProtect*|*MRT*|*Gatekeeper*|*"Background Security"*|*"Rapid Security"*) ;; *) continue ;; esac
-    softwareupdate --install "$l" >>"$LOG" 2>&1 && n=$((n + 1)); echo "$n" > "$DB/updates.count"
-  done
-  n="$(cat "$DB/updates.count" 2>/dev/null || echo 0)"; rm -f "$DB/updates.count"
+    if softwareupdate --install "$l" </dev/null >>"$LOG" 2>&1; then n=$((n + 1)); else log "softwareupdate could not install $l now (Apple silicon wants a volume owner); macOS installs it overnight"; fi
+  done < "$DB/updates.list"
+  rm -f "$DB/updates.list"
   if softwareupdate --list 2>/dev/null | grep -qi "restart"; then
     me="$(console_user)"; uid="$(id -u "$me" 2>/dev/null)"
-    [ -n "$uid" ] && [ "$me" != root ] && launchctl asuser "$uid" osascript -e 'display dialog "A security update for this church Mac is ready. Please restart when you can." buttons {"Later"} default button 1 with title "Arise Church"' >/dev/null 2>&1 &
+    # In the person's own session (launchctl asuser + sudo -u, the way Apple's tools are run for a user).
+    [ -n "$uid" ] && [ "$me" != root ] && launchctl asuser "$uid" sudo -u "$me" osascript -e 'display dialog "A security update for this church Mac is ready. Please restart when you can." buttons {"Later"} default button 1 with title "Arise Church"' </dev/null >/dev/null 2>&1 &
   fi
-  report "$id" done "$n security update(s) installed; new macOS versions wait for Bradly"
+  report "$id" done "$n update(s) for macOS $major installed; a new macOS waits for Bradly"
 }
 
 t_tailscale() {
@@ -365,7 +410,7 @@ t_nextcloud() {   # R6-SYNC fills tasks/nextcloud.sh: install and set up the Nex
   local tmp out ca=(); tmp="$(mktemp)"
   case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
   # the server's copy wins, so a Mac enrolled before the script existed gets it too
-  if curl -fsS --max-time 60 "${ca[@]}" "$SERVER/mac/nextcloud.sh" -o "$tmp" 2>/dev/null && bash -n "$tmp" 2>/dev/null; then
+  if curl -fsS --max-time 60 ${ca[@]+"${ca[@]}"} "$SERVER/mac/nextcloud.sh" -o "$tmp" 2>/dev/null && bash -n "$tmp" 2>/dev/null; then
     mkdir -p "$BASE/tasks"; install -m 755 -o root -g wheel "$tmp" "$BASE/tasks/nextcloud.sh"
   fi
   rm -f "$tmp"
@@ -380,14 +425,18 @@ t_retire() {   # every AD account's files confirmed on the server, then leave th
   local id="$1" folders u home bad=""
   folders="$(arg folders "$2" || echo Desktop,Documents)"
   for u in $(accounts | awk -F'|' '$2=="mobile"{print $1}'); do
-    home="$(dscl . -read "/Users/$u" NFSHomeDirectory | awk '{print $2}')"
+    home="$(home_of "$u")"
     server_has_it_all "$u" "$home" "" "$folders" >/dev/null || bad="$bad $u"
   done
   [ -n "$bad" ] && { report "$id" refused "not everything is on the server yet for:$bad"; return; }
   dsconfigad -force -remove -u none -p none >>"$LOG" 2>&1
+  if dsconfigad -show 2>/dev/null | grep -q "Active Directory Domain"; then
+    report "$id" failed "dsconfigad could not leave the domain (see $LOG); nothing else changed"; return
+  fi
   report "$id" done "left the domain; the helper removes itself now. Erase this Mac by hand (System Settings > General > Transfer or Reset)."
-  launchctl bootout system /Library/LaunchDaemons/com.arisechurch.helper.plist 2>/dev/null
+  # Files first: unloading the job ends this script, so nothing after the bootout would run.
   rm -rf /Library/LaunchDaemons/com.arisechurch.helper.plist "$BASE" "$DB"
+  launchctl bootout system/com.arisechurch.helper 2>/dev/null
 }
 
 # ----- one check-in ----------------------------------------------------------------------
@@ -401,14 +450,14 @@ FORM=(--data-urlencode "helper=$VERSION" --data-urlencode "accounts=$(accounts)"
 while IFS= read -r line; do FORM+=(--data-urlencode "$line"); done <<EOF_FACTS
 $(facts)
 EOF_FACTS
-OUT="$(api checkin "${FORM[@]}" 2>&1)" || die "check-in failed: $OUT"
+OUT="$(api checkin ${FORM[@]+"${FORM[@]}"} 2>&1)" || die "check-in failed: $OUT"
 case "$OUT" in HOLD*) log "the server says a service is on: nothing done"; exit 0 ;; esac
 printf '%s\n' "$OUT" | while read -r word id kind rest; do
   [ "$word" = TASK ] || continue
   log "task $id: $kind $rest"
   case "$kind" in
     add_account|remove_profile|convert_local|unconvert|link_local|login_window|ariseadmin|filevault|printers|bookmarks|certificate|updates|tailscale|nextcloud|retire)
-      "t_$kind" "$id" "$rest" ;;
+      "t_$kind" "$id" "$rest" </dev/null ;;
     *) report "$id" skipped "this helper ($VERSION) does not know $kind" ;;
   esac
 done

@@ -65,6 +65,7 @@ fetch() {   # fetch <path> <file>: from the server, checking the church certific
   curl "${opts[@]}" "$SERVER$1" -o "$2"
 }
 
+main() {
 step "1. The church domain's DNS (this Mac only; no router change)"
 mkdir -p /etc/resolver
 printf 'nameserver %s\nsearch_order 1\ntimeout 2\n' "$DNS_IP" > "/etc/resolver/$REALM_LC"
@@ -79,7 +80,8 @@ elif curl -fsS -m 8 -o "$TMP/ca.crt" "http://$DNS_IP:4147/ca.crt" && grep -q 'BE
 fi
 if [ -s "$DB/arise-ca.crt" ]; then
   chmod 644 "$DB/arise-ca.crt"
-  if security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then
+  # verify-cert asks the trust settings, not just whether the certificate sits in the keychain.
+  if security verify-cert -c "$DB/arise-ca.crt" >/dev/null 2>&1; then
     say "already trusted"
   elif security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$DB/arise-ca.crt" </dev/tty; then
     say "trusted (the padlock on the dashboard, and the helper checks the server with it)"
@@ -142,7 +144,7 @@ say "running at boot and every five minutes"
 
 step "7. The first check-in"
 sleep 2
-"$BASE/arise-mac-helper" && say "done; the log is /var/log/arise-helper.log" || say "the first check-in failed; the log says why: tail /var/log/arise-helper.log"
+"$BASE/arise-mac-helper" </dev/null && say "done; the log is /var/log/arise-helper.log" || say "the first check-in failed; the log says why: tail /var/log/arise-helper.log"
 tail -n 12 /var/log/arise-helper.log 2>/dev/null | sed 's/^/    /'
 
 step "8. Full Disk Access (once, by hand)"
@@ -154,7 +156,11 @@ else
   say "In the window that opens: press +, press Cmd-Shift-G, type /usr/local/arise/helper/arise-mac-helper,"
   say "press Open, then do the same for /bin/bash, and make sure both switches are on."
   say "Until then the Macs app shows this Mac as 'no Full Disk Access' and no profile is removed from it."
-  open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" 2>/dev/null || true
+  # Opened in the signed-in person's session: `open` run as root (sudo) has no window to show.
+  CU="$(stat -f %Su /dev/console 2>/dev/null)"
+  if [ -n "$CU" ] && [ "$CU" != root ]; then
+    launchctl asuser "$(id -u "$CU")" sudo -u "$CU" open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" >/dev/null 2>&1 || true
+  fi
 fi
 
 LOCALS="$(printf '%s\n' "$ACCTS" | awk -F'|' '$2=="local"{print $1}')"
@@ -165,3 +171,7 @@ if [ -n "$LOCALS" ]; then
   say "Convert (becomes the server user), Link (stays, uses the server's files), or Leave alone."
 fi
 printf '\n  %s is a church Mac now. Everyone with a server account will appear on its login window within minutes.\n\n' "$NAME"
+}
+
+# The whole file is read before anything runs (curl | bash), and nothing below can eat it from stdin.
+main "$@" </dev/null
