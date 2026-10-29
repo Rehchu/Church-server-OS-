@@ -281,13 +281,85 @@ from a Mac's login window too.
   guided setup has the same (`POST /api/directory/import`). Columns: `first, last,
   title, departments, personal_email, mobile, birthday, role` (role: admin, staff
   or member; departments separated by `;`). User names are made as first.last
-  (accents dropped); duplicates, existing accounts and bad names are refused per
-  row. The temporary passwords are printed once, on that screen, and kept
-  nowhere else.
+  (accents dropped); a second john.smith becomes john.smith2 (round 7, 12), and
+  the check says so on that row, so a list imported twice by mistake is caught
+  before Apply. Bad names are refused per row. The temporary passwords are
+  printed once, on that screen, and kept nowhere else.
 - **A leaver's mail** (round 5, 38): the 30-day sweep exports their Maildir as
   an mbox file into the "From <name>" folder of whoever takes their files,
   before anything else happens to the mailbox. There is no internal mail server
   yet; the sweep says so.
+
+## Round 7: what happens around an account
+
+- **Who makes accounts** (9): any of the four admins, in Directory or with
+  `arisectl user add`.
+- **A new account** (10, 86): a second john.smith becomes **john.smith2** by
+  itself (12). The title goes into the domain's own name too (11):
+  `samba-tool user rename NAME --display-name="Apostle Bryant Sanders"`, so the
+  Macs' login window, Nextcloud and Contacts show it. A **welcome email** goes to
+  the personal address on the profile, once, when there is one (it waits until
+  one is added): their login, that their first password comes from the admin
+  who made the account, their folders, Nextcloud, the reset link. Never a
+  password. Their face appears on every church Mac at the helper's next
+  check-in, as before. Discord **#alerts** gets a line when an account is made
+  or switched off.
+- **Rename** (13): Directory → **Rename…**, or `sudo arisectl user rename OLD
+  --to NEW`. `samba-tool user rename` (Samba 4.17 and later) changes the login,
+  the UPN and the mail address; the account keeps its SID, so its groups, the
+  ownership of its files and every permission follow by themselves. The home
+  folder is renamed in place, and the dashboard's records (profile, shares,
+  links) move to the new name. The old address is kept as an alias for when
+  mail is built (155). On a church Mac there is **no supported way to rename an
+  Active Directory (mobile) account in place**: the old Mac account stays until
+  someone renames it there by hand, or the person signs in with the new name
+  (their files come back from the server) and the old one comes off through the
+  usual checked removal. Renames are recorded in
+  `/var/lib/arise/renames.json` for the Mac helper. If arise.toml names the old
+  login (`[storage] pastors`, `[owner]`, `[owners]`), the answer says to change
+  it there.
+- **Accounts nobody uses** (17): the daily 05:15 sweep (`arise-offboard.timer`)
+  names each account with no sign-in for 90 days in #alerts, once (again only
+  after they sign in and fall quiet again). Directory shows the same list;
+  `arisectl user unused` prints it.
+- **Birthdays** (18): the admins' Calendar shows each birthday from the
+  profiles, month and day only.
+- **Photos** (20): staff don't use the dashboard, so an admin adds the photo the
+  person chose (Directory → **Photo…**, a JPEG or PNG up to 200 KB). It shows on
+  the closet monitor's faces and is written to the account's `thumbnailPhoto`
+  with `ldbmodify` (JPEG only), which Nextcloud reads for avatars. Whether a Mac
+  shows it on its login window is not confirmed. Until there is a photo, the
+  initials show.
+- **The church contacts** (21, 152): one read-only address book, **Arise
+  Church**, served by the dashboard itself as CardDAV at
+  `https://arise-server.ad.arisecenla.com/carddav/`. It holds the staff
+  directory (name with title, departments, the church address, the mobile
+  number from the profile) and the Mail app's contacts list (round 2, 39: one
+  source, staff keep it). Staff and admins read it with their church login in
+  Contacts on a church Mac (Contacts → Settings → Accounts → + → Other Contacts
+  Account → CardDAV → Manual) and on their phones (Settings → Contacts →
+  Accounts → Add Account → Other → Add CardDAV Account), or by opening
+  `https://arise-server.ad.arisecenla.com/contacts.mobileconfig`, which asks for
+  the login. Nobody edits it there: admins keep the people in Directory and the
+  list in Mail. Why not Nextcloud: its own sharing is off (round 6), and a
+  shared Nextcloud address book needs that sharing; its built-in address book
+  holds only accounts. Not yet tried against a real Mac or iPhone.
+- **A sign-in from a new device** (70): an email to the person and a notice to
+  Bradly. The first sign-in ever only sets the baseline.
+- **The audit log** (66, 67): all four admins read it; it is kept forever.
+- **The Pastors folder in an emergency** (69): only Bradly ([owner] user), from
+  Directory → **Pastors folder…**, with a reason and the word "pastors" typed,
+  and his password again. For two hours (`[people] breakglass_hours`) his
+  dashboard shows the folder in Finder; both pastors are emailed at once with
+  his reason; it goes to the audit log and #alerts, and auditd logs every file
+  touched. It never opens the Samba share and never reaches Claude (the owner's
+  Claude settings deny `/srv/arise/pastors`).
+- **A leaver's files** (60): after the 30-day hold the sweep first **copies**
+  their home to the Synology (`[people] leavers_archive`, by default
+  `/mnt/synology/arise/leavers/<name> (<date>)`), checks every file and byte
+  arrived, and only then moves the files to the person taking them. If the
+  Synology is not mounted, nothing moves; it tries again the next day and says
+  so in #alerts. The copy is kept forever.
 
 The realm and the mail domain are read from `arise.toml` (`[directory] realm`,
 `[mail] domain`, which defaults to the realm in lower case) wherever they are

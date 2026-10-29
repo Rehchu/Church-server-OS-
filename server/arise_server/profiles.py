@@ -239,7 +239,16 @@ def update(user: str, fields: dict, viewer: dict) -> dict:
         rec.update(good)
         _write(d)
     audit.record(viewer.get("user", "?"), "profile.edit", user, detail=", ".join(sorted(good)) or "nothing")
-    return {"ok": True, "profile": profile(user, viewer), "demo": load().demo}
+    after = {}
+    try:
+        from . import accounts
+        if good.get("personal_email"):
+            after["welcome"] = accounts.welcome(user, viewer.get("user", ""))   # round 7, 10: sent once, when there is an address
+        if "title" in good:
+            after["display"] = accounts.set_display(user)                       # round 7, 11: the title in the domain's name too
+    except Exception as e:  # noqa: BLE001 - the profile is saved either way
+        after["err"] = str(e)[:200]
+    return {"ok": True, "profile": profile(user, viewer), "demo": load().demo, **({"after": after} if after else {})}
 
 
 def people(viewer: dict) -> dict:
@@ -369,18 +378,22 @@ def import_people(csv_text: str, apply: bool, by: str) -> dict:
     for i, raw in enumerate(rows, start=2):
         r = {str(k).strip().lower(): (v or "").strip() for k, v in raw.items() if k}
         row = {"line": i, "first": r.get("first", ""), "last": r.get("last", "")}
-        name = username_of(row["first"], row["last"])
+        base = username_of(row["first"], row["last"])
+        problems, notes = [], []
+        # Round 7, 12: a second john.smith becomes john.smith2 without asking. The check pass says so,
+        # so a list imported twice by mistake is caught before Apply.
+        name = base
+        if base and directory._ok_name(base) and (base.lower() in existing or base in seen):
+            from .accounts import unique_name
+            name = unique_name(base, lambda n: n.lower() in existing or n in seen)
+            where = "earlier in this list" if base in seen else "an existing account"
+            notes.append(f"{base} is taken ({where}): this row becomes {name}. If it is the same person, take the row out.")
         row["user"] = name
         role = (r.get("role") or "member").lower()
-        problems = []
         if not row["first"] or not row["last"]:
             problems.append("needs a first and a last name")
         elif not directory._ok_name(name):
             problems.append(f"{name or '(empty)'} is not a usable user name")
-        if name in seen:
-            problems.append("the same person twice in the list")
-        elif name.lower() in existing:
-            problems.append("already has an account")
         if role not in ROLE_GROUPS:
             problems.append(f"role is admin, staff or member, not {role}")
         fields, errs = clean({k: r[k] for k in ("title", "departments", "personal_email", "mobile", "birthday") if r.get(k)}, ADMIN_FIELDS)
@@ -389,7 +402,7 @@ def import_people(csv_text: str, apply: bool, by: str) -> dict:
         absent = [g for g in want if g.lower() not in groups]
         grp = [groups[g.lower()] for g in want if g.lower() in groups]
         row.update({"role": role, "title": fields.get("title", ""), "groups": grp,
-                    "display": f"{row['first']} {row['last']}".strip(), "warnings": [f"no group {g} yet (made in the Directory app)" for g in absent]})
+                    "display": f"{row['first']} {row['last']}".strip(), "warnings": notes + [f"no group {g} yet (made in the Directory app)" for g in absent]})
         seen.add(name)
         if problems:
             row.update(ok=False, err="; ".join(problems))
@@ -411,6 +424,11 @@ def import_people(csv_text: str, apply: bool, by: str) -> dict:
                 _write(d)
             row["temporary_password"] = pw
             row["created"] = True
+            try:
+                from . import accounts
+                accounts.made(name, by, row["display"])   # round 7: the title in the name, the welcome email, #alerts
+            except Exception:  # noqa: BLE001 - the account is made either way
+                pass
         out.append(row)
     made = sum(1 for r in out if r.get("created"))
     if apply:

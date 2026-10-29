@@ -299,6 +299,19 @@ CALLS = {
     ("POST", "/api/cloud/sweep"): ("/api/cloud/sweep", None, None),
     # the Mac helper's own door: plain text, its Mac key, no session (tests/test_cloud.py)
     ("POST", "/api/cloud/agent/app-password"): None,
+    # round 7: accounts, privacy, the church contacts (tests/test_r7_accounts.py pins the behaviour)
+    ("POST", "/api/directory/users/{name}/rename"): ("/api/directory/users/media-mac/rename", {"new": "media.booth", "confirm": "media-mac"}, None),
+    ("POST", "/api/directory/users/{name}/photo"): ("/api/directory/users/office/photo", {"data": "/9j/4AAQSkZJRgABAQ=="}, None),
+    ("GET", "/api/photos/{name}"): None,                 # the monitor's faces or a signed-in person; 404 without a photo
+    ("GET", "/api/pastors/breakglass"): ("/api/pastors/breakglass", None, None),
+    ("POST", "/api/pastors/breakglass"): ("/api/pastors/breakglass", {"reason": "short", "confirm": "nope"}, None),
+    ("DELETE", "/api/pastors/breakglass"): ("/api/pastors/breakglass", None, None),
+    ("GET", "/api/directory/unused"): ("/api/directory/unused", None, None),
+    ("GET", "/api/contacts"): ("/api/contacts", None, None),
+    # CardDAV speaks Basic auth and XML, never the session (tests/test_r7_accounts.py)
+    **{(m, "/carddav/{path:path}"): None for m in ("PROPFIND", "REPORT", "GET", "PUT", "DELETE", "PROPPATCH", "MKCOL", "POST")},
+    ("GET", "/.well-known/carddav"): None, ("PROPFIND", "/.well-known/carddav"): None,
+    ("GET", "/contacts.mobileconfig"): None,
     ("GET", "/{path:path}"): ("/", None, None),
 }
 
@@ -400,7 +413,6 @@ class Sweep(unittest.TestCase):
     def test_bad_bodies_are_refused_with_words(self):
         for method, path, body in (("POST", "/api/directory/users", {"name": "bad name", "password": "password123"}),
                                    ("POST", "/api/directory/users", {"name": "ok.name", "password": "short"}),
-                                   ("POST", "/api/directory/users", {"name": "office", "password": "password123"}),
                                    ("POST", "/api/directory/users/nobody.here/disable", None),
                                    ("DELETE", "/api/directory/users/office", {"confirm": "Office"}),
                                    ("POST", "/api/shares", {"name": "x", "path": "relative/path"}),

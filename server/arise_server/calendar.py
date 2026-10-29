@@ -153,6 +153,22 @@ def month(year: int, mon: int) -> dict:
     return {"year": year, "month": mon, "items": items, "demo": load().demo}
 
 
+def birthday_items(year: int, mon: int, rows: list[dict]) -> list[dict]:
+    """Pure: [{'user','name','birthday':'MM-DD'}] -> all-day calendar items for that month (round 7, 18)."""
+    out = []
+    for r in rows:
+        try:
+            m, d = int(r["birthday"][:2]), int(r["birthday"][3:5])
+            day = date(year, m, d)
+        except (ValueError, KeyError):
+            continue   # 29 February in a year without one, or a bad record
+        if m != mon:
+            continue
+        out.append({"id": "bday-" + r["user"], "title": f"Birthday: {r['name']}", "start": f"{day.isoformat()}T00:00",
+                    "end": f"{day.isoformat()}T23:59", "all_day": True, "service": False, "birthday": True, "where": "", "note": ""})
+    return out
+
+
 def upcoming(days: int = 7, now: datetime | None = None) -> list[dict]:
     now = now or datetime.now()
     end = now + timedelta(days=days)

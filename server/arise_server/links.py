@@ -64,11 +64,22 @@ def link_refused(root: str) -> str:
     return ""
 
 
+def life(days: int | None, default: int, most: int) -> int:
+    """Pure: a link's life in days (round 7, 47: each ends after 7 days). 0 = never, only where
+    [links] max_days is 0 too (the old behaviour, by hand in arise.toml)."""
+    days = default if days is None else int(days)
+    if most > 0:
+        return max(1, min(days if days > 0 else most, most))
+    return max(0, days)
+
+
 def create(root: str, rel: str, who: dict, days: int | None = None, note: str = "") -> dict:
     cfg = load()
-    # Bradly (Oct 28): a link lives until it is removed unless a life is picked for it.
-    days = int(cfg.links.days) if days is None else int(days)
-    expires = None if days <= 0 else _iso(max(1, min(days, int(cfg.links.max_days))) * 86400)
+    # Round 7, 47: only admins make a link that works without signing in, and each ends after 7 days.
+    if cfg.links.get("admins_only", True) and who.get("role") != "admin":
+        return {"ok": False, "err": "only an administrator makes an outside link; use Share with… for people at church"}
+    days = life(days, int(cfg.links.days), int(cfg.links.max_days))
+    expires = None if days <= 0 else _iso(days * 86400)
     rs = {r["id"]: r for r in files.roots(who)}
     if root not in rs:
         return {"ok": False, "err": "not a place you can share from"}

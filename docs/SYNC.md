@@ -86,10 +86,13 @@ Nothing is deleted by this. `sudo arisectl cloud sweep --dry-run` shows what it 
 ## The Sync panel (admins)
 
 Dashboard → Sync. For each person: their devices and when each last synced, how many conflicts
-were settled for them, and their storage against the 50 GB home quota. **New device…** makes an
+were settled for them, and their storage against the 50 GB home quota (a warning line, never a
+wall: round 7, 45; they and Bradly are told at 80% and 95%). **New device…** makes an
 app password for a phone or a Mac set up by hand (shown once). **Cut off** stops one device;
 **Cut off all** (typed name) stops every sign-in the person has: a lost phone, someone leaving.
-Their files stay. The same from the command line:
+Their files stay, and the person is told (round 7, 74). Nextcloud keeps earlier versions of a
+file for a year (`versions_retention_obligation = auto, 365`, round 7, 46). The same from the
+command line:
 
 ```
 sudo arisectl cloud status

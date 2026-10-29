@@ -116,7 +116,7 @@ function authMe() {
   const s = me(); if (!s) return { error: { message: 'Sign in' } };
   const u = userOf(s.user);
   const pr = profOf(s.user); const disp = u?.display || '';
-  return { user: s.user, role: s.role, demo: true, preview: true, display: disp, name: fullName(s.user, disp), title: pr.title || '', greeting: pr.title ? `${pr.title} ${(disp || s.user).split(/\s+/)[0]}` : '', staff: isStaffUser(s), groups: groupsOf(s.user), roots: roots(), links_days: 0, claude: claudeOk(), staff_access: staffAccess() };
+  return { user: s.user, role: s.role, demo: true, preview: true, display: disp, name: fullName(s.user, disp), title: pr.title || '', greeting: pr.title ? `${pr.title} ${(disp || s.user).split(/\s+/)[0]}` : '', staff: isStaffUser(s), groups: groupsOf(s.user), roots: roots(), links_days: 7, claude: claudeOk(), staff_access: staffAccess() };
 }
 
 /* ---------- the file tree ---------- */
@@ -287,10 +287,11 @@ route('POST', /^\/me\/2fa\/disable$/, async b => { if (!b.password) return fail(
 
 // ----- Directory -----
 route('POST', /^\/directory\/users$/, b => {
-  const name = String(b.name || '').trim();
-  if (!NAME_RE.test(name)) return fail('name: letters, digits, dot, dash, underscore; 2-64 chars; starts with a letter');
+  const asked = String(b.name || '').trim();
+  if (!NAME_RE.test(asked)) return fail('name: letters, digits, dot, dash, underscore; 2-64 chars; starts with a letter');
   if (String(b.password || '').length < 8) return fail('password: at least 8 characters');
-  if (userOf(name)) return fail(`${name} already exists`);
+  // round 7, 12: a second john.smith becomes john.smith2, without asking
+  let name = asked; for (let n = 2; userOf(name); n++) name = `${asked}${n}`;
   const want = (b.groups || []).map(g => String(g).trim()).filter(Boolean); const missing = want.filter(g => !groups().find(x => x.name.toLowerCase() === g.toLowerCase()));
   if (missing.length) return fail(`no such group: ${missing.join(', ')} (make it under Groups first)`);
   const gnames = want.map(g => groups().find(x => x.name.toLowerCase() === g.toLowerCase()).name);
@@ -303,8 +304,36 @@ route('POST', /^\/directory\/users$/, b => {
   X.pw[name] = b.password;
   for (const f of ['Desktop', 'Documents', 'Photos', 'Videos', 'Music', 'Downloads']) mkdirp('data', `/homes/${name}/${f}`);
   putFile('data', `/homes/${name}/Start here.md`, 1100, START_HERE);   // round 5, 32: a new home gets the one-page note
-  touch('GET /directory/users', 'GET /directory/groups'); return ok({ out: `created ${name}` });
+  touch('GET /directory/users', 'GET /directory/groups');
+  return ok({ out: `created ${name}`, user: name, ...(name !== asked ? { renamed: `${asked} was taken, so the new account is ${name}` } : {}) });
 });
+// ----- round 7: rename (13), the photo (20), Bradly's emergency look into the Pastors folder (69) -----
+route('POST', /^\/directory\/users\/([^/]+)\/rename$/, (b, m) => {
+  const u = userOf(m[1]); const nw = String(b.new || '').trim().toLowerCase();
+  if (!u) return fail('no such user'); if (String(b.confirm || '') !== u.name) return fail('type the current user name to confirm');
+  if (!NAME_RE.test(nw)) return fail('user names: letters, digits, dot, dash; first.last'); if (userOf(nw)) return fail(`${nw} is already an account`);
+  const old = u.name; u.name = nw; u.home = String(u.home || '').replace(old, nw);
+  for (const g of groups()) g.members = (g.members || []).map(x => x === old ? nw : x);
+  X.profiles = X.profiles || {}; if (X.profiles[old]) { X.profiles[nw] = Object.assign(X.profiles[old], { mail_aliases: [`${old}@ad.arisecenla.com`] }); delete X.profiles[old]; }
+  auditAdd('directory.rename', `${old} -> ${nw}`); touch('GET /directory/users', 'GET /directory/groups');
+  return ok({ user: nw, moved: ['profile'], notes: [], macs: 'On each church Mac the old Mac account stays until it is renamed there: the person signs in with the new name and their files come back from the server.' });
+});
+route('POST', /^\/directory\/users\/([^/]+)\/photo$/, (b, m) => {
+  if (!userOf(m[1])) return fail('no such user'); const d = String(b.data || '').split(',').pop();
+  let head = ''; try { head = atob(d.slice(0, 16)); } catch { return fail('that is not a photo file'); }
+  const kind = head.startsWith('\xff\xd8\xff') ? 'jpeg' : head.startsWith('\x89PNG') ? 'png' : null; if (!kind) return fail('a JPEG or PNG photo, please');
+  if (d.length * 0.75 > 200000) return fail('at most 200 KB (a square photo about 400 pixels across is plenty)');
+  (X.photos = X.photos || {})[m[1]] = kind; save(); return ok({ photo: true });
+});
+route('POST', /^\/pastors\/breakglass$/, b => {
+  if (!isAdmin()) return fail('Only Bradly can open the Pastors folder in an emergency');
+  if (String(b.confirm || '').trim().toLowerCase() !== 'pastors') return fail('type pastors to confirm');
+  if (String(b.reason || '').trim().length < 8) return fail('say why, in a sentence: the pastors read it');
+  const g = getOr('GET /pastors/breakglass', { open: false, allowed: true, hours: 2 }); const until = isoMin(new Date(Date.now() + 2 * 3600000));
+  Object.assign(g, { open: true, until, reason: String(b.reason).trim() }); auditAdd('pastors.breakglass', 'pastors', String(b.reason).trim()); touch('GET /pastors/breakglass');
+  return ok({ until, told: ['bryant.sanders', 'vanessa.sanders'], hours: 2 });
+});
+route('DELETE', /^\/pastors\/breakglass$/, () => { const g = getOr('GET /pastors/breakglass', { open: false, allowed: true, hours: 2 }); const had = !!g.open; Object.assign(g, { open: false }); delete g.until; touch('GET /pastors/breakglass'); return ok({ closed: had }); });
 route('POST', /^\/directory\/users\/([^/]+)\/reset-password$/, (b, m) => { const u = userOf(m[1]); if (!u || String(b.password || '').length < 8) return fail('bad name or password shorter than 8'); X.pw[u.name] = b.password; mustSet(u.name, b.temporary !== false); save(); return ok({ must_change: b.temporary !== false }); });
 route('POST', /^\/directory\/users\/([^/]+)\/(enable|disable)$/, (b, m) => {
   const u = userOf(m[1]); if (!u) return fail('no such user');
@@ -548,7 +577,8 @@ function hashOf(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(
 // ----- share links -----
 route('POST', /^\/links$/, b => {
   const pl = place(b.root, b.path); if (!pl) return fail('not a place you can share from'); const e = entryOf(pl.root, pl.path); if (!e) return fail('no such file');
-  const days = b.days == null ? 0 : +b.days; const exp = days > 0 ? isoMin(new Date(Date.now() + Math.min(days, 365) * 86400000)) : null;
+  if (!isAdmin()) return fail('only an administrator makes an outside link; use Share with… for people at church');   // round 7, 47
+  const days = Math.max(1, Math.min(b.days == null || +b.days <= 0 ? 7 : +b.days, 7)); const exp = isoMin(new Date(Date.now() + days * 86400000));
   const t = token(12); const link = { root: b.root, path: norm(b.path), name: e.name || base(pl.path), user: me().user, created: isoMin(), expires: exp, note: String(b.note || ''), downloads: 0, dir: !!e.dir, token: t, expired: false };
   get('GET /links').links.unshift(link); touch('GET /links'); return ok({ token: t, link, url: `${location.origin}/s/${t}` });
 });
@@ -918,7 +948,7 @@ route('POST', /^\/cloud\/revoke$/, b => {
   const gone = []; for (const d of p.devices) if (!dev || d.device === dev) { if (!d.revoked) gone.push(d.device); d.revoked = isoSec(); d.last_sync = null; }
   const live = p.devices.filter(d => !d.revoked && d.last_sync).map(d => d.last_sync).sort(); p.last_sync = live.length ? live[live.length - 1] : null;
   save();
-  return ok({ demo: true, user: p.user, device: dev, revoked: gone });
+  return ok({ demo: true, user: p.user, device: dev, revoked: gone, told: true });   // round 7, 74: the person is told
 });
 route('POST', /^\/cloud\/sweep$/, () => inService() ? fail(`not during ${inService().name}: the sweep runs again after it`) : ok({ demo: true, moved: [], checked: 0 }));
 // ===== end R6-SYNC =====

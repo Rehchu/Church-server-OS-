@@ -315,7 +315,26 @@ def cmd_user(a):
     elif a.sub == "passwd":
         need_root(); show(directory.set_password(a.name, a.password or getpass.getpass(f"New password for {a.name}: "), temporary=not a.permanent))
     elif a.sub in ("enable", "disable"):
-        need_root(); show(directory.enable_user(a.name, a.sub == "enable"))
+        need_root(); r = directory.enable_user(a.name, a.sub == "enable"); show(r)
+        if r.get("ok"):
+            from arise_server import accounts
+            accounts.switched(a.name, a.sub == "enable", os.environ.get("SUDO_USER") or "root")   # round 7, 86
+    elif a.sub == "rename":
+        # Round 7, 13: arisectl user rename OLD --to NEW (a married name). Asks for the old name, typed.
+        need_root()
+        from arise_server import accounts
+        if not a.name or not a.to: sys.exit("arisectl user rename OLD --to NEW")
+        if input(f"Type {a.name} to rename it to {a.to}: ") != a.name:
+            sys.exit("not confirmed; nothing changed")
+        r = accounts.rename(a.name, a.to, os.environ.get("SUDO_USER") or "root", a.name); show(r)
+        for n in r.get("notes", []): warn(n)
+        if r.get("macs"): print("  " + r["macs"])
+    elif a.sub == "unused":
+        # Round 7, 17: accounts with no sign-in for 90 days (the daily sweep names each in Discord once).
+        from arise_server import accounts
+        r = accounts.inactive(dry_run=True)
+        if not r["unused"]: ok(f"every enabled account signed in within {r['days']} days")
+        for x in r["unused"]: warn(f"{x['user']}: no sign-in since {x['since'][:10]} ({x['days']} days)")
     elif a.sub == "homefix":
         need_root()
         cfg = load()
@@ -965,6 +984,13 @@ def cmd_offboard(a):
     elif a.sub == "sweep":
         if not a.dry_run: need_root()
         r = offboard.sweep(dry_run=a.dry_run)
+        # The daily people checks ride on this timer (05:15): round 7, 17 (unused accounts) and 44 (storage).
+        try:
+            from arise_server import accounts, sharing
+            r["unused"] = accounts.inactive(dry_run=a.dry_run)
+            r["quota"] = sharing.quota_notices(dry_run=a.dry_run)
+        except Exception as ex:  # noqa: BLE001 - the leaving sweep's own result still stands
+            r["checks_err"] = str(ex)[:200]
         if a.quiet and r["ok"]: return
         head("offboarding sweep" + (" (dry run)" if a.dry_run else ""))
         if not r["results"]: ok("nothing due today")
@@ -1483,7 +1509,7 @@ def build():
     sp.add_parser("doctor").set_defaults(f=cmd_doctor)
     p = sp.add_parser("admin"); p.add_argument("sub", choices=["set-password"]); p.set_defaults(f=cmd_admin)
     p = sp.add_parser("service"); p.add_argument("sub", choices=["list", "status", "start", "stop", "restart"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_service)
-    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix"]); p.add_argument("name", nargs="?"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.add_argument("--permanent", action="store_true", help="add/passwd: not a temporary password (default: they choose their own at the next login, round 5)"); p.set_defaults(f=cmd_user)
+    p = sp.add_parser("user"); p.add_argument("sub", choices=["list", "add", "remove", "passwd", "enable", "disable", "homefix", "rename", "unused"]); p.add_argument("name", nargs="?"); p.add_argument("--to", help="rename: the new user name"); p.add_argument("--password"); p.add_argument("--password-stdin", action="store_true", help="read the password from stdin (keeps it out of sudo's log)"); p.add_argument("--display"); p.add_argument("--groups", help="comma-separated"); p.add_argument("--permanent", action="store_true", help="add/passwd: not a temporary password (default: they choose their own at the next login, round 5)"); p.set_defaults(f=cmd_user)
     p = sp.add_parser("directory"); p.add_argument("sub", choices=["import"]); p.add_argument("file", nargs="?", help="people.csv: first,last,title,departments,personal_email,mobile,birthday,role"); p.add_argument("--apply", action="store_true", help="create the accounts (default: check only)"); p.set_defaults(f=cmd_directory)
     p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)

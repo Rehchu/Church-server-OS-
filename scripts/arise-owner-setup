@@ -168,8 +168,11 @@ deny = perm.setdefault("deny", [])
 # is not read into the conversation. Everything else on the box is open to edit.
 # The Bash patterns are best-effort (sudo needs no password here, so a shell could still reach a
 # file by another spelling); CLAUDE.md rule 6 is the rule, these catch the plain mistakes.
+# The Pastors folder is the two pastors' only; Claude never opens it, emergency or not (CLAUDE.md 11c;
+# round 7, 69: Bradly's break-glass is his, at the dashboard, never Claude's).
 for rule in ["Read(/etc/arise/secrets/**)", "Read(/etc/arise/SAFE-CARD.txt)", "Read(/srv/arise/apps/**/.env)",
-             "Bash(*/etc/arise/secrets*)", "Bash(*SAFE-CARD*)", "Bash(*/srv/arise/apps/*/.env*)"]:
+             "Bash(*/etc/arise/secrets*)", "Bash(*SAFE-CARD*)", "Bash(*/srv/arise/apps/*/.env*)",
+             "Read(/srv/arise/pastors/**)", "Edit(/srv/arise/pastors/**)", "Bash(*/srv/arise/pastors*)"]:
     if rule not in deny:
         deny.append(rule)
 tmp = p + ".tmp"

@@ -20,7 +20,7 @@ import re
 import socket
 import subprocess
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .config import load
 from .util import run, which
@@ -143,6 +143,18 @@ def _rdns(ip: str) -> str:
         return ""
 
 
+KEEP_DAYS = 365   # round 7, 75: a device unseen for a year drops off the list
+
+
+def prune(store: dict, now: datetime, days: int = KEEP_DAYS) -> int:
+    """Pure-ish: drop devices last seen more than `days` ago (named ones too: a year is long). Returns how many."""
+    cut = (now - timedelta(days=days)).isoformat(timespec="minutes")
+    old = [m for m, d in store.items() if m != "_meta" and isinstance(d, dict) and (d.get("last_seen") or "") < cut]
+    for m in old:
+        store.pop(m, None)
+    return len(old)
+
+
 def scan(quiet: bool = False, wide: bool = False) -> dict:
     """wide=True also ARP-scans the common ranges in WIDE_RANGES on the same wire,
     to find devices parked on another network by whoever installed them."""
@@ -215,7 +227,9 @@ def scan(quiet: bool = False, wide: bool = False) -> dict:
         d["stray"] = f.get("stray", "")
         if f["ip"] == net["ip"]:
             d["guess"] = "server"; d["hostname"] = d["hostname"] or cfg.system.hostname
-    store["_meta"] = {"last_scan": now, "tool": tool, "subnet": net["subnet"], "iface": net["iface"], "found": len(found), "new": new, "wide": wide}
+    gone = prune(store, datetime.now(), KEEP_DAYS)
+    store["_meta"] = {"last_scan": now, "tool": tool, "subnet": net["subnet"], "iface": net["iface"], "found": len(found), "new": new, "wide": wide,
+                      "forgotten": gone}
     _save(store)
     return {"ok": True, "scanned": True, "tool": tool, "found": len(found), "new": new, "wide": wide, **list_devices()}
 

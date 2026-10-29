@@ -302,11 +302,14 @@ class Flows(unittest.TestCase):
                "Sam,Lee,,,,,,boss\n")
         check = self.admin.post("/api/directory/import", json={"csv": csv}).json()
         self.assertFalse(check["apply"])
-        self.assertEqual([r["ok"] for r in check["rows"]], [True, False, False, True, False])
+        # round 7, 12: the second Levi Mercer becomes levi.mercer2, said in the check
+        self.assertEqual([r["ok"] for r in check["rows"]], [True, True, False, True, False])
+        self.assertEqual(check["rows"][1]["user"], "levi.mercer2")
+        self.assertIn("becomes levi.mercer2", check["rows"][1]["warnings"][0])
         self.assertNotIn("temporary_password", str(check))
         self.assertNotIn("levi.mercer", [u["name"] for u in self.admin.get("/api/directory/users").json()["users"]])   # nothing made
         made = self.admin.post("/api/directory/import", json={"csv": csv, "apply": True}).json()
-        self.assertEqual(made["created"], 2)
+        self.assertEqual(made["created"], 3)
         b = made["rows"][0]
         self.assertEqual((b["user"], b["groups"]), ("levi.mercer", ["Domain Admins", "Leadership"]))
         self.assertIn("no group Nope yet", made["rows"][3]["warnings"][0])

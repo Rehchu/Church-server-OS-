@@ -27,6 +27,23 @@ Kristina; nothing is lost.
 
 Something you delete goes to the Trash first and stays there for 30 days.
 
+## Space
+
+Each person has 50 GB. Nothing ever stops working when you pass it: you get a message at 80% and
+at 95%, and so does Bradly. Earlier versions of your files are kept for a year.
+
+## Sending a file to someone outside the church
+
+Ask Bradly or another admin: they can make a link that works for 7 days. For people at church,
+use **Share with…** instead.
+
+## The church contacts
+
+Everyone's details are in **Contacts** on a church Mac and on your phone, read-only, as an
+account called **Arise Church**: open `https://arise-server.ad.arisecenla.com/contacts.mobileconfig`
+on the Mac or iPhone, approve it in Settings, and type your church login. Off church Wi-Fi the
+phone needs Tailscale on. To change someone's details, ask Bradly.
+
 ## On your phone
 
 0. Once per phone, Bradly or Kristina puts the **church certificate** on it (so the phone
@@ -49,3 +66,4 @@ The same address, `https://cloud.ad.arisecenla.com`, works in a browser on the c
 ## Lost a phone or a Mac?
 
 Tell Bradly or Kristina straight away. They can cut that one device off; your files stay safe.
+You get a message when a device is cut off, and when your account signs in from a new device.
