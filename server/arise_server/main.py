@@ -1135,6 +1135,30 @@ def api_songs(q: str = "", has: str = "", _=admin):
     return songs.listing(q, has)
 
 
+# Round 7 (99, 100, 106): the Lyrics inbox and the CCLI usage report.
+@app.get("/api/songs/inbox")
+def api_songs_inbox(_=admin):
+    """The Lyrics inbox (99, 100): who sees the folder and what the last runs imported."""
+    return songs.inbox_log()
+
+
+@app.post("/api/songs/inbox")
+def api_songs_inbox_run(who=admin):
+    return songs.inbox_scan(by=who["user"])
+
+
+@app.get("/api/songs/usage")
+def api_songs_usage(start: str = "", end: str = "", _=admin):
+    """The CCLI song-usage report (106): this quarter unless dates are given.
+    (These two sit before /api/songs/{key}, which would otherwise take "inbox" for a song.)"""
+    import re as _re
+    from datetime import date as _date
+    label, first, last = songs.quarter_of(_date.today())
+    if start and end and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", start) and _re.fullmatch(r"\d{4}-\d{2}-\d{2}", end):
+        label, first, last = f"{start} to {end}", start, end
+    return {"label": label, **songs.usage_report(first, last), "demo": load().demo}
+
+
 @app.get("/api/songs/{key}")
 def api_song(key: str, _=admin):
     return songs.song(key)
@@ -1823,7 +1847,7 @@ def calendar_ics(request: Request):
 
 @app.get("/api/weather")
 def api_weather(_=auth):
-    return weather.fetch()
+    return weather.all_places()
 
 
 @app.get("/api/help")
@@ -2832,6 +2856,170 @@ def api_contacts(_=admin):
     from . import macs as _m
     return carddav.info(_m.server_names()["host"])
 # ===== end round 7 contacts =====
+# ===== R7-C: services, the closet desktop and the channel (round 7; docs/ANSWERS.md) =====
+from . import notes_board, reports, servicemode, speedtest  # noqa: E402
+
+
+@app.get("/checklist", include_in_schema=False)
+def checklist_page():
+    """The phone checklist page (round 7, 89): staff sign in with their own account."""
+    return FileResponse(str(cfg.web_dir / "checklist.html"))
+
+
+@app.get("/api/checklist/mine")
+def api_checklist_mine(who=auth):
+    """The phone page's lists: the person's departments; every department for leaders and admins (88)."""
+    return checklists.phone(who)
+
+
+@app.post("/api/checklist/{dept}/tick")
+def api_checklist_phone_tick(dept: str, body: ChecklistTick, who=auth):
+    return checklists.tick(dept, body.i, who)
+
+
+@app.get("/api/checklist/people")
+def api_checklist_people(who=auth):
+    """Round 7, 19: the people a department leader may reset."""
+    return checklists.department_people(who)
+
+
+class LeaderReset(BaseModel):
+    user: str
+
+
+@app.post("/api/checklist/reset")
+def api_checklist_reset(body: LeaderReset, who=auth):
+    return checklists.leader_reset(who, body.user)
+
+
+@app.get("/api/service/now")
+def api_service_now(_=admin):
+    """Service mode on the closet monitor (87): in a service or not, and the three panels."""
+    return servicemode.now_view()
+
+
+class DemoForce(BaseModel):
+    on: bool = True
+
+
+@app.post("/api/service/demo")
+def api_service_demo(body: DemoForce, _=admin):
+    """The preview only: show service mode although no service is on."""
+    return servicemode.demo_force(body.on)
+
+
+@app.get("/api/service/hold")
+def api_service_hold(kind: str = "update", _=admin):
+    """What a service holds back right now (91): None, or why."""
+    return {"kind": kind, "hold": church.hold(kind), "kinds": church.HOLD_KINDS}
+
+
+@app.get("/api/reports")
+def api_reports(_=admin):
+    """Discord's channels (names only), the Monday report's text, the channel's numbers."""
+    f = reports.weekly_facts()
+    return {"discord": reports.status(), "weekly": reports.weekly_text(f), "channel": f.get("channel"), "demo": load().demo}
+
+
+class Channel(BaseModel):
+    channel: str
+
+
+@app.post("/api/reports/discord/test")
+def api_reports_discord_test(body: Channel, who=admin):
+    r = reports.post(body.channel, f"ariseOS: a test line to #{body.channel} from {who['user']}.")
+    audit.record(who["user"], "reports.discord.test", body.channel, ok=bool(r.get("ok")))
+    return r
+
+
+@app.post("/api/reports/weekly")
+def api_reports_weekly(who=admin):
+    r = reports.send_weekly()
+    audit.record(who["user"], "reports.weekly", "now", ok=bool(r.get("ok")))
+    return r
+
+
+@app.get("/api/reports/pastors")
+def api_reports_pastors(month: str = "", _=admin):
+    """The pastors' monthly note (81, 144): the server's draft, or Bradly's edit."""
+    return reports.pastors(month or None)
+
+
+class PastorNote(BaseModel):
+    month: str
+    text: str
+
+
+@app.put("/api/reports/pastors")
+def api_reports_pastors_save(body: PastorNote, who=admin):
+    return reports.pastors_save(body.month, body.text, who["user"])
+
+
+@app.post("/api/reports/pastors/send")
+def api_reports_pastors_send(body: PastorNote, who=admin):
+    """Only on this click does the note go to the two pastors."""
+    return reports.pastors_send(body.month, body.text, who["user"])
+
+
+@app.get("/api/notes-board")
+def api_notes_board(_=admin):
+    return notes_board.board()
+
+
+class NoteBody(BaseModel):
+    text: str | None = None
+    colour: str | None = None
+    pinned: bool | None = None
+
+
+@app.post("/api/notes-board")
+def api_notes_board_add(body: NoteBody, who=admin):
+    return notes_board.add(body.text or "", who["user"], body.colour or "ink")
+
+
+@app.put("/api/notes-board/{note_id}")
+def api_notes_board_edit(note_id: str, body: NoteBody, who=admin):
+    return notes_board.edit(note_id, who["user"], body.text, body.pinned, body.colour)
+
+
+@app.post("/api/notes-board/{note_id}/away")
+def api_notes_board_away(note_id: str, who=admin):
+    return notes_board.put_away(note_id, who["user"])
+
+
+@app.post("/api/notes-board/{note_id}/back")
+def api_notes_board_back(note_id: str, who=admin):
+    return notes_board.bring_back(note_id, who["user"])
+
+
+@app.get("/api/speedtest")
+def api_speedtest(_=admin):
+    """The hourly internet speed test (121), for Activity Monitor → Network."""
+    return speedtest.summary()
+
+
+@app.post("/api/speedtest")
+def api_speedtest_run(who=admin):
+    r = speedtest.run()
+    audit.record(who["user"], "speedtest.run", "now", ok=bool(r.get("ok")), detail=r.get("err", "")[:120])
+    return r
+
+
+@app.post("/api/auth/kiosk-autologin")
+def api_kiosk_autologin(request: Request, response: Response):
+    """Round 7, 107: after a restart the closet monitor opens the owner's desktop. Once per
+    boot, only in the first minutes after it, only from the monitor itself; it still locks
+    after ten idle minutes like any sign-in."""
+    if not kiosk_profiles.on_monitor(_ip(request), request.headers.get("x-forwarded-for", "")):
+        raise HTTPException(403, {"message": "Only on the closet monitor"})
+    got = kiosk_profiles.autologin_take()
+    if not got:
+        raise HTTPException(401, {"message": "Sign in"})
+    tok, user = got
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(load().web.session_hours) * 3600)
+    audit.record(user, "kiosk.autologin", user, ip=_ip(request), detail="the monitor after a restart (round 7, 107)")
+    return {"ok": True, "user": user, "role": "admin"}
+# ===== end R7-C =====
 
 
 # ----- the dashboard -----------------------------------------------------------

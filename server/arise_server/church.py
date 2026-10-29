@@ -8,6 +8,7 @@ sample offline, bible-api.com online).
 from __future__ import annotations
 
 import json
+import re
 import os
 from datetime import datetime, timedelta
 
@@ -34,6 +35,8 @@ VERSES = ["John 3:16", "Psalm 23:1", "Romans 8:28", "Isaiah 40:31", "Philippians
           "Isaiah 41:10", "Hebrews 11:1", "1 Peter 5:7", "Psalm 27:1", "Galatians 5:22", "John 14:6", "Matthew 6:33",
           "Psalm 34:8", "Ephesians 2:8", "James 1:5", "Romans 5:8", "Psalm 100:4", "Isaiah 26:3", "1 Corinthians 13:4",
           "Philippians 4:13", "Lamentations 3:22", "Micah 6:8"]
+# Round 7, 90: the team's call time for each service; the checklists open then.
+DEFAULT_CALL_TIMES = {"Sunday Service": "09:00", "Glory Night": "18:00"}
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 
@@ -42,9 +45,17 @@ def info() -> dict:
     raw = cfg.raw.get("church") if isinstance(cfg.raw, dict) else None
     raw = raw or {}
     services = raw.get("services") or DEFAULT_SERVICES
+    calls = dict(DEFAULT_CALL_TIMES)
+    calls.update({str(k): str(v) for k, v in (raw.get("call_times") or {}).items()})
     return {"name": raw.get("name", "Arise Church"), "city": raw.get("city", "Pineville, LA"),
-            "tagline": raw.get("tagline", ""), "services": services,
+            "tagline": raw.get("tagline", ""), "services": services, "call_times": calls,
             "checklist": raw.get("sunday_checklist") or DEFAULT_CHECKLIST}
+
+
+def call_time(name: str) -> str | None:
+    """When the team is called for a service (round 7, 90): its checklists open then. HH:MM or None."""
+    t = info()["call_times"].get(name)
+    return t if t and re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", t) else None
 
 
 def next_service(now: datetime | None = None, services: list | None = None) -> dict | None:
@@ -71,9 +82,11 @@ def next_service(now: datetime | None = None, services: list | None = None) -> d
             "in_words": (f"{mins // 1440} days" if mins >= 2880 else f"{mins // 60} h {mins % 60} min" if mins >= 60 else f"{mins} min")}
 
 
-def in_service_now(now: datetime | None = None, services: list | None = None, hours: float = 2.0) -> dict | None:
+def in_service_now(now: datetime | None = None, services: list | None = None, hours: float = 2.0, events: list | None = None) -> dict | None:
     """The service happening right now, if any: from its start until two hours after.
-    Pure, for the tests. Power actions and the domain restart are refused while this is set."""
+    Pure, for the tests. Power actions and the domain restart are refused while this is set.
+    Round 7, 93 and 94: every configured service counts (Alexandria's 10:00 too), and so does
+    a Calendar event marked "counts as a service" (Easter, The Outpour), for its own length."""
     now = now or datetime.now()
     for s in services if services is not None else info()["services"]:
         try:
@@ -88,7 +101,38 @@ def in_service_now(now: datetime | None = None, services: list | None = None, ho
         if start <= now < end:
             return {"name": s["name"], "site": s.get("site", ""), "started": start.isoformat(timespec="minutes"), "ends": end.isoformat(timespec="minutes"),
                     "ends_at": end.strftime("%-I:%M %p")}
+    if events is None and services is None:
+        try:
+            from . import calendar as _cal
+            events = [e for e in _cal.events() if e.get("is_service")]
+        except Exception:  # noqa: BLE001 - the calendar must never break the guard
+            events = []
+    for e in events or []:
+        try:
+            start = datetime.fromisoformat(e["start"])
+            end = datetime.fromisoformat(e["end"]) if e.get("end") else start + timedelta(hours=hours)
+        except (KeyError, TypeError, ValueError):
+            continue
+        end = max(end, start + timedelta(minutes=30))
+        if start <= now < end:
+            return {"name": e.get("title", "a special service"), "site": e.get("where", ""), "started": start.isoformat(timespec="minutes"),
+                    "ends": end.isoformat(timespec="minutes"), "ends_at": end.strftime("%-I:%M %p"), "special": True}
     return None
+
+
+# Round 7, 91: what a service holds back. One answer for every caller (Software Update, the
+# Mac helper, restarts, the Nextcloud sweep, the speed test, the lyrics inbox): hold(kind).
+HOLD_KINDS = {"update": "updates", "restart": "restarts", "mac": "changes to the church Macs", "sync": "heavy syncing",
+              "heavy": "heavy work (speed tests, big copies)"}
+
+
+def hold(kind: str, now: datetime | None = None, **kw) -> dict | None:
+    """None when the work may go ahead; otherwise {service, kind, why}. Unknown kinds are held too."""
+    svc = in_service_now(now, **kw)
+    if not svc:
+        return None
+    what = HOLD_KINDS.get(kind, "that")
+    return {"service": svc, "kind": kind, "why": f"{svc['name']} is on until {svc.get('ends_at', 'it ends')}: {what} wait until after"}
 
 
 def verse_of_day(now: datetime | None = None) -> dict:

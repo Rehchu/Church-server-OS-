@@ -136,9 +136,30 @@ def service_start(name: str) -> str | None:
 
 
 def default_nudge(name: str) -> str:
-    h, m = [int(x) for x in (service_start(name) or "10:30").split(":")]
+    """The call time (round 7, 90: Sunday 09:00, Glory Night 18:00) when it comes before the
+    service; otherwise 75 minutes before the earliest start."""
+    from . import church
+    ct, st = church.call_time(name), service_start(name)
+    if ct and (not st or ct < st):
+        return ct
+    h, m = [int(x) for x in (st or "10:30").split(":")]
     total = max(0, h * 60 + m - 75)
     return f"{total // 60:02d}:{total % 60:02d}"
+
+
+def opens_at(c: dict | None) -> datetime | None:
+    """Pure-ish: when this round's list opens for ticking (round 7, 90): the call time on the
+    service's day. None when no call time is set (then it is open all round)."""
+    if not c:
+        return None
+    from . import church
+    ct = church.call_time(c["service"])
+    if not ct:
+        return None
+    day = datetime.fromisoformat(c["at"])
+    h, m = [int(x) for x in ct.split(":")]
+    when = day.replace(hour=h, minute=m)
+    return when if when <= day else None
 
 
 def _roll(lst: dict, cur_key: str):
@@ -175,8 +196,9 @@ def view(dept: str, lst: dict, now: datetime, who: dict | None = None) -> dict:
     ticks = lst.get("ticks", {}).get(ck, {})
     items = [{"i": i, "text": t, "done": str(i) in ticks, "by": ticks.get(str(i), {}).get("by", ""), "at": ticks.get(str(i), {}).get("at", "")}
              for i, t in enumerate(lst.get("items", []))]
+    op = opens_at(c)
     return {"dept": dept, "leader": lst.get("leader"), "nudge": lst.get("nudge"), "services": lst.get("services") or DEFAULT_SERVICES,
-            "round": c, "items": items, "done": sum(1 for x in items if x["done"]), "history": lst.get("history", [])[:12],
+            "round": c, "opens": op.isoformat(timespec="minutes") if op else None, "open": not op or now >= op, "items": items, "done": sum(1 for x in items if x["done"]), "history": lst.get("history", [])[:12],
             **({"can_edit": can_edit(who, dept, lst), "can_tick": can_tick(who, dept)} if who else {})}
 
 
@@ -223,6 +245,9 @@ def tick(dept: str, i: int, who: dict, now: datetime | None = None) -> dict:
         c = cycle(now, _services(), lst.get("services") or DEFAULT_SERVICES)
         if not c:
             return {"ok": False, "err": "no service ahead for this list"}
+        op = opens_at(c)
+        if op and now < op and who.get("role") != "admin":
+            return {"ok": False, "err": f"the {dept} checklist opens at call time, {op.strftime('%-I:%M %p')} {op.strftime('%A')}", "opens": op.isoformat(timespec="minutes")}
         _roll(lst, c["key"])
         t = lst.setdefault("ticks", {}).setdefault(c["key"], {})
         if str(i) in t:
@@ -302,6 +327,76 @@ def due_nudges(now: datetime) -> list[dict]:
             to = members_of(["@" + dept]) | ({lst["leader"]} if lst.get("leader") else set())
             out.append({"to": sorted(to), "text": f"{dept} checklist: {left} of {len(lst['items'])} left before {c['service']}", "key": f"dept:{dept}:{c['key']}"})
     return out
+
+
+# ----- the phone page (round 7, 19, 88, 89) ------------------------------------------
+# Staff tick their department's list on their phones, signed in with their own account, on
+# church Wi-Fi or Tailscale. It is the only dashboard page staff can open ([web] staff_access
+# "none" still keeps them out of everything else). Department leaders and the admins see
+# every department's list; a leader also resets the password of people in their department.
+def led_by(who: dict) -> list[str]:
+    """The departments this person leads."""
+    user = (who.get("user") or "").lower()
+    if not user:
+        return []
+    d = _read()
+    return [dept for dept in departments() if ((d.get("lists") or {}).get(dept) or {}).get("leader", "") and
+            str(d["lists"][dept]["leader"]).lower() == user]
+
+
+def phone(who: dict, now: datetime | None = None) -> dict:
+    """What the phone page shows: the person's lists (every list for leaders and admins),
+    each with whether they may tick it, and the next service with its call time."""
+    from . import church
+    now = now or datetime.now()
+    leads = led_by(who)
+    see_all = who.get("role") == "admin" or bool(leads)
+    everything = all_lists({**who, "role": "admin"} if see_all else who, now)["lists"]
+    out = []
+    for v in everything:
+        v = dict(v)
+        v["can_tick"] = can_tick(who, v["dept"])
+        v["can_edit"] = False          # items are edited at the closet; the phone only ticks
+        v["history"] = []
+        out.append(v)
+    nxt = church.next_service(now)
+    return {"lists": out, "leads": leads, "sees_all": see_all, "user": who.get("user"), "name": who.get("name") or who.get("user"),
+            "next": nxt, "call_time": church.call_time(nxt["name"]) if nxt else None, "demo": load().demo}
+
+
+def department_people(who: dict) -> dict:
+    """The people a leader may reset: members of the departments they lead (never an admin)."""
+    from .notify import members_of
+    leads = led_by(who) if who.get("role") != "admin" else departments()
+    people = set()
+    for dept in leads:
+        people |= members_of(["@" + dept])
+    from . import directory
+    admins = set()
+    try:
+        admins = {u["name"].lower() for u in directory.list_users().get("users", []) if "Domain Admins" in (u.get("groups") or [])}
+    except Exception:  # noqa: BLE001
+        pass
+    me = (who.get("user") or "").lower()
+    return {"leads": leads, "people": sorted(p for p in people if p.lower() not in admins and p.lower() != me)}
+
+
+def leader_reset(who: dict, user: str) -> dict:
+    """Round 7, 19: a department leader resets the password of someone in their department.
+    A temporary password, shown once on the leader's phone; the person picks their own at the
+    next sign-in. Never an admin's password, never their own (that is My Profile)."""
+    from . import audit, directory, profiles
+    user = (user or "").strip().lower()
+    allowed = department_people(who)
+    if user not in [p.lower() for p in allowed["people"]]:
+        return {"ok": False, "err": "you can reset the passwords of people in the departments you lead"}
+    pw = profiles.temp_password()
+    r = directory.set_password(user, pw, temporary=True)
+    audit.record(who.get("user", ""), "checklist.leader_reset", user, ok=bool(r.get("ok")), detail=f"leader of {', '.join(allowed['leads'])}")
+    if not r.get("ok"):
+        return {"ok": False, "err": r.get("err") or "the directory did not take the new password"}
+    return {"ok": True, "user": user, "temporary_password": pw, "demo": load().demo,
+            "next": f"Give {user} this password in person. They choose their own when they next sign in, on their Mac or here."}
 
 
 DEMO_STATE = {"lists": {

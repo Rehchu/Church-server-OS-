@@ -33,10 +33,10 @@ const http = (status, message, extra = {}) => ({ __status: status, error: Object
 const NAME_RE = /^[A-Za-z][A-Za-z0-9._-]{1,63}$/;          // server/arise_server/directory.py
 const SHARE_RE = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,31}$/;       // server/arise_server/shares.py
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,}$/;
-const MEMBER_OK = ['/auth/', '/me', '/people', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/'];
+const MEMBER_OK = ['/auth/', '/me', '/people', '/files/', '/search', '/links', '/sermons', '/bible', '/sites', '/health', '/church', '/sunday', '/kiosk/open', '/kiosk/claude-desktop', '/public/', '/push/', '/about/week', '/about/whatsnew', '/calendar', '/weather', '/help', '/apps/open/', '/checklist/'];
 const memberOk = p => MEMBER_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m));
 // After round 5: staff and members use their Macs; with staff access "none" they reach only the sign-in routes.
-const NONE_OK = ['/auth/', '/public/', '/health'];
+const NONE_OK = ['/auth/', '/public/', '/health', '/checklist/'];   // round 7, 89: the phone checklist is the one staff exception
 const staffAccess = () => (X && X.staffAccess) || 'none';
 const memberMay = p => staffAccess() === 'none' ? NONE_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m)) : memberOk(p);
 const SAMPLE_SECRET = SEED['POST /me/2fa/setup']?.secret || '';
@@ -738,7 +738,7 @@ function mustSet(user, on) { X.mustchange = (X.mustchange || []).filter(x => x !
 function signinAdd(user, okd, how) { X.signins = X.signins || {}; (X.signins[user] = X.signins[user] || []).unshift({ t: isoSec(), ok: okd, how, ip: 'this browser' }); X.signins[user] = X.signins[user].slice(0, 50); }
 function deviceOf(a) { a = a || ''; const b = /Edg\//.test(a) ? 'Edge' : /Firefox\//.test(a) ? 'Firefox' : /Chrome\//.test(a) ? 'Chrome' : /Safari\//.test(a) ? 'Safari' : 'a browser'; const s = /iPhone/.test(a) ? 'an iPhone' : /iPad/.test(a) ? 'an iPad' : /Android/.test(a) ? 'Android' : /Macintosh/.test(a) ? 'a Mac' : /Windows/.test(a) ? 'Windows' : /Linux|X11/.test(a) ? 'Linux' : ''; return s ? `${b} on ${s}` : b; }
 const MAIL_DOMAIN = () => ((get('GET /public/sign-in') || {}).mail_domain || 'ad.arisecenla.com');
-const PREF_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text))$/;
+const PREF_RE = /^(theme|sounds|wallpaper|textsize|dock\.(hide|admin|member|staff)|a11y\.(contrast|motion|text)|widgets\.off|lp\.hidden)$/;
 const SELF_F = ['personal_email', 'mobile', 'birthday'], ADMIN_F = SELF_F.concat(['title', 'departments']);
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 function normBirthday(v) { v = String(v || '').trim().toLowerCase(); let mo, d; let m = v.match(/^(?:\d{4}-)?(\d{1,2})[-/](\d{1,2})(?:[-/]\d{2,4})?$/); if (m) { mo = +m[1]; d = +m[2]; } else { m = v.match(/^([a-z]+)\.?\s+(\d{1,2})(?:,?\s*\d{4})?$/); if (!m) return null; const i = MONTHS.findIndex(x => x.startsWith(m[1].slice(0, 3))); if (i < 0) return null; mo = i + 1; d = +m[2]; } const dim = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= dim[mo - 1])) return null; return String(mo).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
@@ -995,8 +995,90 @@ route('POST', /^\/cloud\/revoke$/, b => {
 route('POST', /^\/cloud\/sweep$/, () => inService() ? fail(`not during ${inService().name}: the sweep runs again after it`) : ok({ demo: true, moved: [], checked: 0 }));
 // ===== end R6-SYNC =====
 
+// ===== R7-C: the phone checklist, service mode, reports, the notes board, the speed test (round 7) =====
+const ledBy = u => deptAll().filter(l => l.leader && String(l.leader).toLowerCase() === String(u || '').toLowerCase()).map(l => l.dept);
+const mayTick = dept => isAdmin() || groupsOf(me()?.user).includes(dept);
+function phoneLists() {
+  const s = me(); const seed = get('GET /checklist/mine') || {}; const leads = ledBy(s?.user); const all = isAdmin() || leads.length > 0;
+  const lists = deptAll().filter(l => all || groupsOf(s?.user).includes(l.dept)).map(l => Object.assign(clone(l), { can_tick: mayTick(l.dept), can_edit: false, history: [] }));
+  return { lists, leads, sees_all: all, user: s?.user, name: authMe().name || s?.user, next: clone(seed.next || null), call_time: seed.call_time || null, demo: true };
+}
+function leaderPeople() {
+  const s = me(); const leads = isAdmin() ? deptAll().map(l => l.dept) : ledBy(s?.user); const mine = String(s?.user || '').toLowerCase();
+  const people = users().filter(u => !isAdminUser(u) && u.enabled !== false && u.name.toLowerCase() !== mine && (u.groups || []).some(g => leads.includes(g))).map(u => u.name).sort();
+  return { leads, people };
+}
+function serviceNow() {
+  const real = inService(); const on = clone(get('GET /service/now#on'));
+  if (!(real || X.svcDemo) || !on) return clone(get('GET /service/now') || { in_service: false, demo: true });
+  if (real) on.service = { name: real.name, site: real.site || '', started: isoMin(), ends_at: real.ends_at, sample: false };
+  on.checklists = deptAll().filter(l => !(l.services || []).length || (l.services || []).includes(on.service.name)).map(l => ({ dept: l.dept, done: l.items.filter(x => x.done).length, total: l.items.length, left: l.items.filter(x => !x.done).map(x => x.text).slice(0, 6) }));
+  const sp = speedAll(); on.internet = sp.last || on.internet; return on;
+}
+function boardAll() { if (!X.board) X.board = clone(get('GET /notes-board') || { notes: [], away: [] }); return X.board; }
+const boardView = () => { const b = boardAll(); b.notes.sort((a, c) => (c.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || String(c.at).localeCompare(String(a.at))); return Object.assign(clone(b), { ok: true, demo: true }); };
+function speedAll() { const sd = clone(get('GET /speedtest') || { runs: [] }); const extra = X.speedRuns || []; sd.runs = (sd.runs || []).concat(extra); if (extra.length) sd.last = extra[extra.length - 1]; return sd; }
+function r7Get(p) {
+  if (p === '/checklist/mine') return phoneLists();
+  if (p === '/checklist/people') return leaderPeople();
+  if (p === '/service/now') return serviceNow();
+  if (p === '/notes-board') return isAdmin() ? boardView() : http(403, 'Administrator only');
+  if (p === '/speedtest') return speedAll();
+  if (p === '/reports/pastors') return Object.assign(clone(get('GET /reports/pastors') || {}), clone(X.pastor || {}));
+  if (p === '/songs/inbox' || p === '/songs/usage') return clone(get('GET ' + p) || {});
+  return undefined;
+}
+route('POST', /^\/checklist\/([^/]+)\/tick$/, (b, m) => {
+  const dept = m[1]; const l = deptAll().find(x => x.dept === dept); if (!l) return fail(`${dept} is not one of the departments ([church] departments in arise.toml)`);
+  if (!mayTick(dept)) return fail(`only ${dept} and the admins tick this list`);
+  if (l.open === false && !isAdmin()) return fail(`the ${dept} checklist opens at call time`);
+  const it = l.items.find(x => x.i === +b.i); if (!it) return fail('no such item');
+  it.done = !it.done; it.by = it.done ? me().user : ''; it.at = it.done ? isoMin() : ''; l.done = l.items.filter(x => x.done).length; save();
+  return ok(Object.assign(clone(l), { can_tick: true, can_edit: false, history: [] }));
+});
+route('POST', /^\/checklist\/reset$/, b => {
+  const u = String(b.user || '').trim().toLowerCase(); const ppl = leaderPeople();
+  if (!ppl.people.map(x => x.toLowerCase()).includes(u)) return fail('you can reset the passwords of people in the departments you lead');
+  const pw = tempPw(); const real = userOf(u).name; X.pw[real] = pw; mustSet(real, true); signinAdd(real, true, `password reset by ${me().user} (department leader)`); save();
+  return ok({ user: real, temporary_password: pw, demo: true, next: `Give ${real} this password in person. They choose their own when they next sign in, on their Mac or here.` });
+});
+route('POST', /^\/service\/demo$/, b => { X.svcDemo = b.on !== false; save(); return ok({ on: X.svcDemo }); });
+route('POST', /^\/reports\/discord\/test$/, b => ['alerts', 'sunday', 'weekly', 'daily'].includes(b.channel) ? ok({ demo: true, channel: b.channel }) : fail(`no such channel: ${b.channel}`));
+route('POST', /^\/reports\/weekly$/, () => ok({ demo: true, channel: 'weekly', text: (get('GET /reports') || {}).weekly || '' }));
+route('PUT', /^\/reports\/pastors$/, b => {
+  const seed = get('GET /reports/pastors') || {}; if ((X.pastor || {}).sent) return fail(`the note for ${b.month} was already sent`);
+  const t = String(b.text || '').trim(); if (!t) return fail('the note is empty'); if (b.month !== seed.month) return fail('month is YYYY-MM');
+  X.pastor = Object.assign(X.pastor || {}, { draft: t.slice(0, 2000), edited: true }); save(); return ok({ demo: true });
+});
+route('POST', /^\/reports\/pastors\/send$/, b => {
+  if ((X.pastor || {}).sent) return fail('that note was already sent'); const t = String(b.text || '').trim(); if (!t) return fail('the note is empty');
+  X.pastor = Object.assign(X.pastor || {}, { draft: t, edited: true, sent: isoMin(), sent_by: me().user }); save();
+  return ok({ demo: true, sent_to: [], no_email: [] });
+});
+route('POST', /^\/songs\/inbox$/, () => ok({ demo: true, files: 0, linked: 0, unlinked: 0, failed: 0, results: [] }));
+route('POST', /^\/notes-board$/, b => {
+  if (!isAdmin()) return http(403, 'Administrator only'); const t = String(b.text || '').trim(); if (!t) return fail('the note is empty');
+  const c = ['ink', 'red', 'amber', 'green'].includes(b.colour) ? b.colour : 'ink';
+  boardAll().notes.push({ id: 'n' + token(6), text: t.slice(0, 600), by: me().user, at: isoMin(), colour: c, pinned: false }); save(); return boardView();
+});
+route('PUT', /^\/notes-board\/([^/]+)$/, (b, m) => {
+  const n = boardAll().notes.find(x => x.id === m[1]); if (!n) return fail('no such note');
+  if (b.text != null) { const t = String(b.text).trim(); if (!t) return fail('the note is empty'); n.text = t.slice(0, 600); n.edited_by = me().user; n.edited_at = isoMin(); }
+  if (b.pinned != null) n.pinned = !!b.pinned; if (b.colour && ['ink', 'red', 'amber', 'green'].includes(b.colour)) n.colour = b.colour; save(); return boardView();
+});
+route('POST', /^\/notes-board\/([^/]+)\/away$/, (b, m) => { const bd = boardAll(); const i = bd.notes.findIndex(x => x.id === m[1]); if (i < 0) return fail('no such note'); const [n] = bd.notes.splice(i, 1); n.away_by = me().user; n.away_at = isoMin(); bd.away = [n].concat(bd.away || []).slice(0, 200); save(); return boardView(); });
+route('POST', /^\/notes-board\/([^/]+)\/back$/, (b, m) => { const bd = boardAll(); const i = (bd.away || []).findIndex(x => x.id === m[1]); if (i < 0) return fail('no such note'); const [n] = bd.away.splice(i, 1); delete n.away_by; delete n.away_at; bd.notes.push(n); save(); return boardView(); });
+route('POST', /^\/speedtest$/, () => {
+  const s = inService(); if (s) return fail(`not during ${s.name}: the speed test waits until it ends`);
+  const r = { at: isoMin(), down: Math.round(880 + Math.random() * 70), up: Math.round(35 + Math.random() * 8), ping: Math.round(10 + Math.random() * 5), sample: true };
+  X.speedRuns = (X.speedRuns || []).concat([r]).slice(-48); save(); return ok(Object.assign({ demo: true }, r));
+});
+route('POST', /^\/auth\/kiosk-autologin$/, () => http(401, 'Sign in'));
+// ===== end R7-C =====
+
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
+  const r7 = r7Get(p); if (r7 !== undefined) return r7;   // round 7: the phone checklist, service mode, reports
   const r6 = r6SyncGet(p); if (r6 !== undefined) return r6;   // the Sync panel (round 6)
   const r5 = r5Get(p, q); if (r5 !== undefined) return r5;   // profiles (round 5)
   const s = me();

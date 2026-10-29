@@ -1160,6 +1160,17 @@ if [ -f "$UNIT_SRC/arise-offboard.timer" ]; then
   fi
   note "arise-offboard.timer: 05:15 daily, disables a leaver's login on their day and moves their files on (arisectl offboard)"
 fi
+# Round 7: the Monday report, the Lyrics inbox, the CCLI report, the channel copy, the speed test.
+for t in arise-weekly.timer arise-lyrics-inbox.timer arise-ccli.timer arise-channel-copy.timer arise-speedtest.timer; do
+  [ -f "$UNIT_SRC/$t" ] || continue
+  if [ "$NO_START" = 0 ]; then
+    run systemctl enable --now "$t" || warn "$t failed to start"
+  else
+    run systemctl enable "$t"
+  fi
+done
+note "round 7 timers: Monday 07:30 report, Lyrics inbox every 15 min, CCLI report each quarter, channel copy 04:45, speed test hourly"
+mkdir -p "$DATA_ROOT/shares/lyrics-inbox" 2>/dev/null && chmod 2770 "$DATA_ROOT/shares/lyrics-inbox" 2>/dev/null || true
 if [ -f "$UNIT_SRC/arise-drill.timer" ]; then
   if [ "$NO_START" = 0 ]; then
     run systemctl enable --now arise-drill.timer || warn "arise-drill.timer failed to start"

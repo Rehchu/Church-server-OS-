@@ -118,6 +118,9 @@ def mounts() -> list[dict]:
                 "readonly": False, "priority": 100, "why": "round 5, 18: the two pastors only"})
     out.append({"mount_point": "/Shared with me", "datadir": IN["shared"] + "/$user", "users": [], "groups": [],
                 "readonly": False, "priority": 100, "why": "round 5, 19: what others shared with this person"})
+    from . import songs
+    out.append({"mount_point": "/Lyrics inbox", "datadir": f"{IN['shares']}/lyrics-inbox", "users": songs.inbox_users() + [SCANNER], "groups": [],
+                "readonly": False, "priority": 100, "why": "round 7, 99 and 100: Bradly and the worship leader drop lyrics files here"})
     return out
 
 

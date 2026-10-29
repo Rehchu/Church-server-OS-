@@ -60,7 +60,7 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
-MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/", "/api/push/", "/api/about/week", "/api/about/whatsnew", "/api/calendar", "/api/weather", "/api/help", "/api/people")
+MEMBER_OK = ("/api/auth/", "/api/me", "/api/files/", "/api/search", "/api/links", "/api/sermons", "/api/bible", "/api/sites", "/api/health", "/api/church", "/api/sunday", "/api/kiosk/open", "/api/public/", "/api/push/", "/api/about/week", "/api/about/whatsnew", "/api/calendar", "/api/weather", "/api/help", "/api/people", "/api/checklist/")
 
 
 def login(user: str, password: str) -> tuple[str | None, dict] | None:
@@ -252,7 +252,7 @@ def _check_path(request: Request, who: dict):
 # the Mac as normal, with everything syncing. Admins, Kristina, and myself will use the
 # OS directly in the closet." So: "none" (the default) or "portal" (the member portal).
 STAFF_ACCESS = ("none", "portal")
-NONE_OK = ("/api/auth/", "/api/public/", "/api/health")
+NONE_OK = ("/api/auth/", "/api/public/", "/api/health", "/api/checklist/")   # round 7, 89: the phone checklist page
 
 
 def staff_access() -> str:

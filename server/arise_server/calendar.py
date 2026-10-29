@@ -71,8 +71,10 @@ def _clean(body: dict) -> dict | None:
     if isinstance(people, str):
         people = [p for p in re.split(r"[,\s]+", people) if p]
     people = [str(p).strip()[:64] for p in people if re.fullmatch(r"@?[\w.\- ']{1,64}", str(p).strip())][:40]
+    # Round 7, 94: Easter, The Outpour, a conference: an event that counts as a service is held
+    # like one (no updates, restarts or Mac changes while it runs).
     return {"title": title, "start": start, "end": end, "where": str(body.get("where", "") or "").strip()[:120],
-            "note": str(body.get("note", "") or "").strip()[:1000], "people": people}
+            "note": str(body.get("note", "") or "").strip()[:1000], "people": people, "is_service": bool(body.get("is_service"))}
 
 
 def _parse(s: str) -> datetime | None:

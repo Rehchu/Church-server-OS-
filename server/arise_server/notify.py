@@ -182,6 +182,11 @@ def tick(now: datetime | None = None) -> dict:
     now = now or datetime.now()
     from . import calendar as churchcal, church, checklists
     sent = 0
+    try:   # round 7, 78 and 79: the all-green an hour before each service, to Discord #sunday
+        from . import reports
+        reports.tick_green(now)
+    except Exception:  # noqa: BLE001 - a Discord hiccup never stops the reminders
+        pass
     if church.in_service_now(now):
         return {"held": "during a service"}
     try:
@@ -202,7 +207,7 @@ def tick(now: datetime | None = None) -> dict:
                 sent += 0 if r.get("duplicate") else 1
     for n in checklists.due_nudges(now):
         for u in n["to"]:
-            r = add(u, "checklist", n["text"], "/#sunday", key=n["key"], now=now)
+            r = add(u, "checklist", n["text"], "/checklist", key=n["key"], now=now)
             sent += 0 if r.get("duplicate") else 1
     return {"ok": True, "sent": sent}
 

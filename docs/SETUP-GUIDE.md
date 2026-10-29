@@ -413,6 +413,32 @@ After `mac/enroll-mac.sh`:
   is never enrolled. It runs Tailscale and the Nextcloud app if its owner
   wants their files there.
 
+### The phone checklist (round 7, 19, 88-90)
+
+Staff and volunteers do not use the dashboard, with one exception: on church
+Wi-Fi or with Tailscale on, `http://arise-server:4147/checklist` on a phone.
+They sign in with the same account as on the Macs (a temporary password asks
+for their own first) and see their department's checklist for the next
+service. A list opens at call time, Sunday 09:00 and Glory Night 18:00:
+
+```toml
+[church]
+call_times = { "Sunday Service" = "09:00", "Glory Night" = "18:00" }
+```
+
+Make someone a department's leader in the Sunday app (edit the list →
+*Leader*). A leader sees every department's list on that page, ticks their
+own, and can reset the password of anyone in a department they lead when
+they are locked out: the temporary password shows once on the leader's
+phone; the person picks their own at the next sign-in.
+
+### After a restart
+
+The closet monitor opens the owner's desktop by itself after a restart
+(`[kiosk] autologin = "owner"`), once per boot, and locks after ten idle
+minutes like any sign-in. `autologin = "off"` turns it off. The text
+console stays on `Ctrl+Alt+F2` for the admins.
+
 ---
 
 ## 8. Care

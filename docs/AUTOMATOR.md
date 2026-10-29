@@ -288,6 +288,37 @@ the channel's video; StreamYard or a local capture).
 - Later, maybe: the server pushing reports and transcripts to a `server-out`
   branch (a separate write key; never `main`).
 
+## Round 7: songs, transcripts and the channel copy
+
+- **The Lyrics inbox** (99, 100): a *Lyrics inbox* folder in Nextcloud for
+  Bradly and the worship leader (`[songs] inbox_users`; the owner always).
+  Every 15 minutes (`arise-lyrics-inbox.timer`) the files dropped there go
+  through the same import as the Songs tab's *Import lyrics files*
+  (`songs.import_files`: SongSelect `.txt`/`.usr`, ChordPro, plain text,
+  matched to song_bank.json by CCLI number, then by title). Each file then
+  moves to `Imported/` (or `Not imported/` with the reason in the Songs tab).
+  The lyrics land in `/srv/arise/songs/lyrics` and nowhere else: never into
+  a title, a description, a Short or a log line.
+- **Held videos stay out of transcript search** (105): a video in
+  `holds.json` is left out of the Search tab's transcript and title hits;
+  the answer says how many were held back.
+- **The CCLI usage report** (106): Songs → *CCLI usage* shows this quarter;
+  `arise-ccli.timer` writes `songs/reports/ccli-usage-YYYY-Qn.csv` on the
+  first of January, April, July and October. From the set lists and song
+  credits already in the archive: title, the CCLI number exactly as
+  song_bank.json has it, times used. No lyrics. A song with no number banked
+  is listed as such, never guessed; Arise originals say so.
+- **The nightly channel copy** (62): `arise-channel-copy.timer` at 04:45 copies
+  the automator repo's own snapshot files (already synced to
+  `/srv/arise/repos`) into `/srv/arise/channel-copy/<date>/`, and each
+  video's public thumbnail from `i.ytimg.com` into
+  `channel-copy/thumbnails/` (up to 300 new a night). Zero quota: never the
+  YouTube API. Skipped during a service.
+- **The morning note explains a failed 02:05 run** (145): when the night's
+  report failed, the note quotes the report's own failing lines in plain
+  words, with the quota reset time when that was the cause. The note stays
+  off until a webhook is set.
+
 ## Commands
 
 ```

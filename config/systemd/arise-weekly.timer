@@ -1,0 +1,11 @@
+[Unit]
+Description=Arise Server Monday report to Discord #weekly (round 7, 80)
+
+[Timer]
+# Monday 07:30 America/Chicago: the week's backups, storage, Macs, sign-ins, updates and the channel's numbers.
+# Glory Night is at 19:00; this is long before it.
+OnCalendar=Mon *-*-* 07:30:00 America/Chicago
+Persistent=true
+
+[Install]
+WantedBy=timers.target

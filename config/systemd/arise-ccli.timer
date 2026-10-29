@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server CCLI song-usage report, quarterly (round 7, 106)
+
+[Timer]
+# The first of January, April, July and October at 08:10: the quarter that just ended.
+OnCalendar=*-01,04,07,10-01 08:10:00 America/Chicago
+Persistent=true
+
+[Install]
+WantedBy=timers.target

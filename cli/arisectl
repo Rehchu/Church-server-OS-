@@ -1195,7 +1195,8 @@ def cmd_notify(a):
     elif a.sub == "send":
         from arise_server.main import overview as _ov
         o = _ov(None)
-        r = system.daily_report(o.get("attention", []), {"automator": o["automator"].get("last_summary") or "no run", "backup": (f"{o['backup']['last']['name']} {'ok' if o['backup']['last']['ok'] else 'FAILED'}" if o["backup"].get("last") else "none")})
+        r = system.daily_report(o.get("attention", []), {"automator": o["automator"].get("last_summary") or "no run", "automator_failed": o["automator"].get("last_ok") is False,
+                                                          "backup": (f"{o['backup']['last']['name']} {'ok' if o['backup']['last']['ok'] else 'FAILED'}" if o["backup"].get("last") else "none")})
         print(r["text"])
         (ok if r["sent"] else warn)("sent" if r["sent"] else f"not sent: {r.get('error') or 'nothing needs you, or no webhook'}")
 
@@ -1651,6 +1652,10 @@ def build():
     p = sp.add_parser("remote"); p.add_argument("sub", choices=["status", "add-peer"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_remote)
     p = sp.add_parser("upkeep"); p.add_argument("sub", choices=["hourly", "january", "changes", "health"]); p.add_argument("--limit", type=int); p.set_defaults(f=cmd_upkeep)
     p = sp.add_parser("notify"); p.add_argument("sub", choices=["test", "send", "discord"]); p.add_argument("channel", nargs="?", choices=["alerts", "sunday", "weekly", "daily"], help="test: post to this Discord channel"); p.set_defaults(f=cmd_notify)
+    p = sp.add_parser("report"); p.add_argument("sub", choices=["weekly", "status", "test", "pastors"]); p.add_argument("channel", nargs="?", help="test: alerts, sunday, weekly or daily; pastors: YYYY-MM"); p.set_defaults(f=cmd_report)
+    p = sp.add_parser("songs"); p.add_argument("sub", choices=["inbox", "usage", "quarter"]); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_songs)
+    p = sp.add_parser("channel"); p.add_argument("sub", choices=["copy"]); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_channel)
+    p = sp.add_parser("speedtest"); p.add_argument("sub", nargs="?", default="show", choices=["show", "run"]); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_speedtest)
     p = sp.add_parser("update"); p.add_argument("sub", nargs="?", default="check", choices=["check", "refresh", "queue", "apply", "apt", "self"]); p.add_argument("name", nargs="?", help="queue: a package, an app, 'reboot', 'all' or 'clear'"); p.add_argument("rest", nargs="*")
     p.add_argument("--now", action="store_true", help="(apply) the same as the Saturday run, right now"); p.add_argument("--no-snapshot", action="store_true", help="(apply) go without the system snapshot"); p.add_argument("--quiet", action="store_true", help="(apply) for the timer: log only, exit 1 on failure"); p.set_defaults(f=cmd_update)
     sp.add_parser("security").set_defaults(f=cmd_security)
@@ -1666,6 +1671,81 @@ def build():
     p = sp.add_parser("reinstall"); p.add_argument("name", nargs="?", help="the restic repository, e.g. /mnt/synology/arise-backups/restic"); p.set_defaults(f=cmd_reinstall)
     return ap
 
+
+
+# ---- round 7: reports, the lyrics inbox, the channel copy, the speed test -----------------
+def cmd_report(a):
+    from arise_server import reports
+    if a.sub == "weekly":
+        r = reports.send_weekly()
+        print(r.get("text", ""))
+        (ok if r.get("ok") else warn)("posted to #weekly" if r.get("ok") else f"not posted: {r.get('err')}")
+    elif a.sub == "status":
+        for c, on in reports.status()["channels"].items():
+            (ok if on else warn)(f"#{c}: {'set' if on else 'not set'}")
+    elif a.sub == "test":
+        ch = a.channel or "alerts"
+        r = reports.post(ch, f"ariseOS: a test line to #{ch} from arisectl.")
+        (ok if r.get("ok") else warn)("posted" if r.get("ok") else f"not posted: {r.get('err')}")
+    elif a.sub == "pastors":
+        r = reports.pastors(a.channel or None)
+        print(r.get("draft", r.get("err", "")))
+        warn("drafted only: Bradly sends it from the dashboard (Settings → Notifications)")
+
+
+def cmd_songs(a):
+    from arise_server import songs
+    if a.sub == "inbox":
+        r = songs.inbox_scan(by="arise-lyrics-inbox.timer" if a.quiet else "arisectl")
+        if not a.quiet or r.get("files"):
+            print(f"{r.get('files', 0)} file(s): {r.get('linked', 0)} linked, {r.get('unlinked', 0)} kept unlinked, {r.get('failed', 0)} not imported" + (f" ({r['note']})" if r.get("note") else ""))
+    elif a.sub == "usage":
+        from datetime import date
+        label, first, last = songs.quarter_of(date.today())
+        r = songs.usage_report(first, last)
+        head(f"CCLI song usage, {label} ({r['services']} services)")
+        for row in r["songs"]:
+            print(f"  {row['times']:>3}  {row['title']}  {row['ccli'] or ('Arise original' if row['original'] else '(no number banked)')}")
+    elif a.sub == "quarter":
+        r = songs.write_quarter_report()
+        (ok if r.get("ok") else bad)(f"{r.get('label')}: {len(r.get('songs', []))} songs from {r.get('services', 0)} services -> {r.get('file', '(sample)')}")
+        try:
+            from arise_server import reports
+            reports.post("weekly", f"🎵 The CCLI song-usage report for {r.get('label')} is ready: {len(r.get('songs', []))} songs, {r.get('services', 0)} services. Songs → CCLI usage.",
+                         key=f"ccli:{r.get('label')}")
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def cmd_channel(a):
+    from arise_server import reports
+    r = reports.channel_copy()
+    if r.get("ok"):
+        if not a.quiet:
+            ok(f"{r.get('files')} snapshot file(s) -> {r.get('folder', '(sample)')}; {r.get('thumbs', 0)} new thumbnail(s)")
+    else:
+        (warn if r.get("held") else bad)(r.get("err", "failed"))
+        if not r.get("held"):
+            raise SystemExit(1)
+
+
+def cmd_speedtest(a):
+    from arise_server import speedtest
+    if a.sub == "run":
+        r = speedtest.run()
+        if r.get("ok"):
+            if not a.quiet:
+                ok(f"down {r['down']} Mb/s · up {r['up']} Mb/s · ping {r['ping']} ms")
+        else:
+            (warn if r.get("held") else bad)(r.get("err", "failed"))
+    else:
+        sm = speedtest.summary()
+        if not sm.get("last"):
+            warn("no tests yet")
+            return
+        l, w = sm["last"], sm.get("week") or {}
+        print(f"last {l['at']}: down {l.get('down')} · up {l.get('up')} · ping {l.get('ping')}")
+        print(f"this week (median of {w.get('tests', 0)}): down {w.get('down')} · up {w.get('up')} · ping {w.get('ping')}; {w.get('failed', 0)} failed")
 
 def main():
     a = build().parse_args()
