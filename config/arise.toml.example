@@ -81,10 +81,20 @@ audience_name = "Arise Church family"
 users = []
 
 [links]
-# Share links (a public download address for one file or folder).
-days = 0        # default life in days; 0 = never expires, it lives until removed (Bradly, Oct 28)
-max_days = 365  # the longest life a link may be given when one is picked
+# Share links (a public download address for one file or folder). Round 7, 47: only admins make
+# them, and each ends after 7 days.
+days = 7        # default life in days
+max_days = 7    # the longest life a link may be given
+admins_only = true
 max_zip_bytes = 2147483648   # folders bigger than this are not zipped
+
+[people]
+# Round 7 (docs/ANSWERS.md): accounts and privacy.
+inactive_days = 90          # row 17: an account unused this long is named in Discord #alerts, once
+leavers_archive = ""        # row 60: empty = <nas mount>/arise/leavers; a leaver's files are copied here and kept forever
+breakglass_hours = 2        # row 69: Bradly's emergency look into the Pastors folder (both pastors told at once)
+welcome_email = true        # row 10: a new account's welcome email to their personal address
+contacts = true             # rows 21 and 152: the church contacts as a read-only address book (/carddav/)
 
 
 [directory]
@@ -159,9 +169,11 @@ dsm_credentials_file = "/etc/arise/secrets/dsm.json"
 [storage]
 # Round 5 (docs/ANSWERS.md, rows 12-20, 36; docs/SHARES.md "Round 5").
 homes_on = "server"          # "server" (/srv/arise/homes) or "synology" (<nas mount>/arise/homes)
-home_quota_gb = 50           # per home; the dashboard refuses past it, setquota where quotas are on
+home_quota_gb = 50           # per home: the warning line (round 7, 45: nobody is ever stopped)
+quota_soft = true            # false = the dashboard refuses past it and setquota enforces it
+quota_notify_pct = [80, 95]  # round 7, 44: the person and Bradly are told at each, once
 quota_warn_pct = 90          # Finder and Storage warn here
-versions_days = 90           # how far back Previous Versions reach (restic retention is unchanged)
+versions_days = 365          # round 7, 46: earlier versions kept a year (restic retention is unchanged)
 pastors = ["bryant.sanders", "vanessa.sanders"]   # the Pastors folder: theirs alone, admins included
 pastors_path = ""            # empty: /srv/arise/pastors (outside shares/, so no share above reaches it)
 departments = ["childrens-department", "inedge", "media", "worship", "kids", "alexandria"]

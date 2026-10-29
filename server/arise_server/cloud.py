@@ -178,6 +178,8 @@ def occ_plan(bind_password: str = "{LDAP_BIND_PASSWORD}") -> list[list[str]]:
         ["config:app:set", "core", "shareapi_enabled", "--value", "no"],    # sharing is the server's Share with…
         # Storage is the home's own quota (row 5 of the panel: against 50 GB); Nextcloud adds none of its own.
         ["config:app:set", "files", "default_quota", "--value", "none"],
+        # Round 7, 46: earlier versions of a file kept a year, then let go (Nextcloud's own setting).
+        ["config:system:set", "versions_retention_obligation", "--value", "auto, 365"],
         ["config:app:set", "files", "max_chunk_size", "--value", "104857600"],   # 100 MB chunks: big files (row 18) upload in pieces
         ["background:cron"],
         ["theming:config", "name", "Arise"], ["theming:config", "slogan", "Arise Church · Pineville"],

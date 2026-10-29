@@ -1021,9 +1021,11 @@ async function editText(root, p, name) {
   });
 }
 function shareLink(root, p, name) {
-  const days = S.me?.links_days ?? 0;
-  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until you remove it (or until the date you pick). Folders arrive as a zip.</p>
-    <div class="row" style="gap:10px;margin:12px 0"><label>Expires <select id="slDays"><option value="0" ${days === 0 ? 'selected' : ''}>never (until removed)</option><option value="1">in 1 day</option><option value="3">in 3 days</option><option value="7" ${days === 7 ? 'selected' : ''}>in 7 days</option><option value="14">in 14 days</option><option value="30" ${days === 30 ? 'selected' : ''}>in 30 days</option><option value="90">in 90 days</option><option value="365">in a year</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
+  // Round 7, 47: only admins make an outside link, and each ends after 7 days.
+  if (S.role !== 'admin') return modal(`<h2>Share “${esc(name)}”</h2><p class="muted" style="margin:10px 0 14px">A link that works without signing in is made by an administrator, and it ends after 7 days. For people at church, use <b>Share with…</b>: it shows up in their Shared with me.</p><div class="acts"><button class="btn" data-close>OK</button></div>`);
+  const days = S.me?.links_days || 7;
+  modal(`<h2>Share “${esc(name)}”</h2><p class="muted">Anyone with the link can download it, no sign-in, until it ends (7 days at most) or you remove it. Folders arrive as a zip.</p>
+    <div class="row" style="gap:10px;margin:12px 0"><label>Ends <select id="slDays"><option value="1">in 1 day</option><option value="3">in 3 days</option><option value="7" ${days >= 7 ? 'selected' : ''}>in 7 days</option></select></label><input id="slNote" placeholder="Note to yourself (optional)" style="flex:1"></div>
     <div id="slOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="slGo">Make link</button></div>`, () => {
     $('#slGo').onclick = async () => { const b = $('#slGo'); b.disabled = true; try { const r = await api('/links', { method: 'POST', body: { root, path: p, days: +$('#slDays').value, note: $('#slNote').value } });
       if (r.ok === false) throw new Error(r.err); const url = r.url || (location.origin + '/s/' + r.token);
@@ -3124,10 +3126,10 @@ function staffTwofaOn(name) {
       </div></div>`;
   };
   V.sync.after = root => {
-    $$('[data-cut]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cut, device: b.dataset.dev } }), `${b.dataset.dev} is cut off`); if (r && r.ok !== false) rerender('sync'); });
+    $$('[data-cut]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cut, device: b.dataset.dev } }), `${b.dataset.dev} is cut off; ${b.dataset.cut} was told`); if (r && r.ok !== false) rerender('sync'); });
     $$('[data-cutall]', root).forEach(b => b.onclick = () => confirmType(`Cut off every device of ${b.dataset.cutall}`, b.dataset.cutall,
       `Every Mac, phone and web sign-in ${esc(b.dataset.cutall)} has in Nextcloud stops at once. Their files stay, on the server and on each Mac. A lost Mac, or someone leaving.`,
-      async () => { const r = await api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cutall } }); if (r.ok === false) throw new Error(r.err); toast(`${b.dataset.cutall}: every device cut off`); rerender('sync'); }));
+      async () => { const r = await api('/cloud/revoke', { method: 'POST', body: { user: b.dataset.cutall } }); if (r.ok === false) throw new Error(r.err); toast(`${b.dataset.cutall}: every device cut off, and they were told`); rerender('sync'); }));
     $$('[data-newdev]', root).forEach(b => b.onclick = () => modal(`<h2>A device password for ${esc(b.dataset.newdev)}</h2>
       <p class="note" style="margin-bottom:12px">For a phone or a Mac set up by hand. Church Macs get theirs from the helper by themselves. It is shown once and signs in that one device; never their domain password.</p>
       <div class="field"><label>Device name</label><input id="ndName" placeholder="Kristina's iPhone" maxlength="60" autocomplete="off"></div>
@@ -3147,6 +3149,69 @@ function staffTwofaOn(name) {
   };
 }
 // ===== end R6-SYNC =====
+
+/* ---------------- Round 7: accounts and privacy in Directory (docs/ANSWERS.md, round 7) ---------------- */
+// Rename (13), the photo (20), the church contacts address book (21, 152), accounts nobody uses (17)
+// and Bradly's emergency look into the Pastors folder (69). Wrapped so Directory itself stays as it is.
+{
+  const dirAfter7 = V.directory.after;
+  V.directory.after = root => { dirAfter7(root); r7Wire(root); };
+  async function r7Wire(root) {
+    const bar = $('#addUser', root)?.parentElement;
+    if (bar && !$('#r7Contacts', root)) {
+      bar.insertAdjacentHTML('afterbegin', `<button class="btn btn--ghost btn--sm" id="r7Contacts">Church contacts</button><button class="btn btn--ghost btn--sm" id="r7Pastors" hidden>Pastors folder…</button>`);
+      $('#r7Contacts', root).onclick = contactsModal;
+      api('/pastors/breakglass').then(g => { const b = $('#r7Pastors', root); if (!b || !g.allowed) return; b.hidden = false; b.textContent = g.open ? `Pastors folder open until ${fmtT(g.until)}` : 'Pastors folder…'; b.onclick = () => breakglassModal(g); }).catch(() => {});
+    }
+    api('/directory/unused').then(u => {
+      if (!(u.unused || []).length || $('#r7Unused', root)) return;
+      const t = $('#uTable', root); if (!t) return;
+      t.closest('.panel').insertAdjacentHTML('beforebegin', `<div class="note" id="r7Unused" style="margin-bottom:10px">No sign-in for ${u.days} days: ${u.unused.map(x => `<b>${esc(x.user)}</b> (${x.days} days)`).join(', ')}. Still needed? Switch them off, or mark them as leaving.</div>`);
+    }).catch(() => {});
+    $$('#uTable tbody tr', root).forEach(tr => {
+      const tog = $('[data-tog]', tr); if (!tog || $('[data-rn]', tr)) return; const name = tog.dataset.tog; const acts = tog.parentElement;
+      const rn = document.createElement('button'); rn.className = 'btn btn--ghost btn--xs'; rn.textContent = 'Rename…'; rn.dataset.rn = name; rn.onclick = () => renameModal(name);
+      const ph = document.createElement('button'); ph.className = 'btn btn--ghost btn--xs'; ph.textContent = 'Photo…'; ph.dataset.ph = name; ph.onclick = () => photoModal(name);
+      acts.prepend(ph); acts.prepend(rn);
+    });
+  }
+  function renameModal(name) {
+    modal(`<h2>Rename ${esc(name)}</h2><p class="note" style="margin-bottom:12px">A married name or a correction. Their groups, files and permissions stay with the account; the login, the home folder's name and the church address change. Mail to the old address keeps arriving. On each church Mac the old Mac account stays until it is renamed there: the person signs in with the new name and their files come back from the server.</p>
+      <div class="field"><label>New user name</label><input id="rnNew" placeholder="first.last" autocomplete="off"></div>
+      <div class="field"><label>Type <b>${esc(name)}</b> to confirm</label><input id="rnOk" autocomplete="off"></div>
+      <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="rnGo">Rename</button></div>`, m => {
+      $('#rnNew', m).focus();
+      $('#rnGo', m).onclick = async e => { const r = await act(e.target, () => withReauth(() => api(`/directory/users/${encodeURIComponent(name)}/rename`, { method: 'POST', body: { new: $('#rnNew', m).value.trim(), confirm: $('#rnOk', m).value.trim() } })), 'Renamed');
+        if (r && r.ok !== false) { m.close(); (r.notes || []).forEach(n => toast(n, 'warn', 9000)); rerender('directory'); } };
+    });
+  }
+  function photoModal(name) {
+    modal(`<h2>Photo for ${esc(name)}</h2><p class="note" style="margin-bottom:12px">The photo they chose: it shows on the closet monitor's faces and, from the domain, in Nextcloud and Contacts. A JPEG or PNG, at most 200 KB. Until there is one, their initials show.</p>
+      <div class="field"><label class="btn btn--ghost btn--sm" for="phFile">Choose a photo</label><input type="file" id="phFile" accept="image/jpeg,image/png" hidden><span class="hint" id="phName"></span></div>
+      <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="phGo" disabled>Save</button></div>`, m => {
+      let data = '';
+      $('#phFile', m).onchange = e => { const f = e.target.files[0]; if (!f) return; $('#phName', m).textContent = `${f.name} · ${fmtB(f.size)}`; const rd = new FileReader(); rd.onload = () => { data = String(rd.result); $('#phGo', m).disabled = false; }; rd.readAsDataURL(f); };
+      $('#phGo', m).onclick = async e => { const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(name)}/photo`, { method: 'POST', body: { data } }), 'Photo saved'); if (r && r.ok !== false) m.close(); };
+    });
+  }
+  async function contactsModal() {
+    let c; try { c = await api('/contacts'); } catch (e) { return toast(e.message, 'bad'); }
+    modal(`<h2>Church contacts</h2><p class="note" style="margin-bottom:12px">Everyone's details, in Contacts on church Macs and on staff phones, read-only: the staff directory (with titles, departments and mobile numbers) and the Mail app's contacts list. ${c.cards} cards now. You keep the people here in Directory and the list in Mail; nobody edits it on their phone.</p>
+      <div class="kv"><dt>Address</dt><dd class="mono" style="user-select:all">${esc(c.url)}</dd><dt>On a Mac</dt><dd>${esc(c.how_mac)}</dd><dt>On a phone</dt><dd>${esc(c.how_phone)}</dd><dt>One tap</dt><dd>Open <span class="mono" style="user-select:all">https://${esc(c.host)}${esc(c.profile)}</span> on the Mac or iPhone and approve it in Settings; it asks for the church login.</dd></div>
+      <p class="note" style="margin-top:10px">${esc(c.note)} Phones off church Wi-Fi need Tailscale on.</p>
+      <div class="acts"><button class="btn" data-close>Done</button></div>`);
+  }
+  function breakglassModal(g) {
+    if (g.open) return confirmType('Close the Pastors folder', 'close', `It is open to you until ${esc(fmtT(g.until))}. Close it now?`, async () => { const r = await api('/pastors/breakglass', { method: 'DELETE' }); if (r.ok === false) throw new Error(r.err); toast('The Pastors folder is closed to you again'); rerender('directory'); });
+    modal(`<h2>The Pastors folder, in an emergency</h2><p class="note" style="margin-bottom:12px">It is the two pastors' alone. In an emergency you can see it for ${g.hours} hours, in Finder here. Both pastors are emailed the moment you open it, with your reason, and every file you open is in the audit log. Claude never can.</p>
+      <div class="field"><label>Why (the pastors read this)</label><textarea id="bgWhy" rows="3"></textarea></div>
+      <div class="field"><label>Type <b>pastors</b> to confirm</label><input id="bgOk" autocomplete="off"></div>
+      <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn btn--danger" id="bgGo">Open it for ${g.hours} hours</button></div>`, m => {
+      $('#bgGo', m).onclick = async e => { const r = await act(e.target, () => withReauth(() => api('/pastors/breakglass', { method: 'POST', body: { reason: $('#bgWhy', m).value, confirm: $('#bgOk', m).value } })), 'Open; both pastors were told');
+        if (r && r.ok !== false) { m.close(); rerender('directory'); } };
+    });
+  }
+}
 
 window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

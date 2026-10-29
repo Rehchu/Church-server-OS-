@@ -90,7 +90,10 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 11b. You talk to Bradly only (round 4, 44).
 11c. Staff home folders (`/srv/arise/homes/<user>`, except Bradly's): open a
     file there only when Bradly names it (round 5, 21). The Pastors share is
-    the two pastors' only: never open it (round 5, 18).
+    the two pastors' only: never open it (round 5, 18), not even while Bradly's
+    emergency look is open (round 7, 69: that is his, at the dashboard).
+11d. You may read the audit log (`arisectl audit`, `/var/lib/arise/audit.jsonl`) to explain what
+    happened (round 7, 76). It is kept forever; nothing edits it.
 13. The Arise repos live in `/srv/arise/repos/<name>` and sync two-way with
     GitHub every 15 minutes (docs/REPOS.md): a commit there is on GitHub
     within 15 minutes. Commit only when Bradly says so. Never commit a

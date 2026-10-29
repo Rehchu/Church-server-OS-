@@ -107,6 +107,62 @@ def dest_dir(homes: str, move_to: str, name: str, now: datetime | None = None) -
     return os.path.join(homes, move_to, f"From {name} ({(now or datetime.now()).date().isoformat()})")
 
 
+# ----- round 7, 60: a copy on the Synology first, kept forever --------------------------
+def archive_root() -> str:
+    cfg = load()
+    return str(cfg.people.leavers_archive or os.path.join(cfg.nas.mount, "arise", "leavers"))
+
+
+def archive_dir(root: str, name: str, now: datetime | None = None) -> str:
+    """Pure: where one leaver's copy lands: <archive>/<name> (<date>)."""
+    return os.path.join(root, f"{name} ({(now or datetime.now()).date().isoformat()})")
+
+
+def tally(folder: str) -> tuple[int, int]:
+    """(regular files, bytes) under a folder; links are not followed."""
+    n = size = 0
+    for root, dirs, fls in os.walk(folder):
+        for f in fls:
+            p = os.path.join(root, f)
+            if os.path.isfile(p) and not os.path.islink(p):
+                n += 1
+                size += os.path.getsize(p)
+    return n, size
+
+
+def same_tally(src: tuple[int, int], dst: tuple[int, int]) -> bool:
+    """Pure: every file and every byte arrived."""
+    return src[0] == dst[0] and src[1] == dst[1]
+
+
+def copy_to_archive(name: str, now: datetime) -> dict:
+    """Copy the leaver's home to the Synology and check it arrived whole. Nothing is moved until it
+    has: a missing Synology holds the move for tomorrow's sweep (the account is already off)."""
+    from .util import run, which
+    cfg = load()
+    src = os.path.join(cfg.directory.homes_path, name)
+    if not os.path.isdir(src):
+        return {"ok": True, "copied": 0, "note": f"{name} had no home folder"}
+    root = archive_root()
+    nas = cfg.nas.mount
+    if root.startswith(nas.rstrip("/") + "/") and not os.path.ismount(nas):
+        return {"ok": False, "held": True, "err": f"the Synology is not mounted at {nas}: the files stay where they are until it is"}
+    dst = archive_dir(root, name, now)
+    os.makedirs(dst, exist_ok=True)
+    if which("rsync"):
+        # -rt: files and times; no owners or modes (a Synology share keeps neither); links are skipped
+        r = run(["rsync", "-rt", "--no-perms", "--no-owner", "--no-group", src.rstrip("/") + "/", dst.rstrip("/") + "/"], timeout=6 * 3600)
+        if not r["ok"]:
+            return {"ok": False, "err": "rsync: " + (r["err"] or r["out"]).strip()[-200:]}
+    else:
+        shutil.copytree(src, dst, symlinks=False, dirs_exist_ok=True, copy_function=shutil.copyfile,
+                        ignore=lambda d, names: [n for n in names if os.path.islink(os.path.join(d, n))])
+    a, b = tally(src), tally(dst)
+    if not same_tally(a, b):
+        return {"ok": False, "err": f"the copy is short: {b[0]} of {a[0]} files, {b[1]} of {a[1]} bytes; nothing moved", "to": dst}
+    return {"ok": True, "copied": a[0], "bytes": a[1], "to": dst}
+
+
 def _move_home(name: str, move_to: str, now: datetime) -> dict:
     homes = load().directory.homes_path
     src = os.path.join(homes, name)
@@ -155,9 +211,33 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                 results.append(r)
                 audit.record(by, "directory.leaving.sweep", e["name"], ok=False, detail=r["err"])
                 continue   # files stay put until the account is really off; tomorrow's sweep tries again
+            try:
+                from . import accounts
+                if not e.get("alerted_off"):
+                    accounts.switched(e["name"], False, by)   # round 7, 86
+                    e["alerted_off"] = True
+            except Exception:  # noqa: BLE001
+                pass
             if cfg.demo:
+                r["archive"] = {"ok": True, "demo": True, "to": archive_dir(archive_root(), e["name"], now)}
                 r["files"] = {"ok": True, "demo": True, "moved": 0}
             else:
+                # Round 7, 60: a copy on the Synology, checked, before anything moves; kept forever.
+                try:
+                    r["archive"] = e.get("archived") or copy_to_archive(e["name"], now)
+                except OSError as ex:
+                    r["archive"] = {"ok": False, "err": str(ex)}
+                if not r["archive"].get("ok"):
+                    r["files"] = {"ok": False, "held": True, "err": "not moved: " + str(r["archive"].get("err", ""))}
+                    results.append(r)
+                    audit.record(by, "directory.leaving.archive", e["name"], ok=False, detail=str(r["archive"].get("err", ""))[:200])
+                    try:
+                        from . import accounts
+                        accounts.alert(f"Leaving: {e['name']}'s files were not copied to the Synology ({r['archive'].get('err', '')}). Tried again tomorrow.")
+                    except Exception:  # noqa: BLE001
+                        pass
+                    continue
+                e["archived"] = r["archive"]
                 try:
                     r["files"] = _move_home(e["name"], e["move_to"], now)
                 except OSError as ex:

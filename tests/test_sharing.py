@@ -298,7 +298,25 @@ class HomeAudit(Base):
 
 # ---- quota, versions, backup targets (rows 12-15) ----------------------------------
 class Storage(Base):
+    def test_the_quota_is_soft_by_default(self):
+        # Round 7, 44 and 45: nobody is stopped at 50 GB; the person and Bradly are told at 80% and 95%.
+        self.assertTrue(sharing.soft())
+        demo_state.put("storage.home_usage", {"bradly": int(60 * 1024 ** 3)})
+        self.assertIsNone(sharing.quota_refusal_demo("/homes/bradly/Documents", 5 * 1024 ** 3))
+        r = client().post("/api/files/upload/start", json={"root": "data", "path": "/homes/bradly", "name": "big.mov", "size": 2 * 1024 ** 3, "fingerprint": "z"}).json()
+        self.assertTrue(r["ok"], r)
+        self.assertEqual(sharing.setquota_cmd("office", "/srv"), ["setquota", "-u", "office", "0", "0", "0", "0", "/srv"])
+        self.assertEqual(sharing.crossed(82.0, [80, 95], []), [80])
+        self.assertEqual(sharing.crossed(96.0, [80, 95], [80]), [95])
+        self.assertEqual(sharing.crossed(96.0, [80, 95], [80, 95]), [])
+        self.assertEqual(sharing.crossed(None, [80, 95], []), [])
+        demo_state.put("storage.home_usage", {"bradly": int(41 * 1024 ** 3), "office": int(48 * 1024 ** 3)})
+        told = sharing.quota_notices()["told"]
+        self.assertEqual({t["user"]: t["levels"] for t in told}, {"bradly": [80], "office": [80, 95]})
+
     def test_quota_numbers(self):
+        self.cfg.storage.quota_soft = False   # the hard quota still works where arise.toml asks for it
+        self.addCleanup(setattr, self.cfg.storage, "quota_soft", True)
         q = client().get("/api/files/quota", params={"user": "bradly"}).json()
         self.assertEqual(q["quota"], 50 * 1024 ** 3)
         self.assertFalse(q["warn"])
@@ -311,6 +329,8 @@ class Storage(Base):
         self.assertIsNone(sharing.quota_refusal_demo("/shares/church", 10 * 1024 ** 3))
 
     def test_upload_past_the_quota_is_refused(self):
+        self.cfg.storage.quota_soft = False   # the hard quota still works where arise.toml asks for it
+        self.addCleanup(setattr, self.cfg.storage, "quota_soft", True)
         demo_state.put("storage.home_usage", {"bradly": int(49.9 * 1024 ** 3)})
         r = client().post("/api/files/upload/start", json={"root": "data", "path": "/homes/bradly", "name": "big.mov", "size": 2 * 1024 ** 3, "fingerprint": "x"}).json()
         self.assertFalse(r["ok"])
@@ -326,6 +346,8 @@ class Storage(Base):
         self.assertIn("homes", client().get("/api/storage/quotas").json())
 
     def test_real_quota_refusal_on_a_temp_home(self):
+        self.cfg.storage.quota_soft = False   # the hard quota still works where arise.toml asks for it
+        self.addCleanup(setattr, self.cfg.storage, "quota_soft", True)
         d = tempfile.mkdtemp()
         try:
             os.makedirs(os.path.join(d, "office"))
@@ -345,12 +367,15 @@ class Storage(Base):
         finally:
             shutil.rmtree(d)
 
-    def test_versions_reach_ninety_days(self):
+    def test_versions_reach_a_year(self):
+        # round 7, 46: earlier versions kept a year (was 90 days, round 5, 14)
         now = datetime(2026, 10, 28, 12, 0)
-        rows = [{"time": (now - timedelta(days=n)).isoformat(timespec="seconds")} for n in (1, 45, 89, 91, 120)]
+        rows = [{"time": (now - timedelta(days=n)).isoformat(timespec="seconds")} for n in (1, 45, 91, 364, 366, 400)]
         kept = sharing.within_versions(rows, now=now)
-        self.assertEqual(len(kept), 3)
-        self.assertEqual(self.cfg.storage.versions_days, 90)
+        self.assertEqual(len(kept), 4)
+        self.assertEqual(self.cfg.storage.versions_days, 365)
+        from arise_server import cloud
+        self.assertIn(["config:system:set", "versions_retention_obligation", "--value", "auto, 365"], cloud.occ_plan())
 
     def test_backup_target_first_ready_and_red_when_none(self):
         old_demo, old_home = self.cfg.demo, self.cfg.backups.arise_home_repo

@@ -231,6 +231,7 @@ class AuditAndLeaving(unittest.TestCase):
             homes = Path(d) / "homes"; (homes / "a.b" / "Documents").mkdir(parents=True); (homes / "a.b" / "Documents" / "x.txt").write_text("x")
             (homes / "c.d").mkdir()
             fake = mock.Mock(); fake.demo = False; fake.state_dir = Path(d); fake.directory.homes_path = str(homes)
+            fake.people.leavers_archive = str(Path(d) / "leavers"); fake.nas.mount = str(Path(d) / "nas")   # round 7, 60
             with mock.patch.object(offboard, "load", return_value=fake), mock.patch.object(audit, "load", return_value=fake):
                 offboard._write([{"name": "a.b", "move_to": "c.d", "by": "bradly", "since": "2026-09-01", "disable_on": "2026-10-01", "done": None}])
                 with mock.patch.object(offboard.directory, "enable_user", return_value={"ok": False, "err": "samba-tool: no such user"}):
@@ -241,6 +242,8 @@ class AuditAndLeaving(unittest.TestCase):
                 en.assert_called_once_with("a.b", False)
                 self.assertTrue(r["ok"])
                 self.assertTrue((homes / "c.d" / "From a.b (2026-10-28)" / "Documents" / "x.txt").exists())
+                # round 7, 60: a checked copy on the Synology first, kept forever
+                self.assertEqual((Path(d) / "leavers" / "a.b (2026-10-28)" / "Documents" / "x.txt").read_text(), "x")
                 self.assertEqual(offboard.due(offboard._read(), datetime(2026, 10, 29)), [])        # done once, never again
 
     def test_routes_admin_only_and_the_flow_in_demo(self):
@@ -715,19 +718,22 @@ class V04(unittest.TestCase):
     def test_share_links_create_list_revoke(self):
         from arise_server import links
         me = {"user": "office", "role": "member"}; other = {"user": "media-mac", "role": "member"}; admin = {"user": "bradly", "role": "admin"}
-        r = links.create("home", "/Documents/Bulletin 2026-11-01.docx", me, days=99)
-        self.assertTrue(r["ok"]); tok = r["token"]
-        self.assertEqual(r["link"]["user"], "office")
-        self.assertLess(r["link"]["expires"], links._iso(100 * 86400))  # a chosen life is kept (max_days 365)
-        self.assertFalse(links.create("home", "/Documents/not-there.pdf", me)["ok"])   # the file has to exist
-        forever = links.create("home", "/Documents/Visitor cards October.xlsx", me)   # no life picked: never expires (Bradly, Oct 28)
-        self.assertIsNone(forever["link"]["expires"])
-        self.assertFalse(next(l for l in links.mine(me)["links"] if l["token"] == forever["token"])["expired"])
-        self.assertIsNotNone(links.resolve(forever["token"]))
-        links.revoke(forever["token"], me)
-        self.assertFalse(links.create("data", "/", me)["ok"])  # not a member root
-        self.assertIn(tok, [l["token"] for l in links.mine(me)["links"]])
+        # Round 7, 47: only admins make outside links, and each ends after 7 days.
+        self.assertFalse(links.create("home", "/Documents/Bulletin 2026-11-01.docx", me, days=99)["ok"])
+        self.assertEqual(links.life(99, 7, 7), 7); self.assertEqual(links.life(None, 7, 7), 7); self.assertEqual(links.life(0, 7, 7), 7)
+        self.assertEqual(links.life(3, 7, 7), 3); self.assertEqual(links.life(0, 0, 0), 0)   # never, only by hand in arise.toml
+        r = links.create("data", "/homes/office/Documents/Bulletin 2026-11-01.docx", admin, days=99)
+        self.assertTrue(r["ok"], r); tok = r["token"]
+        self.assertEqual(r["link"]["user"], "bradly")
+        self.assertLess(r["link"]["expires"], links._iso(8 * 86400))   # capped at 7 days
+        self.assertFalse(links.create("data", "/homes/office/Documents/not-there.pdf", admin)["ok"])   # the file has to exist
+        week = links.create("data", "/homes/office/Documents/Visitor cards October.xlsx", admin)   # no life picked: 7 days
+        self.assertIsNotNone(week["link"]["expires"])
+        self.assertIsNotNone(links.resolve(week["token"]))
+        links.revoke(week["token"], admin)
+        self.assertIn(tok, [l["token"] for l in links.mine(admin)["links"]])
         self.assertNotIn(tok, [l["token"] for l in links.mine(other)["links"]])
+        me = admin
         self.assertIn(tok, [l["token"] for l in links.mine(admin)["links"]])
         self.assertFalse(links.revoke(tok, other)["ok"])
         self.assertTrue(links.revoke(tok, me)["ok"])

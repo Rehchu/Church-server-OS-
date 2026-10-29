@@ -59,7 +59,17 @@ def is_pastor(who: dict | None) -> bool:
     if not who:
         return False
     pastors = {p.lower() for p in (load().storage.pastors or [])}
-    return str(who.get("user", "")).lower() in pastors
+    if str(who.get("user", "")).lower() in pastors:
+        return True
+    # Round 7, 69: Bradly's emergency look, two hours, both pastors told (accounts.breakglass_open).
+    # A person at the dashboard only: never the system itself, never Claude (CLAUDE.md 11c).
+    if who.get("role") == "admin" and who.get("user"):
+        try:
+            from . import accounts
+            return accounts.breakglass_active(str(who["user"]))
+        except Exception:  # noqa: BLE001
+            return False
+    return False
 
 
 def is_staff(user: str, groups: list[str] | None = None) -> bool:
@@ -324,11 +334,16 @@ def quota_of(user: str) -> dict:
             "warn": bool(q) and pct is not None and pct >= float(load().storage.quota_warn_pct), "full": bool(q) and used >= q}
 
 
+def soft() -> bool:
+    """Round 7, 45: the 50 GB is a warning line, never a wall."""
+    return bool(load().storage.get("quota_soft", True))
+
+
 def quota_refusal(abs_folder: str, add_bytes: int) -> str | None:
-    """None, or why an upload into this folder is refused."""
+    """None, or why an upload into this folder is refused (never, while the quota is soft)."""
     user = home_of(abs_folder)
     q = quota_bytes()
-    if not user or not q:
+    if not user or not q or soft():
         return None
     used = home_usage(user, fresh=True)
     if used + int(add_bytes or 0) > q:
@@ -338,7 +353,7 @@ def quota_refusal(abs_folder: str, add_bytes: int) -> str | None:
 
 
 def quota_refusal_demo(key: str, add_bytes: int) -> str | None:
-    if not key.startswith("/homes/"):
+    if not key.startswith("/homes/") or soft():
         return None
     user = key.strip("/").split("/")[1]
     q = quota_bytes()
@@ -372,9 +387,53 @@ def fs_quota_on() -> bool:
 
 
 def setquota_cmd(user: str, mount: str) -> list[str]:
-    """Pure: the filesystem quota for one home (soft = hard = the quota, in 1 KiB blocks)."""
-    kb = str(quota_bytes() // 1024)
+    """Pure: the filesystem quota for one home (soft = hard = the quota, in 1 KiB blocks). With the
+    quota soft (round 7, 45) the limits are 0: none, so the filesystem never stops anyone either."""
+    kb = "0" if soft() else str(quota_bytes() // 1024)
     return ["setquota", "-u", user, kb, kb, "0", "0", mount]
+
+
+def crossed(pct: float | None, levels: list, told: list) -> list:
+    """Pure: the warning levels this home has reached and nobody was told about yet."""
+    if pct is None:
+        return []
+    return [int(l) for l in sorted(levels) if pct >= float(l) and int(l) not in [int(x) for x in told]]
+
+
+def quota_notices(dry_run: bool = False) -> dict:
+    """Round 7, 44: at 80% and 95% of the 50 GB the person (a Mac notification and an email) and
+    Bradly are told, once per level; falling back under a level lets it be told again later."""
+    import json as _json
+    cfg = load()
+    levels = list(cfg.storage.get("quota_notify_pct") or [80, 95])
+    path = os.path.join(str(cfg.state_dir), "quota-told.json")
+    try:
+        told = _json.load(open(path, encoding="utf-8"))
+    except (OSError, ValueError):
+        told = {}
+    out = []
+    for row in quotas()["homes"]:
+        u, pct = row["user"], row["pct"]
+        mine = [x for x in told.get(u, []) if pct is not None and pct >= x]   # under a level again: forget it
+        new = crossed(pct, levels, mine)
+        if new and not dry_run:
+            from . import accounts
+            gb = lambda b: f"{b / 1024 ** 3:.1f} GB"  # noqa: E731
+            lvl = max(new)
+            accounts.tell_person(u, f"Your church files are {lvl}% full",
+                                 f"Your church folder holds {gb(row['used'])} of {gb(row['quota'])}. Nothing stops working; "
+                                 f"tidy what you no longer need when you can, or ask Bradly.", kind="storage")
+            if u != accounts.owner():
+                accounts.tell_bradly(f"{u} is at {lvl}% of their storage", f"{u}: {gb(row['used'])} of {gb(row['quota'])}.")
+        told[u] = sorted(set(mine + new))
+        if new:
+            out.append({"user": u, "pct": pct, "levels": new})
+    if not dry_run and not cfg.demo:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path + ".tmp", "w", encoding="utf-8") as f:
+            _json.dump(told, f)
+        os.replace(path + ".tmp", path)
+    return {"ok": True, "told": out, "levels": levels}
 
 
 # ---- Previous Versions reach (row 14) ----------------------------------------------

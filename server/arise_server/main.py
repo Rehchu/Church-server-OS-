@@ -167,6 +167,7 @@ def api_login(body: Login, response: Response, request: Request):
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     audit.record(who["user"], "auth.login", ip=_ip(request), detail=f"{who.get('via', '')} · {profiles.device_of(request.headers.get('user-agent', ''))}")
+    _new_device(who.get("user", ""), request)
     if not c.demo and who.get("via") != "demo":
         files.ensure_home(who["user"])   # Documents, Photos, Videos, Music, Downloads from the first sign-in
     return {"ok": True, "user": who["user"], "role": who["role"], "demo": c.demo}
@@ -189,7 +190,19 @@ def api_login_code(body: LoginCode, response: Response, request: Request):
         audit.record(r.get("user", "?"), "auth.login.code", ok=False, detail=r.get("err", "wrong code"))
         raise HTTPException(401, {"message": r.get("err", "wrong code"), "left": r.get("left", 0), "expired": r.get("expired", False)})
     response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
+    _new_device(r["user"], request)
     return {"ok": True, "user": r["user"]}
+
+
+def _new_device(user: str, request: Request):
+    """Round 7, 70: a sign-in from a device never seen for this person emails them and tells Bradly."""
+    if not user or user == "demo" or load().demo:
+        return
+    try:
+        from . import accounts
+        accounts.on_signin(user, request.headers.get("user-agent", ""), _ip(request))
+    except Exception:  # noqa: BLE001 - a notice never blocks a sign-in
+        pass
 
 
 class Reauth(BaseModel):
@@ -697,11 +710,23 @@ def dir_user_add(body: NewUser, who=admin):
         _good, errs = profiles.clean({"title": body.title}, ("title",))
         if errs:
             return {"ok": False, "err": "; ".join(errs)}
-    r = directory.add_user(body.name, body.password, body.display, body.groups, temporary=body.temporary)
+    from . import accounts
+    name = (body.name or "").strip()
+    asked = name
+    if directory._ok_name(name):
+        name = accounts.unique_name(name, accounts.taken_names())   # round 7, 12: john.smith2, without asking
+    r = directory.add_user(name, body.password, body.display, body.groups, temporary=body.temporary)
     if (r.get("ok") or r.get("created")) and body.title:
-        profiles.update(body.name, {"title": body.title}, who)
+        profiles.update(name, {"title": body.title}, who)
     if r.get("ok") or r.get("created"):
         r["must_change"] = body.temporary
+        r["user"] = name
+        if name != asked:
+            r["renamed"] = f"{asked} was taken, so the new account is {name}"
+        try:
+            r["after"] = accounts.made(name, who["user"], body.display)
+        except Exception as e:  # noqa: BLE001 - the account is made either way
+            r["after"] = {"err": str(e)[:200]}
     return r
 
 
@@ -733,15 +758,99 @@ def dir_import(body: PeopleImport, who=admin):
 
 
 @app.post("/api/directory/users/{name}/enable")
-def dir_user_enable(name: str, _=admin):
-    return directory.enable_user(name, True)
+def dir_user_enable(name: str, who=admin):
+    r = directory.enable_user(name, True)
+    if r.get("ok"):
+        from . import accounts
+        accounts.switched(name, True, who["user"])   # round 7, 86
+    return r
 
 
 @app.post("/api/directory/users/{name}/disable")
 def dir_user_disable(name: str, who=admin):
     if name.lower() == str(who.get("user", "")).lower():
         return {"ok": False, "err": "You cannot disable the account you are signed in with"}
-    return directory.enable_user(name, False)
+    r = directory.enable_user(name, False)
+    if r.get("ok"):
+        from . import accounts
+        accounts.switched(name, False, who["user"])   # round 7, 86
+    return r
+
+
+class Rename(BaseModel):
+    new: str
+    confirm: str
+
+
+@app.post("/api/directory/users/{name}/rename")
+def dir_user_rename(name: str, body: Rename, who=recent):
+    """Round 7, 13: a married name. The account keeps its identity (groups, files, permissions);
+    the login, the home folder's name and every record follow; the old address stays an alias."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    from . import accounts
+    return accounts.rename(name, body.new, who["user"], body.confirm)
+
+
+class Photo(BaseModel):
+    data: str          # base64 of a JPEG or PNG
+
+
+@app.post("/api/directory/users/{name}/photo")
+def dir_user_photo(name: str, body: Photo, who=admin):
+    """Round 7, 20: the photo the person chose, added by an admin (staff don't use the dashboard)."""
+    import base64 as _b64
+    from . import accounts
+    try:
+        raw = _b64.b64decode((body.data or "").split(",", 1)[-1], validate=True)
+    except ValueError:
+        return {"ok": False, "err": "that is not a photo file"}
+    return accounts.photo_save(name, raw, who["user"])
+
+
+@app.get("/api/photos/{name}")
+def api_photo(name: str, request: Request):
+    """The photo on the faces: to the closet monitor itself or a signed-in person, never the network."""
+    from . import accounts
+    host = (request.client.host if request.client else "") or ""
+    if not (host in ("127.0.0.1", "::1", "localhost") or _who_from_cookie(request) not in ("", "?", None)):
+        raise HTTPException(404, {"message": "Not found"})
+    p = accounts.photo_path(name) if directory._ok_name(name) else None
+    if not p:
+        raise HTTPException(404, {"message": "no photo"})
+    return FileResponse(p, headers={"Cache-Control": "private, max-age=300", "X-Content-Type-Options": "nosniff"})
+
+
+class BreakGlass(BaseModel):
+    reason: str
+    confirm: str
+
+
+@app.get("/api/pastors/breakglass")
+def api_breakglass_status(who=admin):
+    from . import accounts
+    return {**accounts.breakglass_status(who["user"]), "allowed": (who["user"] == accounts.owner()) if accounts.owner() else load().demo,
+            "hours": float(load().people.breakglass_hours or 2)}
+
+
+@app.post("/api/pastors/breakglass")
+def api_breakglass(body: BreakGlass, who=recent):
+    """Round 7, 69: Bradly only, a reason the pastors read, two hours, both pastors told at once."""
+    from . import accounts
+    return accounts.breakglass_open(who, body.reason, body.confirm)
+
+
+@app.delete("/api/pastors/breakglass")
+def api_breakglass_close(who=admin):
+    from . import accounts
+    return accounts.breakglass_close(who["user"], who["user"])
+
+
+@app.get("/api/directory/unused")
+def api_unused(_=admin):
+    """Round 7, 17: accounts with no sign-in for 90 days (the daily check names each in Discord once)."""
+    from . import accounts
+    return accounts.inactive(dry_run=True)
 
 
 @app.delete("/api/directory/users/{name}")
@@ -1575,7 +1684,11 @@ def api_calendar(year: int = 0, month: int = 0, _=auth):
     y, m = (year or now.year), (month or now.month)
     if not 1 <= m <= 12 or not 2000 <= y <= 2100:
         raise HTTPException(400, {"message": "year/month out of range"})
-    return {**churchcal.month(y, m), "upcoming": churchcal.upcoming(14), "services": church.info()["services"]}
+    out = {**churchcal.month(y, m), "upcoming": churchcal.upcoming(14), "services": church.info()["services"]}
+    if _.get("role") == "admin":
+        # Round 7, 18: staff birthdays on the admins' calendar (month and day only; never a year or an age).
+        out["items"] = sorted(out["items"] + churchcal.birthday_items(y, m, profiles.birthdays(m)), key=lambda x: x["start"])
+    return out
 
 
 @app.get("/api/calendar/subscribe")
@@ -2154,8 +2267,15 @@ def api_public_faces(request: Request):
     for u in users:
         if not u.get("enabled", True) or "Domain Admins" not in (u.get("groups") or []):
             continue
-        name = u.get("display") or u["name"]
-        faces.append({"user": u["name"], "name": name, "initials": "".join(w[0] for w in name.split()[:2] if w).upper()})
+        plain = u.get("display") or u["name"]
+        name = profiles.display_name(u["name"], plain)   # round 7, 11: the title everywhere
+        try:
+            from . import accounts
+            photo = accounts.has_photo(u["name"])
+        except Exception:  # noqa: BLE001
+            photo = False
+        faces.append({"user": u["name"], "name": name, "initials": "".join(w[0] for w in plain.split()[:2] if w).upper(),
+                      "photo": f"/api/photos/{u['name']}" if photo else None})
     return {"faces": faces}
 
 
@@ -2438,8 +2558,15 @@ def api_cloud_app_password(body: CloudDevice, who=admin):
 
 @app.post("/api/cloud/revoke")
 def api_cloud_revoke(body: CloudDevice, who=admin):
-    """Cut off one device of a person, or (no device) every sign-in they have."""
-    return cloud.revoke(body.user, body.device.strip() or None, by=who["user"])
+    """Cut off one device of a person, or (no device) every sign-in they have. Round 7, 74: the person is told."""
+    r = cloud.revoke(body.user, body.device.strip() or None, by=who["user"])
+    if r.get("ok") and body.user != who["user"]:
+        from . import accounts
+        dev = body.device.strip()
+        r["told"] = bool(accounts.tell_person(body.user, "A device was cut off from your church files",
+                                              (f"{dev} no longer syncs your church files" if dev else "Every device you had signed in to church files was cut off")
+                                              + f" (by {who['user']}). If you still have it, ask Bradly for a new device password.", kind="security"))
+    return r
 
 
 @app.post("/api/cloud/sweep")
@@ -2472,6 +2599,96 @@ async def api_cloud_agent_app_password(request: Request):
         return txt("ERROR " + str(r.get("err", "refused")).replace("\n", " "), 403)
     return txt(f"APP_PASSWORD={r['app_password']}\nCLOUD_URL={r['server']}\nLOGIN={r['login']}\nDEVICE={r['device']}")
 # ===== end R6-SYNC =====
+
+
+# ===== Round 7: the church contacts as a read-only CardDAV address book (rows 21 and 152) =====
+from . import carddav  # noqa: E402
+
+_dav_ok: dict = {}
+
+
+def _dav_user(request: Request) -> str | None:
+    """Basic auth with the church login (Contacts and iOS speak nothing else). A right answer is
+    remembered five minutes, so Contacts' many small requests don't each ask the domain."""
+    import base64 as _b64
+    import hashlib as _h
+    h = request.headers.get("authorization", "")
+    if not h.lower().startswith("basic "):
+        return None
+    try:
+        user, _, pw = _b64.b64decode(h[6:].strip()).decode("utf-8").partition(":")
+    except (ValueError, UnicodeDecodeError):
+        return None
+    user = user.strip().lower().split("@")[0]
+    key = _h.sha256(f"{user}:{pw}".encode()).hexdigest()
+    now = time.time()
+    if _dav_ok.get(key, 0) > now:
+        return user
+    keys = [f"ip:{_ip(request)}"]
+    if not load().demo and _auth.too_many(keys):
+        return None
+    if not directory._ok_name(user) or not directory.authenticate(user, pw):
+        if not load().demo:
+            _auth.note_failure(keys)
+        return None
+    if not carddav.may_read(user):
+        return None
+    _dav_ok[key] = now + 300
+    return user
+
+
+def _dav_401() -> Response:
+    return Response("church login needed\n", status_code=401, media_type="text/plain",
+                    headers={"WWW-Authenticate": 'Basic realm="Arise Church contacts", charset="UTF-8"'})
+
+
+@app.api_route("/.well-known/carddav", methods=["GET", "PROPFIND", "HEAD"], include_in_schema=False)
+def dav_wellknown():
+    return Response(status_code=301, headers={"Location": "/carddav/"})
+
+
+@app.api_route("/carddav/{path:path}", methods=["OPTIONS", "PROPFIND", "REPORT", "GET", "HEAD", "PUT", "DELETE", "PROPPATCH", "MKCOL", "POST"],
+               include_in_schema=False)
+async def dav(path: str, request: Request):
+    hdr = {"DAV": "1, 3, addressbook", "Allow": "OPTIONS, PROPFIND, REPORT, GET, HEAD"}
+    if request.method == "OPTIONS":
+        return Response(status_code=200, headers=hdr)
+    if not load().people.contacts:
+        return Response(status_code=404)
+    user = _dav_user(request)
+    if not user:
+        return _dav_401()
+    full = "/carddav/" + path
+    if request.method in ("PUT", "DELETE", "PROPPATCH", "MKCOL", "POST"):
+        return Response("read-only: the church contacts are kept in Directory and Mail\n", status_code=403, media_type="text/plain", headers=hdr)
+    if request.method == "PROPFIND":
+        code, xml = carddav.propfind(full, user, request.headers.get("depth", "1"))
+    elif request.method == "REPORT":
+        code, xml = carddav.report(full, user, (await request.body()).decode("utf-8", "replace"))
+    else:
+        code, card, tag = carddav.get(full, user)
+        if code != 200:
+            return Response(status_code=404, headers=hdr)
+        return Response(card if request.method == "GET" else b"", media_type="text/vcard; charset=utf-8", headers={**hdr, "ETag": tag})
+    if code != 207:
+        return Response(status_code=code, headers=hdr)
+    return Response(xml, status_code=207, media_type="application/xml; charset=utf-8", headers=hdr)
+
+
+@app.get("/contacts.mobileconfig", include_in_schema=False)
+def dav_profile():
+    """The one-tap setup for a Mac or an iPhone: the server's name only; it asks for the church login."""
+    from . import macs as _m
+    return Response(carddav.mobileconfig(_m.server_names()["host"]), media_type="application/x-apple-aspen-config",
+                    headers={"Content-Disposition": 'attachment; filename="Arise Church contacts.mobileconfig"'})
+
+
+@app.get("/api/contacts")
+def api_contacts(_=admin):
+    """Where the address book is and how to add it, for Directory (admins hand it to staff)."""
+    from . import macs as _m
+    return carddav.info(_m.server_names()["host"])
+# ===== end round 7 contacts =====
 
 
 # ----- the dashboard -----------------------------------------------------------

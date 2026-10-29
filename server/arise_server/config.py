@@ -70,8 +70,10 @@ DEFAULTS = {
     "storage": {
         "homes_on": "server",          # "server" (/srv/arise/homes) or "synology" (<nas mount>/arise/homes); decided with Friday's specs
         "home_quota_gb": 50,           # per home; 0 = no quota
+        "quota_soft": True,            # round 7, 45: nobody is ever stopped; 50 GB is the warning line
+        "quota_notify_pct": [80, 95],  # round 7, 44: the person and Bradly are told at each
         "quota_warn_pct": 90,
-        "versions_days": 90,           # how far back Finder's Previous Versions reach (restic keeps its own 30/12/24)
+        "versions_days": 365,          # round 7, 46: earlier versions kept a year (Finder, and Nextcloud's own)
         "pastors": ["bryant.sanders", "vanessa.sanders"],
         "pastors_path": "",            # empty: <data_root>/pastors (outside /srv/arise/shares, so no share above it reaches it)
         # Department folders (rows 16-17): all staff write, the department's own account writes its own,
@@ -117,7 +119,16 @@ DEFAULTS = {
             "Rehchu/projectbackups", "Rehchu/ai-chat-backups",
         ],
     },
-    "links": {"days": 0, "max_days": 365, "max_zip_bytes": 2 * 1024 ** 3},   # days 0 = a link never expires (Bradly, Oct 28)
+    # Round 7, 47: only admins make outside links, and each ends after 7 days.
+    "links": {"days": 7, "max_days": 7, "admins_only": True, "max_zip_bytes": 2 * 1024 ** 3},
+    # Round 7: accounts and privacy (docs/DIRECTORY.md).
+    "people": {
+        "inactive_days": 90,            # row 17: an account unused this long is named in Discord #alerts, once
+        "leavers_archive": "",          # row 60: empty = <nas mount>/arise/leavers; a leaver's files are copied here, kept forever
+        "breakglass_hours": 2,          # row 69: how long Bradly's emergency look into the Pastors folder lasts
+        "welcome_email": True,          # row 10: a new account's welcome email to their personal address
+        "contacts": True,               # rows 21 and 152: the church contacts address book (CardDAV, read-only)
+    },
     "church": {"name": "Arise Church", "city": "Pineville, LA", "tagline": ""},   # services and sunday_checklist: see arise.toml.example
     "paths": {
         "state_dir": _root("/var/lib/arise", r"C:\Arise\state"),
