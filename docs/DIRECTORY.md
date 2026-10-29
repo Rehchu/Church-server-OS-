@@ -85,11 +85,13 @@ differs (docs/MAC-MIGRATION.md, "The automatic way").
 | NetBIOS (short) name | `ARISE` |
 | Domain controller | `arise-server.ad.arisecenla.com` |
 
-The realm is a **subdomain of the domain the church already owns**
-(`arisecenla.church`). That is Microsoft's and Samba's recommended practice: it
-never collides with a public name, and the public website at
-`arisecenla.church` keeps resolving normally because the DC only answers for
-`ad.arisecenla.com`.
+The realm is a **subdomain of a domain the church owns and controls**:
+`arisecenla.com`, whose DNS Bradly manages at Wix. (`arisecenla.church` is at
+GoDaddy, out of reach, so nothing in ariseOS depends on it; round 6, 25 and
+round 5, 40.) That is Microsoft's and Samba's recommended practice: it never
+collides with a public name, and the public websites keep resolving normally
+because the DC only answers for `ad.arisecenla.com`. Nothing needs adding at
+Wix for the directory itself; only the two email records (docs/EMAIL-DNS.md).
 
 Do **not** use `arise.local`. macOS reserves the `.local` suffix for Bonjour
 (mDNS). A Mac asked to find a `.local` domain controller tries multicast first,

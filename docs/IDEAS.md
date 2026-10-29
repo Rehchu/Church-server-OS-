@@ -101,7 +101,7 @@ in two-way sync with the `graphics` share, so the share is the master, the
 Mac is fast, and restic backs up the share nightly. Free. Question 38.
 
 **11. A shared calendar and mail.** Google Workspace for Nonprofits is free
-for a church (Gmail, Calendar, Drive under `arisecenla.church`). The
+for a church (Gmail, Calendar, Drive under `arisecenla.com`, verified in Wix's DNS; `.church` is at GoDaddy, out of reach). The
 directory accounts and the Google accounts stay separate things unless
 you want to go further later. Free, an application form.
 

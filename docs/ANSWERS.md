@@ -467,6 +467,7 @@ volunteers work; the closet OS is the admins'.
 | 39 | Nextcloud's web page | App and web, files only | over Tailscale |
 | 40 | Department logins | Sync like a person | |
 | 41 | (unprompted, Oct 29) Active Directory, for real | "this should run like Active Directory and actually add and remove user accounts from the local Macs on the network (not the private ones that people own). And local accounts already on the Mac need to be synced to the server and converted to the server user. Or leave the local accounts that are there and still have the option for the server (linked with the local account). We don't want to pay for Active Directory, we want the server to be our own Active Directory" | Samba AD is the directory (no Microsoft licence). On enrolled church Macs only, the helper adds every server account ahead of time and removes leavers; each existing local account is Converted to its server user (files kept), Linked (stays local, syncs as the server user) or Left alone, per account on the Macs page. Questions 41 to 44 in docs/QUESTIONS-ROUND-6.md settle the defaults |
+| 42 | (unprompted, Oct 29) DNS | "I can only change dns settings on arisecenla.com through Wix, I don't have access to arisecenla.church through godaddy" | every name ariseOS needs is under arisecenla.com: the directory (ad.), the sending domain (mail.) and its two email records in Wix; arisecenla.church is only ever linked to as the website |
 
 ## Still needed
 

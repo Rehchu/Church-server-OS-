@@ -427,7 +427,7 @@ changes.
 
 The alternative is a public HTTPS address for the dashboard so a member can
 sign in from any browser without installing anything. It means: a real
-domain name (`files.arisecenla.church` is the natural one), a port forward
+domain name (`files.arisecenla.com` would be the one, set in Wix's DNS; arisecenla.church is at GoDaddy, out of reach), a port forward
 of 443 on the church router to the server, Caddy with a public certificate
 instead of `tls internal` (Caddy does Let's Encrypt by itself once the name
 resolves to your public IP), and fail2ban on the dashboard's login. The

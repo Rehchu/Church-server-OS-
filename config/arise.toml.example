@@ -39,7 +39,7 @@ staff_access = "none"
 # Members of this group get the administrator's desktop as well.
 admins_group = "Domain Admins"
 # The address share links are written with. Empty = whatever address the person
-# used to open the dashboard. Set it once Caddy/HTTPS is up, e.g. "https://arise.arisecenla.church".
+# used to open the dashboard. Set it once Caddy/HTTPS is up, e.g. "https://arise.arisecenla.com" (Wix DNS; .church is not ours to change).
 public_url = ""
 
 # The church itself: the widgets, the lock screen, the lobby signage and the
