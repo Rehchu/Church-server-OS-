@@ -57,7 +57,7 @@ h1{font-size:clamp(28px,4vw,46px);color:#fff}
 .card{background:var(--panel);border-top:3px solid var(--red);padding:14px 16px;font-size:13.5px;color:var(--text2);line-height:1.5}
 .card h3{font-size:14px;color:#fff;margin-bottom:6px;letter-spacing:.06em}
 .hint{font-size:12px;color:var(--muted);letter-spacing:.06em;margin-left:auto}
-@media(max-width:700px){.screen{font-size:7.5px;aspect-ratio:auto;height:440px}.tui{grid-template-columns:1fr}.monitor{padding:8px 8px 10px}.monitor::after{display:none}.hint{display:none}.kicker{white-space:normal;letter-spacing:.2em}.mark::before{margin-right:70px;box-shadow:40px 0 0 var(--red);width:28px}}
+@media(max-width:700px){.screen{font-size:7.5px;aspect-ratio:auto;height:440px}.scene{overflow:auto;-webkit-overflow-scrolling:touch}.tui{grid-template-columns:1fr}.monitor{padding:8px 8px 10px}.monitor::after{display:none}.hint{display:none}.kicker{white-space:normal;letter-spacing:.2em}.mark::before{margin-right:70px;box-shadow:40px 0 0 var(--red);width:28px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -66,7 +66,7 @@ h1{font-size:clamp(28px,4vw,46px);color:#fff}
 <div class="wrap">
   <div class="mark"><span class="kicker">Arise Server · what the box itself shows</span></div>
   <h1>From power-on to the desktop.</h1>
-  <p class="lede">This is the OptiPlex's own screen in the closet, scene by scene, with sample data: the one-time boot menu, the unattended Ubuntu install, the Arise installer, the console banner, a login, the <code>arisetui</code> dashboard, and finally the Arise desktop: full screen on the monitor itself with <code>--kiosk</code>, and the same thing in a browser from any campus. Press <b>Enter</b> or the Next button to move through it; in the dashboard scene, keys 1 to 5 switch tabs.</p>
+  <p class="lede">This is the OptiPlex's own screen in the closet, scene by scene, with sample data: the one-time boot menu, the unattended Ubuntu install, the Arise installer, the console banner, a login, the <code>arisetui</code> dashboard, and finally the Arise desktop the four admins use, full screen on the monitor itself with <code>--kiosk</code>. Staff never see any of this: they sign in on their Macs as normal. Press <b>Enter</b> or the Next button to move through it; in the dashboard scene, keys 1 to 5 switch tabs.</p>
 
   <div class="strap" id="strap"></div>
 
@@ -98,7 +98,7 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
     <div class="scene" data-n="4"><pre id="motd"></pre></div>
 
     <div class="scene" data-n="5"><pre><span class="r">      ▄▄      </span> <span class="w">ARISE SERVER</span>
-<span class="r">     ▟██▙     </span> <span class="d">v0.7.0 “Genesis”  ·  arise-server  ·  AD.ARISECENLA.COM</span>
+<span class="r">     ▟██▙     </span> <span class="d">v0.8.0 “Exodus”  ·  arise-server  ·  AD.ARISECENLA.COM</span>
 <span class="r">    ▟████▙    </span> <span id="tuiClock">Tue Oct 28  02:01:12 AM</span>
 <span class="r">   ▟██▛▜██▙   </span>
 <span class="r">  ▟██▛  ▜██▙  </span> <span class="d">up 14d 3h 7m   load 0.42 0.58 0.61   46°C</span>
@@ -108,8 +108,8 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
 <span class="tuitabs" id="tuitabs"><span class="on"> 1 OVERVIEW </span><span> 2 SERVICES </span><span> 3 BACKUPS </span><span> 4 AUTOMATOR </span><span> 5 DIRECTORY </span></span>                      <span class="d">q quit · keys 1-5</span>
 <span class="r">────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre><div id="tuibody"></div><div class="foot"></div></div>
 
-    <div class="scene" data-n="6"><div class="center"><div><pre class="d">The desktop. On the closet monitor itself (install.sh --kiosk), and from any campus in a browser:</pre><br><pre><span class="w">http://arise-server:4147</span>          on the church network
-<span class="w">http://arise-server.tailnet.ts.net:4147</span>   over the VPN from Alexandria, the Hub, home</pre><br><br><a class="btn" href="https://claude.ai/artifact/WhHiMtc1ZshDUW49NthvRS" target="_blank" rel="noopener">Open the desktop preview</a><br><br><pre class="d">Finder · menu bar · dock · widgets · Spotlight · Mission Control · 15 apps</pre></div></div><div class="foot"></div></div>
+    <div class="scene" data-n="6"><div class="center"><div><pre class="d">The desktop. On the closet monitor (install.sh --kiosk: cage + Firefox), signed in by one of the four admins:</pre><br><pre style="text-align:left;display:inline-block"><span class="w">https://arise-server.ad.arisecenla.com</span>   on the church network, the church certificate
+<span class="w">over Tailscale</span>                           from Alexandria or home; nothing is open to the internet</pre><br><br><a class="btn" href="https://claude.ai/artifact/WhHiMtc1ZshDUW49NthvRS" target="_blank" rel="noopener">Open the desktop preview</a><br><br><pre class="d">Finder · menu bar · dock · Spotlight · Macs · Sync · Automator · Firefox · 35 apps</pre></div></div><div class="foot"></div></div>
   </div></div>
 
   <div class="ctrl">
@@ -123,7 +123,7 @@ arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre>
   <div class="grid">
     <div class="card"><h3>What is real here</h3>Every screen is a thing in the repo: <code>installer/autoinstall.yaml</code>, <code>installer/install.sh</code>, <code>config/console/issue</code>, the login message, <code>cli/arisetui</code> and <code>arise-console.service</code>. The numbers are sample data.</div>
     <div class="card"><h3>What is not</h3>The boot menu is a stand-in for Dell's; the install log is condensed from minutes to seconds; nothing here touched a real domain or NAS yet.</div>
-    <div class="card"><h3>The closet monitor</h3>With <code>install.sh --kiosk</code>, tty1 shows the Arise desktop all day (<code>arise-kiosk.service</code>: cage + Epiphany, locks itself after ten idle minutes). <code>--console</code> gives the text <code>arisetui</code> instead. Alt+F2 is a normal login either way.</div>
+    <div class="card"><h3>The closet monitor</h3>With <code>install.sh --kiosk</code>, tty1 shows the Arise desktop all day (<code>arise-kiosk.service</code>: cage + Firefox, locks itself after ten idle minutes). Each admin who signs in gets their own Firefox profile; locking puts the monitor back on a neutral one. <code>--console</code> gives the text <code>arisetui</code> instead. Alt+F2 is a normal login either way.</div>
   </div>
 </div>
 
@@ -134,11 +134,11 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Arr
 const SCENES = [
   ['01', 'Boot menu', 'Power on, tap <b>F12</b>, pick the USB stick. The one Dell-specific moment. If the stick is missing from the list, F2 → Boot Sequence → UEFI, and SATA Operation → AHCI.'],
   ['02', 'Ubuntu install', 'The stick carries <code>installer/autoinstall.yaml</code>, so Ubuntu Server installs itself: whole disk, hostname <code>arise-server</code>, user <code>bradly</code>, OpenSSH on. Walk away; about ten minutes on an SSD.'],
-  ['03', 'Arise installer', 'First boot runs <code>install.sh</code>: packages, the Samba Active Directory domain, the Python service, timers, firewall, Tailscale, the console. Seven loud steps, every one idempotent. It ends with what still needs a human.'],
+  ['03', 'Arise installer', 'First boot runs <code>install.sh</code>: packages, the Samba Active Directory domain, the owner account, the Python service, Nextcloud, timers, firewall, Tailscale, the kiosk. Seven loud steps (with lettered sub-steps), every one safe to run again. It ends with what still needs a human.'],
   ['04', 'Console banner', '<code>/etc/issue</code>: what the monitor shows before anyone logs in. The flame, the name, the two addresses that matter. Type a user name and press Enter.'],
   ['05', 'Login', 'The login message: the flame, <code>arisectl info</code> for this box, and the three commands worth knowing. Then the prompt. Type <code>arisetui</code> or press Enter.'],
   ['06', 'arisetui', 'The console dashboard, like Monolith\'s <code>mntui</code>: live CPU and memory, disks, what needs you, tonight\'s jobs, then services, backups, the automator and the directory on keys <b>1 to 5</b>. With <code>--console</code> this is what tty1 shows all day.'],
-  ['07', 'The desktop', 'A macOS-style desktop themed for Arise: Finder, menu bar, dock, widgets, Spotlight, Mission Control, the fifteen apps. With <code>--kiosk</code> this is what the closet monitor shows all day; from any campus it is the same thing in a browser. That is the preview linked here.'],
+  ['07', 'The desktop', 'A macOS-style desktop themed for Arise with 35 apps: Finder, Directory, Macs, Sync, Automator (videos, transcript search, songs), Backups, Security and the rest, with Firefox as a full browser. With <code>--kiosk</code> this is what the closet monitor shows all day, for Bradly, Kristina and the two pastors. That is the preview linked here.'],
 ];
 let cur = 0, timers = [];
 const strap = $('#strap');
@@ -165,20 +165,26 @@ function ubuntu() {
 }
 function installer() {
   const lines = [
-    ['w', '$ sudo bash installer/install.sh --admin-pass ******** --with-tailscale --console'],
-    ['r', '== 1/7  Packages'], ['', '   samba winbind krb5-user restic docker.io python3-venv ufw fail2ban chrony … ok'],
-    ['r', '== 2/7  Hostname arise-server, timezone America/Chicago'], ['', '   /etc/hosts: 192.168.1.10 arise-server.ad.arisecenla.com arise-server'],
-    ['r', '== 3/7  Code to /opt/arise and the Python venv'], ['', '   pip: fastapi uvicorn psutil pyyaml bcrypt … google-api-python-client pillow tzdata'], ['', '   /usr/local/bin/arisectl, /usr/local/bin/arisetui'],
-    ['r', '== 4/7  Config (/etc/arise), state (/var/lib/arise), data (/srv/arise)'], ['', '   user arise (uid 1500) · homes shares automator apps backups'],
-    ['r', '== 5/7  Active Directory domain AD.ARISECENLA.COM (NetBIOS ARISE)'], ['', '   samba-tool domain provision … ok'], ['', '   krb5.conf written · resolv.conf → 127.0.0.1 · SRV _ldap._tcp.ad.arisecenla.com resolves'], ['', '   smb.conf: [homes] [shares] with the Mac (fruit) settings'],
-    ['r', '== 6/7  Services and timers'], ['', '   arise-web.service active on :4147'], ['', '   arise-automator.timer 02:05 · arise-backup.timer 03:00 · arise-mirror.timer 04:00 · arise-notify.timer 07:00'],
-    ['r', '== 6b/7 Remote access and the firewall'], ['', '   ufw: deny incoming; ssh; 4147 + DC ports from the LAN and the VPN only'], ['', '   fail2ban sshd jail · sshd drop-in (password login stays on until a key exists)'], ['y', '   tailscale installed. Run once, in a browser login:  sudo tailscale up --ssh --advertise-routes=192.168.1.0/24'],
-    ['r', '== 6c/7 Console: banner, login message, arisetui on tty1'],
+    ['w', '$ sudo bash /opt/arise/installer/install.sh --kiosk --with-tailscale'],
+    ['r', '== Preflight'], ['', '   Ubuntu 24.04 · run by bradly (the owner) · domain admin password: ******** (asked once)'],
+    ['r', '== 1/7  Packages'], ['', '   samba winbind krb5-user restic docker.io python3-venv ufw fail2ban chrony acl auditd inotify-tools … ok'],
+    ['r', '== 2/7  Hostname and timezone'], ['', '   arise-server.ad.arisecenla.com · America/Chicago'],
+    ['r', '== 2b/7  Pin this box\'s address (the one DHCP gave it)'], ['', '   /etc/netplan/60-arise-pinned.yaml: 192.168.1.20/24 · no router touched'],
+    ['r', '== 3/7  Code to /opt/arise and the Python venv'], ['', '   /usr/local/bin/arisectl, /usr/local/bin/arisetui'],
+    ['r', '== 4/7  Config (/etc/arise), state (/var/lib/arise), data (/srv/arise)'],
+    ['r', '== 5/7  Active Directory domain AD.ARISECENLA.COM (NetBIOS ARISE)'], ['', '   samba-tool domain provision … ok · SRV _ldap._tcp.ad.arisecenla.com resolves'],
+    ['r', '== 5b/7  Password policy, groups and the nine shares'], ['', '   Church · departments · Pastors (the two pastors only) · Shared with me · homes 50 GB · Trash 30 days'],
+    ['r', '== 6/7  Docker and the Arise services'], ['', '   arise-web.service active on :4147 · owner bradly: sudo, every ariseOS group, the 02:05 job'],
+    ['', '   arise-automator.timer 02:05 (the PC stays the runner until runner.json says this box) · arise-backup.timer 03:00'],
+    ['r', '== 6a/7  Apps: the templates, deployed; the Store starts the rest'], ['', '   sync: Nextcloud is set up (https://cloud.ad.arisecenla.com); every church Mac\'s helper installs the client'],
+    ['r', '== 6b/7  Remote access and the firewall'], ['', '   ufw: deny incoming; the LAN and Tailscale only · ssh keys only · nothing forwarded from the internet'], ['y', '   tailscale installed. Once, in a browser:  sudo tailscale up --ssh --advertise-routes=192.168.1.0/24'],
+    ['r', '== 6c/7  Console: banner, login message'],
+    ['r', '== 6d/7  Kiosk: the Arise desktop on the closet monitor'], ['', '   cage + Firefox (packages.mozilla.org), a profile per admin · tty1 now shows the Arise desktop'],
+    ['r', '== 6j/7  Safety: arise-rescue, virus scan, system snapshots, encryption'],
     ['r', '== 7/7  Done. What still needs you'],
-    ['', '   Dashboard      http://arise-server:4147'],
     ['', '   1. Dashboard password:   sudo arisectl admin set-password'],
-    ['', '   2. token.json + client_secret.json → /srv/arise/automator/ARISE_YouTube_Updater/'],
-    ['', '   3. restic password:      /etc/arise/secrets/restic-password  (and on paper)'],
+    ['', '   2. The automator:        deploy key on GitHub (read-only) · sudo arisectl automator setup · signin · cutover'],
+    ['', '   3. restic password:      /etc/arise/secrets/restic-password  (and a copy off the server)'],
     ['', '   4. Synology:             /etc/arise/secrets/synology.cred ; sudo arisectl nas mount'],
     ['', '   5. Then:                 sudo arisectl doctor'],
     ['d', '   log: /var/log/arise/install.log'],
@@ -189,7 +195,7 @@ function installer() {
 function banner() { const t = $('#loginTyped'); t.textContent = ''; 'bradly'.split('').forEach((c, i) => later(() => t.textContent += c, 900 + i * 140)); }
 function login() {
   const m = $('#motd'); m.innerHTML = '';
-  const lines = ['<span class="d">Password:</span>', '', '<span class="r">      ▄▄</span>', '<span class="r">     ▟██▙</span>      <span class="w">ARISE SERVER</span>', '<span class="r">    ▟████▙</span>     Arise Church · Pineville, LA', '<span class="r">   ▟██▛▜██▙</span>', '<span class="r">  ▟██▛  ▜██▙</span>   arisetui        the console dashboard', '<span class="r">  ▜██▙▄▄▟██▛</span>   arisectl doctor what needs fixing', '<span class="r">   ▜██████▛</span>    arisectl info   what this box is', '<span class="r">     ▀▀▀▀</span>', '  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)', '  profile   server   config /etc/arise/arise.toml', '  realm     AD.ARISECENLA.COM / ARISE   directory on', '  web       http://arise-server:4147   password set', '  automator /srv/arise/automator/ARISE_YouTube_Updater  at 02:05', '  backups   /mnt/synology/arise-backups/restic  at 03:00', '', '<span class="g">bradly@arise-server</span>:~$ <span id="shTyped"></span><span class="cur"></span>'];
+  const lines = ['<span class="d">Password:</span>', '', '<span class="r">      ▄▄</span>', '<span class="r">     ▟██▙</span>      <span class="w">ARISE SERVER</span>', '<span class="r">    ▟████▙</span>     Arise Church · Pineville, LA', '<span class="r">   ▟██▛▜██▙</span>', '<span class="r">  ▟██▛  ▜██▙</span>   arisetui        the console dashboard', '<span class="r">  ▜██▙▄▄▟██▛</span>   arisectl doctor what needs fixing', '<span class="r">   ▜██████▛</span>    arisectl info   what this box is', '<span class="r">     ▀▀▀▀</span>', '  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)', '  profile   server   config /etc/arise/arise.toml', '  realm     AD.ARISECENLA.COM / ARISE   directory on', '  web       http://arise-server:4147   password set', '  owner     bradly   the 02:05 job runs as him (the PC is the runner until he switches)', '  macs      3 church Macs · sync: Nextcloud on cloud.ad.arisecenla.com', '  backups   /mnt/synology/arise-backups/restic  at 03:00  (30/12/24 kept)', '', '<span class="g">bradly@arise-server</span>:~$ <span id="shTyped"></span><span class="cur"></span>'];
   lines.forEach((l, i) => later(() => { m.innerHTML += l + '\n'; }, 120 * (i + 1)));
   later(() => { const t = $('#shTyped'); if (t) 'arisetui'.split('').forEach((c, i) => later(() => t.textContent += c, i * 120)); }, 120 * lines.length + 600);
 }
@@ -214,7 +220,8 @@ ${bar(31, 44, 'g')}</pre><pre><span class="g">ALL CLEAR</span>
 <span class="d">services up · automator clean · backups ok · NAS mounted</span>
 
 <span class="d">THE BOX</span>
-<span class="d">directory </span> online · 5 users
+<span class="d">directory </span> online · 11 users
+<span class="d">macs      </span> 3 church Macs · 1 waiting for a choice
 <span class="d">automator </span> 3 jobs done · 0 failed · 1 skipped · 1,962 units
 <span class="d">quota     </span> 1962 / 10000 units
 <span class="d">backups   </span> Server config · ok
@@ -225,7 +232,8 @@ ${bar(31, 44, 'g')}</pre><pre><span class="g">ALL CLEAR</span>
 <span class="r">02:05</span>  automator
 <span class="r">03:00</span>  backups → Synology
 <span class="r">04:00</span>  GitHub mirror
-<span class="r">07:00</span>  daily note</pre></div>`,
+<span class="r">04:30</span>  the 30-day Trash sweep
+<span class="r">hourly</span> Nextcloud conflicts: newest wins</pre></div>`,
   2: () => `<pre><span class="d">UNIT                           SERVICE                        STATE</span>
 arise-web.service              Arise dashboard                <span class="g">● active running</span>
 samba-ad-dc.service            Active Directory               <span class="g">● active running</span>
@@ -233,12 +241,13 @@ docker.service                 Docker                         <span class="g">�
 arise-automator.timer          YouTube automator (02:05)      <span class="g">● active waiting</span>
 arise-backup.timer             Backups (03:00)                <span class="g">● active waiting</span>
 arise-mirror.timer             GitHub mirror (04:00)          <span class="g">● active waiting</span>
-arise-notify.timer             Daily note (07:00)             <span class="g">● active waiting</span>
+arise-cloud-conflicts.timer    Nextcloud conflicts (hourly)   <span class="g">● active waiting</span>
+arise-kiosk.service            The closet desktop (Firefox)   <span class="g">● active running</span>
 arise-nas-mount.service        Synology mount                 <span class="g">● active exited</span>
 tailscaled.service             Tailscale                      <span class="g">● active running</span>
 ssh.service                    SSH                            <span class="g">● active running</span></pre>`,
   3: () => `<pre><span class="d">REPOSITORY /mnt/synology/arise-backups/restic</span>
-<span class="w">53 snapshots · 296.2 GB stored · keep 14/8/12</span>
+<span class="w">53 snapshots · 296.2 GB stored · keep 30/12/24</span>
 
 <span class="d">JOB                    LAST RUN           RESULT        ADDED  NOTE</span>
 YouTube automator      2026-10-27T03:00   <span class="g">ok</span>       797.1 MB
@@ -268,18 +277,19 @@ Media on the Synology  2026-10-24T03:04   <span class="r">FAILED</span>         
   5: () => `<pre><span class="w">AD.ARISECENLA.COM  ·  ARISE  ·  arise-server.ad.arisecenla.com</span>
 <span class="g">● LDAP</span>          <span class="g">● KERBEROS</span>      <span class="g">● DNS</span>
 
-<span class="d">USER             NAME                     GROUPS                             LAST LOGIN</span>
-bradly           Bradly Dyer              Domain Admins, Media, Staff        2026-10-27T22:01
-media-mac        Media Booth Mac          Media                              2026-10-26T23:01
-office           Church Office            Staff                              2026-10-25T20:01
-kids-checkin     Kids Check-in            Kids-Check-in                      2026-10-21T23:01
-<span class="d">guest-speaker    Guest Speaker (loaner)   Volunteers                         never</span>
+<span class="d">USER                  NAME                          GROUPS                             LAST LOGIN</span>
+bradly                Bradly Dyer                   Domain Admins, Media, Staff        2026-10-27T22:01
+bryant.sanders        Apostle Bryant Sanders        Domain Admins, Staff, Pastors      2026-10-26T20:12
+vanessa.sanders       Pastor Vanessa Sanders        Domain Admins, Staff, Pastors      2026-10-26T19:40
+kristina.robinson     Minister Kristina Robinson    Domain Admins, Staff, Worship      2026-10-26T21:03
+office                Church Office                 Staff                              2026-10-25T20:01
+childrens.department  Children's Department         Childrens-Department               2026-10-24T11:15
+<span class="d">guest-speaker         Guest Speaker (loaner)        Volunteers                         never · disabled</span>
 
-<span class="d">COMPUTER         TYPE       OS                   LAST SEEN</span>
-MEDIA-MAC        mac        macOS 15.1           2026-10-27T22:01
-OFFICE-IMAC      mac        macOS 14.6           2026-10-26T23:01
-LOBBY-PC         windows    Windows 11 Pro       2026-10-25T20:01
-SYNOLOGY         nas        DSM 7.2              2026-10-27T22:57</pre>`,
+<span class="d">CHURCH MAC       MODEL                 macOS   HELPER        FILEVAULT</span>
+MEDIA-MAC-01     iMac (24-inch, M3)    15.3    checked in    on, key escrowed
+OFFICE-MAC-01    MacBook Air (M2)      14.7    checked in    on, key escrowed   <span class="y">levi: waiting for a choice</span>
+KIDS-MAC         Mac mini (M1)         15.2    6 h ago       on, key escrowed</pre>`,
 };
 const S = { cpu: 22, cores: [20, 30, 15, 25], rx: 1.2e6, tab: 1 };
 function tui() { S.tab = 1; paintTui(); }
