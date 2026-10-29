@@ -96,6 +96,7 @@ function previewMenu() {
 
 /* ---------------- toasts / modal ---------------- */
 function toast(msg, kind = 'ok', ms = 4200) {
+  if (kind === 'bad' && msg === 'cancelled') return;   // closing the password prompt is a choice, not an error
   const t = document.createElement('div'); t.className = 'toast ' + kind; t.innerHTML = esc(msg);
   $('#toasts').appendChild(t); setTimeout(() => t.remove(), ms);
 }
