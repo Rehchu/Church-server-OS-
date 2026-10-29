@@ -77,7 +77,7 @@ in_list() { # in_list needle "a,b,c"
 }
 # The directory name for a local account: --map old=new, else the same name.
 # Bradly's rule is first.last (docs/ANSWERS.md 23), so most local names need a map.
-dir_name() { local n="$1" pair; IFS=',' read -ra _pairs <<< "$MAP"; for pair in "${_pairs[@]}"; do [ "${pair%%=*}" = "$n" ] && { echo "${pair#*=}"; return; }; done; echo "$n"; }
+dir_name() { local n="$1" pair; IFS=',' read -ra _pairs <<< "$MAP"; for pair in ${_pairs[@]+"${_pairs[@]}"}; do [ "${pair%%=*}" = "$n" ] && { echo "${pair#*=}"; return; }; done; echo "$n"; }
 
 # ---- 1. bind -------------------------------------------------------------------
 step "1/6  Bind to the domain"
@@ -97,7 +97,7 @@ fi
 step "1b   The church certificate"
 CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
 if [ $DRY -eq 1 ]; then say "would fetch $DASH/ca.crt and trust it in the System keychain"
-elif security find-certificate -c "Caddy Local Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then say "already trusted"; REPORT+=("certificate: already trusted")
+elif curl -fsS -m 8 -o "$CA_TMP" "$DASH/ca.crt" && security verify-cert -c "$CA_TMP" >/dev/null 2>&1; then say "already trusted"; REPORT+=("certificate: already trusted")
 elif curl -fsS -m 8 -o "$CA_TMP" "$DASH/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
   if security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then say "trusted: this Mac shows the padlock on https://${SERVER}.ad.arisecenla.com"; REPORT+=("certificate: trusted")
   else say "could not add it (security add-trusted-cert failed)"; TODO+=("trust the church certificate by hand: docs/SECURITY.md"); fi
@@ -110,7 +110,7 @@ PEOPLE=()
 while IFS= read -r name; do
   [ -n "$name" ] || continue
   uid=$(dscl . -read "/Users/$name" UniqueID 2>/dev/null | awk '{print $2}')
-  home=$(dscl . -read "/Users/$name" NFSHomeDirectory 2>/dev/null | awk '{print $2}')
+  home=$(dscl . -read "/Users/$name" NFSHomeDirectory 2>/dev/null | sed -n 's/^NFSHomeDirectory: *//p' | head -1)
   [ -n "$uid" ] && [ "$uid" -ge 501 ] || continue
   case "$home" in /Users/*) ;; *) continue ;; esac
   if dscl . -read "/Users/$name" OriginalNodeName 2>/dev/null | grep -q "Active Directory"; then say "$name: already a domain (mobile) account; skipped"; continue; fi
@@ -142,7 +142,7 @@ else
     existing=$(curl -s -b "$COOKIE_JAR" "$DASH/api/directory/users" | tr ',' '\n' | awk -F'"' '/"name"/{print $4}' | tr '\n' ',')
   fi
 fi
-for p in "${PEOPLE[@]}"; do
+for p in ${PEOPLE[@]+"${PEOPLE[@]}"}; do
   name=${p%%|*}; full=${p#*|}; dname=$(dir_name "$name")
   [ "$dname" = "$name" ] || say "$name -> $dname (from --map)"
   case "$dname" in *.*) ;; *) say "$dname: not first.last; add --map $name=first.last if that is the rule"; TODO+=("username $dname is not first.last");; esac
@@ -173,7 +173,7 @@ done
 # ---- 4. migrate ---------------------------------------------------------------
 step "4/6  Copy each person's files into their server home"
 if [ $MIGRATE -eq 0 ]; then say "skipped (--no-migrate)"; else
-  for p in "${PEOPLE[@]}"; do
+  for p in ${PEOPLE[@]+"${PEOPLE[@]}"}; do
     name=${p%%|*}; dname=$(dir_name "$name")
     if who | awk '{print $1}' | grep -qx "$name"; then
       say "$name is logged in; skipped. Log them out and run: sudo ./migrate-mac-user.sh --from $name --to $dname"
@@ -219,14 +219,14 @@ fi
 
 # ---- 6. report ----------------------------------------------------------------
 step "6/6  Done"
-for r in "${REPORT[@]}"; do say "$r"; done
+for r in ${REPORT[@]+"${REPORT[@]}"}; do say "$r"; done
 if [ ${#PASSWORDS[@]} -gt 0 ]; then
   echo; say "ONE-TIME PASSWORDS (hand these over in person; the person changes it at first login in the dashboard, flame menu > Change Password):"
-  for x in "${PASSWORDS[@]}"; do say "   $x"; done
-  umask 077; printf '%s\n' "${PASSWORDS[@]}" > "/var/root/arise-enrol-passwords-$(date +%Y%m%d-%H%M).txt"
+  for x in ${PASSWORDS[@]+"${PASSWORDS[@]}"}; do say "   $x"; done
+  umask 077; printf '%s\n' ${PASSWORDS[@]+"${PASSWORDS[@]}"} > "/var/root/arise-enrol-passwords-$(date +%Y%m%d-%H%M).txt"
   say "   (also written to /var/root/arise-enrol-passwords-<date>.txt, root only; delete it once handed over)"
 fi
-if [ ${#TODO[@]} -gt 0 ]; then echo; say "LEFT FOR A HUMAN:"; for t in "${TODO[@]}"; do say "   - $t"; done; fi
+if [ ${#TODO[@]} -gt 0 ]; then echo; say "LEFT FOR A HUMAN:"; for t in ${TODO[@]+"${TODO[@]}"}; do say "   - $t"; done; fi
 echo
 say "Next: each person logs in on this Mac with their new domain password (Ethernet for the first login)."
 say "      Their old local account stays for two weeks; mac/CHECKLIST.md has the rest."

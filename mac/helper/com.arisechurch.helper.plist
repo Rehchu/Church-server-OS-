@@ -16,6 +16,10 @@
     <integer>300</integer>
     <key>LowPriorityIO</key>
     <true/>
+    <!-- The restart notice the updates task shows outlives the five-minute run (launchd would
+         otherwise end every process the job started when the script exits). -->
+    <key>AbandonProcessGroup</key>
+    <true/>
     <key>StandardOutPath</key>
     <string>/var/log/arise-helper.log</string>
     <key>StandardErrorPath</key>
