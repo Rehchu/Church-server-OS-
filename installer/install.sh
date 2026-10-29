@@ -340,7 +340,10 @@ FQDN="$HOSTNAME_WANTED.${REALM,,}"
 if [ "$DRY_RUN" = 0 ]; then
   # /etc/hosts must resolve the FQDN to the real LAN address, not 127.0.1.1,
   # or Samba's DNS registers the wrong address for the DC.
-  sed -i "/[[:space:]]$HOSTNAME_WANTED\([[:space:]]\|$\)/d" /etc/hosts
+  # Rewritten in place, not with sed -i (which replaces the file): /etc/hosts can be a mount
+  # (containers) or a symlink, and replacing it would fail or cut the link.
+  _hosts="$(sed "/[[:space:]]$HOSTNAME_WANTED\([[:space:]]\|$\)/d" /etc/hosts)"
+  printf '%s\n' "$_hosts" > /etc/hosts
   if [ -n "$PRIMARY_IP" ]; then
     echo "$PRIMARY_IP $FQDN $HOSTNAME_WANTED" >> /etc/hosts
   else
@@ -1018,7 +1021,9 @@ for src in "${DC_SRCS[@]}"; do
   run ufw allow from "$src" to any port 53 comment 'dns'
   run ufw allow from "$src" to any port 88 comment 'kerberos'
   run ufw allow from "$src" to any port 135 proto tcp comment 'rpc'
-  run ufw allow from "$src" to any port 137:139 comment 'netbios'
+  # ufw refuses a port range without a protocol: NetBIOS name and datagram are udp, its session tcp
+  run ufw allow from "$src" to any port 137:138 proto udp comment 'netbios'
+  run ufw allow from "$src" to any port 139 proto tcp comment 'netbios session'
   run ufw allow from "$src" to any port 389 comment 'ldap'
   run ufw allow from "$src" to any port 445 proto tcp comment 'smb'
   run ufw allow from "$src" to any port 464 comment 'kpasswd'
