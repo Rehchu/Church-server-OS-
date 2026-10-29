@@ -18,7 +18,7 @@ import psutil
 from .config import load
 from .util import run, which
 
-PROTECTED_NAMES = {"systemd", "samba", "smbd", "nmbd", "winbindd", "samba-dcerpcd", "rpcd_lsad", "dockerd", "containerd", "containerd-shim-runc-v2", "sshd", "arise-web", "uvicorn", "cage", "epiphany", "journald", "systemd-journald", "systemd-logind", "dbus-daemon", "nut-monitor", "upsmon", "upsd"}
+PROTECTED_NAMES = {"systemd", "samba", "smbd", "nmbd", "winbindd", "samba-dcerpcd", "rpcd_lsad", "dockerd", "containerd", "containerd-shim-runc-v2", "sshd", "arise-web", "uvicorn", "cage", "firefox", "firefox-bin", "firefox-esr", "epiphany", "journald", "systemd-journald", "systemd-logind", "dbus-daemon", "nut-monitor", "upsmon", "upsd"}
 PROTECTED_CMD = ("arise_server", "samba", "dockerd", "containerd", "sshd", "/usr/sbin/cage")
 _cache: dict = {"t": 0.0, "data": None}
 _lock = threading.Lock()
@@ -33,7 +33,7 @@ def may_kill(pid: int, name: str = "", cmdline: str = "", me: int | None = None)
         return False, "that is the dashboard"
     n = (name or "").lower()
     if n in PROTECTED_NAMES or any(n.startswith(p) for p in ("systemd-", "rpcd_")):
-        return False, f"{name} keeps the box alive (domain, Docker, SSH, the dashboard, systemd)"
+        return False, f"{name} keeps the box alive (domain, Docker, SSH, the dashboard, the closet monitor, systemd)"
     if any(p in (cmdline or "") for p in PROTECTED_CMD):
         return False, "that process belongs to the domain, Docker, SSH or the dashboard"
     return True, ""
@@ -164,7 +164,7 @@ def _demo() -> dict:
         ("dockerd", "root", 1.1, 148_000_000, "/usr/bin/dockerd -H fd://", True), ("netdata", "netdata", 2.6, 210_000_000, "/usr/sbin/netdata -D", False),
         ("node", "1000", 0.9, 142_000_000, "node server/server.js (uptime-kuma)", False), ("postgres", "999", 0.4, 88_000_000, "postgres -D /var/lib/postgresql/data", False),
         ("java", "1001", 2.2, 690_000_000, "java -jar guacamole (tomcat)", False), ("restic", "root", 0.0, 0, "", False), ("sshd", "root", 0.0, 9_000_000, "sshd: /usr/sbin/sshd -D", True),
-        ("cage", "arise-kiosk", 4.1, 120_000_000, "/usr/bin/cage -s -- epiphany", True), ("epiphany", "arise-kiosk", 6.3, 540_000_000, "epiphany --application-mode", True),
+        ("cage", "arise-kiosk", 4.1, 120_000_000, "/usr/bin/cage -s -- /usr/local/bin/arise-browser http://127.0.0.1:4147/?kiosk=1", True), ("firefox", "arise-kiosk", 6.3, 540_000_000, "firefox --kiosk --profile /var/lib/arise/browser/profiles/neutral", True),
         ("smbd", "root", 0.7, 64_000_000, "/usr/sbin/smbd", True), ("cron", "root", 0.0, 3_000_000, "/usr/sbin/cron -f", False), ("rsyslogd", "syslog", 0.1, 5_000_000, "/usr/sbin/rsyslogd -n", False),
     ]
     procs = [{"pid": 400 + i * 7, "name": n, "user": u, "cpu": c, "mem": m, "status": "sleeping", "threads": 4 + i, "since": time.time() - 86400 * 14, "io": {"read": 10_000_000 * (i + 1), "write": 2_000_000 * i}, "cmd": cmd, "container": "" if p else f"c{i:011x}", "protected": p}

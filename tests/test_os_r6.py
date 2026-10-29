@@ -219,3 +219,12 @@ class KioskOpen(unittest.TestCase):
         src = (Path(__file__).resolve().parents[1] / "server" / "arise_server" / "main.py").read_text()
         i = src.index('def api_kiosk_open')
         self.assertIn('kiosk_profiles.on_monitor(host, request.headers.get("x-forwarded-for", ""))', src[i:i + 700])
+
+
+class KioskBrowserProtected(unittest.TestCase):
+    def test_firefox_on_the_monitor_cannot_be_ended_from_activity_monitor(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
+        from arise_server import activity
+        for n in ("firefox", "firefox-bin", "cage"):
+            self.assertIn(n, activity.PROTECTED_NAMES)
