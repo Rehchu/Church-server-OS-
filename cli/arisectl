@@ -391,6 +391,42 @@ def cmd_share(a):
         if input("Type the share name to remove it (files stay on disk): ") != a.name:
             sys.exit("not confirmed; nothing changed")
         show(shares.remove_share(a.name, a.name))
+    elif a.sub == "folders":
+        # Round 5: the Church, department, Pastors and Shared-with-me shares, and their ACLs.
+        from arise_server import sharing
+        if a.dry_run:
+            print(sharing.smb_conf())
+            for c in sharing.acl_plan():
+                print("  " + " ".join(c))
+            return
+        need_root()
+        if not a.yes and input("Write /etc/samba/arise-folders.conf and set the folders' ACLs? [y/N] ").strip().lower() != "y":
+            sys.exit("nothing changed")
+        r = sharing.apply_folders()
+        for line in r.get("acls_failed", []):
+            bad(line)
+        (ok if r.get("ok") else bad)(r.get("conf") or r.get("err") or "done")
+        if not r.get("ok"):
+            sys.exit(1)
+
+
+def cmd_quota(a):
+    """Round 5, row 13: each home against its quota; apply = the filesystem quota (setquota) for every home."""
+    from arise_server import sharing
+    from arise_server.config import load as _load
+    q = sharing.quotas()
+    head(f"home quota {human_bytes(q['quota']) if q['quota'] else 'none'} (enforced by {q['enforced_by']})")
+    table([{"home": r["user"], "used": human_bytes(r["used"]), "of": human_bytes(r["quota"]) if r["quota"] else "-",
+            "pct": f"{r['pct']}%" if r["pct"] is not None else "-", "": "FULL" if r["full"] else ("near" if r["warn"] else "")} for r in q["homes"]],
+          ["home", "used", "of", "pct", ""])
+    if a.sub == "apply":
+        need_root()
+        if not sharing.fs_quota_on():
+            sys.exit("user quotas are off on the homes' filesystem: add usrquota in /etc/fstab, remount, quotacheck -cum, quotaon (docs/FINDER.md)")
+        mount = run(["findmnt", "-no", "TARGET", "--target", _load().directory.homes_path], timeout=10)["out"].strip() or "/"
+        for r in q["homes"]:
+            res = run(sharing.setquota_cmd(r["user"], mount), timeout=20)
+            (ok if res["ok"] else bad)(f"{r['user']}: " + ("set" if res["ok"] else (res["err"] or res["out"]).strip()[:160]))
 
 
 def cmd_ups(a):
@@ -451,8 +487,11 @@ def cmd_backup(a):
         table([{"id": j["id"], "name": j.get("name", ""), "paths": " ".join(j.get("paths", [])), "tags": ",".join(j.get("tags", []))} for j in backups.jobs()["jobs"]], ["id", "name", "paths", "tags"])
     elif a.sub == "run":
         need_root()
-        if backups.available() and not Path(cfg.backups.restic_repo, "config").exists():
-            warn(f"repository not initialised; running restic init at {cfg.backups.restic_repo}")
+        # The live target (round 5, row 15): a local folder on the Synology or sftp to Arise-Home.
+        # `restic cat config` answers for either; only a repository that is not there yet is initialised.
+        live = backups.live_repo()
+        if backups.available() and live and not backups._restic(["cat", "config"], 60)["ok"]:
+            warn(f"repository not initialised (or not reachable); running restic init at {live}")
             r = backups._restic(["init"], 120)
             if not r["ok"]:
                 bad((r["err"] or r["out"]).strip()); sys.exit(1)
@@ -1380,7 +1419,8 @@ def build():
     p = sp.add_parser("directory"); p.add_argument("sub", choices=["import"]); p.add_argument("file", nargs="?", help="people.csv: first,last,title,departments,personal_email,mobile,birthday,role"); p.add_argument("--apply", action="store_true", help="create the accounts (default: check only)"); p.set_defaults(f=cmd_directory)
     p = sp.add_parser("group"); p.add_argument("sub", choices=["list", "add", "addmember", "removemember"]); p.add_argument("name", nargs="?"); p.add_argument("user", nargs="?"); p.add_argument("--description"); p.set_defaults(f=cmd_group)
     p = sp.add_parser("computer"); p.add_argument("sub", choices=["list", "remove"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_computer)
-    p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.set_defaults(f=cmd_share)
+    p = sp.add_parser("share"); p.add_argument("sub", choices=["list", "add", "remove", "folders"]); p.add_argument("name", nargs="?"); p.add_argument("path", nargs="?"); p.add_argument("--group"); p.add_argument("--comment"); p.add_argument("--yes", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(f=cmd_share)
+    p = sp.add_parser("quota"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply"]); p.set_defaults(f=cmd_quota)
     p = sp.add_parser("backup"); p.add_argument("sub", choices=["status", "jobs", "run", "snapshots", "restore", "verify", "prune", "drill"]); p.add_argument("--quiet", action="store_true", help="drill: print nothing, exit 1 on failure (the monthly timer)"); p.add_argument("job", nargs="?", help="job id for run, snapshot id (or latest) for restore")
     p.add_argument("--tag"); p.add_argument("--at", help="YYYY-MM-DD: newest snapshot at or before this date"); p.add_argument("--path", help="only this file or folder"); p.add_argument("--target", help="folder to restore into (required)"); p.set_defaults(f=cmd_backup)
     p = sp.add_parser("automator"); p.add_argument("sub", choices=["status", "preview", "run", "report", "holds", "worklist", "schedule", "setup", "signin", "cutover", "unblock"]); p.add_argument("name", nargs="?", help="report file name, HH:MM for schedule, or --force for signin"); p.add_argument("--force", action="store_true", help="signin: replace the existing token (does not revoke the old one)"); p.set_defaults(f=cmd_automator)

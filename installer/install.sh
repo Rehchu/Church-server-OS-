@@ -301,7 +301,7 @@ fi
 PKGS=(
   samba samba-ad-dc samba-ad-provision samba-dsdb-modules samba-vfs-modules
   winbind krb5-user krb5-config libnss-winbind libpam-winbind
-  smbclient ldb-tools acl attr
+  smbclient ldb-tools acl attr quota auditd
   cifs-utils nfs-common
   restic rsync git curl jq arp-scan nmap ffmpeg bind9-host
   openssh-server
@@ -573,7 +573,14 @@ if [ "$SKIP_DOMAIN" = 0 ]; then
       else
         cp /etc/samba/smb.conf "/etc/samba/smb.conf.bak.$(date +%s)"
         # Everything after the '# >>> arise-server shares' marker in the template.
-        awk '/^# >>> arise-server shares/{p=1} p' "$TEMPLATE" >> /etc/samba/smb.conf
+        # Round 5, row 12: [storage] homes_on = "synology" moves the homes to <nas mount>/arise/homes.
+        HOMES_ON="$(python3 -c 'import sys,tomllib; print((tomllib.load(open(sys.argv[1],"rb")).get("storage") or {}).get("homes_on","server"))' "$CONF_DIR/arise.toml" 2>/dev/null || echo server)"
+        if [ "$HOMES_ON" = synology ]; then
+          awk '/^# >>> arise-server shares/{p=1} p' "$TEMPLATE" | sed "s#/srv/arise/homes/#/mnt/synology/arise/homes/#g" >> /etc/samba/smb.conf
+          note "homes on the Synology (/mnt/synology/arise/homes), from [storage] homes_on"
+        else
+          awk '/^# >>> arise-server shares/{p=1} p' "$TEMPLATE" >> /etc/samba/smb.conf
+        fi
         # The Mac (vfs fruit) lines belong in [global]; insert them once.
         if ! grep -q 'fruit:model' /etc/samba/smb.conf; then
           sed -i '/^\[global\]/a\        # arise-server: macOS over SMB (see config/samba/smb.conf.template)\n        vfs objects = dfs_samba4 acl_xattr fruit streams_xattr\n        fruit:metadata = stream\n        fruit:model = MacSamba\n        fruit:posix_rename = yes\n        fruit:veto_appledouble = no\n        fruit:wipe_intentionally_left_blank_rfork = yes\n        fruit:delete_empty_adfiles = yes' /etc/samba/smb.conf
@@ -694,7 +701,7 @@ fi
 # One security group per share plus the department groups. samba-tool refuses
 # to add a group that exists, so every line is safe to run again.
 if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
-  for g in Staff Leadership Media Kids Childrens-Department Inedge Worship Volunteers Kids-Check-in; do
+  for g in Staff Leadership Media Kids Childrens-Department Inedge Worship Volunteers Kids-Check-in Alexandria Pastors; do
     if [ "$DRY_RUN" = 1 ]; then note "[dry-run] samba-tool group add $g"; continue; fi
     if samba-tool group list 2>/dev/null | grep -qx "$g"; then note "group $g exists"; else
       samba-tool group add "$g" >/dev/null 2>&1 && note "group $g created" || warn "could not create group $g (is the DC up?)"
@@ -714,9 +721,14 @@ if [ "$SKIP_DOMAIN" = 0 ] && [ "$NO_START" = 0 ]; then
     fi
   done
 fi
-for sh in staff leadership media graphics kids childrens-department inedge worship; do
+for sh in staff leadership media graphics kids childrens-department inedge worship church alexandria; do
   run mkdir -p "$DATA_ROOT/shares/$sh"
 done
+# Round 5: the Pastors folder sits outside shares/ so no share above it reaches it; shared/ holds
+# each person's Shared-with-me links (the [shared] share).
+run mkdir -p "$DATA_ROOT/pastors" "$DATA_ROOT/shared"
+run chmod 0700 "$DATA_ROOT/pastors"
+run chmod 0755 "$DATA_ROOT/shared"
 # Media/Fonts (docs/ANSWERS.md round 3, 39): the Proclaim fonts live here and every
 # enrolled Mac installs what it finds on its hourly sync (mac/arise-home-sync.sh).
 run mkdir -p "$DATA_ROOT/shares/media/Fonts"
@@ -726,16 +738,42 @@ fi
 run mkdir -p "$DATA_ROOT/shares"
 if [ "$DRY_RUN" = 0 ] && [ "$SKIP_DOMAIN" = 0 ] && getent group "Domain Users" >/dev/null 2>&1; then
   # Each share folder belongs to its group so the force group in smb.conf matches on disk.
-  for pair in staff:Staff leadership:Leadership media:Media graphics:Media kids:Kids childrens-department:Childrens-Department inedge:Inedge worship:Worship; do
+  # The department folders, the Church folder and the Pastors folder get their permissions from
+  # `arisectl share folders` below (round 5); these three keep the plain group rule.
+  for pair in staff:Staff leadership:Leadership graphics:Media; do
     d=${pair%%:*}; g=${pair#*:}
     chgrp "$g" "$DATA_ROOT/shares/$d" 2>/dev/null && chmod 2775 "$DATA_ROOT/shares/$d" || note "chgrp $g on shares/$d skipped (group not visible to the OS yet; run again after the DC is up)"
   done
   chmod 2770 "$DATA_ROOT/shares/leadership" 2>/dev/null || true
 fi
 note "recordings share lives on the Synology (/mnt/synology/arise/recordings); made by 'arisectl nas mount'"
+# ---- Round 5 (docs/ANSWERS.md rows 16-18, 36): the Church, department, Pastors and Shared-with-me
+# shares, generated from arise.toml [storage] with the ACLs that make them true on disk. Macs reach
+# them over SMB, so the ACLs are the rule; the dashboard checks the same rule (server/arise_server/sharing.py).
+if [ "$SKIP_DOMAIN" = 0 ]; then
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] arisectl share folders (arise-folders.conf + ACLs)"
+  elif [ -x /usr/local/bin/arisectl ] && getent group "Domain Users" >/dev/null 2>&1; then
+    /usr/local/bin/arisectl share folders --yes >>"$LOG_FILE" 2>&1 && note "Church, department, Pastors and Shared-with-me shares written (arise-folders.conf)" \
+      || warn "arisectl share folders failed (see $LOG_FILE); run it again once the DC is up"
+  else note "run 'sudo arisectl share folders' once the DC is up (the groups must be visible to the OS)"; fi
+fi
+# Row 18: root reading the Pastors folder is logged by auditd (ausearch -k arise-pastors).
+if [ "$DRY_RUN" = 1 ]; then note "[dry-run] /etc/audit/rules.d/arise-pastors.rules: -w $DATA_ROOT/pastors -p rwxa -k arise-pastors"
+elif command -v auditctl >/dev/null 2>&1; then
+  install -d /etc/audit/rules.d
+  printf '%s\n' "# ariseOS (round 5, row 18): every read or write of the Pastors folder, by anyone, root included" "-w $DATA_ROOT/pastors -p rwxa -k arise-pastors" > /etc/audit/rules.d/arise-pastors.rules
+  (augenrules --load >/dev/null 2>&1 || auditctl -w "$DATA_ROOT/pastors" -p rwxa -k arise-pastors >/dev/null 2>&1) && note "auditd watches the Pastors folder (ausearch -k arise-pastors)" || warn "auditd rule written but not loaded; reboot or: sudo augenrules --load"
+else warn "auditd is not installed; the Pastors folder is not watched (apt install auditd, then run the installer again)"; fi
+# Row 13: 50 GB a home. The dashboard enforces it on uploads; the filesystem enforces it for
+# the Macs when the homes' filesystem has user quotas on (docs/FINDER.md, "The home quota").
+if [ "$DRY_RUN" = 0 ] && command -v quotaon >/dev/null 2>&1; then
+  if quotaon -pu "$DATA_ROOT/homes" 2>/dev/null | grep -q 'is on'; then
+    /usr/local/bin/arisectl quota apply >>"$LOG_FILE" 2>&1 && note "home quotas set (setquota)" || warn "arisectl quota apply failed (see $LOG_FILE)"
+  else note "user quotas are off on $DATA_ROOT/homes: the dashboard still refuses uploads past the quota; to make the Macs' copies stop too, add usrquota to that filesystem in /etc/fstab, remount, quotacheck -cum, quotaon, then: sudo arisectl quota apply"; fi
+fi
 # The four administrators (docs/ANSWERS.md 25) are added by hand with real passwords:
-#   sudo arisectl user add bryant.sanders --display "Bryant Sanders" --groups "Domain Admins,Staff,Leadership"
-#   sudo arisectl user add vanessa.sanders --display "Vanessa Sanders" --groups "Domain Admins,Staff,Leadership"
+#   sudo arisectl user add bryant.sanders --display "Bryant Sanders" --groups "Domain Admins,Staff,Leadership,Pastors"
+#   sudo arisectl user add vanessa.sanders --display "Vanessa Sanders" --groups "Domain Admins,Staff,Leadership,Pastors"
 #   sudo arisectl user add kristina.robinson --display "Kristina Robinson" --groups "Domain Admins,Staff"
 # bradly.dyer is created by step 5 as the first Domain Admin when --admin-pass is given.
 

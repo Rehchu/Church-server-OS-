@@ -12,8 +12,13 @@ from datetime import datetime
 from .config import load
 
 DEMO_TREE = {
-    "/": [("homes", True), ("shares", True), ("automator", True), ("apps", True), ("backups", True)],
-    "/homes": [("bradly", True), ("media-mac", True), ("office", True), ("kids-checkin", True)],
+    "/": [("homes", True), ("shares", True), ("pastors", True), ("automator", True), ("apps", True), ("backups", True)],
+    # Round 5, row 18: the pastors' own folder (hidden from everyone else, admins included).
+    "/pastors": [("Sermon notes", True), ("Counsel follow-ups.docx", False, 44_000)],
+    "/pastors/Sermon notes": [("2026-11-02 outline.docx", False, 31_000)],
+    "/homes": [("bradly", True), ("media-mac", True), ("office", True), ("kids-checkin", True), ("bryant.sanders", True), ("vanessa.sanders", True)],
+    "/homes/bryant.sanders": [("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
+    "/homes/vanessa.sanders": [("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
     "/homes/bradly": [("Desktop", True), ("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
     "/homes/bradly/Photos": [("2026-10-19 baptisms", True), ("stage-wide.jpg", False, 3_900_000)],
     "/homes/bradly/Downloads": [("proclaim-6.4.dmg", False, 310_000_000)],
@@ -21,7 +26,12 @@ DEMO_TREE = {
     "/homes/office": [("Desktop", True), ("Documents", True), ("Photos", True), ("Videos", True), ("Music", True), ("Downloads", True)],
     "/homes/office/Photos": [("Fall festival 2026", True)],
     "/homes/office/Documents": [("Bulletin 2026-11-01.docx", False, 96_000), ("Visitor cards October.xlsx", False, 41_000), ("Letters", True)],
-    "/shares": [("media", True), ("staff", True), ("leadership", True), ("kids", True), ("graphics", True)],
+    "/shares": [("church", True), ("media", True), ("staff", True), ("leadership", True), ("kids", True), ("graphics", True), ("childrens-department", True), ("inedge", True), ("worship", True), ("alexandria", True)],
+    "/shares/church": [("Welcome packet.pdf", False, 1_200_000), ("Church calendar 2026-27.pdf", False, 310_000)],
+    "/shares/alexandria": [],
+    "/shares/childrens-department": [("Lesson plans", True)],
+    "/shares/inedge": [],
+    "/shares/worship": [("Charts", True)],
     "/shares/staff": [("Calendar 2026-27.pdf", False, 310_000), ("Forms", True), ("Phone list.xlsx", False, 22_000)],
     "/shares/media": [("sermons", True), ("thumbnails", True), ("loops", True), ("Sunday 2026-10-26 program.mp4", False, 6_420_000_000)],
     "/shares/graphics": [("lower-thirds", True), ("loops", True), ("ARISE_BRAND_KIT.md", False, 14_000), ("flame-logo.png", False, 88_000)],
@@ -123,32 +133,75 @@ def roots(who: dict | None = None) -> list[dict]:
     """What this person may browse. The admin sees the whole data root and the
     NAS; a member sees their own home folder and the shares their groups allow."""
     cfg = load()
+    from . import sharing
     if who is None or who.get("role", "admin") == "admin":
         out = [{"id": "data", "name": "Server", "path": cfg.system.data_root}]
         if cfg.nas.enabled:
             out.append({"id": "nas", "name": "Synology", "path": cfg.nas.mount})
-        return out
+        if sharing.is_pastor(who):
+            out.append({"id": "pastors", "name": "Pastors", "path": sharing.pastors_path(), "pastors": True})
+        return out + _shared_roots(who)
     from . import directory, shares
     user = who["user"]
     out = [{"id": "home", "name": "My files", "path": os.path.join(cfg.directory.homes_path, user), "home": True}]
     groups = directory.user_groups(user)
     for sh in shares.list_shares().get("shares", []):
-        if sh["name"] in ("homes", "sysvol", "netlogon") or not sh.get("browseable", True):
+        if sh["name"] in ("homes", "sysvol", "netlogon", "shared", "pastors") or not sh.get("browseable", True) or "%" in (sh.get("path") or ""):
             continue
         if shares.can_use(sh, user, groups):
-            out.append({"id": "share:" + sh["name"], "name": sh["name"], "path": sh["path"], "share": True,
-                        "writable": bool(sh.get("writable")) and (not sh.get("write_list") or shares.can_use({"valid_users": sh["write_list"]}, user, groups))})
+            wl = sh.get("write_list") or []
+            # A write list grants writing even on a share that is read only for everyone else (Samba's rule).
+            writable = shares.can_use({"valid_users": wl}, user, groups) if wl else bool(sh.get("writable"))
+            out.append({"id": "share:" + sh["name"], "name": sh["name"], "path": sh["path"], "share": True, "writable": writable})
+    if sharing.is_pastor(who):
+        out.append({"id": "pastors", "name": "Pastors", "path": sharing.pastors_path(), "pastors": True})
+    return out + _shared_roots(who)
+
+
+def _shared_roots(who: dict | None) -> list[dict]:
+    """Round 5, row 19: each item shared with this person is a place of its own (a file's place shows only that file)."""
+    from . import sharing
+    out = []
+    for g in sharing.grants_for(who):
+        path = g["abs"] if g["dir"] else os.path.dirname(g["abs"])
+        r = {"id": "shared:" + g["id"], "name": g["link"], "path": path, "shared": True, "from": g["owner"], "writable": g["perm"] == "write"}
+        if not g["dir"]:
+            r["only"] = g["name"]
+        out.append(r)
     return out
+
+
+def _root_of(root_id: str, who: dict | None) -> dict | None:
+    return next((r for r in roots(who) if r["id"] == root_id), None)
+
+
+def _only_ok(root: dict, rel: str) -> bool:
+    """A shared file's place: only '/' and '/<that file>'."""
+    if not root.get("only"):
+        return True
+    rel = "/" + rel.strip("/")
+    return rel in ("/", "/" + root["only"])
 
 
 def _demo_rel(root_id: str, rel: str, who: dict | None) -> str | None:
     """Map a member's root onto the sample tree (which is keyed from the data root)."""
     if root_id == "data":
-        return rel
+        from . import sharing
+        return None if sharing.hidden_demo(rel, who) else rel
     if root_id == "home" and who:
         return ("/homes/" + who["user"] + ("" if rel == "/" else rel))
     if root_id.startswith("share:"):
         return ("/shares/" + root_id[6:] + ("" if rel == "/" else rel))
+    if root_id == "pastors":
+        from . import sharing
+        if not sharing.is_pastor(who):
+            return None
+        return ("/pastors" + ("" if rel == "/" else rel))
+    if root_id.startswith("shared:"):   # in the sample, a grant's abs is its key in the tree
+        r = _root_of(root_id, who)
+        if not r or not _only_ok(r, rel):
+            return None
+        return r["path"].rstrip("/") + ("" if rel == "/" else rel)
     return None
 
 
@@ -227,12 +280,28 @@ def demo_put(parent: str, taken: dict, name: str | None = None) -> str:
     return new_key
 
 
-def _resolve(root: str, rel: str) -> str | None:
+def _resolve(root, rel: str, who: dict | None = None, action: str = "open") -> str | None:
+    """A path inside a root, or None. root: a path, or a roots() entry (a shared file's place
+    reaches only that file). Round 5: the Pastors folder resolves for the pastors only (row 18),
+    and an admin reaching into someone else's home is written to the audit log (row 20)."""
+    from . import sharing
+    if isinstance(root, dict):
+        if not _only_ok(root, rel):
+            return None
+        root = root["path"]
     base = os.path.realpath(root)
     target = os.path.realpath(os.path.join(base, rel.lstrip("/")))
     if target != base and not target.startswith(base + os.sep):
         return None
+    if sharing.hidden(target, who):
+        return None
+    sharing.note_access(target, who, action)
     return target
+
+
+def _visible(entries: list[dict], folder: str, who: dict | None, only: str | None = None) -> list[dict]:
+    from . import sharing
+    return [e for e in entries if (not only or e["name"] == only) and not sharing.hidden(os.path.join(folder, e["name"]), who)]
 
 
 def listing(root_id: str, rel: str = "/", who: dict | None = None) -> dict:
@@ -243,11 +312,18 @@ def listing(root_id: str, rel: str = "/", who: dict | None = None) -> dict:
     root = rs[root_id]["path"]
     rel = "/" + rel.strip("/") if rel.strip("/") else "/"
     if cfg.demo:
-        entries = sorted(tree().get(_demo_rel(root_id, rel, who) or "", []), key=lambda e: (not e[1], e[0].lower()))
+        from . import sharing
+        key = _demo_rel(root_id, rel, who)
+        if key is None or sharing.hidden_demo(key, who):
+            return {"demo": True, "error": "not a folder", "root": root_id, "path": rel, "entries": []}
+        sharing.note_access_demo(key, who, "list")
+        only = rs[root_id].get("only")
+        entries = sorted([e for e in tree().get(key, []) if (not only or e[0] == only) and not sharing.hidden_demo(_join(key, e[0]), who)],
+                         key=lambda e: (not e[1], e[0].lower()))
         return {"demo": True, "root": root_id, "path": rel, "entries": [entry_dict(e) for e in entries]}
     if not os.path.isdir(root):
         return {"error": f"{root} is not on this server yet", "root": root_id, "path": rel, "entries": []}
-    target = _resolve(root, rel)
+    target = _resolve(rs[root_id], rel, who, "list")
     if not target or not os.path.isdir(target):
         return {"error": "not a folder", "root": root_id, "path": rel}
     entries = []
@@ -263,6 +339,7 @@ def listing(root_id: str, rel: str = "/", who: dict | None = None) -> dict:
                 entries.append({"name": e.name, "dir": e.is_dir(follow_symlinks=False), "size": None if e.is_dir() else st.st_size, "mtime": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="minutes")})
     except PermissionError:
         return {"error": "no permission", "root": root_id, "path": rel}
+    entries = _visible(entries, target, who, rs[root_id].get("only") if rel == "/" else None)
     entries.sort(key=lambda x: (not x["dir"], x["name"].lower()))
     return {"demo": False, "root": root_id, "path": rel, "entries": entries[:2000], "truncated": len(entries) > 2000}
 
@@ -271,7 +348,7 @@ def file_path(root_id: str, rel: str, who: dict | None = None) -> str | None:
     rs = {r["id"]: r for r in roots(who)}
     if root_id not in rs:
         return None
-    t = _resolve(rs[root_id]["path"], rel)
+    t = _resolve(rs[root_id], rel, who, "download")
     return t if t and os.path.isfile(t) else None
 
 
@@ -290,15 +367,26 @@ def save_upload(root_id: str, rel: str, filename: str, data: bytes, who: dict | 
     name = os.path.basename(filename or "").replace("\x00", "")
     if not name or name.startswith("."):
         return {"ok": False, "err": "bad file name"}
+    from . import sharing
+    if rs[root_id].get("only"):
+        return {"ok": False, "err": "a shared file's place holds only that file"}
     if cfg.demo:
         key = _demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
-        if key is None:
+        if key is None or sharing.hidden_demo(key, who):
             return {"ok": False, "err": "the sample has nothing there"}
+        why = sharing.quota_refusal_demo(key, len(data))
+        if why:
+            return {"ok": False, "err": why, "quota": True}
         r = demo_add(key, name, False, len(data))
+        if r["ok"]:
+            sharing.demo_add_usage(key, len(data))
         return {**r, "demo": True, "bytes": len(data)} if r["ok"] else r
-    folder = _resolve(rs[root_id]["path"], rel)
+    folder = _resolve(rs[root_id], rel, who, "upload")
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
+    why = sharing.quota_refusal(folder, len(data))
+    if why:
+        return {"ok": False, "err": why, "quota": True}
     dest = os.path.join(folder, name)
     if os.path.exists(dest):
         return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
@@ -317,13 +405,16 @@ def make_folder(root_id: str, rel: str, name: str, who: dict | None = None) -> d
     name = os.path.basename(name or "").strip()
     if not name or name.startswith(".") or "/" in name:
         return {"ok": False, "err": "bad folder name"}
+    if rs[root_id].get("only"):
+        return {"ok": False, "err": "a shared file's place holds only that file"}
     if cfg.demo:
+        from . import sharing
         key = _demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
-        if key is None:
+        if key is None or sharing.hidden_demo(key, who):
             return {"ok": False, "err": "the sample has nothing there"}
         r = demo_add(key, name, True)
         return {**r, "demo": True} if r["ok"] else r
-    folder = _resolve(rs[root_id]["path"], rel)
+    folder = _resolve(rs[root_id], rel, who, "new folder")
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
     dest = os.path.join(folder, name)
@@ -388,12 +479,16 @@ def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
             for e in entries:
                 if q in e[0].lower():
                     hits.append({"root": "data", "path": (path.rstrip("/") + "/" + e[0]), "name": e[0], "dir": e[1], "size": e[2] if len(e) > 2 else None})
+        from . import sharing
+        hits = [h for h in hits if not sharing.hidden_demo(h["path"], who)]   # row 18: never the Pastors folder
         if member:  # re-key the sample hits onto the member's roots
             out = []
             for h in hits:
                 for r in roots(who):
                     pref = _demo_rel(r["id"], "/", who)
-                    if pref and h["path"].startswith(pref + "/"):
+                    if r.get("only") and h["path"] != (pref or "").rstrip("/") + "/" + r["only"]:
+                        continue
+                    if pref and h["path"].startswith(pref.rstrip("/") + "/"):
                         out.append(dict(h, root=r["id"], path=h["path"][len(pref):]))
             hits = out
         return {"demo": True, "hits": hits[:limit]}
@@ -401,6 +496,10 @@ def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
         hits = []
         for r in roots(who):
             base = r["path"]
+            if r.get("only"):   # a shared file: that file, never its neighbours
+                if q in r["only"].lower() and os.path.isfile(os.path.join(base, r["only"])):
+                    hits.append({"root": r["id"], "path": "/" + r["only"], "name": r["only"], "dir": False, "size": None})
+                continue
             if not os.path.isdir(base):
                 continue
             n = 0
@@ -434,6 +533,9 @@ def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
                 if n > 60000 or time.time() - now > 8:
                     break
         _search_cache.update({"t": now, "index": index})
-    hits = [{"root": a, "path": b, "name": c, "dir": d, "size": e} for a, b, c, d, e in _search_cache.get("index", []) if q in c.lower()]
+    from . import sharing
+    base_of = {r["id"]: r["path"] for r in roots()}
+    hits = [{"root": a, "path": b, "name": c, "dir": d, "size": e} for a, b, c, d, e in _search_cache.get("index", [])
+            if q in c.lower() and not sharing.hidden(os.path.join(base_of.get(a, "/"), b.lstrip("/")), who)]
     hits.sort(key=lambda h: (not h["name"].lower().startswith(q), h["dir"] is False, h["name"].lower()))
     return {"demo": False, "hits": hits[:limit]}

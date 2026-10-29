@@ -43,7 +43,7 @@ let G, X;
 const mem = { uploads: {}, blobs: {}, strikes: {} };   // this page only, never stored
 function fresh() {
   G = clone(SEED);
-  X = { v: VERSION, dirty: [], session: { user: 'bradly', role: 'admin' }, pw: {}, twofa: (SEED['GET /directory/2fa']?.users || []).slice(), twofaSince: {}, fs: {}, content: {}, trash: clone(SEED['GET /files/trash']?.items || []), events: [], reauthAt: 0, deletedUsers: [] };
+  X = { v: VERSION, dirty: [], session: { user: 'bradly', role: 'admin' }, pw: {}, twofa: (SEED['GET /directory/2fa']?.users || []).slice(), twofaSince: {}, fs: {}, content: {}, trash: clone(SEED['GET /files/trash']?.items || []), events: [], reauthAt: 0, deletedUsers: [], grants: [], usage: { bradly: 41_800_000_000, office: 6_200_000_000, 'media-mac': 18_900_000_000 } };
   // The file tree, from every sample folder listing.
   for (const k of Object.keys(SEED)) { const m = k.match(/^GET \/files\/list\?root=(\w+)&path=(.*)$/); if (m) X.fs[m[1] + ':' + norm(m[2])] = clone(SEED[k].entries || []); }
   X.events = clone((SEED['GET /calendar']?.items || []).filter(i => !i.service));
@@ -79,18 +79,34 @@ function groupsOf(name) { const u = userOf(name); return u ? (u.groups || []).sl
 function shares() { return get('GET /shares').shares; }
 function canUse(share, user, gs) {
   const v = share.valid_users || []; if (!v.length) return true;
-  return v.some(x => x === user || (x.startsWith('@') && gs.includes(x.slice(1))) || (x === '%S'));
+  return v.some(x => x === user || x === '@Domain Users' || (x.startsWith('@') && gs.includes(x.slice(1))) || (x === '%S'));
+}
+/* round 5 (rows 13, 18, 19): the Pastors folder, Shared with me and the home quota, as server/arise_server/sharing.py */
+const PASTORS = ['bryant.sanders', 'vanessa.sanders'];
+const isPastor = () => PASTORS.includes(String(me()?.user || '').toLowerCase());
+const isStaff = () => isAdmin() || groupsOf(me()?.user).includes('Staff');
+// The Pastors folder is hidden from everyone but the two pastors, admins included.
+const hiddenAt = (root, path) => root === 'data' && /^\/pastors(\/|$)/.test(norm(path)) && !isPastor();
+const QUOTA = 50 * 1024 ** 3, WARN_PCT = 90;
+const usageOf = u => (X.usage || {})[u] || 0;
+function quotaOf(u) { const used = usageOf(u); const pct = Math.round(used * 1000 / QUOTA) / 10; return { user: u, used, quota: QUOTA, pct, warn: pct >= WARN_PCT, full: used >= QUOTA }; }
+const homeOfKey = (root, path) => { const m = root === 'data' && norm(path).match(/^\/homes\/([^/]+)/); return m ? m[1] : null; };
+function quotaRefusal(root, path, add) { const u = homeOfKey(root, path); if (!u) return null; if (usageOf(u) + (+add || 0) > QUOTA) return `that would put ${u}'s home over its 50 GB quota`; return null; }
+function addUsage(root, path, n) { const u = homeOfKey(root, path); if (u) { X.usage = X.usage || {}; X.usage[u] = usageOf(u) + (+n || 0); } }
+const myGrants = () => (X.grants || []).filter(g => (g.users || []).includes(String(me()?.user || '').toLowerCase()));
+function sharedRoots() {
+  return myGrants().map(g => Object.assign({ id: 'shared:' + g.id, name: g.link, path: g.dir ? '/srv/arise' + g.key : '/srv/arise' + parent(g.key), shared: true, from: g.owner, writable: g.perm === 'write' }, g.dir ? {} : { only: g.name }));
 }
 function roots() {
   const s = me(); if (!s) return [];
-  if (s.role === 'admin') return clone(SEED['GET /files/roots']?.roots || [{ id: 'data', name: 'Server', path: '/srv/arise' }]);
+  if (s.role === 'admin') return clone(SEED['GET /files/roots']?.roots || [{ id: 'data', name: 'Server', path: '/srv/arise' }]).filter(r => r.id === 'data' || r.id === 'nas').concat(isPastor() ? [{ id: 'pastors', name: 'Pastors', path: '/srv/arise/pastors', share: true, writable: true }] : [], sharedRoots());
   const gs = groupsOf(s.user);
   const out = [{ id: 'home', name: 'My files', path: '/srv/arise/homes/' + s.user, home: true }];
   for (const sh of shares()) {
-    if (['homes', 'sysvol', 'netlogon'].includes(sh.name) || sh.browseable === false) continue;
+    if (['homes', 'sysvol', 'netlogon', 'shared', 'pastors'].includes(sh.name) || sh.browseable === false || String(sh.path || '').includes('%')) continue;
     if (canUse(sh, s.user, gs)) out.push({ id: 'share:' + sh.name, name: sh.name, path: sh.path, share: true, writable: !!sh.writable && (!(sh.write_list || []).length || canUse({ valid_users: sh.write_list }, s.user, gs)) });
   }
-  return out;
+  return out.concat(isPastor() ? [{ id: 'pastors', name: 'Pastors', path: '/srv/arise/pastors', share: true, writable: true }] : [], sharedRoots());
 }
 function authMe() {
   const s = me(); if (!s) return { error: { message: 'Sign in' } };
@@ -107,7 +123,13 @@ const base = p => p.split('/').filter(Boolean).pop() || '';
 // A dashboard root plus a path inside it, to a place in the sample tree.
 function place(rootId, rel) {
   rel = norm(rel); const s = me(); if (!s) return null;
-  if (rootId === 'data' || rootId === 'nas') return isAdmin() ? { root: rootId, path: rel } : null;
+  if (rootId === 'data' || rootId === 'nas') return isAdmin() && !hiddenAt(rootId, rel) ? { root: rootId, path: rel } : null;
+  if (rootId === 'pastors') return isPastor() ? { root: 'data', path: norm('/pastors' + rel) } : null;
+  if (String(rootId).startsWith('shared:')) {
+    const g = myGrants().find(x => 'shared:' + x.id === rootId); if (!g) return null;
+    if (g.dir) return { root: 'data', path: norm(g.key + rel), perm: g.perm };
+    return rel === '/' || rel === '/' + g.name ? { root: 'data', path: rel === '/' ? parent(g.key) : g.key, perm: g.perm, only: g.name } : null;
+  }
   if (rootId === 'home') return { root: 'data', path: norm('/homes/' + s.user + rel) };
   if (rootId.startsWith('share:')) { const r = roots().find(x => x.id === rootId); return r ? { root: 'data', path: norm('/shares/' + rootId.slice(6) + rel) } : null; }
   return null;
@@ -144,7 +166,7 @@ function putBack(root, path, pack) {
 }
 function sizeOf(root, path) { const e = entryOf(root, path); if (!e) return 0; if (!e.dir) return e.size || 0; let t = 0; for (const c of list(root, path) || []) t += sizeOf(root, join(path, c.name)); return t; }
 function countFiles(root, path) { let n = 0; for (const c of list(root, path) || []) n += c.dir ? countFiles(root, join(path, c.name)) : 1; return n; }
-function walk(root, path, fn, depth = 0) { if (depth > 12) return; for (const e of list(root, path) || []) { const p = join(path, e.name); fn(e, p); if (e.dir) walk(root, p, fn, depth + 1); } }
+function walk(root, path, fn, depth = 0) { if (depth > 12) return; for (const e of list(root, path) || []) { const p = join(path, e.name); if (hiddenAt(root, p)) continue; fn(e, p); if (e.dir) walk(root, p, fn, depth + 1); } }
 // Which share a place lives on, for the Trash label and Get Info.
 function shareOf(root, path) {
   const parts = norm(path).split('/').filter(Boolean);
@@ -408,7 +430,7 @@ route('POST', /^\/monitor\/power$/, b => { const m = get('GET /monitor'); for (c
 
 // ----- Finder -----
 route('POST', /^\/files\/mkdir$/, b => {
-  const pl = place(b.root, b.path); if (!pl) return fail('not a place you can write to');
+  const pl = place(b.root, b.path); if (!pl || pl.only) return fail('not a place you can write to');
   if (roots().find(r => r.id === b.root)?.writable === false) return fail('that share is read-only for you');
   const name = String(b.name || '').trim(); if (!name || name.startsWith('.') || /[/\\]/.test(name)) return fail('bad folder name');
   if ((list(pl.root, pl.path) || []).find(e => e.name === name)) return fail(`there is already something called ${name} here`);
@@ -416,15 +438,18 @@ route('POST', /^\/files\/mkdir$/, b => {
 });
 route('POST', /^\/files\/upload$/, async b => {
   const f = b instanceof FormData ? b.get('file') : null; if (!f) return fail('no file');
-  const pl = place(b.get('root'), b.get('path')); if (!pl) return fail('not a place you can write to');
+  const pl = place(b.get('root'), b.get('path')); if (!pl || pl.only) return fail('not a place you can write to');
   if (roots().find(r => r.id === b.get('root'))?.writable === false) return fail('that share is read-only for you');
+  const qr = quotaRefusal(pl.root, pl.path, f.size); if (qr) return fail(qr); addUsage(pl.root, pl.path, f.size);
   const p = join(pl.path, f.name); const text = TEXT_RE.test(f.name) && f.size <= 256 * 1024 ? await f.text() : null;
   putFile(pl.root, p, f.size, text); try { mem.blobs[fsk(pl.root, p)] = { url: URL.createObjectURL(f), type: f.type }; } catch {}
   save(); return ok({ name: f.name, size: f.size });
 });
 route('POST', /^\/files\/upload\/start$/, b => {
-  const pl = place(b.root, b.path); if (!pl) return fail('not a place you can write to');
+  const pl = place(b.root, b.path); if (!pl || pl.only) return fail('not a place you can write to');
+  if (roots().find(r => r.id === b.root)?.writable === false) return fail('that share is read-only for you');
   if (b.size > 10 * 1024 ** 3) return fail('over the 10 GB limit');
+  const qr = quotaRefusal(pl.root, pl.path, b.size); if (qr) return fail(qr);
   const fp = b.fingerprint || ''; const old = Object.entries(mem.uploads).find(([, u]) => u.fp === fp && u.name === b.name);
   if (old) return ok({ token: old[0], offset: old[1].offset, chunk: 8 * 1024 * 1024, size: b.size, resumed: old[1].offset > 0 });
   const t = 'up-' + token(10); mem.uploads[t] = { fp, name: b.name, size: b.size, offset: 0, root: pl.root, path: pl.path, parts: [] };
@@ -433,7 +458,7 @@ route('POST', /^\/files\/upload\/start$/, b => {
 route('PUT', /^\/files\/upload\/chunk$/, (b, m, q) => { const u = mem.uploads[q.get('token')]; if (!u) return fail('no such upload'); if (+q.get('offset') !== u.offset) return ok({ offset: u.offset }); const n = b && b.size != null ? b.size : 0; u.offset += n; if (b instanceof Blob) u.parts.push(b); return ok({ offset: u.offset }); });
 route('POST', /^\/files\/upload\/finish$/, b => {
   const u = mem.uploads[b.token]; if (!u) return fail('no such upload'); if (u.offset < u.size) return fail(`only ${u.offset} of ${u.size} bytes arrived`);
-  const p = join(u.path, u.name); putFile(u.root, p, u.size, null);
+  const p = join(u.path, u.name); putFile(u.root, p, u.size, null); addUsage(u.root, u.path, u.size);
   try { mem.blobs[fsk(u.root, p)] = { url: URL.createObjectURL(new Blob(u.parts)), type: '' }; } catch {}
   delete mem.uploads[b.token]; save(); return ok({ name: u.name, size: u.size });
 });
@@ -443,6 +468,34 @@ route('PUT', /^\/files\/text$/, b => {
   if (roots().find(r => r.id === b.root)?.writable === false) return fail('that share is read-only for you');
   const text = String(b.text ?? ''); if (text.length > 1024 * 1024) return fail('over 1 MB: edit it on a Mac');
   putFile(pl.root, pl.path, new Blob([text]).size, text); save(); const e = entryOf(pl.root, pl.path); return ok({ bytes: e.size, mtime: e.mtime });
+});
+// ----- Shared with me (round 5, row 19) -----
+route('POST', /^\/files\/share$/, b => {
+  const to = (b.to || []).map(x => String(x).trim()).filter(Boolean); if (!to.length) return fail('pick a person or a group to share with');
+  const u = String(me()?.user || '').toLowerCase();
+  const known = t => t.startsWith('@') ? groups().some(g => g.name.toLowerCase() === t.slice(1).toLowerCase()) : !!userOf(t);
+  const bad = to.filter(t => !known(t)); if (bad.length) return fail('not a person or group in the directory: ' + bad.join(', '));
+  if (to.some(t => t.toLowerCase() === u)) return fail('you already have it');
+  const pl = place(b.root, b.path); if (!pl || pl.only || norm(b.path) === '/') return fail('no such file');
+  if (!isAdmin() && !pl.path.startsWith(`/homes/${u}/`)) return fail('you can share only your own files');
+  const e = entryOf(pl.root, pl.path); if (!e) return fail('no such file');
+  const members = t => t.startsWith('@') ? ((groups().find(g => g.name.toLowerCase() === t.slice(1).toLowerCase()) || {}).members || []) : [t];
+  const people = [...new Set(to.flatMap(members).map(x => x.toLowerCase()))].filter(x => x !== u);
+  const n = e.name; const dot = n.lastIndexOf('.'); const link = !e.dir && dot > 0 ? `${n.slice(0, dot)} (from ${u})${n.slice(dot)}` : `${n} (from ${u})`;
+  const g = { id: hex(12), owner: u, name: n, dir: !!e.dir, to, users: people, perm: b.perm === 'write' ? 'write' : 'read', at: isoSec(), link, root: b.root, rel: norm(b.path), key: pl.path };
+  X.grants = (X.grants || []).concat([g]); save();
+  return ok({ demo: true, share: g, notified: { push: { ok: true, demo: true }, email: [] }, out: `Shared with ${people.join(', ') || to.join(', ')}. The preview sends no push or email.` });
+});
+route('DELETE', /^\/files\/share\/([^/]+)$/, (b, m) => {
+  const g = (X.grants || []).find(x => x.id === m[1]); if (!g) return fail('no such share');
+  if (g.owner !== String(me()?.user || '').toLowerCase() && !isAdmin()) return fail('only the person who shared it, or an admin, can stop sharing it');
+  X.grants = X.grants.filter(x => x !== g); save(); return ok({ demo: true });
+});
+route('POST', /^\/shares\/folders$/, b => {
+  if (!isAdmin()) return http(403, 'Administrator only');
+  if (!b.dry_run) { const r = needRecent(); if (r) return r; return ok({ demo: true, out: 'Preview: arise-folders.conf would be written, testparm run and the ACLs set' }); }
+  const sample = get('POST /shares/folders') || { conf: '', acls: [] };
+  return ok({ dry_run: true, conf: sample.conf, acls: sample.acls });
 });
 route('POST', /^\/files\/text\/preview$/, b => ({ html: mdHtml(b.text) }));
 route('POST', /^\/files\/trash$/, b => {
@@ -767,17 +820,23 @@ function computedGet(p, q) {
   if (p.startsWith('/automator/videos/') && p.endsWith('/transcript')) return getOr('GET ' + p, { ok: true, segments: [], sources: [], note: 'No timed transcript for this video in the sample set.' });
   if (p === '/automator/archive/doc') return { ok: true, demo: true, repo: q.get('repo'), path: q.get('path'), text: 'Sample: on the server this is the file’s text from the archive (read-only).' };
   if (p === '/auth/me') return authMe();
+  if (p === '/files/shared') { const u = String(s?.user || '').toLowerCase(); const pub = g => { const c = Object.assign({}, g); delete c.users; delete c.key; return c; }; return { demo: true, with_me: myGrants().map(pub), by_me: (X.grants || []).filter(g => g.owner === u).map(pub), all: isAdmin() ? (X.grants || []).map(pub) : null }; }
+  if (p === '/files/share/people') { if (!isStaff()) return { people: [], groups: [], typed: true }; return { people: users().filter(u => u.enabled !== false).map(u => ({ name: u.name, display: u.display || u.name })), groups: groups().map(g => g.name).filter(n => !['Domain Admins', 'Pastors'].includes(n)), typed: false }; }
+  if (p === '/files/quota') { const u = q.get('user') || s?.user; if (u !== s?.user && !isAdmin()) return http(403, 'Administrator only'); return quotaOf(u); }
+  if (p === '/storage/quotas') { const hs = Object.keys(X.usage || {}).sort(); return { demo: true, quota: QUOTA, warn_pct: WARN_PCT, homes: hs.map(quotaOf), enforced_by: 'the dashboard', homes_on: 'server', homes_path: '/srv/arise/homes' }; }
   if (p === '/files/roots') return { roots: roots() };
   if (p === '/files/list') {
     const pl = place(q.get('root') || 'data', q.get('path') || '/'); if (!pl) return { root: q.get('root'), path: q.get('path'), entries: [], error: 'not a place you can open' };
     const es = list(pl.root, pl.path); if (!es) return { root: q.get('root'), path: q.get('path'), entries: [], error: 'folder not found' };
-    return { root: q.get('root'), path: norm(q.get('path') || '/'), entries: clone(sortEntries(es.slice())) };
+    const shown = es.filter(e => !hiddenAt(pl.root, join(pl.path, e.name)) && (!pl.only || e.name === pl.only));
+    return { root: q.get('root'), path: norm(q.get('path') || '/'), entries: clone(sortEntries(shown.slice())) };
   }
   if (p === '/files/info') {
     const pl = place(q.get('root'), q.get('path')); if (!pl) return { error: 'not a place you can open' }; const e = entryOf(pl.root, pl.path); if (!e) return { error: 'no such file' };
     const sh = shareOf(pl.root, pl.path); const sd = shares().find(x => x.name === sh.label);
     const who = sh.label === 'homes' ? [sh.owner] : sd ? ((sd.valid_users || []).length ? sd.valid_users.map(x => x.replace(/^@/, '')) : ['everyone in the domain']) : ['the administrators'];
-    const smb = pl.root === 'nas' ? `smb://synology.ad.arisecenla.com/${sh.rel}` : sh.label === 'homes' ? `smb://arise-server.ad.arisecenla.com/${sh.owner}${sh.rel.split('/').slice(1).length ? '/' + sh.rel.split('/').slice(1).join('/') : ''}` : sd ? `smb://arise-server.ad.arisecenla.com/${sh.label}${sh.rel ? '/' + sh.rel : ''}` : '';
+    const dom = String(get('GET /directory/status')?.realm || 'ad.arisecenla.com').toLowerCase();
+    const smb = pl.root === 'nas' ? `smb://synology.${dom}/${sh.rel}` : sh.label === 'homes' ? `smb://arise-server.${dom}/${sh.owner}${sh.rel.split('/').slice(1).length ? '/' + sh.rel.split('/').slice(1).join('/') : ''}` : sd ? `smb://arise-server.${dom}/${sh.label}${sh.rel ? '/' + sh.rel : ''}` : '';
     return { name: e.name || base(pl.path), root: q.get('root'), path: q.get('path'), smb, access: { share: sh.label, who, write: sd?.write_list?.length ? sd.write_list.map(x => x.replace(/^@/, '')) : who, note: sh.label === 'homes' ? 'a home folder: only this person, and the administrators' : '' }, dir: !!e.dir, kind: e.dir ? 'Folder' : '', size: e.dir ? sizeOf(pl.root, pl.path) : e.size, files: e.dir ? countFiles(pl.root, pl.path) : null, size_complete: true, owner: sh.owner || s?.user, group: 'Domain Users', created: e.mtime, modified: e.mtime, abs: (pl.root === 'nas' ? '/mnt/synology' : '/srv/arise') + pl.path };
   }
   if (p === '/files/versions') { const pl = place(q.get('root'), q.get('path')); if (!pl) return { error: 'not a place you can open', versions: [] }; return versionsOf(pl.root, pl.path); }
@@ -795,15 +854,15 @@ function computedGet(p, q) {
   }
   if (p === '/files/recent') {
     const hits = []; const cut = Date.now() - 7 * 86400000;
-    for (const r of roots()) { const pl = place(r.id, '/'); if (!pl) continue; walk(pl.root, pl.path, (e, fp) => { if (!e.dir && new Date(e.mtime) >= cut) hits.push({ root: r.id, path: r.id === 'data' || r.id === 'nas' ? fp : fp.slice(pl.path.length) || '/', name: e.name, size: e.size, mtime: e.mtime, where: parent(fp) }); }); }
+    for (const r of roots()) { const pl = place(r.id, '/'); if (!pl || pl.only) continue; walk(pl.root, pl.path, (e, fp) => { if (!e.dir && new Date(e.mtime) >= cut) hits.push({ root: r.id, path: r.id === 'data' || r.id === 'nas' ? fp : fp.slice(pl.path.length) || '/', name: e.name, size: e.size, mtime: e.mtime, where: parent(fp) }); }); }
     hits.sort((a, b) => b.mtime.localeCompare(a.mtime)); return { days: 7, hits: hits.slice(0, 200), truncated: hits.length > 200 };
   }
-  if (p === '/files/trash') return { days: 30, admin: isAdmin(), items: X.trash.filter(t => isAdmin() || t.user === s?.user).map(t => { const c = Object.assign({}, t); delete c._pack; delete c._root; delete c._path; return c; }) };
+  if (p === '/files/trash') return { days: 30, admin: isAdmin(), items: X.trash.filter(t => (isAdmin() || t.user === s?.user) && !(t._root && hiddenAt(t._root, t._path))).map(t => { const c = Object.assign({}, t); delete c._pack; delete c._root; delete c._path; return c; }) };
   if (p === '/files/upload/status') { const u = mem.uploads[q.get('token')]; return u ? ok({ offset: u.offset }) : fail('no such upload'); }
   if (p === '/links') return { links: get('GET /links').links.filter(l => isAdmin() || l.user === s?.user).map(l => Object.assign({}, l, { expired: !!l.expires && new Date(l.expires) < new Date() })) };
   if (p === '/search') {
     const ql = (q.get('q') || '').trim().toLowerCase(); const out = { hits: [], transcripts: [], users: [], computers: [] }; if (!ql) return out;
-    for (const r of roots()) { const pl = place(r.id, '/'); if (!pl) continue; walk(pl.root, pl.path, (e, fp) => { if (e.name.toLowerCase().includes(ql) && out.hits.length < 40) out.hits.push({ root: r.id, path: r.id === 'data' || r.id === 'nas' ? fp : fp.slice(pl.path.length), name: e.name, dir: e.dir, size: e.size }); }); }
+    for (const r of roots()) { const pl = place(r.id, '/'); if (!pl || pl.only) continue; walk(pl.root, pl.path, (e, fp) => { if (e.name.toLowerCase().includes(ql) && out.hits.length < 40) out.hits.push({ root: r.id, path: r.id === 'data' || r.id === 'nas' ? fp : fp.slice(pl.path.length), name: e.name, dir: e.dir, size: e.size }); }); }
     if (isAdmin()) { out.users = users().filter(u => u.name.toLowerCase().includes(ql) || (u.display || '').toLowerCase().includes(ql)).slice(0, 8); out.computers = (get('GET /directory/computers')?.computers || []).filter(c => c.name.toLowerCase().includes(ql)).slice(0, 8); }
     return out;
   }

@@ -27,6 +27,7 @@ from . import help as helpdocs
 from . import weather
 from . import finder
 from . import audit, offboard
+from . import sharing
 from . import repos as arise_repos
 from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth
 from .config import load
@@ -1091,6 +1092,73 @@ def api_search(q: str = "", who=auth):
     return out
 
 
+# ---- round 5: sharing, quotas, folders, backup targets (server/arise_server/sharing.py) ----
+class ShareWith(BaseModel):
+    root: str = "home"
+    path: str
+    to: list[str]
+    perm: str = "read"
+
+
+@app.get("/api/files/shared")
+def api_files_shared(who=auth):
+    """Shared with me, and what I share (round 5, row 19)."""
+    return sharing.listing(who)
+
+
+@app.post("/api/files/share")
+def api_files_share(body: ShareWith, who=auth):
+    """Share a file or folder with a person or a group: an ACL on the server, a link in their [shared] share."""
+    return sharing.share_with(body.root, body.path, body.to, body.perm, who)
+
+
+@app.delete("/api/files/share/{sid}")
+def api_files_unshare(sid: str, who=auth):
+    return sharing.revoke(sid, who)
+
+
+@app.get("/api/files/share/people")
+def api_files_share_people(who=auth):
+    """Who can be picked in Share with…: staff and admins see the list; members type a name (round 4, 50)."""
+    if who.get("role") != "admin" and not sharing.is_staff(who.get("user", "")):
+        return {"people": [], "groups": [], "typed": True}
+    us = [{"name": u["name"], "display": u.get("display") or u["name"]} for u in directory.list_users().get("users", []) if u.get("enabled", True)]
+    gs = [g["name"] for g in directory.list_groups().get("groups", []) if g["name"] not in ("Domain Admins", "Pastors")]
+    return {"people": us, "groups": gs, "typed": False}
+
+
+@app.get("/api/files/quota")
+def api_files_quota(user: str = "", who=auth):
+    """One home against its quota (row 13). Members see their own; admins any."""
+    me = who.get("user", "")
+    if user and user != me and who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return sharing.quota_of(user or me)
+
+
+@app.get("/api/storage/quotas")
+def api_storage_quotas(_=admin):
+    return sharing.quotas()
+
+
+@app.get("/api/backups/targets")
+def api_backups_targets(_=admin):
+    """Where tonight's backup goes: the Synology, else Arise-Home over Tailscale (row 15)."""
+    return sharing.backup_targets()
+
+
+class FoldersApply(BaseModel):
+    dry_run: bool = True
+
+
+@app.post("/api/shares/folders")
+def api_shares_folders(body: FoldersApply, who=recent):
+    """Write the Church, department, Pastors and Shared-with-me share definitions and their ACLs (testparm-checked)."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return sharing.apply_folders(dry_run=body.dry_run)
+
+
 @app.get("/api/files/all")
 def api_files_all(folder: str = "Documents", who=admin):
     """Everyone's Documents (Photos, …) side by side, for the administrator only."""
@@ -1232,6 +1300,8 @@ def api_files_versions(root: str = "data", path: str = "/", who=auth):
     """The nightly copies the backup holds of one file this person may reach."""
     got = finder._abs(root, path, who)
     if load().demo:
+        if not got and sharing.hidden(load().system.data_root + path, who):
+            return {"error": "no such file", "versions": [], "backed_up": False}
         return backups.versions_of(got[1] if got else ("/srv/arise" + path))
     if not got:
         return {"error": "no such file", "versions": [], "backed_up": False}

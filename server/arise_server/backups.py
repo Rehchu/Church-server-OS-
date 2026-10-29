@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 import yaml
 
-from . import demo
+from . import demo, sharing
 from .config import load
 from .util import now_iso, read_json, run, which, write_json
 
@@ -64,10 +64,15 @@ def _append_history(row: dict):
     write_json(_hist_path(), rows[-2000:])
 
 
+def live_repo() -> str | None:
+    """Round 5, row 15: the first ready target, the Synology or Arise-Home over Tailscale; None = red."""
+    return sharing.backup_targets().get("repo")
+
+
 def _env():
     cfg = load()
     env = dict(os.environ)
-    env["RESTIC_REPOSITORY"] = cfg.backups.restic_repo
+    env["RESTIC_REPOSITORY"] = live_repo() or cfg.backups.restic_repo
     env["RESTIC_PASSWORD_FILE"] = cfg.backups.password_file
     return env
 
@@ -75,9 +80,13 @@ def _env():
 def repo() -> dict:
     cfg = load()
     if not available():
-        return {"demo": True, **demo.BACKUP_REPO}
-    out = {"demo": False, "repo": cfg.backups.restic_repo, "ok": False, "snapshots": 0,
+        return {"demo": True, **demo.BACKUP_REPO, "target": sharing.backup_targets()}
+    tg = sharing.backup_targets()
+    out = {"demo": False, "repo": tg.get("repo") or cfg.backups.restic_repo, "ok": False, "snapshots": 0, "target": tg,
            "keep": {"daily": cfg.backups.keep_daily, "weekly": cfg.backups.keep_weekly, "monthly": cfg.backups.keep_monthly}}
+    if not tg.get("repo"):
+        out["error"] = tg.get("error")
+        return out
     if not os.path.exists(cfg.backups.password_file):
         out["error"] = f"restic password file missing: {cfg.backups.password_file}"
         return out
@@ -155,7 +164,10 @@ def _execute(job: dict) -> dict:
             row.update({"ok": True, "snapshot_id": _s.token_hex(4), "bytes_added": 1234567, "files_new": 3, "demo": True})
         elif not available():
             raise RuntimeError("restic is not installed (install.sh step 6 installs it); nothing was backed up")
+        elif not live_repo():
+            raise RuntimeError(sharing.backup_targets().get("error") or "no backup target is ready; nothing was backed up")
         else:
+            row["target"] = sharing.backup_targets().get("live")
             args = ["backup", "--json", "--host", load().system.hostname]
             for t in job.get("tags", []):
                 args += ["--tag", t]
@@ -451,8 +463,9 @@ def versions_of(path: str) -> dict:
     job = job_for(path)
     if not available():
         rows = [{"snapshot": f"{(abs(hash(path)) + i * 7919) % 16 ** 8:08x}", "time": (datetime.now().replace(hour=3, minute=0, second=0, microsecond=0) - timedelta(days=d)).isoformat(timespec="seconds"),
-                 "size": 182_000 - d * 1_200, "mtime": (datetime.now() - timedelta(days=d + 1)).isoformat(timespec="seconds"), "dir": False} for i, d in enumerate((0, 1, 2, 6, 13))]
-        return {"demo": True, "path": path, "job": job["id"] if job else None, "job_name": job.get("name") if job else None, "versions": rows if job else [], "backed_up": bool(job)}
+                 "size": 182_000 - d * 1_200, "mtime": (datetime.now() - timedelta(days=d + 1)).isoformat(timespec="seconds"), "dir": False} for i, d in enumerate((0, 1, 2, 6, 13, 45, 120))]
+        return {"demo": True, "path": path, "job": job["id"] if job else None, "job_name": job.get("name") if job else None,
+                "versions": sharing.within_versions(rows) if job else [], "backed_up": bool(job), "days": sharing.versions_days()}
     if not job:
         return {"demo": False, "path": path, "job": None, "job_name": None, "versions": [], "backed_up": False}
     snaps = _restic(["snapshots", "--json"], 60)
@@ -466,7 +479,9 @@ def versions_of(path: str) -> dict:
     r = _restic(["find", "--json", path], 300)
     if not r["ok"]:
         return {"demo": False, "path": path, "job": job["id"], "job_name": job.get("name"), "versions": [], "backed_up": True, "error": (r["err"] or r["out"])[:300]}
-    return {"demo": False, "path": path, "job": job["id"], "job_name": job.get("name"), "versions": parse_find(r["out"], times)[:60], "backed_up": True}
+    # Round 5, row 14: Finder offers 90 days; older copies stay in restic for Bradly's restores.
+    return {"demo": False, "path": path, "job": job["id"], "job_name": job.get("name"),
+            "versions": sharing.within_versions(parse_find(r["out"], times))[:60], "backed_up": True, "days": sharing.versions_days()}
 
 
 def restored_name(name: str, date: str, taken) -> str:

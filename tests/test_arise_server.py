@@ -700,13 +700,15 @@ class V04(unittest.TestCase):
         self.assertNotIn("data", ids)
         self.assertNotIn("share:sysvol", ids)
         media = next(r for r in member if r["id"] == "share:media")
-        self.assertFalse(media["writable"])  # write list is Media only; office is Staff
+        self.assertTrue(media["writable"])   # round 5, row 17: a department folder, and all staff write (office is Staff)
+        graphics = next(r for r in member if r["id"] == "share:graphics")
+        self.assertFalse(graphics["writable"])  # write list is Media and admins; office is Staff
 
     def test_member_cannot_reach_another_root(self):
         from arise_server import files
         who = {"user": "office", "role": "member"}
         self.assertEqual(files.listing("data", "/", who).get("error"), "unknown root")
-        self.assertEqual(files.make_folder("share:media", "/", "x", who)["ok"], False)
+        self.assertEqual(files.make_folder("share:graphics", "/", "x", who)["ok"], False)
 
     def test_share_links_create_list_revoke(self):
         from arise_server import links
@@ -1221,15 +1223,18 @@ class Finder(unittest.TestCase):
         from arise_server import finder
         hits = finder.recent({"user": "office", "role": "member"})["hits"]
         self.assertTrue(hits)
-        self.assertTrue(all(h["root"] in ("home", "share:media", "share:staff", "share:graphics") for h in hits), {h["root"] for h in hits})
+        self.assertTrue(all(h["root"] in ("home", "share:media", "share:staff", "share:graphics", "share:church") for h in hits), {h["root"] for h in hits})
         self.assertTrue(all(h["root"] == "data" for h in finder.recent({"user": "bradly", "role": "admin"})["hits"]))
 
     def test_shares_template_and_new_shares_carry_the_recycle_trash(self):
         tpl = (ROOT / "config" / "samba" / "smb.conf.template").read_text()
-        for name in ("homes", "shares", "staff", "media", "graphics", "worship"):
-            block = tpl.split(f"[{name}]")[1].split("\n[")[0]
-            self.assertIn("recycle:repository = .Trash/%U", block, name)
-            self.assertIn("fruit", block.split("vfs objects =")[1].split("\n")[0], name)
+        from arise_server import sharing
+        folders = sharing.smb_conf()   # round 5: the Church, department and Pastors shares live in arise-folders.conf
+        for src, names in ((tpl, ("homes", "shares", "staff", "graphics")), (folders, ("church", "media", "worship", "alexandria", "pastors"))):
+            for name in names:
+                block = src.split(f"[{name}]")[1].split("\n[")[0]
+                self.assertIn("recycle:repository = .Trash/%U", block, name)
+                self.assertIn("fruit", block.split("vfs objects =")[1].split("\n")[0], name)
         self.assertNotIn("recycle:repository", tpl.split("[recordings]")[1].split("\n[")[0])
         self.assertIn("**/.Trash", (ROOT / "config" / "backups.yaml.example").read_text().split("id: shares")[1].split("id:")[0])
         self.assertTrue((ROOT / "config" / "systemd" / "arise-trash.timer").exists())
@@ -1240,7 +1245,7 @@ class Finder(unittest.TestCase):
         self.assertTrue(files.ensure_home("office")["ok"])  # demo: nothing written
         admin = {"user": "bradly", "role": "admin"}; office = {"user": "office", "role": "member"}
         r = files.all_of("Documents", admin)
-        self.assertEqual(set(r["owners"]), {"bradly", "office"})  # the sample homes that have folders
+        self.assertEqual(set(r["owners"]), {"bradly", "office", "bryant.sanders", "vanessa.sanders"})  # the sample homes that have folders
         owners = {e["owner"] for e in r["entries"]}
         self.assertEqual(owners, {"bradly", "office"})
         self.assertTrue(all(e["path"].startswith(f"/homes/{e['owner']}/Documents/") for e in r["entries"]))
@@ -1257,7 +1262,7 @@ class Finder(unittest.TestCase):
         office = {"user": "office", "role": "member"}
         self.assertFalse(finder.upload_start("home", "/", ".hidden", 10, "x", office)["ok"])
         self.assertFalse(finder.upload_start("home", "/", "big.mov", 11 * 1024 ** 3, "x", office)["ok"])
-        self.assertFalse(finder.upload_start("share:media", "/", "a.mov", 10, "x", office)["ok"])   # read-only for office
+        self.assertFalse(finder.upload_start("share:graphics", "/", "a.mov", 10, "x", office)["ok"])   # read-only for office
         self.assertFalse(finder.upload_start("data", "/", "a.mov", 10, "x", office)["ok"])          # not a member root
         st = finder.upload_start("home", "/Downloads", "a.mov", 6, "a.mov|6|1", office)
         self.assertTrue(st["ok"]); self.assertEqual(st["offset"], 0); self.assertEqual(st["chunk"], 8 * 1024 ** 2)

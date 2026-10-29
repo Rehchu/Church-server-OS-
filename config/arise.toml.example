@@ -86,8 +86,8 @@ realm = "AD.ARISECENLA.COM"
 netbios = "ARISE"
 # Where the DC sends lookups it does not own (everything that is not the realm).
 dns_forwarder = "1.1.1.1"
-# Where domain users' home folders live. Local disk at first; switch to
-# "/mnt/synology/homes" once the NAS is joined to the domain (docs/SYNOLOGY.md).
+# Where domain users' home folders live. Leave it at /srv/arise/homes and choose with
+# [storage] homes_on below; a different path here is taken as set by hand and wins.
 homes_path = "/srv/arise/homes"
 
 # Bradly's own Linux account (Oct 28: "the Automator doesn't need its own profile, it can run on mine").
@@ -110,6 +110,14 @@ schedule = "02:05"
 # restic repository. On the Synology once it is mounted; the first `arisectl backup run`
 # initialises it. The password file must exist first (install.sh prints how).
 restic_repo = "/mnt/synology/arise-backups/restic"
+# Round 5, row 15: where tonight's backup goes. The first READY target in this order is
+# used: the Synology while it is mounted, else Arise-Home over Tailscale. Neither ready =
+# the job fails red, never a quiet skip. The dashboard's Backups page shows the live one.
+targets = ["synology", "arise-home"]
+synology_repo = ""        # empty: restic_repo above
+# restic over sftp to Arise-Home (its Tailscale name). root's key, an sftp-only account
+# on the far side (docs/BACKUPS.md, "Arise-Home until the Synology").
+arise_home_repo = ""      # e.g. "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville"
 password_file = "/etc/arise/secrets/restic-password"
 schedule = "03:00"
 # Retention: restic forget --keep-daily 14 --keep-weekly 8 --keep-monthly 12, then prune.
@@ -122,7 +130,9 @@ jobs_file = "/etc/arise/backups.yaml"
 # The 4-bay Synology. Model and DSM version: not known yet — fill in docs/SYNOLOGY.md
 # once it is on the bench.
 enabled = true
-host = "synology.ad.arisecenla.com"
+# Empty: synology.<realm> from [directory] realm (the AD subdomain may change; nothing
+# hardcodes it). Set a name here only if the Synology is called something else.
+host = ""
 mount = "/mnt/synology"
 # "smb" (works once the NAS is in the domain) or "nfs" (simplest if it is not).
 protocol = "smb"
@@ -131,6 +141,20 @@ share = "arise"
 # Leave empty to skip. e.g. "https://synology.ad.arisecenla.com:5001"
 dsm_url = ""
 dsm_credentials_file = "/etc/arise/secrets/dsm.json"
+
+[storage]
+# Round 5 (docs/ANSWERS.md, rows 12-20, 36; docs/SHARES.md "Round 5").
+homes_on = "server"          # "server" (/srv/arise/homes) or "synology" (<nas mount>/arise/homes)
+home_quota_gb = 50           # per home; the dashboard refuses past it, setquota where quotas are on
+quota_warn_pct = 90          # Finder and Storage warn here
+versions_days = 90           # how far back Previous Versions reach (restic retention is unchanged)
+pastors = ["bryant.sanders", "vanessa.sanders"]   # the Pastors folder: theirs alone, admins included
+pastors_path = ""            # empty: /srv/arise/pastors (outside shares/, so no share above reaches it)
+departments = ["childrens-department", "inedge", "media", "worship", "kids", "alexandria"]
+department_accounts = { media = ["media-mac"] }   # logins besides the one named like the folder
+church_folder = "church"     # every account reads and writes
+staff_group = "Staff"        # all staff write every department folder
+shared_path = ""             # empty: /srv/arise/shared (Shared with me: one folder of links per person)
 
 [apps]
 # Docker Compose templates from templates/. Off in Windows mode.

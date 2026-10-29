@@ -49,6 +49,17 @@ jobs:
     exclude: ["**/.Trash"]
     tags: [shares]
 
+  - id: pastors
+    name: Pastors folder
+    # Round 5, row 18: the two pastors' own folder. It sits outside /srv/arise/shares on
+    # purpose (no share above it), so the shares job does not reach it. The backup runs as
+    # root (the system itself), which auditd logs like any other root read
+    # (`ausearch -k arise-pastors`). Its Previous Versions show only to the pastors.
+    # /srv/arise/shared (Shared with me) is only links and is not backed up.
+    paths: ["/srv/arise/pastors"]
+    exclude: ["**/.Trash"]
+    tags: [pastors]
+
   - id: github
     name: GitHub mirror
     # Bare mirrors refreshed by arise-mirror.timer at 04:00.

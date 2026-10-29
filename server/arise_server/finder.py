@@ -49,7 +49,7 @@ def _abs(root_id: str, rel: str, who) -> tuple[str, str] | None:
     if root_id not in rs:
         return None
     rel = "/" + rel.strip("/")
-    t = files._resolve(rs[root_id]["path"], rel)
+    t = files._resolve(rs[root_id], rel, who)   # round 5: the Pastors folder, shared-file places, the home-access audit
     return (rs[root_id]["path"], t) if t else None
 
 
@@ -203,25 +203,31 @@ def recent(who=None, days: int = 7, limit: int = 200) -> dict:
                     ed = files.entry_dict(e)
                     hits.append({"root": "data", "path": path.rstrip("/") + "/" + e[0], "name": e[0], "size": ed["size"], "mtime": ed["mtime"], "where": path})
         hits.sort(key=lambda h: h["mtime"], reverse=True)
+        from . import sharing
+        hits = [h for h in hits if not sharing.hidden_demo(h["path"], who)]
         if who and who.get("role") != "admin":
             out = []
             for h in hits:
                 for r in files.roots(who):
                     pref = files._demo_rel(r["id"], "/", who)
-                    if pref and h["path"].startswith(pref + "/"):
+                    if r.get("only") and h["path"] != (pref or "").rstrip("/") + "/" + r["only"]:
+                        continue
+                    if pref and h["path"].startswith(pref.rstrip("/") + "/"):
                         out.append(dict(h, root=r["id"], path=h["path"][len(pref):], where=r["name"] + os.path.dirname(h["path"][len(pref):])))
             hits = out
         res = {"demo": True, "days": days, "hits": hits[:limit]}
     else:
         t0 = time.time()
+        from . import sharing
         for r in files.roots(who):
             base = r["path"]
             if not os.path.isdir(base):
                 continue
             for dp, dirs, fs in os.walk(base):
-                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "__pycache__", "@eaDir", "#recycle")]
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "__pycache__", "@eaDir", "#recycle")
+                           and not sharing.hidden(os.path.join(dp, d), who)]
                 for f in fs:
-                    if f.startswith("."):
+                    if f.startswith(".") or (r.get("only") and (dp != base or f != r["only"])):
                         continue
                     try:
                         st = os.lstat(os.path.join(dp, f))
@@ -432,8 +438,10 @@ def _bases_for(who) -> list[tuple[str, str]]:
             out.append(("Synology", cfg.nas.mount.rstrip("/")))
     else:
         for r in files.roots(who):
-            out.append((r["name"], r["path"].rstrip("/")))
-    return out
+            if not r.get("shared"):   # a shared item's Trash is its owner's
+                out.append((r["name"], r["path"].rstrip("/")))
+    from . import sharing
+    return [(lbl, p) for lbl, p in out if not sharing.hidden(p, who)]   # round 5, row 18
 
 
 def _label_for(base: str, who) -> str:
@@ -506,6 +514,8 @@ def trash_list(who=None) -> dict:
         rows = list(_sample_trash(user))
         if not admin:
             rows = [r for r in rows if r["user"] == user and any(r["base"] == b for _l, b in _bases_for(who))]
+        from . import sharing
+        rows = [r for r in rows if not sharing.hidden(os.path.join(r["base"], r["rel"]), who)]   # round 5, row 18
         return {"demo": True, "days": TRASH_DAYS, "items": [{k: v for k, v in r.items() if not k.startswith("_")} for r in rows], "admin": admin}
     rows = []
     now = datetime.now()
@@ -745,11 +755,17 @@ def upload_start(root_id: str, rel: str, name: str, size: int, fingerprint: str,
         return {"ok": False, "err": "not a place you can upload to"}
     if not files._writable(rs, root_id):
         return {"ok": False, "err": "that share is read-only for you"}
+    if rs[root_id].get("only"):
+        return {"ok": False, "err": "a shared file's place holds only that file"}
+    from . import sharing
     if cfg.demo:
         from . import demo_state
         key = files._demo_rel(root_id, "/" + rel.strip("/") if rel.strip("/") else "/", who)
-        if key is None:
+        if key is None or sharing.hidden_demo(key, who):
             return {"ok": False, "err": "the sample has nothing there"}
+        why = sharing.quota_refusal_demo(key, size)
+        if why:
+            return {"ok": False, "err": why, "quota": True}
         if files.demo_find(files._join(key, name)):
             return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
         ups = demo_state.get("files.uploads", dict)
@@ -759,9 +775,12 @@ def upload_start(root_id: str, rel: str, name: str, size: int, fingerprint: str,
         tok = f"demo-{len(ups) + 1}-{abs(hash((key, name, fingerprint))) % 10 ** 8}"
         ups[tok] = {"key": key, "name": name, "size": size, "fingerprint": fingerprint, "have": 0, "user": (who or {}).get("user", "admin")}
         return {"ok": True, "demo": True, "token": tok, "offset": 0, "chunk": UPLOAD_CHUNK, "size": size}
-    folder = files._resolve(rs[root_id]["path"], rel)
+    folder = files._resolve(rs[root_id], rel, who, "upload")
     if not folder or not os.path.isdir(folder):
         return {"ok": False, "err": "folder not found"}
+    why = sharing.quota_refusal(folder, size)   # round 5, row 13: 50 GB a home
+    if why:
+        return {"ok": False, "err": why, "quota": True}
     dest = os.path.join(folder, name)
     if os.path.exists(dest):
         return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
@@ -830,6 +849,8 @@ def upload_finish(token: str, who=None) -> dict:
         r = files.demo_add(u["key"], u["name"], False, u["have"])
         if not r["ok"]:
             return r
+        from . import sharing
+        sharing.demo_add_usage(u["key"], u["have"])
         ups.pop(token, None)
         return {"ok": True, "demo": True, "bytes": u["have"], "path": files._join(u["key"], u["name"])}
     m = _upload_meta(token)

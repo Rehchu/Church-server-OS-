@@ -152,28 +152,6 @@
         recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
         recycle:exclude_dir = .Trash,/tmp
 
-[media]
-        comment = Media team: livestream, YouTube, projector
-        path = /srv/arise/shares/media
-        valid users = @"ARISE\Media" @"ARISE\Domain Admins"
-        read only = no
-        browseable = yes
-        create mask = 0664
-        directory mask = 0775
-        force group = "Media"
-        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
-        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
-        # Put Back returns it and arise-trash.timer removes it after 30 days.
-        # A share's "vfs objects" replaces the global list, so fruit comes along.
-        vfs objects = acl_xattr fruit streams_xattr recycle
-        recycle:repository = .Trash/%U
-        recycle:keeptree = yes
-        recycle:versions = yes
-        recycle:touch = yes
-        recycle:directory_mode = 0770
-        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
-        recycle:exclude_dir = .Trash,/tmp
-
 [graphics]
         comment = Proclaim backgrounds, loops, lower thirds (synced to the media Mac)
         path = /srv/arise/shares/graphics
@@ -197,93 +175,12 @@
         recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
         recycle:exclude_dir = .Trash,/tmp
 
-[kids]
-        comment = Kids ministry
-        path = /srv/arise/shares/kids
-        valid users = @"ARISE\Kids" @"ARISE\Childrens-Department" @"ARISE\Domain Admins"
-        read only = no
-        browseable = yes
-        create mask = 0664
-        directory mask = 0775
-        force group = "Kids"
-        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
-        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
-        # Put Back returns it and arise-trash.timer removes it after 30 days.
-        # A share's "vfs objects" replaces the global list, so fruit comes along.
-        vfs objects = acl_xattr fruit streams_xattr recycle
-        recycle:repository = .Trash/%U
-        recycle:keeptree = yes
-        recycle:versions = yes
-        recycle:touch = yes
-        recycle:directory_mode = 0770
-        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
-        recycle:exclude_dir = .Trash,/tmp
-
-[childrens-department]
-        comment = Children's Department
-        path = /srv/arise/shares/childrens-department
-        valid users = @"ARISE\Childrens-Department" @"ARISE\Domain Admins"
-        read only = no
-        browseable = yes
-        create mask = 0664
-        directory mask = 0775
-        force group = "Childrens-Department"
-        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
-        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
-        # Put Back returns it and arise-trash.timer removes it after 30 days.
-        # A share's "vfs objects" replaces the global list, so fruit comes along.
-        vfs objects = acl_xattr fruit streams_xattr recycle
-        recycle:repository = .Trash/%U
-        recycle:keeptree = yes
-        recycle:versions = yes
-        recycle:touch = yes
-        recycle:directory_mode = 0770
-        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
-        recycle:exclude_dir = .Trash,/tmp
-
-[inedge]
-        comment = Inedge
-        path = /srv/arise/shares/inedge
-        valid users = @"ARISE\Inedge" @"ARISE\Domain Admins"
-        read only = no
-        browseable = yes
-        create mask = 0664
-        directory mask = 0775
-        force group = "Inedge"
-        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
-        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
-        # Put Back returns it and arise-trash.timer removes it after 30 days.
-        # A share's "vfs objects" replaces the global list, so fruit comes along.
-        vfs objects = acl_xattr fruit streams_xattr recycle
-        recycle:repository = .Trash/%U
-        recycle:keeptree = yes
-        recycle:versions = yes
-        recycle:touch = yes
-        recycle:directory_mode = 0770
-        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
-        recycle:exclude_dir = .Trash,/tmp
-
-[worship]
-        comment = Worship and music: charts, setlists, tracks
-        path = /srv/arise/shares/worship
-        valid users = @"ARISE\Worship" @"ARISE\Media" @"ARISE\Domain Admins"
-        read only = no
-        browseable = yes
-        create mask = 0664
-        directory mask = 0775
-        force group = "Worship"
-        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
-        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
-        # Put Back returns it and arise-trash.timer removes it after 30 days.
-        # A share's "vfs objects" replaces the global list, so fruit comes along.
-        vfs objects = acl_xattr fruit streams_xattr recycle
-        recycle:repository = .Trash/%U
-        recycle:keeptree = yes
-        recycle:versions = yes
-        recycle:touch = yes
-        recycle:directory_mode = 0770
-        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
-        recycle:exclude_dir = .Trash,/tmp
+# ---- Round 5 (docs/ANSWERS.md, rows 16-18, 36): the Church folder, the department
+# folders (childrens-department, inedge, media, worship, kids, alexandria), the
+# Pastors folder and Shared with me are NOT here. They are generated from
+# arise.toml [storage] into /etc/samba/arise-folders.conf, with the ACLs that make
+# them true on disk, by `sudo arisectl share folders` (install.sh runs it):
+# server/arise_server/sharing.py. One rule, written once, for SMB and the dashboard.
 
 [recordings]
         # No recycle here: the Synology keeps its own #recycle for this folder.

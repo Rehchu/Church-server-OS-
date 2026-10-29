@@ -28,6 +28,7 @@ GETS = [
     "/audit?limit=60", "/directory/leaving", "/calendar", "/calendar/subscribe", "/weather", "/help", "/help/PORTAL-GUIDE", "/help/README", "/about/whatsnew", "/me/password/rules",
     "/updates", "/activity", "/automations", "/storage", "/monitor", "/apps/catalog", "/apps/open/trilium", "/apps/open/immich", "/logs/sources",
     "/logs/file/updates.log", "/logs/file/install.log", "/logs/file/backup.log", "/apps/theme/jellyfin", "/apps/theme/homepage", "/apps/theme/nextcloud", "/apps/theme/immich", "/apps/theme/grafana", "/apps/theme/owncast", "/apps/theme/bookstack", "/apps/theme/uptime-kuma", "/apps/theme/onlyoffice",
+    "/storage/quotas", "/backups/targets", "/files/shared", "/files/quota", "/files/share/people",
     "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]
@@ -56,6 +57,18 @@ for a in data["GET /apps"]["apps"]:
 from arise_server import files as _files
 for path, entries in _files.DEMO_TREE.items():
     data[f"GET /files/list?root=data&path={path}"] = c.get("/api/files/list", params={"root": "data", "path": path}).json()
+# The Pastors folder is hidden from the admin these answers are fetched as (round 5, row 18), so
+# its sample listings come straight from the tree; the mock hides them from everyone but the pastors.
+def _plain(entries):
+    return [{"name": e[0], "dir": bool(e[1]), "size": None if e[1] else (e[2] if len(e) > 2 else 0), "mtime": e[3] if len(e) > 3 else "2026-10-27T21:10"} for e in entries]
+for path, entries in _files.DEMO_TREE.items():
+    if path == "/pastors" or path.startswith("/pastors/"):
+        data[f"GET /files/list?root=data&path={path}"] = {"demo": True, "root": "data", "path": path, "entries": _plain(entries)}
+_top = data["GET /files/list?root=data&path=/"]
+if not any(e["name"] == "pastors" for e in _top["entries"]):
+    _top["entries"].append({"name": "pastors", "dir": True, "size": None, "mtime": "2026-10-27T21:10"})
+# The Folders and permissions dry run (the mock shows it; Apply is preview-only).
+data["POST /shares/folders"] = c.post("/api/shares/folders", json={"dry_run": True}).json()
 def _nas(path, entries):
     data[f"GET /files/list?root=nas&path={path}"] = {"demo": True, "root": "nas", "path": path, "entries": [{"name": n, "dir": d, "size": sz, "mtime": mt} for n, d, sz, mt in entries]}
 _nas("/", [("arise", True, None, "2026-10-26T03:00"), ("homes", True, None, "2026-10-25T18:12"), ("media", True, None, "2026-10-26T14:02")])

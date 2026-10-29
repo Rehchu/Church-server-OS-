@@ -677,6 +677,50 @@ async function sgSong(el, key) {
   view();
 }
 
+/* ---- sharing (round 5) ----
+   Share with a person or a group (row 19): the server writes an ACL on the item and a link in
+   their "shared" share, so it appears on their Mac and here, and tells them by push and email.
+   The quota line (row 13) and Shared by me live here too. server/arise_server/sharing.py. */
+function canShareWith(root, p) {
+  if (!p || p === '/' || String(root).startsWith('shared:') || String(root).startsWith('@')) return false;
+  return !isMember() || root === 'home';   // members share only their own files
+}
+async function shareWith(root, p, n) {
+  const ppl = await api('/files/share/people').catch(() => ({ people: [], groups: [], typed: true }));
+  const opts = [...(ppl.people || []).map(u => `<option value="${esc(u.name)}">${esc(u.display)}</option>`), ...(ppl.groups || []).map(g => `<option value="@${esc(g)}">Everyone in ${esc(g)}</option>`)].join('');
+  modal(`<h2>Share “${esc(n)}”</h2><p class="muted">With a person or a group in the church. It appears in their <b>shared</b> share on their Mac and in their Finder here, and they get a notice.</p>
+    <form id="swF" style="display:grid;gap:10px;margin-top:12px">
+      <div class="field"><label>With</label><input id="swTo" list="swList" placeholder="${ppl.typed ? 'first.last' : 'a name, or @Group'}" autocomplete="off"><datalist id="swList">${opts}</datalist><span class="hint">Several? Separate them with commas.</span></div>
+      <div class="field"><label>They can</label><select id="swPerm"><option value="read">Open and copy it</option><option value="write">Open and edit it</option></select></div>
+      <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="submit">Share</button></div></form>`, m => {
+    $('#swTo', m).focus();
+    $('#swF', m).onsubmit = async e => { e.preventDefault(); const to = $('#swTo', m).value.split(',').map(x => x.trim()).filter(Boolean);
+      const r = await act($('button[type=submit]', m), () => api('/files/share', { method: 'POST', body: { root, path: p, to, perm: $('#swPerm', m).value } }), `Shared with ${to.join(', ')}`);
+      if (r && r.ok !== false) m.close(); };
+  });
+}
+async function sharedByModal() {
+  const r = await api('/files/shared').catch(e => ({ by_me: [], with_me: [], err: e.message }));
+  const rows = (r.all || r.by_me || []);
+  const row = x => `<tr><td><b>${esc(x.name)}</b>${x.dir ? ' <span class="tag">folder</span>' : ''}<br><small class="muted">${esc(x.rel)}</small></td><td>${esc((x.to || []).join(', '))}</td><td>${x.perm === 'write' ? 'can edit' : 'can open'}</td>${r.all ? `<td>${esc(x.owner)}</td>` : ''}<td><button class="btn btn--ghost btn--xs" data-unshare="${esc(x.id)}">Stop sharing</button></td></tr>`;
+  modal(`<h2>${r.all ? 'Everything shared' : 'Shared by me'}</h2>
+    ${rows.length ? `<table class="tbl" style="margin-top:10px"><thead><tr><th>Item</th><th>With</th><th>Can</th>${r.all ? '<th>By</th>' : ''}<th></th></tr></thead><tbody>${rows.map(row).join('')}</tbody></table>` : '<p class="empty">Nothing shared yet. Right-click a file or folder, then Share with…</p>'}
+    ${(r.with_me || []).length ? `<h3 style="margin-top:16px">Shared with me</h3><ul class="plain">${r.with_me.map(x => `<li>${esc(x.link)} <small class="muted">from ${esc(x.owner)}, ${x.perm === 'write' ? 'can edit' : 'can open'}</small></li>`).join('')}</ul>` : ''}
+    <div class="acts"><button class="btn" data-close>Done</button></div>`, m => {
+    $$('[data-unshare]', m).forEach(b => b.onclick = async () => { const x = await act(b, () => api('/files/share/' + encodeURIComponent(b.dataset.unshare), { method: 'DELETE' }), 'Stopped sharing'); if (x && x.ok !== false) { m.close(); sharedByModal(); rerender('files'); } });
+  });
+}
+async function quotaLine(root, fs) {
+  const el = $('#fQuota', root); if (!el) return;
+  const home = fs.root === 'home' || (fs.root === 'data' && /^\/homes\/[^/]+/.test(fs.path));
+  if (!home) { el.hidden = true; return; }
+  const user = fs.root === 'home' ? '' : fs.path.split('/')[2];
+  const q = await api('/files/quota' + (user ? '?user=' + encodeURIComponent(user) : '')).catch(() => null);
+  if (!q || !q.quota || !el.isConnected) { el.hidden = true; return; }
+  el.hidden = false; el.className = 'fquota' + (q.full ? ' full' : q.warn ? ' warn' : '');
+  el.innerHTML = `<span>${user ? esc(user) + ': ' : ''}${fmtB(q.used)} of ${fmtB(q.quota)}</span><div class="meter ${q.full ? '' : q.warn ? 'meter--warn' : 'meter--ok'}"><i style="width:${Math.min(100, q.pct || 0)}%"></i></div>${q.warn ? `<small>${q.full ? 'Full: uploads stop until space is freed.' : 'Nearly full.'}</small>` : ''}`;
+}
+
 V.nas = async () => {
   const n = await api('/nas');
   const d = n.dsm || {};
@@ -725,10 +769,12 @@ V.files = async () => {
   const title = parts.length ? parts[parts.length - 1] : rootName;
   const FAV = isMember() ? [] : [['Home folders', 'data', '/homes', 'users'], ['Shares', 'data', '/shares', 'folder'], ['Media', 'nas', '/arise/media', 'sermons'], ['Automator', 'data', '/automator/ARISE_YouTube_Updater', 'automator'], ['Apps', 'data', '/apps', 'apps'], ['Backups', 'data', '/backups', 'backups']];
   const side = `<div class="finder__side"><h4>Favorites</h4>${FAV.map(f => `<button data-go="${f[1]}|${f[2]}" class="${fs.root === f[1] && fs.path === f[2] ? 'on' : ''}"><i style="--i:${ICONURL[f[3]]}"></i>${esc(f[0])}</button>`).join('')}
-    <h4>${isMember() ? 'Your places' : 'Locations'}</h4>${S.roots.map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : r.home ? 'users' : r.share ? 'folder' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
+    <h4>${isMember() ? 'Your places' : 'Locations'}</h4>${S.roots.filter(r => !r.shared).map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id && fs.path === '/' ? 'on' : ''}"><i style="--i:${ICONURL[r.id === 'nas' ? 'nas' : r.home ? 'users' : r.share ? 'folder' : 'server']}"></i>${esc(r.name)}</button>`).join('')}
     <h4>Places</h4><button data-go="@recent|/" class="${fs.root === '@recent' ? 'on' : ''}"><i style="--i:${ICONURL.recent}"></i>Recents</button><button data-go="@trash|/" class="${fs.root === '@trash' ? 'on' : ''}"><i style="--i:${ICONURL.trash}"></i>Trash</button>
     ${isMember() ? '' : `<h4>Everyone</h4>` + ['Documents', 'Photos', 'Videos', 'Music', 'Downloads'].map(f => `<button data-go="@all:${f}|/" class="${fs.root === '@all:' + f ? 'on' : ''}" title="Every person's ${f} folder, side by side"><i style="--i:${ICONURL.folder}"></i>All ${f}</button>`).join('')}
-    <h4>Sharing</h4><button id="fLinks"><i style="--i:${ICONURL.backups}"></i>Shared links</button></div>`;
+    ${S.roots.some(r => r.shared) ? `<h4>Shared with me</h4>` + S.roots.filter(r => r.shared).map(r => `<button data-go="${r.id}|/" class="${fs.root === r.id ? 'on' : ''}" title="From ${esc(r.from)}${r.writable ? ', you can edit' : ', read only'}"><i style="--i:${ICONURL.folder}"></i>${esc(r.name)}</button>`).join('') : ''}
+    <h4>Sharing</h4><button id="fLinks"><i style="--i:${ICONURL.backups}"></i>Shared links</button><button id="fSharedBy"><i style="--i:${ICONURL.users}"></i>Shared by me</button>
+    <div class="fquota" id="fQuota" hidden></div></div>`;
   const tools = special
     ? (fs.root === '@trash' && !isMember() ? `<button class="btn btn--ghost btn--xs" id="fEmpty">Empty Trash…</button>` : '')
     : `<label class="btn btn--ghost btn--xs" for="fsUp">Upload</label><input id="fsUp" type="file" hidden><button class="btn btn--ghost btn--xs" id="fNew">New folder</button>${IS_MAC ? `<button class="btn btn--ghost btn--xs" id="fMac" title="Open this folder in the Mac's Finder, over the share">Open on my Mac</button>` : ''}`;
@@ -790,6 +836,8 @@ V.files.after = root => {
   const special = fs.root === '@recent' || fs.root === '@trash';
   $$('[data-go]', root).forEach(b => b.onclick = () => { const [r, p] = b.dataset.go.split('|'); fsNav(r, p); });
   const fl = $('#fLinks', root); if (fl) fl.onclick = () => linksModal();
+  const fsb = $('#fSharedBy', root); if (fsb) fsb.onclick = () => sharedByModal();
+  quotaLine(root, fs);
   $('#fBack', root).onclick = () => { const h = fs.hist.pop(); if (!h) return; fs.fwd.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fFwd', root).onclick = () => { const h = fs.fwd.pop(); if (!h) return; fs.hist.push({ root: fs.root, path: fs.path }); fs.root = h.root; fs.path = h.path; fs.sel = null; rerender('files'); };
   $('#fIcon', root).onclick = () => { fs.view = 'icon'; rerender('files'); }; $('#fList', root).onclick = () => { fs.view = 'list'; rerender('files'); };
@@ -847,6 +895,7 @@ V.files.after = root => {
         IS_MAC && dir ? ['Open on my Mac', () => openOnMac(fs.root, p)] : null,
         null,
         ['Share Link…', () => shareLink(fs.root, p, n)],
+        canShareWith(fs.root, p) ? ['Share with…', () => shareWith(fs.root, p, n)] : null,
         null,
         ['Copy path', () => copyText((S.roots.find(r => r.id === fs.root)?.path || '') + p)],
         null,
@@ -2581,6 +2630,47 @@ function profilesWire(root) {
   });
 }
 { const _dirAfterR5 = V.directory.after; V.directory.after = root => { _dirAfterR5(root); profilesWire(root); }; }
+
+/* ---- storage & folders (round 5) ----
+   Storage: every home against its 50 GB quota (row 13). Backups: where tonight's backup goes,
+   the Synology or Arise-Home over Tailscale (row 15). Shares: the Church, department, Pastors
+   and Shared-with-me shares and their ACLs, written from arise.toml (rows 16-18, 36). */
+{
+  const stAfter = V.storage.after;
+  V.storage.after = async root => {
+    stAfter && stAfter(root);
+    const q = await api('/storage/quotas').catch(() => null); if (!q || !root.isConnected) return;
+    const box = document.createElement('div'); box.className = 'panel panel--flat'; box.id = 'stQuotas'; box.style.marginTop = '14px';
+    box.innerHTML = `<div class="panel__hd"><h3>Home folders against the quota</h3><span class="sub">${q.quota ? fmtB(q.quota) + ' each' : 'no quota'} · enforced by ${esc(q.enforced_by)} · homes on the ${esc(q.homes_on)} (${esc(q.homes_path)})</span></div>
+      ${(q.homes || []).map(h => `<div class="st__row"><div class="row row--between"><span><b>${esc(h.user)}</b>${h.full ? ' <span class="tag" style="background:var(--red);color:#fff">full</span>' : h.warn ? ' <span class="tag">nearly full</span>' : ''}</span><span class="mono" style="font-size:12px">${fmtB(h.used)}${h.quota ? ' of ' + fmtB(h.quota) + ' · ' + h.pct + '%' : ''}</span></div><div class="meter ${h.full ? '' : h.warn ? 'meter--warn' : 'meter--ok'}"><i style="width:${Math.min(100, h.pct || 0)}%"></i></div></div>`).join('') || '<div class="empty">No home folders yet</div>'}`;
+    ($('.fade', root) || root).appendChild(box);
+  };
+  const bkAfter = V.backups.after;
+  V.backups.after = async root => {
+    bkAfter && bkAfter(root);
+    const t = await api('/backups/targets').catch(() => null); if (!t || !root.isConnected) return;
+    const box = document.createElement('div'); box.className = 'panel ' + (t.live ? 'panel--flat' : 'panel--bad'); box.id = 'bkTarget'; box.style.marginBottom = '14px';
+    box.innerHTML = `<div class="panel__hd"><h3>Where tonight's backup goes</h3><span class="sub">${t.live ? esc(t.name) : 'nowhere yet'}</span></div>
+      ${(t.targets || []).map(x => `<div class="row row--between" style="padding:6px 0;border-top:1px solid var(--line)"><span><span class="pill ${x.ready ? 'ok' : 'bad'}">${x.ready ? 'ready' : 'not ready'}</span> <b>${esc(x.name)}</b> <span class="mono muted" style="font-size:12px">${esc(x.repo || '')}</span></span><span class="muted" style="font-size:12px">${esc(x.why)}${t.live === x.id ? ' · <b>live</b>' : ''}</span></div>`).join('')}
+      ${t.error ? `<p class="note" style="color:var(--redL);margin-top:8px">${esc(t.error)}</p>` : '<p class="note" style="margin-top:8px">The first ready one is used, in this order. When the Synology has its drives it takes over by itself (docs/BACKUPS.md).</p>'}`;
+    const fade = $('.fade', root); if (fade) fade.insertBefore(box, fade.children[1] || null); else root.appendChild(box);
+  };
+  // Both the Directory's Shares tab and the Shares window draw with sharesAfter.
+  const shAfter = sharesAfter;
+  sharesAfter = (root, view) => {
+    shAfter(root, view);
+    const tb = $('#addShare', root)?.parentElement; if (!tb || $('#shFolders', root)) return;
+    const b = document.createElement('button'); b.className = 'btn btn--ghost btn--sm'; b.id = 'shFolders'; b.textContent = 'Folders and permissions…'; tb.insertBefore(b, $('#addShare', root));
+    b.onclick = async () => {
+      const r = await api('/shares/folders', { method: 'POST', body: { dry_run: true } }).catch(e => ({ ok: false, err: e.message }));
+      modal(`<h2>The Church, department and Pastors folders</h2><p class="muted">Written from arise.toml [storage]: the Church folder everyone writes; department folders all staff and the department's own account write, the department reads; the Pastors folder is the two pastors' alone; Shared with me. The ACLs on the server are the rule, so the Macs get the same answer as this dashboard.</p>
+        ${r.ok === false ? `<p class="note" style="color:var(--redL)">${esc(r.err || 'failed')}</p>` : `<pre class="log pre" style="max-height:280px;overflow:auto">${esc(r.conf || '')}</pre><h3 style="margin-top:10px">ACLs</h3><pre class="log pre" style="max-height:160px;overflow:auto">${esc((r.acls || []).map(c => c.join(' ')).join('\n'))}</pre>`}
+        <div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="shApply">Apply</button></div>`, m => {
+        $('#shApply', m).onclick = async e => { const x = await act(e.target, () => withReauth(() => api('/shares/folders', { method: 'POST', body: { dry_run: false } })), 'Folders and permissions applied (testparm passed)'); if (x && x.ok !== false) m.close(); };
+      });
+    };
+  };
+}
 
 window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS };
 })();
