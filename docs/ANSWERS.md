@@ -414,6 +414,10 @@ Asked as pop-ups, 36 questions plus two follow-ups. "Other" answers are quoted.
 | 37 | Guest passes | No guests | speakers keep emailing the media team |
 | 38 | A leaver's mail | Export to their files | saved as a file into the folder of whoever takes their files, then the mailbox goes |
 | 39 | Service names | Sunday Service and Glory Night | everywhere people see them |
+| 40 | (unprompted, Oct 29) The domain | "we don't have to use ad.arisecenla.com but I know it needs to go through the Wix domain. We don't own the .church through Wix, it's through godaddy and we don't have access to it." | the directory and mail live under arisecenla.com (Wix DNS); the exact subdomain is asked in round 6; nothing depends on arisecenla.church's DNS |
+| 41 | (unprompted, Oct 29) Who uses the server OS | "staff shouldn't have access to the actual server OS the staff and volunteers use the Mac as normal, with everything syncing flawlessly. Admins, Kristina, and myself will use the OS directly in the closet." | `[web] staff_access = "none"` by default: a staff or member sign-in gets "your files are on your Mac"; supersedes 26. Mac sync and Mac account setup and removal are round 6 |
+| 42 | (unprompted, Oct 29) The browser | "Firefox in the OS should be a full web browser as well." | `open_web = true` by default; the allow-list stays a setting |
+| 43 | (unprompted, Oct 29) Mac profiles | "I'm going to need to know how the server sets up and removes profiles from the Mac as well, if the server even does it. If not it needs to" | today: enroll-mac.sh binds a Mac; a person's Mac account appears at their first sign-in there; the home-sync agent copies Desktop and Documents every 15 minutes. Nothing removes a profile from a Mac yet. Apple removed network-home syncing in macOS 10.12, so syncing needs a sync client. Round 6 settles both |
 
 ## Still needed
 
