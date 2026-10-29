@@ -31,6 +31,33 @@ is what the restic copy and the off-site copy are for (section 6).
 If the NAS already holds data on a volume, leave it; add the shared folders to
 the existing volume.
 
+### One drive a month (Bradly, Oct 29)
+
+Four new 4 TB drives at once is not in the budget, so the pool grows one drive
+a month. SHR is what allows that: it starts on one drive, takes mismatched
+drives, and grows each time a drive is added.
+
+| Month | Drives | Usable | Protection |
+|---|---|---|---|
+| 1 | 1 | 4 TB | none: the originals stay on the server and Arise-Home holds the off-site copy |
+| 2 | 2 | 4 TB | one drive can fail (SHR mirrors the two) |
+| 3 | 3 | 8 TB | one drive can fail |
+| 4 | 4 | 12 TB, or 8 TB plus one separate 4 TB drive for document backups (round 4, 55) | one drive can fail |
+
+- **Create the pool as SHR from day one** (Storage Manager → Create → SHR, Btrfs);
+  a Basic volume cannot become SHR later without starting over.
+- Each new drive: Storage Manager → the pool → Add Drive. The expansion runs in
+  the background for about a day per 4 TB; the NAS stays usable.
+- **Drives:** CMR NAS drives (Seagate IronWolf, WD Red Plus). Mixed makes are
+  fine. Avoid SMR drives in the pool (WD Blue WD40EZAZ, for one): RAID
+  rebuilds on SMR crawl or fail. WD Blue WD40EZAX is CMR. A 7200 rpm desktop
+  drive (WD Black) works but runs hotter; it suits the server better.
+- **Check the model first:** the NAS must support SHR, and Synology's 2025
+  Plus models limited third-party drives at launch. Confirm against the model
+  on Friday before buying the second drive.
+- Until month 2, a failed drive loses the Synology's copy (not the church's
+  files). The nightly backup still runs to it and to Arise-Home.
+
 ## 2. Join the NAS to the domain
 
 The NAS must use the server for DNS, like everything else.
