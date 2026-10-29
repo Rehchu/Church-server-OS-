@@ -302,8 +302,15 @@ def write_text(root_id: str, rel: str, text: str, who=None, expect_mtime: str | 
     if expect_mtime and cur != expect_mtime:
         return {"ok": False, "err": "someone changed this file since you opened it; reopen it and paste your changes in"}
     tmp = got[1] + ".arise-save"
-    with open(tmp, "w", encoding="utf-8") as f:
+    if os.path.lexists(tmp):
+        os.unlink(tmp)   # a stale save, or a link left there: removed, never written through
+    st = os.stat(got[1])
+    with os.fdopen(files.create_new(tmp, st.st_mode & 0o777), "w", encoding="utf-8") as f:
         f.write(text)
+    try:
+        os.chown(tmp, st.st_uid, st.st_gid)   # the file keeps its owner (root saves it)
+    except OSError:
+        pass
     os.replace(tmp, got[1])
     return {"ok": True, "demo": False, "bytes": len(text.encode("utf-8")), "mtime": datetime.fromtimestamp(os.stat(got[1]).st_mtime).isoformat(timespec="seconds")}
 
@@ -862,7 +869,7 @@ def upload_finish(token: str, who=None) -> dict:
     have = os.path.getsize(part)
     if have != m["size"]:
         return {"ok": False, "err": f"only {have:,} of {m['size']:,} bytes arrived; the browser resumes from there", "offset": have}
-    if os.path.exists(dest):
+    if os.path.lexists(dest):
         os.unlink(part); os.unlink(os.path.join(_upload_dir(), token + ".json"))
         return {"ok": False, "err": f"{m['name']} appeared here meanwhile; the upload was dropped, rename and try again"}
     os.replace(part, dest)

@@ -6,8 +6,11 @@
 """
 from __future__ import annotations
 
+import json
 import os
 import secrets
+import threading
+import time
 from pathlib import Path
 
 from fastapi import HTTPException, Request
@@ -78,7 +81,7 @@ def login(user: str, password: str) -> tuple[str | None, dict] | None:
             who = {"user": user, "role": "admin" if directory.is_admin(user) else "member", "via": "directory"}
     if not who:
         return None
-    return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"]}), who
+    return _serializer().dumps({"u": who["user"], "r": who["role"], "v": who["via"], "t": int(time.time())}), who
 
 
 def current_user(request: Request) -> dict:
@@ -102,9 +105,134 @@ def current_user(request: Request) -> dict:
         data = _serializer().loads(tok, max_age=int(cfg.web.session_hours) * 3600)
     except BadSignature:
         raise HTTPException(401, {"message": "Session expired, sign in again"})
-    who = {"user": data["u"], "role": data.get("r", "admin"), "demo": False}
+    if not session_current(data, valid_after(data["u"])):
+        raise HTTPException(401, {"message": "Signed out: the password changed or the account was disabled. Sign in again"})
+    role = data.get("r", "admin")
+    if data.get("v") == "directory":
+        live = live_state(data["u"])
+        if live is not None:
+            enabled, is_adm = live
+            if not enabled:
+                raise HTTPException(401, {"message": "This account is disabled"})
+            role = "admin" if is_adm else "member"
+    who = {"user": data["u"], "role": role, "demo": False}
     _check_path(request, who)
     return who
+
+
+# ---- sessions that end when they should (round 7 security review) --------------------
+# A session lasts a year (round 3, 38), so the role it was signed in with, a disabled account
+# and a changed password must not ride along for that year. Each token carries when it was
+# issued ("t"); a password change, a reset, disabling or deleting the account moves the
+# person's "valid after" mark, and older tokens stop working. The role and the enabled flag
+# are read back from the directory every two minutes, not trusted from the token.
+_SESS_LOCK = threading.Lock()
+LIVE_SECONDS = 120
+_live: dict[str, tuple[float, bool, bool]] = {}
+
+
+def _sessions_file() -> Path:
+    return load().state_dir / "sessions.json"
+
+
+def _valid_after_all() -> dict:
+    try:
+        return json.loads(_sessions_file().read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def valid_after(user: str) -> float:
+    return float(_valid_after_all().get((user or "").lower(), 0))
+
+
+def session_current(token_data: dict, after: float) -> bool:
+    """Pure: was this token issued after the person's last sign-out-everywhere mark?
+    A token from before "t" existed counts as issued at 0."""
+    return not after or float(token_data.get("t", 0)) > after
+
+
+def revoke_sessions(user: str, now: float | None = None) -> None:
+    """Every session of this person issued before now stops working (all their devices)."""
+    if load().demo or not user:
+        return
+    with _SESS_LOCK:
+        d = _valid_after_all()
+        d[user.lower()] = float(now or time.time())
+        p = _sessions_file()
+        try:
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".tmp")
+            tmp.write_text(json.dumps(d))
+            os.chmod(tmp, 0o600)
+            os.replace(tmp, p)
+        except OSError:
+            pass
+        _live.pop(user.lower(), None)
+
+
+def live_state(user: str, now: float | None = None) -> tuple[bool, bool] | None:
+    """(enabled, admin) from the directory, cached two minutes; None when the directory cannot
+    say (samba down): then the token's role stands, so an outage does not lock admins out of
+    the page they would fix it from."""
+    from . import directory
+    now = now or time.time()
+    key = (user or "").lower()
+    hit = _live.get(key)
+    if hit and now - hit[0] < LIVE_SECONDS:
+        return hit[1], hit[2]
+    if not directory.available():
+        return None
+    d = directory._user_detail(key)
+    if d.get("error"):
+        return None
+    adm = directory.is_admin(key)
+    _live[key] = (now, bool(d.get("enabled", True)), bool(adm))
+    return _live[key][1], _live[key][2]
+
+
+def fresh_token(request: Request) -> str | None:
+    """The current session re-issued now (after the person changed their own password,
+    which signs out every other device)."""
+    tok = request.cookies.get(COOKIE)
+    if not tok:
+        return None
+    try:
+        d = _serializer().loads(tok, max_age=int(load().web.session_hours) * 3600)
+    except BadSignature:
+        return None
+    d["t"] = int(time.time()) + 1
+    return _serializer().dumps(d)
+
+
+# ---- too many wrong passwords ----------------------------------------------------------
+# Samba's own lockout is off by default, and the dashboard was only slowed by 0.8 s a try
+# (with forty worker threads, about fifty guesses a second). Ten wrong tries in fifteen
+# minutes, per person and per address, and that one waits.
+FAIL_MAX, FAIL_WINDOW = 10, 900
+_fails: dict[str, list[float]] = {}
+
+
+def limited(hist: list[float], now: float, n: int = FAIL_MAX, window: int = FAIL_WINDOW) -> bool:
+    """Pure: n or more failures inside the window."""
+    return sum(1 for t in hist if now - t < window) >= n
+
+
+def too_many(keys: list[str], now: float | None = None) -> bool:
+    now = now or time.time()
+    return any(limited(_fails.get(k, []), now) for k in keys if k)
+
+
+def note_failure(keys: list[str], now: float | None = None) -> None:
+    now = now or time.time()
+    for k in keys:
+        if k:
+            _fails[k] = [t for t in _fails.get(k, []) if now - t < FAIL_WINDOW][-50:] + [now]
+
+
+def clear_failures(keys: list[str]) -> None:
+    for k in keys:
+        _fails.pop(k, None)
 
 
 def _check_path(request: Request, who: dict):
@@ -187,8 +315,24 @@ def require_admin(request: Request) -> dict:
 
 
 def member_ok(path: str, role: str, access: str = "portal") -> bool:
-    """Pure helper for the tests: may this role call this path?"""
+    """Pure helper for the tests: may this role call this path? A prefix matches only at a
+    "/" boundary: "/api/me" lets members reach /api/me/... but never a later /api/media."""
     if role == "admin":
         return True
     allowed = NONE_OK if access == "none" else MEMBER_OK
-    return any(path == m.rstrip("/") or path.startswith(m) for m in allowed)
+    return any(path == m.rstrip("/") or path.startswith(m if m.endswith("/") else m + "/") for m in allowed)
+
+
+def origin_ok(origin: str | None, host: str | None) -> bool:
+    """Pure: may a request with this Origin act with the session cookie? The cookie is
+    SameSite=Lax, which still lets a sibling site (vault., cloud., any app on
+    *.ad.arisecenla.com) send it, so a change, and the root terminal, also needs the page
+    that asked to be this dashboard. No Origin at all is a non-browser client (curl, the
+    tests); a browser always sends one on a POST and on a websocket."""
+    if origin is None:
+        return True
+    if not host or origin == "null":
+        return False
+    from urllib.parse import urlsplit
+    o = urlsplit(origin)
+    return bool(o.netloc) and o.netloc.lower() == host.lower()

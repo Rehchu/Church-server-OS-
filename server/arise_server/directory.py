@@ -248,7 +248,11 @@ def set_password(name: str, password: str, temporary: bool = False) -> dict:
         (mc.add if temporary else mc.discard)(name.lower())
         return {"ok": True, "demo": True, "out": f"(sample) new password for {name}", "must_change": bool(temporary)}
     r = run(["samba-tool", "user", "setpassword", name, f"--newpassword={password}"] + (["--must-change-at-next-login"] if temporary else []), timeout=30)
-    return {"ok": True, "out": f"new password set for {name}", "must_change": bool(temporary)} if r["ok"] else _failed(r, f"could not set {name}'s password", password)
+    if not r["ok"]:
+        return _failed(r, f"could not set {name}'s password", password)
+    from .auth import revoke_sessions
+    revoke_sessions(name)   # a new password signs out every device that used the old one
+    return {"ok": True, "out": f"new password set for {name}", "must_change": bool(temporary)}
 
 
 def enable_user(name: str, enabled: bool) -> dict:
@@ -263,7 +267,12 @@ def enable_user(name: str, enabled: bool) -> dict:
         u["enabled"] = bool(enabled)
         return {"ok": True, "demo": True, "out": f"(sample) {name} {'enabled' if enabled else 'disabled'}", "enabled": u["enabled"]}
     r = run(["samba-tool", "user", "enable" if enabled else "disable", name], timeout=20)
-    return {"ok": True, "out": f"{name} {'enabled' if enabled else 'disabled'}", "enabled": bool(enabled)} if r["ok"] else _failed(r, f"could not {'enable' if enabled else 'disable'} {name}")
+    if not r["ok"]:
+        return _failed(r, f"could not {'enable' if enabled else 'disable'} {name}")
+    if not enabled:
+        from .auth import revoke_sessions
+        revoke_sessions(name)   # a disabled account's open sessions end now, not in a year
+    return {"ok": True, "out": f"{name} {'enabled' if enabled else 'disabled'}", "enabled": bool(enabled)}
 
 
 def delete_user(name: str, confirm: str) -> dict:
@@ -284,7 +293,11 @@ def delete_user(name: str, confirm: str) -> dict:
             demo_state.get("dir.passwords", {}).pop(name.lower(), None)
         return {"ok": True, "demo": True, "out": f"(sample) deleted {name}; the home folder is kept"}
     r = run(["samba-tool", "user", "delete", name], timeout=20)
-    return {"ok": True, "out": f"deleted {name}; the home folder is kept"} if r["ok"] else _failed(r, f"could not delete {name}")
+    if not r["ok"]:
+        return _failed(r, f"could not delete {name}")
+    from .auth import revoke_sessions
+    revoke_sessions(name)
+    return {"ok": True, "out": f"deleted {name}; the home folder is kept"}
 
 
 def list_groups() -> dict:

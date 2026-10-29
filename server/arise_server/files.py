@@ -69,9 +69,9 @@ def start_here_note(home: str, new: bool) -> str | None:
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "config", "home", START_HERE)
     dst = os.path.join(home, START_HERE)
     try:
-        if os.path.exists(dst) or not os.path.exists(src):
+        if os.path.lexists(dst) or not os.path.exists(src):
             return None
-        with open(src, encoding="utf-8") as f, open(dst, "w", encoding="utf-8") as g:
+        with open(src, encoding="utf-8") as f, os.fdopen(create_new(dst, 0o600), "w", encoding="utf-8") as g:
             g.write(f.read())
         os.chmod(dst, 0o600)
         return dst
@@ -414,11 +414,29 @@ def save_upload(root_id: str, rel: str, filename: str, data: bytes, who: dict | 
     if why:
         return {"ok": False, "err": why, "quota": True}
     dest = os.path.join(folder, name)
-    if os.path.exists(dest):
+    if os.path.lexists(dest):
         return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
-    with open(dest, "wb") as f:
+    try:
+        fd = create_new(dest)
+    except FileExistsError:
+        return {"ok": False, "err": f"{name} already exists here; rename one of them first"}
+    with os.fdopen(fd, "wb") as f:
         f.write(data)
+    try:
+        # the uploader owns what they upload (the resumable upload does the same), so their Mac can edit it
+        import pwd
+        pw = pwd.getpwnam((who or {}).get("user", ""))
+        os.chown(dest, pw.pw_uid, pw.pw_gid)
+    except (KeyError, OSError, ImportError):
+        pass
     return {"ok": True, "path": dest, "bytes": len(data)}
+
+
+def create_new(path: str, mode: int = 0o664) -> int:
+    """A new file, opened for writing, that was not there a moment ago and is not reached
+    through a link. The dashboard runs as root, so a link someone left in their folder
+    (pointing at /etc, say) must never be written through."""
+    return os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), mode)
 
 
 def make_folder(root_id: str, rel: str, name: str, who: dict | None = None) -> dict:
@@ -565,3 +583,24 @@ def search(q: str, limit: int = 40, who: dict | None = None) -> dict:
             if q in c.lower() and not sharing.hidden(os.path.join(base_of.get(a, "/"), b.lstrip("/")), who)]
     hits.sort(key=lambda h: (not h["name"].lower().startswith(q), h["dir"] is False, h["name"].lower()))
     return {"demo": False, "hits": hits[:limit]}
+
+
+# ----- serving a file inline (Quick Look) without letting it act as the dashboard -----
+# Anyone with a home folder can put an .html or .svg in it (on their Mac, over SMB). Served
+# inline from this origin, its script would run with the viewer's session, and an admin's
+# session reaches the root Terminal. So: page-like types come back as plain text, and every
+# inline file but a PDF (Chrome's viewer refuses a sandboxed one) is sandboxed and never sniffed.
+ACTIVE_TYPES = {"text/html", "application/xhtml+xml", "text/xml", "application/xml", "text/javascript",
+                "application/javascript", "application/x-javascript", "text/ecmascript", "application/ecmascript"}
+
+
+def view_headers(name: str) -> tuple[str, dict]:
+    """Pure: (media type, headers) for showing this file inline."""
+    import mimetypes
+    t = (mimetypes.guess_type(name or "")[0] or "application/octet-stream").lower()
+    if t in ACTIVE_TYPES or t.startswith("text/"):
+        t = "text/plain; charset=utf-8"
+    h = {"X-Content-Type-Options": "nosniff", "Cache-Control": "private, no-store"}
+    if t != "application/pdf":
+        h["Content-Security-Policy"] = "sandbox; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'"
+    return t, h

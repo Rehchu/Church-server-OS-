@@ -9,6 +9,14 @@ Conflicts=getty@tty1.service arise-console.service
 
 [Service]
 User=arise-kiosk
+# Round 7 security review: an unprivileged display session never needs more than this
+# (no setuid helpers, no kernel tunables or modules). Firefox's own sandbox still works.
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
 PAMName=login
 TTYPath=/dev/tty1
 TTYReset=yes

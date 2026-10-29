@@ -185,10 +185,18 @@ class Config:
         out = {}
         for name in DEFAULTS:
             d = getattr(self, name).as_dict()
-            d = {k: v for k, v in d.items() if "password" not in k and "token" not in k and "secret" not in k}
+            d = {k: v for k, v in d.items() if not secret_key(k)}
             out[name] = d
         out["_meta"] = {"path": self.path, "found": self.found, "demo": self.demo}
         return out
+
+
+def secret_key(k: str) -> bool:
+    """Pure: a setting whose value is (or may be) a credential, never sent to a page. A Discord
+    or Slack webhook URL and an API key are credentials too, even under an innocent section."""
+    k = k.lower()
+    return any(w in k for w in ("password", "token", "secret", "webhook", "apikey", "api_key", "private", "credential")) \
+        or k.endswith("_key") or k == "key"
 
 
 _cache: Config | None = None

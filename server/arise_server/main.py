@@ -78,6 +78,27 @@ def _who_from_cookie(request: Request) -> str:
 
 
 @app.middleware("http")
+async def _headers_mw(request: Request, call_next):
+    """Every answer: never sniffed into another type, and the dashboard is not framed by
+    another site (a sibling app could otherwise dress up a click on the real buttons)."""
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "same-origin")
+    return response
+
+
+@app.middleware("http")
+async def _origin_mw(request: Request, call_next):
+    """A change made with the session cookie must come from this dashboard's own pages
+    (round 7 security review: SameSite=Lax still sends the cookie from sibling sites)."""
+    if (request.method in ("POST", "PUT", "DELETE", "PATCH") and request.url.path.startswith("/api/")
+            and COOKIE in request.cookies and not _auth.origin_ok(request.headers.get("origin"), request.headers.get("host"))):
+        return JSONResponse({"error": {"message": "That request came from another site, so it was refused"}}, status_code=403)
+    return await call_next(request)
+
+
+@app.middleware("http")
 async def _audit_mw(request: Request, call_next):
     response = await call_next(request)
     path = request.url.path
@@ -118,7 +139,13 @@ def api_login(body: Login, response: Response, request: Request):
     c = load()
     if not c.demo and not c.web.admin_password_hash:
         raise HTTPException(401, {"setup": True, "message": "No admin password yet. On the server run: sudo arisectl admin set-password"})
+    keys = [f"ip:{_ip(request)}", "u:" + (body.user or "").strip().lower()[:64]]
+    if not c.demo and _auth.too_many(keys):
+        audit.record(body.user[:64], "auth.login", ok=False, ip=_ip(request), detail="too many wrong passwords: waiting")
+        raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes, or reset it with Forgot your password?"})
     got = login(body.user, body.password)
+    if not c.demo:
+        (_auth.clear_failures if got else _auth.note_failure)(keys)
     if not got and c.demo and directory._u((body.user or "").strip().lower()):
         raise HTTPException(401, {"message": "Wrong user or password (or the account is disabled)"})
     if not got:
@@ -138,7 +165,7 @@ def api_login(body: Login, response: Response, request: Request):
         # Two-step is on for this person: the session token waits behind a code (five minutes, three tries).
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
     if tok:
-        response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+        response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     audit.record(who["user"], "auth.login", ip=_ip(request), detail=f"{who.get('via', '')} · {profiles.device_of(request.headers.get('user-agent', ''))}")
     if not c.demo and who.get("via") != "demo":
         files.ensure_home(who["user"])   # Documents, Photos, Videos, Music, Downloads from the first sign-in
@@ -151,7 +178,7 @@ class LoginCode(BaseModel):
 
 
 @app.post("/api/auth/login/code")
-def api_login_code(body: LoginCode, response: Response):
+def api_login_code(body: LoginCode, response: Response, request: Request):
     """The second step: the six digits from Microsoft Authenticator."""
     c = load()
     if c.demo:
@@ -161,7 +188,7 @@ def api_login_code(body: LoginCode, response: Response):
         time.sleep(0.5)
         audit.record(r.get("user", "?"), "auth.login.code", ok=False, detail=r.get("err", "wrong code"))
         raise HTTPException(401, {"message": r.get("err", "wrong code"), "left": r.get("left", 0), "expired": r.get("expired", False)})
-    response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     return {"ok": True, "user": r["user"]}
 
 
@@ -175,13 +202,18 @@ def api_reauth(body: Reauth, request: Request, response: Response, who=auth):
     c = load()
     if c.demo:
         return {"ok": True, "demo": True, "until": 300}
+    keys = ["reauth:" + who["user"].lower()]
+    if _auth.too_many(keys):
+        raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes"})
     if not check_password_for(who["user"], body.password):
+        _auth.note_failure(keys)
         time.sleep(0.8)
         raise HTTPException(401, {"message": "That is not your password"})
+    _auth.clear_failures(keys)
     tok = reauth_token(request)
     if not tok:
         raise HTTPException(401, {"message": "Sign in again"})
-    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     return {"ok": True, "until": 300}
 
 
@@ -193,6 +225,13 @@ def api_logout(response: Response):
 
 def _ip(request: Request) -> str:
     return request.client.host if request.client else ""
+
+
+def _https(request: Request) -> bool:
+    """The session cookie is Secure whenever the page came over HTTPS (Caddy, whose
+    X-Forwarded-Proto uvicorn believes from 127.0.0.1 only). Plain http on :4147 on the
+    church network still works, without the flag, as it must before Caddy exists."""
+    return request.url.scheme == "https"
 
 
 class NewPassword(BaseModel):
@@ -207,8 +246,13 @@ def api_login_new_password(body: NewPassword, response: Response, request: Reque
     The same change a Mac's login window asks for; the domain's rules apply."""
     c = load()
     user = (body.user or "").strip().lower()
+    keys = [f"ip:{_ip(request)}", "u:" + user[:64]]
+    if not c.demo and _auth.too_many(keys):
+        raise HTTPException(429, {"message": "Too many wrong passwords. Wait fifteen minutes"})
     r = directory.change_expired(user, body.old, body.new)
     if not r.get("ok"):
+        if not c.demo:
+            _auth.note_failure(keys)
         time.sleep(0.5)
         audit.record(user[:64], "auth.login.newpassword", ok=False, ip=_ip(request), detail=r.get("err", "")[:120])
         return {"ok": False, "err": r.get("err", "the domain refused that password"), "rules": directory.password_rules().get("words", [])}
@@ -219,7 +263,7 @@ def api_login_new_password(body: NewPassword, response: Response, request: Reque
     audit.record(user, "auth.login.newpassword", ip=_ip(request), detail=f"temporary password replaced · {profiles.device_of(request.headers.get('user-agent', ''))}")
     if not c.demo and twofa.enrolled(user):
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, user), "user": user}
-    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", max_age=int(c.web.session_hours) * 3600)
+    response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     if not c.demo:
         files.ensure_home(user)
     return {"ok": True, "user": user, "role": who["role"], "demo": c.demo}
@@ -332,7 +376,7 @@ class PasswordChange(BaseModel):
 
 
 @app.post("/api/me/password")
-def api_me_password(body: PasswordChange, who=auth):
+def api_me_password(body: PasswordChange, request: Request, response: Response, who=auth):
     """Anyone changes their own directory password; the local admin password is arisectl's."""
     c = load()
     if len(body.new) < 8:
@@ -346,10 +390,20 @@ def api_me_password(body: PasswordChange, who=auth):
     if who["user"] == c.web.admin_user and not directory.authenticate(who["user"], body.old):
         if c.web.admin_password_hash and __import__("arise_server.auth", fromlist=["verify_password"]).verify_password(body.old, c.web.admin_password_hash):
             return {"ok": False, "err": "That is the local dashboard password: change it on the server with sudo arisectl admin set-password"}
+    keys = ["reauth:" + who["user"].lower()]
+    if _auth.too_many(keys):
+        return {"ok": False, "err": "too many wrong passwords: wait fifteen minutes"}
     if not directory.authenticate(who["user"], body.old):
+        _auth.note_failure(keys)
         time.sleep(0.8)
         return {"ok": False, "err": "current password is wrong"}
-    return directory.set_password(who["user"], body.new)
+    r = directory.set_password(who["user"], body.new)
+    if r.get("ok"):
+        # every other device is signed out (set_password moved the mark); this one carries on
+        tok = _auth.fresh_token(request)
+        if tok:
+            response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
+    return r
 
 
 # ----- two-step sign-in, optional per person (round 2, 11; Oct 28) -----------------
@@ -1065,16 +1119,18 @@ def api_files_download(root: str, path: str, who=auth):
     p = files.file_path(root, path, who)
     if not p:
         raise HTTPException(404, {"message": "no such file"})
-    return FileResponse(p, filename=os.path.basename(p))
+    return FileResponse(p, filename=os.path.basename(p), headers={"X-Content-Type-Options": "nosniff"})
 
 
 @app.get("/api/files/view")
 def api_files_view(root: str, path: str, who=auth):
-    """Inline (for Quick Look); download sets an attachment header, this does not."""
+    """Inline (for Quick Look); download sets an attachment header, this does not.
+    Never as a page: see files.view_headers."""
     p = files.file_path(root, path, who)
     if not p:
         raise HTTPException(404, {"message": "no such file"})
-    return FileResponse(p)
+    media, headers = files.view_headers(os.path.basename(p))
+    return FileResponse(p, media_type=media, headers=headers)
 
 
 class NewFolder(BaseModel):
@@ -1808,6 +1864,11 @@ async def api_terminal(ws: WebSocket):
     except HTTPException:
         await ws.close(code=4401)
         return
+    # A root shell: the page opening it must be this dashboard, never a sibling site that
+    # the cookie would also be sent from. Browsers always send Origin on a websocket.
+    if not ws.headers.get("origin") or not _auth.origin_ok(ws.headers.get("origin"), ws.headers.get("host")):
+        await ws.close(code=4403)
+        return
     await ws.accept()
     c = load()
     if c.demo or os.name == "nt":
@@ -2144,7 +2205,7 @@ def api_auth_handoff(body: Handoff, request: Request, response: Response):
         raise HTTPException(401, {"message": "That hand-over has expired; sign in again"})
     session, user = got
     if session:
-        response.set_cookie(COOKIE, session, httponly=True, samesite="lax", max_age=int(load().web.session_hours) * 3600)
+        response.set_cookie(COOKIE, session, httponly=True, samesite="lax", secure=_https(request), max_age=int(load().web.session_hours) * 3600)
     return {"ok": True, "user": user}
 
 

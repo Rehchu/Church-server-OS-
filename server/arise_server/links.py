@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 import os
 import secrets
-import shutil
 import tempfile
 import time
 from datetime import datetime, timedelta
@@ -54,6 +53,17 @@ def _iso(offset_s: float = 0) -> str:
     return (datetime.now() + timedelta(seconds=offset_s)).isoformat(timespec="minutes")
 
 
+def link_refused(root: str) -> str:
+    """Pure: the places a no-login link never reaches. Something shared with you is the
+    owner's to hand out (round 5, 19: Share with... is the way to share); the Pastors folder is
+    the two pastors' only (round 5, 18)."""
+    if root.startswith("shared:"):
+        return "that was shared with you: ask its owner to make the link"
+    if root == "pastors":
+        return "the Pastors folder never gets a link that works without signing in"
+    return ""
+
+
 def create(root: str, rel: str, who: dict, days: int | None = None, note: str = "") -> dict:
     cfg = load()
     # Bradly (Oct 28): a link lives until it is removed unless a life is picked for it.
@@ -62,6 +72,9 @@ def create(root: str, rel: str, who: dict, days: int | None = None, note: str = 
     rs = {r["id"]: r for r in files.roots(who)}
     if root not in rs:
         return {"ok": False, "err": "not a place you can share from"}
+    why = link_refused(root)
+    if why:
+        return {"ok": False, "err": why}
     rel = "/" + rel.strip("/")
     name = os.path.basename(rel) or rs[root]["name"]
     is_dir = False
@@ -79,7 +92,8 @@ def create(root: str, rel: str, who: dict, days: int | None = None, note: str = 
         is_dir = os.path.isdir(target)
     tok = secrets.token_urlsafe(9)
     d = _load()
-    d[tok] = {"root": root, "path": rel, "name": name, "user": who["user"], "created": _iso(), "expires": expires, "note": note[:120], "downloads": 0, "dir": is_dir}
+    d[tok] = {"root": root, "path": rel, "name": name, "user": who["user"], "role": who.get("role", "member"), "created": _iso(),
+              "expires": expires, "note": note[:120], "downloads": 0, "dir": is_dir}
     _save(d)
     return {"ok": True, "token": tok, "link": d[tok], "demo": cfg.demo}
 
@@ -115,14 +129,15 @@ def resolve(token: str) -> dict | None:
         return None
     if load().demo:
         return {"path": None, "name": l["name"], "dir": l["dir"], "demo": True}
-    owner = {"user": l["user"], "role": "admin"}  # the owner's roots at creation; admin roots cover every path
+    if link_refused(l["root"]):
+        return None
+    # The owner's places as they are now, not when the link was made: a person who left, was
+    # disabled or lost the group that let them see a share takes their links with them.
+    owner = {"user": l["user"], "role": _owner_role(l)}
+    if owner["role"] is None:
+        return None
     rs = {r["id"]: r for r in files.roots(owner)}
-    base = rs.get(l["root"]) or ({"path": os.path.join(load().directory.homes_path, l["user"])} if l["root"] == "home" else None)
-    if base is None:
-        from . import shares
-        for sh in shares.list_shares().get("shares", []):
-            if l["root"] == "share:" + sh["name"]:
-                base = {"path": sh["path"]}
+    base = rs.get(l["root"])
     if base is None:
         return None
     target = files._resolve(base["path"], l["path"])
@@ -133,20 +148,55 @@ def resolve(token: str) -> dict | None:
     return {"path": target, "name": l["name"], "dir": os.path.isdir(target)}
 
 
+def _owner_role(l: dict) -> str | None:
+    """admin / member for the link's owner today, or None when the account is gone or disabled.
+    The local dashboard admin is not a directory account and stays admin."""
+    from . import directory
+    user = l["user"]
+    if user == load().web.admin_user:
+        return "admin"
+    if not directory.available():
+        return l.get("role") or "admin"   # no directory to ask (Windows profile): as it was
+    d = directory._user_detail(user)
+    if d.get("error") or not d.get("enabled", True):
+        return None
+    return "admin" if directory.is_admin(user) else "member"
+
+
 def zip_folder(path: str) -> str | None:
     """Zip a folder into a temp file; None if it is over the configured limit."""
     cfg = load()
-    total = 0
-    for dp, _, fs in os.walk(path):
-        for f in fs:
-            try:
-                total += os.path.getsize(os.path.join(dp, f))
-            except OSError:
-                pass
-            if total > int(cfg.links.max_zip_bytes):
-                return None
+    files_in = zip_members(path)
+    if sum(n for _, _, n in files_in) > int(cfg.links.max_zip_bytes):
+        return None
+    import zipfile
     tmp = tempfile.mkdtemp(prefix="arise-link-")
-    return shutil.make_archive(os.path.join(tmp, os.path.basename(path) or "folder"), "zip", path)
+    out = os.path.join(tmp, (os.path.basename(path) or "folder") + ".zip")
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for full, arc, _ in files_in:
+            z.write(full, arc)
+    return out
+
+
+def zip_members(path: str) -> list[tuple[str, str, int]]:
+    """(file, name in the zip, size) for every regular file inside the folder. A link that
+    points outside it (Shared with me holds links to other people's things) is left out:
+    a share link hands over this folder, nothing it points at."""
+    base = os.path.realpath(path)
+    out = []
+    for dp, dirs, fs in os.walk(base):
+        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(dp, d))]
+        for f in fs:
+            full = os.path.join(dp, f)
+            real = os.path.realpath(full)
+            if not (real == base or real.startswith(base + os.sep)) or not os.path.isfile(real):
+                continue
+            try:
+                size = os.path.getsize(real)
+            except OSError:
+                continue
+            out.append((real, os.path.relpath(full, base), size))
+    return out
 
 
 def sweep() -> int:

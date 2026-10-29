@@ -2578,7 +2578,7 @@ V.macs.after = root => {
   $$('[data-mlocal]', root).forEach(b => b.onclick = () => act(b, () => api(`/macs/${encodeURIComponent(id)}/local`, { method: 'POST', body: { local: b.dataset.l, action: 'undo' } }), 'Queued: the conversion is undone at the next check-in').then(() => rerender('macs')));
   $$('[data-mshow]', root).forEach(b => b.onclick = async () => {
     try { const r = await withReauth(() => api(`/macs/${encodeURIComponent(id)}/reveal`, { method: 'POST', body: { kind: b.dataset.mshow } })); if (r.ok === false) throw new Error(r.err);
-      macShowSecret(b.dataset.mshow === 'filevault' ? 'FileVault recovery key' : 'The hidden admin (ariseadmin)', `Seen by you now, and written in the audit log.${r.demo ? ' (sample value)' : ''}`, r.value); }
+      macShowSecret(b.dataset.mshow === 'filevault' ? 'FileVault recovery key' : 'The hidden admin (ariseadmin)', `Seen by you now, and written in the audit log.${r.demo ? ' (sample value)' : ''}`, r.value + ((r.previous || []).length ? '\n\nEarlier, newest first (if the one above does not work):\n' + r.previous.map(x => `${x.value}  (${x.at || '?'})`).join('\n') : '')); }
     catch (er) { if (er.message !== 'cancelled') toast(er.message, 'bad'); }
   });
   const nm = S.macName || '';
