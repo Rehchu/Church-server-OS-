@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793263308
+"boot_time": 1793281308
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,14 +32,14 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-29T02:01:33",
+"last_run": "2026-10-29T02:22:43",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 3.1,
+"token_days_left": 2.9,
 "holds": 8
 },
 "backup": {
@@ -90,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-15T06:01:33"
+"since": "2026-10-15T11:22:43"
 }
 ]
 },
@@ -169,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T08:01:33",
+"last_logon": "2026-10-29T13:22:43",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -183,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T09:01:33",
+"last_logon": "2026-10-28T14:22:43",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -197,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T06:01:33",
+"last_logon": "2026-10-27T11:22:43",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -211,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-23T09:01:33",
+"last_logon": "2026-10-23T14:22:43",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -239,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-26T09:01:33",
+"last_logon": "2026-10-26T14:22:43",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -253,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-20T09:01:33",
+"last_logon": "2026-10-20T14:22:43",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -270,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T05:01:33",
+"last_logon": "2026-10-28T10:22:43",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -287,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T09:01:33",
+"last_logon": "2026-10-27T14:22:43",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -303,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T02:01:33",
+"last_logon": "2026-10-28T07:22:43",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -409,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-29T08:01:33",
+"last_seen": "2026-10-29T13:22:43",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-28T09:01:33",
+"last_seen": "2026-10-28T14:22:43",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-27T09:01:33",
+"last_seen": "2026-10-27T14:22:43",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-29T08:57:33",
+"last_seen": "2026-10-29T14:18:43",
 "ip": "192.168.1.20"
 }
 ]
@@ -1958,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-20T09:01:33",
+"last_check": "2026-10-20T14:22:43",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1990,7 +1990,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-29T02:01:33",
+"last_run": "2026-10-29T02:22:43",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-30T02:05:00",
@@ -2002,7 +2002,7 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 3.1,
+"token_days_left": 2.9,
 "token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 1, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
@@ -2026,8 +2026,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 75.2,
-"days_left": 3.1,
+"hours_left": 69.9,
+"days_left": 2.9,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -2124,17 +2124,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-29T04:01:33",
+"when": "2026-10-29T09:22:43",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-29T04:01:33",
+"when": "2026-10-29T09:22:43",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-29T04:01:33",
+"when": "2026-10-29T09:22:43",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2224,7 +2224,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2241,7 +2241,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2258,7 +2258,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2275,7 +2275,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2292,7 +2292,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-27T09:01:33",
+"updated": "2026-10-27T14:22:43",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2309,7 +2309,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2326,7 +2326,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2343,7 +2343,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-28T09:01:33",
+"updated": "2026-10-28T14:22:43",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2360,7 +2360,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2377,7 +2377,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-26T09:01:33",
+"updated": "2026-10-26T14:22:43",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3225,7 +3225,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-28T07:01:33",
+"last": "2026-10-28T12:22:43",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3489,7 +3489,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-29T09:01"
+"when": "2026-10-29T14:22"
 },
 {
 "user": "bradly",
@@ -3723,8 +3723,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-27T09:01",
-"expires": "2026-11-03T09:01",
+"created": "2026-10-27T14:22",
+"expires": "2026-11-03T14:22",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4072,8 +4072,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4378,
-"in_words": "3 days"
+"in_minutes": 4057,
+"in_words": "2 days"
 },
 "verse": {
 "ref": "Isaiah 40:31",
@@ -4206,8 +4206,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4378,
-"in_words": "3 days"
+"in_minutes": 4057,
+"in_words": "2 days"
 },
 "verse": {
 "ref": "Isaiah 40:31",
@@ -4253,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-29T09:01"
+"now": "2026-10-29T14:22"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4357,7 +4357,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-29T09:01:34+00:00",
+"last_check": "2026-10-29T14:22:44+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4370,7 +4370,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-29T05:01:34",
+"t": "2026-10-29T10:22:44",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4378,7 +4378,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T04:01:34",
+"t": "2026-10-28T09:22:44",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4386,7 +4386,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T09:01:34",
+"t": "2026-10-27T14:22:44",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4394,7 +4394,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T07:01:34",
+"t": "2026-10-26T12:22:44",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4402,7 +4402,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T09:01:34",
+"t": "2026-10-24T14:22:44",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4410,7 +4410,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T08:01:34",
+"t": "2026-10-24T13:22:44",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4418,7 +4418,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T06:01:34",
+"t": "2026-10-23T11:22:44",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4426,7 +4426,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-23T06:01:34",
+"t": "2026-10-23T11:22:44",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4963,8 +4963,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "DASHBOARD",
 "title": "The dashboard — `http://arise-server:4147`",
-"size": 30523,
-"lines": 323,
+"size": 32143,
+"lines": 351,
 "blurb": "A macOS-style desktop in the browser, in the church's own look: a menu bar"
 },
 {
@@ -5138,8 +5138,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"size": 12655,
-"lines": 218,
+"size": 16391,
+"lines": 285,
 "blurb": "What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,"
 },
 {
@@ -5166,8 +5166,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "STAFF-FILES",
 "title": "Your files at Arise",
-"size": 3175,
-"lines": 70,
+"size": 3854,
+"lines": 83,
 "blurb": "This is for staff and volunteers. It is short on purpose."
 },
 {
@@ -5187,8 +5187,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "SYNOLOGY",
 "title": "The Synology — four bays, joined to the domain, holding the real data",
-"size": 7517,
-"lines": 158,
+"size": 9052,
+"lines": 185,
 "blurb": "The old PC is the brain: it authenticates people, runs the dashboard, the"
 },
 {
@@ -5204,6 +5204,13 @@ window.ARISE_DEMO_DATA = {
 "size": 3869,
 "lines": 69,
 "blurb": "Bradly's answer: admins, plus a vault for each department's shared"
+},
+{
+"name": "VIRTUALBOX",
+"title": "Trying ariseOS in VirtualBox",
+"size": 4063,
+"lines": 106,
+"blurb": "A test box on Bradly's PC (Oct 29), long before the OptiPlex. It runs the real"
 },
 {
 "name": "WIX-DNS",
@@ -5295,7 +5302,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-29T09:01:34+00:00",
+"checked_at": "2026-10-29T14:22:44+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5320,7 +5327,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-29T09:01:34+00:00",
+"queued_at": "2026-10-29T14:22:44+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5328,16 +5335,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-24T09:01",
+"when": "2026-10-24T14:22",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-29T09:01:34+00:00"
+"last_check": "2026-10-29T14:22:44+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793264494.2427666,
+"t": 1793283764.4697032,
 "processes": [
 {
 "pid": 470,
@@ -5347,7 +5354,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792054894.2427368,
+"since": 1792074164.4696832,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5364,7 +5371,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792054894.2427354,
+"since": 1792074164.4696817,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5381,7 +5388,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792054894.2426927,
+"since": 1792074164.4696553,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5398,7 +5405,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792054894.2427013,
+"since": 1792074164.469666,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5415,7 +5422,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792054894.2427278,
+"since": 1792074164.4696755,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5432,7 +5439,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792054894.2426977,
+"since": 1792074164.4696615,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5449,7 +5456,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792054894.2426999,
+"since": 1792074164.469664,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5466,7 +5473,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792054894.242705,
+"since": 1792074164.4696708,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5483,7 +5490,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792054894.2427387,
+"since": 1792074164.4696848,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5500,7 +5507,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792054894.242707,
+"since": 1792074164.469673,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5517,7 +5524,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792054894.2427487,
+"since": 1792074164.4696875,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5534,7 +5541,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792054894.2427332,
+"since": 1792074164.46968,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5551,7 +5558,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792054894.2427402,
+"since": 1792074164.4696858,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5568,7 +5575,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792054894.2427304,
+"since": 1792074164.469678,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5688,8 +5695,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-29T10:00:00",
-"last": "2026-10-28T10:00:00",
+"next": "2026-10-29T15:00:00",
+"last": "2026-10-28T15:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5846,7 +5853,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-29T03:01",
+"as_of": "2026-10-29T08:22",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5919,62 +5926,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-29T09:01"
+"mtime": "2026-10-29T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-22T09:01"
+"mtime": "2026-10-22T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-15T09:01"
+"mtime": "2026-10-15T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-08T09:01"
+"mtime": "2026-10-08T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-01T09:01"
+"mtime": "2026-10-01T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-24T09:01"
+"mtime": "2026-09-24T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-17T09:01"
+"mtime": "2026-09-17T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-10T09:01"
+"mtime": "2026-09-10T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-03T09:01"
+"mtime": "2026-09-03T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-27T09:01"
+"mtime": "2026-08-27T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-20T09:01"
+"mtime": "2026-08-20T14:22"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-13T09:01"
+"mtime": "2026-08-13T14:22"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5991,17 +5998,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-16T09:01"
+"mtime": "2025-06-16T14:22"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-16T09:01"
+"mtime": "2025-06-16T14:22"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-16T09:01"
+"mtime": "2025-06-16T14:22"
 }
 ],
 "old_days": 365
@@ -8097,7 +8104,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8112,7 +8119,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8127,7 +8134,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8142,7 +8149,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8157,7 +8164,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8172,7 +8179,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8187,7 +8194,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 },
 {
@@ -8202,11 +8209,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-29T09:01:34+00:00",
+"when": "2026-10-29T14:22:45+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-29T09:01:34+00:00",
+"last": "2026-10-29T14:22:45+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8618,7 +8625,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-27T09:01",
+"when": "2026-10-27T14:22",
 "from": "portal"
 },
 {
@@ -8630,7 +8637,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-17T09:01",
+"when": "2026-10-17T14:22",
 "from": "mac"
 },
 {
@@ -8642,7 +8649,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-02T09:01",
+"when": "2026-10-02T14:22",
 "from": "mac"
 }
 ],
@@ -8880,11 +8887,22 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 75.2,
-"days_left": 3.1,
+"hours_left": 69.9,
+"days_left": 2.9,
 "expired": false,
 "soon": false,
 "by": "bradly"
+},
+"GET /auth/pin/status": {
+"set": false,
+"user": "demo",
+"kind": "full",
+"password_needed": true,
+"this_session_by_pin": false
+},
+"GET /directory/pins": {
+"pins": {},
+"demo": true
 },
 "GET /pastors/breakglass": {
 "open": false,
@@ -8923,35 +8941,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-29T05:01:34",
+"when": "2026-10-29T10:22:44",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-28T04:01:34",
+"when": "2026-10-28T09:22:44",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-27T09:01:34",
+"when": "2026-10-27T14:22:44",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-24T09:01:34",
+"when": "2026-10-24T14:22:44",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-23T06:01:34",
+"when": "2026-10-23T11:22:44",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9255,8 +9273,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4378,
-"in_words": "3 days"
+"in_minutes": 4057,
+"in_words": "2 days"
 },
 "call_time": "09:00",
 "demo": true
@@ -9282,8 +9300,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 4378,
-"in_words": "3 days"
+"in_minutes": 4057,
+"in_words": "2 days"
 },
 "demo": true
 },
@@ -9456,1176 +9474,1176 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-22T09:05",
+"at": "2026-10-22T14:05",
 "down": 929.1,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-22T10:05",
+"at": "2026-10-22T15:05",
 "down": 934.9,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-22T11:05",
+"at": "2026-10-22T16:05",
 "down": 938.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-22T12:05",
+"at": "2026-10-22T17:05",
 "down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T13:05",
+"at": "2026-10-22T18:05",
 "down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-22T14:05",
-"down": 935.6,
+"at": "2026-10-22T19:05",
+"down": 514.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-22T15:05",
-"down": 930.0,
+"at": "2026-10-22T20:05",
+"down": 511.5,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-22T16:05",
-"down": 922.4,
+"at": "2026-10-22T21:05",
+"down": 507.3,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-22T17:05",
+"at": "2026-10-22T22:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-22T18:05",
+"at": "2026-10-22T23:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-22T19:05",
-"down": 490.0,
+"at": "2026-10-23T00:05",
+"down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-22T20:05",
-"down": 483.5,
+"at": "2026-10-23T01:05",
+"down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-22T21:05",
-"down": 476.9,
+"at": "2026-10-23T02:05",
+"down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T22:05",
+"at": "2026-10-23T03:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-22T23:05",
+"at": "2026-10-23T04:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-23T00:05",
+"at": "2026-10-23T05:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-23T01:05",
+"at": "2026-10-23T06:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-23T02:05",
+"at": "2026-10-23T07:05",
 "down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-23T03:05",
+"at": "2026-10-23T08:05",
 "down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-23T04:05",
+"at": "2026-10-23T09:05",
 "down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-23T05:05",
+"at": "2026-10-23T10:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-23T06:05",
+"at": "2026-10-23T11:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-23T07:05",
+"at": "2026-10-23T12:05",
 "down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-23T08:05",
+"at": "2026-10-23T13:05",
 "down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-23T09:05",
+"at": "2026-10-23T14:05",
 "down": 849.9,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-23T10:05",
+"at": "2026-10-23T15:05",
 "down": 860.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-23T11:05",
+"at": "2026-10-23T16:05",
 "down": 872.5,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-23T12:05",
+"at": "2026-10-23T17:05",
 "down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-23T13:05",
+"at": "2026-10-23T18:05",
 "down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-23T14:05",
-"down": 907.4,
+"at": "2026-10-23T19:05",
+"down": 499.1,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-23T15:05",
-"down": 917.5,
+"at": "2026-10-23T20:05",
+"down": 504.6,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-23T16:05",
-"down": 926.0,
+"at": "2026-10-23T21:05",
+"down": 509.3,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-23T17:05",
+"at": "2026-10-23T22:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-23T18:05",
+"at": "2026-10-23T23:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-23T19:05",
-"down": 516.8,
+"at": "2026-10-24T00:05",
+"down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-23T20:05",
-"down": 516.8,
+"at": "2026-10-24T01:05",
+"down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-23T21:05",
-"down": 515.5,
+"at": "2026-10-24T02:05",
+"down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-23T22:05",
+"at": "2026-10-24T03:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-23T23:05",
+"at": "2026-10-24T04:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-24T00:05",
+"at": "2026-10-24T05:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-24T01:05",
+"at": "2026-10-24T06:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T02:05",
+"at": "2026-10-24T07:05",
 "down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T03:05",
+"at": "2026-10-24T08:05",
 "down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-24T04:05",
+"at": "2026-10-24T09:05",
 "down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-24T05:05",
+"at": "2026-10-24T10:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-24T06:05",
+"at": "2026-10-24T11:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-24T07:05",
+"at": "2026-10-24T12:05",
 "down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-24T08:05",
+"at": "2026-10-24T13:05",
 "down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-24T09:05",
+"at": "2026-10-24T14:05",
 "down": 825.7,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-24T10:05",
+"at": "2026-10-24T15:05",
 "down": 821.7,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-24T11:05",
+"at": "2026-10-24T16:05",
 "down": 820.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T12:05",
+"at": "2026-10-24T17:05",
 "down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T13:05",
+"at": "2026-10-24T18:05",
 "down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-24T14:05",
-"down": 829.2,
+"at": "2026-10-24T19:05",
+"down": 456.1,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-24T15:05",
-"down": 836.6,
+"at": "2026-10-24T20:05",
+"down": 460.1,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-24T16:05",
-"down": 845.7,
+"at": "2026-10-24T21:05",
+"down": 465.1,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-24T17:05",
+"at": "2026-10-24T22:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-24T18:05",
+"at": "2026-10-24T23:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-24T19:05",
-"down": 483.7,
+"at": "2026-10-25T00:05",
+"down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T20:05",
-"down": 490.3,
+"at": "2026-10-25T01:05",
+"down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T21:05",
-"down": 496.6,
+"at": "2026-10-25T02:05",
+"down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T22:05",
+"at": "2026-10-25T03:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-24T23:05",
+"at": "2026-10-25T04:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-25T00:05",
+"at": "2026-10-25T05:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-25T01:05",
+"at": "2026-10-25T06:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-25T02:05",
+"at": "2026-10-25T07:05",
 "down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-25T03:05",
+"at": "2026-10-25T08:05",
 "down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-25T04:05",
+"at": "2026-10-25T09:05",
 "down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-25T05:05",
+"at": "2026-10-25T10:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T06:05",
+"at": "2026-10-25T11:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T07:05",
+"at": "2026-10-25T12:05",
 "down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T08:05",
+"at": "2026-10-25T13:05",
 "down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-25T09:05",
+"at": "2026-10-25T14:05",
 "down": 900.6,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-25T10:05",
+"at": "2026-10-25T15:05",
 "down": 889.0,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-25T11:05",
+"at": "2026-10-25T16:05",
 "down": 877.0,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T12:05",
+"at": "2026-10-25T17:05",
 "down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-25T13:05",
+"at": "2026-10-25T18:05",
 "down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T14:05",
-"down": 843.7,
+"at": "2026-10-25T19:05",
+"down": 464.0,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T15:05",
-"down": 834.9,
+"at": "2026-10-25T20:05",
+"down": 459.2,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T16:05",
-"down": 828.0,
+"at": "2026-10-25T21:05",
+"down": 455.4,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T17:05",
+"at": "2026-10-25T22:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T18:05",
+"at": "2026-10-25T23:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T19:05",
-"down": 451.1,
+"at": "2026-10-26T00:05",
+"down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-25T20:05",
-"down": 452.3,
+"at": "2026-10-26T01:05",
+"down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T21:05",
-"down": 454.7,
+"at": "2026-10-26T02:05",
+"down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-25T22:05",
+"at": "2026-10-26T03:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-25T23:05",
+"at": "2026-10-26T04:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-26T00:05",
+"at": "2026-10-26T05:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T01:05",
+"at": "2026-10-26T06:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T02:05",
+"at": "2026-10-26T07:05",
 "down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T03:05",
+"at": "2026-10-26T08:05",
 "down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T04:05",
+"at": "2026-10-26T09:05",
 "down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-26T05:05",
+"at": "2026-10-26T10:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-26T06:05",
+"at": "2026-10-26T11:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-26T07:05",
+"at": "2026-10-26T12:05",
 "down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-26T08:05",
+"at": "2026-10-26T13:05",
 "down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T09:05",
+"at": "2026-10-26T14:05",
 "down": 937.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T10:05",
+"at": "2026-10-26T15:05",
 "down": 939.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T11:05",
+"at": "2026-10-26T16:05",
 "down": 939.4,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T12:05",
+"at": "2026-10-26T17:05",
 "down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T13:05",
+"at": "2026-10-26T18:05",
 "down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-26T14:05",
-"down": 924.4,
+"at": "2026-10-26T19:05",
+"down": 508.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-26T15:05",
-"down": 915.5,
+"at": "2026-10-26T20:05",
+"down": 503.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-26T16:05",
-"down": 905.2,
+"at": "2026-10-26T21:05",
+"down": 497.9,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-26T17:05",
+"at": "2026-10-26T22:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
+"at": "2026-10-26T23:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
-"down": 478.5,
+"at": "2026-10-27T00:05",
+"down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
-"down": 472.2,
+"at": "2026-10-27T01:05",
+"down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 466.3,
+"at": "2026-10-27T02:05",
+"down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-27T03:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T04:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T05:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T06:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T07:05",
 "down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T08:05",
 "down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T09:05",
 "down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T10:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-27T11:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-27T12:05",
 "down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-27T13:05",
 "down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T14:05",
 "down": 869.5,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T15:05",
 "down": 881.5,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-27T16:05",
 "down": 893.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-27T17:05",
 "down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-27T18:05",
 "down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
-"down": 924.1,
+"at": "2026-10-27T19:05",
+"down": 508.2,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
-"down": 931.3,
+"at": "2026-10-27T20:05",
+"down": 512.2,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
-"down": 936.4,
+"at": "2026-10-27T21:05",
+"down": 515.0,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
+"at": "2026-10-27T22:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
+"at": "2026-10-27T23:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
-"down": 515.9,
+"at": "2026-10-28T00:05",
+"down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
-"down": 513.7,
+"at": "2026-10-28T01:05",
+"down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 510.2,
+"at": "2026-10-28T02:05",
+"down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-28T03:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T04:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T05:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T06:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T07:05",
 "down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T08:05",
 "down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T09:05",
 "down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T10:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-28T11:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-28T12:05",
 "down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-28T13:05",
 "down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T14:05",
 "down": 820.2,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T15:05",
 "down": 820.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-28T16:05",
 "down": 822.9,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-28T17:05",
 "down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-28T18:05",
 "down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
-"down": 843.3,
+"at": "2026-10-28T19:05",
+"down": 463.8,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
-"down": 853.4,
+"at": "2026-10-28T20:05",
+"down": 469.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
-"down": 864.7,
+"at": "2026-10-28T21:05",
+"down": 475.6,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
+"at": "2026-10-28T22:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
+"at": "2026-10-28T23:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
-"down": 495.1,
+"at": "2026-10-29T00:05",
+"down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
-"down": 501.0,
+"at": "2026-10-29T01:05",
+"down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 506.3,
+"at": "2026-10-29T02:05",
+"down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-29T03:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T04:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T05:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T06:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T07:05",
 "down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T08:05",
 "down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T09:05",
 "down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T10:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T11:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
+"at": "2026-10-29T12:05",
 "down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T13:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10633,14 +10651,14 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "last": {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T13:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 869.5,
+"down": 872.5,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
@@ -10772,12 +10790,12 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-10-29T09:01",
+"checked": "2026-10-29T14:22",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T13:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -14475,14 +14493,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T09:01:33",
+"enrolled": "2026-10-20T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T03:01:33",
+"last_checkin": "2026-10-29T08:22:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T09:01:33",
+"ariseadmin_at": "2026-10-20T14:22:44",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14500,14 +14518,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T09:01:33",
+"enrolled": "2026-10-26T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T08:59:33",
+"last_checkin": "2026-10-29T14:20:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T09:01:33",
+"ariseadmin_at": "2026-10-26T14:22:44",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14525,14 +14543,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T09:01:33",
+"enrolled": "2026-10-28T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T08:57:33",
+"last_checkin": "2026-10-29T14:18:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T09:01:33",
+"ariseadmin_at": "2026-10-28T14:22:44",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14569,14 +14587,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-20T09:01:33",
+"enrolled": "2026-10-20T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T03:01:33",
+"last_checkin": "2026-10-29T08:22:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-20T09:01:33",
+"ariseadmin_at": "2026-10-20T14:22:44",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14595,7 +14613,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-25T09:01:33"
+"last_login": "2026-10-25T14:22:44"
 }
 ],
 "tasks": [
@@ -14606,9 +14624,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-28T13:01:33",
+"made": "2026-10-28T18:22:44",
 "by": "the overnight window",
-"finished": "2026-10-28T14:01:33",
+"finished": "2026-10-28T19:22:44",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14629,14 +14647,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-26T09:01:33",
+"enrolled": "2026-10-26T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T08:59:33",
+"last_checkin": "2026-10-29T14:20:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-26T09:01:33",
+"ariseadmin_at": "2026-10-26T14:22:44",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14655,7 +14673,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-28T09:01:33"
+"last_login": "2026-10-28T14:22:44"
 },
 {
 "user": "media",
@@ -14665,12 +14683,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-29T06:01:33",
+"last_login": "2026-10-29T11:22:44",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-27T09:01:33",
+"at": "2026-10-27T14:22:44",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14687,9 +14705,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-27T09:01:33",
+"made": "2026-10-27T14:22:44",
 "by": "bradly",
-"finished": "2026-10-27T09:01:33",
+"finished": "2026-10-27T14:22:44",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14699,9 +14717,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-26T09:01:33",
+"made": "2026-10-26T14:22:44",
 "by": "the directory",
-"finished": "2026-10-26T09:01:33",
+"finished": "2026-10-26T14:22:44",
 "detail": "mobile account made"
 }
 ],
@@ -14722,14 +14740,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-28T09:01:33",
+"enrolled": "2026-10-28T14:22:44",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-29T08:57:33",
+"last_checkin": "2026-10-29T14:18:44",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T09:01:33",
+"ariseadmin_at": "2026-10-28T14:22:44",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14748,7 +14766,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-27T09:01:33"
+"last_login": "2026-10-27T14:22:44"
 },
 {
 "user": "levi",
@@ -14758,7 +14776,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-24T09:01:33",
+"last_login": "2026-10-24T14:22:44",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14785,7 +14803,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T07:01:33",
+"made": "2026-10-29T12:22:44",
 "by": "enrolment"
 },
 {
@@ -14793,7 +14811,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T07:01:33",
+"made": "2026-10-29T12:22:44",
 "by": "enrolment"
 },
 {
@@ -14801,7 +14819,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T07:01:33",
+"made": "2026-10-29T12:22:44",
 "by": "enrolment"
 },
 {
@@ -14809,7 +14827,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-29T07:01:33",
+"made": "2026-10-29T12:22:44",
 "by": "enrolment"
 },
 {
@@ -14817,9 +14835,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-28T09:01:33",
+"made": "2026-10-28T14:22:44",
 "by": "enrolment",
-"finished": "2026-10-28T09:01:33",
+"finished": "2026-10-28T14:22:44",
 "detail": "1 printer"
 },
 {
@@ -14829,9 +14847,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-28T09:01:33",
+"made": "2026-10-28T14:22:44",
 "by": "the directory",
-"finished": "2026-10-28T09:01:33",
+"finished": "2026-10-28T14:22:44",
 "detail": "mobile account made"
 }
 ],
@@ -16180,7 +16198,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "DASHBOARD",
 "title": "The dashboard — `http://arise-server:4147`",
-"html": "<h1 id=\"the-dashboard-httparise-server4147\">The dashboard — <code>http://arise-server:4147</code></h1>\n<p>A macOS-style desktop in the browser, in the church's own look: a menu bar\nwith real menus across the top, a Finder, windows you drag and resize, a\nfloating dock along the bottom, Spotlight, Mission Control, a widgets panel and\na launchpad with every app. Served by <code>arise-web.service</code> from <code>web/</code>; it talks to the JSON API\nin <code>server/arise_server/</code>. Plain HTML, CSS and JS; no build step.</p>\n<p>The look is the website's \"House Lights Down\" theatre: ink and Arise red,\nAnton and Oswald, the two red dashes before a kicker, numbered rooms (every\napp carries its folio: 01 Finder … 31 Security), a red footlight along the\ndiagonal cut at the bottom of the wallpaper.</p>\n<h2 id=\"the-parts\">The parts</h2>\n<p>It is laid out like a Mac, because that is what the church's computers are,\nand it is what the closet monitor shows all day with <code>install.sh --kiosk</code>\n(docs/CONSOLE.md).</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it does</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Menu bar</strong></td>\n<td>the flame menu (About This Server, System Settings, Change Password, <strong>Two-step sign-in…</strong>, <strong>Security</strong>, Launchpad, Run backups now, Preview tonight's automator, Lock Screen, Sign Out, and the <strong>Power</strong> group: Restart the dashboard, Restart the domain, Restart…, Shut Down…); the focused app's name and its menus (<strong>File · View · Window · Help</strong>, each app its own); a red <em>needs you</em> count; who is online; backup and VPN state; live CPU, RAM, uptime; the live/sample dot; Spotlight; Control Center; the clock, which opens the widgets panel</td>\n</tr>\n<tr>\n<td><strong>Finder</strong> (01)</td>\n<td>the first window on every desktop. Sidebar: Favorites (Home folders, Shares, Media, Automator, Apps, Backups), Locations (the server, the Synology), Tags. Icon or list view, back/forward, breadcrumbs, filter, Upload, New Folder. Click to select, double-click to open, <strong>Space</strong> for Quick Look (images, text, Markdown, JSON, PDF, video, audio), <strong>⌘I</strong> for Get Info, right-click for Open · Quick Look · Download · Get Info · Previous Versions… · Compress · Share Link… · Move to Trash · Copy path · Copy <code>smb://</code> address. Since v0.8 a delete is a move to the share's Trash (30 days), a <code>.txt</code> or <code>.md</code> opens in an editor, and a Mac gets an <em>Open on my Mac</em> button; docs/FINDER.md</td>\n</tr>\n<tr>\n<td><strong>Desktop</strong></td>\n<td>volume icons on the right (the server, the Synology; double-click opens Finder there); widgets on the left; right-click the wallpaper for New Finder window, Show widgets, Mission Control, Launchpad</td>\n</tr>\n<tr>\n<td><strong>Widgets</strong></td>\n<td>on the desktop and in the panel behind the clock: <em>Needs you</em> (or <em>All clear</em>), live CPU and memory with a sparkline, <em>The box</em> (directory, automator, quota, backups, Synology, what runs next), <em>This week</em> (service times), the month, the latest sermon</td>\n</tr>\n<tr>\n<td><strong>Windows</strong></td>\n<td>title bar with the folio and the app name, three dots (close, minimise, zoom), drag by the bar, resize from the corner, double-click the bar to zoom; new windows cascade. On a phone every window is full screen</td>\n</tr>\n<tr>\n<td><strong>Dock</strong></td>\n<td>hides below the bottom edge (round 4, 12); the mouse at the edge or an opening app brings it back; a switch in Control Center keeps it visible. Default admin set: Finder, Overview, Sunday, Sermons, Calendar, Mail, Store, Settings, Terminal; members: Finder, Sermons, Bible, Sunday, Calendar, Assistants, Help. Right-click an icon to keep or remove it (per browser). Icons grow under the pointer, bounce while an app opens, carry a dot while it runs; the last icon is the launchpad. On a phone it becomes a bottom bar you can scroll</td>\n</tr>\n<tr>\n<td><strong>Launchpad</strong></td>\n<td>every app with its folio and a one-line purpose; type to filter; right-click to keep one in the Dock; Escape closes</td>\n</tr>\n<tr>\n<td><strong>Spotlight</strong> (⌘Space)</td>\n<td>one box for everything: apps, actions (run backups, preview tonight, lock), people and computers from the directory, files by name on the server and the Synology, and a Bible reference (<code>John 3:16</code>) read straight away. Arrows and Enter</td>\n</tr>\n<tr>\n<td><strong>Mission Control</strong> (F3)</td>\n<td>every open window laid out small; click one to go to it, Escape to leave</td>\n</tr>\n<tr>\n<td><strong>⌘Tab</strong></td>\n<td>the app switcher, newest first; hold and tap</td>\n</tr>\n<tr>\n<td><strong>Control Center</strong></td>\n<td>VPN and backup state at a glance, Back up now, Preview tonight, Mission Control, Lock screen, System Settings; the switches: House Lights Down / Bone, Sounds, Push, Dock hides, <strong>Larger text</strong>, <strong>Reduce motion</strong>, <strong>High contrast</strong>; Show me around</td>\n</tr>\n<tr>\n<td><strong>Lock screen</strong> (⌃⌘Q)</td>\n<td>the time, the date, the flame, your name, the password, and the line <em>Arise Church · Pineville · next: the next service</em>. On the closet monitor it locks itself after ten idle minutes</td>\n</tr>\n<tr>\n<td><strong>Login</strong></td>\n<td>the flame, the user, the password, the same next-service line; it tells you the command when no password is set yet. When two-step is on for that person, a second step asks for the six digits from Microsoft Authenticator (three wrong codes and you start over). After sign-in, a three-second <em>Good morning, Bradly. Today: Romans 8:28</em> toast (not on the kiosk)</td>\n</tr>\n</tbody>\n</table>\n<p>Keyboard, when a window is focused: <strong>⌘W</strong> close · <strong>⌘M</strong> minimise ·\n<strong>⌘R</strong> reload the window · <strong>⇧⌘N</strong> new\nfolder (Finder) · <strong>⌘I</strong> Get Info (Finder) · <strong>F1</strong> Help · <strong>⌘/</strong> the\nshortcut sheet · <strong>⌘ + arrows</strong> snap the window to a half, a quarter or\nthe whole screen (dragging to an edge does the same, with a ghost) · <strong>F4</strong>\nLaunchpad · <strong>Escape</strong> closes whatever is on top. Tab reaches every control\nand the arrow keys move inside menus.</p>\n<h2 id=\"the-apps\">The apps</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>App</th>\n<th>What it shows</th>\n<th>What it can do</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>01</td>\n<td><strong>Finder</strong></td>\n<td>the server's data root and the Synology, folder by folder, with Quick Look and Get Info; the SMB shares under Shares; <strong>Recents</strong> (this week) and <strong>Trash</strong> in the sidebar; for an administrator the <strong>Everyone</strong> views (All Documents, All Photos, All Videos, All Music, All Downloads: every person's folder of that name side by side, owner labelled; a member never sees another person's folder)</td>\n<td>upload (to 10 GB, resumable), new folder, download, <strong>Compress</strong> (a folder as a zip, to 2 GB), <strong>Get Info</strong> (size, owner, dates, the SMB path, who can open it), <strong>Previous Versions…</strong> (last night's and older copies from the backup, restored beside the original as <code>name (restored date)</code>), edit a <code>.txt</code>/<code>.md</code>/<code>.csv</code>/<code>.json</code>/<code>.yaml</code>/<code>.toml</code>/<code>.log</code> in place (⌘S; Markdown preview), <strong>Move to Trash</strong> (30 days; Put Back; Empty is the administrator's with the share's name typed), <strong>Open on my Mac</strong>, share links that live until removed. No move</td>\n</tr>\n<tr>\n<td>02</td>\n<td><strong>Overview</strong></td>\n<td>the \"Needs you\" list, live stats, directory / automator / backup cards, disks, tonight's timetable</td>\n<td>links into the others</td>\n</tr>\n<tr>\n<td>03</td>\n<td><strong>Directory</strong></td>\n<td>domain health (LDAP, Kerberos, DNS), users, groups, joined computers, the SMB shares</td>\n<td>add a user, reset a password, enable/disable, delete (type the name), new group, add a member, new share, remove a share (files stay)</td>\n</tr>\n<tr>\n<td>04</td>\n<td><strong>Backups</strong></td>\n<td>repository size, last run per job, full history with the reason for every failure, snapshots, restore instructions</td>\n<td>run a job now, <code>restic check</code>, refresh the GitHub mirror</td>\n</tr>\n<tr>\n<td>05</td>\n<td><strong>Automator</strong></td>\n<td>last run, quota today, token state, holds and rules, the latest report, the worklist, past reports</td>\n<td>preview tonight (dry run), run now (confirmed)</td>\n</tr>\n<tr>\n<td>06</td>\n<td><strong>Sermons</strong></td>\n<td>the channel from the automator's inventory, no quota spent: Sunday services, Glory Nights, Shorts, conferences, with thumbnails, playlists, the live page</td>\n<td>open on YouTube or in Studio</td>\n</tr>\n<tr>\n<td>07</td>\n<td><strong>Bible</strong></td>\n<td>a passage from bible-api.com (World English Bible, KJV and others; no key), verse numbers in the website's style, quick chips</td>\n<td>copy, open on arisecenla.church's Bible Search</td>\n</tr>\n<tr>\n<td>08</td>\n<td><strong>Store</strong></td>\n<td>two tabs. <em>Installed</em>: every template deployed at install, running or stopped, each with its memory cap and address, and a memory gauge (the running apps' caps against the box's RAM minus 2 GB kept for the domain and the dashboard). <em>Catalogue</em>: <code>catalog/catalog.yaml</code>, 35 more free apps by category with an honest memory cost, including the desktop programs that open in a browser window (GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity; they stop themselves after an hour idle), OnlyOffice, a <em>Game night</em> entry and a Proclaim-under-Wine experiment, both off by default. Each card says what of the house look the app takes. docs/STORE.md</td>\n<td>install, start, stop, open (in a window, pop out to a tab), autostart on/off, logs, remove (the name typed; the data folder stays)</td>\n</tr>\n<tr>\n<td>09</td>\n<td><strong>Remote</strong></td>\n<td>SSH state, Tailscale devices, WireGuard peers, Guacamole, and a plain \"how to reach it from Alexandria, the Hub or home\"</td>\n<td>add a WireGuard peer and get its config</td>\n</tr>\n<tr>\n<td>10</td>\n<td><strong>Campuses</strong></td>\n<td>Pineville, Alexandria, the Apostolic Hub: reachability, network, which joined computers sit at which site</td>\n<td>read only</td>\n</tr>\n<tr>\n<td>11</td>\n<td><strong>Terminal</strong></td>\n<td>a real shell on the server (xterm.js over a websocket)</td>\n<td>everything <code>arisectl</code> does, and everything else. Treat it like root</td>\n</tr>\n<tr>\n<td>12</td>\n<td><strong>Synology</strong></td>\n<td>mount state, free space, DSM health and RAID when <code>dsm_url</code> is set, off-site copy</td>\n<td>mount, unmount</td>\n</tr>\n<tr>\n<td>13</td>\n<td><strong>Services</strong></td>\n<td>the systemd units that matter</td>\n<td>start, stop, restart, jump to logs</td>\n</tr>\n<tr>\n<td>14</td>\n<td><strong>Logs</strong></td>\n<td>the journal by unit, grouped (arise-*, samba-ad-dc, docker, sshd, each app); the files under <code>/var/log/arise</code>; 100, 300 or 1000 lines; a search box with highlighting; the last error line marked and jumped to</td>\n<td>pick, search, Copy, <em>Copy for Claude</em> (the unit, the last error and the lines, as a prompt)</td>\n</tr>\n<tr>\n<td>15</td>\n<td><strong>System Settings</strong></td>\n<td>one window, a sidebar of sections: Appearance (theme, sounds, accessibility, as the browser has them), Users, Sharing, Backups (schedule, 30/12/24 kept, the repository), Software Update, Time (America/Chicago, the services, the timers), Notifications (push on/off and who; whether a Discord webhook is set, never the URL), About. Values from <code>arise.toml</code> are shown read-only with the file to edit named</td>\n<td>open the app each section belongs to; the safe writes that already have a route</td>\n</tr>\n<tr>\n<td>16</td>\n<td><strong>Network</strong></td>\n<td>everything on the switch: every device on Netgear A's wire with address, MAC, maker, a guessed kind, whether it is joined to the domain, first and last seen; the office Netgear and the Google Mesh appear as one device each (their networks are behind them). An hourly scan by itself (<code>arise-devices.timer</code>); new devices are flagged. Below the list, <em>Behind the other routers</em>: what the office Netgear reports as attached, read from the router with its admin password (<code>[[routers]]</code> in arise.toml), never written; the Google Mesh says plainly that it has no such list outside the Google Home app. <strong>Wide scan</strong> also looks on the common address ranges an installer parks devices on and marks those <em>stray</em>; <strong>Find cameras</strong> asks the wire for ONVIF cameras and says whether each is reachable from this network</td>\n<td>Scan now, name a device (the name sticks to its MAC whatever address it gets), note, kind, forget an offline one</td>\n</tr>\n<tr>\n<td>17</td>\n<td><strong>Assistants</strong></td>\n<td>Claude, ChatGPT, Grok, YouTube Studio, StreamYard, each with your own account: on the monitor each opens in its own window on top of the desktop (close it to come back); in a browser, a new tab. Plus Claude Code on the box itself, in the Terminal</td>\n<td>open; no keys stored</td>\n</tr>\n<tr>\n<td>18</td>\n<td><strong>Sunday</strong></td>\n<td>the service checklist (ticks reset weekly, who ticked what), the next service with a countdown, the service times, the verse of the day, quick doors</td>\n<td>tick, untick</td>\n</tr>\n<tr>\n<td>19</td>\n<td><strong>Mail</strong></td>\n<td>the church family list and newsletters through Resend: Compose (plain text with bold, links, headings, lists; live preview in the house template; \"Hi {first name},\" and an unsubscribe link Resend manages), Contacts (import the Wix CSV export; dedupe and bad-address check before anything is added), Sent (every broadcast and its status)</td>\n<td>send a test to one address, send to everyone (type <code>send</code>), import. Admin only</td>\n</tr>\n<tr>\n<td>20</td>\n<td><strong>Calendar</strong></td>\n<td>the services from <code>[church]</code> (Sunday 10:30, Glory Night Monday 19:00) and the events staff add, in a month view with the next two weeks beside it; members see it too</td>\n<td>add, edit, remove an event (admins; remove is typed); <strong>Subscribe</strong>: the <code>webcal://</code> address of <code>/calendar.ics</code> with the steps for a Mac and an iPhone, so every device carries the church calendar; docs/EVERYDAY.md</td>\n</tr>\n<tr>\n<td>21</td>\n<td><strong>Calculator</strong></td>\n<td>sums; Spotlight answers one typed into it (<code>12×(3+4)</code>), no <code>eval</code></td>\n<td>copy the result</td>\n</tr>\n<tr>\n<td>22</td>\n<td><strong>Clock</strong></td>\n<td>world clock (America/Chicago and two more), a timer with the house tone, a stopwatch, an alarm</td>\n<td></td>\n</tr>\n<tr>\n<td>23</td>\n<td><strong>Help</strong></td>\n<td>the docs rendered inside the dashboard (<code>markdown</code>, raw HTML escaped), searchable; <strong>F1</strong> or <strong>⌘?</strong> opens it, <strong>⌘/</strong> the shortcut sheet; members see the portal guide (docs/PORTAL-GUIDE.md) only</td>\n<td>read, search</td>\n</tr>\n<tr>\n<td>24</td>\n<td><strong>Activity Monitor</strong></td>\n<td>the top 60 processes by CPU and memory (pid, user, memory, reads and writes where known) and every container's stats, refreshed every few seconds, sortable</td>\n<td>End Process (typed), refused for PID 1, Samba, the dashboard, Docker, containerd, sshd. Admins</td>\n</tr>\n<tr>\n<td>25</td>\n<td><strong>Automations</strong></td>\n<td>every <code>arise-*</code> timer: what it does in plain words, next run, last run and its result, enabled or paused; the rule <em>never during a service</em> shown</td>\n<td>Pause and Resume (typed), Preview for the automator, Run now where a route exists (backups, mirror, drill, scan). The real automator stays refused while its timer is enabled. Admins</td>\n</tr>\n<tr>\n<td>26</td>\n<td><strong>Storage</strong></td>\n<td>each mount's free space; the disk by share and by app's data folder (computed in the background, with \"as of\"); the 50 biggest files; a <em>not changed in a year</em> list (by modified date; last-opened is not tracked, it says so); the Trash's size</td>\n<td>Rescan. Nothing deletes from here; links open Finder. Admins</td>\n</tr>\n<tr>\n<td>27</td>\n<td><strong>Software Update</strong></td>\n<td>apt updates split into security (installed by themselves, as before) and the rest, each app's newer image after <em>Check apps</em>, whether a reboot is waiting, ariseOS's own version against the repo; a badge in the menu bar when anything waits</td>\n<td><em>Install at the window</em> queues it for <code>arise-update.timer</code>, Saturday 03:30, which takes a system snapshot first and refuses during a service; <em>Install now</em> (typed) does the same at once. Admins. docs/SYSTEM-APPS.md</td>\n</tr>\n<tr>\n<td>28</td>\n<td><strong>Notes</strong></td>\n<td>Trilium (the template) in a window</td>\n<td>admins and members in the Staff or Media groups</td>\n</tr>\n<tr>\n<td>29</td>\n<td><strong>Photos</strong></td>\n<td>Immich (the template) in a window: the church's photo library with faces, search, albums</td>\n<td>admins and members in the Staff or Media groups</td>\n</tr>\n<tr>\n<td>30</td>\n<td><strong>Monitor</strong></td>\n<td>the closet panel: off at 23:00, on at 06:00 by timer (a key wakes it any time); Screen Sharing of that panel through Guacamole, Bradly only (wayvnc on port 5900, listening only on the address Guacamole's Docker network reaches, its password in the secrets folder)</td>\n<td>panel on/off now, share on/off. Admins</td>\n</tr>\n<tr>\n<td>31</td>\n<td><strong>Security</strong></td>\n<td>each safety basic as a green, amber or red row with the command that fixes it: the disk (LUKS, TPM-bound or not), the last virus scan and the quarantine, the church certificate, who has two-step on, <code>arise-rescue</code> and its last use, the firewall, Tailscale, updates waiting, the last snapshot</td>\n<td>Scan now (refused during a service), put a quarantined file back (typed), <em>Two-step for me…</em>. Admins. docs/SECURITY.md</td>\n</tr>\n<tr>\n<td>32</td>\n<td><strong>Macs</strong></td>\n<td>the church Macs the helper manages (docs/MACS.md): each Mac's macOS, accounts, FileVault, Tailscale, Full Disk Access and last check-in; its local accounts waiting for a choice; its tasks</td>\n<td>Enrol a Mac (the one Terminal line), Convert / Link / Leave alone / Undo per local account, rotate or show the admin password and the FileVault key (password asked again), printers, bookmarks, updates, Retire and Cut off (the Mac's name typed). Admins</td>\n</tr>\n<tr>\n<td>33</td>\n<td><strong>Sync</strong></td>\n<td>Nextcloud (docs/SYNC.md): per person, their devices and last sync, conflicts settled (newest wins), storage against the 50 GB quota</td>\n<td>New device… (its password shown once), Cut off one device or all of them (the name typed), settle conflicts now. Admins</td>\n</tr>\n<tr>\n<td>—</td>\n<td><strong>About This Server</strong></td>\n<td>version, host, domain, kernel, processor, memory, uptime, profile, this week, and <strong>What's new</strong> (the top of CHANGELOG.md, ten lines at most; a one-time toast when the version changes)</td>\n<td>from the flame menu</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"v08-exodus-the-everyday-os-and-the-safety-basics\">v0.8 Exodus: the everyday OS and the safety basics</h3>\n<p>Round 3 and round 4 of Bradly's answers (docs/ANSWERS.md), docs/PARITY.md\nfor the map against Windows 11 and macOS.</p>\n<ul>\n<li><strong>Twelve new apps</strong>, 20 to 31, in the table above; <strong>Store</strong>, <strong>Logs</strong> and\n  <strong>System Settings</strong> rebuilt. Members get Calendar, Calculator, Clock and\n  Help; Notes and Photos open for members in the Staff or Media groups\n  (<code>MEMBER_APPS</code> and <code>groups</code> in <code>web/app.js</code>).</li>\n<li><strong>Finder</strong> gained Trash, Previous Versions, Get Info, Recents, the text\n  editor, Compress, Open on my Mac, the Everyone views, resumable uploads to\n  10 GB, and links that never expire unless removed (docs/FINDER.md).</li>\n<li><strong>Weather</strong> widget for Pineville on the desktop and in the panel, from\n  Open-Meteo with no key; offline it says <em>No weather</em> rather than invent.</li>\n<li><strong>Snap windows</strong>, <strong>accessibility</strong> switches, the <strong>Dock that hides</strong>, the\n  <strong>greeting</strong>, the next-service line on the lock and sign-in screens\n  (docs/EVERYDAY.md).</li>\n<li><strong>Two-step sign-in</strong>, optional per person, from the flame menu: a QR code\n  for Microsoft Authenticator shown once; Directory marks who has it on; the\n  login asks for the six digits (docs/SECURITY.md).</li>\n<li><strong>Asking twice</strong>: deleting a user and the power menu ask the signed-in\n  person's password again, remembered five minutes, on top of typing the\n  name (round 4, 54).</li>\n<li><strong>The power menu</strong> refuses during a service and says when it ends.</li>\n<li><strong>What's New</strong> in About after each update.</li>\n<li>Everything an administrator needs to look after the box without a\n  terminal: Activity Monitor, Automations, Storage, Software Update, Monitor,\n  Security.</li>\n</ul>\n<h3 id=\"the-feel-v07-genesis\">The feel (v0.7 Genesis)</h3>\n<ul>\n<li><strong>ariseOS</strong> is the name on the boot splash, the login, the lock screen and\n  About; \"Arise Server\" is the project and the service. Codenames are books\n  of the Bible from here on.</li>\n<li><strong>Sounds</strong>, quiet: a click on the dock, a three-note chime when the Sunday\n  checklist completes, a low tone when a red item appears. Off in Control\n  Center.</li>\n<li><strong>The Bone theme</strong>: the website's light paper look, for laptops in\n  daylight. A switch in Control Center, per browser. The closet monitor\n  never goes light.</li>\n<li><strong>About This Server</strong> carries the week: the verse, the services on the\n  calendar, what the channel published this week and how many hours of it,\n  the latest title. All from the box's own data.</li>\n<li><strong>A phone app</strong>: open the dashboard in Safari or Chrome and Add to Home\n  Screen; it runs full screen with its own icon, and offline it says so.</li>\n<li><strong>Push</strong> to Bradly's phone (answer 10): Control Center → Push on. A new\n  red item in Needs You sends one short notification with a link; the same\n  item is not repeated for six hours. Needs <code>pywebpush</code> and <code>py-vapid</code> on\n  the box (in requirements); the keys are made there, root-only.</li>\n<li><strong>The walkthrough</strong>: five steps the first time each person signs in\n  (different for admins and members), and \"Show me around\" in Control\n  Center any time.</li>\n</ul>\n<h3 id=\"the-screensaver-and-the-lobby-screen\">The screensaver and the lobby screen</h3>\n<p>After five idle minutes the closet monitor shows a screensaver: the time,\nthe next service and how long until it, the verse of the day, the church's\nname, and the channel's thumbnails slowly behind it. Any key or touch\nbrings the desktop back; at ten minutes the lock screen goes on top.</p>\n<p>The same screen is a <strong>lobby sign</strong>: any old Mac mini, Raspberry Pi or TV\nbrowser opens <code>http://arise-server:4147/signage</code>, no login, and shows the\nservice times, the next service, the verse and the latest titles. Service\ntimes come from <code>[church]</code> in <code>arise.toml</code>; the verse is one of a fixed\nlist of references, text from the Bible app's source.</p>\n<h2 id=\"who-can-sign-in-and-what-they-see\">Who can sign in, and what they see</h2>\n<table>\n<thead>\n<tr>\n<th>Who</th>\n<th>Signs in with</th>\n<th>Sees</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>The administrator</strong> (<code>admin_user</code> in <code>arise.toml</code>, or anyone in <code>admins_group</code>, default <em>Domain Admins</em>)</td>\n<td>the local dashboard password from <code>arisectl admin set-password</code>, or their directory password</td>\n<td>everything above</td>\n</tr>\n<tr>\n<td><strong>Any directory user</strong> (<code>member_login = true</code>)</td>\n<td>their domain password, the same one the Macs and the shares use</td>\n<td>the <strong>portal</strong>: Finder with <em>My files</em> (their home folder, which starts with Documents, Photos, Videos, Music and Downloads) and the shares their groups allow (read-only where the share's write list leaves them out), Upload, New Folder, Quick Look, Get Info, Download, Trash, Previous Versions of their own files, <strong>Share Link</strong>, Sermons, Bible, Campuses, Calendar, Calculator, Clock, Help, Assistants, Sunday, Spotlight over their own places, <strong>Change Password</strong> (with the meter and the domain's rules in words), <strong>Two-step sign-in</strong>, Lock, Sign Out. Notes and Photos when they are in Staff or Media</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Staff use their Macs (round 5, after 26).</strong> With <code>[web] staff_access = \"none\"</code>,\nthe default, a member's sign-in gets one page, <em>Your files are on your Mac …\nask Bradly</em>, and every member API call but sign-in and sign-out is refused\n(403). <code>\"portal\"</code> brings the row above back. The closet desktop is for the\nadministrators.</p>\n<h3 id=\"round-5-on-the-desktop\">Round 5 on the desktop</h3>\n<ul>\n<li><strong>The Desktop folder</strong> sits on the wallpaper as icons, like a Mac: the\n  administrator's is <code>homes/&amp;lt;user&gt;/Desktop</code>. Double-click opens, right-click\n  for the menu, drag to place (remembered per person in\n  <code>/var/lib/arise/desktop/&amp;lt;user&gt;.json</code>), drag a Finder file onto the wallpaper\n  to move it there. Every new home gets <code>Desktop</code> and a <code>Start here.md</code> note\n  (<code>config/home/Start here.md</code>; Samba's <code>[homes]</code> preexec does the same).</li>\n<li><strong>Notifications</strong>: the clock carries a red count; the Notification Centre\n  lists them. Calendar reminders go 30 minutes ahead to the event's <em>Who's in\n  it</em>, the Sunday checklist nudges Staff at 9:30 when items are left, each\n  department list nudges its group at its own time, and anything shared with\n  someone tells them. Feed in <code>/var/lib/arise/notifications.json</code>, push to the\n  person's own devices, email when <code>[notify] email_staff = true</code>. Nothing is\n  sent during a service. <code>POST /api/notifications</code> (admin) adds one by hand.</li>\n<li><strong>Department checklists</strong> under the Sunday checklist: one per\n  <code>[church] departments</code> group. The leader (or any admin) edits it, members\n  tick it, each service gets a fresh round (the list moves on at 8 PM the\n  night before), the finished round goes to History, and each list has its\n  own nudge time per service. Staff tick theirs on their phones at\n  <code>/checklist</code> (round 7, below).</li>\n<li><strong>Text size on the closet monitor</strong>: Settings → <em>The monitor &amp; setup</em>,\n  100–150%, 125% by default. Saving writes <code>/var/lib/arise/kiosk-scale</code> and\n  restarts the kiosk browser; refused during a service.</li>\n<li><strong>The guided setup</strong> opens the first time an administrator signs in: people,\n  shares, the Synology, Discord, Resend, Tailscale. <em>Later</em> puts it away;\n  Settings opens it again. State in <code>/var/lib/arise/setup.json</code>.</li>\n<li><strong>Sign-in faces</strong> on the closet monitor (<code>?kiosk=1</code>): the administrators as\n  initials, nobody preselected; the name field starts empty everywhere.</li>\n</ul>\n<h3 id=\"round-7-on-the-desktop\">Round 7 on the desktop</h3>\n<ul>\n<li><strong>The phone checklist</strong> (<code>/checklist</code>, rows 19, 88, 89): the one page staff\n  open on the dashboard, with their own account, even with\n  <code>[web] staff_access = \"none\"</code>. It and <code>/api/checklist/*</code> are the only\n  exception; everything else still answers 403. Mobile-first: their\n  department's list for the next service, a big tap target per item, tick\n  and untick. A department's leader (the <em>Leader</em> on its list in the Sunday\n  app) and the admins see every department's list; others see their own.\n  Only the department and the admins tick a list. A leader can also reset\n  the password of someone in a department they lead: a temporary password,\n  shown once on the leader's phone, audited (<code>checklist.leader_reset</code>); the\n  person chooses their own at the next sign-in. Never an admin's password.</li>\n<li><strong>Call times</strong> (row 90): a list opens at call time, Sunday 09:00 and\n  Glory Night 18:00 (<code>[church] call_times</code>). Before that staff see the items\n  but cannot tick; the default nudge is the call time.</li>\n<li><strong>Service mode</strong> (app 34, row 87): from a service's start to two hours after\n  (<code>church.in_service_now</code>: Pineville, Alexandria's 10:00, and any Calendar\n  event marked <em>Counts as a service</em>), the closet monitor opens it by itself,\n  full screen: the stream (live or not, from the channel's public <code>/live</code>\n  page, no API quota), every department's checklist with what is left, the\n  internet speed, and the run sheet (a file with \"run sheet\" in its name in\n  <code>Church/Run sheets</code> or the owner's Desktop, <code>.md</code> or <code>.txt</code>).</li>\n<li><strong>One hold for everyone</strong> (rows 91, 93, 94): <code>church.hold(kind)</code> answers\n  whether a service holds back an <code>update</code>, a <code>restart</code>, a <code>mac</code> change,\n  heavy <code>sync</code>ing or other <code>heavy</code> work, and why. Timers use\n  <code>arisectl service-now --quiet</code> as their <code>ExecCondition</code>;\n  <code>GET /api/service/hold?kind=…</code> shows it.</li>\n<li><strong>Widgets each admin chooses</strong> (114) and <strong>Launchpad apps each admin hides</strong>\n  (115): Settings → <em>My desktop</em>; right-click an app in Launchpad →\n  <em>Hide from my Launchpad</em>. Both follow the account (<code>widgets.off</code>,\n  <code>lp.hidden</code> in the synced preferences).</li>\n<li><strong>The notes board</strong> (116): a widget the four admins share. Add, edit, pin,\n  colour, <em>Put away</em>; a note put away is kept and <em>Bring back</em> returns it.\n  Nothing on it is ever deleted. State in <code>/var/lib/arise/notes-board.json</code>.</li>\n<li><strong>Weather for both campuses</strong> (111): Pineville in the widget, Alexandria\n  under it, both on the screensaver (<code>[church] weather_places</code>).</li>\n<li><strong>Screensaver announcements</strong> (110): the next week's Calendar events, one at\n  a time under the verse.</li>\n<li><strong>Dark by default</strong> (109): dark for everyone; <em>Bone</em> (light) is each\n  admin's own choice in Appearance and follows their account.</li>\n<li><strong>After a restart</strong> (107): the closet monitor opens the owner's desktop by\n  itself (<code>[kiosk] autologin = \"owner\"</code>, <code>\"off\"</code> to stop it), once per boot,\n  within 15 minutes of it, and only on the monitor itself; it still locks\n  after ten idle minutes. Audited as <code>kiosk.autologin</code>.</li>\n<li><strong>The text console</strong> (108): the kiosk owns tty1 only; <code>Ctrl+Alt+F2</code> (tty2\n  and up) keeps its login prompt for the admins.</li>\n<li><strong>Settings → Reports</strong> (78-81, 85, 144): which Discord channels are set\n  (names only, never the addresses) with a Test per channel; the Monday report\n  as it would post; the channel's progress to 1,000 subscribers and 4,000\n  public watch hours when the box has the automator's numbers (\"not\n  available yet\" otherwise); the pastors' monthly note.</li>\n<li><strong>The pastors' monthly note</strong> (81, 144): the server drafts five plain lines\n  from the month's own facts (services it stayed out of the way of, backups,\n  new accounts, the Macs, nothing reachable from outside). Bradly edits it\n  and presses <em>Send to the pastors</em> (he types <code>send</code>); it goes by email to\n  <code>[storage] pastors</code>. Nothing sends unapproved, and a sent month is kept.</li>\n<li><strong>Activity Monitor → Network</strong> (121): the hourly speed test charted for the\n  week, with <em>Test now</em>; never during a service.</li>\n<li><strong>Songs → Lyrics inbox and CCLI usage</strong> (99, 100, 106): see\n  docs/AUTOMATOR.md.</li>\n</ul>\n<p>A member who opens an admin app by its address gets <em>That part of the\ndashboard is for the administrator</em> (HTTP 403); the server enforces it, not\nthe page. Login is a Kerberos check against the domain controller itself\n(<code>kinit</code>), so a disabled or expired account cannot sign in here either.</p>\n<h3 id=\"share-links\">Share links</h3>\n<p>Right-click a file or folder → <strong>Share Link…</strong> (or File → Share Link…). A\nlink lives until it is removed (<code>[links] days = 0</code>, Bradly's choice, Oct 28);\npick a life of up to <code>max_days</code> (365) when you want one to lapse. The\ndashboard makes\n<code>https://&amp;lt;server&gt;/s/&amp;lt;token&gt;</code>: anyone with it downloads the file with no\nsign-in, a folder arrives as a zip (up to 2 GB). <strong>Shared Links…</strong> in the\nflame menu, the Finder sidebar or Control Center lists yours with the\ndownload count; <em>Remove</em> kills a link at once. The administrator sees\neveryone's. Links live in <code>/var/lib/arise/links.json</code>; <code>arisectl link list</code>,\n<code>arisectl link revoke &amp;lt;token&gt;</code>, <code>arisectl link sweep</code>. Set <code>public_url</code> in\n<code>[web]</code> once HTTPS is up so links carry the public address.</p>\n<h3 id=\"a-windows-keyboard\">A Windows keyboard</h3>\n<p>The closet monitor has a Windows keyboard. Every shortcut takes <strong>Ctrl</strong>\nwhere a Mac takes ⌘, and the menus say so: Ctrl+Space Spotlight, Ctrl+W\nclose, Ctrl+Shift+N new folder, Ctrl+Alt+Q lock. The Windows key works too\nwhere the browser reports it as ⌘.</p>\n<h2 id=\"rules-it-keeps\">Rules it keeps</h2>\n<ul>\n<li><strong>Nothing is deleted without typing its name.</strong> Users, shares and apps ask\n  for the exact name. Home folders, share folders, app data and snapshots are\n  never removed by the dashboard at all.</li>\n<li><strong>Secrets never reach the browser.</strong> <code>GET /api/settings</code> strips every key\n  with <code>password</code>, <code>token</code> or <code>secret</code> in its name.</li>\n<li><strong>Sample data is labelled.</strong> When a tool is missing or there is no config,\n  the response carries <code>\"demo\": true</code> and the menu bar shows an amber <em>Sample\n  data</em> badge. The published preview shows <em>Preview · sample data</em>.</li>\n<li><strong>Two kinds of login, one cookie.</strong> <code>arisectl admin set-password</code> writes a\n  bcrypt hash into <code>arise.toml</code> for the administrator; every directory user\n  signs in with their domain password. The session is a signed cookie that\n  carries the role and expires after <code>session_hours</code> (8760, a year: a browser\nor a phone stays signed in until the person signs out, round 3, 38). The Terminal uses the\n  same cookie and is admin-only. With no admin hash set the page refuses to\n  show anything and tells you the command.</li>\n</ul>\n<h2 id=\"live-stats\">Live stats</h2>\n<p><code>/api/stats/stream</code> is a Server-Sent Events feed: one JSON sample a second\n(CPU, per core, temperature where the board reports it, memory, swap, network\nand disk rates, load, uptime). One collector thread samples psutil; every\nopen browser reads the same cache. <code>/api/stats/history</code> returns the last 60\nsamples so the sparklines are full on first paint.</p>\n<h2 id=\"reaching-it\">Reaching it</h2>\n<p>On the church network: <code>http://arise-server:4147</code>. From Alexandria, the Hub or\nhome: the same address over the VPN (docs/REMOTE-ACCESS.md), or\n<code>https://arise-server.ad.arisecenla.com</code> once Caddy is on. It is not meant\nto face the internet directly; the VPN is the front door.</p>\n<h2 id=\"running-it-anywhere\">Running it anywhere</h2>\n<pre><code class=\"language-bash\">cd server &amp;&amp; pip install -r requirements.txt\npython -m arise_server --demo --port 4147     # sample data, no root needed\n</code></pre>\n<p><code>python3 scripts/gen-demo-data.py</code> rebuilds <code>web/demo-data.js</code> from the same\nsample responses; that file is what the static preview page uses. <code>web/vendor/</code>\nholds xterm.js (MIT), fetched with <code>npm pack</code>, unmodified.</p>",
+"html": "<h1 id=\"the-dashboard-httparise-server4147\">The dashboard — <code>http://arise-server:4147</code></h1>\n<p>A macOS-style desktop in the browser, in the church's own look: a menu bar\nwith real menus across the top, a Finder, windows you drag and resize, a\nfloating dock along the bottom, Spotlight, Mission Control, a widgets panel and\na launchpad with every app. Served by <code>arise-web.service</code> from <code>web/</code>; it talks to the JSON API\nin <code>server/arise_server/</code>. Plain HTML, CSS and JS; no build step.</p>\n<p>The look is the website's \"House Lights Down\" theatre: ink and Arise red,\nAnton and Oswald, the two red dashes before a kicker, numbered rooms (every\napp carries its folio: 01 Finder … 31 Security), a red footlight along the\ndiagonal cut at the bottom of the wallpaper.</p>\n<h2 id=\"the-parts\">The parts</h2>\n<p>It is laid out like a Mac, because that is what the church's computers are,\nand it is what the closet monitor shows all day with <code>install.sh --kiosk</code>\n(docs/CONSOLE.md).</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it does</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Menu bar</strong></td>\n<td>the flame menu (About This Server, System Settings, Change Password, <strong>Two-step sign-in…</strong>, <strong>Security</strong>, Launchpad, Run backups now, Preview tonight's automator, Lock Screen, Sign Out, and the <strong>Power</strong> group: Restart the dashboard, Restart the domain, Restart…, Shut Down…); the focused app's name and its menus (<strong>File · View · Window · Help</strong>, each app its own); a red <em>needs you</em> count; who is online; backup and VPN state; live CPU, RAM, uptime; the live/sample dot; Spotlight; Control Center; the clock, which opens the widgets panel</td>\n</tr>\n<tr>\n<td><strong>Finder</strong> (01)</td>\n<td>the first window on every desktop. Sidebar: Favorites (Home folders, Shares, Media, Automator, Apps, Backups), Locations (the server, the Synology), Tags. Icon or list view, back/forward, breadcrumbs, filter, Upload, New Folder. Click to select, double-click to open, <strong>Space</strong> for Quick Look (images, text, Markdown, JSON, PDF, video, audio), <strong>⌘I</strong> for Get Info, right-click for Open · Quick Look · Download · Get Info · Previous Versions… · Compress · Share Link… · Move to Trash · Copy path · Copy <code>smb://</code> address. Since v0.8 a delete is a move to the share's Trash (30 days), a <code>.txt</code> or <code>.md</code> opens in an editor, and a Mac gets an <em>Open on my Mac</em> button; docs/FINDER.md</td>\n</tr>\n<tr>\n<td><strong>Desktop</strong></td>\n<td>volume icons on the right (the server, the Synology; double-click opens Finder there); widgets on the left; right-click the wallpaper for New Finder window, Show widgets, Mission Control, Launchpad</td>\n</tr>\n<tr>\n<td><strong>Widgets</strong></td>\n<td>on the desktop and in the panel behind the clock: <em>Needs you</em> (or <em>All clear</em>), live CPU and memory with a sparkline, <em>The box</em> (directory, automator, quota, backups, Synology, what runs next), <em>This week</em> (service times), the month, the latest sermon</td>\n</tr>\n<tr>\n<td><strong>Windows</strong></td>\n<td>title bar with the folio and the app name, three dots (close, minimise, zoom), drag by the bar, resize from the corner, double-click the bar to zoom; new windows cascade. On a phone every window is full screen</td>\n</tr>\n<tr>\n<td><strong>Dock</strong></td>\n<td>hides below the bottom edge (round 4, 12); the mouse at the edge or an opening app brings it back; a switch in Control Center keeps it visible. Default admin set: Finder, Overview, Sunday, Sermons, Calendar, Mail, Store, Settings, Terminal; members: Finder, Sermons, Bible, Sunday, Calendar, Assistants, Help. Right-click an icon to keep or remove it (per browser). Icons grow under the pointer, bounce while an app opens, carry a dot while it runs; the last icon is the launchpad. On a phone it becomes a bottom bar you can scroll</td>\n</tr>\n<tr>\n<td><strong>Launchpad</strong></td>\n<td>every app with its folio and a one-line purpose; type to filter; right-click to keep one in the Dock; Escape closes</td>\n</tr>\n<tr>\n<td><strong>Spotlight</strong> (⌘Space)</td>\n<td>one box for everything: apps, actions (run backups, preview tonight, lock), people and computers from the directory, files by name on the server and the Synology, and a Bible reference (<code>John 3:16</code>) read straight away. Arrows and Enter</td>\n</tr>\n<tr>\n<td><strong>Mission Control</strong> (F3)</td>\n<td>every open window laid out small; click one to go to it, Escape to leave</td>\n</tr>\n<tr>\n<td><strong>⌘Tab</strong></td>\n<td>the app switcher, newest first; hold and tap</td>\n</tr>\n<tr>\n<td><strong>Control Center</strong></td>\n<td>VPN and backup state at a glance, Back up now, Preview tonight, Mission Control, Lock screen, System Settings; the switches: House Lights Down / Bone, Sounds, Push, Dock hides, <strong>Larger text</strong>, <strong>Reduce motion</strong>, <strong>High contrast</strong>; Show me around</td>\n</tr>\n<tr>\n<td><strong>Lock screen</strong> (⌃⌘Q)</td>\n<td>the time, the date, the flame, your name, the password, and the line <em>Arise Church · Pineville · next: the next service</em>. On the closet monitor it locks itself after ten idle minutes</td>\n</tr>\n<tr>\n<td><strong>Login</strong></td>\n<td>the flame, the user, the password, the same next-service line; it tells you the command when no password is set yet. When two-step is on for that person, a second step asks for the six digits from Microsoft Authenticator (three wrong codes and you start over). After sign-in, a three-second <em>Good morning, Bradly. Today: Romans 8:28</em> toast (not on the kiosk)</td>\n</tr>\n</tbody>\n</table>\n<p>Keyboard, when a window is focused: <strong>⌘W</strong> close · <strong>⌘M</strong> minimise ·\n<strong>⌘R</strong> reload the window · <strong>⇧⌘N</strong> new\nfolder (Finder) · <strong>⌘I</strong> Get Info (Finder) · <strong>F1</strong> Help · <strong>⌘/</strong> the\nshortcut sheet · <strong>⌘ + arrows</strong> snap the window to a half, a quarter or\nthe whole screen (dragging to an edge does the same, with a ghost) · <strong>F4</strong>\nLaunchpad · <strong>Escape</strong> closes whatever is on top. Tab reaches every control\nand the arrow keys move inside menus.</p>\n<h2 id=\"the-apps\">The apps</h2>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>App</th>\n<th>What it shows</th>\n<th>What it can do</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>01</td>\n<td><strong>Finder</strong></td>\n<td>the server's data root and the Synology, folder by folder, with Quick Look and Get Info; the SMB shares under Shares; <strong>Recents</strong> (this week) and <strong>Trash</strong> in the sidebar; for an administrator the <strong>Everyone</strong> views (All Documents, All Photos, All Videos, All Music, All Downloads: every person's folder of that name side by side, owner labelled; a member never sees another person's folder)</td>\n<td>upload (to 10 GB, resumable), new folder, download, <strong>Compress</strong> (a folder as a zip, to 2 GB), <strong>Get Info</strong> (size, owner, dates, the SMB path, who can open it), <strong>Previous Versions…</strong> (last night's and older copies from the backup, restored beside the original as <code>name (restored date)</code>), edit a <code>.txt</code>/<code>.md</code>/<code>.csv</code>/<code>.json</code>/<code>.yaml</code>/<code>.toml</code>/<code>.log</code> in place (⌘S; Markdown preview), <strong>Move to Trash</strong> (30 days; Put Back; Empty is the administrator's with the share's name typed), <strong>Open on my Mac</strong>, share links that live until removed. No move</td>\n</tr>\n<tr>\n<td>02</td>\n<td><strong>Overview</strong></td>\n<td>the \"Needs you\" list, live stats, directory / automator / backup cards, disks, tonight's timetable</td>\n<td>links into the others</td>\n</tr>\n<tr>\n<td>03</td>\n<td><strong>Directory</strong></td>\n<td>domain health (LDAP, Kerberos, DNS), users, groups, joined computers, the SMB shares</td>\n<td>add a user, reset a password, enable/disable, delete (type the name), new group, add a member, new share, remove a share (files stay)</td>\n</tr>\n<tr>\n<td>04</td>\n<td><strong>Backups</strong></td>\n<td>repository size, last run per job, full history with the reason for every failure, snapshots, restore instructions</td>\n<td>run a job now, <code>restic check</code>, refresh the GitHub mirror</td>\n</tr>\n<tr>\n<td>05</td>\n<td><strong>Automator</strong></td>\n<td>last run, quota today, token state, holds and rules, the latest report, the worklist, past reports</td>\n<td>preview tonight (dry run), run now (confirmed)</td>\n</tr>\n<tr>\n<td>06</td>\n<td><strong>Sermons</strong></td>\n<td>the channel from the automator's inventory, no quota spent: Sunday services, Glory Nights, Shorts, conferences, with thumbnails, playlists, the live page</td>\n<td>open on YouTube or in Studio</td>\n</tr>\n<tr>\n<td>07</td>\n<td><strong>Bible</strong></td>\n<td>a passage from bible-api.com (World English Bible, KJV and others; no key), verse numbers in the website's style, quick chips</td>\n<td>copy, open on arisecenla.church's Bible Search</td>\n</tr>\n<tr>\n<td>08</td>\n<td><strong>Store</strong></td>\n<td>two tabs. <em>Installed</em>: every template deployed at install, running or stopped, each with its memory cap and address, and a memory gauge (the running apps' caps against the box's RAM minus 2 GB kept for the domain and the dashboard). <em>Catalogue</em>: <code>catalog/catalog.yaml</code>, 35 more free apps by category with an honest memory cost, including the desktop programs that open in a browser window (GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity; they stop themselves after an hour idle), OnlyOffice, a <em>Game night</em> entry and a Proclaim-under-Wine experiment, both off by default. Each card says what of the house look the app takes. docs/STORE.md</td>\n<td>install, start, stop, open (in a window, pop out to a tab), autostart on/off, logs, remove (the name typed; the data folder stays)</td>\n</tr>\n<tr>\n<td>09</td>\n<td><strong>Remote</strong></td>\n<td>SSH state, Tailscale devices, WireGuard peers, Guacamole, and a plain \"how to reach it from Alexandria, the Hub or home\"</td>\n<td>add a WireGuard peer and get its config</td>\n</tr>\n<tr>\n<td>10</td>\n<td><strong>Campuses</strong></td>\n<td>Pineville, Alexandria, the Apostolic Hub: reachability, network, which joined computers sit at which site</td>\n<td>read only</td>\n</tr>\n<tr>\n<td>11</td>\n<td><strong>Terminal</strong></td>\n<td>a real shell on the server (xterm.js over a websocket)</td>\n<td>everything <code>arisectl</code> does, and everything else. Treat it like root</td>\n</tr>\n<tr>\n<td>12</td>\n<td><strong>Synology</strong></td>\n<td>mount state, free space, DSM health and RAID when <code>dsm_url</code> is set, off-site copy</td>\n<td>mount, unmount</td>\n</tr>\n<tr>\n<td>13</td>\n<td><strong>Services</strong></td>\n<td>the systemd units that matter</td>\n<td>start, stop, restart, jump to logs</td>\n</tr>\n<tr>\n<td>14</td>\n<td><strong>Logs</strong></td>\n<td>the journal by unit, grouped (arise-*, samba-ad-dc, docker, sshd, each app); the files under <code>/var/log/arise</code>; 100, 300 or 1000 lines; a search box with highlighting; the last error line marked and jumped to</td>\n<td>pick, search, Copy, <em>Copy for Claude</em> (the unit, the last error and the lines, as a prompt)</td>\n</tr>\n<tr>\n<td>15</td>\n<td><strong>System Settings</strong></td>\n<td>one window, a sidebar of sections: Appearance (theme, sounds, accessibility, as the browser has them), Users, Sharing, Backups (schedule, 30/12/24 kept, the repository), Software Update, Time (America/Chicago, the services, the timers), Notifications (push on/off and who; whether a Discord webhook is set, never the URL), About. Values from <code>arise.toml</code> are shown read-only with the file to edit named</td>\n<td>open the app each section belongs to; the safe writes that already have a route</td>\n</tr>\n<tr>\n<td>16</td>\n<td><strong>Network</strong></td>\n<td>everything on the switch: every device on Netgear A's wire with address, MAC, maker, a guessed kind, whether it is joined to the domain, first and last seen; the office Netgear and the Google Mesh appear as one device each (their networks are behind them). An hourly scan by itself (<code>arise-devices.timer</code>); new devices are flagged. Below the list, <em>Behind the other routers</em>: what the office Netgear reports as attached, read from the router with its admin password (<code>[[routers]]</code> in arise.toml), never written; the Google Mesh says plainly that it has no such list outside the Google Home app. <strong>Wide scan</strong> also looks on the common address ranges an installer parks devices on and marks those <em>stray</em>; <strong>Find cameras</strong> asks the wire for ONVIF cameras and says whether each is reachable from this network</td>\n<td>Scan now, name a device (the name sticks to its MAC whatever address it gets), note, kind, forget an offline one</td>\n</tr>\n<tr>\n<td>17</td>\n<td><strong>Assistants</strong></td>\n<td>Claude, ChatGPT, Grok, YouTube Studio, StreamYard, each with your own account: on the monitor each opens in its own window on top of the desktop (close it to come back); in a browser, a new tab. Plus Claude Code on the box itself, in the Terminal</td>\n<td>open; no keys stored</td>\n</tr>\n<tr>\n<td>18</td>\n<td><strong>Sunday</strong></td>\n<td>the service checklist (ticks reset weekly, who ticked what), the next service with a countdown, the service times, the verse of the day, quick doors</td>\n<td>tick, untick</td>\n</tr>\n<tr>\n<td>19</td>\n<td><strong>Mail</strong></td>\n<td>the church family list and newsletters through Resend: Compose (plain text with bold, links, headings, lists; live preview in the house template; \"Hi {first name},\" and an unsubscribe link Resend manages), Contacts (import the Wix CSV export; dedupe and bad-address check before anything is added), Sent (every broadcast and its status)</td>\n<td>send a test to one address, send to everyone (type <code>send</code>), import. Admin only</td>\n</tr>\n<tr>\n<td>20</td>\n<td><strong>Calendar</strong></td>\n<td>the services from <code>[church]</code> (Sunday 10:30, Glory Night Monday 19:00) and the events staff add, in a month view with the next two weeks beside it; members see it too</td>\n<td>add, edit, remove an event (admins; remove is typed); <strong>Subscribe</strong>: the <code>webcal://</code> address of <code>/calendar.ics</code> with the steps for a Mac and an iPhone, so every device carries the church calendar; docs/EVERYDAY.md</td>\n</tr>\n<tr>\n<td>21</td>\n<td><strong>Calculator</strong></td>\n<td>sums; Spotlight answers one typed into it (<code>12×(3+4)</code>), no <code>eval</code></td>\n<td>copy the result</td>\n</tr>\n<tr>\n<td>22</td>\n<td><strong>Clock</strong></td>\n<td>world clock (America/Chicago and two more), a timer with the house tone, a stopwatch, an alarm</td>\n<td></td>\n</tr>\n<tr>\n<td>23</td>\n<td><strong>Help</strong></td>\n<td>the docs rendered inside the dashboard (<code>markdown</code>, raw HTML escaped), searchable; <strong>F1</strong> or <strong>⌘?</strong> opens it, <strong>⌘/</strong> the shortcut sheet; members see the portal guide (docs/PORTAL-GUIDE.md) only</td>\n<td>read, search</td>\n</tr>\n<tr>\n<td>24</td>\n<td><strong>Activity Monitor</strong></td>\n<td>the top 60 processes by CPU and memory (pid, user, memory, reads and writes where known) and every container's stats, refreshed every few seconds, sortable</td>\n<td>End Process (typed), refused for PID 1, Samba, the dashboard, Docker, containerd, sshd. Admins</td>\n</tr>\n<tr>\n<td>25</td>\n<td><strong>Automations</strong></td>\n<td>every <code>arise-*</code> timer: what it does in plain words, next run, last run and its result, enabled or paused; the rule <em>never during a service</em> shown</td>\n<td>Pause and Resume (typed), Preview for the automator, Run now where a route exists (backups, mirror, drill, scan). The real automator stays refused while its timer is enabled. Admins</td>\n</tr>\n<tr>\n<td>26</td>\n<td><strong>Storage</strong></td>\n<td>each mount's free space; the disk by share and by app's data folder (computed in the background, with \"as of\"); the 50 biggest files; a <em>not changed in a year</em> list (by modified date; last-opened is not tracked, it says so); the Trash's size</td>\n<td>Rescan. Nothing deletes from here; links open Finder. Admins</td>\n</tr>\n<tr>\n<td>27</td>\n<td><strong>Software Update</strong></td>\n<td>apt updates split into security (installed by themselves, as before) and the rest, each app's newer image after <em>Check apps</em>, whether a reboot is waiting, ariseOS's own version against the repo; a badge in the menu bar when anything waits</td>\n<td><em>Install at the window</em> queues it for <code>arise-update.timer</code>, Saturday 03:30, which takes a system snapshot first and refuses during a service; <em>Install now</em> (typed) does the same at once. Admins. docs/SYSTEM-APPS.md</td>\n</tr>\n<tr>\n<td>28</td>\n<td><strong>Notes</strong></td>\n<td>Trilium (the template) in a window</td>\n<td>admins and members in the Staff or Media groups</td>\n</tr>\n<tr>\n<td>29</td>\n<td><strong>Photos</strong></td>\n<td>Immich (the template) in a window: the church's photo library with faces, search, albums</td>\n<td>admins and members in the Staff or Media groups</td>\n</tr>\n<tr>\n<td>30</td>\n<td><strong>Monitor</strong></td>\n<td>the closet panel: off at 23:00, on at 06:00 by timer (a key wakes it any time); Screen Sharing of that panel through Guacamole, Bradly only (wayvnc on port 5900, listening only on the address Guacamole's Docker network reaches, its password in the secrets folder)</td>\n<td>panel on/off now, share on/off. Admins</td>\n</tr>\n<tr>\n<td>31</td>\n<td><strong>Security</strong></td>\n<td>each safety basic as a green, amber or red row with the command that fixes it: the disk (LUKS, TPM-bound or not), the last virus scan and the quarantine, the church certificate, who has two-step on, <code>arise-rescue</code> and its last use, the firewall, Tailscale, updates waiting, the last snapshot</td>\n<td>Scan now (refused during a service), put a quarantined file back (typed), <em>Two-step for me…</em>. Admins. docs/SECURITY.md</td>\n</tr>\n<tr>\n<td>32</td>\n<td><strong>Macs</strong></td>\n<td>the church Macs the helper manages (docs/MACS.md): each Mac's macOS, accounts, FileVault, Tailscale, Full Disk Access and last check-in; its local accounts waiting for a choice; its tasks</td>\n<td>Enrol a Mac (the one Terminal line), Convert / Link / Leave alone / Undo per local account, rotate or show the admin password and the FileVault key (password asked again), printers, bookmarks, updates, Retire and Cut off (the Mac's name typed). Admins</td>\n</tr>\n<tr>\n<td>33</td>\n<td><strong>Sync</strong></td>\n<td>Nextcloud (docs/SYNC.md): per person, their devices and last sync, conflicts settled (newest wins), storage against the 50 GB quota</td>\n<td>New device… (its password shown once), Cut off one device or all of them (the name typed), settle conflicts now. Admins</td>\n</tr>\n<tr>\n<td>—</td>\n<td><strong>About This Server</strong></td>\n<td>version, host, domain, kernel, processor, memory, uptime, profile, this week, and <strong>What's new</strong> (the top of CHANGELOG.md, ten lines at most; a one-time toast when the version changes)</td>\n<td>from the flame menu</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"v08-exodus-the-everyday-os-and-the-safety-basics\">v0.8 Exodus: the everyday OS and the safety basics</h3>\n<p>Round 3 and round 4 of Bradly's answers (docs/ANSWERS.md), docs/PARITY.md\nfor the map against Windows 11 and macOS.</p>\n<ul>\n<li><strong>Twelve new apps</strong>, 20 to 31, in the table above; <strong>Store</strong>, <strong>Logs</strong> and\n  <strong>System Settings</strong> rebuilt. Members get Calendar, Calculator, Clock and\n  Help; Notes and Photos open for members in the Staff or Media groups\n  (<code>MEMBER_APPS</code> and <code>groups</code> in <code>web/app.js</code>).</li>\n<li><strong>Finder</strong> gained Trash, Previous Versions, Get Info, Recents, the text\n  editor, Compress, Open on my Mac, the Everyone views, resumable uploads to\n  10 GB, and links that never expire unless removed (docs/FINDER.md).</li>\n<li><strong>Weather</strong> widget for Pineville on the desktop and in the panel, from\n  Open-Meteo with no key; offline it says <em>No weather</em> rather than invent.</li>\n<li><strong>Snap windows</strong>, <strong>accessibility</strong> switches, the <strong>Dock that hides</strong>, the\n  <strong>greeting</strong>, the next-service line on the lock and sign-in screens\n  (docs/EVERYDAY.md).</li>\n<li><strong>Two-step sign-in</strong>, optional per person, from the flame menu: a QR code\n  for Microsoft Authenticator shown once; Directory marks who has it on; the\n  login asks for the six digits (docs/SECURITY.md).</li>\n<li><strong>Asking twice</strong>: deleting a user and the power menu ask the signed-in\n  person's password again, remembered five minutes, on top of typing the\n  name (round 4, 54).</li>\n<li><strong>The power menu</strong> refuses during a service and says when it ends.</li>\n<li><strong>What's New</strong> in About after each update.</li>\n<li>Everything an administrator needs to look after the box without a\n  terminal: Activity Monitor, Automations, Storage, Software Update, Monitor,\n  Security.</li>\n</ul>\n<h3 id=\"the-feel-v07-genesis\">The feel (v0.7 Genesis)</h3>\n<ul>\n<li><strong>ariseOS</strong> is the name on the boot splash, the login, the lock screen and\n  About; \"Arise Server\" is the project and the service. Codenames are books\n  of the Bible from here on.</li>\n<li><strong>Sounds</strong>, quiet: a click on the dock, a three-note chime when the Sunday\n  checklist completes, a low tone when a red item appears. Off in Control\n  Center.</li>\n<li><strong>The Bone theme</strong>: the website's light paper look, for laptops in\n  daylight. A switch in Control Center, per browser. The closet monitor\n  never goes light.</li>\n<li><strong>About This Server</strong> carries the week: the verse, the services on the\n  calendar, what the channel published this week and how many hours of it,\n  the latest title. All from the box's own data.</li>\n<li><strong>A phone app</strong>: open the dashboard in Safari or Chrome and Add to Home\n  Screen; it runs full screen with its own icon, and offline it says so.</li>\n<li><strong>Push</strong> to Bradly's phone (answer 10): Control Center → Push on. A new\n  red item in Needs You sends one short notification with a link; the same\n  item is not repeated for six hours. Needs <code>pywebpush</code> and <code>py-vapid</code> on\n  the box (in requirements); the keys are made there, root-only.</li>\n<li><strong>The walkthrough</strong>: five steps the first time each person signs in\n  (different for admins and members), and \"Show me around\" in Control\n  Center any time.</li>\n</ul>\n<h3 id=\"the-screensaver-and-the-lobby-screen\">The screensaver and the lobby screen</h3>\n<p>After five idle minutes the closet monitor shows a screensaver: the time,\nthe next service and how long until it, the verse of the day, the church's\nname, and the channel's thumbnails slowly behind it. Any key or touch\nbrings the desktop back; at ten minutes the lock screen goes on top.</p>\n<p>The same screen is a <strong>lobby sign</strong>: any old Mac mini, Raspberry Pi or TV\nbrowser opens <code>http://arise-server:4147/signage</code>, no login, and shows the\nservice times, the next service, the verse and the latest titles. Service\ntimes come from <code>[church]</code> in <code>arise.toml</code>; the verse is one of a fixed\nlist of references, text from the Bible app's source.</p>\n<h2 id=\"who-can-sign-in-and-what-they-see\">Who can sign in, and what they see</h2>\n<table>\n<thead>\n<tr>\n<th>Who</th>\n<th>Signs in with</th>\n<th>Sees</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>The administrator</strong> (<code>admin_user</code> in <code>arise.toml</code>, or anyone in <code>admins_group</code>, default <em>Domain Admins</em>)</td>\n<td>the local dashboard password from <code>arisectl admin set-password</code>, or their directory password</td>\n<td>everything above</td>\n</tr>\n<tr>\n<td><strong>Any directory user</strong> (<code>member_login = true</code>)</td>\n<td>their domain password, the same one the Macs and the shares use</td>\n<td>the <strong>portal</strong>: Finder with <em>My files</em> (their home folder, which starts with Documents, Photos, Videos, Music and Downloads) and the shares their groups allow (read-only where the share's write list leaves them out), Upload, New Folder, Quick Look, Get Info, Download, Trash, Previous Versions of their own files, <strong>Share Link</strong>, Sermons, Bible, Campuses, Calendar, Calculator, Clock, Help, Assistants, Sunday, Spotlight over their own places, <strong>Change Password</strong> (with the meter and the domain's rules in words), <strong>Two-step sign-in</strong>, Lock, Sign Out. Notes and Photos when they are in Staff or Media</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Staff use their Macs (round 5, after 26).</strong> With <code>[web] staff_access = \"none\"</code>,\nthe default, a member's sign-in gets one page, <em>Your files are on your Mac …\nask Bradly</em>, and every member API call but sign-in and sign-out is refused\n(403). <code>\"portal\"</code> brings the row above back. The closet desktop is for the\nadministrators.</p>\n<h3 id=\"round-5-on-the-desktop\">Round 5 on the desktop</h3>\n<ul>\n<li><strong>The Desktop folder</strong> sits on the wallpaper as icons, like a Mac: the\n  administrator's is <code>homes/&amp;lt;user&gt;/Desktop</code>. Double-click opens, right-click\n  for the menu, drag to place (remembered per person in\n  <code>/var/lib/arise/desktop/&amp;lt;user&gt;.json</code>), drag a Finder file onto the wallpaper\n  to move it there. Every new home gets <code>Desktop</code> and a <code>Start here.md</code> note\n  (<code>config/home/Start here.md</code>; Samba's <code>[homes]</code> preexec does the same).</li>\n<li><strong>Notifications</strong>: the clock carries a red count; the Notification Centre\n  lists them. Calendar reminders go 30 minutes ahead to the event's <em>Who's in\n  it</em>, the Sunday checklist nudges Staff at 9:30 when items are left, each\n  department list nudges its group at its own time, and anything shared with\n  someone tells them. Feed in <code>/var/lib/arise/notifications.json</code>, push to the\n  person's own devices, email when <code>[notify] email_staff = true</code>. Nothing is\n  sent during a service. <code>POST /api/notifications</code> (admin) adds one by hand.</li>\n<li><strong>Department checklists</strong> under the Sunday checklist: one per\n  <code>[church] departments</code> group. The leader (or any admin) edits it, members\n  tick it, each service gets a fresh round (the list moves on at 8 PM the\n  night before), the finished round goes to History, and each list has its\n  own nudge time per service. Staff tick theirs on their phones at\n  <code>/checklist</code> (round 7, below).</li>\n<li><strong>Text size on the closet monitor</strong>: Settings → <em>The monitor &amp; setup</em>,\n  100–150%, 125% by default. Saving writes <code>/var/lib/arise/kiosk-scale</code> and\n  restarts the kiosk browser; refused during a service.</li>\n<li><strong>The guided setup</strong> opens the first time an administrator signs in: people,\n  shares, the Synology, Discord, Resend, Tailscale. <em>Later</em> puts it away;\n  Settings opens it again. State in <code>/var/lib/arise/setup.json</code>.</li>\n<li><strong>Sign-in faces</strong> on the closet monitor (<code>?kiosk=1</code>): the administrators as\n  initials, nobody preselected; the name field starts empty everywhere.</li>\n</ul>\n<h3 id=\"round-7-on-the-desktop\">Round 7 on the desktop</h3>\n<ul>\n<li><strong>The phone checklist</strong> (<code>/checklist</code>, rows 19, 88, 89): the one page staff\n  open on the dashboard, with their own account, even with\n  <code>[web] staff_access = \"none\"</code>. It and <code>/api/checklist/*</code> are the only\n  exception; everything else still answers 403. Mobile-first: their\n  department's list for the next service, a big tap target per item, tick\n  and untick. A department's leader (the <em>Leader</em> on its list in the Sunday\n  app) and the admins see every department's list; others see their own.\n  Only the department and the admins tick a list. A leader can also reset\n  the password of someone in a department they lead: a temporary password,\n  shown once on the leader's phone, audited (<code>checklist.leader_reset</code>); the\n  person chooses their own at the next sign-in. Never an admin's password.</li>\n<li><strong>Call times</strong> (row 90): a list opens at call time, Sunday 09:00 and\n  Glory Night 18:00 (<code>[church] call_times</code>). Before that staff see the items\n  but cannot tick; the default nudge is the call time.</li>\n<li><strong>Service mode</strong> (app 34, row 87): from a service's start to two hours after\n  (<code>church.in_service_now</code>: Pineville, Alexandria's 10:00, and any Calendar\n  event marked <em>Counts as a service</em>), the closet monitor opens it by itself,\n  full screen: the stream (live or not, from the channel's public <code>/live</code>\n  page, no API quota), every department's checklist with what is left, the\n  internet speed, and the run sheet (a file with \"run sheet\" in its name in\n  <code>Church/Run sheets</code> or the owner's Desktop, <code>.md</code> or <code>.txt</code>).</li>\n<li><strong>One hold for everyone</strong> (rows 91, 93, 94): <code>church.hold(kind)</code> answers\n  whether a service holds back an <code>update</code>, a <code>restart</code>, a <code>mac</code> change,\n  heavy <code>sync</code>ing or other <code>heavy</code> work, and why. Timers use\n  <code>arisectl service-now --quiet</code> as their <code>ExecCondition</code>;\n  <code>GET /api/service/hold?kind=…</code> shows it.</li>\n<li><strong>Widgets each admin chooses</strong> (114) and <strong>Launchpad apps each admin hides</strong>\n  (115): Settings → <em>My desktop</em>; right-click an app in Launchpad →\n  <em>Hide from my Launchpad</em>. Both follow the account (<code>widgets.off</code>,\n  <code>lp.hidden</code> in the synced preferences).</li>\n<li><strong>The notes board</strong> (116): a widget the four admins share. Add, edit, pin,\n  colour, <em>Put away</em>; a note put away is kept and <em>Bring back</em> returns it.\n  Nothing on it is ever deleted. State in <code>/var/lib/arise/notes-board.json</code>.</li>\n<li><strong>Weather for both campuses</strong> (111): Pineville in the widget, Alexandria\n  under it, both on the screensaver (<code>[church] weather_places</code>).</li>\n<li><strong>Screensaver announcements</strong> (110): the next week's Calendar events, one at\n  a time under the verse.</li>\n<li><strong>Dark by default</strong> (109): dark for everyone; <em>Bone</em> (light) is each\n  admin's own choice in Appearance and follows their account.</li>\n<li><strong>After a restart</strong> (107): the closet monitor opens the owner's desktop by\n  itself (<code>[kiosk] autologin = \"owner\"</code>, <code>\"off\"</code> to stop it), once per boot,\n  within 15 minutes of it, and only on the monitor itself; it still locks\n  after ten idle minutes. Audited as <code>kiosk.autologin</code>.</li>\n<li><strong>The text console</strong> (108): the kiosk owns tty1 only; <code>Ctrl+Alt+F2</code> (tty2\n  and up) keeps its login prompt for the admins.</li>\n<li><strong>Settings → Reports</strong> (78-81, 85, 144): which Discord channels are set\n  (names only, never the addresses) with a Test per channel; the Monday report\n  as it would post; the channel's progress to 1,000 subscribers and 4,000\n  public watch hours when the box has the automator's numbers (\"not\n  available yet\" otherwise); the pastors' monthly note.</li>\n<li><strong>The pastors' monthly note</strong> (81, 144): the server drafts five plain lines\n  from the month's own facts (services it stayed out of the way of, backups,\n  new accounts, the Macs, nothing reachable from outside). Bradly edits it\n  and presses <em>Send to the pastors</em> (he types <code>send</code>); it goes by email to\n  <code>[storage] pastors</code>. Nothing sends unapproved, and a sent month is kept.</li>\n<li><strong>Activity Monitor → Network</strong> (121): the hourly speed test charted for the\n  week, with <em>Test now</em>; never during a service.</li>\n<li><strong>Songs → Lyrics inbox and CCLI usage</strong> (99, 100, 106): see\n  docs/AUTOMATOR.md.</li>\n</ul>\n<p>A member who opens an admin app by its address gets <em>That part of the\ndashboard is for the administrator</em> (HTTP 403); the server enforces it, not\nthe page. Login is a Kerberos check against the domain controller itself\n(<code>kinit</code>), so a disabled or expired account cannot sign in here either.</p>\n<h3 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h3>\n<ul>\n<li><strong>My Profile → Sign-in PIN</strong> sets, changes or removes your own PIN: 4 to 8\n  digits, typed twice. It asks for your password unless you typed it in the\n  last ten minutes, and it is never asked from a PIN session. A weak PIN is\n  refused with the reason: a repeat, a run, 2580, a common one, your\n  birthday, or the end of your mobile number.</li>\n<li><strong>The lock screen:</strong> an admin with a PIN gets the PIN box first, and <strong>Use my\n  password</strong> switches back. After ten wrong PINs the PIN switches off and the\n  box goes back to the password.</li>\n<li><strong>The sign-in page:</strong> <strong>Use my PIN</strong> beside <em>Forgot your password?</em>. Two-step\n  is still asked after the PIN. A staff PIN typed there goes to <code>/checklist</code>.</li>\n<li><strong>The phone checklist:</strong> after a password sign-in, staff see <strong>A PIN for\n  this phone</strong>. Next time the page asks for the PIN on that phone, and <strong>Use\n  my password instead</strong> is one tap away. A leader's <strong>Reset their password</strong>\n  asks for the leader's own password.</li>\n<li><strong>Directory → Sign-in PINs</strong> (admins): who has one, what it opens, whether\n  it is switched off, and <strong>Remove</strong>. Nobody sees or sets another person's\n  PIN.</li>\n<li><strong>The password-again clicks still want the password</strong> (161): deletes,\n  emptying a Trash, the FileVault and ariseadmin reveals, the Pastors folder,\n  and the YouTube renewal.</li>\n</ul>\n<p>The API: <code>POST /api/auth/pin</code> <code>{user, pin}</code>, <code>GET /api/auth/pin/status</code>,\n<code>POST /api/auth/pin/set</code> <code>{pin, password?}</code>, <code>DELETE /api/auth/pin</code>,\n<code>GET /api/directory/pins</code>, <code>DELETE /api/directory/users/{name}/pin</code>.\ndocs/SECURITY.md has how it is stored and what a PIN session can't do.</p>\n<h3 id=\"share-links\">Share links</h3>\n<p>Right-click a file or folder → <strong>Share Link…</strong> (or File → Share Link…). A\nlink lives until it is removed (<code>[links] days = 0</code>, Bradly's choice, Oct 28);\npick a life of up to <code>max_days</code> (365) when you want one to lapse. The\ndashboard makes\n<code>https://&amp;lt;server&gt;/s/&amp;lt;token&gt;</code>: anyone with it downloads the file with no\nsign-in, a folder arrives as a zip (up to 2 GB). <strong>Shared Links…</strong> in the\nflame menu, the Finder sidebar or Control Center lists yours with the\ndownload count; <em>Remove</em> kills a link at once. The administrator sees\neveryone's. Links live in <code>/var/lib/arise/links.json</code>; <code>arisectl link list</code>,\n<code>arisectl link revoke &amp;lt;token&gt;</code>, <code>arisectl link sweep</code>. Set <code>public_url</code> in\n<code>[web]</code> once HTTPS is up so links carry the public address.</p>\n<h3 id=\"a-windows-keyboard\">A Windows keyboard</h3>\n<p>The closet monitor has a Windows keyboard. Every shortcut takes <strong>Ctrl</strong>\nwhere a Mac takes ⌘, and the menus say so: Ctrl+Space Spotlight, Ctrl+W\nclose, Ctrl+Shift+N new folder, Ctrl+Alt+Q lock. The Windows key works too\nwhere the browser reports it as ⌘.</p>\n<h2 id=\"rules-it-keeps\">Rules it keeps</h2>\n<ul>\n<li><strong>Nothing is deleted without typing its name.</strong> Users, shares and apps ask\n  for the exact name. Home folders, share folders, app data and snapshots are\n  never removed by the dashboard at all.</li>\n<li><strong>Secrets never reach the browser.</strong> <code>GET /api/settings</code> strips every key\n  with <code>password</code>, <code>token</code> or <code>secret</code> in its name.</li>\n<li><strong>Sample data is labelled.</strong> When a tool is missing or there is no config,\n  the response carries <code>\"demo\": true</code> and the menu bar shows an amber <em>Sample\n  data</em> badge. The published preview shows <em>Preview · sample data</em>.</li>\n<li><strong>Two kinds of login, one cookie.</strong> <code>arisectl admin set-password</code> writes a\n  bcrypt hash into <code>arise.toml</code> for the administrator; every directory user\n  signs in with their domain password. The session is a signed cookie that\n  carries the role and expires after <code>session_hours</code> (8760, a year: a browser\nor a phone stays signed in until the person signs out, round 3, 38). The Terminal uses the\n  same cookie and is admin-only. With no admin hash set the page refuses to\n  show anything and tells you the command.</li>\n</ul>\n<h2 id=\"live-stats\">Live stats</h2>\n<p><code>/api/stats/stream</code> is a Server-Sent Events feed: one JSON sample a second\n(CPU, per core, temperature where the board reports it, memory, swap, network\nand disk rates, load, uptime). One collector thread samples psutil; every\nopen browser reads the same cache. <code>/api/stats/history</code> returns the last 60\nsamples so the sparklines are full on first paint.</p>\n<h2 id=\"reaching-it\">Reaching it</h2>\n<p>On the church network: <code>http://arise-server:4147</code>. From Alexandria, the Hub or\nhome: the same address over the VPN (docs/REMOTE-ACCESS.md), or\n<code>https://arise-server.ad.arisecenla.com</code> once Caddy is on. It is not meant\nto face the internet directly; the VPN is the front door.</p>\n<h2 id=\"running-it-anywhere\">Running it anywhere</h2>\n<pre><code class=\"language-bash\">cd server &amp;&amp; pip install -r requirements.txt\npython -m arise_server --demo --port 4147     # sample data, no root needed\n</code></pre>\n<p><code>python3 scripts/gen-demo-data.py</code> rebuilds <code>web/demo-data.js</code> from the same\nsample responses; that file is what the static preview page uses. <code>web/vendor/</code>\nholds xterm.js (MIT), fetched with <code>npm pack</code>, unmodified.</p>",
 "demo": true
 },
 "GET /help/DIRECTORY": {
@@ -16348,7 +16366,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk, the TPM unlocks it (r3 22)</td>\n<td>chosen in the Ubuntu installer; clevis binds it</td>\n<td><code>sudo arisectl encrypt tpm</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@ad.arisecenla.com</code>, with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@ad.arisecenla.com</code> is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
+"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk, the TPM unlocks it (r3 22)</td>\n<td>chosen in the Ubuntu installer; clevis binds it</td>\n<td><code>sudo arisectl encrypt tpm</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Open for Bradly:</strong> an admin PIN session can open the root <strong>Terminal</strong>\nwindow, because row 161 does not list it. If it should need the full\npassword, that is one line in <code>main.py</code>, its websocket route.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@ad.arisecenla.com</code>, with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@ad.arisecenla.com</code> is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
 "demo": true
 },
 "GET /help/SETUP-GUIDE": {
@@ -16376,7 +16394,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "STAFF-FILES",
 "title": "Your files at Arise",
-"html": "<h1 id=\"your-files-at-arise\">Your files at Arise</h1>\n<p>This is for staff and volunteers. It is short on purpose.</p>\n<h2 id=\"on-a-church-mac\">On a church Mac</h2>\n<ul>\n<li>Sign in with your church login: <strong>first.last</strong> and your password.</li>\n<li>Your <strong>Desktop</strong> and <strong>Documents</strong> are kept on the church server as well as on the Mac. Save\n  things there as you always do. They are on every church Mac you sign in to, and they are\n  backed up every night.</li>\n<li>The church folders are in Finder's sidebar under <strong>Nextcloud</strong>: Church, your department,\n  Shared with me. They open when you double-click them; a small cloud means \"not downloaded\n  yet\", and that is fine.</li>\n<li>The <strong>first time</strong>, the Mac may ask whether Nextcloud may use your Desktop and Documents\n  folders. Click <strong>Allow</strong>.</li>\n<li>The small cloud icon at the top of the screen is Nextcloud. Click it to see whether\n  everything is up to date.</li>\n</ul>\n<h2 id=\"if-two-copies-of-a-file-show-up\">If two copies of a file show up</h2>\n<p>That happens when the same file was changed in two places at once. You do not need to do\nanything: within the hour the server keeps the newer one under the real name and puts the\nolder one in that folder's Trash. If the older one was the one you wanted, ask Bradly or\nKristina; nothing is lost.</p>\n<h2 id=\"deleting\">Deleting</h2>\n<p>Something you delete goes to the Trash first and stays there for 30 days.</p>\n<h2 id=\"space\">Space</h2>\n<p>Each person has 50 GB. Nothing ever stops working when you pass it: you get a message at 80% and\nat 95%, and so does Bradly. Earlier versions of your files are kept for a year.</p>\n<h2 id=\"sending-a-file-to-someone-outside-the-church\">Sending a file to someone outside the church</h2>\n<p>Ask Bradly or another admin: they can make a link that works for 7 days. For people at church,\nuse <strong>Share with…</strong> instead.</p>\n<h2 id=\"the-church-contacts\">The church contacts</h2>\n<p>Everyone's details are in <strong>Contacts</strong> on a church Mac and on your phone, read-only, as an\naccount called <strong>Arise Church</strong>: open <code>https://arise-server.ad.arisecenla.com/contacts.mobileconfig</code>\non the Mac or iPhone, approve it in Settings, and type your church login. Off church Wi-Fi the\nphone needs Tailscale on. To change someone's details, ask Bradly.</p>\n<h2 id=\"on-your-phone\">On your phone</h2>\n<ol>\n<li>Once per phone, Bradly or Kristina puts the <strong>church certificate</strong> on it (so the phone\n   trusts the church's own address). On an iPhone that is two steps: install it, then turn it on\n   in Settings → General → About → Certificate Trust Settings.</li>\n<li>Install the <strong>Nextcloud</strong> app (App Store or Google Play).</li>\n<li>When it asks for a server, type: <code>https://cloud.ad.arisecenla.com</code></li>\n<li>Bradly or Kristina gives you a <strong>device password</strong> for your phone. On the sign-in page, tap\n   <strong>Log in with an app password</strong> (or \"alternative log in\"), then type your church login\n   (first.last) and that device password. Not your church password.</li>\n<li>Away from church, the phone needs <strong>Tailscale</strong> switched on to reach it.</li>\n</ol>\n<p>The phone shows your files and the church folders. That is all it does.</p>\n<h2 id=\"in-a-web-browser\">In a web browser</h2>\n<p>The same address, <code>https://cloud.ad.arisecenla.com</code>, works in a browser on the church network\n(or with Tailscale on). Sign in with your church login.</p>\n<h2 id=\"lost-a-phone-or-a-mac\">Lost a phone or a Mac?</h2>\n<p>Tell Bradly or Kristina straight away. They can cut that one device off; your files stay safe.\nYou get a message when a device is cut off, and when your account signs in from a new device.</p>",
+"html": "<h1 id=\"your-files-at-arise\">Your files at Arise</h1>\n<p>This is for staff and volunteers. It is short on purpose.</p>\n<h2 id=\"on-a-church-mac\">On a church Mac</h2>\n<ul>\n<li>Sign in with your church login: <strong>first.last</strong> and your password.</li>\n<li>Your <strong>Desktop</strong> and <strong>Documents</strong> are kept on the church server as well as on the Mac. Save\n  things there as you always do. They are on every church Mac you sign in to, and they are\n  backed up every night.</li>\n<li>The church folders are in Finder's sidebar under <strong>Nextcloud</strong>: Church, your department,\n  Shared with me. They open when you double-click them; a small cloud means \"not downloaded\n  yet\", and that is fine.</li>\n<li>The <strong>first time</strong>, the Mac may ask whether Nextcloud may use your Desktop and Documents\n  folders. Click <strong>Allow</strong>.</li>\n<li>The small cloud icon at the top of the screen is Nextcloud. Click it to see whether\n  everything is up to date.</li>\n</ul>\n<h2 id=\"if-two-copies-of-a-file-show-up\">If two copies of a file show up</h2>\n<p>That happens when the same file was changed in two places at once. You do not need to do\nanything: within the hour the server keeps the newer one under the real name and puts the\nolder one in that folder's Trash. If the older one was the one you wanted, ask Bradly or\nKristina; nothing is lost.</p>\n<h2 id=\"deleting\">Deleting</h2>\n<p>Something you delete goes to the Trash first and stays there for 30 days.</p>\n<h2 id=\"space\">Space</h2>\n<p>Each person has 50 GB. Nothing ever stops working when you pass it: you get a message at 80% and\nat 95%, and so does Bradly. Earlier versions of your files are kept for a year.</p>\n<h2 id=\"sending-a-file-to-someone-outside-the-church\">Sending a file to someone outside the church</h2>\n<p>Ask Bradly or another admin: they can make a link that works for 7 days. For people at church,\nuse <strong>Share with…</strong> instead.</p>\n<h2 id=\"the-church-contacts\">The church contacts</h2>\n<p>Everyone's details are in <strong>Contacts</strong> on a church Mac and on your phone, read-only, as an\naccount called <strong>Arise Church</strong>: open <code>https://arise-server.ad.arisecenla.com/contacts.mobileconfig</code>\non the Mac or iPhone, approve it in Settings, and type your church login. Off church Wi-Fi the\nphone needs Tailscale on. To change someone's details, ask Bradly.</p>\n<h2 id=\"on-your-phone\">On your phone</h2>\n<ol>\n<li>Once per phone, Bradly or Kristina puts the <strong>church certificate</strong> on it (so the phone\n   trusts the church's own address). On an iPhone that is two steps: install it, then turn it on\n   in Settings → General → About → Certificate Trust Settings.</li>\n<li>Install the <strong>Nextcloud</strong> app (App Store or Google Play).</li>\n<li>When it asks for a server, type: <code>https://cloud.ad.arisecenla.com</code></li>\n<li>Bradly or Kristina gives you a <strong>device password</strong> for your phone. On the sign-in page, tap\n   <strong>Log in with an app password</strong> (or \"alternative log in\"), then type your church login\n   (first.last) and that device password. Not your church password.</li>\n<li>Away from church, the phone needs <strong>Tailscale</strong> switched on to reach it.</li>\n</ol>\n<p>The phone shows your files and the church folders. That is all it does.</p>\n<h2 id=\"the-checklist-on-your-phone-with-a-pin\">The checklist on your phone, with a PIN</h2>\n<p>The checklist page (<code>/checklist</code>) shows your department's list for the next\nservice. Sign in once with your church login and password. The page then\noffers <strong>A PIN for this phone</strong>: 4 to 8 digits that open the checklist on\nthat phone only. Pick something nobody could guess, not 1234 and not your\nbirthday. After that the page asks for the PIN. Your password always works\ntoo: tap <strong>Use my password instead</strong>.</p>\n<p>The PIN opens the checklist and nothing else. Ten wrong PINs switch it off\nuntil you sign in with your password again, and Bradly is told. If you\nchange your password, the PIN switches off until your next password sign-in.</p>\n<h2 id=\"in-a-web-browser\">In a web browser</h2>\n<p>The same address, <code>https://cloud.ad.arisecenla.com</code>, works in a browser on the church network\n(or with Tailscale on). Sign in with your church login.</p>\n<h2 id=\"lost-a-phone-or-a-mac\">Lost a phone or a Mac?</h2>\n<p>Tell Bradly or Kristina straight away. They can cut that one device off; your files stay safe.\nYou get a message when a device is cut off, and when your account signs in from a new device.</p>",
 "demo": true
 },
 "GET /help/STORE": {
@@ -16397,7 +16415,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "SYNOLOGY",
 "title": "The Synology — four bays, joined to the domain, holding the real data",
-"html": "<h1 id=\"the-synology-four-bays-joined-to-the-domain-holding-the-real-data\">The Synology — four bays, joined to the domain, holding the real data</h1>\n<p>The old PC is the brain: it authenticates people, runs the dashboard, the\nautomator and the apps. The <strong>Synology is where the bytes live</strong>: four drives\nin RAID, the home folders, the media archive, the restic repository. One old\ndisk in a PC should never be the only copy of anything.</p>\n<p><strong>Model unknown.</strong> Bradly has not said which Synology it is yet. Read these off\nit before going further, from DSM → Control Panel → Info Center:</p>\n<table>\n<thead>\n<tr>\n<th>Read off the NAS</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Model (e.g. DS923+, DS423, DS224+)</td>\n<td>\"+\" models support Btrfs snapshots and Docker; \"j\"/value models may not</td>\n</tr>\n<tr>\n<td>DSM version (7.x)</td>\n<td>the menus below are DSM 7</td>\n</tr>\n<tr>\n<td>Drive count and sizes</td>\n<td>decides SHR vs SHR-2</td>\n</tr>\n<tr>\n<td>Current RAID / volume type</td>\n<td>if it already has data on it, nothing below reformats it</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"1-raid-the-decision-for-four-bays\">1. RAID — the decision for four bays</h2>\n<table>\n<thead>\n<tr>\n<th>Layout</th>\n<th>Survives</th>\n<th>Usable space (4 × 4 TB)</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>SHR (1-drive redundancy)</strong></td>\n<td>one drive failing</td>\n<td>~12 TB</td>\n<td>the default; good enough with the off-site copy in place</td>\n</tr>\n<tr>\n<td>SHR-2 (2-drive redundancy)</td>\n<td>two drives failing</td>\n<td>~8 TB</td>\n<td>if the church would rather lose a third of the space than ever rebuild from backup</td>\n</tr>\n<tr>\n<td>RAID 10</td>\n<td>one drive per mirror pair</td>\n<td>~8 TB</td>\n<td>faster, same loss as SHR; no benefit here</td>\n</tr>\n</tbody>\n</table>\n<p>Recommendation: <strong>SHR with 1-drive redundancy</strong>, <strong>Btrfs</strong> file system (needed\nfor snapshots), and a replacement drive on the shelf. A rebuild on a 4 TB\ndrive takes most of a day; during it a second failure loses the volume. That\nis what the restic copy and the off-site copy are for (section 6).</p>\n<p>If the NAS already holds data on a volume, leave it; add the shared folders to\nthe existing volume.</p>\n<h2 id=\"2-join-the-nas-to-the-domain\">2. Join the NAS to the domain</h2>\n<p>The NAS must use the server for DNS, like everything else.</p>\n<ol>\n<li>DSM → Control Panel → Network → General → <strong>DNS server: the server's IP</strong>\n   (uncheck \"get automatically\" if the router hands out something else).\n   Set a <strong>static IP</strong> on the NAS too.</li>\n<li>Control Panel → <strong>Domain/LDAP</strong> → Domain → <strong>Join</strong>:</li>\n<li>Domain: <code>ad.arisecenla.com</code></li>\n<li>DNS server: the server's IP (it asks again)</li>\n<li>Account: <code>administrator</code> (or Bradly's Domain Admin) and password</li>\n<li>DSM checks the domain, lists <code>ARISE\\Domain Users</code> etc. Click <strong>Join</strong>.</li>\n<li>Control Panel → User &amp; Group → <strong>Domain Users</strong> tab now lists everyone in\n   AD. Permissions on shared folders are granted to domain users and groups\n   from here.</li>\n</ol>\n<p>If the join fails on \"unable to find domain\", it is DNS on the NAS (step 1).\nIf it fails on the clock, Control Panel → Regional Options → Time → sync with\n<code>arise-server.ad.arisecenla.com</code>.</p>\n<h2 id=\"3-shared-folders\">3. Shared folders</h2>\n<p>Two shared folders on the volume:</p>\n<table>\n<thead>\n<tr>\n<th>Folder</th>\n<th>Purpose</th>\n<th>Permissions</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong><code>homes</code></strong> (DSM's User Home service)</td>\n<td>one home folder per domain user, created the first time they connect</td>\n<td>each user: their own; <code>Domain Admins</code>: read/write all</td>\n</tr>\n<tr>\n<td><strong><code>arise</code></strong></td>\n<td>the church's data: <code>media/</code> (graphics, loops, thumbnails, the podcast art), <code>shares/</code> (staff, leadership, kids), <code>arise-backups/</code> (the restic repository, the DC's offline backups)</td>\n<td><code>Media</code> group: <code>media/</code>; <code>Staff</code>/<code>Leadership</code> as named; <code>arise-backups/</code>: the server's service account only</td>\n</tr>\n</tbody>\n</table>\n<p>Turn on <strong>Control Panel → User &amp; Group → Advanced → Enable user home service</strong>\nand tick \"Enable home service for domain users\". That is what makes\n<code>\\\\synology\\homes\\&amp;lt;user&gt;</code> exist.</p>\n<p>When the NAS is joined and <code>homes</code> exists, set in <code>/etc/arise/arise.toml</code>:</p>\n<pre><code class=\"language-toml\">[directory]\nhomes_path = &quot;/mnt/synology/homes&quot;\n</code></pre>\n<p>and <code>arisectl user add</code> makes homes there instead of on the PC's disk.</p>\n<h2 id=\"4-smb-for-the-macs\">4. SMB for the Macs</h2>\n<p>Control Panel → File Services → SMB:</p>\n<ul>\n<li><strong>Enable SMB service</strong> on; <strong>Maximum SMB protocol: SMB3</strong>, minimum SMB2.</li>\n<li>Advanced: <strong>Enable Bonjour service discovery</strong> — fine to leave on; Macs see\n  the NAS in the Finder sidebar. (Bonjour on the NAS is harmless; the <code>.local</code>\n  problem is about the <em>domain name</em>, not this.)</li>\n<li>Advanced: <strong>Enable Opportunistic Locking</strong> on, <strong>SMB durable handles</strong> on;\n  \"Enable Local Master Browser\" off (the DC is the master).</li>\n<li>Advanced → \"Enable macOS-friendly options\" / <code>vfs_fruit</code> if the DSM version\n  shows it: on. It makes Finder metadata and Time Machine behave.</li>\n</ul>\n<p>Macs connect as <code>smb://synology/homes/&amp;lt;user&gt;</code>; Kerberos from the domain login\nmeans no password prompt.</p>\n<h2 id=\"5-mounting-it-on-the-server\">5. Mounting it on the server</h2>\n<p>The server mounts the <code>arise</code> share at <code>/mnt/synology</code> for the restic repo and\nthe media backup paths. <code>install.sh</code> writes the fstab line; <code>arisectl nas\nmount</code> does the same by hand.</p>\n<p><strong>SMB/CIFS (default):</strong></p>\n<pre><code># /etc/arise/secrets/synology.cred   (mode 0600)\nusername=arise-server\npassword=&amp;lt;the service account's password&gt;\ndomain=ARISE\n\n# /etc/fstab\n//synology.ad.arisecenla.com/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=arise,gid=arise,vers=3.0,iocharset=utf8,_netdev,nofail  0  0\n</code></pre>\n<p><code>arise-server</code> is a domain service account created by <code>install.sh</code> for this\n(not Bradly's login, so a password change does not break backups).</p>\n<p><strong>NFS</strong> (faster for restic, no credentials file): Control Panel → File\nServices → NFS → enable; on the <code>arise</code> shared folder → Edit → NFS\nPermissions → add the server's IP, read/write, \"map root to admin\" off,\nsquash \"no mapping\". Then:</p>\n<pre><code>synology.ad.arisecenla.com:/volume1/arise  /mnt/synology  nfs  defaults,_netdev,nofail  0  0\n</code></pre>\n<p>Pick one. <code>[nas] protocol</code> in <code>arise.toml</code> records which.</p>\n<p><code>arisectl nas status</code> shows: mounted or not, free space, and if <code>dsm_url</code> is\nset in <code>arise.toml</code>, the NAS's own health (volume status, drive temperatures,\nlast Hyper Backup result) through the DSM API with the read-only account in\n<code>/etc/arise/secrets/dsm.json</code>.</p>\n<h2 id=\"6-the-three-copies-3-2-1\">6. The three copies (3-2-1)</h2>\n<table>\n<thead>\n<tr>\n<th>Copy</th>\n<th>Where</th>\n<th>Protects against</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>1. The data itself</strong></td>\n<td>the NAS volume, SHR</td>\n<td>one drive dying</td>\n</tr>\n<tr>\n<td><strong>2. restic snapshots</strong></td>\n<td><code>/mnt/synology/arise-backups/restic</code> — the server's folders (automator, config, GitHub mirror, homes if they are on the PC) and the NAS's own <code>media/</code> and <code>shares/</code></td>\n<td>deleted or overwritten files, ransomware on a Mac, \"it was fine yesterday\"</td>\n</tr>\n<tr>\n<td><strong>3. Off-site</strong></td>\n<td><strong>Hyper Backup</strong> on the NAS → a USB drive that goes home with Bradly, <strong>or</strong> a cloud bucket (Backblaze B2, Synology C2, Google Drive)</td>\n<td>the building: fire, theft, flood, a power surge that takes the NAS and the PC together</td>\n</tr>\n</tbody>\n</table>\n<p>Copy 2 living on the same NAS as copy 1 is deliberate: it is a <em>version\nhistory</em>, not a disaster copy. Copy 3 is the disaster copy.</p>\n<p><strong>Hyper Backup</strong> (Package Center → install): create a task, source =\n<code>homes</code>, <code>arise</code>, destination = the USB drive (<code>usbshare1</code>) or the cloud\naccount, schedule nightly 04:30 (after restic has finished at ~03:30), keep\nversions with Smart Recycle, <strong>client-side encryption on</strong>, write the key down\non paper. Test a restore once in the first week.</p>\n<p><strong>Snapshot Replication</strong> (if the model is Btrfs-capable; Package Center →\nSnapshot Replication): hourly snapshots of <code>homes</code> and <code>arise</code>, keep 24\nhourly / 7 daily / 4 weekly. This is the fastest \"I deleted it ten minutes ago\"\nfix and costs almost no space. If the package is not offered for this model,\nrestic's snapshots do the same job a day coarser.</p>\n<h2 id=\"7-things-to-check-once-a-month\">7. Things to check once a month</h2>\n<ul>\n<li>Storage Manager: volume <strong>Healthy</strong>, no drive \"Warning\"; SMART quick test scheduled weekly.</li>\n<li>Hyper Backup: last run <strong>Succeeded</strong>, with the date.</li>\n<li><code>arisectl backup status</code> on the server: last night green.</li>\n<li>The USB off-site drive actually left the building.</li>\n</ul>",
+"html": "<h1 id=\"the-synology-four-bays-joined-to-the-domain-holding-the-real-data\">The Synology — four bays, joined to the domain, holding the real data</h1>\n<p>The old PC is the brain: it authenticates people, runs the dashboard, the\nautomator and the apps. The <strong>Synology is where the bytes live</strong>: four drives\nin RAID, the home folders, the media archive, the restic repository. One old\ndisk in a PC should never be the only copy of anything.</p>\n<p><strong>Model unknown.</strong> Bradly has not said which Synology it is yet. Read these off\nit before going further, from DSM → Control Panel → Info Center:</p>\n<table>\n<thead>\n<tr>\n<th>Read off the NAS</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Model (e.g. DS923+, DS423, DS224+)</td>\n<td>\"+\" models support Btrfs snapshots and Docker; \"j\"/value models may not</td>\n</tr>\n<tr>\n<td>DSM version (7.x)</td>\n<td>the menus below are DSM 7</td>\n</tr>\n<tr>\n<td>Drive count and sizes</td>\n<td>decides SHR vs SHR-2</td>\n</tr>\n<tr>\n<td>Current RAID / volume type</td>\n<td>if it already has data on it, nothing below reformats it</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"1-raid-the-decision-for-four-bays\">1. RAID — the decision for four bays</h2>\n<table>\n<thead>\n<tr>\n<th>Layout</th>\n<th>Survives</th>\n<th>Usable space (4 × 4 TB)</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>SHR (1-drive redundancy)</strong></td>\n<td>one drive failing</td>\n<td>~12 TB</td>\n<td>the default; good enough with the off-site copy in place</td>\n</tr>\n<tr>\n<td>SHR-2 (2-drive redundancy)</td>\n<td>two drives failing</td>\n<td>~8 TB</td>\n<td>if the church would rather lose a third of the space than ever rebuild from backup</td>\n</tr>\n<tr>\n<td>RAID 10</td>\n<td>one drive per mirror pair</td>\n<td>~8 TB</td>\n<td>faster, same loss as SHR; no benefit here</td>\n</tr>\n</tbody>\n</table>\n<p>Recommendation: <strong>SHR with 1-drive redundancy</strong>, <strong>Btrfs</strong> file system (needed\nfor snapshots), and a replacement drive on the shelf. A rebuild on a 4 TB\ndrive takes most of a day; during it a second failure loses the volume. That\nis what the restic copy and the off-site copy are for (section 6).</p>\n<p>If the NAS already holds data on a volume, leave it; add the shared folders to\nthe existing volume.</p>\n<h3 id=\"one-drive-a-month-bradly-oct-29\">One drive a month (Bradly, Oct 29)</h3>\n<p>Four new 4 TB drives at once is not in the budget, so the pool grows one drive\na month. SHR is what allows that: it starts on one drive, takes mismatched\ndrives, and grows each time a drive is added.</p>\n<table>\n<thead>\n<tr>\n<th>Month</th>\n<th>Drives</th>\n<th>Usable</th>\n<th>Protection</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>1</td>\n<td>4 TB</td>\n<td>none: the originals stay on the server and Arise-Home holds the off-site copy</td>\n</tr>\n<tr>\n<td>2</td>\n<td>2</td>\n<td>4 TB</td>\n<td>one drive can fail (SHR mirrors the two)</td>\n</tr>\n<tr>\n<td>3</td>\n<td>3</td>\n<td>8 TB</td>\n<td>one drive can fail</td>\n</tr>\n<tr>\n<td>4</td>\n<td>4</td>\n<td>12 TB, or 8 TB plus one separate 4 TB drive for document backups (round 4, 55)</td>\n<td>one drive can fail</td>\n</tr>\n</tbody>\n</table>\n<ul>\n<li><strong>Create the pool as SHR from day one</strong> (Storage Manager → Create → SHR, Btrfs);\n  a Basic volume cannot become SHR later without starting over.</li>\n<li>Each new drive: Storage Manager → the pool → Add Drive. The expansion runs in\n  the background for about a day per 4 TB; the NAS stays usable.</li>\n<li><strong>Drives:</strong> CMR NAS drives (Seagate IronWolf, WD Red Plus). Mixed makes are\n  fine. Avoid SMR drives in the pool (WD Blue WD40EZAZ, for one): RAID\n  rebuilds on SMR crawl or fail. WD Blue WD40EZAX is CMR. A 7200 rpm desktop\n  drive (WD Black) works but runs hotter; it suits the server better.</li>\n<li><strong>Check the model first:</strong> the NAS must support SHR, and Synology's 2025\n  Plus models limited third-party drives at launch. Confirm against the model\n  on Friday before buying the second drive.</li>\n<li>Until month 2, a failed drive loses the Synology's copy (not the church's\n  files). The nightly backup still runs to it and to Arise-Home.</li>\n</ul>\n<h2 id=\"2-join-the-nas-to-the-domain\">2. Join the NAS to the domain</h2>\n<p>The NAS must use the server for DNS, like everything else.</p>\n<ol>\n<li>DSM → Control Panel → Network → General → <strong>DNS server: the server's IP</strong>\n   (uncheck \"get automatically\" if the router hands out something else).\n   Set a <strong>static IP</strong> on the NAS too.</li>\n<li>Control Panel → <strong>Domain/LDAP</strong> → Domain → <strong>Join</strong>:</li>\n<li>Domain: <code>ad.arisecenla.com</code></li>\n<li>DNS server: the server's IP (it asks again)</li>\n<li>Account: <code>administrator</code> (or Bradly's Domain Admin) and password</li>\n<li>DSM checks the domain, lists <code>ARISE\\Domain Users</code> etc. Click <strong>Join</strong>.</li>\n<li>Control Panel → User &amp; Group → <strong>Domain Users</strong> tab now lists everyone in\n   AD. Permissions on shared folders are granted to domain users and groups\n   from here.</li>\n</ol>\n<p>If the join fails on \"unable to find domain\", it is DNS on the NAS (step 1).\nIf it fails on the clock, Control Panel → Regional Options → Time → sync with\n<code>arise-server.ad.arisecenla.com</code>.</p>\n<h2 id=\"3-shared-folders\">3. Shared folders</h2>\n<p>Two shared folders on the volume:</p>\n<table>\n<thead>\n<tr>\n<th>Folder</th>\n<th>Purpose</th>\n<th>Permissions</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong><code>homes</code></strong> (DSM's User Home service)</td>\n<td>one home folder per domain user, created the first time they connect</td>\n<td>each user: their own; <code>Domain Admins</code>: read/write all</td>\n</tr>\n<tr>\n<td><strong><code>arise</code></strong></td>\n<td>the church's data: <code>media/</code> (graphics, loops, thumbnails, the podcast art), <code>shares/</code> (staff, leadership, kids), <code>arise-backups/</code> (the restic repository, the DC's offline backups)</td>\n<td><code>Media</code> group: <code>media/</code>; <code>Staff</code>/<code>Leadership</code> as named; <code>arise-backups/</code>: the server's service account only</td>\n</tr>\n</tbody>\n</table>\n<p>Turn on <strong>Control Panel → User &amp; Group → Advanced → Enable user home service</strong>\nand tick \"Enable home service for domain users\". That is what makes\n<code>\\\\synology\\homes\\&amp;lt;user&gt;</code> exist.</p>\n<p>When the NAS is joined and <code>homes</code> exists, set in <code>/etc/arise/arise.toml</code>:</p>\n<pre><code class=\"language-toml\">[directory]\nhomes_path = &quot;/mnt/synology/homes&quot;\n</code></pre>\n<p>and <code>arisectl user add</code> makes homes there instead of on the PC's disk.</p>\n<h2 id=\"4-smb-for-the-macs\">4. SMB for the Macs</h2>\n<p>Control Panel → File Services → SMB:</p>\n<ul>\n<li><strong>Enable SMB service</strong> on; <strong>Maximum SMB protocol: SMB3</strong>, minimum SMB2.</li>\n<li>Advanced: <strong>Enable Bonjour service discovery</strong> — fine to leave on; Macs see\n  the NAS in the Finder sidebar. (Bonjour on the NAS is harmless; the <code>.local</code>\n  problem is about the <em>domain name</em>, not this.)</li>\n<li>Advanced: <strong>Enable Opportunistic Locking</strong> on, <strong>SMB durable handles</strong> on;\n  \"Enable Local Master Browser\" off (the DC is the master).</li>\n<li>Advanced → \"Enable macOS-friendly options\" / <code>vfs_fruit</code> if the DSM version\n  shows it: on. It makes Finder metadata and Time Machine behave.</li>\n</ul>\n<p>Macs connect as <code>smb://synology/homes/&amp;lt;user&gt;</code>; Kerberos from the domain login\nmeans no password prompt.</p>\n<h2 id=\"5-mounting-it-on-the-server\">5. Mounting it on the server</h2>\n<p>The server mounts the <code>arise</code> share at <code>/mnt/synology</code> for the restic repo and\nthe media backup paths. <code>install.sh</code> writes the fstab line; <code>arisectl nas\nmount</code> does the same by hand.</p>\n<p><strong>SMB/CIFS (default):</strong></p>\n<pre><code># /etc/arise/secrets/synology.cred   (mode 0600)\nusername=arise-server\npassword=&amp;lt;the service account's password&gt;\ndomain=ARISE\n\n# /etc/fstab\n//synology.ad.arisecenla.com/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=arise,gid=arise,vers=3.0,iocharset=utf8,_netdev,nofail  0  0\n</code></pre>\n<p><code>arise-server</code> is a domain service account created by <code>install.sh</code> for this\n(not Bradly's login, so a password change does not break backups).</p>\n<p><strong>NFS</strong> (faster for restic, no credentials file): Control Panel → File\nServices → NFS → enable; on the <code>arise</code> shared folder → Edit → NFS\nPermissions → add the server's IP, read/write, \"map root to admin\" off,\nsquash \"no mapping\". Then:</p>\n<pre><code>synology.ad.arisecenla.com:/volume1/arise  /mnt/synology  nfs  defaults,_netdev,nofail  0  0\n</code></pre>\n<p>Pick one. <code>[nas] protocol</code> in <code>arise.toml</code> records which.</p>\n<p><code>arisectl nas status</code> shows: mounted or not, free space, and if <code>dsm_url</code> is\nset in <code>arise.toml</code>, the NAS's own health (volume status, drive temperatures,\nlast Hyper Backup result) through the DSM API with the read-only account in\n<code>/etc/arise/secrets/dsm.json</code>.</p>\n<h2 id=\"6-the-three-copies-3-2-1\">6. The three copies (3-2-1)</h2>\n<table>\n<thead>\n<tr>\n<th>Copy</th>\n<th>Where</th>\n<th>Protects against</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>1. The data itself</strong></td>\n<td>the NAS volume, SHR</td>\n<td>one drive dying</td>\n</tr>\n<tr>\n<td><strong>2. restic snapshots</strong></td>\n<td><code>/mnt/synology/arise-backups/restic</code> — the server's folders (automator, config, GitHub mirror, homes if they are on the PC) and the NAS's own <code>media/</code> and <code>shares/</code></td>\n<td>deleted or overwritten files, ransomware on a Mac, \"it was fine yesterday\"</td>\n</tr>\n<tr>\n<td><strong>3. Off-site</strong></td>\n<td><strong>Hyper Backup</strong> on the NAS → a USB drive that goes home with Bradly, <strong>or</strong> a cloud bucket (Backblaze B2, Synology C2, Google Drive)</td>\n<td>the building: fire, theft, flood, a power surge that takes the NAS and the PC together</td>\n</tr>\n</tbody>\n</table>\n<p>Copy 2 living on the same NAS as copy 1 is deliberate: it is a <em>version\nhistory</em>, not a disaster copy. Copy 3 is the disaster copy.</p>\n<p><strong>Hyper Backup</strong> (Package Center → install): create a task, source =\n<code>homes</code>, <code>arise</code>, destination = the USB drive (<code>usbshare1</code>) or the cloud\naccount, schedule nightly 04:30 (after restic has finished at ~03:30), keep\nversions with Smart Recycle, <strong>client-side encryption on</strong>, write the key down\non paper. Test a restore once in the first week.</p>\n<p><strong>Snapshot Replication</strong> (if the model is Btrfs-capable; Package Center →\nSnapshot Replication): hourly snapshots of <code>homes</code> and <code>arise</code>, keep 24\nhourly / 7 daily / 4 weekly. This is the fastest \"I deleted it ten minutes ago\"\nfix and costs almost no space. If the package is not offered for this model,\nrestic's snapshots do the same job a day coarser.</p>\n<h2 id=\"7-things-to-check-once-a-month\">7. Things to check once a month</h2>\n<ul>\n<li>Storage Manager: volume <strong>Healthy</strong>, no drive \"Warning\"; SMART quick test scheduled weekly.</li>\n<li>Hyper Backup: last run <strong>Succeeded</strong>, with the date.</li>\n<li><code>arisectl backup status</code> on the server: last night green.</li>\n<li>The USB off-site drive actually left the building.</li>\n</ul>",
 "demo": true
 },
 "GET /help/SYSTEM-APPS": {
@@ -16412,6 +16430,13 @@ window.ARISE_DEMO_DATA = {
 "name": "VAULTWARDEN",
 "title": "Vaultwarden: the admins' passwords and one vault per department (round 7, 117)",
 "html": "<h1 id=\"vaultwarden-the-admins-passwords-and-one-vault-per-department-round-7-117\">Vaultwarden: the admins' passwords and one vault per department (round 7, 117)</h1>\n<p>Bradly's answer: <strong>admins, plus a vault for each department's shared\npasswords</strong>. Round 7, 15 says everyone in a department knows its department\naccount's password, and 16 that it changes whenever someone leaves that\ndepartment. The vaults are where those passwords live, so \"everyone in the\ndepartment\" means \"everyone in its vault\", and changing it is one edit.</p>\n<p>Vaultwarden is the Bitwarden-compatible app already in the Store\n(<code>templates/vaultwarden</code>), served at <code>https://vault.ad.arisecenla.com</code> behind\nCaddy (the Bitwarden apps refuse plain http), on church Wi-Fi and Tailscale\nonly, like everything else.</p>\n<h2 id=\"how-it-maps\">How it maps</h2>\n<table>\n<thead>\n<tr>\n<th>Vaultwarden</th>\n<th>Arise</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>One <strong>organization</strong>, \"Arise Church\"</td>\n<td>the church</td>\n</tr>\n<tr>\n<td><strong>Owner</strong> of it</td>\n<td>Bradly; <strong>Admin</strong>: Kristina and the two pastors (the four admins)</td>\n</tr>\n<tr>\n<td>One <strong>collection</strong> per department</td>\n<td>Children's Department, Inedge, Media, Worship, Kids, Alexandria (<code>[storage] departments</code>)</td>\n</tr>\n<tr>\n<td>A collection's members</td>\n<td>the people in that department's group in Directory</td>\n</tr>\n<tr>\n<td>A collection's items</td>\n<td>the department account's password (e.g. <code>childrens.department</code>), and any other shared login that department uses</td>\n</tr>\n<tr>\n<td>Each admin's own vault</td>\n<td>their personal items; nobody else sees them</td>\n</tr>\n</tbody>\n</table>\n<p>Nobody's personal vault is visible to anyone else, the owner included: that\nis how Bitwarden is built.</p>\n<h2 id=\"setting-it-up-once-about-twenty-minutes\">Setting it up (once, about twenty minutes)</h2>\n<p>Do this at the closet, signed in as yourself, after the app is running\n(<code>arisectl app list</code> shows <code>vaultwarden running</code>).</p>\n<ol>\n<li><strong>Invite yourself.</strong> Sign-ups are off from the start (<code>SIGNUPS_ALLOWED=false</code>\n   in <code>templates/vaultwarden</code>): people are invited, never self-made. Open\n   <code>https://vault.ad.arisecenla.com/admin</code>; it asks for the admin token, which\n   the Store generated into <code>/etc/arise/secrets/apps/vaultwarden.env</code> (root\n   only: read it on the box, never paste it anywhere). <strong>Users</strong> → <strong>Invite\n   User</strong> → your church address.</li>\n<li><strong>Your account.</strong> Open <code>https://vault.ad.arisecenla.com</code> → <strong>Create\n   account</strong> with that same address (an invited address may register; any\n   other is refused). Pick a long master password: nobody, not even the\n   server, can recover it. Vaultwarden has no mail set up here, so invitations\n   do not arrive by email: tell each person to open the address and create\n   their account with the address you invited.</li>\n<li><strong>The organization.</strong> In the web vault: <strong>New organization</strong> → name\n   <code>Arise Church</code> → the free plan (Vaultwarden has no limits).</li>\n<li><strong>Invite the other admins</strong>: first in <code>/admin</code> → Invite User (so they may\n   register), then in the organization (Members → Invite) as <strong>Admin</strong>: Kristina\n   and the two pastors. Each chooses their own master password.</li>\n<li><strong>The collections.</strong> Organization → Collections → <strong>New collection</strong>, one\n   per department, named exactly like the department folders.</li>\n<li><strong>Invite each department's people</strong> the same two ways (<code>/admin</code>, then the\n   organization) as <strong>User</strong>, ticking only their department's collection (and <strong>Hide passwords</strong> off, since they need to\n   type them).</li>\n<li><strong>Put the department account passwords in.</strong> For each department account:\n   <strong>New item</strong> → Login → name <code>Children's Department (department account)</code>,\n   username <code>childrens.department</code>, the password, collection: that department.</li>\n</ol>\n<p>When someone leaves a department (round 7, 16): change that department\naccount's password in Directory, then edit the item in its collection. Remove\nthe person from the collection. They lose it on their next sync.</p>\n<h2 id=\"backups\">Backups</h2>\n<p>Its data folder <code>/srv/arise/apps/vaultwarden</code> is in the nightly <strong>App data</strong>\njob, and so goes to Arise-Home with the rest (round 7, 53). The vault is\nencrypted with each person's master password; a backup without the master\npasswords cannot be read. Nothing about it is in git.</p>",
+"demo": true
+},
+"GET /help/VIRTUALBOX": {
+"ok": true,
+"name": "VIRTUALBOX",
+"title": "Trying ariseOS in VirtualBox",
+"html": "<h1 id=\"trying-ariseos-in-virtualbox\">Trying ariseOS in VirtualBox</h1>\n<p>A test box on Bradly's PC (Oct 29), long before the OptiPlex. It runs the real\ninstaller in staging mode: the domain stays on the VM itself, nothing on the\nhome network is touched, and nothing on the PC changes but VirtualBox.</p>\n<h2 id=\"1-the-vm\">1. The VM</h2>\n<p>VirtualBox → <strong>New</strong>:</p>\n<table>\n<thead>\n<tr>\n<th>Setting</th>\n<th>Value</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Name</td>\n<td>arise-test</td>\n</tr>\n<tr>\n<td>ISO</td>\n<td>Ubuntu Server 24.04 LTS (ubuntu.com/download/server)</td>\n</tr>\n<tr>\n<td>Unattended install</td>\n<td><strong>Skip</strong> (tick \"Skip Unattended Installation\")</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>8192 MB (4096 works, slowly)</td>\n</tr>\n<tr>\n<td>Processors</td>\n<td>4 (2 works)</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>80 GB, VDI, dynamically allocated</td>\n</tr>\n</tbody>\n</table>\n<p>Then <strong>Settings</strong> before the first start:</p>\n<ul>\n<li><strong>System → Motherboard:</strong> Enable EFI.</li>\n<li><strong>Display → Screen:</strong> Graphics Controller VMSVGA, Video Memory 128 MB, 3D off.\n  The VM's window is the closet monitor.</li>\n<li><strong>Network → Adapter 1:</strong> NAT (keeps the VM's domain off the home network),\n  then <strong>Port Forwarding</strong>:</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Name</th>\n<th>Host port</th>\n<th>Guest port</th>\n<th>What</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>dash</td>\n<td>4147</td>\n<td>4147</td>\n<td>the dashboard: http://localhost:4147 on the PC</td>\n</tr>\n<tr>\n<td>https</td>\n<td>8443</td>\n<td>443</td>\n<td>the dashboard through Caddy (church certificate)</td>\n</tr>\n<tr>\n<td>ssh</td>\n<td>2222</td>\n<td>22</td>\n<td><code>ssh -p 2222 bradly@localhost</code> from the PC</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"2-ubuntu\">2. Ubuntu</h2>\n<p>Start the VM and install Ubuntu Server:</p>\n<ul>\n<li>Language and keyboard as usual; network stays on DHCP (NAT).</li>\n<li>Disk: use the whole disk. LVM is fine; encryption can be skipped on a test box.</li>\n<li>Your name: Bradly Dyer. <strong>Server name: <code>arise-server</code></strong>. <strong>User name: <code>bradly</code></strong>\n  (the box's owner account; the automator runs as it).</li>\n<li><strong>Install OpenSSH server: yes.</strong> Featured snaps: none.</li>\n<li>Reboot, sign in.</li>\n</ul>\n<h2 id=\"3-ariseos\">3. ariseOS</h2>\n<p>The repository is private, so git asks for your GitHub user name and a token\n(a fine-grained token with read-only Contents on Church-server-OS- is enough;\ntype it at the prompt, never into a chat).</p>\n<pre><code>sudo apt update &amp;&amp; sudo apt install -y git\nsudo git clone -b claude/arise-server-os https://github.com/Rehchu/Church-server-OS-.git /opt/arise-src\ncd /opt/arise-src\nsudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale\n</code></pre>\n<ul>\n<li>It asks for the <strong>domain Administrator password</strong> (twice). Choose one for the\n  test box only.</li>\n<li>It takes 15 to 30 minutes. The last screen lists what still needs you.</li>\n<li><code>--staging</code>: the domain on loopback, no network scan (CLAUDE.md rule 8).</li>\n<li><code>--kiosk</code>: after the reboot the VM window shows the Arise desktop, like the\n  closet monitor.</li>\n</ul>\n<p>Then:</p>\n<pre><code>sudo arisectl admin set-password      # the dashboard's admin password\nsudo arisectl doctor                  # what is wrong, in order\nsudo reboot                           # the VM window comes back as the closet monitor\n</code></pre>\n<p>On the PC, open <strong>http://localhost:4147</strong> for the dashboard in a browser.</p>\n<h2 id=\"4-what-to-try\">4. What to try</h2>\n<ul>\n<li>The VM window: the lock screen, signing in, your desktop after a restart (round 7, 107).</li>\n<li>Directory: make people (a duplicate first.last becomes first.last2), titles,\n  a temporary password and its forced change, disable and enable.</li>\n<li>Shares, Finder: upload, Trash and Put Back, Previous Versions, Share with…</li>\n<li>Backups: there is no Synology, so point a backup target at a folder on the VM\n  and run one; then the restore drill.</li>\n<li>The phone checklist: http://localhost:4147/checklist.</li>\n<li>The Macs app: the enrol line works only once a Mac can reach the VM, so read\n  it but don't paste it on a church Mac.</li>\n<li><code>sudo arisectl automations list</code>, <code>arisectl storage</code>, <code>sudo arisectl security</code>.</li>\n</ul>\n<p>Copy anything that fails (the screen, or the output of <code>sudo arisectl doctor</code>)\ninto the chat. Doctor never prints a password; anything from\n<code>/etc/arise/secrets/</code> stays out of the chat.</p>\n<h2 id=\"5-updating-it\">5. Updating it</h2>\n<pre><code>cd /opt/arise-src &amp;&amp; sudo git pull\nsudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale\n</code></pre>\n<p>The installer is safe to run again: a re-run changes only what changed.</p>\n<h2 id=\"what-a-vm-cant-show\">What a VM can't show</h2>\n<p>The TPM disk unlock, the real Synology, the routers and the church network,\nMacs enrolling over the network (NAT keeps them out), and the OptiPlex's own\nscreen and power button. Those wait for the real box.</p>",
 "demo": true
 },
 "GET /help/WIX-DNS": {

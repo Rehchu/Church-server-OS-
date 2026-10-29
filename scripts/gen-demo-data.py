@@ -32,6 +32,8 @@ GETS = [
     "/storage/quotas", "/backups/targets", "/files/shared", "/files/quota", "/files/share/people",
     "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
     "/cloud", "/cloud/people", "/cloud/conflicts?limit=20", "/automator/signin",
+    "/public/sign-in", "/me/2fa", "/directory/2fa", "/auth/pin/status", "/directory/pins", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
+    "/cloud", "/cloud/people", "/cloud/conflicts?limit=20",
     "/pastors/breakglass", "/directory/unused", "/contacts",
     "/backups/offsite", "/upkeep/changes?limit=12", "/upkeep/january", "/upkeep/health", "/help/contacts", "/discord", "/mail/forwarding",
     "/checklist/mine", "/checklist/people", "/service/now", "/service/hold", "/reports", "/reports/pastors",

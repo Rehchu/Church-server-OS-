@@ -1344,12 +1344,17 @@ V.terminal.after = root => {
   S.termDispose = () => { ro.disconnect(); term.dispose(); if (S.termWs) { S.termWs.close(); S.termWs = null; } };
   if (S.demoOnly) return demoShell(term);
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const ws = new WebSocket(`${proto}://${location.host}/api/terminal`); S.termWs = ws;
-  ws.onopen = () => { ws.send(JSON.stringify({ resize: [term.cols, term.rows] })); };
-  ws.onmessage = e => term.write(e.data);
-  ws.onclose = ev => term.write(`\r\n\x1b[2m[session closed${ev.code === 4401 ? ': sign in again' : ''}]\x1b[0m\r\n`);
-  term.onData(d => { if (ws.readyState === 1) ws.send(d); });
-  term.onResize(({ cols, rows }) => { if (ws.readyState === 1) ws.send(JSON.stringify({ resize: [cols, rows] })); });
+  const connect = () => {
+    const ws = new WebSocket(`${proto}://${location.host}/api/terminal`); S.termWs = ws;
+    ws.onopen = () => { ws.send(JSON.stringify({ resize: [term.cols, term.rows] })); };
+    ws.onmessage = e => term.write(e.data);
+    // 4409: signed in with a PIN; the root shell wants the full password again (round 7, 161)
+    ws.onclose = ev => { if (ev.code === 4409) { term.write('\r\n\x1b[2m[the Terminal asks for your password, not your PIN]\x1b[0m\r\n'); reauth().then(connect, () => term.write('\x1b[2m[cancelled]\x1b[0m\r\n')); return; }
+      term.write(`\r\n\x1b[2m[session closed${ev.code === 4401 ? ': sign in again' : ''}]\x1b[0m\r\n`); };
+  };
+  connect();
+  term.onData(d => { if (S.termWs && S.termWs.readyState === 1) S.termWs.send(d); });
+  term.onResize(({ cols, rows }) => { if (S.termWs && S.termWs.readyState === 1) S.termWs.send(JSON.stringify({ resize: [cols, rows] })); });
 };
 function demoShell(term) {
   const P = '\x1b[31marise-server\x1b[0m:~# ';
@@ -2419,6 +2424,20 @@ function lockScreen(idle) {
   saver(false);
   lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; kioskNeutral(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
+  lockPinOffer();
+}
+// Round 7, 160: an admin with a PIN unlocks with it (the password always works too).
+async function lockPinOffer() {
+  const t = $('#lockPinT'); if (!t) return; t.hidden = true;
+  try { const st = await api('/auth/pin/status'); S.pin = st;
+    if (st.set && !st.off && st.kind === 'full') { t.hidden = false; lockMode(true); } }
+  catch { S.pin = null; }
+}
+function lockMode(byPin) {
+  S.lockByPin = !!byPin; const b = $('#lockPw'), t = $('#lockPinT'); if (!b) return;
+  b.value = ''; b.type = 'password'; b.inputMode = byPin ? 'numeric' : ''; b.maxLength = byPin ? 8 : 524288;
+  b.autocomplete = byPin ? 'off' : 'current-password'; b.placeholder = byPin ? 'PIN' : 'Password';
+  if (t) t.textContent = byPin ? 'Use my password' : 'Use my PIN';
 }
 // The next service names its campus when it is not the home one (Alexandria's 10:00 is not Pineville's 10:30).
 function nextLine(n, city) { if (!n) return ''; const home = (city || 'Pineville').split(',')[0]; return ` · next: ${n.name}${n.site && n.site !== home ? ' in ' + n.site : ''}, ${n.day} ${fmtSvc(n.time)}`; }
@@ -2433,11 +2452,19 @@ $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw
     catch (er) { if (/Sign in again|more than five|Three wrong/.test(er.message)) lockReset(); toast(er.message, 'bad'); pwBox.focus(); }
     return;
   }
+  if (S.lockByPin) {
+    try { const r = await api('/auth/pin', { method: 'POST', body: { user: S.user, pin: pw } });
+      if (r && r.need_code) { S.lockByPin = false; S.lockPending = r.pending; pwBox.type = 'text'; pwBox.inputMode = 'numeric'; pwBox.maxLength = 7; pwBox.autocomplete = 'one-time-code'; pwBox.placeholder = '6 digits from Authenticator'; const t = $('#lockPinT'); if (t) t.hidden = true; pwBox.focus(); return; }
+      lockReset(); $('#lock').hidden = true; }
+    catch (er) { if (/switched off/.test(er.message)) { const t = $('#lockPinT'); if (t) t.hidden = true; lockMode(false); } toast(er.message, 'bad'); pwBox.focus(); }
+    return;
+  }
   try { const r = await api('/auth/login', { method: 'POST', body: { user: S.user, password: pw } });
     if (r && r.need_new_password) { showLogin({ newpw: true, user: r.user || S.user, old: pw, rules: r.rules }); return; }   // an admin's reset since they locked
     if (r && r.need_code) { S.lockPending = r.pending; pwBox.type = 'text'; pwBox.inputMode = 'numeric'; pwBox.autocomplete = 'one-time-code'; pwBox.placeholder = '6 digits from Authenticator'; pwBox.focus(); return; }
     $('#lock').hidden = true; } catch (er) { toast(er.message, 'bad'); } };
-function lockReset() { S.lockPending = null; const b = $('#lockPw'); b.type = 'password'; b.inputMode = ''; b.autocomplete = 'current-password'; b.placeholder = 'Password'; }
+function lockReset() { S.lockPending = null; S.lockByPin = false; const b = $('#lockPw'); b.type = 'password'; b.inputMode = ''; b.maxLength = 524288; b.autocomplete = 'current-password'; b.placeholder = 'Password'; const t = $('#lockPinT'); if (t) t.textContent = 'Use my PIN'; }
+{ const t = document.getElementById('lockPinT'); if (t) t.onclick = () => { lockMode(!S.lockByPin); $('#lockPw').focus(); }; }
 async function signOut() { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); }
 // The desktop's timers, so the sign-in screen can stop them all (it replaces the desktop).
 function every(fn, ms) { const id = setInterval(fn, ms); (S.timers = S.timers || []).push(id); return id; }
@@ -2454,7 +2481,7 @@ function showLogin(err) {
     : codeStep ? `<p>Two-step sign-in is on for <b>${esc(err.user || remembered)}</b>. Open <b>Microsoft Authenticator</b> and type the six digits it shows for ariseOS.</p>
     <form id="lf" class="lock__form"><input id="lc" inputmode="numeric" pattern="[0-9 ]*" placeholder="6 digits" autocomplete="one-time-code" maxlength="7" style="width:160px;text-align:center;letter-spacing:.3em"><button type="submit" aria-label="Continue">→</button></form><button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`
     : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
-    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form><button class="btn btn--ghost btn--xs" id="lforgot" style="margin-top:12px">Forgot your password?</button>`}
+    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form><div><button class="btn btn--ghost btn--xs" id="lpin" type="button" style="margin-top:12px">Use my PIN</button> <button class="btn btn--ghost btn--xs" id="lforgot" style="margin-top:12px">Forgot your password?</button></div>`}
     ${S.demoOnly && window.AriseMock ? `<p class="login__preview">Preview: sign in as ${window.AriseMock.sampleNames().slice(0, 4).map(u => `<b>${esc(u.name)}</b> (${u.role})`).join(', ')} with any password, or as someone you added, with theirs.</p>` : ''}
     <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px" id="loginRealm">arise-server</div></div></div>`;
   api('/public/sign-in').then(si => { const el = $('#loginRealm'); if (el && si.realm) el.textContent = `${si.host || 'arise-server'} · ${si.realm}`; }).catch(() => {});
@@ -2471,10 +2498,15 @@ function showLogin(err) {
     return;
   }
   $('#lu').focus(); loginFaces();
+  // Round 7, 160: an admin's PIN instead of the password, anywhere. The password always works.
+  let byPin = false; const lpin = $('#lpin');
+  if (lpin) lpin.onclick = () => { byPin = !byPin; const p = $('#lp'); p.value = ''; p.placeholder = byPin ? 'PIN' : 'Password'; p.inputMode = byPin ? 'numeric' : ''; p.maxLength = byPin ? 8 : 524288; p.autocomplete = byPin ? 'off' : 'current-password'; lpin.textContent = byPin ? 'Use my password' : 'Use my PIN'; ($('#lu').value ? p : $('#lu')).focus(); };
   f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
     try { const user = $('#lu').value;
       const pw = $('#lp').value;
-      const r = await api('/auth/login', { method: 'POST', body: { user, password: pw } });
+      const r = byPin ? await api('/auth/pin', { method: 'POST', body: { user, pin: pw } })
+        : await api('/auth/login', { method: 'POST', body: { user, password: pw } });
+      if (r && r.pin === 'checklist') { location.href = '/checklist'; return; }   // a staff PIN opens the checklist only (162)
       if (r && r.need_new_password) { showLogin({ newpw: true, user: r.user || user, old: pw, rules: r.rules }); return; }
       if (r && r.need_code) { showLogin({ code: true, pending: r.pending, user: r.user || user }); return; }
       afterSignIn(); }
@@ -2837,8 +2869,12 @@ async function profileSheet(user) {
     ${fld('personal_email', 'Personal email', 'name@gmail.com', 'Church mail forwards here, and "Forgot your password?" sends its link here. Staff do not use the dashboard, so an admin enters it for them.')}
     <div class="row" style="gap:10px;align-items:flex-start">${fld('mobile', 'Mobile phone', '318-555-0100', '')}${fld('birthday', 'Birthday', 'March 14', 'Month and day only, for the Monday weekly.')}</div>
     <p class="note">Staff and administrators see these details; members never do.</p>
+    ${self ? `<div class="row" style="gap:10px;align-items:center;margin-top:12px"><div style="flex:1"><b>Sign-in PIN</b><div class="muted" id="pfPinSt" style="font-size:12px">…</div></div><button class="btn btn--ghost btn--xs" id="pfPin">Sign-in PIN</button></div>` : ''}
     ${si ? `<h3 style="margin:16px 0 6px">Your last sign-ins</h3><div class="tbl-wrap"><table class="tbl" id="pfSignins"><tbody>${(si.signins || []).map(x => `<tr><td class="dim">${fmtT(x.t)}</td><td>${esc(x.how || '')}</td><td class="mono dim" style="font-size:12px">${esc(x.ip || '')}</td><td>${x.ok === false ? '<span class="pill warn">not signed in</span>' : ''}</td></tr>`).join('') || '<tr><td class="dim">None recorded yet</td></tr>'}</tbody></table></div></div><p class="note">One that was not you? Change your password and tell Bradly.</p>` : ''}
     <div class="acts"><button class="btn btn--ghost" data-close>Close</button>${can.size ? '<button class="btn" id="pfSave">Save</button>' : ''}</div>`, m => {
+    const pb = $('#pfPin', m);
+    if (pb) { pb.onclick = () => { m.close(); pinSheet(); };
+      api('/auth/pin/status').then(st => { const el = $('#pfPinSt', m); if (el) el.textContent = pinWords(st); }).catch(() => {}); }
     const sv = $('#pfSave', m); if (!sv) return;
     sv.onclick = async e => { const body = {};
       for (const k of ['title', 'personal_email', 'mobile', 'birthday']) if (can.has(k)) body[k] = $('#pf_' + k, m).value.trim();
@@ -3275,8 +3311,9 @@ function staffTwofaOn(name) {
   async function r7Wire(root) {
     const bar = $('#addUser', root)?.parentElement;
     if (bar && !$('#r7Contacts', root)) {
-      bar.insertAdjacentHTML('afterbegin', `<button class="btn btn--ghost btn--sm" id="r7Contacts">Church contacts</button><button class="btn btn--ghost btn--sm" id="r7Pastors" hidden>Pastors folder…</button>`);
+      bar.insertAdjacentHTML('afterbegin', `<button class="btn btn--ghost btn--sm" id="r7Contacts">Church contacts</button><button class="btn btn--ghost btn--sm" id="r7Pastors" hidden>Pastors folder…</button><button class="btn btn--ghost btn--sm" id="r7Pins">Sign-in PINs</button>`);
       $('#r7Contacts', root).onclick = contactsModal;
+      $('#r7Pins', root).onclick = () => pinsModal();
       api('/pastors/breakglass').then(g => { const b = $('#r7Pastors', root); if (!b || !g.allowed) return; b.hidden = false; b.textContent = g.open ? `Pastors folder open until ${fmtT(g.until)}` : 'Pastors folder…'; b.onclick = () => breakglassModal(g); }).catch(() => {});
     }
     api('/directory/unused').then(u => {
@@ -3539,5 +3576,42 @@ V.servicemode.after = root => {
 }
 // ===== end R7-C =====
 
-window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
+/* ---------------- sign-in PINs (round 7, rows 160 to 162) ---------------- */
+// Never the PIN in a page, a toast or a log: the server keeps a hash only, and admins can remove one, never see it.
+function pinWords(st) {
+  if (!st || !st.set) return st && st.kind === 'checklist' ? 'Off. A PIN opens the phone checklist, on the phone you set it on.' : 'Off. A PIN signs you in instead of your password; the risky clicks still ask for the password.';
+  const where = st.scope === 'checklist' ? (st.this_device ? 'the phone checklist, on this phone' : 'the phone checklist, on the phone you set it on') : 'the sign-in page and the lock screen';
+  return st.off ? `Switched off (${st.reason || 'too many wrong PINs'}). Your next password sign-in switches it back on.` : `On since ${fmtT(st.since)}: ${where}.`;
+}
+async function pinSheet() {
+  let st; try { st = await api('/auth/pin/status'); } catch (er) { return toast(er.message, 'bad'); }
+  modal(`<h2>Sign-in PIN</h2><p class="note" id="pnSt">${esc(pinWords(st))}</p>
+    <p class="note" style="margin-top:8px">4 to 8 digits. Not one digit again and again, not a run like 1234, not your birthday or the end of your mobile number. ${st.kind === 'checklist' ? 'It works on the phone checklist, on the phone you set it on.' : 'It works on the sign-in page and the lock screen.'} The password always works too, and it is still asked for reauthorising, the Pastors folder, the FileVault and ariseadmin reveals, deletes, emptying the Trash and the YouTube renewal.</p>
+    <div class="row" style="gap:10px;align-items:flex-start;margin-top:12px"><div class="field" style="flex:1"><label>New PIN</label><input id="pnA" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div><div class="field" style="flex:1"><label>The same again</label><input id="pnB" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div></div>
+    ${st.password_needed ? '<div class="field"><label>Your password (not a PIN)</label><input id="pnPw" type="password" autocomplete="current-password"><span class="hint">Setting a PIN asks for your full password unless you typed it in the last ten minutes.</span></div>' : ''}
+    <div class="acts"><button class="btn btn--ghost" data-close>Close</button>${st.set ? '<button class="btn btn--ghost" id="pnRm">Remove my PIN</button>' : ''}<button class="btn" id="pnGo">${st.set ? 'Change the PIN' : 'Set the PIN'}</button></div>`, m => {
+    $('#pnA', m).focus();
+    $('#pnGo', m).onclick = async e => { const a = $('#pnA', m).value, b = $('#pnB', m).value;
+      if (!/^\d{4,8}$/.test(a)) return toast('A PIN is 4 to 8 digits, nothing else.', 'bad');
+      if (a !== b) return toast('The two PINs are not the same.', 'bad');
+      const body = { pin: a }; const pw = $('#pnPw', m); if (pw) body.password = pw.value;
+      const r = await act(e.target, () => api('/auth/pin/set', { method: 'POST', body }), 'PIN set');
+      $('#pnA', m).value = ''; $('#pnB', m).value = ''; if (pw) pw.value = '';
+      if (r && r.ok !== false) m.close(); };
+    const rm = $('#pnRm', m); if (rm) rm.onclick = async e => { const r = await act(e.target, () => api('/auth/pin', { method: 'DELETE' }), 'PIN removed'); if (r && r.ok !== false) m.close(); };
+  });
+}
+async function pinsModal() {
+  let d; try { d = await api('/directory/pins'); } catch (er) { return toast(er.message, 'bad'); }
+  const rows = Object.entries(d.pins || {});
+  modal(`<h2>Sign-in PINs</h2><p class="note">Who has a PIN. You can remove one (it is recorded in the audit log); nobody can see or set someone else's PIN.</p>
+    <div class="tbl-wrap"><table class="tbl" id="pinsTable"><thead><tr><th>User</th><th>Works on</th><th>Since</th><th></th></tr></thead><tbody>${rows.map(([u, x]) => `<tr><td class="mono">${esc(u)}</td><td>${x.scope === 'checklist' ? 'the phone checklist, one phone' : 'sign-in and lock screen'}${x.off ? ' <span class="pill warn">switched off</span>' : ''}</td><td class="dim">${fmtT(x.since)}</td><td><button class="btn btn--ghost btn--xs" data-pinrm="${esc(u)}">Remove</button></td></tr>`).join('') || '<tr><td class="dim" colspan="4">Nobody has a PIN yet.</td></tr>'}</tbody></table></div>
+    <div class="acts"><button class="btn btn--ghost" data-close>Close</button></div>`, m => {
+    $$('[data-pinrm]', m).forEach(b => b.onclick = async e => { const u = b.dataset.pinrm;
+      const r = await act(e.target, () => api(`/directory/users/${encodeURIComponent(u)}/pin`, { method: 'DELETE' }), `${u}'s PIN removed`);
+      if (r && r.ok !== false) { m.close(); pinsModal(); } });
+  });
+}
+
+window.arise = { api, cleanDesc, profileSheet, pinSheet, pinsModal, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

@@ -260,25 +260,83 @@ route('POST', /^\/auth\/login$/, async b => {
   const user = u ? u.name : name; const role = u ? (isAdminUser(u) ? 'admin' : 'member') : 'admin';
   // A temporary password (round 5, 5): the right one, but they choose their own before anything else.
   if (u && (X.mustchange || []).includes(u.name)) { signinAdd(user, false, 'temporary password: a new one is needed'); return ok({ need_new_password: true, user, rules: (get('GET /me/password/rules') || {}).words || [] }); }
-  if (X.twofa.includes(user)) { const p = 'pending-' + token(10); mem.strikes[p] = { user, role, left: 3, at: Date.now() }; return ok({ need_code: true, pending: p, user }); }
-  X.session = { user, role }; if (u) { u.last_logon = isoSec(); touch('GET /directory/users'); }
+  pinOn(user);   // the password switches a PIN back on (round 7, 160)
+  if (X.twofa.includes(user)) { const p = 'pending-' + token(10); mem.strikes[p] = { user, role, left: 3, at: Date.now() }; save(); return ok({ need_code: true, pending: p, user }); }
+  X.session = { user, role, fpAt: Date.now() }; if (u) { u.last_logon = isoSec(); touch('GET /directory/users'); }
   signinAdd(user, true, `directory · ${deviceOf(navigator.userAgent)}`);
   save(); return ok({ user, role });
 });
 route('POST', /^\/auth\/login\/code$/, async b => {
   const p = mem.strikes[b.pending]; if (!p || Date.now() - p.at > 300000) return http(401, 'Sign in again: that took more than five minutes');
   if (!(await codeOk(b.code))) { p.left--; if (p.left <= 0) { delete mem.strikes[b.pending]; return http(401, 'Three wrong codes. Sign in again.'); } return http(401, `That code is not right (${p.left} more ${p.left === 1 ? 'try' : 'tries'}). In the preview the code from the sample key works, or 000000.`); }
-  delete mem.strikes[b.pending]; X.session = { user: p.user, role: p.role }; const u = userOf(p.user); if (u) { u.last_logon = isoSec(); touch('GET /directory/users'); } save(); return ok({ user: p.user });
+  delete mem.strikes[b.pending]; X.session = p.pin ? { user: p.user, role: p.role, pin: p.pin } : { user: p.user, role: p.role, fpAt: Date.now() }; const u = userOf(p.user); if (u) { u.last_logon = isoSec(); touch('GET /directory/users'); } save(); return ok({ user: p.user });
 });
-route('POST', /^\/auth\/reauth$/, b => { const s = me(); const pw = String(b.password || ''); if (!pw || (X.pw[s?.user] && X.pw[s.user] !== pw)) return http(401, 'That is not your password'); X.reauthAt = Date.now(); save(); return ok({ until: 300 }); });
+route('POST', /^\/auth\/reauth$/, async b => { const s = me(); const pw = String(b.password || ''); if (!pw || (X.pw[s?.user] && X.pw[s.user] !== pw) || await isMyPin(s?.user, pw)) return http(401, 'That is not your password'); X.reauthAt = Date.now(); save(); return ok({ until: 300 }); });
 route('POST', /^\/auth\/logout$/, () => { X.session = null; save(); return ok(); });
+
+// ----- sign-in PINs (round 7, rows 160 to 162). Even the preview keeps a salted hash, never the PIN. -----
+const PIN_COMMON = new Set(['1234', '1111', '1212', '7777', '1004', '2000', '4444', '2222', '6969', '9999', '3333', '5555', '6666', '1122', '1313', '8888', '4321', '2001', '1010', '2580', '0852', '1470', '0741', '3690', '0963', '1379', '9731', '123456', '654321', '121212', '112233', '147258', '159753', '123123', '696969']);
+function pinWeak(pin, birthday, mobile) {   // the same rules as server/arise_server/pins.py
+  pin = String(pin || ''); if (!/^\d{4,8}$/.test(pin)) return 'A PIN is 4 to 8 digits, nothing else.';
+  for (const n of [1, 2, 3, 4]) if (pin.length > n && pin.length % n === 0 && pin === pin.slice(0, n).repeat(pin.length / n)) return "That PIN repeats itself (like 1111 or 1212). Choose digits that don't follow a pattern.";
+  const d = [...pin].map(Number), steps = new Set(d.slice(1).map((x, i) => x - d[i]));
+  if (steps.size === 1 && (steps.has(1) || steps.has(-1))) return "That PIN counts up or down (like 1234). Choose digits that don't follow a pattern.";
+  if (PIN_COMMON.has(pin)) return 'That is one of the PINs people choose most often. Choose another.';
+  const m = String(birthday || '').match(/^(\d{1,2})-(\d{1,2})$/);
+  if (m) { const mm = m[1].padStart(2, '0'), dd = m[2].padStart(2, '0'); if (pin === mm + dd || pin === dd + mm) return "That PIN is your birthday. Choose something people can't look up."; }
+  const dg = String(mobile || '').replace(/\D/g, ''); if (dg.length >= 4 && pin === dg.slice(-pin.length)) return "That PIN is the end of your mobile number. Choose something people can't look up.";
+  return '';
+}
+async function pinHash(salt, pin) { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin)); return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join(''); }
+async function isMyPin(user, pin) { const r = (X.pins || {})[user]; return !!r && /^\d{4,8}$/.test(pin) && await pinHash(r.salt, pin) === r.hash; }
+const pinDevice = () => { try { let d = localStorage.getItem('arise.preview.pindevice'); if (!d) { d = token(24); localStorage.setItem('arise.preview.pindevice', d); } return d; } catch { return 'this-browser'; } };
+function pinOff(user, reason) { const r = (X.pins || {})[user]; if (r && !r.off) { r.off = true; r.reason = reason; } }
+function pinOn(user) { const r = (X.pins || {})[user]; if (r) { r.off = false; r.wrong = 0; r.reason = ''; } }
+function pinStatus() {
+  const s = me(); const r = (X.pins || {})[s.user]; const kind = s.role === 'admin' ? 'full' : 'checklist';
+  const base = { user: s.user, kind, password_needed: !!s.pin || !(s.fpAt && Date.now() - s.fpAt < 600000), this_session_by_pin: !!s.pin };
+  if (!r) return Object.assign({ set: false }, base);
+  return Object.assign({ set: true, scope: r.scope, since: r.set, off: !!r.off, reason: r.off ? r.reason || '' : '', wrong: r.wrong || 0 }, r.scope === 'checklist' ? { this_device: r.device === pinDevice() } : {}, base);
+}
+route('POST', /^\/auth\/pin$/, async b => {
+  const u = userOf(String(b.user || '').trim()), pin = String(b.pin || ''); const r = u && (X.pins || {})[u.name];
+  const generic = 'Wrong PIN, or no PIN is set for that name. Your password always works.';
+  if (!r || !/^\d{4,8}$/.test(pin)) return http(401, generic, { off: false });
+  if (r.off) return http(401, `The PIN for ${u.name} is switched off (${r.reason || 'too many wrong PINs'}). Sign in with your password; that switches it back on.`, { off: true });
+  let good = await pinHash(r.salt, pin) === r.hash;
+  if (good && r.scope === 'checklist' && r.device !== pinDevice()) return http(401, 'This PIN works on the phone it was set on. Sign in with your password here.', { off: false });
+  if (!good) {
+    r.wrong = (r.wrong || 0) + 1;
+    if (r.wrong >= 10) { pinOff(u.name, '10 wrong PINs'); signinAdd(u.name, false, 'PIN switched off: 10 wrong PINs (Discord #alerts and a push to Bradly on the server)'); save(); return http(401, `10 wrong PINs: the PIN for ${u.name} is switched off. Sign in with your password; that switches it back on.`, { off: true }); }
+    save(); return http(401, generic, { off: false });
+  }
+  if (!u.enabled) return http(401, 'This account is disabled');
+  r.wrong = 0; const role = isAdminUser(u) ? 'admin' : 'member'; const scope = role === 'admin' ? r.scope : 'checklist';
+  if (X.twofa.includes(u.name)) { const p = 'pending-' + token(10); mem.strikes[p] = { user: u.name, role, pin: scope, left: 3, at: Date.now() }; save(); return ok({ need_code: true, pending: p, user: u.name }); }
+  X.session = { user: u.name, role, pin: scope }; X.reauthAt = 0; u.last_logon = isoSec(); touch('GET /directory/users');
+  signinAdd(u.name, true, `PIN · ${deviceOf(navigator.userAgent)}`); save();
+  return ok({ user: u.name, role, pin: scope });
+});
+route('POST', /^\/auth\/pin\/set$/, async b => {
+  const s = me(); const pw = String(b.password || '');
+  if (s.pin || !(s.fpAt && Date.now() - s.fpAt < 600000)) {
+    if (!pw || (X.pw[s.user] && X.pw[s.user] !== pw) || await isMyPin(s.user, pw)) return http(401, 'Type your password (not a PIN) to set a PIN', { password_needed: true });
+  }
+  const pr = profOf(s.user); const why = pinWeak(b.pin, pr.birthday, pr.mobile); if (why) return fail(why);
+  const scope = s.role === 'admin' ? 'full' : 'checklist'; const salt = token(16);
+  X.pins = X.pins || {}; X.pins[s.user] = { salt, hash: await pinHash(salt, String(b.pin)), scope, set: isoSec(), wrong: 0, off: false, device: scope === 'checklist' ? pinDevice() : '' };
+  touch('GET /directory/pins'); save();
+  return ok({ scope, next: scope === 'full' ? 'Your PIN signs you in anywhere the dashboard opens. The password-again clicks still ask for your password.' : 'Your PIN opens your checklist on this phone. Everything else still needs your password.' });
+});
+route('DELETE', /^\/auth\/pin$/, () => { const s = me(); const had = !!(X.pins || {})[s.user]; if (had) delete X.pins[s.user]; touch('GET /directory/pins'); save(); return ok({ removed: had }); });
+route('DELETE', /^\/directory\/users\/([^/]+)\/pin$/, (b, m) => { const u = userOf(m[1]); const name = u ? u.name : m[1]; const had = !!(X.pins || {})[name]; if (had) delete X.pins[name]; touch('GET /directory/pins'); save(); return ok({ removed: had }); });
 route('POST', /^\/me\/password$/, b => {
   const rules = get('GET /me/password/rules') || {}; const min = rules.min_length || 8; const s = me();
   if (!b.old) return fail('Type your current password');
   if (X.pw[s.user] && X.pw[s.user] !== b.old) return fail('The current password is not right');
   if (String(b.new || '').length < min) return fail(`At least ${min} characters`);
   if (s.user && String(b.new).toLowerCase().includes(s.user.split('.')[0].toLowerCase())) return fail('A password cannot contain your name');
-  X.pw[s.user] = b.new; save(); return ok();
+  X.pw[s.user] = b.new; pinOff(s.user, 'the password changed'); save(); return ok();
 });
 // ----- two-step (optional; Microsoft Authenticator) -----
 route('POST', /^\/me\/2fa\/setup$/, () => { const s = clone(SEED['POST /me/2fa/setup'] || {}); delete s.demo; X.twofaPending = me().user; save(); return ok(Object.assign(s, { note: 'Preview: this is the sample key. Scan it, or type 000000.' })); });
@@ -346,7 +404,7 @@ route('DELETE', /^\/directory\/users\/([^/]+)$/, (b, m) => {
   if (u.name === me()?.user) return fail('You cannot delete the account you are signed in with');
   G['GET /directory/users'].users = users().filter(x => x !== u);
   for (const g of groups()) g.members = g.members.filter(x => x !== u.name);
-  X.twofa = X.twofa.filter(x => x !== u.name); delete X.pw[u.name];
+  X.twofa = X.twofa.filter(x => x !== u.name); delete X.pw[u.name]; if (X.pins) delete X.pins[u.name];
   touch('GET /directory/users', 'GET /directory/groups'); return ok();
 });
 route('POST', /^\/directory\/groups$/, b => {
@@ -755,7 +813,7 @@ route('POST', /^\/security\/scan\/restore$/, b => { if (b.confirm !== b.name) re
 function profOf(user) { X.profiles = X.profiles || {}; return X.profiles[user] = X.profiles[user] || { title: '', departments: [], personal_email: '', mobile: '', birthday: '' }; }
 function fullName(user, display) { const t = (X.profiles?.[user]?.title || '').trim(); const n = (display || '').trim() || user; return t && !n.toLowerCase().startsWith(t.toLowerCase() + ' ') ? `${t} ${n}` : n; }
 function isStaffUser(s) { if (!s) return false; if (s.role === 'admin') return true; const g = groupsOf(s.user).map(x => x.toLowerCase()); return g.includes('staff') || g.includes('media'); }
-function mustSet(user, on) { X.mustchange = (X.mustchange || []).filter(x => x !== user); if (on) X.mustchange.push(user); const u = userOf(user); if (u) { u.must_change = !!on; touch('GET /directory/users'); } save(); }
+function mustSet(user, on) { if (on) pinOff(user, 'the password was reset'); X.mustchange = (X.mustchange || []).filter(x => x !== user); if (on) X.mustchange.push(user); const u = userOf(user); if (u) { u.must_change = !!on; touch('GET /directory/users'); } save(); }
 function signinAdd(user, okd, how) { X.signins = X.signins || {}; (X.signins[user] = X.signins[user] || []).unshift({ t: isoSec(), ok: okd, how, ip: 'this browser' }); X.signins[user] = X.signins[user].slice(0, 50); }
 function deviceOf(a) { a = a || ''; const b = /Edg\//.test(a) ? 'Edge' : /Firefox\//.test(a) ? 'Firefox' : /Chrome\//.test(a) ? 'Chrome' : /Safari\//.test(a) ? 'Safari' : 'a browser'; const s = /iPhone/.test(a) ? 'an iPhone' : /iPad/.test(a) ? 'an iPad' : /Android/.test(a) ? 'Android' : /Macintosh/.test(a) ? 'a Mac' : /Windows/.test(a) ? 'Windows' : /Linux|X11/.test(a) ? 'Linux' : ''; return s ? `${b} on ${s}` : b; }
 const MAIL_DOMAIN = () => ((get('GET /public/sign-in') || {}).mail_domain || 'ad.arisecenla.com');
@@ -801,7 +859,7 @@ route('POST', /^\/auth\/login\/new-password$/, b => {
   X.pw[u.name] = nw; mustSet(u.name, false); signinAdd(u.name, true, `temporary password replaced · ${deviceOf(navigator.userAgent)}`);
   const role = isAdminUser(u) ? 'admin' : 'member';
   if (X.twofa.includes(u.name)) { const p = 'pending-' + token(10); mem.strikes[p] = { user: u.name, role, left: 3, at: Date.now() }; return ok({ need_code: true, pending: p, user: u.name }); }
-  X.session = { user: u.name, role }; u.last_logon = isoSec(); touch('GET /directory/users'); save(); return ok({ user: u.name, role });
+  X.session = { user: u.name, role, fpAt: Date.now() }; u.last_logon = isoSec(); touch('GET /directory/users'); save(); return ok({ user: u.name, role });
 });
 route('POST', /^\/auth\/forgot$/, b => {
   const user = String(b.user || '').trim().toLowerCase(); const out = ok({ message: 'If that account has a personal email on file, a link to choose a new password is on its way. It works for 30 minutes.' });
@@ -1057,7 +1115,9 @@ route('POST', /^\/checklist\/([^/]+)\/tick$/, (b, m) => {
   it.done = !it.done; it.by = it.done ? me().user : ''; it.at = it.done ? isoMin() : ''; l.done = l.items.filter(x => x.done).length; save();
   return ok(Object.assign(clone(l), { can_tick: true, can_edit: false, history: [] }));
 });
-route('POST', /^\/checklist\/reset$/, b => {
+route('POST', /^\/checklist\/reset$/, async b => {
+  const s = me(); const lpw = String(b.password || '');   // round 7, 162: the leader's own password, never a PIN
+  if (!lpw || (X.pw[s.user] && X.pw[s.user] !== lpw) || await isMyPin(s.user, lpw)) return http(401, "Type your own password to reset someone else's", { password_needed: true });
   const u = String(b.user || '').trim().toLowerCase(); const ppl = leaderPeople();
   if (!ppl.people.map(x => x.toLowerCase()).includes(u)) return fail('you can reset the passwords of people in the departments you lead');
   const pw = tempPw(); const real = userOf(u).name; X.pw[real] = pw; mustSet(real, true); signinAdd(real, true, `password reset by ${me().user} (department leader)`); save();
@@ -1159,6 +1219,8 @@ function computedGet(p, q) {
   if (p.startsWith('/automator/videos/') && p.endsWith('/transcript')) return getOr('GET ' + p, { ok: true, segments: [], sources: [], note: 'No timed transcript for this video in the sample set.' });
   if (p === '/automator/archive/doc') return { ok: true, demo: true, repo: q.get('repo'), path: q.get('path'), text: 'Sample: on the server this is the file’s text from the archive (read-only).' };
   if (p === '/auth/me') return authMe();
+  if (p === '/auth/pin/status') return pinStatus();
+  if (p === '/directory/pins') return { pins: Object.fromEntries(Object.entries(X.pins || {}).map(([u, r]) => [u, { scope: r.scope, off: !!r.off, since: r.set }])) };
   if (p === '/files/shared') { const u = String(s?.user || '').toLowerCase(); const pub = g => { const c = Object.assign({}, g); delete c.users; delete c.key; return c; }; return { demo: true, with_me: myGrants().map(pub), by_me: (X.grants || []).filter(g => g.owner === u).map(pub), all: isAdmin() ? (X.grants || []).map(pub) : null }; }
   if (p === '/files/share/people') { if (!isStaff()) return { people: [], groups: [], typed: true }; return { people: users().filter(u => u.enabled !== false).map(u => ({ name: u.name, display: u.display || u.name })), groups: groups().map(g => g.name).filter(n => !['Domain Admins', 'Pastors'].includes(n)), typed: false }; }
   if (p === '/files/quota') { const u = q.get('user') || s?.user; if (u !== s?.user && !isAdmin()) return http(403, 'Administrator only'); return quotaOf(u); }
@@ -1247,7 +1309,8 @@ async function handle(method, fullPath, body) {
   method = (method || 'GET').toUpperCase();
   const [p0, qs] = String(fullPath).split('?'); const p = p0.split('/').map(seg => { try { return decodeURIComponent(seg); } catch { return seg; } }).join('/'); const q = new URLSearchParams(qs || '');
   const s = me();
-  if (!s && !/^\/(auth\/(login|me|logout|forgot|reset)|public\/|health)/.test(p)) return http(401, 'Sign in');   // login covers /login/code and /login/new-password
+  if (!s && !(/^\/(auth\/(login|me|logout|forgot|reset)|public\/|health)/.test(p) || (p === '/auth/pin' && method === 'POST'))) return http(401, 'Sign in');   // login covers /login/code and /login/new-password
+  if (s && s.pin === 'checklist' && !NONE_OK.some(m => p === m.replace(/\/$/, '') || p.startsWith(m))) return http(403, 'A PIN opens the checklist only. Sign in with your password for the rest.');
   if (s && s.role !== 'admin' && !memberMay(p)) return http(403, 'That part of the dashboard is for the administrator');
   if (method === 'GET') {
     const c = computedGet(p, q); if (c !== undefined) return clone(c);

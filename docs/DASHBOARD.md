@@ -256,6 +256,34 @@ dashboard is for the administrator* (HTTP 403); the server enforces it, not
 the page. Login is a Kerberos check against the domain controller itself
 (`kinit`), so a disabled or expired account cannot sign in here either.
 
+### Sign-in PINs (round 7, 160 to 162)
+
+- **My Profile → Sign-in PIN** sets, changes or removes your own PIN: 4 to 8
+  digits, typed twice. It asks for your password unless you typed it in the
+  last ten minutes, and it is never asked from a PIN session. A weak PIN is
+  refused with the reason: a repeat, a run, 2580, a common one, your
+  birthday, or the end of your mobile number.
+- **The lock screen:** an admin with a PIN gets the PIN box first, and **Use my
+  password** switches back. After ten wrong PINs the PIN switches off and the
+  box goes back to the password.
+- **The sign-in page:** **Use my PIN** beside *Forgot your password?*. Two-step
+  is still asked after the PIN. A staff PIN typed there goes to `/checklist`.
+- **The phone checklist:** after a password sign-in, staff see **A PIN for
+  this phone**. Next time the page asks for the PIN on that phone, and **Use
+  my password instead** is one tap away. A leader's **Reset their password**
+  asks for the leader's own password.
+- **Directory → Sign-in PINs** (admins): who has one, what it opens, whether
+  it is switched off, and **Remove**. Nobody sees or sets another person's
+  PIN.
+- **The password-again clicks still want the password** (161): deletes,
+  emptying a Trash, the FileVault and ariseadmin reveals, the Pastors folder,
+  and the YouTube renewal.
+
+The API: `POST /api/auth/pin` `{user, pin}`, `GET /api/auth/pin/status`,
+`POST /api/auth/pin/set` `{pin, password?}`, `DELETE /api/auth/pin`,
+`GET /api/directory/pins`, `DELETE /api/directory/users/{name}/pin`.
+docs/SECURITY.md has how it is stored and what a PIN session can't do.
+
 ### Share links
 
 Right-click a file or folder → **Share Link…** (or File → Share Link…). A
