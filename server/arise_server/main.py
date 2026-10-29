@@ -230,8 +230,14 @@ class Forgot(BaseModel):
 
 
 def _base_url(request: Request) -> str:
+    """Never the request's own Host header: anyone could post /api/auth/forgot with a forged
+    one and get a real email whose link carries a valid token to their own site. The link is
+    the dashboard's fixed name behind Caddy (or public_url, if it is ever set)."""
     pub = (load().web.get("public_url") or "").strip()
-    return pub or str(request.base_url).rstrip("/")
+    if pub:
+        return pub.rstrip("/")
+    from . import macs
+    return f"https://{macs.server_names()['host']}"
 
 
 @app.post("/api/auth/forgot")

@@ -162,7 +162,10 @@ for d in ["/opt/arise", "/srv/arise", "/etc/arise", "/var/lib/arise", "/var/log/
 deny = perm.setdefault("deny", [])
 # A credential must never enter a chat (the automator's rule, and CLAUDE.md rule 6): its file
 # is not read into the conversation. Everything else on the box is open to edit.
-for rule in ["Read(/etc/arise/secrets/**)", "Read(/etc/arise/SAFE-CARD.txt)", "Read(/srv/arise/apps/**/.env)"]:
+# The Bash patterns are best-effort (sudo needs no password here, so a shell could still reach a
+# file by another spelling); CLAUDE.md rule 6 is the rule, these catch the plain mistakes.
+for rule in ["Read(/etc/arise/secrets/**)", "Read(/etc/arise/SAFE-CARD.txt)", "Read(/srv/arise/apps/**/.env)",
+             "Bash(*/etc/arise/secrets*)", "Bash(*SAFE-CARD*)", "Bash(*/srv/arise/apps/*/.env*)"]:
     if rule not in deny:
         deny.append(rule)
 tmp = p + ".tmp"

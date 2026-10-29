@@ -145,6 +145,18 @@ sleep 2
 "$BASE/arise-mac-helper" && say "done; the log is /var/log/arise-helper.log" || say "the first check-in failed; the log says why: tail /var/log/arise-helper.log"
 tail -n 12 /var/log/arise-helper.log 2>/dev/null | sed 's/^/    /'
 
+step "8. Full Disk Access (once, by hand)"
+# macOS lets no script grant this, not even root's. Without it the helper cannot list anyone's
+# Desktop or Documents, so it never removes a profile from this Mac (the server refuses).
+if ls "/Library/Application Support/com.apple.TCC" >/dev/null 2>&1; then
+  say "already granted"
+else
+  say "In the window that opens: press +, press Cmd-Shift-G, type /usr/local/arise/helper/arise-mac-helper,"
+  say "press Open, then do the same for /bin/bash, and make sure both switches are on."
+  say "Until then the Macs app shows this Mac as 'no Full Disk Access' and no profile is removed from it."
+  open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" 2>/dev/null || true
+fi
+
 LOCALS="$(printf '%s\n' "$ACCTS" | awk -F'|' '$2=="local"{print $1}')"
 if [ -n "$LOCALS" ]; then
   step "Accounts already on this Mac"

@@ -87,6 +87,15 @@ What `mac/helper/enrol.sh` does, in order. It is safe to run again.
    - Tailscale
    - an account for every server user
 
+7. **Full Disk Access, by hand, once.** macOS hides everyone's Desktop and
+   Documents even from root, and no script can grant the exception. Enrolment
+   opens System Settings > Privacy & Security > Full Disk Access; add
+   `/usr/local/arise/helper/arise-mac-helper` and `/bin/bash` there. Until
+   then the Mac's card says **no Full Disk Access**, and no profile is ever
+   removed from that Mac: the helper reports a folder it could not read, and
+   the server refuses any listing that came back unread, has items but no
+   files, or holds a file name with a tab or a line break.
+
 At the end it lists the local accounts already on the Mac. Nothing happens to
 them until an admin chooses (below).
 
@@ -159,7 +168,11 @@ your choice**. Nothing is automatic. The admin presses **Choose…**:
     files to the AD uid.
   - Admin rights carry over only if the local account had them. Staff are
     standard users (round 6, 8).
-  - **Undo** puts the local account back from the record.
+  - **Undo** puts the local account back from the record. If
+    `createmobileaccount` fails partway, the helper does the Undo by itself,
+    so nobody is left without an account to sign in to.
+  - It refuses when the account holds the Mac's Secure Token and FileVault is
+    on (see "Not verified" below): Link is the answer there.
 - **Link.** The local account stays exactly as it is. The Nextcloud client in
   that account signs in as the server user, so its Desktop and Documents sync
   to that person's server home.
@@ -266,9 +279,15 @@ tools but were checked only with `bash -n`, and need a first run on one church
 Mac before the rest:
 
 - `createmobileaccount -h <home>` on a converted account
-- whether a converted account gets a Secure Token. It has to have one to
-  unlock FileVault. If it does not, an admin grants it with
-  `sysadminctl -secureTokenOn`.
+- whether a converted account gets a Secure Token. Until that is tried, the
+  helper refuses to Convert an account that holds a Secure Token when
+  FileVault is on, or when it is the only token holder on the Mac: deleting
+  the local record takes the token with it, and nothing can give the new
+  account one without a holder's password. The card then says **Choose Link
+  instead**. To convert such a Mac anyway, first give `ariseadmin` a token by
+  hand (`sudo sysadminctl -secureTokenOn ariseadmin -password - -adminUser
+  <holder> -adminPassword -`), then Convert, then grant the new account one
+  the same way.
 - restoring a password hash (`ShadowHashData`) on Undo. If it does not take,
   the message says to reset the password as `ariseadmin`.
 - `dsconfigad -force -remove` on Retire

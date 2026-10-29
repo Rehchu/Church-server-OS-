@@ -183,6 +183,8 @@ def parse_manifest(text: str) -> list[tuple[str, int, float]]:
     """rel<TAB>size<TAB>mtime lines -> tuples. A path that tries to leave its folder is dropped."""
     out = []
     for line in (text or "").splitlines():
+        if line.startswith("#"):
+            continue   # a folder's summary line (parse_folders)
         p = line.split("\t")
         if len(p) != 3:
             continue
@@ -194,6 +196,35 @@ def parse_manifest(text: str) -> list[tuple[str, int, float]]:
         except ValueError:
             continue
     return out
+
+
+def parse_folders(text: str) -> list[dict]:
+    """The helper's "#folder<TAB>name<TAB>state<TAB>has_items<TAB>odd_names" lines."""
+    out = []
+    for line in (text or "").splitlines():
+        p = line.split("\t")
+        if p[0] != "#folder" or len(p) != 5:
+            continue
+        out.append({"folder": p[1].strip("/"), "state": p[2], "has_items": p[3] == "1",
+                    "odd": int(p[4]) if p[4].isdigit() else 1})
+    return out
+
+
+def trust_listing(files: list[tuple[str, int, float]], folders: list[dict]) -> str:
+    """Why a listing cannot be trusted, or "" when it can. An empty listing proves nothing by
+    itself: macOS hides Desktop and Documents even from root without Full Disk Access, and a
+    file name with a tab or line break cannot be listed on one line. Either way the removal waits."""
+    if not folders:
+        return "the Mac sent no folder summary (an older helper?); nothing removed"
+    for f in folders:
+        if f["state"] == "unreadable":
+            return (f"this Mac's helper could not read {f['folder']} (it needs Full Disk Access: "
+                    f"System Settings > Privacy & Security, docs/MACS.md); nothing removed")
+        if f["odd"]:
+            return f"{f['odd']} name(s) in {f['folder']} hold a tab or a line break; rename them, then it is tried again"
+        if f["state"] == "read" and f["has_items"] and not any(rel.startswith(f["folder"] + "/") for rel, _, _ in files):
+            return f"{f['folder']} has items but no files were listed (empty folders only, or no Full Disk Access); nothing removed"
+    return ""
 
 
 def verify_manifest(files: list[tuple[str, int, float]], bases: list[str], slack: float = 2.0) -> dict:
@@ -365,6 +396,46 @@ def _open(tasks: list[dict], kind: str, key: str | None = None, val: str | None 
     return any(t["kind"] == kind and t["state"] in ("queued", "sent") and (key is None or t["args"].get(key) == val) for t in tasks)
 
 
+BACKOFF_FIRST = 15 * 60       # a failed or refused account task waits 15 minutes, then 30, 60... up to a day
+BACKOFF_MAX = 24 * 3600
+KEEP_FINISHED_DAYS = 30
+
+
+def backing_off(tasks: list[dict], kind: str, user: str, now: datetime | None = None) -> bool:
+    """Has this task kind for this user failed (or been refused) lately enough to wait? Without
+    this, a Mac that cannot make accounts (not bound, say) got a fresh copy of every user's task
+    at every five-minute check-in, forever."""
+    now = now or datetime.now()
+    mine = [t for t in tasks if t["kind"] == kind and str(t["args"].get("user", "")).lower() == user.lower() and t.get("finished")]
+    n, last = 0, None
+    for t in sorted(mine, key=lambda t: t["finished"], reverse=True):
+        if t["state"] not in ("failed", "refused"):
+            break
+        n += 1
+        last = last or t["finished"]
+    if not n:
+        return False
+    try:
+        since = (now - datetime.fromisoformat(last)).total_seconds()
+    except ValueError:
+        return False
+    return since < min(BACKOFF_MAX, BACKOFF_FIRST * 2 ** (n - 1))
+
+
+def prune(tasks: list[dict], now: datetime | None = None) -> list[dict]:
+    """Finished tasks older than 30 days go; open ones always stay."""
+    cut = (now or datetime.now()) - timedelta(days=KEEP_FINISHED_DAYS)
+    keep = []
+    for t in tasks:
+        try:
+            old = bool(t.get("finished")) and datetime.fromisoformat(t["finished"]) < cut
+        except ValueError:
+            old = False
+        if not old:
+            keep.append(t)
+    return keep
+
+
 def _directory_users() -> list[dict]:
     from . import directory
     try:
@@ -373,7 +444,8 @@ def _directory_users() -> list[dict]:
         return []
 
 
-def plan_accounts(m: dict, users: list[dict], exclude: list[str], tasks: list[dict]) -> list[tuple[str, dict]]:
+def plan_accounts(m: dict, users: list[dict], exclude: list[str], tasks: list[dict],
+                  now: datetime | None = None) -> list[tuple[str, dict]]:
     """Pure: which add_account and remove_profile tasks this Mac needs now.
     Every enabled directory user (minus exclusions) gets a mobile account; a disabled one
     with a mobile account on this Mac gets the checked removal. Local accounts are never
@@ -387,9 +459,10 @@ def plan_accounts(m: dict, users: list[dict], exclude: list[str], tasks: list[di
         if n in ex or not USER_RE.match(n):
             continue
         if u.get("enabled", True):
-            if n not in have and n not in converted and not _open(tasks, "add_account", "user", u["name"]):
+            if n not in have and n not in converted and not _open(tasks, "add_account", "user", u["name"]) \
+                    and not backing_off(tasks, "add_account", u["name"], now):
                 out.append(("add_account", {"user": u["name"]}))
-        elif n in have and not _open(tasks, "remove_profile", "user", u["name"]):
+        elif n in have and not _open(tasks, "remove_profile", "user", u["name"]) and not backing_off(tasks, "remove_profile", u["name"], now):
             out.append(("remove_profile", {"user": u["name"]}))
     return out
 
@@ -402,14 +475,16 @@ def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
         d = _read()
         cur = d["macs"][m["id"]]
         cur["last_checkin"] = now.isoformat(timespec="seconds")
-        for k in ("macos", "model", "serial", "helper", "filevault", "tailscale", "ip"):
+        for k in ("macos", "model", "serial", "helper", "filevault", "tailscale", "full_disk_access", "ip"):
             if facts.get(k):
                 cur[k] = str(facts[k])[:80]
         if "accounts" in facts:
             cur["accounts"] = parse_accounts(facts["accounts"])
-        tasks = d["tasks"].setdefault(m["id"], [])
+        d["tasks"][m["id"]] = tasks = prune(d["tasks"].get(m["id"], []), now)
+        nowts = now.timestamp()
+        d["tokens"] = {h: t for h, t in d.get("tokens", {}).items() if t.get("expires", 0) > nowts and not t.get("used")}
         cfgm = macs_cfg()
-        for kind, args in plan_accounts(cur, _directory_users(), cfgm["exclude"], tasks):
+        for kind, args in plan_accounts(cur, _directory_users(), cfgm["exclude"], tasks, now):
             if kind == "remove_profile":
                 args = {**args, **removal_args(args["user"])}
             _queue(d, m["id"], kind, args, by="the directory")
@@ -525,6 +600,10 @@ def check(m: dict, user: str, bases_s: str, manifest: str) -> dict:
     files = parse_manifest(manifest)
     if cfg.demo:
         return {"ok": True, "demo": True, "checked": len(files), "missing": [], "newer": []}
+    why = trust_listing(files, parse_folders(manifest))
+    if why:
+        audit.record(f"mac:{m['name']}", "macs.check", user, ok=False, detail=why[:200])
+        return {"ok": False, "err": why, "checked": len(files), "missing": [], "newer": []}
     r = verify_manifest(files, bases)
     audit.record(f"mac:{m['name']}", "macs.check", user, ok=r["ok"], detail=f"{r['checked']} files, {r['missing_count']} missing, {r['newer_count']} newer on the Mac")
     return r
@@ -546,7 +625,7 @@ def _public(m: dict, tasks: list[dict]) -> dict:
     online = _age(m.get("last_checkin")) < OFFLINE_AFTER
     acc = m.get("accounts", [])
     return {k: m.get(k) for k in ("id", "name", "serial", "model", "macos", "status", "enrolled", "enrolled_by", "last_checkin",
-                                  "helper", "filevault", "tailscale", "ariseadmin_at", "church_owned")} | {
+                                  "helper", "filevault", "tailscale", "full_disk_access", "ariseadmin_at", "church_owned")} | {
         "online": online, "mobile": sum(1 for a in acc if a["kind"] == "mobile"), "local": sum(1 for a in acc if a["kind"] == "local"),
         "pending": sum(1 for t in tasks if t["state"] in ("queued", "sent")),
         "failed": sum(1 for t in tasks if t["state"] in ("failed", "refused"))}

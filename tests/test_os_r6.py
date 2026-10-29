@@ -211,6 +211,10 @@ if __name__ == "__main__":
 
 
 class KioskOpen(unittest.TestCase):
+    def test_forwarded_addresses_are_believed_from_this_box_only(self):
+        src = (Path(__file__).resolve().parents[1] / "server" / "arise_server" / "__main__.py").read_text()
+        self.assertIn('forwarded_allow_ips="127.0.0.1"', src)
+
     def test_kiosk_open_refuses_a_proxied_request(self):
         src = (Path(__file__).resolve().parents[1] / "server" / "arise_server" / "main.py").read_text()
         i = src.index('def api_kiosk_open')

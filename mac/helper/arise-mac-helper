@@ -50,12 +50,14 @@ load_conf() {
   MAC_ID="$(sed -n 's/^MAC_ID=//p' "$CONF" | head -1)"
   KEY="$(cat "$KEYF" 2>/dev/null)"
   [ -n "$SERVER" ] && [ -n "$MAC_ID" ] && [ -n "$KEY" ] || die "helper.conf or helper.key is incomplete"
+  # curl reads the key from a root-only header file: on its command line, ps would show it to anyone.
+  ( umask 077; printf 'X-Arise-Mac: %s:%s\n' "$MAC_ID" "$KEY" > "$DB/helper.hdr" )
 }
 
 api() {   # api <path> [curl args...]
   local path="$1"; shift
   local ca=(); case "$SERVER" in https:*) [ -f "$CACERT" ] && ca=(--cacert "$CACERT") ;; esac
-  curl -fsS --max-time 120 "${ca[@]}" -H "X-Arise-Mac: $MAC_ID:$KEY" "$SERVER/api/macs/agent/$path" "$@"
+  curl -fsS --max-time 120 "${ca[@]}" -H @"$DB/helper.hdr" "$SERVER/api/macs/agent/$path" "$@"
 }
 report() {   # report <task id> <done|failed|refused|skipped> <detail>
   log "task $1: $2 $3"
@@ -86,16 +88,31 @@ ts_state() { if [ -x "$TS" ]; then "$TS" status >/dev/null 2>&1 && echo up || ec
 facts() {
   printf 'macos=%s\nmodel=%s\nserial=%s\nfilevault=%s\ntailscale=%s\n' "$(sw_vers -productVersion)" "$(sysctl -n hw.model)" \
     "$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/{print $4}')" "$(fv_state)" "$(ts_state)"
+  printf 'full_disk_access=%s\n' "$(fda_state)"
 }
 
 # ----- the checked removal (round 6, 4) ----------------------------------------------------
 manifest() {   # manifest <home> <folders csv>: rel<TAB>size<TAB>mtime, never the contents
-  local home="$1" f
+  # Each folder ends with a "#folder<TAB>name<TAB>state<TAB>has_items<TAB>odd_names" line, so the
+  # server can refuse a listing that came back empty because macOS would not let us read it
+  # (Desktop and Documents need Full Disk Access, even for root) or that skipped a file whose
+  # name holds a tab or a line break (those cannot be written as one line).
+  local home="$1" f err n odd items state
   for f in ${2//,/ }; do
-    [ -d "$home/$f" ] || continue
-    ( cd "$home" && find "$f" -type f ! -name .DS_Store ! -name '._*' -print0 2>/dev/null | xargs -0 stat -f "%N	%z	%m" 2>/dev/null )
+    if [ ! -d "$home/$f" ]; then printf '#folder\t%s\tabsent\t0\t0\n' "$f"; continue; fi
+    err="$(mktemp)"
+    items="$( (ls -A "$home/$f" 2>>"$err" || echo "!ls") | grep -v -e '^\.DS_Store$' -e '^\._' | head -1)"
+    ( cd "$home" && find "$f" -type f ! -name .DS_Store ! -name '._*' -print0 2>>"$err" | xargs -0 stat -f "%N	%z	%m" 2>>"$err" )
+    odd="$(cd "$home" && find "$f" \( -name "*	*" -o -name "*
+*" \) -print0 2>/dev/null | tr -cd '\000' | wc -c | tr -d ' ')"
+    if [ -s "$err" ] || [ "$items" = "!ls" ]; then state=unreadable; log "manifest $home/$f: $(head -2 "$err" | tr '\n' ' ')"; else state=read; fi
+    printf '#folder\t%s\t%s\t%s\t%s\n' "$f" "$state" "$([ -n "$items" ] && echo 1 || echo 0)" "${odd:-0}"
+    rm -f "$err"
   done
 }
+# Root still needs Full Disk Access (System Settings > Privacy & Security) to read other people's
+# Desktop and Documents. The TCC folder is readable only with it: the classic test.
+fda_state() { ls "/Library/Application Support/com.apple.TCC" >/dev/null 2>&1 && echo yes || echo no; }
 server_has_it_all() {   # server_has_it_all <user> <home> <bases> <folders>: prints the server's answer
   local out tmp; tmp="$(mktemp)"
   manifest "$2" "$4" > "$tmp"
@@ -138,6 +155,19 @@ t_remove_profile() {
 }
 
 # ----- an existing local account: convert (becomes the server user) or link ----------------
+# The Secure Token is what lets an account unlock FileVault (and own the disk on Apple silicon).
+# Deleting the local record takes its token with it, and nothing on this Mac can hand a token to
+# the new mobile account without a token holder's password, which the helper never has.
+has_token() { sysadminctl -secureTokenStatus "$1" 2>&1 | grep -q ENABLED; }
+other_token_holder() {   # another account on this Mac that keeps a token after $1 is gone
+  local u uid
+  dscl . -list /Users UniqueID | while read -r u uid; do
+    [ "$uid" -ge 500 ] 2>/dev/null || continue
+    [ "$u" = "$1" ] && continue
+    has_token "$u" && { echo "$u"; break; }
+  done | grep -q .
+}
+
 t_convert_local() {
   local id="$1" old user adm home new uid rec
   old="$(arg local "$2")"; user="$(arg user "$2")"; adm="$(arg admin "$2" || echo 0)"
@@ -148,6 +178,14 @@ t_convert_local() {
   id "$user" >/dev/null 2>&1 || { report "$id" failed "the directory does not answer for $user"; return; }
   home="$(dscl . -read "/Users/$old" NFSHomeDirectory | awk '{print $2}')"
   case "$home" in /Users/?*) ;; *) report "$id" refused "$old's home is '$home', not under /Users; convert it by hand"; return ;; esac
+  if has_token "$old"; then
+    if [ "$(fv_state)" = on ]; then
+      report "$id" refused "FileVault is on and $old holds a Secure Token: converting would leave the new account unable to unlock this Mac at startup (only the recovery key could). Choose Link instead: nothing changes for $old and the files still sync"; return
+    fi
+    if ! other_token_holder "$old"; then
+      report "$id" refused "$old is the only account with this Mac's Secure Token; converting would leave none. Choose Link instead, or give ariseadmin a token first (docs/MACS.md)"; return
+    fi
+  fi
   rec="$DB/convert/$old.plist"
   # The rollback record first: everything needed to put the local account back.
   /usr/bin/defaults write "$rec" old "$old"
@@ -164,25 +202,23 @@ t_convert_local() {
   new="$home"; [ "$old" != "$user" ] && [ ! -e "/Users/$user" ] && new="/Users/$user"
   dscl . -delete "/Users/$old" || { report "$id" failed "could not remove the local record (nothing changed)"; return; }
   [ "$new" != "$home" ] && mv "$home" "$new"
+  /usr/bin/defaults write "$rec" new_home "$new"
   if ! "$CMA" -n "$user" -h "$new" -v >>"$LOG" 2>&1; then
-    [ "$new" != "$home" ] && mv "$new" "$home"
-    report "$id" failed "createmobileaccount refused; undo with the Undo button (the rollback record is $rec)"; return
+    restore_local "$rec"   # never leave them with no account to sign in to
+    report "$id" failed "createmobileaccount refused, so $old was put back as it was (see $LOG)"; return
   fi
   uid="$(id -u "$user")"
   chown -R "$uid:staff" "$new"
   [ "$adm" = 1 ] && dseditgroup -o edit -a "$user" -t user admin
-  /usr/bin/defaults write "$rec" new_home "$new"
   report "$id" done "$old is now $user, home $new, every file kept; they sign in with their server password"
 }
 
-t_unconvert() {   # the rollback: the local account back as it was
-  local id="$1" old user rec home uid gid hash
-  old="$(arg local "$2")"; rec="$DB/convert/$old.plist"
-  [ -f "$rec" ] || { report "$id" failed "no rollback record for $old"; return; }
-  user="$(defaults read "$rec" user)"; home="$(defaults read "$rec" home)"; uid="$(defaults read "$rec" uid)"; gid="$(defaults read "$rec" gid)"
-  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in"; return; }
+restore_local() {   # restore_local <rollback record>: the local account back exactly as it was
+  local rec="$1" old user home uid gid hash cur
+  old="$(defaults read "$rec" old)"; user="$(defaults read "$rec" user)"; home="$(defaults read "$rec" home)"
+  uid="$(defaults read "$rec" uid)"; gid="$(defaults read "$rec" gid)"
   dscl . -delete "/Users/$user" 2>/dev/null
-  local cur; cur="$(defaults read "$rec" new_home 2>/dev/null || echo "$home")"
+  cur="$(defaults read "$rec" new_home 2>/dev/null || echo "$home")"
   [ "$cur" != "$home" ] && [ -d "$cur" ] && mv "$cur" "$home"
   dscl . -create "/Users/$old"
   dscl . -create "/Users/$old" UniqueID "$uid"; dscl . -create "/Users/$old" PrimaryGroupID "$gid"
@@ -193,6 +229,15 @@ t_unconvert() {   # the rollback: the local account back as it was
   [ "$(defaults read "$rec" admin)" = 1 ] && dseditgroup -o edit -a "$old" -t user admin
   chown -R "$uid:$gid" "$home"
   mv "$rec" "$rec.undone"
+}
+
+t_unconvert() {   # the rollback: the local account back as it was
+  local id="$1" old user rec
+  old="$(arg local "$2")"; rec="$DB/convert/$old.plist"
+  [ -f "$rec" ] || { report "$id" failed "no rollback record for $old"; return; }
+  user="$(defaults read "$rec" user)"
+  [ "$(console_user)" = "$user" ] && { report "$id" refused "$user is signed in"; return; }
+  restore_local "$rec"
   report "$id" done "$old is a local account again (if its old password does not work, reset it in System Settings as ariseadmin)"
 }
 
@@ -214,28 +259,32 @@ t_login_window() {
 }
 
 t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 6, 7)
-  local id="$1" pw
-  if [ -s "$DB/ariseadmin.pending" ]; then pw="$(cat "$DB/ariseadmin.pending")"
-  else pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"; fi
+  # The new password is kept on disk (root, 0600) before it is set, so a crash between the
+  # two never loses it; setting the same one again is harmless. curl reads it from that file:
+  # on the command line, any signed-in user could see it with ps.
+  local id="$1" pw p="$DB/ariseadmin.pending"
+  if [ -s "$p" ]; then pw="$(cat "$p")"
+  else pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"; ( umask 077; printf '%s' "$pw" > "$p" ); fi
   if ! dscl . -read /Users/ariseadmin >/dev/null 2>&1; then
     sysadminctl -addUser ariseadmin -fullName "Arise Admin" -password "$pw" -admin -home /var/ariseadmin >>"$LOG" 2>&1 || { report "$id" failed "could not make ariseadmin"; return; }
     dscl . -create /Users/ariseadmin IsHidden 1
-  elif [ ! -s "$DB/ariseadmin.pending" ]; then
+  else
     sysadminctl -resetPasswordFor ariseadmin -newPassword "$pw" >>"$LOG" 2>&1 || { report "$id" failed "could not change ariseadmin's password"; return; }
   fi
-  ( umask 077; printf '%s' "$pw" > "$DB/ariseadmin.pending" )
-  if api secret --data-urlencode "kind=ariseadmin" --data-urlencode "value=$pw" >/dev/null 2>&1; then
-    rm -f "$DB/ariseadmin.pending"; report "$id" done "rotated and escrowed"
+  if api secret --data-urlencode "kind=ariseadmin" --data-urlencode "value@$p" >/dev/null 2>&1; then
+    rm -f "$p"; report "$id" done "rotated and escrowed"
   else report "$id" failed "changed, but the server did not take it: kept here and sent next time"; fi
 }
 
 t_filevault() {   # on, deferred to the next sign-in; the recovery key escrowed (round 6, 10)
-  local id="$1" key
+  local id="$1" key kf
   if [ -f "$DB/fv.plist" ]; then
     key="$(defaults read "$DB/fv.plist" RecoveryKey 2>/dev/null)"
-    if [ -n "$key" ] && api secret --data-urlencode "kind=filevault" --data-urlencode "value=$key" >/dev/null 2>&1; then
-      rm -f "$DB/fv.plist"; report "$id" done "FileVault on; recovery key escrowed"; return
+    kf="$DB/fv.key"; ( umask 077; printf '%s' "$key" > "$kf" )   # from a file, never the command line
+    if [ -n "$key" ] && api secret --data-urlencode "kind=filevault" --data-urlencode "value@$kf" >/dev/null 2>&1; then
+      rm -f "$DB/fv.plist" "$kf"; report "$id" done "FileVault on; recovery key escrowed"; return
     fi
+    rm -f "$kf"
   fi
   if [ "$(fv_state)" = on ]; then report "$id" done "FileVault already on (its key was escrowed at enrolment, or turn it off and on to escrow)"; return; fi
   if fdesetup enable -defer "$DB/fv.plist" -forceatlogin 0 -dontaskatlogout >>"$LOG" 2>&1; then

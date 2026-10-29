@@ -261,10 +261,11 @@ class Flows(unittest.TestCase):
         none = anon.post("/api/auth/forgot", json={"user": "jane.doe"}).json()
         self.assertNotIn("sample_link", none)                       # no personal email on file yet: the same words, no link
         a.put("/api/directory/users/jane.doe/profile", json={"personal_email": "jane@example.com"})
-        r = anon.post("/api/auth/forgot", json={"user": "jane.doe"}).json()
+        # a forged Host header does not steer the link: it is the dashboard's fixed name
+        r = anon.post("/api/auth/forgot", json={"user": "jane.doe"}, headers={"Host": "evil.example"}).json()
         self.assertEqual(r["message"], none["message"])
         tok = r["sample_link"].split("t=")[1]
-        self.assertTrue(r["sample_link"].startswith("http://testserver/reset?t="))
+        self.assertTrue(r["sample_link"].startswith("https://arise-server.ad.arisecenla.com/reset?t="), r["sample_link"])
         self.assertEqual(anon.get("/api/auth/reset/check", params={"t": tok}).json()["user"], "jane.doe")
         self.assertFalse(anon.post("/api/auth/reset", json={"token": tok, "new": "short"}).json()["ok"])
         self.assertTrue(anon.post("/api/auth/reset", json={"token": tok, "new": "Reset-Pass-3333!"}).json()["ok"])

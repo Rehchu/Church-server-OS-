@@ -22,7 +22,10 @@ def main():
     cfg = load()
     host = a.host or cfg.web.bind
     port = a.port or cfg.web.port
-    uvicorn.run("arise_server.main:app", host=host, port=port, reload=a.reload, log_level="info")
+    # Forwarded addresses are believed from Caddy on this box only, never from an environment
+    # variable: the monitor-only routes and every Mac's recorded address depend on it.
+    uvicorn.run("arise_server.main:app", host=host, port=port, reload=a.reload, log_level="info",
+                proxy_headers=True, forwarded_allow_ips="127.0.0.1")
 
 
 if __name__ == "__main__":

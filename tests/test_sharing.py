@@ -89,6 +89,13 @@ class Folders(Base):
         self.assertNotIn("Domain Admins", block)
         self.assertNotIn("admin users", block)
         self.assertEqual(sharing.audit_rule(), f"-w {sharing.pastors_path()} -p rwxa -k arise-pastors")
+        # nobody named: no section at all (an empty "valid users =" would let every domain user in)
+        keep = self.cfg.storage.pastors
+        try:
+            self.cfg.storage.pastors = []
+            self.assertNotIn("[pastors]\n", sharing.smb_conf())
+        finally:
+            self.cfg.storage.pastors = keep
 
     def test_netbios_comes_from_config(self):
         self.assertIn('@"CHURCH\\Staff"', sharing.smb_conf(netbios="CHURCH"))
@@ -146,6 +153,19 @@ class ShareWith(Base):
         other = {"abs": "/srv/arise/shares/media/loops/b.mov", "acl_added": {"g:Staff": ["/srv/arise/shares/media/loops/b.mov", "/srv/arise/shares/media/loops"]}}
         rv2 = sharing.plan_revoke(g, "g:Staff", [other])
         self.assertNotIn(["setfacl", "-x", "g:Staff", "/srv/arise/shares/media/loops"], rv2)
+        # stopping a folder share puts back a live share of something inside it (the -R took it too)
+        h = "/srv/arise/homes/bradly"
+        big = {"abs": f"{h}/Docs", "perm": "read", "dir": True, "to": ["jane.doe"], "acl_added": {"u:jane.doe": [f"{h}/Docs", h]}}
+        inner = {"abs": f"{h}/Docs/Plans/plan.docx", "perm": "write", "dir": False, "to": ["jane.doe"],
+                 "acl_added": {"u:jane.doe": [f"{h}/Docs/Plans/plan.docx", f"{h}/Docs/Plans", f"{h}/Docs", h]}}
+        rv3 = sharing.plan_revoke(big, "u:jane.doe", [inner])
+        self.assertEqual(rv3[0][:3], ["setfacl", "-R", "-x"])
+        self.assertIn(["setfacl", "-m", "u:jane.doe:rwX", f"{h}/Docs/Plans/plan.docx"], rv3)
+        self.assertIn(["setfacl", "-m", "u:jane.doe:--x", f"{h}/Docs/Plans"], rv3)
+        self.assertIn(["setfacl", "-m", "u:jane.doe:--x", f"{h}/Docs"], rv3)
+        self.assertLess(rv3.index(["setfacl", "-R", "-x", "u:jane.doe", f"{h}/Docs"]), rv3.index(["setfacl", "-m", "u:jane.doe:rwX", f"{h}/Docs/Plans/plan.docx"]))
+        self.assertNotIn(["setfacl", "-x", "u:jane.doe", h], rv3)                       # the inner share still needs the home's traverse
+        self.assertFalse([c for c in sharing.plan_revoke(big, "u:jane.doe", [{**inner, "to": ["john.smith"]}]) if "-m" in c])   # someone else's: untouched
         self.assertTrue(sharing.has_entry("# file: x\nuser::rwx\ngroup:Staff:rwx\nmask::rwx\n", "g:Staff"))
         self.assertFalse(sharing.has_entry("user::rwx\ngroup::r-x\n", "g:Staff"))
 

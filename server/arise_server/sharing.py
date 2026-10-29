@@ -152,10 +152,14 @@ def smb_conf(netbios: str | None = None) -> str:
                 f"  write list = {q(cfg.storage.staff_group)} {q('Domain Admins')} {accts}",
                 "  read only = yes", "  browseable = yes", f'  force group = "{g}"', "  inherit acls = yes",
                 "  access based share enum = yes", *recycle, ""]
-    pastors = " ".join(cfg.storage.pastors or [])
-    out += ["[pastors]", "  comment = Pastors only", f"  path = {pastors_path()}", f"  valid users = {pastors}",
-            "  read only = no", "  browseable = no", "  access based share enum = yes", '  force group = "Pastors"',
-            "  inherit acls = yes", *recycle, ""]
+    pastors = " ".join(p for p in (cfg.storage.pastors or []) if str(p).strip())
+    if not pastors:
+        # an empty "valid users =" lets every domain user connect: no section at all instead
+        out += ["# [pastors] is left out: [storage] pastors names nobody.", ""]
+    else:
+        out += ["[pastors]", "  comment = Pastors only", f"  path = {pastors_path()}", f"  valid users = {pastors}",
+                "  read only = no", "  browseable = no", "  access based share enum = yes", '  force group = "Pastors"',
+                "  inherit acls = yes", *recycle, ""]
     out += ["[shared]", "  comment = Shared with me", f"  path = {cfg.storage.shared_path}/%U", "  valid users = %U",
             "  read only = no", "  browseable = yes", "  wide links = yes", "  follow symlinks = yes", "  inherit acls = yes",
             "  vfs objects = acl_xattr fruit streams_xattr", "  fruit:metadata = stream", "  fruit:model = MacSamba",
@@ -570,6 +574,13 @@ def plan_revoke(g: dict, principal: str, others: list[dict]) -> list[list[str]]:
             cmds += [c for c in acl_cmds(g["abs"], principal, g["perm"], g["abs"], g["dir"], remove=True)]
         elif path not in still:
             cmds.append(["setfacl", "-x", principal, path])
+    # The removal above is recursive, so another live share to the same principal of this item,
+    # or of something inside it, lost its entries too: put those back, with the traverse on the
+    # folders between it and this item.
+    for r in others:
+        to = {("g:" + t[1:]) if t.startswith("@") else ("u:" + t) for t in r.get("to", [])}
+        if principal in to and _under(r["abs"], g["abs"]):
+            cmds += acl_cmds(r["abs"], principal, r["perm"], g["abs"], r["dir"])
     return cmds
 
 

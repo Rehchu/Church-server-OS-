@@ -107,6 +107,25 @@ class Pure(unittest.TestCase):
         open_t = [{"kind": "remove_profile", "state": "sent", "args": {"user": "old.timer"}}]
         self.assertNotIn(("remove_profile", {"user": "old.timer"}), macs.plan_accounts(m, USERS, [], open_t))
 
+    def test_a_failing_task_backs_off_and_old_tasks_are_pruned(self):
+        from datetime import datetime, timedelta
+        now = datetime(2026, 11, 3, 12, 0)
+        iso = lambda **kw: (now - timedelta(**kw)).isoformat(timespec="seconds")
+        m = {"accounts": macs.parse_accounts(ACCOUNTS), "choices": {}}
+        fail = lambda ago: {"kind": "add_account", "state": "failed", "args": {"user": "kristina.robinson"}, "finished": iso(minutes=ago)}
+        add = ("add_account", {"user": "kristina.robinson"})
+        self.assertNotIn(add, macs.plan_accounts(m, USERS, [], [fail(5)], now))          # failed 5 minutes ago: waits
+        self.assertIn(add, macs.plan_accounts(m, USERS, [], [fail(20)], now))            # 15 minutes after one failure: again
+        three = [fail(200), fail(100), fail(50)]                                          # three in a row: waits an hour
+        self.assertNotIn(add, macs.plan_accounts(m, USERS, [], three, now))
+        self.assertIn(add, macs.plan_accounts(m, USERS, [], [fail(200), fail(100), fail(70)], now))
+        many = [fail(60 * 24 * 2 + i) for i in range(20)]                                 # never more than a day
+        self.assertIn(add, macs.plan_accounts(m, USERS, [], many, now))
+        ok_after = three + [{"kind": "add_account", "state": "done", "args": {"user": "kristina.robinson"}, "finished": iso(minutes=10)}]
+        self.assertFalse(macs.backing_off(ok_after, "add_account", "kristina.robinson", now))   # a success resets it
+        kept = macs.prune([{"state": "done", "finished": iso(days=31)}, {"state": "done", "finished": iso(days=2)}, {"state": "queued"}], now)
+        self.assertEqual(len(kept), 2)
+
 
 class Checked(unittest.TestCase):
     """The checked removal against real files: same size, and not newer on the Mac."""
@@ -211,12 +230,19 @@ class RealMode(unittest.TestCase):
             home = self.tmp / "homes" / "old.timer" / "Desktop"; home.mkdir(parents=True)
             (home / "a.txt").write_text("12345")
             mt = (home / "a.txt").stat().st_mtime
-            man = f"Desktop/a.txt\t5\t{mt}\n"
+            man = f"Desktop/a.txt\t5\t{mt}\n#folder\tDesktop\tread\t1\t0\n#folder\tDocuments\tabsent\t0\t0\n"
             self.assertFalse(macs.check(m, "old.timer", "", man)["ok"])                       # no removal waiting yet
             macs.checkin(m, {"accounts": ACCOUNTS})                                            # queues the removal
             self.assertTrue(macs.check(m, "old.timer", "/etc|/", man)["ok"])                  # the Mac's bases are ignored
             self.assertFalse(macs.check(m, "jane.doe", "", man)["ok"])                         # not someone else's folders
             self.assertFalse(macs.check(m, "old.timer", "", man + "Desktop/b.txt\t1\t1\n")["ok"])
+            # a listing that proves nothing is refused, however empty it is
+            self.assertFalse(macs.check(m, "old.timer", "", "")["ok"])                                       # no summary
+            r = macs.check(m, "old.timer", "", "#folder\tDesktop\tunreadable\t0\t0\n")
+            self.assertFalse(r["ok"]); self.assertIn("Full Disk Access", r["err"])
+            self.assertFalse(macs.check(m, "old.timer", "", "#folder\tDesktop\tread\t1\t0\n")["ok"])       # items, no files
+            self.assertFalse(macs.check(m, "old.timer", "", man.replace("read\t1\t0", "read\t1\t2"))["ok"])  # odd names
+            self.assertTrue(macs.check(m, "old.timer", "", "#folder\tDesktop\tread\t0\t0\n")["ok"])        # empty really is empty
 
     def test_offboarding_queues_removals_with_the_moved_folder_first(self):
         with real_mode(self.tmp):
@@ -393,6 +419,14 @@ class Scripts(unittest.TestCase):
         rm = src[src.index("t_remove_profile() {"):src.index("t_convert_local() {")]
         self.assertLess(rm.index("hdiutil create"), rm.index("sysadminctl -deleteUser"))
         self.assertIn('could not keep a copy', rm)
+        # Convert refuses to take away the Mac's Secure Token, and a failed convert puts the account back.
+        cv = src[src.index("t_convert_local() {"):src.index("restore_local() {")]
+        self.assertLess(cv.index("has_token"), cv.index('dscl . -delete "/Users/$old"'))
+        self.assertIn("Choose Link instead", cv)
+        self.assertLess(cv.index('"$CMA" -n'), cv.index("restore_local"))
+        # The listing says when a folder could not be read (Full Disk Access) instead of coming back empty.
+        mf = src[src.index("manifest() {"):src.index("server_has_it_all() {")]
+        self.assertIn("unreadable", mf); self.assertIn("#folder", mf)
 
 
 if __name__ == "__main__":

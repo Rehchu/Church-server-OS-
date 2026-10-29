@@ -491,7 +491,8 @@ def forgot(user: str, base_url: str, ip: str = "", now: float | None = None) -> 
     disp = display_name(user, _display_of(user))
     body = (f"Hi {greeting_name(user, _display_of(user))},\n\nSomeone (we hope you) asked to reset the password for {user} at "
             f"{load().church.name}. Choose a new one here within 30 minutes:\n\n{link}\n\nThe same password works on your Mac and "
-            f"everywhere else at church. If you did not ask, ignore this: nothing changes.\n")
+            f"everywhere else at church. The link opens on church Wi-Fi, or anywhere with Tailscale on; "
+            f"the server is not on the internet.\n\nIf you did not ask, ignore this: nothing changes.\n")
     sent = mail.send_one(email, f"Choose a new password, {disp}", body)
     audit.record(user, "auth.forgot", ok=bool(sent.get("ok")), ip=ip, detail="link sent" if sent.get("ok") else f"not sent: {sent.get('err', '')}"[:200])
     if load().demo:
