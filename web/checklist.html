@@ -124,18 +124,19 @@ function listHtml(l) {
   const total = l.items.length, done = l.done || 0;
   const closed = l.open === false, can = l.can_tick && !closed;
   const note = closed ? `Opens at call time, ${esc(fmt(l.opens))}.` : !l.can_tick ? 'You can see this list; its own department ticks it.' : '';
-  return `<section class="cl__list ${total && done === total ? 'done' : ''}"><h2>${esc(l.dept.replace(/-/g, ' '))}<small>${done} of ${total}</small></h2>
+  return `<section class="cl__list ${total && done === total ? 'done' : ''}"><h2>${esc(deptName(l.dept))}<small>${done} of ${total}</small></h2>
     ${note ? `<div class="cl__note">${note}</div>` : ''}
     ${l.items.map(i => `<button type="button" class="cl__item ${i.done ? 'on' : ''}" data-dept="${esc(l.dept)}" data-tick="${i.i}" ${can ? '' : 'disabled'} aria-pressed="${i.done}"><span class="cl__box" aria-hidden="true"></span><span><span class="cl__t">${esc(i.text)}</span>${i.done && i.by ? `<span class="cl__by">${esc(i.by)} · ${esc(fmt(i.at))}</span>` : ''}</span></button>`).join('') || '<p class="cl__empty">No items yet.</p>'}</section>`;
 }
 
 function leaderHtml() {
   const p = S.people; if (!p || !(S.data.leads || []).length) return '';
-  return `<section class="cl__lead"><h2>Leader: reset a password</h2><p>For someone in ${esc(S.data.leads.map(x => x.replace(/-/g, ' ')).join(', '))} who can't sign in. They get a temporary password and choose their own at the next sign-in.</p>
+  return `<section class="cl__lead"><h2>Leader: reset a password</h2><p>For someone in ${esc(S.data.leads.map(deptName).join(', '))} who can't sign in. They get a temporary password and choose their own at the next sign-in.</p>
     ${p.people.length ? `<label for="lrUser" class="cl__by">Who</label><select id="lrUser">${p.people.map(u => `<option>${esc(u)}</option>`).join('')}</select><button class="btn" id="lrGo" type="button">Reset their password</button>` : '<p>Nobody in your department to reset.</p>'}
     <div id="lrOut"></div></section>`;
 }
 
+const deptName = d => String(d || '').replace(/-/g, ' ').replace(/\bchildrens\b/i, "Children's");
 async function tick(dept, i, btn) {
   btn.disabled = true;
   try { const r = await api(`/checklist/${encodeURIComponent(dept)}/tick`, { method: 'POST', body: { i } }); if (r.ok === false) { toast(r.err); btn.disabled = false; return; } await load(); }

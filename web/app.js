@@ -19,6 +19,8 @@ const fmtUp = s => { if (s == null) return '—'; const d = Math.floor(s / 86400
 const fmtT = iso => { if (!iso) return '—'; const d = new Date(iso); if (isNaN(d)) return esc(iso); return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
 const ago = iso => { if (!iso) return 'never'; if (iso === 'now') return 'now'; const d = new Date(iso); if (isNaN(d)) return esc(iso); const s = (Date.now() - d) / 1000; if (s < 60) return 'just now'; if (s < 3600) return `${Math.floor(s/60)} min ago`; if (s < 86400) return `${Math.floor(s/3600)} h ago`; return `${Math.floor(s/86400)} d ago`; };
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+// A department's name as people say it (round 7, 51): Children's Department, not "Childrens-Department".
+const deptName = d => String(d || '').replace(/-/g, ' ').replace(/\bchildrens\b/i, "Children's");
 const isPhone = () => matchMedia('(max-width: 900px)').matches;
 
 /* ---------------- state ---------------- */
@@ -3021,7 +3023,7 @@ async function deptLists(root) {
   let r; try { r = await api('/checklists'); } catch (e) { box.innerHTML = `<div class="kicker">Department checklists</div><p class="note">${esc(e.message)}</p>`; return; }
   const lists = r.lists || [];
   box.innerHTML = `<div class="kicker">Department checklists</div><p class="note" style="margin:6px 0 12px">Each department's own list, ready before each service. A list moves on at 8 PM the night before; the finished round goes to its history. Staff tick theirs on their phones at <a href="/checklist" target="_blank" rel="noopener"><code>/checklist</code></a> (church Wi-Fi or Tailscale); a list opens at call time${S.church?.call_times ? ': ' + Object.entries(S.church.call_times).map(([k, v]) => `${esc(k)} ${esc(fmtSvc(v))}`).join(', ') : ''}.${r.demo ? ' Sample.' : ''}</p>
-    <div class="deptgrid">${lists.map(l => `<div class="card dept" data-dept="${esc(l.dept)}"><div class="row row--between"><div><b>${esc(l.dept.replace(/-/g, ' '))}</b><div class="muted" style="font-size:12px">${l.round ? `for ${esc(l.round.service)} · ${esc(fmtDay(l.round.at))}` : 'no service ahead'} · ${l.done} of ${l.items.length}</div></div>${l.can_edit ? `<button class="btn btn--ghost btn--xs" data-dedit="${esc(l.dept)}">Edit</button>` : ''}</div>
+    <div class="deptgrid">${lists.map(l => `<div class="card dept" data-dept="${esc(l.dept)}"><div class="row row--between"><div><b>${esc(deptName(l.dept))}</b><div class="muted" style="font-size:12px">${l.round ? `for ${esc(l.round.service)} · ${esc(fmtDay(l.round.at))}` : 'no service ahead'} · ${l.done} of ${l.items.length}</div></div>${l.can_edit ? `<button class="btn btn--ghost btn--xs" data-dedit="${esc(l.dept)}">Edit</button>` : ''}</div>
       ${l.items.length ? l.items.map(i => `<label class="sun__item ${i.done ? 'done' : ''}"><input type="checkbox" data-dept-i="${i.i}" ${i.done ? 'checked' : ''} ${l.can_tick ? '' : 'disabled'}><div><span>${esc(i.text)}</span>${i.done ? `<small>${esc(i.by)} · ${esc(i.at.replace('T', ' '))}</small>` : ''}</div></label>`).join('') : `<p class="note">No items yet.${l.can_edit ? ' Edit to add them.' : ''}</p>`}
       <div class="muted" style="font-size:12px;margin-top:8px">Leader: ${esc(l.leader || 'none yet')} · nudge ${Object.entries(l.nudge || {}).map(([s, t]) => `${esc(s)} ${esc(fmtSvc(t))}`).join(', ')}</div>
       ${(l.history || []).length ? `<details style="margin-top:6px"><summary class="muted" style="font-size:12px">History</summary>${l.history.map(h => `<div class="widget__row"><span>${esc(h.round)}</span><b>${h.done} of ${h.total}</b></div>`).join('')}</details>` : ''}</div>`).join('')}</div>`;
@@ -3034,7 +3036,7 @@ async function deptLists(root) {
 function deptEdit(l, root) {
   const svc = (S.church?.services || []).map(s => s.name).filter((v, i, a) => a.indexOf(v) === i);
   const admin = S.role === 'admin';
-  modal(`<h2>${esc(l.dept.replace(/-/g, ' '))} checklist</h2><form id="deF" style="margin-top:12px">
+  modal(`<h2>${esc(deptName(l.dept))} checklist</h2><form id="deF" style="margin-top:12px">
     <div class="field"><label>Items, one per line</label><textarea id="deItems" rows="7">${esc(l.items.map(i => i.text).join('\n'))}</textarea><span class="hint">Changing the items clears this round's ticks.</span></div>
     ${admin ? `<div class="field"><label>Leader (edits the items)</label><input id="deLead" value="${esc(l.leader || '')}" placeholder="first.last" autocomplete="off"></div>
     <div class="field"><label>For which services</label>${svc.map(s => `<label class="row" style="gap:6px;font-size:13px"><input type="checkbox" data-desvc="${esc(s)}" ${l.services.includes(s) ? 'checked' : ''}> ${esc(s)}</label>`).join('')}</div>
@@ -3386,7 +3388,7 @@ V.servicemode = async () => {
     <div class="grid" style="margin-top:14px">
       <div class="c4 panel panel--flat"><div class="panel__hd"><h3>The stream</h3></div><div class="svm__big">${live}</div><div class="muted" style="margin-top:6px">checked ${esc(fmtClock(st.checked || ''))}${st.why ? ' · ' + esc(st.why) : ''}</div>
         <div class="widget__row" style="margin-top:10px"><span>Internet</span><b>${net.down != null ? `${esc(net.down)} down · ${esc(net.up)} up · ${esc(net.ping)} ms` : 'no test yet'}</b></div>${st.url ? `<a class="btn btn--ghost btn--xs" href="${esc(st.url)}" target="_blank" rel="noopener" style="margin-top:10px">Open the live page</a>` : ''}</div>
-      <div class="c4 panel panel--flat"><div class="panel__hd"><h3>Checklists</h3></div>${(v.checklists || []).map(c => `<div class="svm__cl"><div class="widget__row"><span>${esc(c.dept.replace(/-/g, ' '))}</span><b class="${c.total && c.done === c.total ? 'ok' : ''}">${c.done} of ${c.total}</b></div><div class="meter"><i style="width:${c.total ? Math.round(100 * c.done / c.total) : 0}%"></i></div>${c.left.length ? `<small class="muted">${c.left.map(esc).join(' · ')}</small>` : ''}</div>`).join('') || '<p class="muted">No department lists for this service.</p>'}</div>
+      <div class="c4 panel panel--flat"><div class="panel__hd"><h3>Checklists</h3></div>${(v.checklists || []).map(c => `<div class="svm__cl"><div class="widget__row"><span>${esc(deptName(c.dept))}</span><b class="${c.total && c.done === c.total ? 'ok' : ''}">${c.done} of ${c.total}</b></div><div class="meter"><i style="width:${c.total ? Math.round(100 * c.done / c.total) : 0}%"></i></div>${c.left.length ? `<small class="muted">${c.left.map(esc).join(' · ')}</small>` : ''}</div>`).join('') || '<p class="muted">No department lists for this service.</p>'}</div>
       <div class="c4 panel panel--flat svm__sheet"><div class="panel__hd"><h3>Run sheet</h3>${rs.name ? `<span class="muted mono" style="font-size:11px">${esc(rs.name)}</span>` : ''}</div>${rs.ok ? `<div class="md">${md(rs.text)}</div>` : `<p class="muted">${esc(rs.why || 'none')}</p>`}</div>
     </div></div>`;
 };
