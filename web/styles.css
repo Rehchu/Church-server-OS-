@@ -837,6 +837,11 @@ ul.plain{list-style:none;padding:0;margin:6px 0} ul.plain li{padding:4px 0;borde
 .macs-st--wait{background:rgba(224,163,46,.16);color:#E0A32E}
 .macs-st--bad{background:rgba(214,34,45,.2);color:var(--redL,#ff6b73)}
 .macs-bar{gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.macs-watch{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-left:3px solid var(--warn);background:var(--panel3);padding:10px 12px;border-radius:8px;margin:0 0 12px;font-size:13.5px}
+.macs-watch>div{min-width:0;flex:1 1 260px}
+.macs-temp{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-left:3px solid var(--red);background:var(--panel3);padding:8px 12px;border-radius:8px;margin:0 0 8px;font-size:13.5px}
+.macs-temp>span{min-width:0;flex:1 1 240px}
+.macs-media{font-size:12.5px;align-self:center;margin-left:4px}
 .macs-h{margin:18px 0 8px;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .macs-acts{text-align:right;white-space:nowrap}
 .macs-line{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--panel3);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0 0;user-select:all}

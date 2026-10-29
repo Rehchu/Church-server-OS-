@@ -3,7 +3,8 @@
 # docs/SYNC.md is the plain-words version).
 #
 # Sets up the Nextcloud desktop client in one macOS account so that:
-#   - its Desktop and Documents sync in full with the server user's home folder (row 13);
+#   - its Desktop, Documents, Downloads, Pictures and Music sync in full with the server user's
+#     home folder (row 13; round 7, 42 and 43), the Photos and Music libraries left out;
 #   - the Church, department, Pastors and Shared-with-me folders show in Finder's sidebar,
 #     on demand, through the client's File Provider (row 16);
 #   - it signs in with a device app password the server issues for that server user, never a
@@ -45,6 +46,7 @@ SELF="$0"
 FIRSTRUN_LABEL="church.arise.nextcloud-firstrun"
 
 S_USER=""; L_USER=""; SERVER=""; CLOUD=""; PWFILE=""; CHECK=0; FINISH=0
+FOLDERS="Desktop Documents Downloads Pictures Music"   # round 7, 42 and 43; the server's answer can narrow it
 say() { printf '%s\n' "$*"; }
 fail() { printf 'FAILED: %s\n' "$*"; exit 1; }
 while [ $# -gt 0 ]; do
@@ -108,14 +110,29 @@ quit_client() {   # as the user
 
 # ----- the user's half: runs inside the person's own session (their keychain, their prefs) ------
 # Reads "SERVER_USER= CLOUD_URL= APP_PASSWORD=" lines on stdin, never from argv or the environment.
+# Round 7, 43: the libraries inside Pictures and Music never sync. Photos' and Music's databases,
+# copied file by file while the app has them open, corrupt; they stay on the Mac (Time Machine has
+# them). These go in the person's own exclude list, next to the client's settings, where the client
+# reads its user-level excludes. The same list is the helper's SKIP_PKGS.
+NC_SKIP='*.photoslibrary *.photolibrary *.migratedphotolibrary *.musiclibrary *.tvlibrary *.aplibrary *.imovielibrary *.fcpbundle'
+write_excludes() {   # write_excludes <client config dir>: add each pattern once; nothing else is touched
+  local dir="$1" f p
+  mkdir -p "$dir"; f="$dir/sync-exclude.lst"; touch "$f"
+  set -f
+  for p in $NC_SKIP; do grep -qxF "$p" "$f" || printf '%s\n' "$p" >> "$f"; done
+  set +f
+  grep -qxF "Photo Booth Library" "$f" || printf '%s\n' "Photo Booth Library" >> "$f"
+}
+
 user_half() {
-  local su="" url="" pw="" line h cfg idx folders="Desktop Documents" f ok=1 note=""
+  local su="" url="" pw="" line h cfg idx folders="Desktop Documents Downloads Pictures Music" f ok=1 note=""
   while IFS= read -r line; do
     case "$line" in SERVER_USER=*) su="${line#*=}" ;; CLOUD_URL=*) url="${line#*=}" ;; APP_PASSWORD=*) pw="${line#*=}" ;; FOLDERS=*) folders="${line#*=}" ;; esac
   done
   [ -n "$su" ] && [ -n "$url" ] && [ -n "$pw" ] || fail "the set-up details did not arrive"
   [ -x "$BIN" ] || fail "the Nextcloud client is not installed"
   h="$(host_of "$url")"; cfg="$(cfg_file "$HOME")"
+  write_excludes "$(dirname "$cfg")"
   for f in $folders; do mkdir -p "$HOME/$f"; done
   # File Provider: the shares, on demand, in Finder's sidebar (the client reads this list at start).
   defaults write "$DOMAIN_ID" enabledAccounts -array "$su@$h"
@@ -188,7 +205,7 @@ older() { [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -t. -k1,1n
 if [ "$CHECK" = 1 ]; then
   say "would: install Nextcloud $VERSION_WANTED (have: $(installed_version || echo none)), signature by team $TEAM_ID checked"
   say "would: ask $SERVER for a device app password for $S_USER ($L_USER on $(scutil --get ComputerName 2>/dev/null))"
-  say "would: set it up in $L_USER's session: Desktop and Documents in full, the shares in Finder's sidebar"
+  say "would: set it up in $L_USER's session: ${FOLDERS// /, } in full (the Photos and Music libraries left out), the shares in Finder's sidebar"
   exit 0
 fi
 
@@ -252,6 +269,9 @@ else
   case "$ans" in ERROR*) fail "the server refused: ${ans#ERROR }" ;; esac
   PW="$(printf '%s\n' "$ans" | sed -n 's/^APP_PASSWORD=//p' | head -1)"
   [ -n "$CLOUD" ] || CLOUD="$(printf '%s\n' "$ans" | sed -n 's/^CLOUD_URL=//p' | head -1)"
+  f="$(printf '%s\n' "$ans" | sed -n 's/^FOLDERS=//p' | head -1)"
+  # Only plain folder names in the person's home (Desktop, Documents, ...), never a path.
+  case "$f" in *[!A-Za-z\ ]*|"") ;; *) FOLDERS="$f" ;; esac
   ans=""
 fi
 [ -n "$PW" ] || fail "no app password came back"
@@ -270,7 +290,7 @@ fi
 tmutil localsnapshot >/dev/null 2>&1 || true
 
 # 7. Into the person's session now, or at their next sign-in.
-details() { printf 'SERVER_USER=%s\nCLOUD_URL=%s\nAPP_PASSWORD=%s\nFOLDERS=Desktop Documents\n' "$S_USER" "$CLOUD" "$PW"; }
+details() { printf 'SERVER_USER=%s\nCLOUD_URL=%s\nAPP_PASSWORD=%s\nFOLDERS=%s\n' "$S_USER" "$CLOUD" "$PW" "$FOLDERS"; }
 if launchctl print "gui/$L_UID" >/dev/null 2>&1 && [ "$(stat -f %Su /dev/console 2>/dev/null)" = "$L_USER" ]; then
   out="$(details | launchctl asuser "$L_UID" sudo -u "$L_USER" -H /bin/bash "$SELF" --finish-stdin 2>&1)"; rc=$?
   PW=""

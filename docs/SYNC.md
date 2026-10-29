@@ -6,8 +6,25 @@ docs/STAFF-FILES.md instead.
 
 ## What a person sees
 
-- **On a church Mac**, their Desktop and Documents are the same files as their home folder on
-  the server, kept in full on the Mac, so they work with no network too (row 13).
+- **On a church Mac**, their Desktop, Documents, Downloads, Pictures and Music are the same
+  files as their home folder on the server, kept in full on the Mac, so they work with no
+  network too (row 13; Downloads, Pictures and Music since round 7, 42 and 43). The list is
+  `[cloud] sync_folders` (and `[macs] sync_folders`); the server hands it to the Mac's
+  `nextcloud` task, the removal check and the welcome page, so all three agree.
+- **Library packages do not sync** (round 7, 43): `Photos Library.photoslibrary`,
+  `Music Library.musiclibrary`, and the other app libraries (`*.photolibrary`,
+  `*.migratedphotolibrary`, `*.tvlibrary`, `*.aplibrary`, `*.imovielibrary`, `*.fcpbundle`,
+  `Photo Booth Library`). Each is one app's private database of thousands of small files that
+  change together while the app is open. A sync client copies them one file at a time, so the
+  server copy is a half-written database, two Macs fighting over one library corrupt it, and a
+  large photo library would fill the server and the church's upload. The photos and songs in
+  them are the person's to export to Pictures or Music, which do sync. The Mac's
+  `nextcloud` task writes these patterns into the client's own `sync-exclude.lst`, and the
+  removal check leaves them out of its list too (they never reach the server, so they stay in
+  the disk image a removal keeps).
+- **During a service** (round 7, 92) the Mac helper quits the Nextcloud client in every
+  signed-in session, so nothing uploads over the stream's connection, and reopens it at the
+  first check-in after.
 - In Finder's sidebar, under Locations, **Nextcloud** holds Church, their department folders,
   Pastors (the two pastors only), Alexandria and Shared with me. Those files download when
   they are opened and show a cloud badge until then (row 16).
@@ -110,17 +127,20 @@ The Mac helper does it (the Macs app's `nextcloud` task, mac/helper/tasks/nextcl
 2. asks the server for that person's device app password, which the server gives only for a
    task an admin queued on that Mac;
 3. takes a local disk snapshot, then, inside the person's own session, signs the client in
-   and adds Desktop and Documents as full sync folders. The first sync **merges**: what is on
+   adds the synced folders (Desktop, Documents, Downloads, Pictures, Music: the server's
+   `FOLDERS=` list) as full sync folders, and writes the library exclusions above into the
+   client's `sync-exclude.lst`. The first sync **merges**: what is on
    the Mac and what is on the server both stay; where both have the same file with different
    contents, both are kept and the hourly sweep settles them as above;
 4. if the person is not signed in at that moment, it finishes at their next sign-in.
 
 A **local account linked to a server user** (round 6, kept local) gets exactly the same, signed
-in as the server user: its Desktop and Documents sync to that person's server home. The local
-login itself is not touched.
+in as the server user: its synced folders go to that person's server home. The local login
+itself is not touched. Since round 7, 23 every local account is linked like this by default
+(docs/MACS.md).
 
-**The first time** the client runs, macOS asks the person once to let Nextcloud use the Desktop
-and Documents folders. They click Allow (docs/STAFF-FILES.md says so).
+**The first time** the client runs, macOS asks the person once to let Nextcloud use each of
+those folders. They click Allow (docs/STAFF-FILES.md says so).
 
 **iCloud's Desktop & Documents** must be off on that account; the task stops and says so if it
 is on.
@@ -175,7 +195,9 @@ script's config editing are tested; these have not run anywhere yet:
 - the LDAPS sign-in against Samba from inside the container (the DC's own certificate authority
   is mounted for it);
 - the desktop client's command-line sign-in, the second folder pair written into its config,
-  and the File Provider turning on from its settings, on a real Mac.
+  and the File Provider turning on from its settings, on a real Mac;
+- the five folder pairs, and the client reading the patterns added to `sync-exclude.lst`;
+- quitting the client for a service and reopening it in the person's session afterwards.
 
 The first church Mac is the test. If any of it misbehaves, the fallback for that piece is in
 the code comments next to it.

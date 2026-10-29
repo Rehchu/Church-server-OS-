@@ -19,9 +19,13 @@ How it fits together:
     profile is removed only through the checked path: the helper sends a list of the
     person's Desktop and Documents, the server confirms each file is on the server and
     not newer on the Mac, and only then is the profile deleted (round 6, 4).
-  * Local accounts already on a Mac: for each, an admin chooses Convert (it becomes the
-    server user, keeping its home and every file), Link (it stays as it is, and syncs to
-    a server user through Nextcloud), or Leave alone. Nothing happens until an admin chooses.
+  * Local accounts already on a Mac are LINKED by default (round 7, 23): each stays as it is,
+    with its own password (26), and syncs to its server user through Nextcloud. A clear match
+    links to that user; no match makes one (first.last, first.last2 when taken; a temporary
+    password the Macs app shows once). An admin can still Convert (it becomes the server user,
+    keeping its home and every file) or Leave alone, per account.
+  * Watch mode (round 7, 4): until an admin presses Switch on, the server plans every task and
+    hands out none but notices; the Macs app lists what each Mac would do.
   * A Mac's key is kept only as its sha256 (in the state file). ariseadmin's passwords and
     the FileVault recovery keys live in /etc/arise/secrets/macs/<mac>.json, 0600 root,
     never in a task, a result, a log or git.
@@ -54,9 +58,38 @@ ID_RE = re.compile(r"^mac-[a-f0-9]{12}$")
 USER_RE = re.compile(r"^[a-z][a-z0-9._-]{0,63}$")
 LOCAL_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 KINDS = ("add_account", "remove_profile", "convert_local", "link_local", "unconvert", "login_window", "ariseadmin",
-         "filevault", "printers", "bookmarks", "certificate", "updates", "tailscale", "nextcloud", "retire")
+         "filevault", "printers", "bookmarks", "certificate", "updates", "tailscale", "nextcloud", "retire",
+         # round 7: the welcome page, the Mac's own settings (Guest User, App Store), the apps, the DNS filter, a notice
+         "welcome", "mac_settings", "apps", "dnsfilter", "notice")
 # Accounts never made on a Mac, whatever [macs] exclude says: the box's own and the break-glass one.
 ALWAYS_EXCLUDE = {"administrator", "krbtgt", "guest", "arise-rescue", "arise", "arise-kiosk", "arise-git", "arise-kb", "ariseadmin"}
+# What a newly enrolled Mac is given first.
+ENROL_TASKS = ("certificate", "login_window", "ariseadmin", "filevault", "printers", "bookmarks", "tailscale",
+               "welcome", "mac_settings", "apps", "dnsfilter")
+# Tasks that change nothing on the Mac: they go out in watch mode too (a notice is only words on a screen).
+WATCH_OK = {"notice"}
+# The Macs app's buttons.
+BY_HAND = ("ariseadmin", "printers", "bookmarks", "certificate", "updates", "tailscale", "login_window", "filevault",
+           "welcome", "mac_settings", "apps", "dnsfilter")
+DISK_WARN = 90              # round 7, 40: a church Mac's disk at 90% tells the person and Bradly
+SILENT_DAYS = 3             # round 7, 82: a church Mac silent for three days is reported
+LOGIN_TEXT = "Arise Church: sign in with your church account. Help: Bradly"   # round 7, 27, word for word
+HELP_PEOPLE = ["Bradly Dyer", "Kristina Robinson", "Ronnie"]                  # round 7, 3 and 141
+# Cloudflare for Families, malware and adult content (developers.cloudflare.com/1.1.1.1/setup/#1111-for-families).
+DNS_FILTER = ["1.1.1.3", "1.0.0.3", "2606:4700:4700::1113", "2606:4700:4700::1003"]
+# Round 7, 31. Team IDs from each maker's signing identity as Installomator's labels record it
+# (github.com/Installomator/Installomator, fragments/labels/firefoxpkg.sh, googlechromepkg.sh,
+# zoom.sh, nextcloud.sh); the helper refuses a package not signed by that team and notarized.
+# Proclaim is left out: its Team ID is not confirmed from a source we trust yet (docs/MACS.md).
+DEFAULT_APPS = [
+    {"name": "Nextcloud", "app": "Nextcloud.app", "team": "NKUJUXUJ3B", "url": ""},   # nextcloud.sh installs the pinned client
+    {"name": "Firefox", "app": "Firefox.app", "team": "43AQ936H96",
+     "url": "https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US"},
+    {"name": "Google Chrome", "app": "Google Chrome.app", "team": "EQHXZ8M8AV",
+     "url": "https://dl.google.com/chrome/mac/stable/accept_tos%3Dhttps%253A%252F%252Fwww.google.com%252Fintl%252Fen_ph%252Fchrome%252Fterms%252F%26_and_accept_tos%3Dhttps%253A%252F%252Fpolicies.google.com%252Fterms/googlechrome.pkg"},
+    {"name": "Zoom", "app": "zoom.us.app", "team": "BJ4HAAB9B3", "url": "https://zoom.us/client/latest/ZoomInstallerIT.pkg"},
+]
+TEAM_RE = re.compile(r"^[A-Z0-9]{10}$")
 
 
 # ----- where things live ----------------------------------------------------------------
@@ -74,8 +107,32 @@ def macs_cfg() -> dict:
             "printers": raw.get("printers") or [],
             "bookmarks": raw.get("bookmarks") or DEFAULT_BOOKMARKS,
             "login_window": raw.get("login_window", "faces"),
-            "sync_folders": raw.get("sync_folders") or ["Desktop", "Documents"],
-            "server_ip": raw.get("server_ip", "")}
+            "sync_folders": raw.get("sync_folders") or list(load().cloud.sync_folders or ["Desktop", "Documents"]),
+            "server_ip": raw.get("server_ip", ""),
+            "watch": bool(raw.get("watch", True)),
+            "login_text": str(raw.get("login_text", LOGIN_TEXT))[:300],
+            "help": [str(x)[:60] for x in (raw.get("help") or HELP_PEOPLE)][:6],
+            "dns_filter": [str(x) for x in (raw.get("dns_filter", DNS_FILTER) or [])][:4],
+            "apps": raw.get("apps") or DEFAULT_APPS}
+
+
+def watch_mode() -> bool:
+    """Round 7, 4: the helper reports and plans, and nothing goes out, until an admin presses Switch on.
+    [macs] watch = false starts the box live; the Macs app's switch is kept in the state file."""
+    d = _read()
+    if "live" in d:
+        return not d["live"].get("on")
+    return macs_cfg()["watch"]
+
+
+def set_live(on: bool, by: str) -> dict:
+    """The Macs app's Switch on (and back to watch mode). Admins only (the route), audited."""
+    with _lock:
+        d = _read()
+        d["live"] = {"on": bool(on), "by": by, "at": _now()}
+        _write(d)
+    audit.record(by, "macs.live" if on else "macs.watch", "the Mac helper", detail="switched on: tasks go out" if on else "back to watch mode")
+    return {"ok": True, "watch": not on, "demo": load().demo}
 
 
 DEFAULT_BOOKMARKS = [
@@ -165,6 +222,27 @@ def secret_put(mac_id: str, **kv):
     with os.fdopen(fd, "w") as f:
         json.dump(cur, f)
     os.replace(tmp, p)
+
+
+def temp_add(mac_id: str, user: str, pw: str):
+    """A server user the helper's default link made (round 7, 23): its temporary password waits in
+    the Mac's 0600 secret file until an admin opens it once in the Macs app."""
+    t = dict(secret_get(mac_id).get("temp_passwords") or {})
+    t[user] = {"pw": pw, "at": _now()}
+    secret_put(mac_id, temp_passwords=t)
+
+
+def temp_take(mac_id: str, user: str, by: str) -> dict:
+    """Shown once: read, then forgotten. The person chooses their own at the first sign-in (round 5, 5)."""
+    if not ID_RE.match(mac_id or "") or not USER_RE.match(user or "") or mac_id not in _read()["macs"]:
+        return {"ok": False, "err": "no such church Mac or server user", "code": 400}
+    t = dict(secret_get(mac_id).get("temp_passwords") or {})
+    rec = t.pop(user, None)
+    if not rec:
+        return {"ok": False, "err": f"no temporary password is waiting for {user} (it was shown already, or they chose their own)"}
+    secret_put(mac_id, temp_passwords=t)
+    audit.record(by, "macs.temp_password.shown", user, detail=mac_id)
+    return {"ok": True, "user": user, "temporary_password": rec["pw"], "made": rec.get("at"), "demo": load().demo}
 
 
 # ----- the text protocol -----------------------------------------------------------------
@@ -265,6 +343,69 @@ def verify_manifest(files: list[tuple[str, int, float]], bases: list[str], slack
 
 
 # ----- matching local accounts to server users -------------------------------------------
+def ad_name(name: str) -> str:
+    """The domain computer account's name for a Mac: its own name (round 7, 35: Macs keep theirs)
+    in the short plain form a computer account takes, 15 letters, digits and dashes."""
+    return re.sub(r"[^A-Za-z0-9-]", "", (name or "").replace(" ", "-"))[:15] or "MAC"
+
+
+def unique_name(base: str, taken: set[str]) -> str:
+    """Round 7, 12: a second john.smith becomes john.smith2, then john.smith3."""
+    if base not in taken:
+        return base
+    n = 2
+    while f"{base}{n}" in taken:
+        n += 1
+    return f"{base}{n}"
+
+
+def _first_last(realname: str) -> str | None:
+    parts = [re.sub(r"[^a-z]", "", w.lower()) for w in (realname or "").split()]
+    parts = [w for w in parts if w]
+    return f"{parts[0]}.{parts[-1]}" if len(parts) >= 2 else None
+
+
+def plan_links(m: dict, users: list[dict], exclude: list[str] | None = None) -> list[dict]:
+    """Pure. Round 7, 23 (and Bradly's follow-up): every local account on a church Mac that has no
+    choice yet is linked. A clear match links to that server user; no clear match makes one
+    (first.last from the account's full name, first.last2 when that name is someone else's),
+    then links. A clear match is the same short name, or first.last from the full name where that
+    server user's own name agrees (or has none on file). An account whose full name is not a first
+    and a last name waits for an admin's choice, as before."""
+    ex = ALWAYS_EXCLUDE | {e.lower() for e in (exclude or [])}
+    by = {u["name"].lower(): u for u in users}
+    taken = set(by)
+    choices = m.get("choices") or {}
+    out = []
+    for a in m.get("accounts", []):
+        if a["kind"] != "local" or a["user"] in choices or a["user"].lower() in ex:
+            continue
+        local, real = a["user"], (a.get("realname") or "").strip()
+        if local.lower() in by and by[local.lower()].get("enabled", True):
+            out.append({"local": local, "user": by[local.lower()]["name"], "make": False})
+            continue
+        guess = _first_last(real)
+        if not guess:
+            out.append({"local": local, "user": None, "make": False, "why": "its full name is not a first and a last name: choose by hand"})
+            continue
+        hit = by.get(guess)
+        shown = (hit or {}).get("display") or ""
+        # the directory fills an empty display name with the account name itself
+        if hit and hit.get("enabled", True) and (not shown.strip() or shown.strip().lower() in (real.lower(), hit["name"].lower())):
+            out.append({"local": local, "user": hit["name"], "make": False})
+            continue
+        name = unique_name(guess, taken)
+        taken.add(name)
+        out.append({"local": local, "user": name, "make": True, "display": real})
+    return out
+
+
+def would_text(p: dict) -> str:
+    if not p.get("user"):
+        return f"would leave {p['local']} waiting: {p.get('why', 'no match')}"
+    return f"would make {p['user']} and link {p['local']} to it" if p.get("make") else f"would link {p['local']} to {p['user']}"
+
+
 def suggest_user(local: str, realname: str, users: list[dict]) -> str | None:
     """A suggestion only (an admin chooses): first.last from the full name, or the same short name."""
     names = {u["name"].lower(): u for u in users}
@@ -361,7 +502,8 @@ def enrol(token: str, facts: dict) -> dict:
         t["used"] = _now()
         mac_id = "mac-" + secrets.token_hex(6)
         key = secrets.token_urlsafe(32)
-        m = {"id": mac_id, "name": (facts.get("name") or t.get("name") or "Mac")[:60], "serial": (facts.get("serial") or "")[:40],
+        nm = (facts.get("name") or t.get("name") or "Mac")[:60]
+        m = {"id": mac_id, "name": nm, "ad_name": ad_name(facts.get("ad_name") or nm), "serial": (facts.get("serial") or "")[:40],
              "model": (facts.get("model") or "")[:80], "macos": (facts.get("macos") or "")[:40], "church_owned": True,
              "enrolled": _now(), "enrolled_by": t.get("by"), "status": "active", "key_hash": _hash(key), "last_checkin": None,
              "helper": facts.get("helper") or HELPER_VERSION, "accounts": parse_accounts(facts.get("accounts", "")),
@@ -372,7 +514,7 @@ def enrol(token: str, facts: dict) -> dict:
                 other["status"] = "replaced"
         d["macs"][mac_id] = m
         d["tasks"][mac_id] = []
-        for kind in ("certificate", "login_window", "ariseadmin", "filevault", "printers", "bookmarks", "tailscale"):
+        for kind in ENROL_TASKS:
             _queue(d, mac_id, kind, {}, by="enrolment")
         _write(d)
     audit.record(t.get("by") or "?", "macs.enrol", m["name"], detail=f"{m['model']} {m['serial']}")
@@ -457,21 +599,24 @@ def _directory_users() -> list[dict]:
 
 
 def plan_accounts(m: dict, users: list[dict], exclude: list[str], tasks: list[dict],
-                  now: datetime | None = None) -> list[tuple[str, dict]]:
+                  now: datetime | None = None, linking: set[str] | None = None) -> list[tuple[str, dict]]:
     """Pure: which add_account and remove_profile tasks this Mac needs now.
     Every enabled directory user (minus exclusions) gets a mobile account; a disabled one
-    with a mobile account on this Mac gets the checked removal. Local accounts are never
-    touched here: they wait for an admin's Convert / Link / Leave choice."""
+    with a mobile account on this Mac gets the checked removal. A person whose local account on
+    this Mac is linked to them (or about to be: `linking`) gets no second account there (round 7,
+    25): one face per person on the login window."""
     ex = ALWAYS_EXCLUDE | {e.lower() for e in exclude}
     have = {a["user"].lower(): a for a in m.get("accounts", []) if a["kind"] == "mobile"}
-    converted = {str(c.get("user", "")).lower() for c in (m.get("choices") or {}).values() if c.get("action") == "convert"}
+    chosen = (m.get("choices") or {}).values()
+    converted = {str(c.get("user", "")).lower() for c in chosen if c.get("action") == "convert"}
+    linked = {str(c.get("user", "")).lower() for c in chosen if c.get("action") == "link"} | {x.lower() for x in (linking or set())}
     out = []
     for u in users:
         n = u["name"].lower()
         if n in ex or not USER_RE.match(n):
             continue
         if u.get("enabled", True):
-            if n not in have and n not in converted and not _open(tasks, "add_account", "user", u["name"]) \
+            if n not in have and n not in converted and n not in linked and not _open(tasks, "add_account", "user", u["name"]) \
                     and not backing_off(tasks, "add_account", u["name"], now):
                 out.append(("add_account", {"user": u["name"]}))
         elif n in have and not _open(tasks, "remove_profile", "user", u["name"]) and not backing_off(tasks, "remove_profile", u["name"], now):
@@ -479,10 +624,46 @@ def plan_accounts(m: dict, users: list[dict], exclude: list[str], tasks: list[di
     return out
 
 
+def parse_disk(v) -> int | None:
+    """'87%' or '87' -> 87; anything else -> None."""
+    s = str(v or "").strip().rstrip("%")
+    return int(s) if s.isdigit() and int(s) <= 100 else None
+
+
+def _make_linked_users(mac_id: str, plans: list[dict]) -> list[dict]:
+    """Live mode only: make each server user a default link needs (temporary password, round 5, 5),
+    keep its password for the Macs app to show once. Returns the plans that are ready to link."""
+    from . import directory, profiles
+    ready = []
+    for p in plans:
+        if not p.get("user"):
+            continue
+        if p.get("make"):
+            pw = profiles.temp_password()
+            r = directory.add_user(p["user"], pw, display=p.get("display", ""), temporary=True)
+            if not r.get("ok"):
+                audit.record("the Mac helper", "macs.link.make", p["user"], ok=False, detail=str(r.get("err") or r.get("out"))[:200])
+                continue
+            temp_add(mac_id, p["user"], pw)
+            audit.record("the Mac helper", "macs.link.make", p["user"], detail=f"for {p['local']} on {mac_id} (round 7, 23)")
+        ready.append(p)
+    return ready
+
+
 def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
-    """The helper's five-minute visit: record the facts, plan, hand out tasks (none during a service)."""
+    """The helper's five-minute visit: record the facts, plan, hand out tasks (none during a
+    service, and in watch mode none but a notice: round 7, 4)."""
     from . import church
     now = now or datetime.now()
+    users = _directory_users()
+    cfgm = macs_cfg()
+    watching = watch_mode()
+    # Local accounts with no choice yet: linked by default (round 7, 23). Users that have to be made
+    # first are made here, outside the lock, and only when the helper is switched on.
+    seen = {**m, "accounts": parse_accounts(facts["accounts"])} if "accounts" in facts else m
+    plans = plan_links(seen, users, cfgm["exclude"])
+    ready = [] if watching else _make_linked_users(m["id"], plans)
+    alerts = []
     with _lock:
         d = _read()
         cur = d["macs"][m["id"]]
@@ -495,11 +676,31 @@ def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
         d["tasks"][m["id"]] = tasks = prune(d["tasks"].get(m["id"], []), now)
         nowts = now.timestamp()
         d["tokens"] = {h: t for h, t in d.get("tokens", {}).items() if t.get("expires", 0) > nowts and not t.get("used")}
-        cfgm = macs_cfg()
-        for kind, args in plan_accounts(cur, _directory_users(), cfgm["exclude"], tasks, now):
+        cur["would"] = [would_text(p) for p in plans] if watching else [would_text(p) for p in plans if not p.get("user")]
+        for p in ready:
+            if p["local"] in (cur.get("choices") or {}):
+                continue
+            cur.setdefault("choices", {})[p["local"]] = {"action": "link", "user": p["user"], "by": "the default (round 7, 23)",
+                                                        "at": _now(), "state": "queued", "made": bool(p.get("make"))}
+            if not _open(tasks, "link_local", "local", p["local"]):
+                _queue(d, m["id"], "link_local", {"local": p["local"], "user": p["user"], "admin": "0"}, by="the default link")
+            _queue(d, m["id"], "nextcloud", {"user": p["user"], "local": p["local"]}, by="the default link")
+        linking = {p["user"] for p in plans if p.get("user")}
+        for kind, args in plan_accounts(cur, users, cfgm["exclude"], tasks, now, linking=linking):
             if kind == "remove_profile":
                 args = {**args, **removal_args(args["user"])}
             _queue(d, m["id"], kind, args, by="the directory")
+        # The disk (round 7, 40): at 90% the person at the Mac gets a notice, and Bradly an alert, once a week.
+        pct = parse_disk(facts.get("disk_used"))
+        if pct is not None:
+            cur["disk_used"] = pct
+            warned = cur.get("disk_warned")
+            if pct >= DISK_WARN and (not warned or datetime.fromisoformat(warned) < now - timedelta(days=7)):
+                cur["disk_warned"] = now.isoformat(timespec="seconds")
+                _queue(d, m["id"], "notice", {"user": "", "title": "This Mac's disk is nearly full",
+                                              "body": f"It is {pct}% full. Empty the Trash, or ask Bradly what can go.", "kind": "warn"},
+                       by="the disk check")
+                alerts.append((f"{cur.get('name', m['id'])}'s disk is {pct}% full", f"macs.disk.{m['id']}.{now:%Y-%W}"))
         # ariseadmin's password every 30 days (round 6, 7)
         last = cur.get("ariseadmin_at")
         if not _open(tasks, "ariseadmin") and (not last or datetime.fromisoformat(last) < now - timedelta(days=ROTATE_DAYS)):
@@ -511,15 +712,29 @@ def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
             cur.setdefault("done", {})["updates"] = today
         hold = church.in_service_now(now)
         lines = []
-        if hold:
+        if hold and not watching:
+            # The helper pauses Nextcloud for the service (round 7, 92) and does nothing else.
             lines.append(f"HOLD {enc(hold.get('name', 'a service'))}")
         else:
+            waiting = sum(1 for t in tasks if t["state"] == "queued" and t["kind"] not in WATCH_OK)
+            if watching:
+                lines.append(f"WATCH {waiting}")
             for t in tasks:
+                if watching and t["kind"] not in WATCH_OK:
+                    continue
+                if hold:
+                    continue
                 if t["state"] == "queued" or (t["state"] == "sent" and _age(t.get("sent")) > 3600):
                     t["state"] = "sent"
                     t["sent"] = now.isoformat(timespec="seconds")
                     lines.append(task_line(t))
         _write(d)
+    for text, key in alerts:
+        try:
+            from . import notices
+            notices.alert_admins(text, key=key)
+        except Exception:  # noqa: BLE001 - an alert never breaks a check-in
+            pass
     return lines
 
 
@@ -575,7 +790,8 @@ def result(m: dict, task_id: str, state: str, detail: str = "", extra: dict | No
             cur["retired"] = _now()
         if state == "done" and t["kind"] in ("convert_local", "link_local"):
             ch = cur.setdefault("choices", {}).get(t["args"].get("local"), {})
-            ch["state"] = "done"
+            if ch.get("user") == t["args"].get("user"):          # a replaced task's late result is not the new choice's
+                ch["state"] = "done"
         _write(d)
     if state == "done" and t["kind"] == "retire":
         _nextcloud_off(m["id"], by=f"mac:{m['name']} (retired)")
@@ -641,7 +857,9 @@ def listing() -> dict:
         if not m.get("church_owned") or m.get("status") == "replaced":
             continue
         rows.append(_public(m, d["tasks"].get(m["id"], [])))
-    return {"demo": load().demo, "macs": rows, "exclude": sorted(ALWAYS_EXCLUDE | set(macs_cfg()["exclude"])),
+    w = watch_mode()
+    return {"demo": load().demo, "macs": rows, "exclude": sorted(ALWAYS_EXCLUDE | set(macs_cfg()["exclude"])), "watch": w,
+            "live": d.get("live"), "would": sum(r["pending"] for r in rows if r.get("status") == "active") if w else 0,
             "note": "Only Macs enrolled with the helper are church Macs. A personal Mac is never enrolled and never touched."}
 
 
@@ -649,10 +867,85 @@ def _public(m: dict, tasks: list[dict]) -> dict:
     online = _age(m.get("last_checkin")) < OFFLINE_AFTER
     acc = m.get("accounts", [])
     return {k: m.get(k) for k in ("id", "name", "serial", "model", "macos", "status", "enrolled", "enrolled_by", "last_checkin",
-                                  "helper", "filevault", "tailscale", "full_disk_access", "ariseadmin_at", "church_owned")} | {
+                                  "helper", "filevault", "tailscale", "full_disk_access", "ariseadmin_at", "church_owned", "disk_used")} | {
+        "media": bool(m.get("media")), "silent_days": int(_age(m.get("last_checkin")) // 86400) if m.get("last_checkin") else None,
         "online": online, "mobile": sum(1 for a in acc if a["kind"] == "mobile"), "local": sum(1 for a in acc if a["kind"] == "local"),
         "pending": sum(1 for t in tasks if t["state"] in ("queued", "sent")),
         "failed": sum(1 for t in tasks if t["state"] in ("failed", "refused"))}
+
+
+def attention() -> list[dict]:
+    """Needs You lines from the church Macs (round 7, 4, 40, 82): watch mode, a full disk, a Mac
+    silent for three days, a Mac the helper cannot check (no Full Disk Access)."""
+    d = _read()
+    out = []
+    active = [m for m in d["macs"].values() if m.get("church_owned") and m.get("status") == "active"]
+    if active and watch_mode():
+        n = sum(1 for m in active for t in d["tasks"].get(m["id"], []) if t["state"] == "queued" and t["kind"] not in WATCH_OK)
+        out.append({"level": "warn", "text": f"The Mac helper is in watch mode: {n} task(s) on {len(active)} Mac(s) would run. Read them in Macs, then press Switch on."})
+    for m in active:
+        nm = m.get("name", m["id"])
+        if (m.get("disk_used") or 0) >= DISK_WARN:
+            out.append({"level": "warn", "text": f"{nm}'s disk is {m['disk_used']}% full."})
+        if m.get("last_checkin") and _age(m["last_checkin"]) >= SILENT_DAYS * 86400:
+            out.append({"level": "warn", "text": f"{nm} has not checked in for {int(_age(m['last_checkin']) // 86400)} days: is it on, and on the church network or Tailscale?"})
+        if m.get("full_disk_access") == "no":
+            out.append({"level": "warn", "text": f"{nm}: the helper has no Full Disk Access, so no profile can be removed from it."})
+    return out
+
+
+def silent_macs(days: int = SILENT_DAYS) -> list[dict]:
+    """The church Macs not heard from in `days` (round 7, 82), for the alerts and the Monday report."""
+    d = _read()
+    return [{"id": m["id"], "name": m.get("name"), "last_checkin": m.get("last_checkin")}
+            for m in d["macs"].values() if m.get("church_owned") and m.get("status") == "active"
+            and m.get("last_checkin") and _age(m["last_checkin"]) >= days * 86400]
+
+
+def set_media(mac_id: str, on: bool, by: str) -> dict:
+    """Round 7, 31 and 96: the media Mac is the Proclaim machine; Proclaim goes only there."""
+    with _lock:
+        d = _read()
+        m = d["macs"].get(mac_id)
+        if not m or m.get("status") != "active":
+            return {"ok": False, "err": "no such church Mac"}
+        m["media"] = bool(on)
+        if not _open(d["tasks"].setdefault(mac_id, []), "apps"):
+            _queue(d, mac_id, "apps", {}, by=by)
+        _write(d)
+    audit.record(by, "macs.media", m["name"], detail="the media Mac" if on else "not the media Mac")
+    return {"ok": True, "media": bool(on), "demo": load().demo}
+
+
+def macs_of_person(user: str) -> list[tuple[str, str]]:
+    """(mac id, local account name) for every church Mac where this server user has an account:
+    their mobile account, or a local account linked to them."""
+    user = (user or "").lower()
+    out = []
+    for m in _read()["macs"].values():
+        if not m.get("church_owned") or m.get("status") != "active":
+            continue
+        for a in m.get("accounts", []):
+            if a["kind"] == "mobile" and a["user"].lower() == user:
+                out.append((m["id"], a["user"]))
+        for local, c in (m.get("choices") or {}).items():
+            if c.get("action") in ("link", "convert") and str(c.get("user", "")).lower() == user:
+                out.append((m["id"], local if c["action"] == "link" else c["user"]))
+    return out
+
+
+def queue_notice(user: str, title: str, body: str, kind: str = "info", by: str = "ariseOS") -> list[str]:
+    """A Mac notification for one person, on every church Mac where they have an account (round 7, 84).
+    The helper shows it when they are signed in, or at their next sign-in. Returns the Macs' names."""
+    kind = kind if kind in ("info", "warn", "bad") else "info"
+    names = []
+    with _lock:
+        d = _read()
+        for mac_id, local in macs_of_person(user):
+            _queue(d, mac_id, "notice", {"user": local, "title": (title or "")[:120], "body": (body or "")[:600], "kind": kind}, by=by)
+            names.append(d["macs"][mac_id].get("name", mac_id))
+        _write(d)
+    return names
 
 
 def detail(mac_id: str) -> dict:
@@ -663,20 +956,29 @@ def detail(mac_id: str) -> dict:
     users = _directory_users()
     names = {u["name"].lower() for u in users}
     choices = m.get("choices") or {}
+    watching = watch_mode()
+    plans = {p["local"]: p for p in plan_links(m, users, macs_cfg()["exclude"])}
     accounts = []
     for a in m.get("accounts", []):
         row = dict(a)
         if a["kind"] == "local":
             c = choices.get(a["user"])
+            p = plans.get(a["user"])
             row["choice"] = c
-            row["suggest"] = suggest_user(a["user"], a.get("realname", ""), users)
+            row["suggest"] = (p or {}).get("user") or suggest_user(a["user"], a.get("realname", ""), users)
             row["suggest_exists"] = bool(row["suggest"] and row["suggest"].lower() in names)
             row["state"] = ("converting to " + c["user"] if c and c["action"] == "convert" and c.get("state") != "done" else
                             "linked to " + c["user"] if c and c["action"] == "link" else
-                            "left alone" if c and c["action"] == "leave" else "waiting for your choice")
+                            "left alone" if c and c["action"] == "leave" else
+                            would_text(p) if p and p.get("user") and watching else
+                            ("waiting: " + p["why"]) if p and p.get("why") else "waiting for your choice")
         accounts.append(row)
+    # In watch mode a queued task is shown as "would do" (the page reads watch and the state).
     tasks = sorted(d["tasks"].get(mac_id, []), key=lambda t: int(t["id"][1:]), reverse=True)[:80]
+    temps = sorted((secret_get(mac_id).get("temp_passwords") or {}).keys())
     return {"ok": True, "demo": load().demo, **_public(m, d["tasks"].get(mac_id, [])), "accounts": accounts, "tasks": tasks,
+            "watch": watching, "would": [would_text(p) for p in plans.values()] if watching else [],
+            "temp_waiting": temps,
             "has_secret": {k: bool(secret_get(mac_id).get(k)) for k in ("ariseadmin", "filevault")}}
 
 
@@ -713,6 +1015,16 @@ def choose_local(mac_id: str, local: str, action: str, user: str, by: str, displ
         d = _read()
         m = d["macs"][mac_id]
         tasks = d["tasks"].setdefault(mac_id, [])
+        # An admin's choice replaces an earlier one (the default link of round 7, 23 included):
+        # its open link, conversion and sync tasks for this account are cancelled, not run as well.
+        if action != "undo":
+            for t in tasks:
+                if t["state"] in ("queued", "sent") and t["kind"] in ("link_local", "convert_local", "nextcloud") \
+                        and t["args"].get("local") == local and not (action in ("convert", "link") and t["args"].get("user") == user
+                                                                      and t["kind"] in ("nextcloud", "convert_local" if action == "convert" else "link_local")):
+                    t["state"] = "cancelled"
+                    t["finished"] = _now()
+                    t["detail"] = f"replaced by {by}'s choice"
         if action == "undo":
             prev = (m.get("choices") or {}).get(local)
             if not prev or prev.get("action") != "convert":
@@ -758,8 +1070,10 @@ def queue_removals(user: str, by: str = "arise-offboard.timer", moved_to: str | 
 
 def run_task(mac_id: str, kind: str, by: str, args: dict | None = None) -> dict:
     """An admin's button: rotate the admin password, printers again, updates now, Tailscale."""
-    if kind not in ("ariseadmin", "printers", "bookmarks", "certificate", "updates", "tailscale", "login_window", "filevault"):
+    if kind not in BY_HAND:
         return {"ok": False, "err": "not a task an admin starts by hand"}
+    if kind == "dnsfilter" and (args or {}).get("mode") not in (None, "on", "off"):
+        return {"ok": False, "err": "the DNS filter is on or off"}
     with _lock:
         d = _read()
         m = d["macs"].get(mac_id)
@@ -812,7 +1126,7 @@ def cut_off(mac_id: str, confirm: str, by: str) -> dict:
         from .util import run
         # A computer account is an AD object like a user's; disabling it by its sAMAccountName (NAME$)
         # stops the Mac's Kerberos and domain logins.
-        r = run(["samba-tool", "user", "disable", m["name"].upper() + "$"], timeout=20)
+        r = run(["samba-tool", "user", "disable", (m.get("ad_name") or ad_name(m["name"])).upper() + "$"], timeout=20)
         disabled = bool(r.get("ok"))
     nc = _nextcloud_off(mac_id, by=by)
     audit.record(by, "macs.cut_off", m["name"], detail=f"key revoked; computer account disabled: {disabled}; Nextcloud sign-ins revoked: {nc.get('revoked', 0)}")
@@ -845,14 +1159,39 @@ def config_for_helper() -> dict:
             "bookmarks": [{"name": b["name"], "url": b["url"].replace("{realm}", realm)} for b in c["bookmarks"]]}
 
 
-def config_lines() -> str:
+def apps_for(m: dict | None) -> list[dict]:
+    """Pure-ish: the apps this Mac gets (round 7, 31). An entry needs a name, an app bundle and a
+    10-character Apple Team ID; media_only ones (Proclaim) go only to the media Mac. Nextcloud's
+    own task installs its client, so it has no download address here."""
+    out = []
+    for a in macs_cfg()["apps"]:
+        if not isinstance(a, dict) or not a.get("name") or not str(a.get("app", "")).endswith(".app"):
+            continue
+        if not TEAM_RE.match(str(a.get("team", ""))):
+            continue
+        if a.get("media_only") and not (m or {}).get("media"):
+            continue
+        out.append({"name": str(a["name"])[:60], "app": str(a["app"])[:80], "team": a["team"], "url": str(a.get("url", ""))[:600]})
+    return out
+
+
+def config_lines(m: dict | None = None) -> str:
+    """What the helper's configuration tasks read (GET /api/macs/agent/config), one item a line."""
     c = config_for_helper()
-    out = [f"LOGIN {enc(c['login_window'])}"]
+    mc = macs_cfg()
+    out = [f"LOGIN {enc(c['login_window'])}", f"LOGINTEXT {enc(mc['login_text'])}"]
     for p in c["printers"]:
         if isinstance(p, dict) and p.get("name") and p.get("uri"):
             out.append(f"PRINTER {enc(p['name'])} {enc(p['uri'])} {enc(p.get('driver', 'everywhere'))} {enc(p.get('location', ''))}")
     for b in c["bookmarks"]:
         out.append(f"BOOKMARK {enc(b['name'])} {enc(b['url'])}")
+    for a in apps_for(m):
+        out.append(f"APP {enc(a['name'])} {enc(a['app'])} {enc(a['team'])} {enc(a['url'] or '-')}")
+    if mc["dns_filter"]:
+        out.append("DNS " + " ".join(enc(x) for x in mc["dns_filter"]))
+    out.append("HELP " + " ".join(enc(x) for x in mc["help"]))
+    out.append("FOLDERS " + " ".join(enc(x) for x in mc["sync_folders"]))
+    out.append(f"CHURCH {enc(load().church.name if hasattr(load(), 'church') else 'Arise Church')}")
     return "\n".join(out) + "\n"
 
 
@@ -864,14 +1203,14 @@ def _demo_seed() -> dict:
         "mac-0000000000a1": {"id": "mac-0000000000a1", "name": "MEDIA-MAC-01", "serial": "C02SAMPLE01", "model": "iMac (24-inch, M3)", "macos": "macOS 15.3",
                               "church_owned": True, "enrolled": ago(days=3), "enrolled_by": "bradly", "status": "active", "key_hash": "",
                               "last_checkin": ago(minutes=2), "helper": HELPER_VERSION, "filevault": "on, key escrowed", "tailscale": "up", "full_disk_access": "yes",
-                              "ariseadmin_at": ago(days=3), "done": {},
+                              "ariseadmin_at": ago(days=3), "done": {}, "media": True, "disk_used": 64, "ad_name": "MEDIA-MAC-01",
                               "accounts": [{"user": "bradly", "kind": "mobile", "uid": 1104, "admin": False, "home": "/Users/bradly", "signed_in": False, "realname": "Bradly Dyer", "last_login": ago(days=1)},
                                            {"user": "media", "kind": "local", "uid": 501, "admin": True, "home": "/Users/media", "signed_in": True, "realname": "Media Team", "last_login": ago(hours=3)}],
                               "choices": {"media": {"action": "link", "user": "media-mac", "by": "bradly", "at": ago(days=2), "state": "done"}}},
         "mac-0000000000b2": {"id": "mac-0000000000b2", "name": "OFFICE-MAC-01", "serial": "C02SAMPLE02", "model": "MacBook Air (M2)", "macos": "macOS 14.7",
                               "church_owned": True, "enrolled": ago(days=1), "enrolled_by": "bradly", "status": "active", "key_hash": "",
                               "last_checkin": ago(minutes=4), "helper": HELPER_VERSION, "filevault": "on, key escrowed", "tailscale": "up", "full_disk_access": "yes",
-                              "ariseadmin_at": ago(days=1), "done": {},
+                              "ariseadmin_at": ago(days=1), "done": {}, "disk_used": 58, "ad_name": "OFFICE-MAC-01",
                               "accounts": [{"user": "office", "kind": "mobile", "uid": 1110, "admin": False, "home": "/Users/office", "signed_in": False, "realname": "Church Office", "last_login": ago(days=2)},
                                            {"user": "levi", "kind": "local", "uid": 501, "admin": True, "home": "/Users/levi", "signed_in": False, "realname": "Levi Mercer", "last_login": ago(days=5)},
                                            {"user": "guest", "kind": "local", "uid": 502, "admin": False, "home": "/Users/guest", "signed_in": False, "realname": "Guest", "last_login": None}],
@@ -879,14 +1218,19 @@ def _demo_seed() -> dict:
         "mac-0000000000c3": {"id": "mac-0000000000c3", "name": "KIDS-MAC", "serial": "C02SAMPLE03", "model": "Mac mini (M1)", "macos": "macOS 15.2",
                               "church_owned": True, "enrolled": ago(days=9), "enrolled_by": "bradly", "status": "active", "key_hash": "",
                               "last_checkin": ago(hours=6), "helper": HELPER_VERSION, "filevault": "on, key escrowed", "tailscale": "down", "full_disk_access": "no",
-                              "ariseadmin_at": ago(days=9), "done": {},
+                              "ariseadmin_at": ago(days=9), "done": {}, "disk_used": 91, "ad_name": "KIDS-MAC",
                               "accounts": [{"user": "childrens.department", "kind": "mobile", "uid": 1120, "admin": False, "home": "/Users/childrens.department", "signed_in": False, "realname": "Children's Department", "last_login": ago(days=4)}],
                               "choices": {}},
     }
     d["tasks"] = {"mac-0000000000a1": [{"id": "t1", "kind": "add_account", "args": {"user": "bradly"}, "state": "done", "made": ago(days=3), "by": "the directory", "finished": ago(days=3), "detail": "mobile account made"},
                                        {"id": "t2", "kind": "link_local", "args": {"local": "media", "user": "media-mac"}, "state": "done", "made": ago(days=2), "by": "bradly", "finished": ago(days=2), "detail": "linked; Nextcloud signs in as media-mac"}],
                   "mac-0000000000b2": [{"id": "t3", "kind": "add_account", "args": {"user": "office"}, "state": "done", "made": ago(days=1), "by": "the directory", "finished": ago(days=1), "detail": "mobile account made"},
-                                       {"id": "t4", "kind": "printers", "args": {}, "state": "done", "made": ago(days=1), "by": "enrolment", "finished": ago(days=1), "detail": "1 printer"}],
+                                       {"id": "t4", "kind": "printers", "args": {}, "state": "done", "made": ago(days=1), "by": "enrolment", "finished": ago(days=1), "detail": "1 printer"},
+                                       # round 7: what the helper would do once switched on (the preview starts in watch mode)
+                                       {"id": "t6", "kind": "welcome", "args": {}, "state": "queued", "made": ago(hours=2), "by": "enrolment"},
+                                       {"id": "t7", "kind": "mac_settings", "args": {}, "state": "queued", "made": ago(hours=2), "by": "enrolment"},
+                                       {"id": "t8", "kind": "apps", "args": {}, "state": "queued", "made": ago(hours=2), "by": "enrolment"},
+                                       {"id": "t9", "kind": "dnsfilter", "args": {}, "state": "queued", "made": ago(hours=2), "by": "enrolment"}],
                   "mac-0000000000c3": [{"id": "t5", "kind": "updates", "args": {"only": "security"}, "state": "failed", "made": ago(hours=20), "by": "the overnight window", "finished": ago(hours=19), "detail": "softwareupdate: no network"}]}
-    d["seq"] = 5
+    d["seq"] = 9
     return d

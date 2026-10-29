@@ -174,7 +174,9 @@ shared_path = ""             # empty: /srv/arise/shared (Shared with me: one fol
 # Mac and phone syncing, round 6 (docs/SYNC.md): Nextcloud over the homes and shares above.
 enabled = true
 host = ""                    # empty: cloud.<realm in lower case>; the church network and Tailscale only
-sync_folders = ["Desktop", "Documents"]   # synced in full on every Mac; the shares come on demand
+sync_folders = ["Desktop", "Documents", "Downloads", "Pictures", "Music"]   # synced in full on every Mac (round 7, 42, 43); the shares come on demand
+# The Photos and Music libraries inside Pictures and Music never sync: a live library database
+# copied file by file corrupts (docs/SYNC.md). The Mac helper and the removal check skip them.
 conflicts = "newest"         # the newer copy keeps the name; the older goes to that folder's Trash
 client_version = "3.14.3"    # the Nextcloud desktop client the Mac helper installs (signature checked)
 client_team_id = "NKUJUXUJ3B"   # Nextcloud GmbH's Apple team; a package signed by anyone else is refused
@@ -287,7 +289,16 @@ Arise-Youtube-Automation = "branches"  # its main is edited on the PC (SERVER_HA
 [macs]
 exclude = []                    # directory users never given an account on the Macs, e.g. ["kids-checkin"]
 login_window = "faces"          # "faces": everyone's picture on the login window; "name": a name and password box
-sync_folders = ["Desktop", "Documents"]   # what must be on the server before a profile comes off a Mac
+sync_folders = ["Desktop", "Documents", "Downloads", "Pictures", "Music"]   # what must be on the server before a profile comes off a Mac
 server_ip = ""                  # the address the enrol line uses; empty = this box's own address on the church network
+watch = true                    # round 7, 4: the helper reports what it would do and does nothing until an admin presses Switch on
+login_text = "Arise Church: sign in with your church account. Help: Bradly"   # round 7, 27: under the faces
+help = ["Bradly Dyer", "Kristina Robinson", "Ronnie"]   # round 7, 3 and 141: who to ask, on the welcome page
+dns_filter = ["1.1.1.3", "1.0.0.3", "2606:4700:4700::1113", "2606:4700:4700::1003"]   # round 7, 71: Cloudflare for Families (malware and adult); [] leaves DNS alone
+# The apps every church Mac gets (round 7, 31). A package must be signed by that Apple Developer Team
+# and notarized, or it is refused. Proclaim waits for its Team ID: on the media Mac run
+#   codesign -dv /Applications/Proclaim.app 2>&1 | grep TeamIdentifier
+# then add { name = "Proclaim", app = "Proclaim.app", url = "<Faithlife's .pkg link>", team = "<that ID>", media_only = true }.
+# apps = [{ name = "Firefox", app = "Firefox.app", url = "https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US", team = "43AQ936H96" }]
 # printers = [{ name = "Office", uri = "ipp://192.168.1.40/ipp/print", driver = "everywhere", location = "Church office" }]
 # bookmarks = [{ name = "Arise Church", url = "https://arisecenla.church" }]   # the Church folder in Chrome and Safari

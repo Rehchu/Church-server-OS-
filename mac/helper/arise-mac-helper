@@ -9,10 +9,15 @@
 #   /usr/local/arise/helper/arise-mac-helper            one check-in (what the daemon runs)
 #   /usr/local/arise/helper/arise-mac-helper --facts    print what it would report, change nothing
 #
-# What it may do: make and remove AD (mobile) accounts on this Mac, convert or link a
-# local account when an admin chose that in the Macs app, keep the hidden ariseadmin
-# account and FileVault's recovery key escrowed on the server, add printers and the
-# church bookmarks, install security updates overnight, keep Tailscale on, retire the Mac.
+# What it may do: make and remove AD (mobile) accounts on this Mac, link a local account to its
+# server user (round 7, 23) or convert it, keep the hidden ariseadmin account and FileVault's
+# recovery key escrowed on the server, add printers and the church bookmarks, install security
+# updates overnight, keep Tailscale on, put a welcome page on each person's Desktop at their first
+# sign-in, turn the Guest User on, install the church's apps (each checked against its maker's
+# signature), point DNS at a malware and adult filter, show a person a notice, pause Nextcloud
+# during a service, retire the Mac. Until an admin presses Switch on in the Macs app the server
+# sends it nothing but notices (watch mode, round 7, 4). It never sets a screen lock or an
+# automatic sign-out (round 7, 28 and 29).
 # What it never does: erase the Mac, read the contents of anyone's files (a removal
 # compares names, sizes and dates only), remove a profile without the server first
 # confirming every file of theirs is on the server, or act during a service (the
@@ -89,10 +94,40 @@ accounts() {   # user|kind|uid|admin|home|signed_in|realname|last_login
 }
 fv_state() { fdesetup status 2>/dev/null | grep -q "^FileVault is On" && echo on || echo off; }
 ts_state() { if [ -x "$TS" ]; then "$TS" status >/dev/null 2>&1 && echo up || echo down; else echo "not installed"; fi; }
+# The disk the person's files are on (the APFS Data volume on macOS 10.15 and later), in percent.
+disk_used() { { df -k /System/Volumes/Data 2>/dev/null || df -k / 2>/dev/null; } | awk 'NR==2{gsub(/%/,"",$5); print $5; exit}'; }
 facts() {
   printf 'macos=%s\nmodel=%s\nserial=%s\nfilevault=%s\ntailscale=%s\n' "$(sw_vers -productVersion)" "$(sysctl -n hw.model)" \
     "$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/{print $4}')" "$(fv_state)" "$(ts_state)"
   printf 'full_disk_access=%s\n' "$(fda_state)"
+  printf 'disk_used=%s\n' "$(disk_used)"
+}
+
+# Library packages inside Pictures and Music (round 7, 43) never sync: Photos' and Music's own
+# databases, copied file by file by a sync client while the app has them open, corrupt. They stay
+# on the Mac (Time Machine and, on removal, the kept disk image hold them), so the removal check
+# leaves them out as well. The same list is nextcloud.sh's NC_SKIP; tests/test_mac_scripts.py
+# checks the two agree.
+SKIP_PKGS='*.photoslibrary *.photolibrary *.migratedphotolibrary *.musiclibrary *.tvlibrary *.aplibrary *.imovielibrary *.fcpbundle'
+skipped_pkg() {   # skipped_pkg <name>: is this a library package that never syncs?
+  local p hit=1
+  set -f    # the patterns are matched with case, never expanded against the current folder
+  for p in $SKIP_PKGS; do
+    # shellcheck disable=SC2254
+    case "$1" in $p) hit=0; break ;; esac
+  done
+  set +f
+  [ "$hit" = 0 ] && return 0
+  case "$1" in "Photo Booth Library") return 0 ;; esac
+  return 1
+}
+find_skip() {   # the find(1) words that prune those packages, one a line
+  local p
+  printf '%s\n' '('
+  set -f
+  for p in $SKIP_PKGS; do printf '%s\n' -name "$p" -o; done
+  set +f
+  printf '%s\n' -name "Photo Booth Library" ')' -prune -o
 }
 
 # ----- the checked removal (round 6, 4) ----------------------------------------------------
@@ -101,13 +136,18 @@ manifest() {   # manifest <home> <folders csv>: rel<TAB>size<TAB>mtime, never th
   # server can refuse a listing that came back empty because macOS would not let us read it
   # (Desktop and Documents need Full Disk Access, even for root) or that skipped a file whose
   # name holds a tab or a line break (those cannot be written as one line).
-  local home="$1" f err n odd items state
+  local home="$1" f err n odd items state nm
+  local skip=(); while IFS= read -r nm; do skip+=("$nm"); done <<EOF_SKIP
+$(find_skip)
+EOF_SKIP
   for f in ${2//,/ }; do
     if [ ! -d "$home/$f" ]; then printf '#folder\t%s\tabsent\t0\t0\n' "$f"; continue; fi
     err="$(mktemp)"
-    items="$( (ls -A "$home/$f" 2>>"$err" || echo "!ls") | grep -v -e '^\.DS_Store$' -e '^\._' | head -1)"
-    ( cd "$home" && find "$f" -type f ! -name .DS_Store ! -name '._*' -print0 2>>"$err" | xargs -0 stat -f "%N	%z	%m" 2>>"$err" )
-    odd="$(cd "$home" && find "$f" \( -name "*	*" -o -name "*
+    items="$( (ls -A "$home/$f" 2>>"$err" || echo "!ls") | grep -v -e '^\.DS_Store$' -e '^\._' | while IFS= read -r nm; do
+      [ "$nm" = "!ls" ] && { echo "$nm"; continue; }
+      skipped_pkg "$nm" || echo "$nm"; done | head -1)"
+    ( cd "$home" && find "$f" ${skip[@]+"${skip[@]}"} -type f ! -name .DS_Store ! -name '._*' -print0 2>>"$err" | xargs -0 stat -f "%N	%z	%m" 2>>"$err" )
+    odd="$(cd "$home" && find "$f" ${skip[@]+"${skip[@]}"} \( -name "*	*" -o -name "*
 *" \) -print0 2>/dev/null | tr -cd '\000' | wc -c | tr -d ' ')"
     if [ -s "$err" ] || [ "$items" = "!ls" ]; then state=unreadable; log "manifest $home/$f: $(head -2 "$err" | tr '\n' ' ')"; else state=read; fi
     printf '#folder\t%s\t%s\t%s\t%s\n' "$f" "$state" "$([ -n "$items" ] && echo 1 || echo 0)" "${odd:-0}"
@@ -149,8 +189,9 @@ t_remove_profile() {
   if ! ans="$(server_has_it_all "$user" "$home" "$bases" "$folders")"; then
     report "$id" refused "the server does not have all of $user's files yet: $(printf '%s' "$ans" | head -3 | tr '\n' ' ')"; return
   fi
-  # Only Desktop and Documents sync; anything else of theirs on this Mac (Downloads, Pictures, Music)
-  # is kept as a disk image first, the way macOS's own "Delete user" can. Deleting the image is Bradly's click.
+  # Desktop, Documents, Downloads, Pictures and Music sync; anything else of theirs on this Mac (the
+  # Photos and Music libraries, Library, other folders) is kept as a disk image first, the way macOS's
+  # own "Delete user" can. The images are kept forever (round 7, 154); deleting one is Bradly's click.
   local keep="/Users/Deleted Users/$user-$(date '+%Y%m%d-%H%M').dmg"
   mkdir -p "/Users/Deleted Users" && chmod 700 "/Users/Deleted Users"
   if ! hdiutil create -quiet -srcfolder "$home" -format UDZO -volname "$user" "$keep" >>"$LOG" 2>&1; then
@@ -260,13 +301,231 @@ t_link_local() {   # the local account stays as it is; its files sync to the ser
 }
 
 # ----- the Mac's own settings ------------------------------------------------------------
+cfg_value() {   # cfg_value <WORD> <config text>: the first item after WORD, decoded
+  printf '%s\n' "$2" | awk -v w="$1" '$1==w{print $2; exit}' | while IFS= read -r v; do urldec "$v"; done
+}
+cfg_words() {   # cfg_words <WORD> <config text>: every item after WORD, decoded, one a line
+  printf '%s\n' "$2" | awk -v w="$1" '$1==w{for(i=2;i<=NF;i++) print $i; exit}' | while IFS= read -r v; do urldec "$v"; printf '\n'; done
+}
+
 t_login_window() {
-  local mode; mode="$(arg mode "$2" || api config 2>/dev/null | awk '$1=="LOGIN"{print $2; exit}')"
+  local mode text conf; conf="$(api config 2>/dev/null)"
+  mode="$(arg mode "$2" || cfg_value LOGIN "$conf")"
   [ "$mode" = name ] || mode=faces   # [macs] login_window on the server
   if [ "$mode" = faces ]; then defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool false
   else defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool true; fi
   defaults write /Library/Preferences/com.apple.loginwindow SHOWOTHERUSERS_MANAGED -bool true
-  report "$1" done "login window: $mode, plus Other..."
+  # Round 7, 27: the line under the faces, word for word from [macs] login_text.
+  text="$(cfg_value LOGINTEXT "$conf")"
+  if [ -n "$text" ]; then defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText -string "$text"
+  else defaults delete /Library/Preferences/com.apple.loginwindow LoginwindowText 2>/dev/null; fi
+  report "$1" done "login window: $mode, plus Other...; the line under it: ${text:-none}"
+}
+
+# ----- round 7: the welcome page, the Mac's settings, the apps, the DNS filter, a notice -------
+SESSION_AGENT=/Library/LaunchAgents/com.arisechurch.session.plist
+SESSION_SCRIPT="$BASE/arise-session"
+NOTICES=/Library/Arise/notices        # one folder per account, theirs (0700): what waits for their sign-in
+
+gui_users() {   # the accounts with a graphical session now: user<TAB>uid
+  local u uid
+  dscl . -list /Users UniqueID | while read -r u uid; do
+    [ "$uid" -ge 500 ] 2>/dev/null || continue
+    launchctl print "gui/$uid" >/dev/null 2>&1 && printf '%s\t%s\n' "$u" "$uid"
+  done
+}
+as_user() {   # as_user <user> <uid> <command...>: in that person's own session
+  local u="$1" uid="$2"; shift 2
+  launchctl asuser "$uid" sudo -u "$u" "$@" </dev/null
+}
+show_notice() {   # show_notice <user> <uid> <title> <body>: a Mac notification, never parsed as AppleScript
+  as_user "$1" "$2" osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' "$3" "$4" >/dev/null 2>&1
+}
+
+t_welcome() {   # round 7, 3: a one-page welcome on the Desktop at each person's first sign-in on this Mac
+  local id="$1" conf help folders church h f tmp
+  conf="$(api config 2>/dev/null)" || { report "$id" failed "could not read the server's settings"; return; }
+  church="$(cfg_value CHURCH "$conf")"; church="${church:-Arise Church}"
+  help=""; while IFS= read -r h; do [ -n "$h" ] && help="$help<li>$(xmlesc "$h")</li>"; done <<EOF_HELP
+$(cfg_words HELP "$conf")
+EOF_HELP
+  folders=""; while IFS= read -r f; do [ -n "$f" ] && folders="$folders${folders:+, }$(xmlesc "$f")"; done <<EOF_F
+$(cfg_words FOLDERS "$conf")
+EOF_F
+  mkdir -p /Library/Arise "$NOTICES" && chmod 755 /Library/Arise "$NOTICES"
+  tmp="$(mktemp)"
+  cat > "$tmp" <<EOF_HTML
+<!doctype html><html><head><meta charset="utf-8"><title>Welcome to $(xmlesc "$church")</title>
+<style>body{font:17px -apple-system,Helvetica,sans-serif;max-width:640px;margin:48px auto;padding:0 20px;color:#111;line-height:1.5}
+h1{font-size:30px;margin:0 0 4px}.k{color:#D6222D;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.box{border-left:4px solid #D6222D;padding:6px 14px;margin:18px 0;background:#f6f5f4}code{font-size:16px}</style></head><body>
+<div class="k">$(xmlesc "$church")</div><h1>Welcome, @@NAME@@</h1>
+<div class="box"><b>Your church login</b><br><code>@@LOGIN@@</code><br>The same login and password work on every church Mac.</div>
+<p><b>Where your files are.</b> Your $folders on this Mac are kept on the church server too, so they are the same on any church Mac you sign in to, and safe if this Mac breaks. The church's shared folders are in Finder's sidebar.</p>
+<p><b>Who to ask</b></p><ul>$help</ul>
+<p>This page is on your Desktop: drag it to the Trash whenever you like.</p></body></html>
+EOF_HTML
+  install -m 644 -o root -g wheel "$tmp" /Library/Arise/welcome.html; rm -f "$tmp"
+  # The agent that runs in every person's own session: the welcome once, and any notice waiting.
+  tmp="$(mktemp)"
+  cat > "$tmp" <<'EOF_SESSION'
+#!/bin/bash
+# arise-session: runs as the person, at every sign-in and every five minutes (com.arisechurch.session).
+set -u
+shopt -u patsub_replacement 2>/dev/null || true
+me="$(id -un)"; st="$HOME/Library/Application Support/Arise"
+mkdir -p "$st"
+esc() { printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
+if [ ! -e "$st/welcomed" ] && [ -r /Library/Arise/welcome.html ]; then
+  name="$(id -F 2>/dev/null || echo "$me")"; page="$(cat /Library/Arise/welcome.html)"
+  page="${page//@@NAME@@/$(esc "$name")}"; page="${page//@@LOGIN@@/$(esc "$me")}"
+  mkdir -p "$HOME/Desktop"; printf '%s\n' "$page" > "$HOME/Desktop/Welcome to Arise Church.html"
+  : > "$st/welcomed"; open "$HOME/Desktop/Welcome to Arise Church.html" >/dev/null 2>&1 || true
+fi
+for f in /Library/Arise/notices/"$me"/*.notice; do
+  [ -f "$f" ] || continue
+  t="$(sed -n '1p' "$f")"; b="$(sed -n '2,$p' "$f")"
+  osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' "$t" "$b" >/dev/null 2>&1 && rm -f "$f"
+done
+EOF_SESSION
+  install -m 755 -o root -g wheel "$tmp" "$SESSION_SCRIPT"; rm -f "$tmp"
+  cat > "$SESSION_AGENT" <<EOF_PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.arisechurch.session</string>
+  <key>ProgramArguments</key><array><string>/bin/bash</string><string>$SESSION_SCRIPT</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>StartInterval</key><integer>300</integer>
+  <key>LimitLoadToSessionType</key><string>Aqua</string>
+</dict></plist>
+EOF_PLIST
+  chown root:wheel "$SESSION_AGENT"; chmod 644 "$SESSION_AGENT"
+  report "$id" done "the welcome page shows at each person's first sign-in (help: $(cfg_words HELP "$conf" | tr '\n' ',' | sed 's/,$//; s/,/, /g'))"
+}
+
+t_mac_settings() {   # round 7, 28-30, 33: what the church wants on every church Mac
+  local id="$1" asp=/Library/Preferences/com.apple.appstore
+  # The built-in Guest User (round 7, 33): on; macOS deletes everything it made at sign-out.
+  sysadminctl -guestAccount on >>"$LOG" 2>&1
+  # App Store installs ask for an admin (round 7, 30). The key is the App Store's own
+  # "restrict-store-require-admin-to-install" (Apple's MDM restriction "Require admin password to
+  # install or update apps"); written here and as a managed preference, the way the Chrome
+  # bookmarks are. Not yet confirmed on a current macOS without MDM (docs/MACS.md).
+  defaults write "$asp" restrict-store-require-admin-to-install -bool true
+  mkdir -p "/Library/Managed Preferences"
+  defaults write "/Library/Managed Preferences/com.apple.appstore" restrict-store-require-admin-to-install -bool true
+  chmod 644 "/Library/Managed Preferences/com.apple.appstore.plist" 2>/dev/null
+  # Never a forced screen lock and never an automatic sign-out (round 7, 28 and 29): nothing set.
+  report "$id" done "Guest User on (wiped at sign-out); App Store installs ask for an admin; no screen lock or sign-out timer set"
+}
+
+app_team() {   # app_team <path to .app>: its signing team, or nothing
+  codesign -dv --verbose=2 "$1" 2>&1 | sed -n 's/^TeamIdentifier=//p' | head -1
+}
+pkg_ok() {   # pkg_ok <pkg> <team>: signed by that team's Developer ID Installer, and notarized
+  local sig
+  sig="$(pkgutil --check-signature "$1" 2>&1)" || return 1
+  printf '%s\n' "$sig" | grep -q "Developer ID Installer: .*($2)" || return 1
+  spctl -a -vv -t install "$1" 2>&1 | grep -q "Notarized Developer ID"
+}
+t_apps() {   # round 7, 31: each app from its maker, refused unless that maker signed and Apple notarized it
+  local id="$1" conf kind name app team url n=0 skip="" bad="" pkg
+  conf="$(api config 2>/dev/null)" || { report "$id" failed "could not read the server's settings"; return; }
+  while read -r kind name app team url; do
+    [ "$kind" = APP ] || continue
+    name="$(urldec "$name")"; app="$(urldec "$app")"; team="$(urldec "$team")"; url="$(urldec "$url")"
+    if [ -d "/Applications/$app" ] && [ "$(app_team "/Applications/$app")" = "$team" ]; then skip="$skip $name"; continue; fi
+    if [ "$url" = - ] || [ -z "$url" ]; then skip="$skip $name(its own task)"; continue; fi
+    pkg="$(mktemp /tmp/arise-app.XXXXXX)"
+    if ! curl -fsSL --max-time 900 -o "$pkg" "$url" >>"$LOG" 2>&1; then bad="$bad $name(download)"; rm -f "$pkg"; continue; fi
+    if ! pkg_ok "$pkg" "$team"; then bad="$bad $name(not signed by $team, or not notarized)"; rm -f "$pkg"; continue; fi
+    if installer -pkg "$pkg" -target / >>"$LOG" 2>&1; then n=$((n + 1)); else bad="$bad $name(installer)"; fi
+    rm -f "$pkg"
+  done <<EOF_APPS
+$conf
+EOF_APPS
+  if [ -n "$bad" ]; then report "$id" failed "installed $n; not installed:$bad"
+  else report "$id" done "installed $n; already there:${skip:- none}"; fi
+}
+
+t_dnsfilter() {   # round 7, 71 and 72: a malware and adult filter for this church Mac's lookups
+  # Every network service's DNS servers become the filter; the church domain keeps going to the
+  # server through /etc/resolver (that file wins for its own names). The servers each service had
+  # before are kept in $DB/dns-before, and mode=off puts them back.
+  local id="$1" mode svc key servers conf n=0 saved="$DB/dns-before"
+  mode="$(arg mode "$2" || echo on)"
+  mkdir -p "$saved"
+  conf="$(api config 2>/dev/null)"
+  servers="$(cfg_words DNS "$conf" | tr '\n' ' ')"
+  if [ "$mode" = on ] && [ -z "${servers// /}" ]; then report "$id" skipped "no DNS filter set on the server ([macs] dns_filter = [])"; return; fi
+  while IFS= read -r svc; do
+    case "$svc" in ""|"An asterisk"*|\**) continue ;; esac
+    key="$(printf '%s' "$svc" | tr -c 'A-Za-z0-9' '_')"
+    if [ "$mode" = off ]; then
+      if [ -f "$saved/$key" ]; then
+        # "Empty" puts the service back on whatever the network hands out
+        # shellcheck disable=SC2046
+        networksetup -setdnsservers "$svc" $(cat "$saved/$key") >>"$LOG" 2>&1 && n=$((n + 1)) && rm -f "$saved/$key"
+      fi
+    else
+      if [ ! -f "$saved/$key" ]; then
+        networksetup -getdnsservers "$svc" 2>/dev/null | grep -Eq '^[0-9a-fA-F:.]+$' \
+          && networksetup -getdnsservers "$svc" | tr '\n' ' ' > "$saved/$key" || echo Empty > "$saved/$key"
+      fi
+      # shellcheck disable=SC2086
+      networksetup -setdnsservers "$svc" $servers >>"$LOG" 2>&1 && n=$((n + 1))
+    fi
+  done <<EOF_SVC
+$(networksetup -listallnetworkservices 2>/dev/null | tail -n +2)
+EOF_SVC
+  dscacheutil -flushcache; killall -HUP mDNSResponder 2>/dev/null
+  if [ "$mode" = off ]; then report "$id" done "the DNS filter is off on $n network service(s): each has its servers from before"
+  else report "$id" done "$n network service(s) use the filter ($servers); the church domain still asks the server"; fi
+}
+
+t_notice() {   # round 7, 84: a Mac notification for one person (or whoever is signed in, for user=)
+  local id="$1" user title body u uid shown=0 waits=0
+  user="$(arg user "$2" || true)"; title="$(arg title "$2" || echo ariseOS)"; body="$(arg body "$2" || true)"
+  if [ -z "$user" ]; then
+    while IFS="$(printf '\t')" read -r u uid; do [ -n "$u" ] && show_notice "$u" "$uid" "$title" "$body" && shown=$((shown + 1)); done <<EOF_GUI
+$(gui_users)
+EOF_GUI
+    report "$id" done "shown to $shown signed-in person(s)"; return
+  fi
+  dscl . -read "/Users/$user" >/dev/null 2>&1 || { report "$id" skipped "$user has no account on this Mac"; return; }
+  uid="$(id -u "$user" 2>/dev/null)"
+  if [ -n "$uid" ] && launchctl print "gui/$uid" >/dev/null 2>&1 && show_notice "$user" "$uid" "$title" "$body"; then
+    report "$id" done "shown to $user"; return
+  fi
+  # Not signed in: it waits in their own folder, and their session agent shows it at the next sign-in.
+  mkdir -p "$NOTICES/$user" && chown "$user" "$NOTICES/$user" 2>/dev/null && chmod 700 "$NOTICES/$user"
+  ( umask 077; printf '%s\n%s\n' "$title" "$body" > "$NOTICES/$user/$(date '+%Y%m%d%H%M%S')-$id.notice" )
+  chown "$user" "$NOTICES/$user/"*.notice 2>/dev/null; waits=1
+  report "$id" done "waits for $user's next sign-in"
+}
+
+# ----- a service (round 7, 92): Nextcloud pauses so the stream keeps the bandwidth -------------
+nc_pause() {
+  local u uid
+  while IFS="$(printf '\t')" read -r u uid; do
+    [ -n "$u" ] || continue
+    pgrep -u "$uid" -x Nextcloud >/dev/null 2>&1 || continue
+    as_user "$u" "$uid" osascript -e 'tell application "Nextcloud" to quit' >/dev/null 2>&1
+    grep -qx "$u" "$DB/nc-paused" 2>/dev/null || printf '%s\n' "$u" >> "$DB/nc-paused"
+  done <<EOF_GUI
+$(gui_users)
+EOF_GUI
+}
+nc_resume() {
+  local u uid
+  [ -s "$DB/nc-paused" ] || { rm -f "$DB/nc-paused"; return 0; }
+  while IFS= read -r u; do
+    uid="$(id -u "$u" 2>/dev/null)" || continue
+    launchctl print "gui/$uid" >/dev/null 2>&1 && as_user "$u" "$uid" open -g -a Nextcloud >/dev/null 2>&1
+  done < "$DB/nc-paused"
+  rm -f "$DB/nc-paused"
+  log "the service is over: Nextcloud is back on"
 }
 
 t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 6, 7)
@@ -451,12 +710,19 @@ while IFS= read -r line; do FORM+=(--data-urlencode "$line"); done <<EOF_FACTS
 $(facts)
 EOF_FACTS
 OUT="$(api checkin ${FORM[@]+"${FORM[@]}"} 2>&1)" || die "check-in failed: $OUT"
-case "$OUT" in HOLD*) log "the server says a service is on: nothing done"; exit 0 ;; esac
+case "$OUT" in
+  HOLD*) nc_pause; log "the server says a service is on: Nextcloud paused, nothing else done"; exit 0 ;;
+esac
+nc_resume
+case "$OUT" in
+  # Watch mode (round 7, 4): the server keeps every task but a notice until an admin switches the helper on.
+  WATCH*) log "watch mode: $(printf '%s\n' "$OUT" | awk '$1=="WATCH"{print $2; exit}') task(s) would run; none are sent until Switch on in the Macs app" ;;
+esac
 printf '%s\n' "$OUT" | while read -r word id kind rest; do
   [ "$word" = TASK ] || continue
   log "task $id: $kind $rest"
   case "$kind" in
-    add_account|remove_profile|convert_local|unconvert|link_local|login_window|ariseadmin|filevault|printers|bookmarks|certificate|updates|tailscale|nextcloud|retire)
+    add_account|remove_profile|convert_local|unconvert|link_local|login_window|ariseadmin|filevault|printers|bookmarks|certificate|updates|tailscale|nextcloud|retire|welcome|mac_settings|apps|dnsfilter|notice)
       "t_$kind" "$id" "$rest" </dev/null ;;
     *) report "$id" skipped "this helper ($VERSION) does not know $kind" ;;
   esac

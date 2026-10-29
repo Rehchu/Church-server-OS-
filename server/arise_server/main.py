@@ -12,6 +12,7 @@ from typing import Optional
 
 import asyncio
 import os
+import re
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -503,6 +504,12 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
         items.append({"level": "warn", "text": f"Synology not mounted at {n.get('mount')}. Backups will fail until it is: `arisectl nas mount`."})
     if d.get("enabled", True) and d.get("error"):
         items.append({"level": "bad", "text": f"Directory: {d['error'][:160]}"})
+    # The church Macs: watch mode, a full disk, a Mac silent three days, no Full Disk Access (round 7).
+    try:
+        from . import macs as _macs
+        items.extend(_macs.attention())
+    except Exception:  # noqa: BLE001
+        pass
     # Disks at 75 % say so (Bradly, Oct 28); the sample box has room, so the preview shows none.
     if not c.demo:
         try:
@@ -2288,11 +2295,49 @@ def api_mac_local(mac_id: str, body: MacLocal, who=admin):
 
 class MacTask(BaseModel):
     kind: str
+    mode: str = ""        # dnsfilter: "on" or "off"
 
 
 @app.post("/api/macs/{mac_id}/task")
 def api_mac_task(mac_id: str, body: MacTask, who=admin):
-    return church_macs.run_task(mac_id, body.kind, who["user"])
+    return church_macs.run_task(mac_id, body.kind, who["user"], {"mode": body.mode} if body.mode else None)
+
+
+class MacLive(BaseModel):
+    on: bool
+
+
+@app.post("/api/macs/live")
+def api_macs_live(body: MacLive, who=recent):
+    """Round 7, 4: the Mac helper's Switch on (tasks go out), or back to watch mode. Password again, audited."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return church_macs.set_live(body.on, who["user"])
+
+
+class MacMedia(BaseModel):
+    on: bool
+
+
+@app.post("/api/macs/{mac_id}/media")
+def api_mac_media(mac_id: str, body: MacMedia, who=admin):
+    """Round 7, 31 and 96: this is the media Mac, the one that gets Proclaim."""
+    return church_macs.set_media(mac_id, body.on, who["user"])
+
+
+class MacTemp(BaseModel):
+    user: str
+
+
+@app.post("/api/macs/{mac_id}/temp-password")
+def api_mac_temp(mac_id: str, body: MacTemp, who=recent):
+    """A server user the default link made (round 7, 23): its temporary password, shown once."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    r = church_macs.temp_take(mac_id, body.user, who["user"])
+    if r.pop("code", None) == 400:
+        raise HTTPException(400, {"message": r["err"]})
+    return r
 
 
 class MacConfirm(BaseModel):
@@ -2340,7 +2385,7 @@ def _txt(s: str, code: int = 200) -> Response:
 @app.post("/api/macs/agent/enrol")
 async def api_mac_agent_enrol(request: Request):
     f = await request.form()
-    r = church_macs.enrol(str(f.get("token", "")), {k: str(f.get(k, "")) for k in ("name", "serial", "model", "macos", "helper", "accounts")})
+    r = church_macs.enrol(str(f.get("token", "")), {k: str(f.get(k, "")) for k in ("name", "ad_name", "serial", "model", "macos", "helper", "accounts")})
     if not r["ok"]:
         return _txt("ERROR " + church_macs.enc(r["err"]), 403)
     return _txt(f"MAC_ID={r['mac_id']}\nKEY={r['key']}")
@@ -2350,7 +2395,8 @@ async def api_mac_agent_enrol(request: Request):
 async def api_mac_agent_checkin(request: Request):
     m = _mac_or_401(request)
     f = await request.form()
-    facts = {k: str(f.get(k)) for k in ("macos", "model", "serial", "helper", "filevault", "tailscale", "accounts") if f.get(k) is not None}
+    facts = {k: str(f.get(k)) for k in ("macos", "model", "serial", "helper", "filevault", "tailscale", "full_disk_access", "disk_used", "accounts")
+             if f.get(k) is not None}
     facts["ip"] = request.client.host if request.client else ""
     return _txt("\n".join(church_macs.checkin(m, facts)) or "NONE")
 
@@ -2386,8 +2432,8 @@ async def api_mac_agent_check(request: Request):
 
 @app.get("/api/macs/agent/config")
 def api_mac_agent_config(request: Request):
-    _mac_or_401(request)
-    return _txt(church_macs.config_lines())
+    m = _mac_or_401(request)
+    return _txt(church_macs.config_lines(m))
 
 
 # The helper's files, for the one Terminal line. Not secret: the one-time token is.
@@ -2470,7 +2516,8 @@ async def api_cloud_agent_app_password(request: Request):
     r = cloud.agent_app_password(mac, str(f.get("user", "")), str(f.get("local", "")))
     if not r.get("ok"):
         return txt("ERROR " + str(r.get("err", "refused")).replace("\n", " "), 403)
-    return txt(f"APP_PASSWORD={r['app_password']}\nCLOUD_URL={r['server']}\nLOGIN={r['login']}\nDEVICE={r['device']}")
+    folders = " ".join(f for f in (cfg.cloud.sync_folders or ["Desktop", "Documents"]) if re.match(r"^[A-Za-z][A-Za-z ]{0,40}$", f) and " " not in f)
+    return txt(f"APP_PASSWORD={r['app_password']}\nCLOUD_URL={r['server']}\nLOGIN={r['login']}\nDEVICE={r['device']}\nFOLDERS={folders}")
 # ===== end R6-SYNC =====
 
 

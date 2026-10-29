@@ -12,6 +12,8 @@
 # server never touches any other (a personal Mac never runs this).
 #
 # What it does, in order, and it is safe to run again:
+#   0. a Time Machine backup first, when this Mac's Time Machine disk answers (round 7, 6);
+#      --no-backup skips it, and a Mac with no Time Machine disk goes straight on
 #   1. points this Mac at the server for the church domain only (/etc/resolver; no router change)
 #   2. trusts the church certificate (macOS asks for your password once)
 #   3. joins the domain with mac/bind-mac.sh (you type the domain administrator password)
@@ -19,12 +21,12 @@
 #   5. installs the helper as a LaunchDaemon (at boot and every five minutes)
 #   6. runs it once: the helper then makes everyone's account, the hidden ariseadmin,
 #      FileVault, the printers, the bookmarks and Tailscale, as tasks the server hands it
-# It never deletes an account. Accounts already on this Mac wait for an admin's choice in
-# the Macs app: Convert (becomes the server user), Link (stays, signed in to the server's
-# files as the server user) or Leave alone.
+# It never deletes an account, and the Mac keeps the name it has (round 7, 35; --name only to
+# change it). Accounts already on this Mac are linked to their server user once the helper is
+# switched on (round 7, 23): each stays as it is, with its own password, and its files sync.
 set -u
 
-SERVER=""; TOKEN=""; DNS_IP=""; NAME=""
+SERVER=""; TOKEN=""; DNS_IP=""; NAME=""; BACKUP=1
 BASE=/usr/local/arise/helper
 DB=/var/db/arise
 PLIST=/Library/LaunchDaemons/com.arisechurch.helper.plist
@@ -39,7 +41,8 @@ while [ $# -gt 0 ]; do
     --token)  TOKEN="$2"; shift 2 ;;
     --dns)    DNS_IP="$2"; shift 2 ;;
     --name)   NAME="$2"; shift 2 ;;
-    -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+    --no-backup) BACKUP=0; shift ;;
+    -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
     *) die "unknown option $1" ;;
   esac
 done
@@ -66,6 +69,17 @@ fetch() {   # fetch <path> <file>: from the server, checking the church certific
 }
 
 main() {
+step "0. A Time Machine backup first (round 7, 6)"
+if [ "$BACKUP" = 0 ]; then
+  say "skipped (--no-backup)"
+elif tmutil destinationinfo 2>/dev/null | grep -q '^Name'; then
+  say "this Mac has a Time Machine disk: backing up now, before anything changes (this can take a while)"
+  if tmutil startbackup --block >/dev/null 2>&1; then say "backed up: $(tmutil latestbackup 2>/dev/null | tail -1)"
+  else say "the backup could not run now (is the Synology answering?); going on without it, as Bradly chose"; fi
+else
+  say "no Time Machine disk on this Mac yet: going on (the Synology's Time Machine share comes later)"
+fi
+
 step "1. The church domain's DNS (this Mac only; no router change)"
 mkdir -p /etc/resolver
 printf 'nameserver %s\nsearch_order 1\ntimeout 2\n' "$DNS_IP" > "/etc/resolver/$REALM_LC"
@@ -102,12 +116,18 @@ bash -n "$TMP/arise-mac-helper" || die "the helper did not download whole; run t
 say "downloaded"
 
 step "4. Joining the church domain"
-if [ -z "$NAME" ]; then
-  NAME="$(scutil --get ComputerName 2>/dev/null | tr ' ' '-' | tr -cd 'A-Za-z0-9-' | cut -c1-15)"
+# Round 7, 35: the Mac keeps the name it has. Only the domain's computer account needs a short,
+# plain form of it (15 letters, digits and dashes); the name people see is left alone.
+if [ -n "$NAME" ]; then
+  scutil --set ComputerName "$NAME"; scutil --set LocalHostName "$(printf '%s' "$NAME" | tr ' ' '-' | tr -cd 'A-Za-z0-9-')"
+  say "renamed to $NAME (--name)"
+else
+  NAME="$(scutil --get ComputerName 2>/dev/null)"
+  say "keeping this Mac's name: $NAME"
 fi
-[ -n "$NAME" ] || die "this Mac has no name; run the line again with --name MEDIA-MAC-01"
-scutil --set ComputerName "$NAME"; scutil --set LocalHostName "$NAME"; scutil --set HostName "$NAME.$REALM_LC"
-bash "$TMP/bind-mac.sh" --computer-name "$NAME" --dns "$DNS_IP" </dev/tty || die "the bind did not finish (bind-mac.sh says why, above). Nothing was enrolled; fix that and run the same line again within the hour."
+ADNAME="$(printf '%s' "$NAME" | tr ' ' '-' | tr -cd 'A-Za-z0-9-' | cut -c1-15)"
+[ -n "$ADNAME" ] || die "this Mac's name has no letters or digits; run the line again with --name OFFICE-MAC-02"
+bash "$TMP/bind-mac.sh" --computer-name "$ADNAME" --dns "$DNS_IP" </dev/tty || die "the bind did not finish (bind-mac.sh says why, above). Nothing was enrolled; fix that and run the same line again within the hour."
 
 step "5. Enrolling $NAME"
 SERIAL="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/{print $4}')"
@@ -118,7 +138,7 @@ OUT="$TMP/enrol.out"
 opts=(-sS --max-time 60 -o "$OUT" -w '%{http_code}')
 case "$SERVER" in https:*) opts+=(--cacert "$DB/arise-ca.crt" --resolve "$HOST:443:$DNS_IP") ;; esac
 CODE="$(curl "${opts[@]}" "$SERVER/api/macs/agent/enrol" \
-  --data-urlencode "token=$TOKEN" --data-urlencode "name=$NAME" --data-urlencode "serial=$SERIAL" \
+  --data-urlencode "token=$TOKEN" --data-urlencode "name=$NAME" --data-urlencode "ad_name=$ADNAME" --data-urlencode "serial=$SERIAL" \
   --data-urlencode "model=$(printf '%s\n' "$FACTS" | sed -n 's/^model=//p')" \
   --data-urlencode "macos=$(printf '%s\n' "$FACTS" | sed -n 's/^macos=//p')" \
   --data-urlencode "helper=$VER" --data-urlencode "accounts=$ACCTS")" || die "could not reach $SERVER"
@@ -147,7 +167,7 @@ sleep 2
 "$BASE/arise-mac-helper" </dev/null && say "done; the log is /var/log/arise-helper.log" || say "the first check-in failed; the log says why: tail /var/log/arise-helper.log"
 tail -n 12 /var/log/arise-helper.log 2>/dev/null | sed 's/^/    /'
 
-step "8. Full Disk Access (once, by hand)"
+step "8. Full Disk Access (once, by hand: Bradly, while enrolling, round 7, 39)"
 # macOS lets no script grant this, not even root's. Without it the helper cannot list anyone's
 # Desktop or Documents, so it never removes a profile from this Mac (the server refuses).
 if ls "/Library/Application Support/com.apple.TCC" >/dev/null 2>&1; then
@@ -167,10 +187,11 @@ LOCALS="$(printf '%s\n' "$ACCTS" | awk -F'|' '$2=="local"{print $1}')"
 if [ -n "$LOCALS" ]; then
   step "Accounts already on this Mac"
   printf '%s\n' "$LOCALS" | sed 's/^/    /'
-  say "Nothing happens to these until an admin chooses, in Macs on the dashboard:"
-  say "Convert (becomes the server user), Link (stays, uses the server's files), or Leave alone."
+  say "Each is linked to its server user once the helper is switched on (round 7, 23): it stays as it is,"
+  say "with its own password, and its files sync. One that matches nobody gets a new first.last server user."
+  say "The Macs app shows what it would do first; Convert or Leave alone are still there per account."
 fi
-printf '\n  %s is a church Mac now. Everyone with a server account will appear on its login window within minutes.\n\n' "$NAME"
+printf '\n  %s is a church Mac now. The helper starts in watch mode: the Macs app lists what it would do, and nothing\n  changes until an admin presses Switch on. Then everyone with a server account appears on its login window.\n\n' "$NAME"
 }
 
 # The whole file is read before anything runs (curl | bash), and nothing below can eat it from stdin.
