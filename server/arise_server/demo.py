@@ -29,18 +29,20 @@ USERS = [
     # Round 5: the two pastors (the Pastors folder is theirs alone).
     {"name": "bryant.sanders", "display": "Apostle Bryant Sanders", "groups": ["Domain Admins", "Staff", "Leadership", "Pastors"], "enabled": True, "last_logon": _ago(days=1, hours=4), "home": r"\\arise-server\homes\bryant.sanders"},
     {"name": "vanessa.sanders", "display": "Pastor Vanessa Sanders", "groups": ["Domain Admins", "Staff", "Leadership", "Pastors"], "enabled": True, "last_logon": _ago(days=2), "home": r"\\arise-server\homes\vanessa.sanders"},
+    # Round 6, 21-23: the fourth admin at the closet, with Bradly's powers.
+    {"name": "kristina.robinson", "display": "Minister Kristina Robinson", "groups": ["Domain Admins", "Staff", "Worship"], "enabled": True, "last_logon": _ago(days=1, hours=7), "home": r"\\arise-server\homes\kristina.robinson"},
 ]
 
 GROUPS = [
-    {"name": "Domain Admins", "members": ["bradly", "bryant.sanders", "vanessa.sanders"], "description": "Server administrators"},
-    {"name": "Staff", "members": ["bradly", "office", "bryant.sanders", "vanessa.sanders"], "description": "Church office staff"},
+    {"name": "Domain Admins", "members": ["bradly", "bryant.sanders", "vanessa.sanders", "kristina.robinson"], "description": "Server administrators"},
+    {"name": "Staff", "members": ["bradly", "office", "bryant.sanders", "vanessa.sanders", "kristina.robinson"], "description": "Church office staff"},
     {"name": "Media", "members": ["bradly", "media-mac"], "description": "Livestream, YouTube, projector"},
     {"name": "Leadership", "members": ["bryant.sanders", "vanessa.sanders"], "description": "Pastoral leadership"},
     {"name": "Volunteers", "members": ["guest-speaker"], "description": "Volunteer logins"},
     {"name": "Kids-Check-in", "members": ["kids-checkin"], "description": "Children's ministry check-in station"},
     {"name": "Childrens-Department", "members": ["childrens.department"], "description": "Children's Department (department login)"},
     {"name": "Inedge", "members": ["inedge"], "description": "Inedge (department login)"},
-    {"name": "Worship", "members": [], "description": "Worship and music"},
+    {"name": "Worship", "members": ["kristina.robinson"], "description": "Worship and music"},
     {"name": "Pastors", "members": ["bryant.sanders", "vanessa.sanders"], "description": "The Pastors folder: Apostle Bryant and Pastor Vanessa only"},
     {"name": "Alexandria", "members": [], "description": "Arise Church Alexandria (campus)"},
 ]

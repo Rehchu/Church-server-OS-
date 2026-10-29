@@ -45,6 +45,9 @@ DEFAULTS = {
     },
     # Bradly's Linux account (Oct 28): runs the 02:05 job, sudo without a password. install.sh fills it in.
     "owner": {"user": ""},
+    # Round 6, 23: more accounts with the owner's powers (Kristina: "the same as me"): every ariseOS
+    # group and sudo without a password. The 02:05 job and Claude stay [owner] user's only.
+    "owners": {"users": []},
     "automator": {
         "enabled": True,
         "path": _root("/srv/arise/automator/ARISE_YouTube_Updater", r"C:\Arise\automator\ARISE_YouTube_Updater"),

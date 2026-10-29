@@ -275,7 +275,7 @@ V.directory = async () => {
       <div class="toolbar"><input class="search" placeholder="Find a user" id="uq"><span class="spacer"></span><button class="btn btn--ghost btn--sm" id="importPeople">Import a people list</button><button class="btn btn--sm" id="addUser">+ New user</button></div>
       <div class="panel panel--flat tbl-wrap"><table class="tbl" id="uTable"><thead><tr><th>User</th><th>Name</th><th>Groups</th><th>Last login</th><th>Home</th><th></th></tr></thead><tbody>
       ${users.map(u => `<tr data-q="${esc((u.name + ' ' + u.display).toLowerCase())}"><td><b>${esc(u.name)}</b> ${u.enabled ? '' : '<span class="pill warn">disabled</span>'}${twofaOn.has(u.name) ? ' <span class="pill info" title="Two-step sign-in is on">two-step</span>' : ''}${u.must_change ? ' <span class="pill warn" title="A temporary password: they choose their own at the next login">new password due</span>' : ''}</td><td>${esc(u.full_name || u.display)}</td><td>${(u.groups || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}</td><td class="dim">${u.last_logon ? fmtT(u.last_logon) : 'never'}</td><td class="mono dim" style="font-size:12px">${esc(u.home || '')}</td>
-        <td class="acts"><button class="btn btn--ghost btn--xs" data-prof="${esc(u.name)}">Profile</button><button class="btn btn--ghost btn--xs" data-pw="${esc(u.name)}">Password</button><button class="btn btn--ghost btn--xs" data-tog="${esc(u.name)}" data-en="${u.enabled ? 0 : 1}">${u.enabled ? 'Disable' : 'Enable'}</button><button class="btn btn--danger btn--xs" data-del="${esc(u.name)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No users yet</td></tr>'}
+        <td class="acts"><button class="btn btn--ghost btn--xs" data-prof="${esc(u.name)}">Profile</button><button class="btn btn--ghost btn--xs" data-pw="${esc(u.name)}">Password</button><button class="btn btn--ghost btn--xs" data-2fa="${esc(u.name)}" data-on="${twofaOn.has(u.name) ? 1 : 0}">${twofaOn.has(u.name) ? 'Two-step off' : 'Two-step on'}</button><button class="btn btn--ghost btn--xs" data-tog="${esc(u.name)}" data-en="${u.enabled ? 0 : 1}">${u.enabled ? 'Disable' : 'Enable'}</button><button class="btn btn--danger btn--xs" data-del="${esc(u.name)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No users yet</td></tr>'}
       </tbody></table></div>
     </div>
     <div data-tab="groups" hidden>
@@ -2326,7 +2326,7 @@ async function buildWidgets() {
 /* ---------------- lock, login, sign out ---------------- */
 function lockScreen(idle) {
   saver(false);
-  lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
+  lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; kioskNeutral(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
   if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
 }
 function churchLine() { const c = S.church; const n = c?.next; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${n ? ` · next: ${n.name}, ${n.day} ${fmtSvc(n.time)}` : ''}`; }
@@ -2372,7 +2372,7 @@ function showLogin(err) {
   if (codeStep) {
     $('#lc').focus(); $('#lback').onclick = () => showLogin(null);
     f.onsubmit = async e => { e.preventDefault(); const b = $('button', f); b.classList.add('busy');
-      try { await api('/auth/login/code', { method: 'POST', body: { pending: err.pending, code: $('#lc').value } }); location.reload(); }
+      try { await api('/auth/login/code', { method: 'POST', body: { pending: err.pending, code: $('#lc').value } }); afterSignIn(); }
       catch (er) { if (/Sign in again|more than five|Three wrong/.test(er.message)) { showLogin({ message: er.message }); return; } fail(er.message); $('#lc').value = ''; $('#lc').focus(); }
       finally { b.classList.remove('busy'); } };
     return;
@@ -2384,7 +2384,7 @@ function showLogin(err) {
       const r = await api('/auth/login', { method: 'POST', body: { user, password: pw } });
       if (r && r.need_new_password) { showLogin({ newpw: true, user: r.user || user, old: pw, rules: r.rules }); return; }
       if (r && r.need_code) { showLogin({ code: true, pending: r.pending, user: r.user || user }); return; }
-      location.reload(); }
+      afterSignIn(); }
     catch (er) { fail(er.message); }
     finally { b.classList.remove('busy'); } };
 }
@@ -2451,6 +2451,7 @@ async function boot() {
   if (window.ARISE_FORCE_DEMO) setDemoOnly();
   clock(); every(clock, 15000);
   buildDock(); setAppMenus(null); kioskSetup(); applyTheme(); applyA11y(); applyDockHide();
+  await kioskHandoff();   // round 6: the monitor's Firefox restarted into an admin's own profile
   try {
     const me = await api('/auth/me');
     if (me.error) { if (me.error.setup) return showLogin({ setup: true }); return showLogin(me.error); }
@@ -2562,7 +2563,7 @@ function loginStep(st) {
       try { const r = await api('/auth/login/new-password', { method: 'POST', body: { user: st.user, old: st.old, new: $('#ln1').value } });
         if (r.ok === false) return fail(r.err, r.rules);
         if (r.need_code) return showLogin({ code: true, pending: r.pending, user: r.user });
-        location.reload(); }
+        afterSignIn(); }
       catch (er) { fail(er.message); } finally { b.classList.remove('busy'); } };
     return;
   }
@@ -2914,6 +2915,58 @@ async function setupWizard(s) {
     const so = $('#stSetup', root); if (so) so.onclick = async () => { await api('/setup/reopen', { method: 'POST' }).catch(() => {}); S.setupStep = null; setupWizard(); };
   };
 }
+
+/* ---- closet OS (round 6) ---- */
+/* Rows 21-22, 29-33: the four admins get the desktop at the monitor, each with their own Firefox
+   profile. Signing in there asks the server to restart Firefox into that admin's profile; the new
+   Firefox opens /?kiosk=1&handoff=<token> and trades the one-time token for the session. Locking
+   puts the monitor back on a fresh neutral profile. Anywhere but the monitor this is a reload. */
+async function afterSignIn() {
+  if (S.kiosk) {
+    try {
+      const me = await api('/auth/me');
+      if (me.role === 'admin') {
+        const k = await api('/kiosk/profile');
+        if (k.current !== me.user) {
+          const r = await api('/kiosk/profile', { method: 'POST', body: { action: 'switch' } });
+          if (r && r.ok !== false && !r.demo && !r.already) { toast('Opening your browser…', 'info', 8000); return; }
+        }
+      }
+    } catch (e) { /* the old shared browser: a reload is still right */ }
+  }
+  location.reload();
+}
+async function kioskHandoff() {
+  const q = new URLSearchParams(location.search); const tok = q.get('handoff'); if (!tok) return;
+  q.delete('handoff'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  try { await api('/auth/handoff', { method: 'POST', body: { token: tok } }); } catch (e) { toast(e.message || 'Sign in again', 'warn'); }
+}
+function kioskNeutral() {
+  if (!S.kiosk || S.role !== 'admin') return;
+  api('/kiosk/profile', { method: 'POST', body: { action: 'neutral' } }).catch(() => {});
+}
+/* Row 20: staff never sign in to the OS, so an admin turns two-step on and off for them here. */
+function staffTwofaOn(name) {
+  modal(`<h2>Two-step for ${esc(name)}</h2><p class="muted">With them beside you: they install <b>Microsoft Authenticator</b>, tap <b>+</b> → <b>Other account</b>, and scan this code from your screen. Then type the six digits their phone shows.</p>
+    <div class="twofa__qr" id="dtQr"><div class="skeleton" style="width:160px;height:160px"></div></div>
+    <p class="muted" style="font-size:12px;text-align:center">Can't scan? They type this key instead: <code id="dtSecret">…</code><br>Shown once.</p>
+    <form id="dtOn" style="display:grid;gap:8px;margin-top:10px"><input id="dtCode" inputmode="numeric" pattern="[0-9 ]*" placeholder="The six digits on their phone" autocomplete="off" maxlength="7">
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Not now</button><button class="btn" type="submit">Turn it on</button></div></form>`, async m => {
+    const r = await api(`/directory/users/${encodeURIComponent(name)}/2fa/setup`, { method: 'POST' }).catch(er => ({ ok: false, err: er.message }));
+    if (r.ok === false) { toast(r.err, 'bad'); return m.close(); }
+    $('#dtQr', m).innerHTML = r.qr || `<div class="none">no QR; type the key</div>`; $('#dtSecret', m).textContent = (r.secret || '').replace(/(.{4})/g, '$1 ').trim();
+    $('#dtCode', m).focus();
+    $('#dtOn', m).onsubmit = async e => { e.preventDefault(); const x = await api(`/directory/users/${encodeURIComponent(name)}/2fa/enable`, { method: 'POST', body: { code: $('#dtCode', m).value } }).catch(er => ({ ok: false, err: er.message })); if (x.ok === false) return toast(x.err, 'warn'); tone('done'); toast(x.demo ? 'Sample mode: nothing changed' : `Two-step is on for ${name}`); m.close(); rerender('directory'); };
+  });
+}
+{ const _dirAfterR6 = V.directory.after; V.directory.after = root => { _dirAfterR6(root);
+  $$('[data-2fa]', root).forEach(b => b.onclick = async () => {
+    const name = b.dataset['2fa'];
+    if (b.dataset.on !== '1') return staffTwofaOn(name);
+    const r = await act(b, () => withReauth(() => api(`/directory/users/${encodeURIComponent(name)}/2fa/disable`, { method: 'POST' })), `Two-step is off for ${name}`);
+    if (r && r.ok !== false) rerender('directory');
+  });
+}; }
 
 window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

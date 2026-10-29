@@ -35,7 +35,8 @@ sudo arisectl update                       what Software Update is waiting to in
 arisectl automations list                  every timer, next run, last result
 arisectl storage                           what is eating the disk
 arisectl trash list                        what sits in the shares' Trash
-sudo arisectl owner                        Bradly's account: groups, sudo, the job's drop-in
+sudo arisectl owner                        Bradly's account: groups, sudo, the job's drop-in;
+                                           [owners] users (Kristina): the same sudo, not the job, not Claude
 ```
 
 ## Rules that do not bend

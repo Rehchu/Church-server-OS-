@@ -99,16 +99,23 @@ run install -d -m 0755 "$FFDIR/defaults/pref"
 run install -m 0644 "$SRC/config/firefox/autoconfig.js" "$FFDIR/defaults/pref/autoconfig.js" || fail "autoconfig.js not installed"
 run install -m 0644 "$SRC/config/firefox/ariseos.cfg" "$FFDIR/ariseos.cfg" || fail "ariseos.cfg not installed"
 
-# 5. The kiosk profile and the house theme
-run install -d -m 0700 "$PROFILE" "$PROFILE/chrome"
-run install -m 0644 "$SRC/config/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
-run install -m 0644 "$SRC/config/firefox/chrome/userContent.css" "$PROFILE/chrome/userContent.css"
-run install -m 0644 "$SRC/config/firefox/user.js" "$PROFILE/user.js"
-if id -u arise-kiosk >/dev/null 2>&1; then
-  run chown -R arise-kiosk: "$PROFILE"
-else
-  warn "user arise-kiosk does not exist yet; install.sh --kiosk makes it, then re-run this"
-fi
+# 5. The house theme, as a template every profile copies (round 6, 29-33: one profile per admin).
+#    $PROFILE/template: the theme and user.js (root's, readable: the neutral profile is a fresh copy).
+#    $PROFILE/profiles/<user>: an admin's own profile, root's 0700 while they are away; lent to
+#    arise-kiosk by arise-browser-profile while they are signed in at the monitor.
+#    An older install's single shared profile in $PROFILE itself is left where it is (not used).
+run install -d -m 0711 -o root -g root "$PROFILE"
+run install -d -m 0755 -o root -g root "$PROFILE/template" "$PROFILE/template/chrome"
+run install -d -m 0711 -o root -g root "$PROFILE/profiles"
+run install -m 0644 "$SRC/config/firefox/chrome/userChrome.css" "$PROFILE/template/chrome/userChrome.css"
+run install -m 0644 "$SRC/config/firefox/chrome/userContent.css" "$PROFILE/template/chrome/userContent.css"
+run install -m 0644 "$SRC/config/firefox/user.js" "$PROFILE/template/user.js"
+id -u arise-kiosk >/dev/null 2>&1 || warn "user arise-kiosk does not exist yet; install.sh --kiosk makes it, then re-run this"
+# The switcher and its state folder; setfacl (acl) lends an admin's Downloads to the kiosk.
+command -v setfacl >/dev/null 2>&1 || run env DEBIAN_FRONTEND=noninteractive apt-get install -y -q acl || fail "apt-get install acl failed"
+run install -m 0755 "$SRC/scripts/arise-browser-profile" /usr/local/sbin/arise-browser-profile
+run sh -c "printf 'd /run/arise-kiosk 0755 root root -\n' > /etc/tmpfiles.d/arise-kiosk.conf"
+run systemd-tmpfiles --create /etc/tmpfiles.d/arise-kiosk.conf 2>/dev/null || true
 
 # 6. Firefox updates ride with the security updates
 UU=/etc/apt/apt.conf.d/52arise-firefox

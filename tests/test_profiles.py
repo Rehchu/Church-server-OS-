@@ -294,8 +294,8 @@ class Flows(unittest.TestCase):
 
     def test_people_list(self):
         csv = ("first,last,title,departments,personal_email,mobile,birthday,role\n"
-               "Kristina,Robinson,Minister,Leadership,b@example.com,,03-02,admin\n"
-               "Kristina,Robinson,,,,,,staff\n"
+               "Levi,Mercer,Minister,Leadership,b@example.com,,03-02,admin\n"
+               "Levi,Mercer,,,,,,staff\n"
                "Ann,,,,,,,\n"
                "Zoë,O'Neil,Minister,Worship;Nope,,,,staff\n"
                "Sam,Lee,,,,,,boss\n")
@@ -303,14 +303,14 @@ class Flows(unittest.TestCase):
         self.assertFalse(check["apply"])
         self.assertEqual([r["ok"] for r in check["rows"]], [True, False, False, True, False])
         self.assertNotIn("temporary_password", str(check))
-        self.assertNotIn("kristina.robinson", [u["name"] for u in self.admin.get("/api/directory/users").json()["users"]])   # nothing made
+        self.assertNotIn("levi.mercer", [u["name"] for u in self.admin.get("/api/directory/users").json()["users"]])   # nothing made
         made = self.admin.post("/api/directory/import", json={"csv": csv, "apply": True}).json()
         self.assertEqual(made["created"], 2)
         b = made["rows"][0]
-        self.assertEqual((b["user"], b["groups"]), ("kristina.robinson", ["Domain Admins", "Leadership"]))
+        self.assertEqual((b["user"], b["groups"]), ("levi.mercer", ["Domain Admins", "Leadership"]))
         self.assertIn("no group Nope yet", made["rows"][3]["warnings"][0])
-        self.assertTrue(self.TC(self.app).post("/api/auth/login", json={"user": "kristina.robinson", "password": b["temporary_password"]}).json()["need_new_password"])
-        self.assertEqual(self.admin.get("/api/directory/users/kristina.robinson/profile").json()["name"], "Minister Kristina Robinson")
+        self.assertTrue(self.TC(self.app).post("/api/auth/login", json={"user": "levi.mercer", "password": b["temporary_password"]}).json()["need_new_password"])
+        self.assertEqual(self.admin.get("/api/directory/users/levi.mercer/profile").json()["name"], "Minister Levi Mercer")
         ev = audit.recent(q="directory.import")["events"]
         self.assertTrue(ev and all(b["temporary_password"] not in str(e) for e in ev))   # never in the log
 

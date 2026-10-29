@@ -104,6 +104,12 @@ homes_path = "/srv/arise/homes"
 [owner]
 user = ""
 
+# Round 6, 23: Kristina has the same powers (Linux accounts on this box, if they have one):
+# every ariseOS group and sudo without a password. The 02:05 job and Claude stay [owner] user's.
+# Applied by: sudo arisectl owner setup
+[owners]
+users = []              # e.g. ["kristina"]
+
 [automator]
 # The nightly YouTube job. The checkout is a clone of Rehchu/arise-youtube-automation;
 # token.json and client_secret.json go in that folder by hand (never in git).

@@ -640,6 +640,13 @@ route('POST', /^\/songs\/import$/, b => {
   }
   save(); return ok({ demo: true, results, linked: results.filter(r => r.matched_by).length, unlinked: results.filter(r => r.ok && !r.matched_by).length, failed: results.filter(r => !r.ok).length });
 });
+// ----- round 6: Firefox per admin on the monitor; two-step for staff, by an admin -----
+route('POST', /^\/kiosk\/profile$/, b => { const a = b.action || 'switch'; if (a === 'neutral') { X.kioskProfile = 'neutral'; save(); return ok({ demo: true, user: 'neutral' }); } if (a !== 'switch') return fail('action is switch or neutral'); if (!isAdmin()) return http(403, "The closet desktop is the administrators'"); X.kioskProfile = me().user; save(); return ok({ demo: true, user: me().user, note: 'Sample: on the monitor Firefox restarts into your own profile' }); });
+route('POST', /^\/auth\/handoff$/, () => http(401, 'That hand-over has expired; sign in again'));
+const dirUser2fa = (m, fn) => { if (!isAdmin()) return http(403, 'Administrator only'); const name = decodeURIComponent(m[1]); if (!userOf(name)) return fail('no such user'); return fn(name); };
+route('POST', /^\/directory\/users\/([^/]+)\/2fa\/setup$/, (b, m) => dirUser2fa(m, () => { const s = clone(SEED['POST /me/2fa/setup'] || {}); delete s.demo; return ok(Object.assign(s, { note: 'Preview: the sample key. Type 000000.' })); }));
+route('POST', /^\/directory\/users\/([^/]+)\/2fa\/enable$/, async (b, m) => { if (!isAdmin()) return http(403, 'Administrator only'); const name = decodeURIComponent(m[1]); if (!userOf(name)) return fail('no such user'); if (!(await codeOk(b.code))) return fail('That code is not right. Type the six digits their phone shows now (or 000000 in the preview).'); if (!X.twofa.includes(name)) X.twofa.push(name); X.twofaSince[name] = isoMin(); save(); return ok({ on: true }); });
+route('POST', /^\/directory\/users\/([^/]+)\/2fa\/disable$/, (b, m) => { const r = needRecent(); if (r) return r; return dirUser2fa(m, name => { X.twofa = X.twofa.filter(x => x !== name); save(); return ok({ on: false }); }); });
 route('POST', /^\/kiosk\/open$/, b => ok({ demo: true, out: `Preview: the closet monitor would open ${b.url}` }));
 const calClean = b => { const title = String(b.title || '').trim().slice(0, 120), start = String(b.start || '').trim().slice(0, 16); if (!title || isNaN(new Date(start))) return null; let end = String(b.end || '').trim().slice(0, 16); if (end && (isNaN(new Date(end)) || new Date(end) < new Date(start))) end = ''; return { title, start, end, where: String(b.where || '').trim().slice(0, 120), note: String(b.note || '').trim().slice(0, 1000) }; };
 route('POST', /^\/calendar$/, b => { if (!isAdmin()) return http(403, 'Adding events is for the administrator'); const c = calClean(b); if (!c) return fail('a title and a start time are needed'); const ev = Object.assign({ id: hex(8) }, c, { who: me().user, added: isoMin() }); X.events.push(ev); save(); return ok({ event: ev }); });
@@ -816,6 +823,7 @@ function computedGet(p, q) {
   if (p === '/desktop') { const u = s?.user || 'bradly'; return isAdmin() ? { root: 'data', path: `/homes/${u}/Desktop`, positions: clone((X.deskPos || {})[u] || {}) } : { root: 'home', path: '/Desktop', positions: clone((X.deskPos || {})[u] || {}) }; }
   if (p === '/checklists') return { lists: clone(deptAll()), demo: true };
   if (p === '/setup') return setupView();
+  if (p === '/kiosk/profile') return { current: X.kioskProfile || 'neutral', user: s?.user, demo: true };
   if (p === '/kiosk/scale') return { scale: X.kioskScale || 1.25, choices: [1, 1.15, 1.25, 1.4, 1.5], demo: true };
   if (p === '/songs') {
     const seed = get('GET /songs') || { songs: [] }; const L = lyricsAll(); const words = normT(q.get('q') || '').split(' ').filter(Boolean); const has = q.get('has') || '';

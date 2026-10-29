@@ -21,15 +21,21 @@
 #      files stays refused there, because a credential must never enter a chat.
 # The 02:05 job runs as this account too: scripts/arise-automator-setup reads
 # the same [owner] user and writes the units' User= drop-in.
+#
+# Round 6, 23: [owners] users (Kristina: "the same as me") get steps 2 and 3 as well:
+# every group and sudo without a password. Steps 4 and 5 (Claude) and the 02:05 job
+# stay the owner's alone. --also NAME adds one for this run without editing arise.toml.
 set -uo pipefail
 
 DRY_RUN=0
 OWNER=""
+ALSO=()
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 CONF=/etc/arise/arise.toml
 while [ $# -gt 0 ]; do
   case "$1" in
     --owner) OWNER="$2"; shift 2 ;;
+    --also) ALSO+=("$2"); shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
     --src) SRC="$2"; shift 2 ;;
     --conf) CONF="$2"; shift 2 ;;
@@ -51,6 +57,18 @@ except Exception:
     pass
 PY
 }
+# Round 6, 23: more accounts with the owner's powers ([owners] users; Kristina: "the same as me").
+owners_from_conf() {
+  [ -r "$CONF" ] || return 0
+  python3 - "$CONF" <<'PY' 2>/dev/null
+import sys, tomllib
+try:
+    for u in (tomllib.load(open(sys.argv[1], "rb")).get("owners") or {}).get("users", []) or []:
+        print(str(u))
+except Exception:
+    pass
+PY
+}
 [ -n "$OWNER" ] || OWNER="$(owner_from_conf)"
 [ -n "$OWNER" ] || OWNER="${SUDO_USER:-}"
 echo "== The owner's account (Bradly's): runs the automator, full access for his Claude"
@@ -67,6 +85,14 @@ fi
 HOMEDIR="$(getent passwd "$OWNER" | cut -d: -f6)"; HOMEDIR="${HOMEDIR:-/home/$OWNER}"
 GRP="$(id -gn "$OWNER" 2>/dev/null || echo "$OWNER")"
 say "owner: $OWNER (home $HOMEDIR, group $GRP)"
+# The other owners: real accounts on this box only; the 02:05 job and Claude stay $OWNER's.
+EXTRA=()
+for u in $(owners_from_conf) "${ALSO[@]}"; do
+  [ "$u" = "$OWNER" ] && continue
+  if ! [[ "$u" =~ ^[a-z_][a-z0-9._-]{0,31}$ ]] || [ "$u" = root ]; then warn "[owners] users: not a Linux user name: $u (skipped)"; continue; fi
+  if id -u "$u" >/dev/null 2>&1 || [ "$DRY_RUN" = 1 ]; then EXTRA+=("$u"); else warn "[owners] users: $u has no account on this box (skipped; make one with adduser, then run this again)"; fi
+done
+[ ${#EXTRA[@]} -gt 0 ] && say "also with the owner's powers: ${EXTRA[*]}"
 
 # 1. arise.toml: [owner] user
 if [ -f "$CONF" ]; then
@@ -91,18 +117,24 @@ fi
 for g in arise-conf arise-repos arise-claude; do
   getent group "$g" >/dev/null 2>&1 || run groupadd "$g"
 done
-for g in sudo arise-conf arise-repos arise-claude docker adm systemd-journal; do
-  if getent group "$g" >/dev/null 2>&1; then
-    if id -nG "$OWNER" 2>/dev/null | tr ' ' '\n' | grep -qx "$g"; then :; else run usermod -aG "$g" "$OWNER"; fi
-  fi
+for who in "$OWNER" "${EXTRA[@]}"; do
+  for g in sudo arise-conf arise-repos arise-claude docker adm systemd-journal; do
+    if getent group "$g" >/dev/null 2>&1; then
+      if id -nG "$who" 2>/dev/null | tr ' ' '\n' | grep -qx "$g"; then :; else run usermod -aG "$g" "$who"; fi
+    fi
+  done
 done
 say "groups: sudo arise-conf arise-repos arise-claude docker adm systemd-journal (a new group applies at the next sign-in)"
 
 # 3. sudo without a password, checked before it is put in place
 SUD=/etc/sudoers.d/arise-owner
 TMP="$(mktemp)"
-printf '# ariseOS: Bradly'"'"'s account, full access for him and his Claude (Oct 28). Written by arise-owner-setup.\n%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$OWNER" > "$TMP"
-if [ "$DRY_RUN" = 1 ]; then say "[dry-run] $SUD: $OWNER ALL=(ALL:ALL) NOPASSWD: ALL (after visudo -cf)"
+{
+  printf '# ariseOS: Bradly'"'"'s account, full access for him and his Claude (Oct 28), and [owners] users\n'
+  printf '# with the same powers (round 6, 23). Written by arise-owner-setup.\n'
+  for who in "$OWNER" "${EXTRA[@]}"; do printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$who"; done
+} > "$TMP"
+if [ "$DRY_RUN" = 1 ]; then grep -v '^#' "$TMP" | while read -r line; do say "[dry-run] $SUD: $line (after visudo -cf)"; done
 elif visudo -cf "$TMP" >/dev/null 2>&1; then install -m 0440 -o root -g root "$TMP" "$SUD"; say "sudo without a password: $SUD"
 else warn "visudo refused the rule; left out (sudo still asks for the password)"; fi
 rm -f "$TMP"
