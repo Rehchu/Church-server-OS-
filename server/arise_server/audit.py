@@ -25,7 +25,8 @@ COLLECTIONS = {"users", "groups", "members", "shares", "apps", "links", "calenda
 # Paths whose calls are noise, not actions (heartbeats, previews that change nothing).
 QUIET = ("/api/auth/reauth", "/api/auth/forgot", "/api/auth/reset",   # the reset logs itself, with the person
          "/api/mail/preview", "/api/files/text/preview", "/api/push/test",
-         "/api/files/upload/chunk", "/api/stats/")
+         "/api/files/upload/chunk", "/api/stats/",
+         "/api/macs/agent/")   # the Mac helper's five-minute visits; macs.py records what they change
 
 
 def path() -> Path:

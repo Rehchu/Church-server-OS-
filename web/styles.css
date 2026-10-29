@@ -826,3 +826,17 @@ ul.plain{list-style:none;padding:0;margin:6px 0} ul.plain li{padding:4px 0;borde
 .face__n{font-size:12.5px;line-height:1.25;text-align:center}
 /* staff and members: "your files are on your Mac" (after round 5) */
 .onmac p{max-width:420px;margin-left:auto;margin-right:auto;line-height:1.5}
+/* the Macs app (round 6) */
+.macs-row{cursor:pointer}
+.macs-row:hover td{background:rgba(255,255,255,.035)}
+.macs-st{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--panel3);color:var(--muted,#aaa);vertical-align:1px}
+.macs-st--ok{background:rgba(46,160,90,.18);color:#5fd38d}
+.macs-st--wait{background:rgba(224,163,46,.16);color:#E0A32E}
+.macs-st--bad{background:rgba(214,34,45,.2);color:var(--redL,#ff6b73)}
+.macs-bar{gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.macs-h{margin:18px 0 8px;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+.macs-acts{text-align:right;white-space:nowrap}
+.macs-line{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--panel3);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0 0;user-select:all}
+.macs-secret{font-size:16px;letter-spacing:.06em;text-align:center}
+.macs-pick{display:grid;gap:8px}
+.macs-pick .chk{line-height:1.45}

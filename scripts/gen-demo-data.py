@@ -51,6 +51,10 @@ for v in data["GET /automator/videos"]["videos"]:
 data["GET /songs"] = c.get("/api/songs").json()
 for sg in data["GET /songs"]["songs"]:
     data[f"GET /songs/{sg['key']}"] = c.get(f"/api/songs/{sg['key']}").json()
+# The Macs app (round 6): the list and each church Mac's card (the mock keeps the choices you make).
+data["GET /macs"] = c.get("/api/macs").json()
+for m in data["GET /macs"]["macs"]:
+    data[f"GET /macs/{m['id']}"] = c.get(f"/api/macs/{m['id']}").json()
 for name in data["GET /automator/reports"]["reports"]:
     data[f"GET /automator/reports/{name}"] = c.get(f"/api/automator/reports/{name}").json()
 for a in data["GET /apps"]["apps"]:

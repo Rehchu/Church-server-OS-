@@ -808,6 +808,85 @@ function r5Get(p, q) {
 }
 
 
+/* ---- macs (round 6): the church Macs, mirroring server/arise_server/macs.py ---- */
+const macGet = id => get('GET /macs/' + id);
+function macTouch(d) {
+  for (const a of d.accounts || []) if (a.kind === 'local') {
+    const c = a.choice;
+    a.state = c && c.action === 'convert' && c.state !== 'done' ? 'converting to ' + c.user : c && c.action === 'link' ? 'linked to ' + c.user : c && c.action === 'leave' ? 'left alone' : c && c.action === 'convert' ? 'converted to ' + c.user : 'waiting for your choice';
+  }
+  d.pending = (d.tasks || []).filter(t => ['queued', 'sent'].includes(t.state)).length;
+  d.failed = (d.tasks || []).filter(t => ['failed', 'refused'].includes(t.state)).length;
+  const L = get('GET /macs'); const row = (L?.macs || []).find(x => x.id === d.id);
+  if (row) Object.assign(row, { status: d.status, pending: d.pending, failed: d.failed, local: (d.accounts || []).filter(a => a.kind === 'local').length });
+  touch('GET /macs', 'GET /macs/' + d.id);
+}
+function macQueue(d, kind, args) {
+  const n = 1 + Math.max(0, ...Object.keys(G).filter(k => k.startsWith('GET /macs/')).flatMap(k => (G[k].tasks || []).map(t => +String(t.id).slice(1) || 0)));
+  const t = { id: 't' + n, kind, args: args || {}, state: 'queued', made: isoSec(), by: me()?.user || 'preview' };
+  (d.tasks = d.tasks || []).unshift(t); return t;
+}
+route('POST', /^\/macs\/enrol-token$/, b => {
+  const t = token(32), nm = String(b.name || '').replace(/ /g, '-').replace(/[^A-Za-z0-9-]/g, '').slice(0, 15), ip = '192.168.1.20';
+  auditAdd('macs.enrol_token', nm);
+  return ok({ token: t, expires_in: 3600, demo: true, command: `curl -fsSL http://${ip}:4147/ca.crt -o /tmp/arise-ca.crt && [ "$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)" = "(the church certificate's fingerprint)" ] && curl -fsSL --cacert /tmp/arise-ca.crt --resolve arise-server.ad.arisecenla.com:443:${ip} https://arise-server.ad.arisecenla.com/mac/enrol.sh | sudo bash -s -- --token ${t} --dns ${ip}${nm ? ' --name ' + nm : ''} --server https://arise-server.ad.arisecenla.com` });
+});
+route('POST', /^\/macs\/([^/]+)\/local$/, (b, mm) => {
+  const d = macGet(mm[1]); if (!d || d.status !== 'active') return fail('no such church Mac (or it is retired)');
+  const action = String(b.action || ''), local = String(b.local || ''), user = String(b.user || '').trim().toLowerCase();
+  if (!['convert', 'link', 'leave', 'undo'].includes(action)) return fail('action is convert, link, leave or undo');
+  const a = (d.accounts || []).find(x => x.user === local && x.kind === 'local');
+  if (action !== 'undo' && !a) return fail(`${local} is not a local account on ${d.name}`);
+  let made = null;
+  if (action === 'undo') {
+    if (!a?.choice || a.choice.action !== 'convert') return fail('only a conversion can be undone');
+    macQueue(d, 'unconvert', { local, user: a.choice.user }); a.choice = null;
+  } else if (action === 'leave') a.choice = { action, by: me()?.user, at: isoSec() };
+  else {
+    if (!/^[a-z][a-z0-9._-]{0,63}$/.test(user)) return fail('the server user is first.last');
+    if (a.signed_in && action === 'convert') return fail(`${local} is signed in on ${d.name}: convert when they are signed out`);
+    if (!userOf(user)) {
+      const pw = token(4) + '-' + token(4) + '-' + token(4);
+      users().push({ name: user, display: String(b.display || a.realname || ''), groups: [], enabled: true, last_logon: null, home: `\\\\arise-server\\homes\\${user}`, must_change: true });
+      X.pw[user] = pw; mustSet(user, true); touch('GET /directory/users'); made = { user, temporary_password: pw };
+    }
+    a.choice = { action, user, by: me()?.user, at: isoSec(), state: 'queued' };
+    macQueue(d, action === 'convert' ? 'convert_local' : 'link_local', { local, user, admin: a.admin && action === 'convert' ? '1' : '0' });
+    macQueue(d, 'nextcloud', { user, local: action === 'link' ? local : user });
+  }
+  auditAdd('macs.local.' + action, `${d.id}/${local}`, user ? '-> ' + user : '');
+  macTouch(d); return ok({ made });
+});
+route('POST', /^\/macs\/([^/]+)\/task$/, (b, m) => {
+  const d = macGet(m[1]); if (!d || d.status !== 'active') return fail('no such church Mac');
+  if (!['ariseadmin', 'printers', 'bookmarks', 'certificate', 'updates', 'tailscale', 'login_window', 'filevault'].includes(b.kind)) return fail('not a task an admin starts by hand');
+  const t = macQueue(d, b.kind, {}); macTouch(d); return ok({ task: t.id });
+});
+route('POST', /^\/macs\/([^/]+)\/retire$/, (b, m) => {
+  const r = needRecent(); if (r) return r;
+  const d = macGet(m[1]); if (!d || d.status !== 'active') return fail('no such church Mac');
+  if (String(b.confirm || '').trim() !== d.name) return fail("type the Mac's name to confirm");
+  const waiting = (d.accounts || []).filter(a => a.kind === 'local' && !a.choice).map(a => a.user);
+  if (waiting.length) return fail('first confirm these are on the server (convert, link or leave each local account): ' + waiting.join(', '));
+  const t = macQueue(d, 'retire', { folders: 'Desktop,Documents' }); auditAdd('macs.retire', d.name); macTouch(d);
+  return ok({ task: t.id, next: 'Once it reports back, erase it yourself: System Settings > General > Transfer or Reset > Erase All Content and Settings.' });
+});
+route('POST', /^\/macs\/([^/]+)\/cutoff$/, (b, m) => {
+  const r = needRecent(); if (r) return r;
+  const d = macGet(m[1]); if (!d) return fail('no such church Mac');
+  if (String(b.confirm || '').trim() !== d.name) return fail("type the Mac's name to confirm");
+  d.status = 'cut_off'; for (const t of d.tasks || []) if (['queued', 'sent'].includes(t.state)) t.state = 'cancelled';
+  auditAdd('macs.cut_off', d.name); macTouch(d);
+  return ok({ computer_disabled: null, also: ["Tailscale admin console: remove this Mac's machine", "Nextcloud: Settings > Security > revoke this Mac's sessions for each person who used it"] });
+});
+route('POST', /^\/macs\/([^/]+)\/reveal$/, (b, m) => {
+  const r = needRecent(); if (r) return r;
+  const d = macGet(m[1]); if (!d) return fail('no such church Mac');
+  if (!['ariseadmin', 'filevault'].includes(b.kind)) return fail('kind is ariseadmin or filevault');
+  auditAdd('macs.reveal.' + b.kind, d.name);
+  return ok({ value: b.kind === 'filevault' ? 'SAMP-LE00-0000-0000-0000-PREV' : 'sample-admin-password', demo: true });
+});
+
 /* ---------- the GETs that are computed, not stored ---------- */
 function computedGet(p, q) {
   const r5 = r5Get(p, q); if (r5 !== undefined) return r5;   // profiles (round 5)

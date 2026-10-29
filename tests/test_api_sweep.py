@@ -266,6 +266,22 @@ CALLS = {
     ("GET", "/api/kiosk/scale"): ("/api/kiosk/scale", None, None),
     ("POST", "/api/kiosk/scale"): ("/api/kiosk/scale", {"scale": 1.25}, None),
     ("GET", "/api/public/faces"): ("/api/public/faces", None, None),
+    # round 6: the church Macs (the helper's own door speaks plain text with its key: tests/test_macs.py)
+    ("GET", "/api/macs"): ("/api/macs", None, None),
+    ("POST", "/api/macs/enrol-token"): ("/api/macs/enrol-token", {"name": "OFFICE-MAC-02"}, None),
+    ("GET", "/api/macs/{mac_id}"): ("/api/macs/mac-0000000000b2", None, None),
+    ("POST", "/api/macs/{mac_id}/local"): ("/api/macs/mac-0000000000b2/local", {"local": "guest", "action": "leave"}, None),
+    ("POST", "/api/macs/{mac_id}/task"): ("/api/macs/mac-0000000000b2/task", {"kind": "printers"}, None),
+    ("POST", "/api/macs/{mac_id}/retire"): ("/api/macs/mac-0000000000c3/retire", {"confirm": "KIDS-MAC"}, None),
+    ("POST", "/api/macs/{mac_id}/cutoff"): ("/api/macs/mac-0000000000c3/cutoff", {"confirm": "KIDS-MAC"}, None),
+    ("POST", "/api/macs/{mac_id}/reveal"): ("/api/macs/mac-0000000000a1/reveal", {"kind": "filevault"}, None),
+    ("POST", "/api/macs/agent/enrol"): None,
+    ("POST", "/api/macs/agent/checkin"): None,
+    ("POST", "/api/macs/agent/result"): None,
+    ("POST", "/api/macs/agent/secret"): None,
+    ("POST", "/api/macs/agent/check"): None,
+    ("GET", "/api/macs/agent/config"): None,
+    ("GET", "/mac/{name}"): ("/mac/enrol.sh", None, None),
     ("GET", "/{path:path}"): ("/", None, None),
 }
 

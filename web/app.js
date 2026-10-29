@@ -2476,6 +2476,116 @@ async function boot() {
   if (first && appOf(first)) openApp(first); else if (!isPhone()) openApp('files');
   window.addEventListener('hashchange', () => { const id = (location.hash || '').replace('#', ''); if (appOf(id) && !S.wins[id]) openApp(id); });
 }
+/* ---- macs (round 6) ----
+   The church Macs (docs/MACS.md): the server is the church's own Active Directory (Samba).
+   Only a Mac enrolled with the one Terminal line is a church Mac; the helper on it makes
+   every server user's account, and an existing local account waits for an admin's choice:
+   Convert, Link or Leave alone. Admins only. */
+I.macs = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v12H3zm2 2v8h14V6zM9 18h6l1 2H8z"/></svg>';
+APPS.splice(APPS.findIndex(a => a.id === 'shares'), 0, { id: 'macs', n: '32', name: 'Macs', what: 'The church Macs: accounts, the helper, enrol', w: 1040, h: 680 });
+const MAC_KIND = { add_account: 'Make account', remove_profile: 'Remove profile (checked)', convert_local: 'Convert local account', link_local: 'Link local account', unconvert: 'Undo a conversion',
+  login_window: 'Login window', ariseadmin: 'Hidden admin password', filevault: 'FileVault', printers: 'Printers', bookmarks: 'Church bookmarks', certificate: 'Church certificate',
+  updates: 'Security updates', tailscale: 'Tailscale', nextcloud: 'Nextcloud (the files)', retire: 'Retire' };
+const macState = s => `<span class="macs-st macs-st--${({ done: 'ok', queued: 'wait', sent: 'wait', failed: 'bad', refused: 'bad', skipped: 'dim', cancelled: 'dim' })[s] || 'dim'}">${esc(s)}</span>`;
+function macEnrol() {
+  modal(`<h2>Enrol a church Mac</h2><p class="note" style="margin-bottom:12px">Only for a Mac the church owns. A personal Mac is never enrolled and the server never touches it. The line works once, for an hour.</p>
+    <div class="field"><label>The Mac's name (on its label)</label><input id="meName" placeholder="OFFICE-MAC-02" maxlength="15" autocomplete="off"></div>
+    <div id="meOut"></div><div class="acts"><button class="btn btn--ghost" data-close>Close</button><button class="btn" id="meGo">Make the line</button></div>`, m => {
+    $('#meGo', m).onclick = async e => {
+      const r = await act(e.target, () => api('/macs/enrol-token', { method: 'POST', body: { name: $('#meName', m).value.trim() } }));
+      if (!r || r.ok === false) return;
+      $('#meOut', m).innerHTML = `<div class="kicker" style="margin-top:12px">On the Mac: open Terminal, paste, press Return</div><pre class="macs-line" id="meLine">${esc(r.command)}</pre>
+        <div class="row" style="gap:8px;margin-top:8px"><button class="btn btn--sm" id="meCopy">Copy</button><span class="note">Good until ${new Date(Date.now() + (r.expires_in || 3600) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. It asks for the Mac's password, then the domain administrator's.${r.demo ? ' (sample: the token is not real)' : ''}</span></div>`;
+      $('#meCopy', m).onclick = ev => copyText(r.command, ev.target);
+    };
+    $('#meName', m).focus();
+  });
+}
+V.macs = async () => {
+  if (S.macSel) return macDetailHtml(await api('/macs/' + encodeURIComponent(S.macSel)));
+  const r = await api('/macs'); const ms = r.macs || [];
+  const row = x => `<tr data-mac="${esc(x.id)}" class="macs-row ${x.status !== 'active' ? 'dim' : ''}"><td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.model || '')}</small></td><td>${esc(x.macos || '')}</td>
+    <td>${x.mobile} server${x.local ? ` · <b>${x.local} local</b>` : ''}</td><td>${esc(x.filevault || 'not yet')}</td><td>${esc(x.tailscale || 'not yet')}</td>
+    <td>${x.status === 'cut_off' ? '<span class="macs-st macs-st--bad">cut off</span>' : x.status === 'retired' ? '<span class="macs-st macs-st--dim">retired</span>' : x.online ? '<span class="macs-st macs-st--ok">online</span>' : esc(ago(x.last_checkin))}</td>
+    <td>${x.pending ? `${x.pending} waiting` : ''}${x.failed ? ` <span class="macs-st macs-st--bad">${x.failed} failed</span>` : ''}</td></tr>`;
+  return `<div class="fade"><div class="row row--between" style="margin-bottom:12px"><div><div class="kicker">The church Macs</div><h2 style="margin:0">${ms.length} Macs · ${ms.filter(x => x.online).length} online${r.demo ? ' · sample' : ''}</h2>
+      <p class="note" style="margin:6px 0 0">The server is the church's own Active Directory: no Microsoft licence. Every server user gets an account on every church Mac within minutes; a disabled one comes off once the server has all their files. ${esc(r.note || '')}</p></div>
+      <button class="btn" id="macEnrol">Enrol a Mac</button></div>
+    <table class="tbl"><thead><tr><th>Mac</th><th>macOS</th><th>Accounts</th><th>FileVault</th><th>Tailscale</th><th>Seen</th><th>Tasks</th></tr></thead><tbody>${ms.map(row).join('') || '<tr><td colspan="7" class="muted">No church Macs yet. Enrol a Mac.</td></tr>'}</tbody></table>
+    <p class="note" style="margin-top:12px">Never given an account on the Macs: ${(r.exclude || []).map(esc).join(', ')}. Add names to <code>[macs] exclude</code> in arise.toml.</p></div>`;
+};
+function macDetailHtml(d) {
+  if (d.ok === false) { S.macSel = null; return `<p class="note">${esc(d.err)}</p>`; }
+  S.macName = d.name;
+  const live = d.status === 'active';
+  const acc = a => `<tr><td><b>${esc(a.user)}</b>${a.realname ? `<br><small class="muted">${esc(a.realname)}</small>` : ''}</td><td>${a.kind === 'mobile' ? 'server account' : '<b>local</b>'}</td><td>${a.admin ? 'admin' : 'standard'}</td><td>${a.signed_in ? 'signed in' : ''}</td>
+    <td>${a.kind === 'local' ? esc(a.state || '') : ''}</td><td class="macs-acts">${a.kind === 'local' && live ? (a.choice
+      ? (a.choice.action === 'convert' ? `<button class="btn btn--ghost btn--xs" data-mlocal="undo" data-l="${esc(a.user)}">Undo</button>` : `<button class="btn btn--ghost btn--xs" data-mchoose="${esc(a.user)}">Change</button>`)
+      : `<button class="btn btn--xs" data-mchoose="${esc(a.user)}">Choose…</button>`) : ''}</td></tr>`;
+  const tk = t => `<tr><td class="mono">${esc(t.id)}</td><td>${esc(MAC_KIND[t.kind] || t.kind)}${t.args?.user ? ` · ${esc(t.args.user)}` : ''}${t.args?.local ? ` (${esc(t.args.local)})` : ''}</td><td>${macState(t.state)}</td><td>${esc(t.by || '')}</td><td>${esc(ago(t.finished || t.made))}</td><td><small>${esc(t.detail || '')}</small></td></tr>`;
+  return `<div class="fade"><button class="btn btn--ghost btn--sm" id="macBack">‹ All Macs</button>
+    <div class="row row--between" style="margin:10px 0 12px"><div><div class="kicker">${esc(d.model || 'Mac')} · ${esc(d.serial || '')}</div><h2 style="margin:0">${esc(d.name)} ${d.online ? '<span class="macs-st macs-st--ok">online</span>' : `<span class="macs-st macs-st--dim">seen ${esc(ago(d.last_checkin))}</span>`}${live ? '' : ` <span class="macs-st macs-st--bad">${esc(d.status)}</span>`}</h2>
+      <p class="note" style="margin:6px 0 0">${esc(d.macos || '')} · enrolled ${esc(ago(d.enrolled))} by ${esc(d.enrolled_by || '?')} · helper ${esc(d.helper || '')} · FileVault ${esc(d.filevault || 'not yet')} · Tailscale ${esc(d.tailscale || 'not yet')}</p></div></div>
+    ${live ? `<div class="row macs-bar"><button class="btn btn--ghost btn--sm" data-mtask="ariseadmin">Rotate admin password</button><button class="btn btn--ghost btn--sm" data-mshow="ariseadmin"${d.has_secret?.ariseadmin ? '' : ' disabled'}>Show admin password</button><button class="btn btn--ghost btn--sm" data-mshow="filevault"${d.has_secret?.filevault ? '' : ' disabled'}>Show FileVault key</button>
+      <button class="btn btn--ghost btn--sm" data-mtask="printers">Printers again</button><button class="btn btn--ghost btn--sm" data-mtask="bookmarks">Bookmarks again</button><button class="btn btn--ghost btn--sm" data-mtask="updates">Security updates tonight</button><button class="btn btn--ghost btn--sm" data-mtask="tailscale">Tailscale</button>
+      <span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="macRetire">Retire…</button><button class="btn btn--danger btn--sm" id="macCut">Cut off…</button></div>` : ''}
+    <h3 class="macs-h">Accounts on this Mac</h3>
+    <table class="tbl"><thead><tr><th>Account</th><th>Kind</th><th>Rights</th><th></th><th>Your choice</th><th></th></tr></thead><tbody>${(d.accounts || []).map(acc).join('') || '<tr><td colspan="6" class="muted">The helper has not reported yet.</td></tr>'}</tbody></table>
+    <p class="note" style="margin-top:8px">A local account is never changed until you choose. <b>Convert</b>: it becomes the server user, files kept, and can be undone. <b>Link</b>: it stays as it is and its files sync as the server user. <b>Leave alone</b>: nothing happens.</p>
+    <h3 class="macs-h">Tasks</h3>
+    <table class="tbl"><thead><tr><th>#</th><th>What</th><th>State</th><th>By</th><th>When</th><th>Result</th></tr></thead><tbody>${(d.tasks || []).map(tk).join('') || '<tr><td colspan="6" class="muted">None yet.</td></tr>'}</tbody></table></div>`;
+}
+function macChoose(d, a) {
+  modal(`<h2>${esc(a.user)} on ${esc(d.name)}</h2><p class="note" style="margin-bottom:12px">${esc(a.realname || '')}${a.admin ? ' · an admin on this Mac' : ''}${a.signed_in ? ' · <b>signed in now</b>: Convert waits until they sign out' : ''}</p>
+    <div class="macs-pick"><label class="chk"><input type="radio" name="mcA" value="convert" checked> <b>Convert</b>: becomes the server user. Files stay; admin rights carry over only if it had them. A rollback record is kept on the Mac.</label>
+      <label class="chk"><input type="radio" name="mcA" value="link"> <b>Link</b>: stays as it is, and signs in to the server's files as the server user.</label>
+      <label class="chk"><input type="radio" name="mcA" value="leave"> <b>Leave alone</b>: nothing happens to it.</label></div>
+    <div class="field" id="mcUserF" style="margin-top:12px"><label>The server user</label><input id="mcUser" list="mcUsers" value="${esc(a.suggest || '')}" placeholder="first.last" autocomplete="off"><datalist id="mcUsers"></datalist>
+      <small class="note" id="mcNew"></small><input id="mcDisp" placeholder="Their name, for a new user" value="${esc(a.realname || '')}" style="margin-top:6px;display:none"></div>
+    <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="mcGo">Do it</button></div>`, async m => {
+    let names = [];
+    try { names = ((await api('/directory/users')).users || []).map(u => u.name); } catch { }
+    $('#mcUsers', m).innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
+    const sync = () => { const act_ = $('input[name=mcA]:checked', m).value, u = $('#mcUser', m).value.trim().toLowerCase(), isNew = act_ !== 'leave' && u && !names.includes(u);
+      $('#mcUserF', m).style.display = act_ === 'leave' ? 'none' : ''; $('#mcDisp', m).style.display = isNew ? '' : 'none';
+      $('#mcNew', m).textContent = isNew ? `${u} is not on the server yet: it is made first, with a temporary password you will see once.` : ''; };
+    $$('input[name=mcA]', m).forEach(i => i.onchange = sync); $('#mcUser', m).oninput = sync; sync();
+    $('#mcGo', m).onclick = async e => {
+      const body = { local: a.user, action: $('input[name=mcA]:checked', m).value, user: $('#mcUser', m).value.trim().toLowerCase(), display: $('#mcDisp', m).value.trim() };
+      const r = await act(e.target, () => api(`/macs/${encodeURIComponent(d.id)}/local`, { method: 'POST', body }), body.action === 'leave' ? 'Left alone' : body.action === 'convert' ? 'Queued: the Mac converts it at its next check-in' : 'Queued: linked at the Mac\'s next check-in');
+      if (!r || r.ok === false) return;
+      m.close(); rerender('macs');
+      if (r.made) macShowSecret(`${r.made.user} is on the server now`, 'Their temporary password. They choose their own at the first sign-in. It is shown once.', r.made.temporary_password);
+    };
+  });
+}
+function macShowSecret(title, text, value) {
+  modal(`<h2>${esc(title)}</h2><p class="note" style="margin-bottom:10px">${text}</p><pre class="macs-line macs-secret">${esc(value)}</pre>
+    <div class="acts"><button class="btn btn--ghost" id="msCopy">Copy</button><button class="btn" data-close>Done</button></div>`, m => { $('#msCopy', m).onclick = e => copyText(value, e.target); });
+}
+V.macs.after = root => {
+  const e = $('#macEnrol', root); if (e) e.onclick = macEnrol;
+  $$('.macs-row', root).forEach(tr => tr.onclick = () => { S.macSel = tr.dataset.mac; rerender('macs'); });
+  const back = $('#macBack', root); if (!back) return;
+  back.onclick = () => { S.macSel = null; rerender('macs'); };
+  const id = S.macSel, get = () => api('/macs/' + encodeURIComponent(id));
+  $$('[data-mtask]', root).forEach(b => b.onclick = () => act(b, () => api(`/macs/${encodeURIComponent(id)}/task`, { method: 'POST', body: { kind: b.dataset.mtask } }), 'Queued for the Mac\'s next check-in').then(() => rerender('macs')));
+  $$('[data-mchoose]', root).forEach(b => b.onclick = async () => { const d = await get(); const a = (d.accounts || []).find(x => x.user === b.dataset.mchoose); if (a) macChoose(d, a); });
+  $$('[data-mlocal]', root).forEach(b => b.onclick = () => act(b, () => api(`/macs/${encodeURIComponent(id)}/local`, { method: 'POST', body: { local: b.dataset.l, action: 'undo' } }), 'Queued: the conversion is undone at the next check-in').then(() => rerender('macs')));
+  $$('[data-mshow]', root).forEach(b => b.onclick = async () => {
+    try { const r = await withReauth(() => api(`/macs/${encodeURIComponent(id)}/reveal`, { method: 'POST', body: { kind: b.dataset.mshow } })); if (r.ok === false) throw new Error(r.err);
+      macShowSecret(b.dataset.mshow === 'filevault' ? 'FileVault recovery key' : 'The hidden admin (ariseadmin)', `Seen by you now, and written in the audit log.${r.demo ? ' (sample value)' : ''}`, r.value); }
+    catch (er) { if (er.message !== 'cancelled') toast(er.message, 'bad'); }
+  });
+  const nm = S.macName || '';
+  const rt = $('#macRetire', root); if (rt) rt.onclick = () => confirmType(`Retire ${nm}`, nm, 'Refused until every local account has your choice and every server account\'s files are on the server. Then the Mac leaves the domain and the helper removes itself. Erasing it is yours to do afterwards.', async () => {
+    const r = await withReauth(() => api(`/macs/${encodeURIComponent(id)}/retire`, { method: 'POST', body: { confirm: nm } })); if (r.ok === false) throw new Error(r.err); toast(r.next || 'Retiring'); rerender('macs'); });
+  const ct = $('#macCut', root); if (ct) ct.onclick = () => confirmType(`Cut off ${nm}`, nm, 'For a lost or stolen Mac. Its key stops working at once, its waiting tasks are cancelled and its computer account is disabled. Nothing on the Mac is erased from here.', async () => {
+    const r = await withReauth(() => api(`/macs/${encodeURIComponent(id)}/cutoff`, { method: 'POST', body: { confirm: nm } })); if (r.ok === false) throw new Error(r.err);
+    modal(`<h2>${esc(nm)} is cut off</h2><p class="note">Also, by hand:</p><ul>${(r.also || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul><div class="acts"><button class="btn" data-close>Done</button></div>`); rerender('macs'); });
+};
+/* ---- end macs ---- */
+
 boot();
 // A small console handle: `arise.openApp('files')` from the browser devtools, Playwright, or the kiosk.
 /* ---------------- Offboarding in Directory, the audit log in Security (round 2, 23 and 24) ---------------- */
@@ -2915,5 +3025,5 @@ async function setupWizard(s) {
   };
 }
 
-window.arise = { api, cleanDesc, profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
+window.arise = { api, cleanDesc,profileSheet, updatesBadge, pinApp, dockPins, applyDockHide, greet, openApp, closeApp, minApp, focusWin, rerender, toggleLaunchpad, toggleNC, toggleCC, toggleSpot, missionControl, switcher, lockScreen, showLogin, signOut, saver, toast, tone, walkthrough, toggleTheme, calcEval, shortcutsSheet, snapTo, applyA11y, twofaModal, reauth, withReauth, S, APPS, buildDeskIcons, setupWizard, notifyBadge };
 })();

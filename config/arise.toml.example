@@ -266,3 +266,13 @@ root = "/srv/arise/repos"
 [repos.policy]
 AriseHub = "none"                      # a push to main deploys the live site; a branch push blocks Cloudflare secret changes
 Arise-Youtube-Automation = "branches"  # its main is edited on the PC (SERVER_HANDOFF.md)
+
+# The church Macs (round 6, docs/MACS.md). The server is their Active Directory (Samba; no
+# Microsoft licence). Only a Mac enrolled from the Macs app is touched; a personal Mac never is.
+[macs]
+exclude = []                    # directory users never given an account on the Macs, e.g. ["kids-checkin"]
+login_window = "faces"          # "faces": everyone's picture on the login window; "name": a name and password box
+sync_folders = ["Desktop", "Documents"]   # what must be on the server before a profile comes off a Mac
+server_ip = ""                  # the address the enrol line uses; empty = this box's own address on the church network
+# printers = [{ name = "Office", uri = "ipp://192.168.1.40/ipp/print", driver = "everywhere", location = "Church office" }]
+# bookmarks = [{ name = "Arise Church", url = "https://arisecenla.church" }]   # the Church folder in Chrome and Safari

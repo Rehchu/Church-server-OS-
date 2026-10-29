@@ -2091,6 +2091,161 @@ def api_public_faces(request: Request):
     return {"faces": faces}
 
 
+# ----- round 6: the church Macs (server/arise_server/macs.py, docs/MACS.md) --------
+from . import macs as church_macs  # noqa: E402
+
+
+@app.get("/api/macs")
+def api_macs(_=admin):
+    return church_macs.listing()
+
+
+class MacToken(BaseModel):
+    name: str = ""
+
+
+@app.post("/api/macs/enrol-token")
+def api_macs_token(body: MacToken, who=admin):
+    """The one Terminal line for a new church Mac (round 6, 37): good for an hour, once."""
+    return church_macs.enrol_token(who["user"], body.name)
+
+
+@app.get("/api/macs/{mac_id}")
+def api_mac(mac_id: str, _=admin):
+    return church_macs.detail(mac_id)
+
+
+class MacLocal(BaseModel):
+    local: str
+    action: str            # convert | link | leave | undo
+    user: str = ""
+    display: str = ""
+
+
+@app.post("/api/macs/{mac_id}/local")
+def api_mac_local(mac_id: str, body: MacLocal, who=admin):
+    """An existing local account: convert it to the server user, link it, or leave it alone."""
+    return church_macs.choose_local(mac_id, body.local, body.action, body.user, who["user"], body.display)
+
+
+class MacTask(BaseModel):
+    kind: str
+
+
+@app.post("/api/macs/{mac_id}/task")
+def api_mac_task(mac_id: str, body: MacTask, who=admin):
+    return church_macs.run_task(mac_id, body.kind, who["user"])
+
+
+class MacConfirm(BaseModel):
+    confirm: str = ""
+
+
+@app.post("/api/macs/{mac_id}/retire")
+def api_mac_retire(mac_id: str, body: MacConfirm, who=recent):
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return church_macs.retire(mac_id, body.confirm, who["user"])
+
+
+@app.post("/api/macs/{mac_id}/cutoff")
+def api_mac_cutoff(mac_id: str, body: MacConfirm, who=recent):
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return church_macs.cut_off(mac_id, body.confirm, who["user"])
+
+
+class MacReveal(BaseModel):
+    kind: str
+
+
+@app.post("/api/macs/{mac_id}/reveal")
+def api_mac_reveal(mac_id: str, body: MacReveal, who=recent):
+    """ariseadmin's password or the FileVault key: an admin who typed the password again, audited."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return church_macs.reveal(mac_id, body.kind, who["user"])
+
+
+# The helper's own door: no session, its Mac key in X-Arise-Mac. Plain text both ways.
+def _mac_or_401(request: Request) -> dict:
+    m = church_macs.agent_auth(request.headers.get("x-arise-mac", ""))
+    if not m:
+        raise HTTPException(401, {"message": "not an enrolled church Mac"})
+    return m
+
+
+def _txt(s: str, code: int = 200) -> Response:
+    return Response(s if s.endswith("\n") else s + "\n", status_code=code, media_type="text/plain")
+
+
+@app.post("/api/macs/agent/enrol")
+async def api_mac_agent_enrol(request: Request):
+    f = await request.form()
+    r = church_macs.enrol(str(f.get("token", "")), {k: str(f.get(k, "")) for k in ("name", "serial", "model", "macos", "helper", "accounts")})
+    if not r["ok"]:
+        return _txt("ERROR " + church_macs.enc(r["err"]), 403)
+    return _txt(f"MAC_ID={r['mac_id']}\nKEY={r['key']}")
+
+
+@app.post("/api/macs/agent/checkin")
+async def api_mac_agent_checkin(request: Request):
+    m = _mac_or_401(request)
+    f = await request.form()
+    facts = {k: str(f.get(k)) for k in ("macos", "model", "serial", "helper", "filevault", "tailscale", "accounts") if f.get(k) is not None}
+    facts["ip"] = request.client.host if request.client else ""
+    return _txt("\n".join(church_macs.checkin(m, facts)) or "NONE")
+
+
+@app.post("/api/macs/agent/result")
+async def api_mac_agent_result(request: Request):
+    m = _mac_or_401(request)
+    f = await request.form()
+    r = church_macs.result(m, str(f.get("id", "")), str(f.get("state", "")), str(f.get("detail", "")))
+    return _txt("OK" if r["ok"] else "ERROR " + church_macs.enc(r["err"]), 200 if r["ok"] else 400)
+
+
+@app.post("/api/macs/agent/secret")
+async def api_mac_agent_secret(request: Request):
+    m = _mac_or_401(request)
+    f = await request.form()
+    r = church_macs.store_secret(m, str(f.get("kind", "")), str(f.get("value", "")))
+    return _txt("OK" if r["ok"] else "ERROR " + church_macs.enc(r["err"]), 200 if r["ok"] else 400)
+
+
+@app.post("/api/macs/agent/check")
+async def api_mac_agent_check(request: Request):
+    """Before a profile is removed: is everything in this list already on the server?"""
+    m = _mac_or_401(request)
+    f = await request.form()
+    r = church_macs.check(m, str(f.get("user", "")), str(f.get("bases", "")), str(f.get("manifest", "")))
+    if r.get("ok"):
+        return _txt(f"OK {r.get('checked', 0)}")
+    lines = [f"REFUSE {church_macs.enc(r.get('err') or str(r.get('missing_count', 0)) + ' missing, ' + str(r.get('newer_count', 0)) + ' newer on the Mac')}"]
+    lines += [f"MISSING {church_macs.enc(x)}" for x in r.get("missing", [])] + [f"NEWER {church_macs.enc(x)}" for x in r.get("newer", [])]
+    return _txt("\n".join(lines))
+
+
+@app.get("/api/macs/agent/config")
+def api_mac_agent_config(request: Request):
+    _mac_or_401(request)
+    return _txt(church_macs.config_lines())
+
+
+# The helper's files, for the one Terminal line. Not secret: the one-time token is.
+MAC_FILES = {"enrol.sh": "enrol.sh", "arise-mac-helper": "arise-mac-helper", "com.arisechurch.helper.plist": "com.arisechurch.helper.plist",
+             "bind-mac.sh": "../bind-mac.sh", "migrate-mac-user.sh": "../migrate-mac-user.sh", "nextcloud.sh": "tasks/nextcloud.sh"}
+
+
+@app.get("/mac/{name}", include_in_schema=False)
+def mac_file(name: str):
+    rel = MAC_FILES.get(name)
+    p = (cfg.repo_root / "mac" / "helper" / rel).resolve() if rel else None
+    if not p or not p.is_file():
+        raise HTTPException(404, {"message": "Not found"})
+    return FileResponse(p, media_type="text/plain", headers={"Cache-Control": "no-store"})
+
+
 # ----- the dashboard -----------------------------------------------------------
 WEB = cfg.web_dir
 if WEB.is_dir():

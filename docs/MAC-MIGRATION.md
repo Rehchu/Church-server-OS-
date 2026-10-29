@@ -14,6 +14,16 @@ a while.
 This is for **church** Macs. Personal Macs are a different case: see
 § Personal Macs below before running anything on one.
 
+> **Since round 6 the Macs app does this for you (docs/MACS.md).** An admin
+> enrols a church Mac with one Terminal line; the helper on it then makes every
+> server user's account on its own, and each local account already on the Mac
+> waits for an admin's choice in the Macs app: **Convert** (it becomes the
+> server user, files kept, with a rollback record), **Link** (it stays, and its
+> files sync as the server user) or **Leave alone**. This document stays as the
+> by-hand way, and `migrate-mac-user.sh` is unchanged: use it when a Mac cannot
+> run the helper, or to copy an old account's files to the server once before
+> a conversion.
+
 ## The automatic way
 
 One command does both jobs for a Mac that already has people on it:
@@ -62,9 +72,16 @@ three pieces, and each one covers a gap in the others:
 | **Home sync** (`arise-home-sync.sh`, every 15 minutes) | rsyncs the folders in `/usr/local/arise/sync-folders.txt` to the share, newest wins, older server copies kept aside | a Mac that was never migrated (local accounts with the same names), extra folders like Downloads, and any time the share was not mounted at login |
 
 macOS used to have "portable home directories" that synced the whole home.
-Apple removed that years ago, and a true network home over SMB makes Photos,
-Mail and Safari misbehave, so this is the honest replacement: the two folders
-people actually work in live on the server, and a sync catches the rest.
+Apple removed that sync in macOS 10.12 (Sierra, 2016): a mobile account still
+caches the login, but nothing copies the files back any more. A true network
+home over SMB makes Photos, Mail and Safari misbehave, so this is the honest
+replacement: the two folders people actually work in live on the server, and
+a sync catches the rest.
+
+Round 6 (docs/MACS.md): Desktop and Documents are to sync through the
+Nextcloud client, set up by the Mac helper's `nextcloud` task.
+`arise-home-sync.sh` is the fallback until that is in, and stays the fallback
+on any Mac where the Nextcloud client is not running.
 
 What stays on the Mac on purpose, and why:
 

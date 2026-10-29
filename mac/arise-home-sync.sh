@@ -1,6 +1,11 @@
 #!/bin/bash
 # arise-home-sync.sh — keep this person's work on the server, whatever else happens.
 #
+# The fallback (round 6, docs/MACS.md): macOS removed the home sync of mobile accounts
+# in 10.12, so on church Macs Desktop and Documents are to sync through the Nextcloud
+# client (the helper's nextcloud task). This script keeps doing the job until that is
+# in, and on any Mac where Nextcloud is not running.
+#
 # Run by the LaunchAgent com.arisechurch.homesync: once at login, then every
 # 15 minutes. If the person's home share on the server is reachable (on the
 # church network, or over Tailscale from anywhere) it copies the chosen
