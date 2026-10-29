@@ -9,10 +9,10 @@ read the same facts.
 |---|---|---|---|
 | Two-step sign-in | optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28) | `/etc/arise/secrets/totp/<user>.json`, root only | `sudo arisectl twofa reset <user>` for a lost phone |
 | Browsers never sign out | until they choose to (r3 38) | `[web] session_hours = 8760` | nothing; the closet monitor still locks at ten minutes |
-| Break-glass admin | yes (r3 21); at the closet monitor only (Oct 28) | the local user `arise-rescue`; password in `/etc/arise/secrets/rescue-password` and on the safe card | `sudo arisectl rescue rotate` |
+| Break-glass admin | yes (r3 21); at the closet monitor only (Oct 28) | the local user `arise-rescue`; password in `/etc/arise/secrets/rescue-password`, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73) | `sudo arisectl rescue rotate` |
 | SSH | keys only, password login off (Oct 28) | `/etc/ssh/sshd_config.d/arise.conf`; the admin's key enrolled by `install.sh --ssh-key` | re-run the installer with `--ssh-key` |
 | Asking twice | delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28) | `POST /api/auth/reauth`, `require_recent_auth`, `withReauth()` in the dashboard | nothing |
-| The restic password | on the closet card only, by hand (Oct 28) | `/etc/arise/secrets/restic-password` on the box; the closet card is the only paper copy | `sudo arisectl rescue card` prints the safe card, which deliberately leaves it out |
+| The restic password | on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58) | `/etc/arise/secrets/restic-password` on the box | `sudo arisectl rescue card` rewrites the card; the restic line stays blank for the pen |
 | Encryption | LUKS on the disk, the TPM unlocks it (r3 22) | chosen in the Ubuntu installer; clevis binds it | `sudo arisectl encrypt tpm` |
 | System snapshots | before every update, five kept (r3 23) | Timeshift, rsync mode, `/timeshift` on the root disk | `sudo arisectl snapshot create "note"` |
 | Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | `sudo arisectl reinstall <repo>` |
@@ -76,9 +76,17 @@ It never works in the dashboard: the dashboard signs people in against the
 domain (Kerberos) or the one local admin hash, nothing else.
 
 Its 24-character password is made by the installer (step 6j), written to
-`/etc/arise/secrets/rescue-password` (root only) and printed on the **safe
-card**: `sudo arisectl rescue card`. The safe card goes in the safe. It is
-not the closet card; the closet card says only that the safe card exists.
+`/etc/arise/secrets/rescue-password` (root only), and printed on the **closet
+card**, which is taped **inside the closet**, never on the door (round 7, 57
+and 73). Kristina has a copy. `sudo arisectl rescue card` writes the card to
+`/etc/arise/CLOSET-CARD.html` (root only) for printing at the closet monitor,
+and a copy with the password left out to the staff share; it never prints the
+password to the screen. `rescue rotate` rewrites both: print it again and
+replace the card inside the closet and Kristina's copy.
+
+If Bradly can't be reached, **Kristina follows the closet card** (round 7,
+59); after her, Ronnie (141). The card names them; the phone numbers are
+written on it by hand.
 
 Every sign-in of arise-rescue is caught from the journal within a minute
 (`security.rescue_watch`, started with the dashboard), appended to
@@ -88,11 +96,11 @@ last uses.
 
 ## The restic password: the closet card only
 
-Bradly (Oct 28): the restic password's one paper copy is the **closet card**,
-written on it by hand (the installer prints a blank line for it; it never
-prints the secret itself, because the card lives on the staff share). On the
-box it is `/etc/arise/secrets/restic-password`, root only. The safe card
-leaves it out on purpose. Lose both and the backups cannot be read by anyone.
+Bradly (Oct 28): the restic password's paper copy is the **closet card**,
+written on it by hand (the card prints a blank line for it). Kristina knows it
+too (round 7, 58). On the box it is `/etc/arise/secrets/restic-password`, root
+only. Lose all three and the backups cannot be read by anyone, Arise-Home's
+copy included.
 
 ## Encryption: LUKS with the TPM
 
@@ -103,8 +111,9 @@ On one disk, "the data disk" is the Ubuntu root disk, so the choice is made
 1. Ubuntu Server 24.04 installer → *Guided storage configuration* → keep
    *Use an entire disk* → tick **Set up this disk as an LVM group** → tick
    **Encrypt the LVM group with LUKS** → type a passphrase twice.
-2. Write that passphrase on the safe card by hand (the installer leaves a
-   blank line for it). Without it and without the TPM the disk is a brick.
+2. Write that passphrase on the closet card by hand (it leaves a blank line
+   for it), and give it to Kristina (round 7, 58). Without it and without the
+   TPM the disk is a brick.
 3. First boot asks for the passphrase once. Then `install.sh` (step 6j) finds
    the LUKS volume and a TPM 2.0 and asks the passphrase one more time to
    bind the disk to the TPM with clevis:
@@ -125,7 +134,7 @@ the passphrase at every boot). No TPM in the Dell: enable it in the BIOS
 
 Not verified here: no LUKS disk and no TPM in this environment. The commands
 are the documented clevis path for Ubuntu with initramfs-tools; the first run
-on the real Dell is the test, with the passphrase on the safe card as the way
+on the real Dell is the test, with the passphrase on the closet card as the way
 back if it does not take.
 
 ## System snapshots before updates

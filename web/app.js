@@ -337,6 +337,12 @@ function sharesAfter(root, view) {
 
 V.backups = async () => {
   const [jobs, hist, repo, snaps] = await Promise.all([api('/backups/jobs'), api('/backups/history?limit=120'), api('/backups/repo'), api('/backups/snapshots?limit=40')]);
+  let off = null; try { off = await api('/backups/offsite'); } catch {}
+  const offTone = off ? ({ copy: 'ok', same: 'warn', off: 'warn' }[off.plan?.action] || 'bad') : 'warn';
+  const offLast = off?.last;
+  const offsite = off ? `<div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>Off-site copy · Arise-Home</h3><span class="sub">every snapshot but the raw recordings, after the nightly run</span></div>
+      <p style="margin:0 0 6px"><span class="pill ${offTone}">${esc({ copy: 'copies tonight', same: 'same place', off: 'off', unreachable: 'not reachable', none: 'nothing ran' }[off.plan?.action] || off.plan?.action || '?')}</span> ${esc(off.plan?.why || '')}</p>
+      <p class="note" style="margin:0">${offLast ? `Last: ${esc(fmtT(offLast.started))}, ${offLast.ok ? (offLast.copied != null ? offLast.copied + ' snapshots checked' : 'ok') : '<span style="color:var(--bad)">' + esc(offLast.error || 'failed') + '</span>'}${offLast.warning ? ' · ' + esc(offLast.warning) : ''}` : 'No off-site run yet.'}</p></div>` : '';
   const rows = hist.rows || [], running = hist.running || [];
   const lastOf = id => rows.find(r => r.job === id);
   const okRate = rows.slice(0, 50).filter(r => r.ok).length;
@@ -347,7 +353,7 @@ V.backups = async () => {
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Last 50 runs</span><span class="stat__v">${okRate}<small>/ ${Math.min(rows.length, 50)} ok</small></span><span class="stat__n">keep ${repo.keep?.daily} daily · ${repo.keep?.weekly} weekly · ${repo.keep?.monthly} monthly</span></div></div>
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Integrity</span><span class="stat__v" style="font-size:22px">${repo.last_check ? ago(repo.last_check) : 'never'}</span><span class="stat__n">last <code>restic check</code></span></div><div class="row" style="margin-top:10px"><button class="btn btn--ghost btn--xs" id="bkCheck">Check now</button><button class="btn btn--ghost btn--xs" id="bkMirror">Refresh GitHub mirror</button></div></div>
     </div>
-    <div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>Jobs</h3><span class="sub">${esc(jobs.file || '')}</span></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Job</th><th>What</th><th>Last run</th><th>Result</th><th class="num">Added</th><th></th></tr></thead><tbody>
+    ${offsite}<div class="panel panel--flat" style="margin-bottom:14px"><div class="panel__hd"><h3>Jobs</h3><span class="sub">${esc(jobs.file || '')}</span></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Job</th><th>What</th><th>Last run</th><th>Result</th><th class="num">Added</th><th></th></tr></thead><tbody>
     ${(jobs.jobs || []).map(j => { const l = lastOf(j.id), run = running.find(r => r.job === j.id); return `<tr><td><b>${esc(j.name || j.id)}</b><br><span class="dim" style="font-size:11px">${(j.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</span></td><td class="mono dim" style="font-size:12px">${(j.paths || []).map(esc).join('<br>')}</td><td class="dim">${l ? fmtT(l.started) : 'never'}</td><td>${run ? '<span class="pill info">running</span>' : l ? `<span class="pill ${l.ok ? 'ok' : 'bad'}">${l.ok ? 'ok' : 'failed'}</span>` : '<span class="pill">—</span>'}</td><td class="num">${l?.ok ? fmtB(l.bytes_added) : '—'}</td><td class="acts"><button class="btn btn--ghost btn--xs" data-run="${esc(j.id)}" ${run ? 'disabled' : ''}>Run now</button></td></tr>`; }).join('')}
     </tbody></table></div></div>
     <div class="tabs" id="bkTabs"><button class="active" data-t="hist">History</button><button data-t="snaps">Snapshots</button><button data-t="restore">Restore</button>${S.role === 'admin' ? '<button data-t="repos">Repos</button>' : ''}</div>
@@ -1240,7 +1246,7 @@ V.mail = async () => {
   const tab = S.mailTab || 'compose';
   const head = `<div class="row row--between" style="margin-bottom:12px"><div><div class="kicker">Resend · ${st.configured ? '<span style="color:var(--ok)">ready</span>' : '<span style="color:var(--warn)">not set up</span>'}${st.demo ? ' · sample' : ''}</div>
       <h2 style="margin:0">${esc(st.from_name)} &lt;${esc(st.from_email || 'from_email not set')}&gt;</h2><p class="note" style="margin:6px 0 0">Reply-to ${esc(st.reply_to || 'none')}${st.gmail_warning ? ' · <b style="color:var(--bad)">from_email is a gmail.com address: Resend cannot send from a domain you do not verify. Use an address at the church domain and keep the Gmail as reply-to.</b>' : ''}</p></div>
-      <div class="tabs">${['compose', 'contacts', 'sent'].map(t => `<button class="${tab === t ? 'on' : ''}" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>`;
+      <div class="tabs">${['compose', 'contacts', 'sent', 'staff'].map(t => `<button class="${tab === t ? 'on' : ''}" data-tab="${t}">${t === 'staff' ? 'Staff addresses' : t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>`;
   let body = '';
   if (tab === 'compose') body = `<div class="sun"><div><label class="lbl">Subject</label><input id="mlSubj" value="${esc(S.mailDraft?.subject || '')}" placeholder="This week at Arise" style="width:100%">
       <label class="lbl" style="margin-top:10px">Body <small class="muted">(plain text; **bold**, [links](https://…), ## headings, - lists)</small></label><textarea id="mlBody" rows="14" style="width:100%;font:inherit" placeholder="Hi church,&#10;&#10;## This Sunday&#10;- 10:30 at Pineville&#10;- 10:00 at Alexandria">${esc(S.mailDraft?.body || '')}</textarea>
@@ -1253,11 +1259,18 @@ V.mail = async () => {
       <div id="mlImportOut"></div>
       <table class="tbl"><thead><tr><th>Email</th><th>Name</th><th>Added</th><th>Status</th></tr></thead><tbody>${(c.contacts || []).map(x => `<tr class="${x.unsubscribed ? 'dim' : ''}"><td class="mono" style="font-size:12.5px">${esc(x.email)}</td><td>${esc([x.first_name, x.last_name].filter(Boolean).join(' '))}</td><td>${esc((x.created_at || '').slice(0, 10))}</td><td>${x.unsubscribed ? 'unsubscribed' : 'subscribed'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No contacts yet. Export from Wix (Contacts → Export → CSV) and import it here.</td></tr>'}</tbody></table>
       <p class="note" style="margin-top:10px">Contacts live in a Resend audience so unsubscribes are honoured automatically. Wix's export keeps its "Email", "First Name" and "Last Name" columns; anything with an email column works.</p>`; }
+  else if (tab === 'staff') { const f = await api('/mail/forwarding');
+    body = `<p class="note" style="margin:0 0 10px">first.last@${esc(f.domain)} goes on to each person's personal email. Forwarding only: no mailbox is kept on the server, and nothing here listens to the internet: the box fetches what arrived at Resend every five minutes. <b>${f.enabled ? '<span style="color:var(--ok)">On</span>' : '<span style="color:var(--warn)">Off</span>'}</b>${f.enabled ? '' : ': ' + esc(f.how || 'turn on [mailfwd] enabled once the Wix record is in (docs/WIX-DNS.md, part 2)')}</p>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Address</th><th>Goes to</th><th></th></tr></thead><tbody>${(f.aliases || []).map(a => `<tr class="${a.enabled ? '' : 'dim'}"><td class="mono" style="font-size:12.5px">${esc(a.alias)}@${esc(f.domain)}</td><td>${a.to ? esc(a.to) : '<span class="muted">' + esc(a.why || 'nowhere yet') + '</span>'}${a.enabled ? '' : ' <span class="tag">switched off</span>'}</td><td><button class="btn btn--ghost btn--xs" data-mfexp="${esc(a.alias)}">Export</button></td></tr>`).join('') || '<tr><td colspan="3" class="muted">No accounts yet.</td></tr>'}</tbody></table></div>
+      <h3 style="margin:16px 0 6px">Recent</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>When</th><th>To</th><th>From</th><th>Subject</th><th>Result</th></tr></thead><tbody>${(f.log || []).map(r => `<tr><td class="dim">${esc(fmtT(r.t))}</td><td class="mono" style="font-size:12px">${esc(r.alias)}</td><td style="font-size:12.5px">${esc(r.from)}</td><td>${esc(r.subject)}</td><td><span class="pill ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'forwarded' : esc(r.why || 'not sent')}</span></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Nothing has arrived yet.</td></tr>'}</tbody></table></div>`; }
   else body = `<table class="tbl"><thead><tr><th>Newsletter</th><th>Status</th><th>Created</th><th>Sent</th></tr></thead><tbody>${(bc.broadcasts || []).map(b => `<tr><td><b>${esc(b.subject || b.name)}</b></td><td>${esc(b.status)}</td><td>${esc((b.created_at || '').slice(0, 16).replace('T', ' '))}</td><td>${esc((b.sent_at || '').slice(0, 16).replace('T', ' ') || '—')}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Nothing sent yet.</td></tr>'}</tbody></table>${bc.err ? `<p class="note" style="color:var(--bad)">${esc(bc.err)}</p>` : ''}`;
   return `<div class="fade">${head}${body}${st.configured ? '' : `<div class="card" style="margin-top:14px;border-left:3px solid var(--warn)"><b>To set up (Friday):</b> 1. Resend account, add and verify the church's domain (DNS records at the domain host). 2. API key → <code>/etc/arise/secrets/resend-api-key</code> (root only). 3. In arise.toml <code>[mail]</code>: from_email at that domain, reply_to the Gmail. 4. Import the Wix CSV. 5. Send yourself a test.</div>`}</div>`;
 };
 V.mail.after = root => {
   $$('[data-tab]', root).forEach(b => b.onclick = () => { S.mailTab = b.dataset.tab; rerender('mail'); });
+  $$('[data-mfexp]', root).forEach(b => b.onclick = async () => { const r = await api(`/mail/forwarding/export/${encodeURIComponent(b.dataset.mfexp)}`).catch(e => ({ ok: false, err: e.message }));
+    if (r.ok === false) return toast(r.err, 'bad');
+    modal(`<h2>${esc(r.address)}</h2><p class="note">${esc(r.note)}</p><p><b>${r.messages}</b> message${r.messages === 1 ? '' : 's'} on record.</p><textarea readonly rows="10" style="width:100%;font:12px ui-monospace,Menlo,monospace" aria-label="The forwarding log as CSV">${esc(r.csv)}</textarea><div class="acts"><button class="btn" data-close>Done</button></div>`); });
   const draft = () => ({ subject: $('#mlSubj', root)?.value || '', body: $('#mlBody', root)?.value || '' });
   const keep = () => { S.mailDraft = draft(); };
   ['#mlSubj', '#mlBody'].forEach(sel => { const el = $(sel, root); if (el) el.oninput = keep; });
@@ -1392,11 +1405,13 @@ V.about = async () => {
   const o = S.overview || (isMember() ? await api('/about/whatsnew').then(w => ({ version: w.version, codename: w.codename, hostname: 'arise-server', realm: 'AD.ARISECENLA.COM', profile: 'member portal', machine: {} })).catch(() => ({ machine: {} })) : await api('/overview')); const m = o.machine || S.machine || {};
   let wk = null; try { wk = await api('/about/week'); } catch {}
   let nw = null; try { nw = await api('/about/whatsnew'); } catch {}
+  let ch = null; if (!isMember()) { try { ch = await api('/upkeep/changes?limit=12'); } catch {} }
+  const changes = ch && (ch.changes || []).length ? `<div class="about__new"><div class="widget__kicker">Changes on this box</div><ul class="about__changes">${ch.changes.map(c => `<li><b>${esc(c.who)}</b> · ${esc(String(c.what || '').replace(/^arisectl\./, 'arisectl '))}${c.target ? ' <span class="dim">' + esc(String(c.target).slice(0, 40)) + '</span>' : ''} <span class="dim">${esc(ago(c.when))}</span></li>`).join('')}</ul></div>` : '';
   const whatsnew = nw && nw.lines?.length ? `<div class="about__new"><div class="widget__kicker">What's new in v${esc(nw.version)} “${esc(nw.codename)}”</div><ul>${nw.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul></div>` : '';
   const week = wk ? `<div class="about__week">This week: <b>${esc(wk.verse?.ref || '')}</b>${wk.verse?.text ? ' · “' + esc(wk.verse.text.slice(0, 90)) + (wk.verse.text.length > 90 ? '…' : '') + '”' : ''}<br>${wk.services} services on the calendar · ${wk.published_this_week} video${wk.published_this_week === 1 ? '' : 's'} published this week${wk.minutes_this_week ? ' · ' + Math.round(wk.minutes_this_week / 60 * 10) / 10 + ' hours of them' : ''}${wk.latest ? `<br>Latest on the channel: <b>${esc(wk.latest)}</b>` : ''}</div>` : '';
   return `<div class="about"><div class="flame">${I.about.replace('<svg', '<svg width="72" height="72"')}</div><div><div class="kicker">ariseOS · Arise Server</div><h2>v${esc(o.version)} “${esc(o.codename)}”</h2>
     <dl class="kv"><dt>Host</dt><dd>${esc(o.hostname)}</dd><dt>Domain</dt><dd>${esc(o.realm || '—')}</dd><dt>System</dt><dd>${esc(m.os || '')}</dd><dt>Processor</dt><dd>${esc(m.cpu_model || '')} · ${m.cpu_count || '?'} cores</dd><dt>Memory</dt><dd>${esc(m.ram_total_h || '')}</dd><dt>Uptime</dt><dd>${fmtUp(S.stats?.uptime)}</dd><dt>Profile</dt><dd>${esc(o.profile)}</dd></dl>
-    ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div>${whatsnew}</div>`;
+    ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div>${whatsnew}${changes}</div>`;
 };
 V.about.after = root => $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
 
@@ -1646,8 +1661,10 @@ const fmtSw = ms => { const t = Math.floor(ms / 10), cs = t % 100, s = Math.floo
 V.help = async () => {
   const h = S.help = S.help || { name: null, q: '' };
   const list = await api('/help'); S.helpList = list;
+  let hc = null; try { hc = await api('/help/contacts'); } catch {}
+  S.helpCall = hc ? `<div class="help__call"><b>Something not working?</b> <a href="${esc(hc.it_portal)}" target="_blank" rel="noopener">The IT portal</a> takes a request, or call ${esc((hc.call || []).map(c => c.name.replace(/^(Minister|Pastor|Apostle) /, '')).join(', ').replace(/, ([^,]*)$/, ' or $1'))}.</div>` : '';
   const docs = list.docs || []; if (!h.name) h.name = isMember() ? 'PORTAL-GUIDE' : (docs.find(d => d.name === 'README') ? 'README' : docs[0]?.name);
-  return `<div class="help"><aside class="help__side"><input id="helpQ" class="help__q" placeholder="Search the docs" value="${esc(h.q)}" autocomplete="off" aria-label="Search the docs"><div id="helpList" class="help__list"></div></aside><article class="help__doc" id="helpDoc"><div class="skeleton" style="width:50%"></div></article></div>`;
+  return `<div class="help"><aside class="help__side">${S.helpCall || ''}<input id="helpQ" class="help__q" placeholder="Search the docs" value="${esc(h.q)}" autocomplete="off" aria-label="Search the docs"><div id="helpList" class="help__list"></div></aside><article class="help__doc" id="helpDoc"><div class="skeleton" style="width:50%"></div></article></div>`;
 };
 V.help.after = root => {
   const h = S.help, docs = S.helpList.docs || [];

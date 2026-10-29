@@ -1,0 +1,16 @@
+[Unit]
+Description=Arise Server January clean-up report and the Google export reminder (round 7, 63 and 139)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# It lists; it never deletes (deleting is Bradly's click). Never during a service.
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/usr/local/bin/arisectl upkeep january
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+Nice=10
+IOSchedulingClass=idle
+StandardOutput=append:/var/log/arise/upkeep.log
+StandardError=append:/var/log/arise/upkeep.log

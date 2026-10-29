@@ -48,7 +48,7 @@ Edit the file to add a job. It is read fresh on every run.
 | 02:05 | the automator runs (YouTube quota resets at 02:00) |
 | **03:00** | `arise-backup.timer`: every job in order, then `restic forget --prune` with the policy below |
 | 04:00 | `arise-mirror.timer`: refresh the GitHub mirror (the 03:00 run of the next night snapshots it) |
-| 04:30 | the Synology's own Hyper Backup to the off-site copy (set on the NAS) |
+| after the jobs | the off-site copy to Arise-Home (round 7, 53), `restic copy` of every new snapshot |
 
 ## The restore drill
 
@@ -203,13 +203,48 @@ stays as it is and becomes the second copy below. To keep sending there too,
 that is a second job, not a setting; to stop, remove `arise-home` from
 `targets`.
 
-## The second copy
+## The off-site copy: Arise-Home (round 7, 53 and 54)
 
-There is no off-site copy yet (round 4, 28: not now). The plan is
-Arise-Home (docs/NODES.md): Bradly's node at his house holds a full second
-restic copy and runs the same drill. Until that is built the Synology is the
-only copy, and the restic password lives on the closet card only (round 4,
-30; never in Vaultwarden, never in a chat).
+Bradly, round 7: **Arise-Home is the off-site copy**, and it takes
+**everything except the raw recordings**. Bradly's house is far enough from
+Pineville that a fire, a flood or a theft at the church leaves it standing.
+
+After the nightly jobs and the prune, `arisectl backup run` copies every
+snapshot from tonight's target (the Synology) to `arise_home_repo` with
+`restic copy`: only what is new travels, and restic skips snapshots that are
+already there. The first night it prepares the repository with the Synology's
+chunker settings (`init --copy-chunker-params`), so the two deduplicate the
+same way. Arise-Home keeps the same history as here (30/12/24, pruned after the
+copy). The same restic password opens both.
+
+| Tonight | What the off-site step does |
+|---|---|
+| The Synology was the target and Arise-Home answers | copies every new snapshot; a row **Off-site copy (Arise-Home)** in the history |
+| Arise-Home was the target (no Synology yet) | nothing to copy: the off-site copy and the only copy are the same place, and the row says so in amber |
+| Arise-Home does not answer | the row is red: "off-site copy not made: Arise-Home over Tailscale is not reachable" |
+| `[backups] offsite = ""` | off, and `arisectl backup run` says so |
+
+Raw recordings never go: no job backs them up (they live on the Synology's
+recordings share, and YouTube has every service), and any snapshot tagged
+`recordings` is skipped anyway (`[backups] offsite_skip_tags`).
+
+`sudo arisectl backup offsite` runs the copy now; `GET /api/backups/offsite`
+is tonight's plan and the last run, for the Backups page.
+
+**A night with no backup** (round 7, 64): if no job has finished well in the
+last 26 hours, the Needs You list says "No backup ran last night" in red and
+Discord `#alerts` gets one line (once per missed stretch, `arise-upkeep.timer`,
+hourly). One missed night is enough to be told.
+
+**The restore drill** (round 7, 56) posts its one line to Discord `#weekly`:
+"Restore drill passed: <file> came back from snapshot <id>", or "FAILED" and
+why.
+
+**Who can open them** (round 7, 58 and 59): Bradly and Kristina. The restic
+password is written by hand on the closet card taped inside the closet, and
+Kristina has it too; on the box it is `/etc/arise/secrets/restic-password`
+(root only, never in a chat, never in Vaultwarden). If Bradly can't be reached,
+Kristina follows the closet card.
 
 ## What is NOT backed up here
 

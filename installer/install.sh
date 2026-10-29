@@ -1177,6 +1177,13 @@ if [ -f "$UNIT_SRC/arise-update.timer" ]; then
   fi
   note "arise-update.timer: Saturday 03:30, installs only what is queued in Software Update (arisectl update)"
 fi
+# Round 7: the hourly upkeep checks (64, 82, 137/138), the January report (63, 139) and the
+# staff mail forwarding (155; it does nothing until [mailfwd] enabled = true).
+for t in arise-upkeep.timer arise-january.timer arise-mailfwd.timer; do
+  [ -f "$UNIT_SRC/$t" ] || continue
+  if [ "$NO_START" = 0 ]; then run systemctl enable --now "$t" || warn "$t failed to start"; else run systemctl enable "$t"; fi
+done
+note "upkeep: arise-upkeep.timer hourly (Discord #alerts once per item), arise-january.timer Jan 5, arise-mailfwd.timer every 5 min (off until [mailfwd] enabled)"
 # Desktop programs from the Store (GIMP, LibreOffice...) stop themselves after an hour with nobody connected.
 if [ -f "$UNIT_SRC/arise-idle-apps.timer" ]; then
   if [ "$NO_START" = 0 ]; then run systemctl enable --now arise-idle-apps.timer || warn "arise-idle-apps.timer failed to start"; else run systemctl enable arise-idle-apps.timer; fi
@@ -1729,7 +1736,7 @@ TS
   else
     {
       echo "ariseOS SAFE CARD  -  Arise Church, Pineville LA  -  printed $(date '+%Y-%m-%d')"
-      echo "Keep this in the safe. It is NOT the closet card. Print again: sudo arisectl rescue card"
+      echo "Root only. The same password is on the closet card taped inside the closet (round 7, 57 and 73) and with Kristina."
       echo
       echo "Break-glass admin (works when the domain is down; at the closet monitor ONLY: never SSH, never the dashboard)"
       echo "  user      arise-rescue"
@@ -1745,7 +1752,7 @@ TS
       echo "  bound to TPM: $(command -v clevis >/dev/null 2>&1 && [ -n "$LUKS_DEV" ] && clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2 && echo yes || echo no)"
     } > "$CONF_DIR/SAFE-CARD.txt"
     chmod 600 "$CONF_DIR/SAFE-CARD.txt"
-    note "safe card written: $CONF_DIR/SAFE-CARD.txt (root only). Print it: sudo arisectl rescue card. In the safe, not on the door."
+    note "SAFE-CARD.txt written (root only); the printed card is the closet card: sudo arisectl rescue card"
   fi
 fi
 
@@ -1760,7 +1767,7 @@ CARD_BODY="$(cat <<CARD
 .hd p{margin:4px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#bbb}h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#D6222D;margin:22px 24px 6px;border-bottom:2px solid #D6222D;padding-bottom:4px}
 table{border-collapse:collapse;margin:0 24px;width:calc(100% - 48px)}td{padding:6px 0;border-bottom:1px solid #e4e1dd;font-size:14px;vertical-align:top}td:first-child{width:200px;color:#6A6A6E;text-transform:uppercase;letter-spacing:.08em;font-size:11px;padding-top:9px}
 code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padding:1px 5px}.ft{margin:26px 24px 0;font-size:11px;color:#6A6A6E}</style></head><body>
-<div class="hd"><h1>ariseOS: if the server dies</h1><p>Tape this to the closet door. Nothing here is secret; the passwords are not on it.</p></div>
+<div class="hd"><h1>ariseOS: if the server dies</h1><p>Tape this inside the closet. This copy has no passwords: sudo arisectl rescue card writes the one that does.</p></div>
 <h2>This box</h2><table><tr><td>Name</td><td>$HOSTNAME_WANTED &nbsp;(<code>$FQDN</code>)</td></tr><tr><td>Address on the wire</td><td><code>${PRIMARY_IP:-see arisectl info}</code> &nbsp;pinned on the box, not on the router</td></tr>
 <tr><td>Dashboard</td><td><code>http://$HOSTNAME_WANTED:4147</code> &nbsp;and the desktop on this monitor</td></tr><tr><td>Over Tailscale</td><td><code>http://$HOSTNAME_WANTED:4147</code> from any signed-in laptop, anywhere</td></tr>
 <tr><td>Cockpit (second door)</td><td><code>https://$HOSTNAME_WANTED:9090</code> &nbsp;sign in as $ADMIN_USER</td></tr></table>
@@ -1773,7 +1780,7 @@ code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padd
 <tr><td>Config</td><td><code>/etc/arise/arise.toml</code> &nbsp;·&nbsp; code <code>/opt/arise</code> &nbsp;·&nbsp; data <code>/srv/arise</code> &nbsp;·&nbsp; logs <code>/var/log/arise</code>, <code>journalctl -u arise-web</code></td></tr>
 <tr><td>The docs</td><td><code>/opt/arise/docs/</code>, start with SETUP-GUIDE.md; MOVING-DAY.md for the move to the Hub</td></tr>
 <tr><td>Staging marker</td><td>If <code>/etc/arise/staging</code> exists the box thinks it is NOT at the church (domain on loopback, nothing scanned). Fix: <code>sudo bash /opt/arise/installer/install.sh --kiosk</code></td></tr></table>
-<h2>Who to call</h2><table><tr><td>Bradly Dyer</td><td>media and IT &nbsp;·&nbsp; phone: ______________________</td></tr><tr><td>Second person</td><td>none yet (docs/ANSWERS.md 52) &nbsp;·&nbsp; name: ______________________ &nbsp;phone: ______________________</td></tr></table>
+<h2>Who to call</h2><table><tr><td>Bradly Dyer</td><td>media and IT &nbsp;·&nbsp; phone: ______________________</td></tr><tr><td>Minister Kristina Robinson</td><td>follows this card when Bradly cannot be reached (round 7, 59) &nbsp;·&nbsp; phone: ______________________</td></tr><tr><td>Ronnie</td><td>when neither answers &nbsp;·&nbsp; phone: ______________________</td></tr></table>
 <p class="ft">Printed by install.sh on $(date '+%Y-%m-%d'). Nothing on this page changes a router. Arise Church · Pineville, LA.</p></body></html>
 CARD
 )"
@@ -1781,10 +1788,17 @@ if [ "$DRY_RUN" = 1 ]; then
   note "[dry-run] write $CONF_DIR/CLOSET-CARD.html and $DATA_ROOT/shares/staff/CLOSET-CARD.html (print and tape to the closet door)"
 else
   mkdir -p "$CONF_DIR" "$DATA_ROOT/shares/staff"
-  printf '%s\n' "$CARD_BODY" > "$CONF_DIR/CLOSET-CARD.html"
-  printf '%s\n' "$CARD_BODY" > "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
-  chmod 644 "$CONF_DIR/CLOSET-CARD.html" "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
-  note "closet card: $DATA_ROOT/shares/staff/CLOSET-CARD.html (open from any Mac on the staff share, print, tape it up)"
+  # Round 7, 57/73: one card, taped INSIDE the closet, with arise-rescue's password on it, and a
+  # copy on the staff share with the password left out. arisectl writes both (and again after a
+  # rotate); this page is only the fallback when arisectl cannot run yet.
+  if [ -x /usr/local/bin/arisectl ] && /usr/local/bin/arisectl rescue card >>"$LOG_FILE" 2>&1; then
+    note "closet card: print $CONF_DIR/CLOSET-CARD.html at the closet monitor (root only: it has arise-rescue's password), tape it INSIDE the closet, give Kristina a copy"
+  else
+    printf '%s\n' "$CARD_BODY" > "$CONF_DIR/CLOSET-CARD.html"
+    printf '%s\n' "$CARD_BODY" > "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
+    chmod 600 "$CONF_DIR/CLOSET-CARD.html"; chmod 644 "$DATA_ROOT/shares/staff/CLOSET-CARD.html"
+    warn "closet card written without the password (arisectl rescue card failed): run it again once the box is up"
+  fi
 fi
 
 say "7/7  Done. What still needs you"
@@ -1818,7 +1832,7 @@ cat <<SUMMARY
 $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET" || echo "       VPN not installed yet: re-run with --with-tailscale (recommended) or --with-wireguard" )
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
 $( [ "$WITH_CADDY" = 1 ] && echo "       https: every Mac enrolled with enroll-mac.sh / bind-mac.sh --dns trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
-$( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The SAFE card:              sudo arisectl rescue card   (print it, put it in the safe: arise-rescue's password, the restic password)" )
+$( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The closet card:            sudo arisectl rescue card   (print $CONF_DIR/CLOSET-CARD.html: it has arise-rescue's password; write the restic password and disk passphrase on it by hand; a copy to Kristina)" )
 $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS + TPM; docs/SECURITY.md if the disk is not encrypted)" )
     7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
@@ -1826,7 +1840,7 @@ $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo aris
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
        Trilium (Notes) :8090   Immich (Photos) :2283
        The other templates are deployed and stopped (memory): the Store starts them. arisectl app list
-    8. The closet card: print $DATA_ROOT/shares/staff/CLOSET-CARD.html and tape it to the door; write the phone numbers on it by hand
+    8. Tape the printed closet card INSIDE the closet (never on the door); write the phone numbers on it by hand
     9. The UPS: when the model is known, uncomment [arise] in /etc/nut/ups.conf, MODE=standalone in nut.conf, restart nut-server nut-monitor; sudo arisectl ups
    10. The restore drill runs monthly by itself (arise-drill.timer); try it once now: sudo arisectl backup drill
 $( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "   11. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )

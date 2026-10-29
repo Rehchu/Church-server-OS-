@@ -69,6 +69,7 @@ services = [
 provider = "resend"
 api_key_file = "/etc/arise/secrets/resend-api-key"
 from_name = "Arise Church"
+server_from_name = "Arise Church IT"   # round 7, 132: what the server itself sends (resets, notices, forwards)
 from_email = ""           # e.g. "news@mail.arisecenla.com" once the domain is verified in Resend
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
@@ -132,9 +133,15 @@ synology_repo = ""        # empty: restic_repo above
 # restic over sftp to Arise-Home (its Tailscale name). root's key, an sftp-only account
 # on the far side (docs/BACKUPS.md, "Arise-Home until the Synology").
 arise_home_repo = ""      # e.g. "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville"
+# Round 7, 53/54: Arise-Home is the off-site copy. After the nightly run every snapshot on the
+# Synology is copied to arise_home_repo (restic copy: only what is new travels), raw recordings
+# never. While the Synology is not ready, Arise-Home already IS the live target, and the
+# Backups page says the off-site copy and the only copy are the same place. "" turns it off.
+offsite = "arise-home"
+offsite_skip_tags = ["recordings"]
 password_file = "/etc/arise/secrets/restic-password"
 schedule = "03:00"
-# Retention: restic forget --keep-daily 14 --keep-weekly 8 --keep-monthly 12, then prune.
+# Retention: restic forget --keep-daily 30 --keep-weekly 12 --keep-monthly 24, then prune.
 keep_daily = 30
 keep_weekly = 12
 keep_monthly = 24   # Bradly: more history than the default (docs/ANSWERS.md 47)
@@ -291,3 +298,24 @@ sync_folders = ["Desktop", "Documents"]   # what must be on the server before a 
 server_ip = ""                  # the address the enrol line uses; empty = this box's own address on the church network
 # printers = [{ name = "Office", uri = "ipp://192.168.1.40/ipp/print", driver = "everywhere", location = "Church office" }]
 # bookmarks = [{ name = "Arise Church", url = "https://arisecenla.church" }]   # the Church folder in Chrome and Safari
+
+# ariseOS updates, in two steps (round 7, 135/136). Any admin presses Install. "home" (Arise-Home,
+# the test box) takes a new version the day it lands; "pineville" takes only versions a week old.
+[updates]
+ring = "pineville"              # on Arise-Home: "home"
+
+# Upkeep (round 7). Who to call goes on the closet card, the Help app and the welcome page: names
+# only, the phone numbers are written on the printed card by hand.
+[upkeep]
+cpu_hot_c = 80                  # 137: warn at this CPU temperature; disks warn by their own SMART check (138)
+mac_silent_days = 3             # 82: a church Mac not heard from this long goes to Discord #alerts
+it_portal_url = "https://itportal.myfaithtech.com"   # 118/119: AriseHub's IT portal, for help and the equipment list
+# call = [{ name = "Bradly Dyer", role = "media and IT" }, { name = "Minister Kristina Robinson", role = "..." }, { name = "Ronnie", role = "..." }]
+
+# Staff addresses, forwarding only (round 7, 155; docs/WIX-DNS.md part 3). first.last@ad.arisecenla.com
+# goes on to the personal email on each profile. The box ASKS Resend for what arrived every five
+# minutes (an outgoing call); it opens no port and keeps no mailbox. Turn on once the Wix MX
+# record and Resend's receiving are set up.
+[mailfwd]
+enabled = false
+domain = "ad.arisecenla.com"

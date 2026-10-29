@@ -52,6 +52,14 @@ Synology both get one. Nothing else needs one.
 
 ## The Pineville network as it is, kept as it is (Bradly, Oct 28)
 
+Facts from round 7 (127, 128, 134):
+
+| What | Answer |
+|---|---|
+| Pineville's internet | Optimum Business, the highest plan |
+| Where the Synology is plugged in | the Netgear Nighthawk, **router A** (the server's own network, so it mounts directly; no Tailscale package needed on it) |
+| Alexandria | one church Mac (enrolled like any other; it reaches the server over Tailscale) |
+
 What is there (his words, drawn out):
 
 ```

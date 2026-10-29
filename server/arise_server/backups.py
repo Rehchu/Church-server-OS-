@@ -111,10 +111,13 @@ def repo() -> dict:
     return out
 
 
-def _restic(args: list[str], timeout: int) -> dict:
+def _restic(args: list[str], timeout: int, repo: str | None = None) -> dict:
     t0 = time.time()
+    env = _env()
+    if repo:
+        env["RESTIC_REPOSITORY"] = repo
     try:
-        p = subprocess.run(["restic", *args], capture_output=True, text=True, timeout=timeout, env=_env())
+        p = subprocess.run(["restic", *args], capture_output=True, text=True, timeout=timeout, env=env)
         return {"ok": p.returncode == 0, "code": p.returncode, "out": p.stdout, "err": p.stderr, "seconds": round(time.time() - t0, 1)}
     except FileNotFoundError:
         return {"ok": False, "code": 127, "out": "", "err": "restic: not installed", "seconds": 0}
@@ -209,6 +212,123 @@ def _execute(job: dict) -> dict:
     with _lock:
         _running.pop(job["id"], None)
     return {"ok": row["ok"], **row}
+
+
+# ---- the off-site copy (round 7, 53/54) ---------------------------------------------
+def offsite_plan(targets: dict, offsite: str) -> dict:
+    """Pure: what tonight's off-site step does, from backup_targets() and [backups] offsite.
+    copy: the live target is the Synology and Arise-Home answers, so its snapshots go there.
+    same: Arise-Home is already the live target (no Synology yet): the off-site copy and the only
+          copy are one place, which the Backups page says in amber.
+    off / unreachable / none: nothing copied, and why."""
+    if not offsite:
+        return {"action": "off", "why": "[backups] offsite is empty"}
+    rows = {r["id"]: r for r in targets.get("targets", [])}
+    dst = rows.get(offsite)
+    if not dst or not dst.get("repo"):
+        return {"action": "unreachable", "why": f"no repository for {offsite} (set [backups] arise_home_repo)"}
+    if targets.get("live") is None:
+        return {"action": "none", "why": "no backup ran tonight: no target is ready"}
+    if targets.get("live") == offsite:
+        return {"action": "same", "why": "Arise-Home is the live target until the Synology is ready: the off-site copy is the only copy",
+                "dst": dst["repo"]}
+    if not dst.get("ready"):
+        return {"action": "unreachable", "why": f"{dst.get('name', offsite)} is {dst.get('why', 'not ready')}", "dst": dst["repo"]}
+    return {"action": "copy", "src": targets.get("repo"), "dst": dst["repo"], "why": f"{targets.get('name')} to {dst.get('name')}"}
+
+
+def offsite_ids(snaps: list[dict], skip_tags: list[str]) -> list[str]:
+    """Pure: the snapshots to copy: all of them, minus any carrying a skipped tag (raw recordings)."""
+    skip = {t.lower() for t in skip_tags or []}
+    out = []
+    for s in snaps:
+        if skip & {str(t).lower() for t in (s.get("tags") or [])}:
+            continue
+        sid = s.get("short_id") or str(s.get("id", ""))[:8]
+        if sid:
+            out.append(sid)
+    return out
+
+
+def offsite_copy() -> dict:
+    """After the nightly run: restic copy into Arise-Home. Only what is new travels (restic skips
+    snapshots already there). Writes a history row like any job, so a failure is red, never quiet."""
+    cfg = load()
+    row = {"job": "offsite", "name": "Off-site copy (Arise-Home)", "started": now_iso(), "finished": None, "ok": False,
+           "snapshot_id": None, "bytes_added": 0, "files_new": 0, "error": None}
+    if cfg.demo:
+        row.update({"ok": True, "demo": True, "copied": 9, "finished": now_iso(), "note": "sample: 9 snapshots copied to Arise-Home"})
+        return row
+    plan = offsite_plan(sharing.backup_targets(), getattr(cfg.backups, "offsite", "arise-home"))
+    row["plan"] = plan["action"]
+    if plan["action"] == "off":
+        return {**row, "ok": True, "note": plan["why"], "skipped": True}
+    if plan["action"] == "same":
+        row.update({"ok": True, "warning": plan["why"], "finished": now_iso()})
+        _append_history(row)
+        return row
+    if plan["action"] != "copy":
+        row.update({"error": "off-site copy not made: " + plan["why"], "finished": now_iso()})
+        _append_history(row)
+        return row
+    if not available():
+        row.update({"error": "restic is not installed; nothing was copied", "finished": now_iso()})
+        _append_history(row)
+        return row
+    try:
+        dst, src = plan["dst"], plan["src"]
+        pw = cfg.backups.password_file
+        if not _restic(["cat", "config"], 120, repo=dst)["ok"]:
+            # The first night: the copy needs the source's chunker, or nothing deduplicates.
+            r = _restic(["init", "--from-repo", src, "--from-password-file", pw, "--copy-chunker-params"], 300, repo=dst)
+            if not r["ok"]:
+                raise RuntimeError("could not prepare the Arise-Home repository: " + (r["err"] or r["out"]).strip()[-300:])
+        ls = _restic(["snapshots", "--json"], 300, repo=src)
+        if not ls["ok"]:
+            raise RuntimeError("could not list tonight's snapshots: " + (ls["err"] or ls["out"]).strip()[-300:])
+        ids = offsite_ids(json.loads(ls["out"] or "[]"), list(getattr(cfg.backups, "offsite_skip_tags", ["recordings"]) or []))
+        if not ids:
+            row.update({"ok": True, "note": "nothing to copy yet", "finished": now_iso()})
+            _append_history(row)
+            return row
+        r = _restic(["copy", "--from-repo", src, "--from-password-file", pw, *ids], 8 * 3600, repo=dst)
+        row["ok"] = r["ok"]
+        row["copied"] = len(ids)
+        if not r["ok"]:
+            row["error"] = (r["err"] or r["out"]).strip()[-600:]
+        else:
+            # The far side keeps the same history as here (30/12/24).
+            fp = _restic(["forget", "--prune", "--keep-daily", str(cfg.backups.keep_daily), "--keep-weekly", str(cfg.backups.keep_weekly),
+                          "--keep-monthly", str(cfg.backups.keep_monthly)], 3600, repo=dst)
+            if not fp["ok"]:
+                row["warning"] = "copied, but pruning Arise-Home failed: " + (fp["err"] or fp["out"]).strip()[-200:]
+    except Exception as e:  # noqa: BLE001
+        row["error"] = str(e)[:600]
+    row["finished"] = now_iso()
+    _append_history(row)
+    return row
+
+
+# ---- a night with no backup (round 7, 64) ---------------------------------------------
+def missed_night(rows: list[dict], now: datetime | None = None, grace_h: float = 26.0) -> dict | None:
+    """Pure: no successful nightly backup in the last ~day (03:00 plus a slow night)? One
+    missed night is reported (round 7, 64). No history at all is a new box, not a miss.
+    Returns {last_ok, since} or None."""
+    now = now or datetime.now()
+    if not rows:
+        return None
+    last = None
+    for r in rows:
+        if r.get("ok") and r.get("job") != "offsite" and r.get("started"):
+            try:
+                t = datetime.fromisoformat(str(r["started"])[:19])
+            except ValueError:
+                continue
+            last = t if last is None or t > last else last
+    if last and (now - last).total_seconds() < grace_h * 3600:
+        return None
+    return {"last_ok": last.isoformat(timespec="minutes") if last else None,
+            "since": last.date().isoformat() if last else None}
 
 
 SAMBA_BACKUP_DIR = "/var/lib/arise/samba-backup"
@@ -396,6 +516,15 @@ def drill(quiet: bool = False) -> dict:
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
     return _drill_done(hist_p, row)
+
+
+def drill_line(r: dict) -> str:
+    """Pure: the drill's one line for Discord #weekly (round 7, 56)."""
+    f = r.get("file") or "no file"
+    if r.get("ok"):
+        same = {True: "identical to the live file", False: "the live file has changed since (normal)", None: "nothing live to compare"}[r.get("matched")]
+        return f"Restore drill passed: {os.path.basename(f)} came back from snapshot {r.get('snapshot') or '?'}, {same}."
+    return f"Restore drill FAILED: {r.get('note') or 'no reason given'}"
 
 
 def _drill_system_check() -> dict:

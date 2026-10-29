@@ -89,6 +89,11 @@ DEFAULTS = {
         "targets": ["synology", "arise-home"],
         "synology_repo": "",
         "arise_home_repo": "",         # e.g. sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville
+        # Round 7, 53/54: Arise-Home is the off-site copy. After the nightly run, every snapshot
+        # on the live target is copied there (restic copy), raw recordings never (no job takes
+        # them, and any snapshot tagged "recordings" is skipped). "" turns the copy off.
+        "offsite": "arise-home",
+        "offsite_skip_tags": ["recordings"],
         "restic_repo": _root("/mnt/synology/arise-backups/restic", r"Z:\arise-backups\restic"),
         "password_file": _root("/etc/arise/secrets/restic-password", r"C:\Arise\config\secrets\restic-password"),
         "schedule": "03:00",

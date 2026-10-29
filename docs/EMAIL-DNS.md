@@ -2,16 +2,21 @@
 
 Bradly adds these himself (round 6, 27). They let Resend send mail **from**
 `mail.arisecenla.com` (round 5, 3): the Mail app's newsletters, password-reset
-links, and later the internal mail server's forwards. They are the only DNS
+links, and later the internal mail server's forwards. With the MX of docs/WIX-DNS.md part 2 they are the only DNS
 records ariseOS needs at Wix, and none of them points at the server (rule 7:
 nothing on the box is reachable from the internet).
 
 What does **not** change:
 
 - The domain stays `AD.ARISECENLA.COM` (NetBIOS `ARISE`), and the server is its
-  DNS (round 6, 25). Nothing for `ad.arisecenla.com` goes into Wix.
-- Staff addresses are `first.last@ad.arisecenla.com` (round 6, 28): internal,
-  forwarded out to each person's own email. They need no Wix record either.
+  DNS inside the building (round 6, 25).
+- Staff addresses are `first.last@ad.arisecenla.com` (round 6, 28), forwarded
+  to each person's own email (round 7, 155). That needs **one** more record, an
+  MX for `ad` pointing at Resend's receiving, added only when forwarding is
+  turned on: docs/WIX-DNS.md, part 2. It points at Resend, never at the box.
+
+**docs/WIX-DNS.md is the screen-by-screen walkthrough** of everything below
+plus that MX record (round 7, 131). This page stays as the reference.
 - The website's records (both addresses show the site, round 6, 26) and any
   mail the church already receives at `arisecenla.com` are left alone. Every
   record below sits on the `mail` subdomain, so none of them can disturb the

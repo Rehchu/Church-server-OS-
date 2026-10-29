@@ -101,15 +101,26 @@ because the second opens a login link in a browser and needs you.)
 
 Then:
 
-1. Open the link it prints and sign in. Use **one** login for the church
-   (a Google account works; `arisenow.church@gmail.com` is the obvious one)
-   so every device lands in the same network ("tailnet").
+1. Open the link it prints and sign in with **a church Google account**
+   (round 7, 130: the tailnet belongs to the church, not to a person), so every
+   device lands in the same network ("tailnet") and the account outlives any
+   one person's job. Write which account it is on the closet card by hand.
 2. In the admin console (login.tailscale.com → Machines → arise-server →
    Edit route settings) **approve the subnet route** `192.168.1.0/24`. That
    is what lets an off-site laptop reach the Synology, the printers and the
    Macs at Pineville, not just the server.
-3. Install the Tailscale app on every off-site Mac, PC and phone and sign in
-   with the same login. Each one shows up in the Machines list.
+3. **Who gets it** (round 7, 129): the four admins' phones and laptops, and
+   the staff laptops that go home. Not every church Mac: the ones that never
+   leave the building don't need it. On each: install the Tailscale app (the
+   Mac helper's Tailscale task does it on church Macs, with
+   `--accept-routes`), sign in with the church login, and check it shows in
+   the Machines list. A staff laptop is a church Mac, so it is enrolled
+   (docs/MACS.md) and its Tailscale comes with the helper. A personal phone of
+   an admin signs in to the same tailnet; a personal phone of staff gets the
+   Nextcloud app and church Wi-Fi only (round 7, 36).
+   When someone leaves, remove their devices in the admin console (Machines →
+   … → Remove); Cut off in the Macs app does not touch Tailscale (round 7,
+   153).
 4. **MagicDNS** (DNS → MagicDNS, on by default): `arise-server` now resolves
    from any device on the tailnet, anywhere.
 5. **Split DNS for the realm** (DNS → Nameservers → Add nameserver → Custom,

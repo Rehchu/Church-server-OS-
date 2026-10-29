@@ -11,8 +11,8 @@ server on a fresh Ubuntu. Like *Reset this PC*, one command once Ubuntu is on.
   ticked (docs/SECURITY.md, *Encryption*), hostname `arise-server`.
 - The Synology on the network, reachable from the box, with the share that
   holds `arise-backups/restic`.
-- The **restic password** from the closet card (its only paper copy, by
-  Bradly's rule). Without it the repository cannot be read. Nobody at
+- The **restic password** from the closet card inside the closet, or from
+  Kristina (round 7, 58). Without it the repository cannot be read. Nobody at
   Anthropic, Synology or restic can recover it.
 - About an hour. The domain restore is minutes; the apps pulling their images
   is most of it.
@@ -23,7 +23,7 @@ The `config` job in `/etc/arise/backups.yaml` (tagged `system`, nightly 03:00) h
 
 | Path | What it is |
 |---|---|
-| `/etc/arise` | arise.toml, backups.yaml, every secret (restic, Resend, VAPID, TOTP, the apps' passwords), the safe card |
+| `/etc/arise` | arise.toml, backups.yaml, every secret (restic, Resend, VAPID, TOTP, the apps' passwords), the closet card |
 | `/etc/samba` | smb.conf and arise-shares.conf |
 | `/var/lib/arise/samba-backup/` | the domain itself: `samba-tool domain backup offline` tarballs, the last two. Taken right before the restic run, so the database inside is consistent |
 | `/var/lib/samba/private` | a live copy of the same database, for a quick single-file look; not what the restore uses |
@@ -97,7 +97,12 @@ the Synology already and need no restore.
   in the backup on purpose).
 - Token files the automator needs (`token.json`, `client_secret.json`) come
   back with the automator job.
-- Print a fresh safe card: `sudo arisectl rescue card`.
+- Print a fresh closet card: `sudo arisectl rescue card`, then tape it inside
+  the closet and give Kristina the new copy.
+- If the Synology is gone too, the same restore runs from Arise-Home's copy
+  (round 7, 53): `sudo arisectl reinstall sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville`
+  (the fresh box needs Tailscale up and its root key in arise-backup's
+  `authorized_keys` on Arise-Home first: BACKUPS.md, "Where tonight's backup goes").
 
 ## Drilled, not proven
 

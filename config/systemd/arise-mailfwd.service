@@ -1,0 +1,14 @@
+[Unit]
+Description=Arise Server staff addresses: forward what arrived at Resend (round 7, 155)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# The box asks Resend over an outgoing HTTPS call; nothing listens (rule 7). Off until
+# [mailfwd] enabled = true; the command says so and exits 0 meanwhile.
+ExecStart=/usr/local/bin/arisectl mail forward run
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+StandardOutput=append:/var/log/arise/mailfwd.log
+StandardError=append:/var/log/arise/mailfwd.log
