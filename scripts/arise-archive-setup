@@ -65,7 +65,7 @@ if id -u "$U" >/dev/null 2>&1; then say "user $U exists"; else
 fi
 # arisectl reads /etc/arise/arise.toml (0640 root:arise-conf); `arisectl archive build` as arise-kb needs it
 getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-kb
-getent group "$GRP" >/dev/null 2>&1 || run groupadd "$GRP"
+getent group "$GRP" >/dev/null 2>&1 || run groupadd -g 1506 "$GRP" 2>/dev/null || run groupadd "$GRP"
 if [ -n "$CLAUDE_USER" ] && [ "$CLAUDE_USER" != root ] && id -u "$CLAUDE_USER" >/dev/null 2>&1; then
   run usermod -aG "$GRP" "$CLAUDE_USER"
   say "$CLAUDE_USER may start the archive's MCP server (group $GRP)"

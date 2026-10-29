@@ -22,7 +22,8 @@ HOME = next((Path(c) for c in CANDIDATES if c and (Path(c) / "server" / "arise_s
 if HOME is None:
     sys.exit("arisetui: cannot find the server package; set ARISE_HOME")
 VENV_PY = HOME / "venv" / "bin" / "python"
-if VENV_PY.exists() and Path(sys.executable).resolve() != VENV_PY.resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
+# sys.prefix: a venv's python is a symlink to the system one, so the resolved paths match (see arisectl).
+if VENV_PY.exists() and Path(sys.prefix).resolve() != (HOME / "venv").resolve() and not os.environ.get("ARISECTL_NO_REEXEC"):
     os.environ["ARISECTL_NO_REEXEC"] = "1"
     os.execv(str(VENV_PY), [str(VENV_PY), str(HERE), *sys.argv[1:]])
 sys.path.insert(0, str(HOME / "server"))

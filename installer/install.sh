@@ -241,7 +241,7 @@ if [ -n "$RESTORE_REPO" ]; then
   [ -f /var/lib/samba/private/sam.ldb ] && [ "$DRY_RUN" = 0 ] && die "this box already has a domain database (/var/lib/samba/private/sam.ldb). --restore is for a FRESH Ubuntu. Stop."
   RESTIC_PW_FILE="$CONF_DIR/secrets/restic-password"
   if [ ! -s "$RESTIC_PW_FILE" ] && [ "$DRY_RUN" = 0 ]; then
-    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
+    mkdir -p "$CONF_DIR/secrets"; chmod 0711 "$CONF_DIR/secrets"
     read -r -s -p "    The restic password (from the closet card): " RPW; echo
     [ -n "$RPW" ] || die "no restic password; nothing can be read from the repository"
     printf '%s\n' "$RPW" > "$RESTIC_PW_FILE"; chmod 600 "$RESTIC_PW_FILE"; unset RPW
@@ -265,7 +265,7 @@ if [ -n "$RESTORE_REPO" ]; then
       warn "no samba offline backup in the repository; step 5 will PROVISION a new domain (users and passwords will not come back). docs/REINSTALL.md explains the live-copy fallback."
     fi
     # The restored smb.conf would make step 5 think the domain exists; step 5 handles it.
-    chmod 700 "$CONF_DIR/secrets" 2>/dev/null || true
+    chmod 0711 "$CONF_DIR/secrets" 2>/dev/null || true   # traverse only (step 4)
   fi
 fi
 
@@ -1045,12 +1045,14 @@ fi
 if [ "$WITH_COCKPIT" = 1 ]; then
   # Cockpit is apt, not Docker: it is the door that still opens when Docker
   # or the dashboard is what broke. Logs in with the box's own accounts.
-  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit || warn "cockpit did not install (the mirror?); the dashboard does not need it; re-run later"
+  # Not cockpit-networkmanager: it brings NetworkManager, a second owner for the network that
+  # netplan and 60-arise-pinned.yaml run (rule 2: the network stays as it is).
+  run apt-get install -y -q --no-install-recommends cockpit cockpit-storaged cockpit-packagekit || warn "cockpit did not install (the mirror?); the dashboard does not need it; re-run later"
   if [ "$NO_START" = 0 ]; then run systemctl enable --now cockpit.socket || warn "cockpit.socket did not start"; else run systemctl enable cockpit.socket || warn "cockpit.socket not enabled (not installed?)"; fi
   for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
     run ufw allow from "$src" to any port 9090 proto tcp comment 'cockpit'
   done
-  note "Cockpit on https://arise-server:9090 (its own certificate; sign in as bradly)"
+  note "Cockpit on https://arise-server:9090 (its own certificate; sign in as ${OWNER:-your own account})"
 fi
 run ufw --force enable
 note "ufw: deny incoming by default; ssh from anywhere (the VPN keeps 'anywhere' small); DC, dashboard and apps from LAN + VPN only"
@@ -1622,7 +1624,7 @@ if [ "$WITH_SAFETY" = 1 ]; then
   set_rescue_pw() {
     RESCUE_PW="$(rand_pw 24)"
     echo "arise-rescue:$RESCUE_PW" | chpasswd
-    mkdir -p "$CONF_DIR/secrets"; chmod 700 "$CONF_DIR/secrets"
+    mkdir -p "$CONF_DIR/secrets"; chmod 0711 "$CONF_DIR/secrets"
     printf '%s\n' "$RESCUE_PW" > "$CONF_DIR/secrets/rescue-password"; chmod 600 "$CONF_DIR/secrets/rescue-password"; unset RESCUE_PW
   }
   if id arise-rescue >/dev/null 2>&1; then
@@ -1817,7 +1819,7 @@ cat <<SUMMARY
        ssh is keys only: no key yet? re-run with --ssh-key 'ssh-ed25519 AAAA…' (cat ~/.ssh/id_ed25519.pub on your Mac)
 $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo tailscale up --ssh --advertise-routes=$LAN_SUBNET" || echo "       VPN not installed yet: re-run with --with-tailscale (recommended) or --with-wireguard" )
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
-$( [ "$WITH_CADDY" = 1 ] && echo "       https: every Mac enrolled with enroll-mac.sh / bind-mac.sh --dns trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
+$( [ "$WITH_CADDY" = 1 ] && echo "       https: every church Mac enrolled from the Macs app trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
 $( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The SAFE card:              sudo arisectl rescue card   (print it, put it in the safe: arise-rescue's password, the restic password)" )
 $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS + TPM; docs/SECURITY.md if the disk is not encrypted)" )
     7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
@@ -1826,10 +1828,15 @@ $( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo aris
        Vaultwarden :8083  Guacamole :8084/guacamole   Owncast :8087   Icecast :8000
        Trilium (Notes) :8090   Immich (Photos) :2283
        The other templates are deployed and stopped (memory): the Store starts them. arisectl app list
+    7b. The church Macs (docs/MACS.md): Macs app -> Enrol a Mac -> paste the one line into Terminal on each church Mac
+        (never a personal one). Then, on that Mac, once by hand: System Settings > Privacy & Security >
+        Full Disk Access > add /usr/local/arise/helper/arise-mac-helper and /bin/bash (no profile is removed without it).
+    7c. Sync (docs/SYNC.md): Nextcloud at https://cloud.ad.arisecenla.com for Desktop and Documents; the Macs app's
+        Convert or Link sets each Mac up; phones: the Nextcloud app and a device password from the Sync app.
     8. The closet card: print $DATA_ROOT/shares/staff/CLOSET-CARD.html and tape it to the door; write the phone numbers on it by hand
     9. The UPS: when the model is known, uncomment [arise] in /etc/nut/ups.conf, MODE=standalone in nut.conf, restart nut-server nut-monitor; sudo arisectl ups
    10. The restore drill runs monthly by itself (arise-drill.timer); try it once now: sudo arisectl backup drill
-$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "   11. Claude on the box (your claude.ai account, no API key):" "       as bradly:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
+$( [ "$WITH_CLAUDE" = 1 ] && printf '%s\n' "   11. Claude on the box (your claude.ai account, no API key):" "       as ${OWNER:-your own account}:  claude        then type  /login" "       it prints a claude.ai address: open it on your phone or Mac, sign in, paste the code back." "       Works over SSH and in the dashboard's Terminal app. /opt/arise/CLAUDE.md tells it the house rules." )
 
 $( [ "$SKIP_DOMAIN" = 1 ] && echo "    (domain skipped: no Active Directory on this box; re-run without --skip-domain to provision it)" )
 $( [ "$NO_START" = 1 ] && echo "    (--no-start: nothing is running yet;  sudo systemctl start arise-web samba-ad-dc  when ready)" )
