@@ -31,7 +31,7 @@ GETS = [
     "/notifications", "/checklists", "/setup", "/kiosk/scale", "/public/faces", "/desktop",
     "/storage/quotas", "/backups/targets", "/files/shared", "/files/quota", "/files/share/people",
     "/public/sign-in", "/me/2fa", "/directory/2fa", "/repos", "/automator/cutover", "/security", "/security/scan", "/security/snapshots", "/files/recent", "/files/trash", "/push/key", "/about/week",
-    "/cloud", "/cloud/people", "/cloud/conflicts?limit=20",
+    "/cloud", "/cloud/people", "/cloud/conflicts?limit=20", "/automator/signin",
     "/pastors/breakglass", "/directory/unused", "/contacts",
     "/backups/offsite", "/upkeep/changes?limit=12", "/upkeep/january", "/upkeep/health", "/help/contacts", "/discord", "/mail/forwarding",
     "/checklist/mine", "/checklist/people", "/service/now", "/service/hold", "/reports", "/reports/pastors",

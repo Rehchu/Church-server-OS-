@@ -507,8 +507,13 @@ def _attention(c, bad, auto, failed_backups, n, d) -> list[dict]:
         items.append({"level": "bad", "text": f"{u} is not running."})
     if auto.get("token_ok") is False:
         items.append({"level": "bad", "text": auto.get("token_note") or "token.json missing."})
-    elif auto.get("token_days_left") is not None and auto["token_days_left"] <= 2:
-        items.append({"level": "warn", "text": f"YouTube sign-in token expires in about {auto['token_days_left']} day(s). {auto.get('token_note') or ''}".strip()})
+    else:
+        # Testing mode (Oct 29): ended, or ending within 30 hours; the morning note carries the same line.
+        try:
+            from . import ytauth
+            items.extend({"level": it["level"], "text": it["text"]} for it in ytauth.attention())
+        except Exception:  # noqa: BLE001
+            pass
     if auto.get("last_ok") is False:
         items.append({"level": "bad", "text": f"Last automator run had failures: {auto.get('last_summary')}"})
     for r in failed_backups[:3]:
@@ -1054,6 +1059,46 @@ def bk_check(_=admin):
 @app.get("/api/automator")
 def auto_overview(_=admin):
     return automator.overview()
+
+
+# The weekly YouTube sign-in (Bradly keeps the OAuth app in Testing: 7 days a token). ytauth.py.
+from . import ytauth  # noqa: E402
+
+
+class SigninFinish(BaseModel):
+    address: str = ""
+    sign_out: bool = True     # the Media Mac is shared and a dashboard sign-in lasts a year (Oct 29)
+
+
+@app.get("/api/automator/signin")
+def auto_signin_status(_=admin):
+    """When the server's sign-in ends. Never the token."""
+    return {"demo": load().demo, **ytauth.expiry()}
+
+
+@app.post("/api/automator/signin/start")
+def auto_signin_start(who=recent):
+    """A Google sign-in link for the server's own client (admins, password again). Not during a service."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    return ytauth.start(who["user"])
+
+
+@app.post("/api/automator/signin/finish")
+def auto_signin_finish(body: SigninFinish, request: Request, response: Response, who=recent):
+    """The address Google sent the browser to. Checked, swapped, proved to be Arise Church, kept
+    as token.json for the 02:05 job; the answer says when it ends, never what it is.
+    Bradly renews from the Media Mac (the Mac signed in to the channel's Google account), a shared
+    church Mac: when it worked, this browser is signed out of the dashboard unless he unticked the
+    box, and never on the closet monitor. Only this browser: his other devices stay signed in."""
+    if who.get("role") != "admin":
+        raise HTTPException(403, {"message": "Administrator only"})
+    r = ytauth.finish(body.address[:4000], who["user"])
+    if r.get("ok") and body.sign_out and not kiosk_profiles.on_monitor(request.client.host if request.client else "", request.headers.get("x-forwarded-for", "")):
+        response.delete_cookie(COOKIE)
+        r["signed_out"] = True
+        audit.record(who["user"], "auth.logout", "youtube sign-in", detail="signed out of this browser after renewing (a shared Mac)")
+    return r
 
 
 @app.get("/api/automator/reports")

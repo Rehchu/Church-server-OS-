@@ -139,6 +139,10 @@ CALLS = {
     ("GET", "/api/automator/quota"): ("/api/automator/quota", None, None),
     ("POST", "/api/automator/run"): ("/api/automator/run", None, None),
     ("POST", "/api/automator/preview"): ("/api/automator/preview", None, None),
+    # the weekly YouTube sign-in (ytauth.py): the preview's sample link; a wrong address is refused
+    ("GET", "/api/automator/signin"): ("/api/automator/signin", None, None),
+    ("POST", "/api/automator/signin/start"): ("/api/automator/signin/start", None, None),
+    ("POST", "/api/automator/signin/finish"): ("/api/automator/signin/finish", {"address": "http://localhost:8765/?state=sweep&code=c", "sign_out": False}, None),
     ("GET", "/api/automator/channel"): ("/api/automator/channel", None, None),
     ("GET", "/api/songs"): ("/api/songs", None, {"q": "room", "has": ""}),
     ("GET", "/api/songs/{key}"): ("/api/songs/7122057", None, None),

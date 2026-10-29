@@ -398,7 +398,7 @@ V.automator = async () => {
     <div class="grid" style="margin-bottom:14px">
       <div class="c3 panel ${a.last_ok === false ? 'panel--bad' : a.last_ok ? 'panel--ok' : 'panel--warn'}"><div class="stat"><span class="stat__l">Last run</span><span class="stat__v" style="font-size:22px">${a.last_run ? ago(a.last_run) : 'never'}</span><span class="stat__n">${esc(a.last_summary || 'no report on this server yet')}</span></div></div>
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Quota today</span><span class="stat__v">${fmtN(a.quota_today ?? 0)}<small>/ ${fmtN(a.quota_daily)}</small></span><span class="stat__n">resets ${esc(a.quota_reset || '2 AM Central')} · next run ${fmtT(a.next_run)}</span></div><div class="meter ${q > 75 ? 'meter--warn' : 'meter--ok'}"><i style="width:${q}%"></i></div></div>
-      <div class="c3 panel ${a.token_ok ? (a.token_days_left != null && a.token_days_left <= 2 ? 'panel--warn' : 'panel--ok') : 'panel--bad'}"><div class="stat"><span class="stat__l">Sign-in</span><span class="stat__v" style="font-size:22px">${a.token_ok ? 'token ok' : 'no token'}</span><span class="stat__n">${esc(a.signed_in_as || '')}${a.token_days_left != null ? ` · ~${a.token_days_left} days before Google expires it` : ''}</span>${a.token_note ? `<span class="stat__n" style="color:var(--warn)">${esc(a.token_note)}</span>` : ''}</div></div>
+      <div class="c3 panel ${!a.token_ok || a.signin?.expired ? 'panel--bad' : a.signin?.soon ? 'panel--warn' : 'panel--ok'}"><div class="stat"><span class="stat__l">Sign-in</span><span class="stat__v" style="font-size:22px">${!a.token_ok ? 'no token' : a.signin?.expired ? 'ended' : 'signed in'}</span><span class="stat__n">${esc(a.signed_in_as || '')}${a.signin?.known ? `${a.signed_in_as ? ' · ' : ''}${a.signin.expired ? 'ended' : 'ends'} ${esc(a.signin.expires_text)}` : a.signin?.testing ? `${a.signed_in_as ? ' · ' : ''}renewal date not known yet` : ''}</span>${a.token_note ? `<span class="stat__n" style="color:var(--warn)">${esc(a.token_note)}</span>` : ''}${a.signin?.testing ? '<button class="btn btn--xs" id="auRenew" type="button" style="margin-top:8px;align-self:flex-start">Renew for the week</button>' : ''}</div></div>
       <div class="c3 panel panel--flat"><div class="stat"><span class="stat__l">Guard rails</span><span class="stat__v">${a.holds}<small>on hold</small></span><span class="stat__n">${a.rules} standing rules · ${a.worklist_enabled} of ${a.worklist_total} jobs enabled</span></div><div class="row" style="margin-top:10px"><button class="btn btn--ghost btn--xs" id="auPreview">Preview tonight</button><button class="btn btn--xs" id="auRun">Run now</button></div></div>
     </div>
     ${a.manual?.started ? `<p class="note" style="margin-bottom:14px"><b>${esc(a.manual.mode)}</b> started ${fmtT(a.manual.started)} · ${a.manual.finished ? (a.manual.ok ? 'finished ok' : `failed: ${esc(a.manual.error || 'exit ' + a.manual.code)}`) : 'still running'} · output in last-run.log</p>` : ''}
@@ -416,8 +416,52 @@ V.automator = async () => {
     <div data-tab="reports" hidden class="panel panel--flat"><div class="row" style="flex-wrap:wrap;gap:8px">${(a.reports || []).map(r => `<button class="btn btn--ghost btn--xs" data-rep="${esc(r)}">${esc(r.replace('.md', ''))}</button>`).join('') || '<span class="empty" style="width:100%">no reports yet</span>'}</div><div id="repBody" class="md" style="margin-top:16px"></div></div>
   </div>`;
 };
+/* The weekly YouTube sign-in (Oct 29). The OAuth app stays in Testing, so Google ends the
+   server's sign-in seven days after it is given. Bradly renews from the Media Mac (signed in to
+   the channel's Google account), in Safari: the Google page opens in this same browser, he
+   approves, copies the localhost:8765 address that fails to load and pastes it back here.
+   The Media Mac is shared and a dashboard sign-in lasts a year, so this browser is signed out
+   afterwards unless he unticks the box (never on the closet monitor). The token is never shown. */
+function ytRenew() {
+  const stepOne = r => `<h2>Renew the YouTube sign-in</h2>
+    <p class="note">Do this on the <b>Media Mac</b>: it is signed in to the channel's Google account. It takes a minute.</p>
+    <ol class="yt__steps">
+      <li><a class="btn" id="ytGo" href="${esc(r.url)}" target="_blank" rel="noopener">Open Google's sign-in</a><span class="muted"> It opens in a new tab of this browser. Choose <b>Arise Church</b>, then Advanced → Go to … (the church's own app), then Allow.</span></li>
+      <li>The new tab then tries <code>${esc(r.redirect)}</code> and <b>fails to load</b>. That is expected. Copy the whole address from that tab's address bar (click it, ⌘A, ⌘C), close the tab, and come back here.</li>
+      <li><label for="ytAddr">Paste it here (⌘V)</label><input id="ytAddr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url" placeholder="http://localhost:8765/?state=…&amp;code=…"></li>
+    </ol>
+    <label class="check" style="margin-top:6px"><input type="checkbox" id="ytOut" ${S.kiosk ? '' : 'checked'}> Sign me out of this browser when done (the Media Mac is shared)</label>
+    <p class="note" id="ytMsg" style="min-height:1.2em"></p>
+    <div class="acts"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button class="btn" type="button" id="ytDone" disabled>Renew</button></div>
+    <p class="note">The link works ten minutes and once. ${r.demo ? 'Sample: nothing goes to Google.' : 'Nothing about the sign-in itself is shown or kept anywhere but the server\'s secrets folder.'}</p>`;
+  withReauth(() => api('/automator/signin/start', { method: 'POST' })).then(r => {
+    if (r.ok === false) { toast(r.err, 'bad', 8000); return; }
+    modal(stepOne(r), m => {
+      const inp = $('#ytAddr', m), go = $('#ytDone', m), msg = $('#ytMsg', m);
+      const check = () => { const v = inp.value.trim(); go.disabled = !/code=|^[\w./-]{20,}$/.test(v); msg.textContent = v && /localhost:8765/.test(v) && !/code=/.test(v) ? 'That address has no code= in it: copy it after you pressed Allow.' : ''; };
+      inp.addEventListener('input', check); inp.addEventListener('paste', () => setTimeout(check, 0));
+      $('#ytGo', m).addEventListener('click', () => setTimeout(() => inp.focus(), 400));
+      go.onclick = async () => {
+        go.disabled = true; msg.textContent = 'Checking with Google…';
+        try {
+          const f = await api('/automator/signin/finish', { method: 'POST', body: { address: inp.value.trim(), sign_out: $('#ytOut', m).checked } });
+          if (f.ok === false) { msg.textContent = f.err; go.disabled = false; return; }
+          $('#modalBody').innerHTML = `<h2>Signed in as ${esc(f.channel || 'Arise Church')}</h2>
+            <p>The server's sign-in now ends <b>${esc(f.expires_text || 'in seven days')}</b>. A reminder comes Saturday evening and Sunday after the service if it is due.</p>
+            ${f.signed_out ? '<p class="note">This browser is signed out of the dashboard. Your other devices stay signed in.</p>' : '<div class="acts"><button class="btn btn--ghost" type="button" id="ytLogout">Sign me out of this browser</button></div>'}
+            ${f.note ? `<p class="note">${esc(f.note)}</p>` : ''}
+            <div class="acts"><button class="btn" type="button" id="ytClose">Done</button></div>`;
+          const close = () => { m.close(); if (f.signed_out) location.reload(); else rerender('automator'); };
+          $('#ytClose').onclick = close;
+          if ($('#ytLogout')) $('#ytLogout').onclick = async () => { await api('/auth/logout', { method: 'POST' }).catch(() => {}); location.reload(); };
+        } catch (er) { msg.textContent = er.message; go.disabled = false; }
+      };
+    });
+  }).catch(er => { if (er.message !== 'cancelled') toast(er.message, 'bad'); });
+}
 V.automator.after = () => {
   tabs('#auTabs', 'automator');
+  if ($('#auRenew')) $('#auRenew').onclick = () => ytRenew();
   chVideos(); chSearch(); chSongs(); chSwitch();
   $('#auPreview').onclick = e => act(e.target, () => api('/automator/preview', { method: 'POST' }), 'Preview started: a dry run, nothing is written to YouTube');
   $('#auRun').onclick = e => modal(`<h2>Run the automator now?</h2><p class="note" style="margin-bottom:14px">This spends real quota and writes to the channel exactly as the 02:05 run would. The hold list still applies. If a chat session is also working today, remember the 10,000 units are shared.</p><div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="auGo">Run</button></div>`, m => { $('#auGo', m).onclick = async ev => { const r = await act(ev.target, () => api('/automator/run', { method: 'POST' }), 'Run started; the report appears when it finishes'); if (r) { m.close(); setTimeout(() => rerender('automator'), 3000); } }; });

@@ -975,3 +975,9 @@ body.bone .nb__n{background:rgba(10,10,12,.05)}body.bone .nb__n p{color:#0A0A0C}
 .saver__ann{margin-top:22px;font-family:Oswald,sans-serif;font-size:min(2.4vw,18px);letter-spacing:.06em;color:var(--text2);min-height:1.4em;transition:opacity .6s}
 .mdsk{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px 16px}
 @media (max-width:760px){.svm .grid > .c4{grid-column:1 / -1}.svm__big{font-size:22px}}
+
+/* the weekly YouTube sign-in (Automator -> Sign-in) */
+.yt__steps{margin:12px 0 8px;padding-left:20px;display:grid;gap:12px}
+.yt__steps li{line-height:1.5}
+.yt__steps .btn{margin-right:8px}
+.yt__steps input{width:100%;margin-top:6px;font-size:16px;font-family:var(--mono,ui-monospace,Menlo,monospace)}

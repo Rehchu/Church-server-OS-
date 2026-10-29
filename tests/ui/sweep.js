@@ -175,6 +175,18 @@ async function flows(browser, url) {
   await step('Songs', 'Find a line in the transcripts opens the Search tab with that line', async () => { await p.click('#sgFind'); await settle(p, 900); const q = await p.evaluate(() => document.querySelector('#chSQ')?.value); const on = await p.evaluate(() => !document.getElementById('chSearch').hidden); await p.click('#auTabs [data-t="songs"]'); await settle(p, 500); return on && q === '"Sample pasted from Proclaim"' ? true : `${on} ${q}`; });
   await step('Songs', 'removing lyrics asks for the title, then they are gone', async () => { await p.click('#sgRm'); await p.fill('#cfWord', 'Make Room'); await p.click('#cfGo'); await settle(p, 900); const t = await p.evaluate(() => !!document.querySelector('#sgText')); await p.click('#sgBack'); await settle(p, 700); return t ? true : 'no paste box after removing'; });
   await step('Songs', 'importing a ChordPro file links it by its CCLI number', async () => { await p.setInputFiles('#sgFile', { name: 'make-room.cho', mimeType: 'text/plain', buffer: Buffer.from('{title: Make Room}\n{ccli: 7122057}\n{soc}\n[G]Sample imported line\n{eoc}\n') }); await settle(p, 1000); const m = await text(p, '#modal'); await closeModal(p); await settle(p, 600); const row = await text(p, '#chSongs [data-song="7122057"]'); return /linked/.test(m) && /Make Room/.test(m) && /yes/i.test(row) ? true : `${m.slice(0, 120)} / ${row}`; });
+  // the weekly YouTube sign-in (Oct 29: Testing mode, renewed from the Media Mac in this browser)
+  await step('Automator', 'Renew for the week: the Google link opens in this browser; a wrong address is refused; the right one renews', async () => {
+    await p.click('#auRenew'); await settle(p, 600);
+    const href = await p.getAttribute('#ytGo', 'href'); const tgt = await p.getAttribute('#ytGo', 'target');
+    if (!/accounts\.google\.com/.test(href || '') || tgt !== '_blank') return `link: ${href} ${tgt}`;
+    const st = new URL(href).searchParams.get('state');
+    await p.fill('#ytAddr', 'http://localhost:8765/?state=wrong&code=c'); await p.click('#ytDone'); await settle(p, 500);
+    const bad = await text(p, '#ytMsg'); if (!/different sign-in/.test(bad)) return 'wrong state not refused: ' + bad;
+    await p.fill('#ytAddr', `http://localhost:8765/?state=${st}&code=sample`); await p.click('#ytDone'); await settle(p, 700);
+    const t = await text(p, '#modalBody'); if (!/Signed in as Arise Church/.test(t) || !/now ends/.test(t)) return t.slice(0, 160);
+    await p.click('#ytClose'); await settle(p, 900);
+    return /ends /.test(await text(p, '#wb-automator')) || 'the card does not say when it ends'; });
   await step('Automator', 'Server switch shows the runner and the checklist', async () => { await p.click('#auTabs [data-t="switch"]'); await settle(p, 700); const t = await text(p, '#auSwitch'); const rows = (await p.$$('#auSwitch .chsw__r')).length; return /the PC/.test(t) && rows >= 5 ? true : `${rows} rows: ${t.slice(0, 80)}`; });
   // ---- round 5: the Desktop folder, notifications, department checklists, the monitor's size, the guided setup ----
   await p.evaluate(() => { Object.keys(window.arise.S.wins).forEach(k => window.arise.closeApp(k)); }); await settle(p, 300);
