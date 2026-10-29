@@ -32,3 +32,6 @@ backup-history.json
 
 # generated on the box by scripts/arise-archive-setup (docs/ARCHIVE.md)
 /.mcp.json
+
+# install media made by scripts/make-install-media.sh
+dist/

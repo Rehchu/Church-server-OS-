@@ -4,6 +4,7 @@
     arisectl info                       what this box is and whether it is well
     arisectl doctor                     check everything, say what to fix
     arisectl admin set-password         set the dashboard password
+    arisectl setup                      the first-boot wizard again: church or home, the domain password, the rest
 
     arisectl service list|status|start|stop|restart <unit>
     arisectl user list|add|remove|passwd|enable|disable|homefix <name>   (add: --display, --password, --groups)
@@ -1023,6 +1024,17 @@ def cmd_repos(a):
         need_root()
         sys.exit(subprocess.call(["bash", str(HOME / "scripts" / "arise-repos-setup"), "--src", str(HOME)]))
 
+def cmd_setup(a):
+    """The first-boot wizard again (round 4, 59): church or home, the domain password, the
+    rest; then install.sh with the matching flags. Safe to run again."""
+    need_root()
+    for base in ("/opt/arise-src", str(HOME) if HOME else "", "/opt/arise"):
+        w = Path(base) / "scripts" / "arise-firstboot" if base else None
+        if w and w.exists():
+            os.execvp("bash", ["bash", str(w)])
+    sys.exit("scripts/arise-firstboot is not on this box (/opt/arise-src or /opt/arise)")
+
+
 def cmd_owner(a):
     """Bradly's own account (Oct 28): runs the 02:05 job; sudo without a password for him and his Claude."""
     from arise_server import automator
@@ -1668,6 +1680,7 @@ def build():
     sp.add_parser("ups").set_defaults(f=cmd_ups)
     p = sp.add_parser("link"); p.add_argument("sub", choices=["list", "revoke", "sweep"]); p.add_argument("token", nargs="?"); p.set_defaults(f=cmd_link)
     p = sp.add_parser("browser"); p.add_argument("sub", nargs="?", default="status", choices=["status", "apply", "policy"]); p.set_defaults(f=cmd_browser)
+    p = sp.add_parser("setup"); p.set_defaults(f=cmd_setup)
     p = sp.add_parser("owner"); p.add_argument("sub", nargs="?", default="status", choices=["status", "setup"]); p.add_argument("name", nargs="?", help="setup: the Linux account (default: [owner] user, then whoever ran sudo)"); p.set_defaults(f=cmd_owner)
     p = sp.add_parser("repos"); p.add_argument("sub", nargs="?", default="status", choices=["status", "sync", "setup"]); p.add_argument("name", nargs="?", help="sync: one repo only"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_repos)
     p = sp.add_parser("offboard"); p.add_argument("sub", choices=["list", "mark", "cancel", "sweep"]); p.add_argument("name", nargs="?"); p.add_argument("--to", help="mark: who takes the files"); p.add_argument("--days", type=int, default=30); p.add_argument("--dry-run", action="store_true"); p.add_argument("--quiet", action="store_true"); p.set_defaults(f=cmd_offboard)

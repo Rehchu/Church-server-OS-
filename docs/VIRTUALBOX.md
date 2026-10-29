@@ -4,14 +4,28 @@ A test box on Bradly's PC (Oct 29), long before the OptiPlex. It runs the real
 installer in staging mode: the domain stays on the VM itself, nothing on the
 home network is touched, and nothing on the PC changes but VirtualBox.
 
-## 1. The VM
+## 1. The media
+
+On a Linux box or Mac with the repo (`sudo apt install xorriso zip` first),
+make the files (installer/MAKE-USB.md):
+
+```
+bash scripts/make-install-media.sh            # dist/ariseos-addon.iso, a few MB
+bash scripts/make-install-media.sh --full     # or the one ISO: dist/ariseos-0.8.0-amd64.iso, about 3 GB
+```
+
+Copy what you made to the PC. With only the add-on, also download
+`ubuntu-24.04.x-live-server-amd64.iso` from https://releases.ubuntu.com/24.04/.
+No GitHub token is needed: the code is on the disc.
+
+## 2. The VM
 
 VirtualBox → **New**:
 
 | Setting | Value |
 |---|---|
 | Name | arise-test |
-| ISO | Ubuntu Server 24.04 LTS (ubuntu.com/download/server) |
+| ISO | `ariseos-0.8.0-amd64.iso`, or the plain Ubuntu 24.04 server ISO |
 | Unattended install | **Skip** (tick "Skip Unattended Installation") |
 | Memory | 8192 MB (4096 works, slowly) |
 | Processors | 4 (2 works) |
@@ -20,6 +34,9 @@ VirtualBox → **New**:
 Then **Settings** before the first start:
 
 - **System → Motherboard:** Enable EFI.
+- **Storage** (only with the plain Ubuntu ISO): on the IDE or SATA controller,
+  **Add optical drive** → `ariseos-addon.iso`. Two optical drives: Ubuntu and
+  the add-on.
 - **Display → Screen:** Graphics Controller VMSVGA, Video Memory 128 MB, 3D off.
   The VM's window is the closet monitor.
 - **Network → Adapter 1:** NAT (keeps the VM's domain off the home network),
@@ -31,46 +48,39 @@ Then **Settings** before the first start:
 | https | 8443 | 443 | the dashboard through Caddy (church certificate) |
 | ssh | 2222 | 22 | `ssh -p 2222 bradly@localhost` from the PC |
 
-## 2. Ubuntu
+## 3. The install
 
-Start the VM and install Ubuntu Server:
+Start the VM.
 
-- Language and keyboard as usual; network stays on DHCP (NAT).
-- Disk: use the whole disk. LVM is fine; encryption can be skipped on a test box.
-- Your name: Bradly Dyer. **Server name: `arise-server`**. **User name: `bradly`**
-  (the box's owner account; the automator runs as it).
-- **Install OpenSSH server: yes.** Featured snaps: none.
-- Reboot, sign in.
+- The ariseOS ISO: pick **Install ariseOS** in the boot menu. The plain Ubuntu
+  ISO: pick "Try or Install Ubuntu Server" and type `yes` at "Continue with
+  autoinstall?".
+- The one screen it asks: your name Bradly Dyer, **server name `arise-server`**,
+  **user name `bradly`** (the box's owner account; the automator runs as it),
+  and a password.
+- It wipes the VM's disk, installs Ubuntu and ariseOS, and restarts. If it
+  boots back into the installer, remove the discs (Devices → Optical Drives)
+  and restart.
 
-## 3. ariseOS
+On the first boot the **ariseOS setup** wizard is on the VM window:
 
-The repository is private, so git asks for your GitHub user name and a token
-(a fine-grained token with read-only Contents on Church-server-OS- is enough;
-type it at the prompt, never into a chat).
-
-```
-sudo apt update && sudo apt install -y git
-sudo git clone -b claude/arise-server-os https://github.com/Rehchu/Church-server-OS-.git /opt/arise-src
-cd /opt/arise-src
-sudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale
-```
-
-- It asks for the **domain Administrator password** (twice). Choose one for the
-  test box only.
-- It takes 15 to 30 minutes. The last screen lists what still needs you.
-- `--staging`: the domain on loopback, no network scan (CLAUDE.md rule 8).
-- `--kiosk`: after the reboot the VM window shows the Arise desktop, like the
-  closet monitor.
-
-Then:
-
-```
-sudo arisectl admin set-password      # the dashboard's admin password
-sudo arisectl doctor                  # what is wrong, in order
-sudo reboot                           # the VM window comes back as the closet monitor
-```
+- Where is this box: **At home or in a test VM** (staging: the domain on the
+  VM only, no network scan, CLAUDE.md rule 8).
+- Your account: `bradly`.
+- The **domain Administrator password**, twice. Choose one for the test box only.
+- The Synology: leave it empty. Tailscale: **No**. The desktop on this monitor:
+  **Yes**. Discord: later.
+- Go. It takes 15 to 30 minutes, then asks for the **dashboard password**,
+  shows what still needs you (`arisectl doctor`) and restarts. The VM window
+  comes back as the closet monitor.
 
 On the PC, open **http://localhost:4147** for the dashboard in a browser.
+Run the wizard again any time with `sudo arisectl setup`.
+
+**Without the media** (the old way still works): install Ubuntu by hand, copy
+the repo to `/opt/arise-src`, and run
+`sudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale`,
+then `sudo arisectl admin set-password`.
 
 ## 4. What to try
 
@@ -91,9 +101,13 @@ into the chat. Doctor never prints a password; anything from
 
 ## 5. Updating it
 
+Make the add-on again from the newer commit, attach it to the VM, and:
+
 ```
-cd /opt/arise-src && sudo git pull
-sudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale
+sudo mount -o ro "$(blkid -L CIDATA)" /mnt
+(cd /mnt/arise && sha256sum -c SHA256SUMS) && sudo tar -xzf /mnt/arise/ariseos-src.tar.gz -C /opt/arise-src
+sudo umount /mnt
+sudo bash /opt/arise-src/installer/install.sh --staging --owner bradly --kiosk --no-tailscale
 ```
 
 The installer is safe to run again: a re-run changes only what changed.
