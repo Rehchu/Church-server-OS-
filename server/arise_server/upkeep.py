@@ -417,7 +417,7 @@ code{{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;pad
 <h2>The backups</h2><table><tr><td>Tonight's copy</td><td><code>{e(f['repo'])}</code> at 03:00; restore: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
 <tr><td>Off-site copy</td><td>Arise-Home (Bradly's house){(' &nbsp;<code>' + e(f['home']) + '</code>') if f.get('home') else ''}, every snapshot but the raw recordings</td></tr>
 <tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;Kristina has it too.</td></tr>
-<tr><td>Disk passphrase</td><td>The TPM unlocks the disk at boot. If the box asks: ______________________________ (by hand; Kristina has it too)</td></tr>
+<tr><td>Disk passphrase</td><td>Asked at every start ("Please unlock disk"): type it on this keyboard, or <code>ssh -p 2222 root@arise-server</code> from a church computer. It is on the safe card, and Bradly and Kristina know it. Not written here.</td></tr>
 <tr><td>Rebuild</td><td><code>sudo arisectl reinstall</code> from the Synology or Arise-Home (docs/REINSTALL.md)</td></tr></table>
 <h2>Who to call</h2><table>{who}</table>
 <h2>Staff with a Mac problem</h2><table><tr><td>The IT portal</td><td><code>{e(it_portal())}</code> &nbsp;a ticket reaches Bradly</td></tr></table>

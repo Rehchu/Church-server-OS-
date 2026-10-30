@@ -33,7 +33,7 @@ from .config import load
 
 PIN_RE = re.compile(r"^\d{4,8}$")
 WRONG_MAX = 10           # wrong PINs for one account, any devices, before its PIN switches off
-ROUNDS = 10              # bcrypt cost: about 80 to 100 ms a check on the OptiPlex
+ROUNDS = 10              # bcrypt cost: about 80 to 100 ms a check on the server's i5
 DEVICE_COOKIE = "arise_pin_device"
 DEVICE_DAYS = 400
 _lock = threading.Lock()

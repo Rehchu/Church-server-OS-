@@ -115,17 +115,17 @@ wipe" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.
 3. Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security
    devices (the TPM). Send them to Claude.
 
-**In the BIOS** (F10 at the HP logo):
+**In the BIOS** (F10 at the HP logo; names shift a little between BIOS versions):
 
 1. **Storage → Storage Options → SATA Emulation: AHCI**.
 2. **Storage → Boot Order:** UEFI boot sources on, Legacy off if offered; the Ubuntu stick
    boots either way.
-3. **Power → Hardware Power Management → After Power Loss: On**. After a power cut it turns
+3. **Advanced → Power-On Options → After Power Loss: On**. After a power cut it turns
    itself back on and waits at the passphrase. Without this it stays off.
-4. **Security → System Security → Embedded Security Device: Available**; the TPM is on, even
+4. **Security → Device Security → Embedded Security Device: Device available**; the TPM is on, even
    though clevis can't use a 1.2 chip.
 5. Leave Secure Boot as it is; Ubuntu boots with it on or off.
-6. F12 at the logo is the one-time boot menu for the USB stick.
+6. **F9** at the logo is the one-time boot menu for the USB stick (F12 on the Dell).
 
 **Shopping list** (H5, for the EliteDesk):
 

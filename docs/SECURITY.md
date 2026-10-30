@@ -186,7 +186,7 @@ passphrase at boot (docs/ANSWERS.md, H3):
 - **No surprise restarts:** the Saturday 03:30 update installs but never restarts the box by
   itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks
   System → Restart when they can unlock it.
-- **The BIOS:** set Power → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt
+- **The BIOS:** set Advanced → Power-On Options → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt
   rather than staying off.
 
 The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.

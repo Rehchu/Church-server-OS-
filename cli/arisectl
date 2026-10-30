@@ -41,7 +41,7 @@
     arisectl security                   the Security app's rows: encryption, scan, certificate, two-step, rescue
     arisectl twofa list|reset <user>    who has two-step sign-in on; reset = turn it off for someone who lost the phone
     arisectl rescue status|rotate|card  the break-glass admin arise-rescue (console only); card writes the closet card
-    arisectl encrypt status|tpm         LUKS and the TPM: is the disk encrypted, does the TPM unlock it (clevis)
+    arisectl encrypt status|tpm|ssh     LUKS: is the disk encrypted, does a TPM 2.0 unlock it (clevis), or the passphrase over SSH at boot
     arisectl snapshot create "<note>"|list|restore <name>|prune   system snapshots (Timeshift), 5 kept, never during a service
     arisectl scan status|run|restore <file>   the weekly ClamAV scan of the shares; restore puts a quarantined file back
     arisectl reinstall <restic-repo>    rebuild this box from the Synology's backup (docs/REINSTALL.md)
@@ -242,7 +242,13 @@ def cmd_doctor(a):
         from arise_server import security as _sec
         est = _sec.encrypt_status()
         if est.get("luks"):
-            (ok if est.get("tpm_bound") else warn)("disk encryption: LUKS " + ("+ TPM unlock (boots alone)" if est.get("tpm_bound") else "but no TPM binding: sudo arisectl encrypt tpm (a reboot waits for the passphrase until then)"))
+            if est.get("tpm_bound"):
+                ok("disk encryption: LUKS + TPM unlock (boots alone)")
+            elif est.get("tpm"):
+                warn("disk encryption: LUKS, a TPM 2.0 is here but not bound: sudo arisectl encrypt tpm (or keep the passphrase at boot)")
+            else:
+                ok("disk encryption: LUKS, the passphrase at boot (no TPM 2.0; Bradly, Oct 30, H3)")
+                (ok if est.get("ssh_unlock") else warn)("unlock over SSH at boot: " + ("on (ssh -p 2222 root@arise-server)" if est.get("ssh_unlock") else "off: sudo arisectl encrypt ssh (the closet keyboard works meanwhile)"))
         else:
             warn("disk not encrypted (LUKS is picked in the Ubuntu installer; docs/SECURITY.md)")
         import pwd as _pwd

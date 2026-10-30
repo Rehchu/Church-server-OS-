@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793382773
+"boot_time": 1793388497
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,14 +32,14 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-30T02:08:19",
+"last_run": "2026-10-30T02:30:37",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-31T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 1.8,
+"token_days_left": 1.7,
 "holds": 8
 },
 "backup": {
@@ -90,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T15:08:19"
+"since": "2026-10-16T16:30:37"
 }
 ]
 },
@@ -169,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T17:08:19",
+"last_logon": "2026-10-30T18:30:37",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -183,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T18:08:19",
+"last_logon": "2026-10-29T19:30:37",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -197,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T15:08:19",
+"last_logon": "2026-10-28T16:30:37",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -211,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-24T18:08:19",
+"last_logon": "2026-10-24T19:30:37",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -239,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T18:08:19",
+"last_logon": "2026-10-27T19:30:37",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -253,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-21T18:08:19",
+"last_logon": "2026-10-21T19:30:37",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -270,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T14:08:19",
+"last_logon": "2026-10-29T15:30:37",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -287,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T18:08:19",
+"last_logon": "2026-10-28T19:30:37",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -303,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T11:08:19",
+"last_logon": "2026-10-29T12:30:37",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -409,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-30T17:08:19",
+"last_seen": "2026-10-30T18:30:37",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-29T18:08:19",
+"last_seen": "2026-10-29T19:30:37",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-28T18:08:19",
+"last_seen": "2026-10-28T19:30:37",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-30T18:04:19",
+"last_seen": "2026-10-30T19:26:37",
 "ip": "192.168.1.20"
 }
 ]
@@ -1958,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-21T18:08:19",
+"last_check": "2026-10-21T19:30:37",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1990,7 +1990,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-30T02:08:19",
+"last_run": "2026-10-30T02:30:37",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-31T02:05:00",
@@ -2002,7 +2002,7 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 1.8,
+"token_days_left": 1.7,
 "token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 1, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
@@ -2026,8 +2026,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 42.1,
-"days_left": 1.8,
+"hours_left": 40.7,
+"days_left": 1.7,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -2124,17 +2124,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-30T13:08:19",
+"when": "2026-10-30T14:30:37",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-30T13:08:19",
+"when": "2026-10-30T14:30:37",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-30T13:08:19",
+"when": "2026-10-30T14:30:37",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2224,7 +2224,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2241,7 +2241,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2258,7 +2258,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2275,7 +2275,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2292,7 +2292,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-28T18:08:19",
+"updated": "2026-10-28T19:30:37",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2309,7 +2309,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2326,7 +2326,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2343,7 +2343,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-29T18:08:19",
+"updated": "2026-10-29T19:30:37",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2360,7 +2360,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2377,7 +2377,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-27T18:08:19",
+"updated": "2026-10-27T19:30:37",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3225,7 +3225,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-29T16:08:19",
+"last": "2026-10-29T17:30:37",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3489,7 +3489,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-30T18:08"
+"when": "2026-10-30T19:30"
 },
 {
 "user": "bradly",
@@ -3723,8 +3723,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-28T18:08",
-"expires": "2026-11-04T18:08",
+"created": "2026-10-28T19:30",
+"expires": "2026-11-04T19:30",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -3770,7 +3770,7 @@ window.ARISE_DEMO_DATA = {
 "ips": [
 "192.168.1.57"
 ],
-"vendor": "Dell",
+"vendor": "HP",
 "guess": "server",
 "kind": "server",
 "hostname": "arise-server.ad.arisecenla.com",
@@ -4072,8 +4072,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2391,
-"in_words": "39 h 51 min"
+"in_minutes": 2309,
+"in_words": "38 h 29 min"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4206,8 +4206,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2391,
-"in_words": "39 h 51 min"
+"in_minutes": 2309,
+"in_words": "38 h 29 min"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4253,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-30T18:08"
+"now": "2026-10-30T19:30"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4357,7 +4357,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-30T18:08:19+00:00",
+"last_check": "2026-10-30T19:30:38+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4370,7 +4370,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-30T14:08:19",
+"t": "2026-10-30T15:30:38",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4378,7 +4378,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-29T13:08:19",
+"t": "2026-10-29T14:30:38",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4386,7 +4386,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T18:08:19",
+"t": "2026-10-28T19:30:38",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4394,7 +4394,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T16:08:19",
+"t": "2026-10-27T17:30:38",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4402,7 +4402,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T18:08:19",
+"t": "2026-10-25T19:30:38",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4410,7 +4410,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T17:08:19",
+"t": "2026-10-25T18:30:38",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4418,7 +4418,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T15:08:19",
+"t": "2026-10-24T16:30:38",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4426,7 +4426,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T15:08:19",
+"t": "2026-10-24T16:30:38",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -5012,7 +5012,7 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "HARDWARE",
 "title": "Hardware — what to send, what is enough, what to expect",
-"size": 10711,
+"size": 10777,
 "lines": 186,
 "blurb": "The specs of the old PC are not known yet (Bradly, Oct 27 2026: \"I'll"
 },
@@ -5138,7 +5138,7 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"size": 18073,
+"size": 18095,
 "lines": 307,
 "blurb": "What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,"
 },
@@ -5302,7 +5302,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-30T18:08:19+00:00",
+"checked_at": "2026-10-30T19:30:38+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5327,7 +5327,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-30T18:08:19+00:00",
+"queued_at": "2026-10-30T19:30:38+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5335,16 +5335,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-25T18:08",
+"when": "2026-10-25T19:30",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-30T18:08:19+00:00"
+"last_check": "2026-10-30T19:30:38+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793383699.9576,
+"t": 1793388638.3086963,
 "processes": [
 {
 "pid": 470,
@@ -5354,7 +5354,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792174099.9575875,
+"since": 1792179038.3086746,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5371,7 +5371,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792174099.9575865,
+"since": 1792179038.308673,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5388,7 +5388,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792174099.95756,
+"since": 1792179038.3086343,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5405,7 +5405,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792174099.95757,
+"since": 1792179038.308645,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5422,7 +5422,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792174099.9575834,
+"since": 1792179038.3086636,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5439,7 +5439,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792174099.9575663,
+"since": 1792179038.3086407,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5456,7 +5456,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792174099.9575691,
+"since": 1792179038.3086433,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5473,7 +5473,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792174099.9575737,
+"since": 1792179038.3086505,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5490,7 +5490,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792174099.957588,
+"since": 1792179038.3086755,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5507,7 +5507,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792174099.9575818,
+"since": 1792179038.3086526,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5524,7 +5524,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792174099.9575894,
+"since": 1792179038.3086789,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5541,7 +5541,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792174099.957585,
+"since": 1792179038.3086712,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5558,7 +5558,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792174099.9575887,
+"since": 1792179038.3086772,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5575,7 +5575,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792174099.9575841,
+"since": 1792179038.308669,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5695,8 +5695,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-30T19:00:00",
-"last": "2026-10-29T19:00:00",
+"next": "2026-10-30T20:00:00",
+"last": "2026-10-29T20:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5853,7 +5853,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-30T12:08",
+"as_of": "2026-10-30T13:30",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5926,62 +5926,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-30T18:08"
+"mtime": "2026-10-30T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-23T18:08"
+"mtime": "2026-10-23T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-16T18:08"
+"mtime": "2026-10-16T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-09T18:08"
+"mtime": "2026-10-09T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-02T18:08"
+"mtime": "2026-10-02T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-25T18:08"
+"mtime": "2026-09-25T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-18T18:08"
+"mtime": "2026-09-18T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-11T18:08"
+"mtime": "2026-09-11T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-04T18:08"
+"mtime": "2026-09-04T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-28T18:08"
+"mtime": "2026-08-28T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-21T18:08"
+"mtime": "2026-08-21T19:30"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-14T18:08"
+"mtime": "2026-08-14T19:30"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5998,17 +5998,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-17T18:08"
+"mtime": "2025-06-17T19:30"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-17T18:08"
+"mtime": "2025-06-17T19:30"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-17T18:08"
+"mtime": "2025-06-17T19:30"
 }
 ],
 "old_days": 365
@@ -8104,7 +8104,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8119,7 +8119,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8134,7 +8134,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8149,7 +8149,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8164,7 +8164,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8179,7 +8179,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8194,7 +8194,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 },
 {
@@ -8209,11 +8209,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T18:08:20+00:00",
+"when": "2026-10-30T19:30:38+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-30T18:08:20+00:00",
+"last": "2026-10-30T19:30:38+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8625,7 +8625,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-28T18:08",
+"when": "2026-10-28T19:30",
 "from": "portal"
 },
 {
@@ -8637,7 +8637,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-18T18:08",
+"when": "2026-10-18T19:30",
 "from": "mac"
 },
 {
@@ -8649,7 +8649,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-03T18:08",
+"when": "2026-10-03T19:30",
 "from": "mac"
 }
 ],
@@ -8887,8 +8887,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 42.1,
-"days_left": 1.8,
+"hours_left": 40.7,
+"days_left": 1.7,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -8941,35 +8941,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-30T14:08:19",
+"when": "2026-10-30T15:30:38",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-29T13:08:19",
+"when": "2026-10-29T14:30:38",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-28T18:08:19",
+"when": "2026-10-28T19:30:38",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-25T18:08:19",
+"when": "2026-10-25T19:30:38",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-24T15:08:19",
+"when": "2026-10-24T16:30:38",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9273,8 +9273,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2391,
-"in_words": "39 h 51 min"
+"in_minutes": 2309,
+"in_words": "38 h 29 min"
 },
 "call_time": "09:00",
 "demo": true
@@ -9300,8 +9300,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2391,
-"in_words": "39 h 51 min"
+"in_minutes": 2309,
+"in_words": "38 h 29 min"
 },
 "demo": true
 },
@@ -9474,1176 +9474,1176 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-23T18:05",
-"down": 929.1,
+"at": "2026-10-23T19:05",
+"down": 511.0,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-23T19:05",
+"at": "2026-10-23T20:05",
 "down": 514.2,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-23T20:05",
+"at": "2026-10-23T21:05",
 "down": 516.3,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-23T21:05",
-"down": 517.0,
+"at": "2026-10-23T22:05",
+"down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-23T22:05",
+"at": "2026-10-23T23:05",
 "down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-23T23:05",
+"at": "2026-10-24T00:05",
 "down": 935.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-24T00:05",
+"at": "2026-10-24T01:05",
 "down": 930.0,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-24T01:05",
+"at": "2026-10-24T02:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-24T02:05",
+"at": "2026-10-24T03:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-24T03:05",
+"at": "2026-10-24T04:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-24T04:05",
+"at": "2026-10-24T05:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-24T05:05",
+"at": "2026-10-24T06:05",
 "down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T06:05",
+"at": "2026-10-24T07:05",
 "down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T07:05",
+"at": "2026-10-24T08:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T08:05",
+"at": "2026-10-24T09:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T09:05",
+"at": "2026-10-24T10:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-24T10:05",
+"at": "2026-10-24T11:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-24T11:05",
+"at": "2026-10-24T12:05",
 "down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-24T12:05",
+"at": "2026-10-24T13:05",
 "down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-24T13:05",
+"at": "2026-10-24T14:05",
 "down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-24T14:05",
+"at": "2026-10-24T15:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-24T15:05",
+"at": "2026-10-24T16:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T16:05",
+"at": "2026-10-24T17:05",
 "down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T17:05",
+"at": "2026-10-24T18:05",
 "down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-24T18:05",
-"down": 849.9,
+"at": "2026-10-24T19:05",
+"down": 467.4,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-24T19:05",
+"at": "2026-10-24T20:05",
 "down": 473.4,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-24T20:05",
+"at": "2026-10-24T21:05",
 "down": 479.9,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-24T21:05",
-"down": 486.5,
+"at": "2026-10-24T22:05",
+"down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-24T22:05",
+"at": "2026-10-24T23:05",
 "down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-24T23:05",
+"at": "2026-10-25T00:05",
 "down": 907.4,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-25T00:05",
+"at": "2026-10-25T01:05",
 "down": 917.5,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-25T01:05",
+"at": "2026-10-25T02:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T02:05",
+"at": "2026-10-25T03:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T03:05",
+"at": "2026-10-25T04:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T04:05",
+"at": "2026-10-25T05:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-25T05:05",
+"at": "2026-10-25T06:05",
 "down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-25T06:05",
+"at": "2026-10-25T07:05",
 "down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-25T07:05",
+"at": "2026-10-25T08:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-25T08:05",
+"at": "2026-10-25T09:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-25T09:05",
+"at": "2026-10-25T10:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-25T10:05",
+"at": "2026-10-25T11:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T11:05",
+"at": "2026-10-25T12:05",
 "down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T12:05",
+"at": "2026-10-25T13:05",
 "down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-25T13:05",
+"at": "2026-10-25T14:05",
 "down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-25T14:05",
+"at": "2026-10-25T15:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-25T15:05",
+"at": "2026-10-25T16:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-25T16:05",
+"at": "2026-10-25T17:05",
 "down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-25T17:05",
+"at": "2026-10-25T18:05",
 "down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-25T18:05",
-"down": 825.7,
+"at": "2026-10-25T19:05",
+"down": 454.1,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-25T19:05",
+"at": "2026-10-25T20:05",
 "down": 451.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T20:05",
+"at": "2026-10-25T21:05",
 "down": 451.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T21:05",
-"down": 451.4,
+"at": "2026-10-25T22:05",
+"down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T22:05",
+"at": "2026-10-25T23:05",
 "down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-25T23:05",
+"at": "2026-10-26T00:05",
 "down": 829.2,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T00:05",
+"at": "2026-10-26T01:05",
 "down": 836.6,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-26T01:05",
+"at": "2026-10-26T02:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-26T02:05",
+"at": "2026-10-26T03:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-26T03:05",
+"at": "2026-10-26T04:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-26T04:05",
+"at": "2026-10-26T05:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-26T05:05",
+"at": "2026-10-26T06:05",
 "down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T06:05",
+"at": "2026-10-26T07:05",
 "down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T07:05",
+"at": "2026-10-26T08:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T08:05",
+"at": "2026-10-26T09:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-26T09:05",
+"at": "2026-10-26T10:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-26T10:05",
+"at": "2026-10-26T11:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-26T11:05",
+"at": "2026-10-26T12:05",
 "down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-26T12:05",
+"at": "2026-10-26T13:05",
 "down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-26T13:05",
+"at": "2026-10-26T14:05",
 "down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T14:05",
+"at": "2026-10-26T15:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T15:05",
+"at": "2026-10-26T16:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T16:05",
+"at": "2026-10-26T17:05",
 "down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T17:05",
+"at": "2026-10-26T18:05",
 "down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
-"down": 900.6,
+"at": "2026-10-26T19:05",
+"down": 495.3,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
+"at": "2026-10-26T20:05",
 "down": 488.9,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
+"at": "2026-10-26T21:05",
 "down": 482.4,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 475.8,
+"at": "2026-10-26T22:05",
+"down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-26T23:05",
 "down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T00:05",
 "down": 843.7,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T01:05",
 "down": 834.9,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T02:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T03:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T04:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T05:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T06:05",
 "down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-27T07:05",
 "down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-27T08:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-27T09:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T10:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T11:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-27T12:05",
 "down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-27T13:05",
 "down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-27T14:05",
 "down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
+"at": "2026-10-27T15:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
+"at": "2026-10-27T16:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
+"at": "2026-10-27T17:05",
 "down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
+"at": "2026-10-27T18:05",
 "down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
-"down": 937.9,
+"at": "2026-10-27T19:05",
+"down": 515.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
+"at": "2026-10-27T20:05",
 "down": 516.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
+"at": "2026-10-27T21:05",
 "down": 516.7,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 515.1,
+"at": "2026-10-27T22:05",
+"down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-27T23:05",
 "down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T00:05",
 "down": 924.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T01:05",
 "down": 915.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T02:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T03:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T04:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T05:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T06:05",
 "down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-28T07:05",
 "down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-28T08:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-28T09:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T10:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T11:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-28T12:05",
 "down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-28T13:05",
 "down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-28T14:05",
 "down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
+"at": "2026-10-28T15:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
+"at": "2026-10-28T16:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
+"at": "2026-10-28T17:05",
 "down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
+"at": "2026-10-28T18:05",
 "down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
-"down": 869.5,
+"at": "2026-10-28T19:05",
+"down": 478.2,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
+"at": "2026-10-28T20:05",
 "down": 484.8,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
+"at": "2026-10-28T21:05",
 "down": 491.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 497.6,
+"at": "2026-10-28T22:05",
+"down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-28T23:05",
 "down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T00:05",
 "down": 924.1,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T01:05",
 "down": 931.3,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T02:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T03:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T04:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T05:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T06:05",
 "down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T07:05",
 "down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
+"at": "2026-10-29T08:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T09:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T09:05",
+"at": "2026-10-29T10:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T10:05",
+"at": "2026-10-29T11:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T11:05",
+"at": "2026-10-29T12:05",
 "down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-29T12:05",
+"at": "2026-10-29T13:05",
 "down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T13:05",
+"at": "2026-10-29T14:05",
 "down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T14:05",
+"at": "2026-10-29T15:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T15:05",
+"at": "2026-10-29T16:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-29T16:05",
+"at": "2026-10-29T17:05",
 "down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-29T17:05",
+"at": "2026-10-29T18:05",
 "down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T18:05",
-"down": 820.2,
+"at": "2026-10-29T19:05",
+"down": 451.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T19:05",
+"at": "2026-10-29T20:05",
 "down": 451.2,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T20:05",
+"at": "2026-10-29T21:05",
 "down": 452.6,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T21:05",
-"down": 455.2,
+"at": "2026-10-29T22:05",
+"down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-29T22:05",
+"at": "2026-10-29T23:05",
 "down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-29T23:05",
+"at": "2026-10-30T00:05",
 "down": 843.3,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T00:05",
+"at": "2026-10-30T01:05",
 "down": 853.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-30T01:05",
+"at": "2026-10-30T02:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-30T02:05",
+"at": "2026-10-30T03:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-30T03:05",
+"at": "2026-10-30T04:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T04:05",
+"at": "2026-10-30T05:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T05:05",
+"at": "2026-10-30T06:05",
 "down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T06:05",
+"at": "2026-10-30T07:05",
 "down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-30T07:05",
+"at": "2026-10-30T08:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-30T08:05",
+"at": "2026-10-30T09:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-30T09:05",
+"at": "2026-10-30T10:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-30T10:05",
+"at": "2026-10-30T11:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-30T11:05",
+"at": "2026-10-30T12:05",
 "down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-30T12:05",
+"at": "2026-10-30T13:05",
 "down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T13:05",
+"at": "2026-10-30T14:05",
 "down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T14:05",
+"at": "2026-10-30T15:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T15:05",
+"at": "2026-10-30T16:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-30T16:05",
+"at": "2026-10-30T17:05",
 "down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-30T17:05",
+"at": "2026-10-30T18:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10651,14 +10651,14 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "last": {
-"at": "2026-10-30T17:05",
+"at": "2026-10-30T18:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 872.1,
+"down": 874.5,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
@@ -10790,12 +10790,12 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-10-30T18:08",
+"checked": "2026-10-30T19:30",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-10-30T17:05",
+"at": "2026-10-30T18:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -14493,14 +14493,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-21T18:08:19",
+"enrolled": "2026-10-21T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T12:08:19",
+"last_checkin": "2026-10-30T13:30:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-21T18:08:19",
+"ariseadmin_at": "2026-10-21T19:30:37",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14518,14 +14518,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-27T18:08:19",
+"enrolled": "2026-10-27T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T18:06:19",
+"last_checkin": "2026-10-30T19:28:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-27T18:08:19",
+"ariseadmin_at": "2026-10-27T19:30:37",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14543,14 +14543,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-29T18:08:19",
+"enrolled": "2026-10-29T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T18:04:19",
+"last_checkin": "2026-10-30T19:26:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-29T18:08:19",
+"ariseadmin_at": "2026-10-29T19:30:37",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14587,14 +14587,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-21T18:08:19",
+"enrolled": "2026-10-21T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T12:08:19",
+"last_checkin": "2026-10-30T13:30:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-21T18:08:19",
+"ariseadmin_at": "2026-10-21T19:30:37",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14613,7 +14613,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-26T18:08:19"
+"last_login": "2026-10-26T19:30:37"
 }
 ],
 "tasks": [
@@ -14624,9 +14624,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-29T22:08:19",
+"made": "2026-10-29T23:30:37",
 "by": "the overnight window",
-"finished": "2026-10-29T23:08:19",
+"finished": "2026-10-30T00:30:37",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14647,14 +14647,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-27T18:08:19",
+"enrolled": "2026-10-27T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T18:06:19",
+"last_checkin": "2026-10-30T19:28:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-27T18:08:19",
+"ariseadmin_at": "2026-10-27T19:30:37",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14673,7 +14673,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-29T18:08:19"
+"last_login": "2026-10-29T19:30:37"
 },
 {
 "user": "media",
@@ -14683,12 +14683,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-30T15:08:19",
+"last_login": "2026-10-30T16:30:37",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-28T18:08:19",
+"at": "2026-10-28T19:30:37",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14705,9 +14705,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-28T18:08:19",
+"made": "2026-10-28T19:30:37",
 "by": "bradly",
-"finished": "2026-10-28T18:08:19",
+"finished": "2026-10-28T19:30:37",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14717,9 +14717,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-27T18:08:19",
+"made": "2026-10-27T19:30:37",
 "by": "the directory",
-"finished": "2026-10-27T18:08:19",
+"finished": "2026-10-27T19:30:37",
 "detail": "mobile account made"
 }
 ],
@@ -14740,14 +14740,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-29T18:08:19",
+"enrolled": "2026-10-29T19:30:37",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T18:04:19",
+"last_checkin": "2026-10-30T19:26:37",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-29T18:08:19",
+"ariseadmin_at": "2026-10-29T19:30:37",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14766,7 +14766,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-28T18:08:19"
+"last_login": "2026-10-28T19:30:37"
 },
 {
 "user": "levi",
@@ -14776,7 +14776,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-25T18:08:19",
+"last_login": "2026-10-25T19:30:37",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14803,7 +14803,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T16:08:19",
+"made": "2026-10-30T17:30:37",
 "by": "enrolment"
 },
 {
@@ -14811,7 +14811,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T16:08:19",
+"made": "2026-10-30T17:30:37",
 "by": "enrolment"
 },
 {
@@ -14819,7 +14819,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T16:08:19",
+"made": "2026-10-30T17:30:37",
 "by": "enrolment"
 },
 {
@@ -14827,7 +14827,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T16:08:19",
+"made": "2026-10-30T17:30:37",
 "by": "enrolment"
 },
 {
@@ -14835,9 +14835,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-29T18:08:19",
+"made": "2026-10-29T19:30:37",
 "by": "enrolment",
-"finished": "2026-10-29T18:08:19",
+"finished": "2026-10-29T19:30:37",
 "detail": "1 printer"
 },
 {
@@ -14847,9 +14847,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-29T18:08:19",
+"made": "2026-10-29T19:30:37",
 "by": "the directory",
-"finished": "2026-10-29T18:08:19",
+"finished": "2026-10-29T19:30:37",
 "detail": "mobile account made"
 }
 ],
@@ -16247,7 +16247,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "HARDWARE",
 "title": "Hardware — what to send, what is enough, what to expect",
-"html": "<h1 id=\"hardware-what-to-send-what-is-enough-what-to-expect\">Hardware — what to send, what is enough, what to expect</h1>\n<p>The specs of the old PC are <strong>not known yet</strong> (Bradly, Oct 27 2026: \"I'll\nlet you know system specs at a different date\"). This page is what to\ncollect, and what each answer means for the install. The Synology's model is\nalso unknown; its page is <code>SYNOLOGY.md</code>.</p>\n<h2 id=\"what-to-send\">What to send</h2>\n<p>Open <strong>Settings → System → About</strong> on the old PC, and <strong>Device Manager</strong> for\nthe rest, or run this in PowerShell and paste the whole output:</p>\n<pre><code class=\"language-powershell\">Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, TotalPhysicalMemory\nGet-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors\nGet-PhysicalDisk | Select FriendlyName, MediaType, Size, BusType\nGet-NetAdapter | Select Name, InterfaceDescription, LinkSpeed, Status\nConfirm-SecureBootUEFI\nGet-Tpm | Select TpmPresent, TpmReady\n</code></pre>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Make and model</strong></td>\n<td>Tells me the BIOS key, whether it is UEFI, and what it is likely to have inside</td>\n</tr>\n<tr>\n<td><strong>CPU</strong> (name, cores)</td>\n<td>2 cores is enough. Anything from the last 12 years is fine. A Celeron/Atom is the one thing to flag</td>\n</tr>\n<tr>\n<td><strong>RAM</strong> (GB)</td>\n<td>The number that decides the most — see the table</td>\n</tr>\n<tr>\n<td><strong>Disks</strong> (SSD or spinning, size, how many)</td>\n<td>A spinning disk makes everything feel slow; an SSD is the single best upgrade. 64 GB is enough for the system; data lives on the NAS</td>\n</tr>\n<tr>\n<td><strong>Network</strong> (wired speed)</td>\n<td>Must be wired. Gigabit is normal; 100 Mbit works but the first backup takes all night</td>\n</tr>\n<tr>\n<td><strong>UEFI / Secure Boot / TPM</strong></td>\n<td>Ubuntu handles all of them; I just need to know for the USB (MBR vs GPT)</td>\n</tr>\n<tr>\n<td><strong>Free USB port on the back</strong></td>\n<td>For the install stick</td>\n</tr>\n<tr>\n<td><strong>Where it will sit</strong></td>\n<td>On 24/7, plugged into the router or a switch by cable, somewhere the fan noise does not matter</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"minimums\">Minimums</h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Server profile (Linux, everything)</th>\n<th>Windows mode</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>2 cores, x86-64</td>\n<td>2 cores</td>\n</tr>\n<tr>\n<td>RAM</td>\n<td><strong>4 GB</strong></td>\n<td>4 GB</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td><strong>64 GB SSD</strong> (128 preferred)</td>\n<td>32 GB free</td>\n</tr>\n<tr>\n<td>Network</td>\n<td><strong>wired</strong> Ethernet</td>\n<td>wired</td>\n</tr>\n<tr>\n<td>Recommended</td>\n<td>8 GB RAM once Docker apps are on</td>\n<td>—</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"what-you-have-what-to-expect\">What you have → what to expect</h2>\n<table>\n<thead>\n<tr>\n<th>RAM</th>\n<th>Directory + dashboard + automator + backups</th>\n<th>Docker apps</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>2 GB</td>\n<td>Works, tight. The domain controller alone wants ~600 MB. No Docker.</td>\n<td>No</td>\n</tr>\n<tr>\n<td><strong>4 GB</strong></td>\n<td>Comfortable. This is the normal case.</td>\n<td>One or two light ones (file browser, uptime monitor). Not a photo library.</td>\n</tr>\n<tr>\n<td><strong>8 GB</strong></td>\n<td>Everything, with room.</td>\n<td>All the templates, together.</td>\n</tr>\n<tr>\n<td>16 GB+</td>\n<td>Nothing more to say.</td>\n<td>Anything you like.</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>Disk</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Spinning HDD only</td>\n<td>Installs fine. Logins and the dashboard feel laggy. The first <code>restic</code> run of a big home folder takes hours. <strong>Buy an SSD</strong> — a 240 GB SATA SSD is about $20–30 and turns an old PC into a different machine.</td>\n</tr>\n<tr>\n<td>SSD, 64–120 GB</td>\n<td>Fine. Homes and shares go to the NAS, so the system disk stays small.</td>\n</tr>\n<tr>\n<td>SSD, 240 GB+</td>\n<td>Fine, and homes can stay local until the NAS is set up.</td>\n</tr>\n<tr>\n<td>Two disks</td>\n<td>Ubuntu on the SSD; the other one becomes a second restic target (<code>arisectl backup</code> can keep a copy off the NAS too).</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>CPU</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Any Core i3/i5/i7, Ryzen, Xeon from 2012 on</td>\n<td>Fine for everything.</td>\n</tr>\n<tr>\n<td>Celeron / Pentium / Atom</td>\n<td>Fine for the domain, the dashboard and the automator. Docker apps and the first big backup will be slow; the nightly run still finishes long before morning.</td>\n</tr>\n<tr>\n<td>32-bit only</td>\n<td>Cannot run Ubuntu 24.04. Tell me; a different plan.</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-rules-about-the-box-itself\">Two rules about the box itself</h2>\n<ol>\n<li><strong>Wired, always.</strong> A domain controller on Wi‑Fi is a bad day: every Mac\n   login, every file open, every DNS lookup on the network waits on that\n   link, and when it drops at 2 AM so does the automator. If the only\n   Ethernet is across the room, a $15 flat cable along the baseboard is\n   the whole fix.</li>\n<li><strong>On 24/7.</strong> The automator runs at 2:05 AM, backups at 3:00, the mirror\n   at 4:00. If the PC is off they run when it next boots (<code>Persistent=true</code>\n   on every timer), but a domain controller that is off means nobody can\n   log in. Turn off sleep in the BIOS (it is on by default on most desktops)\n   and leave the power button alone.</li>\n</ol>\n<h2 id=\"things-that-are-not-a-problem\">Things that are not a problem</h2>\n<ul>\n<li>No monitor after the install. Everything is reachable over SSH and the\n  dashboard.</li>\n<li>Old Windows licence. Path A wipes it; nothing on the server needs it.</li>\n<li>A noisy fan. Blow the dust out before it goes in the closet.</li>\n<li>A PC that is \"too slow for Windows 11\". Ubuntu Server with no desktop\n  needs a fraction of that; the 4 GB row above is a 2013 machine.</li>\n</ul>\n<h2 id=\"oct-27-2026-the-box-is-a-dell-optiplex-and-it-gets-wiped\">Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped</h2>\n<p>Bradly confirmed the old PC will be wiped (install path A). It is believed to be a\nDell OptiPlex; model and specs to follow. The service tag on its sticker, put into\ndell.com/support, answers every line above at once. <code>docs/PRE-WIPE.md</code> is the\nchecklist for the days before the wipe: specs, the two credential files if the\nautomator runs there today, the USB stick, the F12/F2 boot steps.</p>\n<h2 id=\"oct-30-2026-later-the-server-is-the-hp-elitedesk-800-g1-sff\">Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF</h2>\n<p>Bradly: \"The other windows pc is an hp elite desk 800 g1 SFF\", then \"EliteDesk\" and \"Free to\nwipe\" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770</td>\n<td>about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4)</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3-1600, <strong>4 slots, 32 GB</strong> most (Q87 chipset)</td>\n<td>8 GB runs the core five; <strong>16 GB</strong> (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>one 3.5-inch bay, plus a slim optical bay; <strong>SATA only</strong> (no M.2)</td>\n<td>the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>Infineon TPM 1.2</td>\n<td>HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> shows the version</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD 4600 (on the CPU), DisplayPort and VGA</td>\n<td>fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>Intel gigabit (I217-LM)</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe</strong> (it's free to wipe, H6):</p>\n<ol>\n<li>Write down from its sticker the <strong>product number</strong> and serial; hp.com/support with them\n   lists the exact CPU, memory and BIOS.</li>\n<li>From Windows, install the <strong>newest BIOS</strong> from that HP page (a SoftPaq), while Windows is\n   still there to run it.</li>\n<li>Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security\n   devices (the TPM). Send them to Claude.</li>\n</ol>\n<p><strong>In the BIOS</strong> (F10 at the HP logo):</p>\n<ol>\n<li><strong>Storage → Storage Options → SATA Emulation: AHCI</strong>.</li>\n<li><strong>Storage → Boot Order:</strong> UEFI boot sources on, Legacy off if offered; the Ubuntu stick\n   boots either way.</li>\n<li><strong>Power → Hardware Power Management → After Power Loss: On</strong>. After a power cut it turns\n   itself back on and waits at the passphrase. Without this it stays off.</li>\n<li><strong>Security → System Security → Embedded Security Device: Available</strong>; the TPM is on, even\n   though clevis can't use a 1.2 chip.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n<li>F12 at the logo is the one-time boot menu for the USB stick.</li>\n</ol>\n<p><strong>Shopping list</strong> (H5, for the EliteDesk):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);</li>\n<li>memory <strong>only if</strong> About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,\n  non-ECC);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.\nThe installer runs on it unchanged.</p>\n<h2 id=\"oct-30-2026-the-optiplex-3010-now-the-spare-and-the-synology-is-a-ds216\">Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216</h2>\n<p>Bradly: \"The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216.\"\nHis choices on the same day are rows H1 to H5 in docs/ANSWERS.md.</p>\n<p><strong>The OptiPlex 3010</strong> (2012):</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz)</td>\n<td>plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3, 2 slots; Dell lists <strong>8 GB</strong> as the most</td>\n<td>buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>probably a spinning hard drive</td>\n<td>buy a <strong>500 GB SATA SSD</strong> (about $30). There is <strong>no M.2 slot</strong>: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>none, or a 1.2 chip</td>\n<td>the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> says which</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD (on the CPU)</td>\n<td>fine for the closet monitor's desktop</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>gigabit Ethernet</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe, in the BIOS</strong> (F2 at the Dell logo):</p>\n<ol>\n<li>Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).</li>\n<li><strong>System Configuration → SATA Operation: AHCI</strong>.</li>\n<li><strong>Boot Sequence:</strong> UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.</li>\n<li><strong>Power Management → AC Recovery: Power On</strong> (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n</ol>\n<p><strong>Shopping list</strong> (Bradly: \"Yes, both\"):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);</li>\n<li>2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin \"PC3-12800\" DIMMs);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The SSD holds Ubuntu, the apps and <code>/srv/arise</code>. If the old hard drive is still good, it can stay in as a second disk: <code>arisectl backup</code> keeps a second restic copy on it.</p>\n<h2 id=\"round-7-oct-29-what-is-known-now\">Round 7 (Oct 29): what is known now</h2>\n<ul>\n<li><strong>Internet at Pineville:</strong> Optimum Business, the highest plan (127).</li>\n<li><strong>The Synology:</strong> on the Netgear Nighthawk, router A (128), the same network\n  as the server, so it mounts directly.</li>\n<li><strong>Alexandria:</strong> one church Mac (134).</li>\n<li><strong>The old PC:</strong> \"just there existing, unused\" (126); nothing on it has to\n  keep running.</li>\n<li><strong>Disk health:</strong> SMART's own verdict and 80 °C for the CPU (137); a disk is\n  replaced when its health check warns, not on a calendar (138).\n  <code>sudo arisectl upkeep health</code> reads every disk; a warning is a red line in\n  Needs You and one post to Discord <code>#alerts</code>. <code>smartmontools</code> is installed\n  by the installer's care step.</li>\n<li><strong>Spare parts:</strong> none kept (142).</li>\n</ul>",
+"html": "<h1 id=\"hardware-what-to-send-what-is-enough-what-to-expect\">Hardware — what to send, what is enough, what to expect</h1>\n<p>The specs of the old PC are <strong>not known yet</strong> (Bradly, Oct 27 2026: \"I'll\nlet you know system specs at a different date\"). This page is what to\ncollect, and what each answer means for the install. The Synology's model is\nalso unknown; its page is <code>SYNOLOGY.md</code>.</p>\n<h2 id=\"what-to-send\">What to send</h2>\n<p>Open <strong>Settings → System → About</strong> on the old PC, and <strong>Device Manager</strong> for\nthe rest, or run this in PowerShell and paste the whole output:</p>\n<pre><code class=\"language-powershell\">Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, TotalPhysicalMemory\nGet-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors\nGet-PhysicalDisk | Select FriendlyName, MediaType, Size, BusType\nGet-NetAdapter | Select Name, InterfaceDescription, LinkSpeed, Status\nConfirm-SecureBootUEFI\nGet-Tpm | Select TpmPresent, TpmReady\n</code></pre>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Make and model</strong></td>\n<td>Tells me the BIOS key, whether it is UEFI, and what it is likely to have inside</td>\n</tr>\n<tr>\n<td><strong>CPU</strong> (name, cores)</td>\n<td>2 cores is enough. Anything from the last 12 years is fine. A Celeron/Atom is the one thing to flag</td>\n</tr>\n<tr>\n<td><strong>RAM</strong> (GB)</td>\n<td>The number that decides the most — see the table</td>\n</tr>\n<tr>\n<td><strong>Disks</strong> (SSD or spinning, size, how many)</td>\n<td>A spinning disk makes everything feel slow; an SSD is the single best upgrade. 64 GB is enough for the system; data lives on the NAS</td>\n</tr>\n<tr>\n<td><strong>Network</strong> (wired speed)</td>\n<td>Must be wired. Gigabit is normal; 100 Mbit works but the first backup takes all night</td>\n</tr>\n<tr>\n<td><strong>UEFI / Secure Boot / TPM</strong></td>\n<td>Ubuntu handles all of them; I just need to know for the USB (MBR vs GPT)</td>\n</tr>\n<tr>\n<td><strong>Free USB port on the back</strong></td>\n<td>For the install stick</td>\n</tr>\n<tr>\n<td><strong>Where it will sit</strong></td>\n<td>On 24/7, plugged into the router or a switch by cable, somewhere the fan noise does not matter</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"minimums\">Minimums</h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Server profile (Linux, everything)</th>\n<th>Windows mode</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>2 cores, x86-64</td>\n<td>2 cores</td>\n</tr>\n<tr>\n<td>RAM</td>\n<td><strong>4 GB</strong></td>\n<td>4 GB</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td><strong>64 GB SSD</strong> (128 preferred)</td>\n<td>32 GB free</td>\n</tr>\n<tr>\n<td>Network</td>\n<td><strong>wired</strong> Ethernet</td>\n<td>wired</td>\n</tr>\n<tr>\n<td>Recommended</td>\n<td>8 GB RAM once Docker apps are on</td>\n<td>—</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"what-you-have-what-to-expect\">What you have → what to expect</h2>\n<table>\n<thead>\n<tr>\n<th>RAM</th>\n<th>Directory + dashboard + automator + backups</th>\n<th>Docker apps</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>2 GB</td>\n<td>Works, tight. The domain controller alone wants ~600 MB. No Docker.</td>\n<td>No</td>\n</tr>\n<tr>\n<td><strong>4 GB</strong></td>\n<td>Comfortable. This is the normal case.</td>\n<td>One or two light ones (file browser, uptime monitor). Not a photo library.</td>\n</tr>\n<tr>\n<td><strong>8 GB</strong></td>\n<td>Everything, with room.</td>\n<td>All the templates, together.</td>\n</tr>\n<tr>\n<td>16 GB+</td>\n<td>Nothing more to say.</td>\n<td>Anything you like.</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>Disk</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Spinning HDD only</td>\n<td>Installs fine. Logins and the dashboard feel laggy. The first <code>restic</code> run of a big home folder takes hours. <strong>Buy an SSD</strong> — a 240 GB SATA SSD is about $20–30 and turns an old PC into a different machine.</td>\n</tr>\n<tr>\n<td>SSD, 64–120 GB</td>\n<td>Fine. Homes and shares go to the NAS, so the system disk stays small.</td>\n</tr>\n<tr>\n<td>SSD, 240 GB+</td>\n<td>Fine, and homes can stay local until the NAS is set up.</td>\n</tr>\n<tr>\n<td>Two disks</td>\n<td>Ubuntu on the SSD; the other one becomes a second restic target (<code>arisectl backup</code> can keep a copy off the NAS too).</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>CPU</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Any Core i3/i5/i7, Ryzen, Xeon from 2012 on</td>\n<td>Fine for everything.</td>\n</tr>\n<tr>\n<td>Celeron / Pentium / Atom</td>\n<td>Fine for the domain, the dashboard and the automator. Docker apps and the first big backup will be slow; the nightly run still finishes long before morning.</td>\n</tr>\n<tr>\n<td>32-bit only</td>\n<td>Cannot run Ubuntu 24.04. Tell me; a different plan.</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-rules-about-the-box-itself\">Two rules about the box itself</h2>\n<ol>\n<li><strong>Wired, always.</strong> A domain controller on Wi‑Fi is a bad day: every Mac\n   login, every file open, every DNS lookup on the network waits on that\n   link, and when it drops at 2 AM so does the automator. If the only\n   Ethernet is across the room, a $15 flat cable along the baseboard is\n   the whole fix.</li>\n<li><strong>On 24/7.</strong> The automator runs at 2:05 AM, backups at 3:00, the mirror\n   at 4:00. If the PC is off they run when it next boots (<code>Persistent=true</code>\n   on every timer), but a domain controller that is off means nobody can\n   log in. Turn off sleep in the BIOS (it is on by default on most desktops)\n   and leave the power button alone.</li>\n</ol>\n<h2 id=\"things-that-are-not-a-problem\">Things that are not a problem</h2>\n<ul>\n<li>No monitor after the install. Everything is reachable over SSH and the\n  dashboard.</li>\n<li>Old Windows licence. Path A wipes it; nothing on the server needs it.</li>\n<li>A noisy fan. Blow the dust out before it goes in the closet.</li>\n<li>A PC that is \"too slow for Windows 11\". Ubuntu Server with no desktop\n  needs a fraction of that; the 4 GB row above is a 2013 machine.</li>\n</ul>\n<h2 id=\"oct-27-2026-the-box-is-a-dell-optiplex-and-it-gets-wiped\">Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped</h2>\n<p>Bradly confirmed the old PC will be wiped (install path A). It is believed to be a\nDell OptiPlex; model and specs to follow. The service tag on its sticker, put into\ndell.com/support, answers every line above at once. <code>docs/PRE-WIPE.md</code> is the\nchecklist for the days before the wipe: specs, the two credential files if the\nautomator runs there today, the USB stick, the F12/F2 boot steps.</p>\n<h2 id=\"oct-30-2026-later-the-server-is-the-hp-elitedesk-800-g1-sff\">Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF</h2>\n<p>Bradly: \"The other windows pc is an hp elite desk 800 g1 SFF\", then \"EliteDesk\" and \"Free to\nwipe\" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770</td>\n<td>about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4)</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3-1600, <strong>4 slots, 32 GB</strong> most (Q87 chipset)</td>\n<td>8 GB runs the core five; <strong>16 GB</strong> (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>one 3.5-inch bay, plus a slim optical bay; <strong>SATA only</strong> (no M.2)</td>\n<td>the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>Infineon TPM 1.2</td>\n<td>HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> shows the version</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD 4600 (on the CPU), DisplayPort and VGA</td>\n<td>fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>Intel gigabit (I217-LM)</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe</strong> (it's free to wipe, H6):</p>\n<ol>\n<li>Write down from its sticker the <strong>product number</strong> and serial; hp.com/support with them\n   lists the exact CPU, memory and BIOS.</li>\n<li>From Windows, install the <strong>newest BIOS</strong> from that HP page (a SoftPaq), while Windows is\n   still there to run it.</li>\n<li>Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security\n   devices (the TPM). Send them to Claude.</li>\n</ol>\n<p><strong>In the BIOS</strong> (F10 at the HP logo; names shift a little between BIOS versions):</p>\n<ol>\n<li><strong>Storage → Storage Options → SATA Emulation: AHCI</strong>.</li>\n<li><strong>Storage → Boot Order:</strong> UEFI boot sources on, Legacy off if offered; the Ubuntu stick\n   boots either way.</li>\n<li><strong>Advanced → Power-On Options → After Power Loss: On</strong>. After a power cut it turns\n   itself back on and waits at the passphrase. Without this it stays off.</li>\n<li><strong>Security → Device Security → Embedded Security Device: Device available</strong>; the TPM is on, even\n   though clevis can't use a 1.2 chip.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n<li><strong>F9</strong> at the logo is the one-time boot menu for the USB stick (F12 on the Dell).</li>\n</ol>\n<p><strong>Shopping list</strong> (H5, for the EliteDesk):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);</li>\n<li>memory <strong>only if</strong> About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,\n  non-ECC);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.\nThe installer runs on it unchanged.</p>\n<h2 id=\"oct-30-2026-the-optiplex-3010-now-the-spare-and-the-synology-is-a-ds216\">Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216</h2>\n<p>Bradly: \"The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216.\"\nHis choices on the same day are rows H1 to H5 in docs/ANSWERS.md.</p>\n<p><strong>The OptiPlex 3010</strong> (2012):</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz)</td>\n<td>plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3, 2 slots; Dell lists <strong>8 GB</strong> as the most</td>\n<td>buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>probably a spinning hard drive</td>\n<td>buy a <strong>500 GB SATA SSD</strong> (about $30). There is <strong>no M.2 slot</strong>: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>none, or a 1.2 chip</td>\n<td>the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> says which</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD (on the CPU)</td>\n<td>fine for the closet monitor's desktop</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>gigabit Ethernet</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe, in the BIOS</strong> (F2 at the Dell logo):</p>\n<ol>\n<li>Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).</li>\n<li><strong>System Configuration → SATA Operation: AHCI</strong>.</li>\n<li><strong>Boot Sequence:</strong> UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.</li>\n<li><strong>Power Management → AC Recovery: Power On</strong> (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n</ol>\n<p><strong>Shopping list</strong> (Bradly: \"Yes, both\"):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);</li>\n<li>2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin \"PC3-12800\" DIMMs);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The SSD holds Ubuntu, the apps and <code>/srv/arise</code>. If the old hard drive is still good, it can stay in as a second disk: <code>arisectl backup</code> keeps a second restic copy on it.</p>\n<h2 id=\"round-7-oct-29-what-is-known-now\">Round 7 (Oct 29): what is known now</h2>\n<ul>\n<li><strong>Internet at Pineville:</strong> Optimum Business, the highest plan (127).</li>\n<li><strong>The Synology:</strong> on the Netgear Nighthawk, router A (128), the same network\n  as the server, so it mounts directly.</li>\n<li><strong>Alexandria:</strong> one church Mac (134).</li>\n<li><strong>The old PC:</strong> \"just there existing, unused\" (126); nothing on it has to\n  keep running.</li>\n<li><strong>Disk health:</strong> SMART's own verdict and 80 °C for the CPU (137); a disk is\n  replaced when its health check warns, not on a calendar (138).\n  <code>sudo arisectl upkeep health</code> reads every disk; a warning is a red line in\n  Needs You and one post to Discord <code>#alerts</code>. <code>smartmontools</code> is installed\n  by the installer's care step.</li>\n<li><strong>Spare parts:</strong> none kept (142).</li>\n</ul>",
 "demo": true
 },
 "GET /help/IDEAS": {
@@ -16366,7 +16366,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22)</td>\n<td>ticked on Ubuntu's disk screen; typed at the closet keyboard or <code>ssh -p 2222 root@arise-server</code></td>\n<td><code>sudo arisectl encrypt status</code> / <code>encrypt ssh</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Open for Bradly:</strong> an admin PIN session can open the root <strong>Terminal</strong>\nwindow, because row 161 does not list it. If it should need the full\npassword, that is one line in <code>main.py</code>, its websocket route.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-the-passphrase-at-boot-oct-30\">Encryption: the passphrase at boot (Oct 30)</h2>\n<p>The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the\npassphrase at boot (docs/ANSWERS.md, H3):</p>\n<ul>\n<li><strong>Install:</strong> the install disc shows Ubuntu's disk screen. Check it is the right disk, keep\n  \"Set up this disk as an LVM group\", tick <strong>Encrypt the LVM group with LUKS</strong>, type the\n  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).</li>\n<li><strong>Every boot:</strong> the box stops at \"Please unlock disk\". Either type it at the closet keyboard,\n  or, from a church computer, <code>ssh -p 2222 root@arise-server</code>. That SSH is dropbear inside the\n  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the\n  passphrase prompt: no shell, no tunnels. <code>sudo arisectl encrypt ssh</code> sets it up (the installer\n  runs it); run it again after adding a key. Church network only: nothing is forwarded from the\n  internet (rule 7), and Tailscale isn't running that early.</li>\n<li><strong>No surprise restarts:</strong> the Saturday 03:30 update installs but never restarts the box by\n  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks\n  System → Restart when they can unlock it.</li>\n<li><strong>The BIOS:</strong> set Power → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt\n  rather than staying off.</li>\n</ul>\n<p>The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@ad.arisecenla.com</code>, with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@ad.arisecenla.com</code> is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
+"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22)</td>\n<td>ticked on Ubuntu's disk screen; typed at the closet keyboard or <code>ssh -p 2222 root@arise-server</code></td>\n<td><code>sudo arisectl encrypt status</code> / <code>encrypt ssh</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Open for Bradly:</strong> an admin PIN session can open the root <strong>Terminal</strong>\nwindow, because row 161 does not list it. If it should need the full\npassword, that is one line in <code>main.py</code>, its websocket route.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-the-passphrase-at-boot-oct-30\">Encryption: the passphrase at boot (Oct 30)</h2>\n<p>The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the\npassphrase at boot (docs/ANSWERS.md, H3):</p>\n<ul>\n<li><strong>Install:</strong> the install disc shows Ubuntu's disk screen. Check it is the right disk, keep\n  \"Set up this disk as an LVM group\", tick <strong>Encrypt the LVM group with LUKS</strong>, type the\n  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).</li>\n<li><strong>Every boot:</strong> the box stops at \"Please unlock disk\". Either type it at the closet keyboard,\n  or, from a church computer, <code>ssh -p 2222 root@arise-server</code>. That SSH is dropbear inside the\n  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the\n  passphrase prompt: no shell, no tunnels. <code>sudo arisectl encrypt ssh</code> sets it up (the installer\n  runs it); run it again after adding a key. Church network only: nothing is forwarded from the\n  internet (rule 7), and Tailscale isn't running that early.</li>\n<li><strong>No surprise restarts:</strong> the Saturday 03:30 update installs but never restarts the box by\n  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks\n  System → Restart when they can unlock it.</li>\n<li><strong>The BIOS:</strong> set Advanced → Power-On Options → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt\n  rather than staying off.</li>\n</ul>\n<p>The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@ad.arisecenla.com</code>, with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@ad.arisecenla.com</code> is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
 "demo": true
 },
 "GET /help/SETUP-GUIDE": {

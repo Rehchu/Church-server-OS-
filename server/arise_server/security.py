@@ -630,10 +630,16 @@ def rows(f: dict) -> list[dict]:
     e = f.get("encrypt") or {}
     if e.get("luks") and e.get("tpm_bound"):
         out.append({"id": "encrypt", "label": "Encryption", "level": "ok", "text": "The disk is encrypted and the TPM unlocks it at boot. The passphrase on the safe card is the fallback.", "fix": ""})
+    elif e.get("luks") and e.get("tpm"):
+        out.append({"id": "encrypt", "label": "Encryption", "level": "warn", "text": e.get("note") or "Encrypted; a TPM 2.0 is here but not bound, so a reboot waits for a passphrase.", "fix": "sudo arisectl encrypt tpm"})
     elif e.get("luks"):
-        out.append({"id": "encrypt", "label": "Encryption", "level": "warn", "text": e.get("note") or "Encrypted; the TPM is not bound, so a reboot waits for a passphrase.", "fix": "sudo arisectl encrypt tpm"})
+        # No TPM 2.0: the passphrase at boot is Bradly's choice (Oct 30, H3), so it is green; the SSH unlock is the only thing to add.
+        ssh = e.get("ssh_unlock")
+        out.append({"id": "encrypt", "label": "Encryption", "level": "ok" if ssh else "warn",
+                    "text": "The disk is encrypted; the passphrase is typed at every boot, at the closet keyboard" + (" or with ssh -p 2222 root@arise-server from a church computer." if ssh else ". Typing it over SSH from a church computer isn't set up yet."),
+                    "fix": "" if ssh else "sudo arisectl encrypt ssh"})
     else:
-        out.append({"id": "encrypt", "label": "Encryption", "level": "warn", "text": "The disk is not encrypted. Bradly chose LUKS with the TPM (round 3, 22); it is picked in the Ubuntu installer, not later.", "fix": "docs/SECURITY.md, 'Encryption'"})
+        out.append({"id": "encrypt", "label": "Encryption", "level": "warn", "text": "The disk is not encrypted. Bradly chose LUKS with the passphrase at boot (Oct 30, H3); it is ticked on Ubuntu's disk screen at install, not later.", "fix": "docs/SECURITY.md, 'Encryption'"})
     s = f.get("scan") or {}
     last = s.get("last")
     if not s.get("installed", True):

@@ -1737,7 +1737,7 @@ TS
       timeshift --create --comments "install $(date +%F)" --tags O --scripted >>"$LOG_FILE" 2>&1 && note "first system snapshot taken (timeshift, rsync mode; church files excluded, they are in the backup)" || warn "timeshift could not take the first snapshot (see $LOG_FILE); arisectl snapshot create to retry"
     fi
   fi
-  # --- encryption: bind the LUKS disk to the TPM so the box boots alone (round 3, 22) ---
+  # --- encryption: a TPM 2.0 unlocks the disk (round 3, 22); without one, the passphrase at boot (Oct 30, H3) ---
   LUKS_DEV="$(lsblk -rno NAME,FSTYPE 2>/dev/null | awk '$2=="crypto_LUKS"{print "/dev/"$1; exit}' || true)"
   if [ -z "$LUKS_DEV" ]; then
     warn "the disk is NOT encrypted (no LUKS volume). Bradly chose encryption (round 3, 22); it is picked in the Ubuntu installer, not later. docs/SECURITY.md"
@@ -1794,7 +1794,8 @@ TS
       echo "  rebuild   sudo arisectl reinstall /mnt/synology/arise-backups/restic     (docs/REINSTALL.md)"
       echo
       echo "Disk encryption (LUKS)"
-      echo "  passphrase  ________________________________   (write it here by hand; the TPM unlocks the disk at boot, this is the fallback)"
+      echo "  passphrase  ________________________________   (write it here by hand; it is typed at every start, Bradly Oct 30 H3, unless a TPM 2.0 is bound below)"
+      echo "  unlock      at the closet keyboard, or from a church computer: ssh -p 2222 root@arise-server"
       echo "  bound to TPM: $(command -v clevis >/dev/null 2>&1 && [ -n "$LUKS_DEV" ] && clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2 && echo yes || echo no)"
     } > "$CONF_DIR/SAFE-CARD.txt"
     chmod 600 "$CONF_DIR/SAFE-CARD.txt"
@@ -1822,7 +1823,7 @@ code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padd
 <tr><td>Passwords and keys</td><td><code>/etc/arise/secrets/</code> &nbsp;root only: restic, Resend, the apps' generated passwords (<code>apps/</code>). Never on this card.</td></tr>
 <tr><td>Domain down?</td><td>The break-glass login <code>arise-rescue</code> works on this monitor (Alt+F2), never over SSH. Its password is on the <b>safe card</b> (in the safe; <code>sudo arisectl rescue card</code> prints it again). Every use is logged.</td></tr>
 <tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;This card is its only paper copy (Bradly's rule); on the box it is <code>/etc/arise/secrets/restic-password</code>, root only.</td></tr>
-<tr><td>Disk encrypted</td><td>The TPM unlocks it at boot. If the box asks for a passphrase, it is on the safe card too. Rebuild from the Synology: <code>sudo arisectl reinstall</code> (docs/REINSTALL.md).</td></tr>
+<tr><td>Disk encrypted</td><td>It asks for its passphrase at every start: type it on this keyboard, or <code>ssh -p 2222 root@arise-server</code> from a church computer. The passphrase is on the safe card, not here. Rebuild from the Synology: <code>sudo arisectl reinstall</code> (docs/REINSTALL.md).</td></tr>
 <tr><td>Config</td><td><code>/etc/arise/arise.toml</code> &nbsp;·&nbsp; code <code>/opt/arise</code> &nbsp;·&nbsp; data <code>/srv/arise</code> &nbsp;·&nbsp; logs <code>/var/log/arise</code>, <code>journalctl -u arise-web</code></td></tr>
 <tr><td>The docs</td><td><code>/opt/arise/docs/</code>, start with SETUP-GUIDE.md; MOVING-DAY.md for the move to the Hub</td></tr>
 <tr><td>Staging marker</td><td>If <code>/etc/arise/staging</code> exists the box thinks it is NOT at the church (domain on loopback, nothing scanned). Fix: <code>sudo bash /opt/arise/installer/install.sh --kiosk</code></td></tr></table>
@@ -1879,7 +1880,7 @@ $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo t
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
 $( [ "$WITH_CADDY" = 1 ] && echo "       https: every church Mac enrolled from the Macs app trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
 $( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The closet card:            sudo arisectl rescue card   (print $CONF_DIR/CLOSET-CARD.html: it has arise-rescue's password; write the restic password and disk passphrase on it by hand; a copy to Kristina)" )
-$( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS + TPM; docs/SECURITY.md if the disk is not encrypted)" )
+$( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS, the passphrase at boot, the SSH unlock; docs/SECURITY.md)" )
     7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384
