@@ -49,9 +49,10 @@ class AutoinstallConfig(unittest.TestCase):
         schema = json.loads(SCHEMA_PATH.read_text())
         jsonschema.validate(load_config(), schema)
 
-    def test_only_identity_is_asked(self):
+    def test_only_identity_and_the_disk_are_asked(self):
         c = load_config()
-        self.assertEqual(c["interactive-sections"], ["identity"])
+        # the disk screen: encryption is ticked there (no TPM 2.0 on the OptiPlex 3010, Oct 30)
+        self.assertEqual(c["interactive-sections"], ["identity", "storage"])
         # identity given here would need a password hash in the file
         self.assertNotIn("identity", c)
         self.assertNotIn("user-data", c)
@@ -110,7 +111,7 @@ class Builder(unittest.TestCase):
                             str(out)], check=True)
             g = out.read_text()
         entries = [a or b for a, b in re.findall(r'''(?m)^menuentry\s+(?:"([^"]*)"|'([^']*)')''', g)]
-        self.assertEqual(entries[0], "Install ariseOS (ERASES this computer's largest disk)")
+        self.assertEqual(entries[0], "Install ariseOS (ERASES the disk you confirm)")
         self.assertEqual(entries[1], "Install by hand (the plain Ubuntu installer)")
         first, second = re.findall(r"(?ms)^menuentry.*?^\}", g)[:2]
         self.assertRegex(first, r"(?m)^\tlinux\t/casper/vmlinuz\s+autoinstall ---$")

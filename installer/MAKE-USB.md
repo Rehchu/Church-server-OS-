@@ -2,7 +2,7 @@
 
 The install takes two pieces: Ubuntu Server 24.04 and ariseOS. Ubuntu asks
 who you are (your name, a user name, a password, the server name:
-`arise-server`). Then it **wipes the largest disk**, installs itself and
+`arise-server`). Then it shows **Ubuntu's disk screen** (set to the largest disk: check it, and tick **Encrypt the LVM group with LUKS**, docs/SECURITY.md), **erases that disk**, installs itself and
 ariseOS without more questions, and restarts. On that first boot the ariseOS
 wizard comes up on the monitor. It asks whether the box is at the church or
 at home, the domain password, the Synology and the rest, finishes the
@@ -11,7 +11,7 @@ install and restarts into the Arise desktop (INSTALL.md, Path C).
 The media carries the code (the repo is private, so the install never runs
 `git clone`) and no password.
 
-**Back up the old PC first.** Whatever is on its largest disk is gone.
+**Back up the old PC first.** Whatever is on the disk you confirm is gone.
 
 ## 1. Make the files
 
@@ -42,7 +42,7 @@ it (or use one you already have: `--ubuntu-iso PATH`). Its boot records are
 Ubuntu's own (`xorriso -boot_image any replay`), so it boots wherever the
 Ubuntu ISO boots, BIOS or UEFI, Secure Boot on or off. Its boot menu:
 
-1. **Install ariseOS (ERASES this computer's largest disk)**: the hands-off install.
+1. **Install ariseOS (ERASES the disk you confirm)**: the hands-off install.
 2. **Install by hand (the plain Ubuntu installer)**: no autoinstall (INSTALL.md, Path A).
 
 The menu waits for a choice; it never starts the erasing entry by itself.

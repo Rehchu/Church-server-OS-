@@ -1307,6 +1307,8 @@ def cmd_encrypt(a):
         (ok if st.get("luks") else warn)("LUKS volumes: " + (", ".join(st["luks"]) if st.get("luks") else "none"))
         (ok if st.get("tpm") else warn)("TPM 2.0 " + ("present" if st.get("tpm") else "not found"))
         (ok if st.get("tpm_bound") else warn)("TPM binding (clevis) " + ("yes: boots alone" if st.get("tpm_bound") else "no"))
+        if st.get("luks") and not st.get("tpm_bound"):
+            (ok if st.get("ssh_unlock") else warn)("passphrase over SSH at boot " + ("on: ssh -p 2222 root@arise-server" if st.get("ssh_unlock") else "off: sudo arisectl encrypt ssh"))
         print(f"  {st.get('note', '')}")
         if st.get("demo"): warn("sample data")
     elif a.sub == "tpm":
@@ -1316,6 +1318,9 @@ def cmd_encrypt(a):
         if st.get("luks") and not st.get("tpm_bound"):
             pw = getpass.getpass("The disk's passphrase (clevis needs it once to add the TPM key; it is not stored): ")
         show(security.encrypt_tpm(pw))
+    elif a.sub == "ssh":
+        need_root()
+        show(security.encrypt_ssh())
 
 
 def cmd_snapshot(a):
@@ -1700,7 +1705,7 @@ def build():
     sp.add_parser("security").set_defaults(f=cmd_security)
     p = sp.add_parser("twofa"); p.add_argument("sub", choices=["list", "reset"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_twofa)
     p = sp.add_parser("rescue"); p.add_argument("sub", choices=["status", "rotate", "card"]); p.set_defaults(f=cmd_rescue)
-    p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm"]); p.set_defaults(f=cmd_encrypt)
+    p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm", "ssh"]); p.set_defaults(f=cmd_encrypt)
     p = sp.add_parser("snapshot"); p.add_argument("sub", choices=["create", "list", "restore", "prune"]); p.add_argument("name", nargs="?", help="a note for create, the snapshot name for restore"); p.set_defaults(f=cmd_snapshot)
     p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
     p = sp.add_parser("archive"); p.add_argument("sub", choices=["status", "build", "search", "setup"]); p.add_argument("words", nargs="*", help="search: the words (\"quoted phrase\" kept)"); p.add_argument("--full", action="store_true", help="build: the full rebuild (the Wednesday one)"); p.add_argument("--kind"); p.add_argument("--repo"); p.add_argument("--history", action="store_true", help="search: include past states"); p.add_argument("--limit", type=int, default=10); p.set_defaults(f=cmd_archive)

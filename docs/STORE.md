@@ -1,5 +1,11 @@
 # The Store (08)
 
+> **Oct 30 2026: superseded for install day.** The box is an OptiPlex 3010 (a 2-core i3, 8 GB at
+> most), so `install.sh` installs only the **core five**: Nextcloud, Vaultwarden, Uptime Kuma,
+> Netdata and File Browser (Bradly: "Core set only"). Every other template is listed in the Store
+> with an **Install** button; `install.sh --apps all` or `arisectl app install-all` still deploys
+> them all. What follows is the round 3 design, which still describes how the budget works.
+
 Bradly, round 3, 5: "The 24 app templates should already be preinstalled,
 but definitely an App Store for other Linux programs that are free!" And
 round 3, 40: cap every app so none can starve the domain or the dashboard.

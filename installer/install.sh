@@ -90,12 +90,12 @@ WITH_HARDENING=1
 WITH_SPLASH=1
 WITH_UPS=1
 PIN_IP=1
-# Every template deployed after the OS install (Bradly, round 3, 5: "The 24 app
-# templates should already be preinstalled"). Started only within the memory
-# budget: each template.yaml says autostart and ram_mb; the heavy ones are
-# deployed and left stopped, one click in the Store away. `--apps "a b c"`
-# narrows it to a list; `--no-apps` skips the step.
-DEFAULT_APPS="all"
+# The core set (Bradly, Oct 30: the box is an OptiPlex 3010, a 2-core i3 with 8 GB at most; this
+# replaces round 3, 5's "every template preinstalled"): sync, passwords, the uptime monitor, the
+# health graphs and the web file browser. Every other template stays in the Store, one click away.
+# `--apps all` deploys every template (started only within RAM minus 2 GB); `--apps "a b c"` a
+# list; `--no-apps` skips the step.
+DEFAULT_APPS="nextcloud vaultwarden uptime-kuma netdata filebrowser"
 APPS="$DEFAULT_APPS"
 STAGING=0
 STAGING_MARK="/etc/arise/staging"
@@ -330,6 +330,17 @@ fi
 # ----------------------------------------------------------------------------
 # 2. Hostname and timezone
 # ----------------------------------------------------------------------------
+# --- the whole disk for the system: Ubuntu's own disk screen leaves part of the LVM group unused
+# (the autoinstall now shows that screen so encryption can be ticked, Oct 30). /srv/arise lives on /,
+# so the free space goes there. ext4 grows while mounted; nothing is erased or moved.
+ROOT_SRC="$(findmnt -no SOURCE / 2>/dev/null || true)"
+if [ -n "$ROOT_SRC" ] && command -v lvs >/dev/null 2>&1 && lvs "$ROOT_SRC" >/dev/null 2>&1; then
+  VG_FREE_G="$(vgs --noheadings --units g --nosuffix -o vg_free "$(lvs --noheadings -o vg_name "$ROOT_SRC" | tr -d ' ')" 2>/dev/null | tr -d ' ' | cut -d. -f1)"
+  if [ "${VG_FREE_G:-0}" -ge 2 ]; then
+    run lvextend -r -l +100%FREE "$ROOT_SRC" && note "the system volume grew by ${VG_FREE_G} GB (the free space Ubuntu's installer left in the disk group)" || warn "could not grow $ROOT_SRC (see $LOG_FILE); the box works, with less room: sudo lvextend -r -l +100%FREE $ROOT_SRC"
+  fi
+fi
+
 say "2/7  Hostname and timezone"
 if [ "$(hostname)" != "$HOSTNAME_WANTED" ]; then
   run hostnamectl set-hostname "$HOSTNAME_WANTED"
@@ -1732,8 +1743,15 @@ TS
     warn "the disk is NOT encrypted (no LUKS volume). Bradly chose encryption (round 3, 22); it is picked in the Ubuntu installer, not later. docs/SECURITY.md"
   elif [ "$WITH_TPM" = 0 ]; then
     note "LUKS on $LUKS_DEV; --no-tpm: the passphrase is typed at every boot"
-  elif [ ! -e /dev/tpmrm0 ] && [ ! -e /dev/tpm0 ] && [ "$DRY_RUN" = 0 ]; then
-    warn "LUKS on $LUKS_DEV but no TPM 2.0 found: enable it in the Dell's BIOS (Security > TPM 2.0 / PTT), then: sudo arisectl encrypt tpm. Until then the passphrase is typed at every boot."
+  elif [ "$(cat /sys/class/tpm/tpm0/tpm_version_major 2>/dev/null || { [ -e /dev/tpmrm0 ] && echo 2; } || echo 0)" != 2 ] && [ "$DRY_RUN" = 0 ]; then
+    # No TPM 2.0 (the OptiPlex 3010 has a 1.2 chip at most, which clevis can't use). Bradly, Oct 30:
+    # the passphrase is typed at boot, at the closet keyboard or over SSH from a church computer.
+    note "LUKS on $LUKS_DEV, no TPM 2.0: the passphrase is typed at every boot (Bradly, Oct 30)"
+    if /usr/local/bin/arisectl encrypt ssh >>"$LOG_FILE" 2>&1; then
+      note "early-boot SSH on: from a church computer, ssh -p 2222 root@arise-server and type the passphrase"
+    else
+      warn "early-boot SSH not set up yet (no SSH key for $OWNER?). Add your PC's key, then: sudo arisectl encrypt ssh. The closet keyboard always works."
+    fi
   else
     run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools || warn "clevis did not install; the disk still asks for its passphrase at boot until a re-run"
     if [ "$DRY_RUN" = 1 ]; then

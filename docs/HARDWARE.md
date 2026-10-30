@@ -92,6 +92,38 @@ dell.com/support, answers every line above at once. `docs/PRE-WIPE.md` is the
 checklist for the days before the wipe: specs, the two credential files if the
 automator runs there today, the USB stick, the F12/F2 boot steps.
 
+## Oct 30 2026: it is an OptiPlex 3010, and the Synology is a DS216
+
+Bradly: "The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216."
+His choices on the same day are rows H1 to H5 in docs/ANSWERS.md.
+
+**The OptiPlex 3010** (2012):
+
+| | What it has | What it means |
+|---|---|---|
+| CPU | Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz) | plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off |
+| Memory | DDR3, 2 slots; Dell lists **8 GB** as the most | buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap |
+| Disk | probably a spinning hard drive | buy a **500 GB SATA SSD** (about $30). There is **no M.2 slot**: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter |
+| TPM | none, or a 1.2 chip | the disk passphrase is typed at boot (H3). `arisectl encrypt status` says which |
+| Graphics | Intel HD (on the CPU) | fine for the closet monitor's desktop |
+| Network | gigabit Ethernet | fine |
+
+**Before the wipe, in the BIOS** (F2 at the Dell logo):
+
+1. Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).
+2. **System Configuration → SATA Operation: AHCI**.
+3. **Boot Sequence:** UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.
+4. **Power Management → AC Recovery: Power On** (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.
+5. Leave Secure Boot as it is; Ubuntu boots with it on or off.
+
+**Shopping list** (Bradly: "Yes, both"):
+
+- one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);
+- 2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin "PC3-12800" DIMMs);
+- for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).
+
+The SSD holds Ubuntu, the apps and `/srv/arise`. If the old hard drive is still good, it can stay in as a second disk: `arisectl backup` keeps a second restic copy on it.
+
 ## Round 7 (Oct 29): what is known now
 
 - **Internet at Pineville:** Optimum Business, the highest plan (127).

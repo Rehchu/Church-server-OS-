@@ -27,8 +27,8 @@ VirtualBox → **New**:
 | Name | arise-test |
 | ISO | `ariseos-0.8.0-amd64.iso`, or the plain Ubuntu 24.04 server ISO |
 | Unattended install | **Skip** (tick "Skip Unattended Installation") |
-| Memory | 8192 MB (4096 works, slowly) |
-| Processors | 4 (2 works) |
+| Memory | 8192 MB: what the OptiPlex 3010 will have (H5) |
+| Processors | 2, like the 3010's i3 (4 if the soft-lockup warning appears) |
 | Disk | 80 GB, VDI, dynamically allocated |
 
 Then **Settings** before the first start:
@@ -55,9 +55,14 @@ Start the VM.
 - The ariseOS ISO: pick **Install ariseOS** in the boot menu. The plain Ubuntu
   ISO: pick "Try or Install Ubuntu Server" and type `yes` at "Continue with
   autoinstall?".
-- The one screen it asks: your name Bradly Dyer, **server name `arise-server`**,
-  **user name `bradly`** (the box's owner account; the automator runs as it),
-  and a password.
+- The two screens it asks:
+  - **the disk:** the VM's one disk with LVM. Tick **Encrypt the LVM group with LUKS** and
+    type a test passphrase to rehearse the real box (H3), or leave it unticked for a quicker
+    test. Then Done → Continue.
+  - **you:** your name Bradly Dyer, **server name `arise-server`**, **user name `bradly`**
+    (the box's owner account; the automator runs as it), and a password.
+- With encryption ticked, every start of the VM stops at "Please unlock disk": type the
+  passphrase in the VM window.
 - It wipes the VM's disk, installs Ubuntu and ariseOS, and restarts. If it
   boots back into the installer, remove the discs (Devices → Optical Drives)
   and restart.

@@ -648,6 +648,19 @@ PIN codes (Oct 29, unprompted: "Can we setup pin codes for the dashboard? so we 
 | 161 | The password-again clicks | Full password | deletes, emptying a Trash, showing the FileVault key or ariseadmin password, the Pastors emergency look and the YouTube renewal still ask for the real password |
 | 162 | A PIN for staff on the phone checklist page | Yes, on their own phone | after one full sign-in on their phone, a PIN opens their checklist; a leader's password reset still asks for the leader's password |
 
+## Oct 30: the real hardware
+
+Bradly: "The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216",
+then four answers on the pop-up. These rows win over anything earlier that assumed bigger hardware.
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| H1 | What is the server? | Dell OptiPlex 3010, Windows 7, an i3 | a 2-core (4-thread) Ivy Bridge i3 from 2012; Dell lists 8 GB as its most memory (2 slots, DDR3); no M.2 slot; no TPM 2.0 (a 1.2 chip at most, which clevis can't use). Windows 7 is wiped (docs/PRE-WIPE.md first). docs/HARDWARE.md |
+| H2 | Which Synology? | DS216 (black, no letter) | **two bays, not four**: a 2-core 1.3 GHz ARM with 512 MB, ext4 only (no Btrfs, so no Snapshot Replication: restic's snapshots are the history). The four-bay, one-drive-a-month SHR plan becomes two drives, mirrored. docs/SYNOLOGY.md |
+| H3 | No TPM 2.0: what does the encrypted disk do at boot? | Passphrase at boot | replaces round 3, 22's "the TPM unlocks it". The install disc now shows Ubuntu's disk screen, where "Encrypt the LVM group with LUKS" is ticked. After any restart someone types the passphrase at the closet keyboard, or from a church computer with `ssh -p 2222 root@arise-server` (`arisectl encrypt ssh`: the owner's SSH keys, the unlock prompt only). The Saturday update never restarts the box by itself; System → Restart says it will stop at the passphrase. Bradly and Kristina know it (58) |
+| H4 | Which apps on install day? | Core set only | replaces round 3, 5's "every template preinstalled": Nextcloud, Vaultwarden, Uptime Kuma, Netdata and File Browser. Every other template has an Install button in the Store; `install.sh --apps all` still deploys them all |
+| H5 | Upgrades before install day? | Yes, both | a 500 GB SATA SSD (about $30) for the system, and 8 GB of DDR3 (2 × 4 GB, about $15 used). docs/HARDWARE.md has the shopping list |
+
 ## Still needed
 
 - Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.

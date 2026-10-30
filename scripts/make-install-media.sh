@@ -131,7 +131,7 @@ if not lin:
     sys.exit("no linux line in the first menuentry")
 args = lin.group(2)
 args = args.replace("---", "autoinstall ---", 1) if "---" in args else args + " autoinstall"
-entry = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install ariseOS (ERASES this computer\'s largest disk)"', first, count=1)
+entry = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install ariseOS (ERASES the disk you confirm)"', first, count=1)
 entry = entry.replace(lin.group(0), f"\tlinux\t{lin.group(1)}{args}", 1)
 hand = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install by hand (the plain Ubuntu installer)"', first, count=1)
 s = s[:m.start()] + entry + "\n" + hand + "\n" + s[m.end():]

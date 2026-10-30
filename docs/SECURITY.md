@@ -13,7 +13,7 @@ read the same facts.
 | SSH | keys only, password login off (Oct 28) | `/etc/ssh/sshd_config.d/arise.conf`; the admin's key enrolled by `install.sh --ssh-key` | re-run the installer with `--ssh-key` |
 | Asking twice | delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28) | `POST /api/auth/reauth`, `require_recent_auth`, `withReauth()` in the dashboard | nothing |
 | The restic password | on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58) | `/etc/arise/secrets/restic-password` on the box | `sudo arisectl rescue card` rewrites the card; the restic line stays blank for the pen |
-| Encryption | LUKS on the disk, the TPM unlocks it (r3 22) | chosen in the Ubuntu installer; clevis binds it | `sudo arisectl encrypt tpm` |
+| Encryption | LUKS on the disk; no TPM 2.0 on the OptiPlex 3010, so the passphrase is typed at boot (Oct 30, H3; replaces r3 22) | ticked on Ubuntu's disk screen; typed at the closet keyboard or `ssh -p 2222 root@arise-server` | `sudo arisectl encrypt status` / `encrypt ssh` |
 | System snapshots | before every update, five kept (r3 23) | Timeshift, rsync mode, `/timeshift` on the root disk | `sudo arisectl snapshot create "note"` |
 | Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | `sudo arisectl reinstall <repo>` |
 | Lockout | none (r3 27) | no fail2ban; domain lockout threshold 0 | nothing: his decision |
@@ -168,6 +168,28 @@ written on it by hand (the card prints a blank line for it). Kristina knows it
 too (round 7, 58). On the box it is `/etc/arise/secrets/restic-password`, root
 only. Lose all three and the backups cannot be read by anyone, Arise-Home's
 copy included.
+
+## Encryption: the passphrase at boot (Oct 30)
+
+The OptiPlex 3010 has no TPM 2.0, so nothing can unlock the disk by itself. Bradly chose the
+passphrase at boot (docs/ANSWERS.md, H3):
+
+- **Install:** the install disc shows Ubuntu's disk screen. Check it is the right disk, keep
+  "Set up this disk as an LVM group", tick **Encrypt the LVM group with LUKS**, type the
+  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).
+- **Every boot:** the box stops at "Please unlock disk". Either type it at the closet keyboard,
+  or, from a church computer, `ssh -p 2222 root@arise-server`. That SSH is dropbear inside the
+  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the
+  passphrase prompt: no shell, no tunnels. `sudo arisectl encrypt ssh` sets it up (the installer
+  runs it); run it again after adding a key. Church network only: nothing is forwarded from the
+  internet (rule 7), and Tailscale isn't running that early.
+- **No surprise restarts:** the Saturday 03:30 update installs but never restarts the box by
+  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks
+  System → Restart when they can unlock it.
+- **The BIOS:** set AC Recovery to Power On, so after a power cut the box waits at the prompt
+  rather than staying off.
+
+The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.
 
 ## Encryption: LUKS with the TPM
 

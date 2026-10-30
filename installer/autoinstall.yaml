@@ -11,9 +11,12 @@
 #    - a Rufus USB stick:           autoinstall.yaml and arise/ at the stick's root
 #
 #  What it does:
-#    - asks only who you are (name, user name, password, server name:
+#    - asks who you are (name, user name, password, server name:
 #      type arise-server; the wizard sets it anyway)
-#    - WIPES THE LARGEST DISK and installs Ubuntu Server 24.04 LTS on LVM
+#    - shows Ubuntu's disk screen, set to the largest disk and LVM: check it is the
+#      right disk and tick "Encrypt the LVM group with LUKS" (the passphrase is typed
+#      at every boot; install.sh grows the system volume to the whole disk)
+#    - ERASES THE DISK YOU CONFIRM and installs Ubuntu Server 24.04 LTS on LVM
 #    - America/Chicago, US keyboard, OpenSSH on
 #    - copies ariseOS from the media (no git, no GitHub token: the repo is
 #      private, so the media carries the code) to /opt/arise-src, checks it
@@ -28,9 +31,12 @@
 # =============================================================================
 autoinstall:
   version: 1
-  # Only "who are you" is asked; everything else runs by itself.
+  # Asked: who you are, and the disk (Bradly, Oct 30: no TPM 2.0 on the OptiPlex 3010, so the
+  # passphrase is typed at boot; Ubuntu's disk screen is the only place encryption is switched on,
+  # and it also shows WHICH disk is erased). Everything else runs by itself.
   interactive-sections:
     - identity
+    - storage
   locale: en_US.UTF-8
   keyboard:
     layout: us

@@ -1,5 +1,25 @@
 # The Synology — four bays, joined to the domain, holding the real data
 
+> **Oct 30 2026: it is a DS216, with two bays.** Bradly's Synology is a DS216 (black, no letter):
+> a 2-core 1.3 GHz ARM with 512 MB, **two drive bays**, and ext4 only, so no Btrfs and no
+> Snapshot Replication. Where this page says four bays, read two:
+>
+> - **Two drives, mirrored.** Create the pool as SHR (or RAID 1) with the first drive. Add the
+>   second drive the next month and let it mirror; until then a dead drive loses the NAS copy,
+>   and the off-site restic copy at Arise-Home is the safety net. Capacity is the smaller
+>   drive's: two 4 TB drives give 4 TB.
+> - **Mixed brands are fine**, but avoid SMR drives (below). The safest cheap pick is two NAS
+>   drives (IronWolf or WD Red Plus) of the same size.
+> - **History comes from restic**, not Synology snapshots: 30 daily, 12 weekly and 24 monthly
+>   (docs/BACKUPS.md). The Snapshot Replication section below doesn't apply to this model.
+> - **512 MB is enough** for what the server asks of it: SMB shares, the restic repository and
+>   the Macs' Time Machine. Don't add Synology packages that run in the background (Photos
+>   indexing, Drive); Docker isn't offered on this model anyway.
+> - Check its DSM version (Control Panel → Info Center), update it before joining it to the
+>   domain, and note whether Synology still ships updates for it.
+>
+> Rows H2 and H5 in docs/ANSWERS.md.
+
 The old PC is the brain: it authenticates people, runs the dashboard, the
 automator and the apps. The **Synology is where the bytes live**: four drives
 in RAID, the home folders, the media archive, the restic repository. One old

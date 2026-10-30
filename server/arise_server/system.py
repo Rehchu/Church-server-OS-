@@ -115,10 +115,18 @@ def power(action: str, confirm: str) -> dict:
         return {"ok": True, "demo": True, "out": f"(sample) systemctl {action}"}
     if not which("systemctl"):
         return {"ok": False, "err": "systemctl is not here; nothing was done"}
+    out = f"{'restarting' if action == 'reboot' else 'shutting down'} now"
+    try:   # worked out before the restart starts: the box needs its passphrase to come back (no TPM 2.0)
+        from . import security
+        if security.encrypt_status().get("needs_passphrase"):
+            out += ("; it stops at the disk passphrase when it starts: type it at the closet keyboard"
+                    + (" or ssh -p 2222 root@arise-server from a church computer" if security.ssh_unlock_ready() else ""))
+    except Exception:  # noqa: BLE001
+        pass
     r = run(["systemctl", action], timeout=10)
     if not r["ok"]:
         return {"ok": False, "err": f"systemctl {action}: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}
-    return {"ok": True, "out": f"{'restarting' if action == 'reboot' else 'shutting down'} now"}
+    return {"ok": True, "out": out}
 
 
 # ----- the daily notification -------------------------------------------------

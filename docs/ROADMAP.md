@@ -32,7 +32,7 @@ mode, not that it has run on the Dell.
 | Previous Versions | right-click a file in Finder, see last night's and last week's copy from the backup, put one back beside the original (r3 2) | built |
 | System Settings | one window: appearance, users, sharing, backups, updates, time, notifications, about (r3 3) | built |
 | Software Update | security automatic as now; the rest listed with a badge, installed on his click in the Saturday 03:30 window, a snapshot first (r3 4, 23, 25) | built |
-| Store | every template preinstalled within the memory budget (heavy ones stopped, RAM shown), a catalogue of 35 more free apps, start/stop/open, a cap on every app (r3 5, 40) | built (docs/STORE.md) |
+| Store | the core five preinstalled (Oct 30, the OptiPlex 3010; every other template one click away), within the memory budget (RAM shown), a catalogue of 35 more free apps, start/stop/open, a cap on every app (r3 5, 40) | built (docs/STORE.md) |
 | Activity Monitor, Logs, Automations, Storage | the four admin tools every OS has (r3 6, 7, 8, 9) | built (docs/SYSTEM-APPS.md) |
 | Calendar | one church calendar on the server; an ICS feed every Mac and phone subscribes to (r3 10) | built (docs/EVERYDAY.md) |
 | Notes, Photos | Trilium and Immich as the Notes and Photos icons, for admins and the Staff and Media groups (r3 11, 12) | built |

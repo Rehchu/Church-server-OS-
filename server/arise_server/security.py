@@ -221,7 +221,8 @@ def encrypt_status() -> dict:
         return {"luks": [], "root_encrypted": False, "tpm": False, "tpm_bound": False, "clevis": False, "note": "lsblk missing (not Linux?)"}
     r = run(["lsblk", "-J", "-o", "NAME,TYPE,FSTYPE,MOUNTPOINT"], timeout=10)
     st = parse_lsblk(r["out"] if r["ok"] else "{}")
-    st["tpm"] = os.path.exists("/dev/tpmrm0") or os.path.exists("/dev/tpm0")
+    st["tpm_version"] = tpm_version()
+    st["tpm"] = st["tpm_version"] == 2   # clevis-tpm2 needs a 2.0 chip; the OptiPlex 3010's is 1.2 at best (Oct 30)
     st["clevis"] = bool(which("clevis"))
     bound = False
     if st["clevis"]:
@@ -230,10 +231,13 @@ def encrypt_status() -> dict:
             if "tpm2" in l["out"]:
                 bound = True
     st["tpm_bound"] = bound
+    st["needs_passphrase"] = bool(st["luks"]) and not bound
+    st["ssh_unlock"] = ssh_unlock_ready()
     if not st["luks"]:
         st["note"] = "no LUKS volume: the disk is not encrypted (pick 'Encrypt the new installation' in the Ubuntu installer; docs/SECURITY.md)"
     elif not st["tpm"]:
-        st["note"] = "encrypted, but no TPM 2.0 was found: someone types the passphrase at every boot (BIOS: enable the TPM / PTT)"
+        st["note"] = ("encrypted, no TPM 2.0 (Bradly, Oct 30: the passphrase at boot): type it at the closet keyboard, "
+                      + ("or from a church computer: ssh -p 2222 root@arise-server" if st["ssh_unlock"] else "or set up the SSH unlock: sudo arisectl encrypt ssh"))
     elif not bound:
         st["note"] = "encrypted and a TPM is present, but not bound yet: sudo arisectl encrypt tpm"
     else:
@@ -249,7 +253,8 @@ def encrypt_tpm(passphrase: str | None = None) -> dict:
     if not st["luks"]:
         return {"ok": False, "err": "no LUKS volume on this box; nothing to bind"}
     if not st["tpm"]:
-        return {"ok": False, "err": "no TPM 2.0 (/dev/tpmrm0 missing). Enable it in the Dell's BIOS (Security > TPM 2.0 / PTT), then run this again"}
+        return {"ok": False, "err": ("this TPM is version 1.2, which clevis can't use" if st.get("tpm_version") == 1 else "no TPM 2.0 found")
+                + ". The OptiPlex 3010 has none: the passphrase is typed at boot (sudo arisectl encrypt ssh lets you type it from a church computer)"}
     if not which("clevis"):
         return {"ok": False, "err": "clevis missing: apt install clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools"}
     if st["tpm_bound"]:
@@ -266,6 +271,88 @@ def encrypt_tpm(passphrase: str | None = None) -> dict:
     if not u["ok"]:
         return {"ok": False, "err": "bound, but update-initramfs failed: " + (u["err"] or u["out"]).strip()[-300:]}
     return {"ok": True, "out": f"{dev} is bound to the TPM (PCR 7). Next boot needs no passphrase; the one on the safe card still works."}
+
+
+# ---- no TPM 2.0: the passphrase at boot, typed at the closet or over SSH (Bradly, Oct 30) ----
+DROPBEAR_DIR = "/etc/dropbear/initramfs"          # Ubuntu 22.04+ (dropbear-initramfs)
+UNLOCK_PORT = 2222                                # the early-boot SSH only; the real sshd stays on 22
+UNLOCK_OPTS = 'no-port-forwarding,no-agent-forwarding,no-X11-forwarding,command="/usr/bin/cryptroot-unlock"'
+
+
+def tpm_version(sysfs: str = "/sys/class/tpm") -> int:
+    """0 (none), 1 (TPM 1.2) or 2. /dev/tpm0 alone also exists for a 1.2 chip, which clevis can't use."""
+    try:
+        with open(os.path.join(sysfs, "tpm0", "tpm_version_major"), encoding="utf-8") as f:
+            return int(f.read().strip() or 0)
+    except (OSError, ValueError):
+        pass
+    if os.path.exists("/dev/tpmrm0"):
+        return 2
+    return 1 if os.path.exists("/dev/tpm0") else 0
+
+
+def unlock_keys(authorized_keys: str) -> list[str]:
+    """Pure: the owner's ~/.ssh/authorized_keys -> the early-boot list. Each key may only
+    run cryptroot-unlock (it asks the passphrase, then boot carries on): no shell, no tunnels."""
+    out = []
+    for line in authorized_keys.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        m = re.search(r"((?:ssh-(?:ed25519|rsa)|ecdsa-sha2-nistp\d+|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com)\s+[A-Za-z0-9+/=]+(?:\s+.*)?)$", line)
+        if m:
+            out.append(f"{UNLOCK_OPTS} {m.group(1)}")
+    return out
+
+
+def ssh_unlock_ready() -> bool:
+    try:
+        with open(os.path.join(DROPBEAR_DIR, "authorized_keys"), encoding="utf-8") as f:
+            return any(l.strip() and not l.startswith("#") for l in f)
+    except OSError:
+        return False
+
+
+def encrypt_ssh(user: str = "") -> dict:
+    """Let the passphrase be typed over SSH while the box waits at boot (dropbear in the initramfs).
+    Uses the owner's SSH keys; LAN only (nothing is forwarded to the internet, rule 7)."""
+    if load().demo:
+        return {"ok": True, "demo": True, "out": f"(sample) early-boot SSH on port {UNLOCK_PORT}"}
+    st = encrypt_status()
+    if not st["luks"]:
+        return {"ok": False, "err": "no LUKS volume on this box: nothing to unlock at boot"}
+    user = user or str(load().owner.user or "") or "bradly"
+    src = os.path.join(os.path.expanduser(f"~{user}"), ".ssh", "authorized_keys")
+    try:
+        with open(src, encoding="utf-8") as f:
+            keys = unlock_keys(f.read())
+    except OSError:
+        keys = []
+    if not keys:
+        return {"ok": False, "err": f"no SSH key in {src} yet. From the PC (PowerShell): ssh-keygen -t ed25519, then "
+                                    f"type $env:USERPROFILE\\.ssh\\id_ed25519.pub | ssh {user}@arise-server \"mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys\", "
+                                    "then: sudo arisectl encrypt ssh. The closet keyboard works meanwhile."}
+    if not which("dropbear") and not os.path.exists("/usr/share/initramfs-tools/hooks/dropbear"):
+        r = run(["apt-get", "install", "-y", "-q", "dropbear-initramfs"], timeout=600)
+        if not r["ok"]:
+            return {"ok": False, "err": "dropbear-initramfs did not install: " + (r["err"] or r["out"]).strip()[-300:]}
+    os.makedirs(DROPBEAR_DIR, exist_ok=True)
+    with open(os.path.join(DROPBEAR_DIR, "authorized_keys"), "w", encoding="utf-8") as f:
+        f.write("# ariseOS: keys that may type the disk passphrase at boot (arisectl encrypt ssh)\n" + "\n".join(keys) + "\n")
+    os.chmod(os.path.join(DROPBEAR_DIR, "authorized_keys"), 0o600)
+    conf = os.path.join(DROPBEAR_DIR, "dropbear.conf")
+    try:
+        lines = [l for l in open(conf, encoding="utf-8").read().splitlines() if not l.startswith("DROPBEAR_OPTIONS=")]
+    except OSError:
+        lines = []
+    lines.append(f'DROPBEAR_OPTIONS="-p {UNLOCK_PORT} -s -j -k -I 300"')
+    with open(conf, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    u = run(["update-initramfs", "-u"], timeout=600)
+    if not u["ok"]:
+        return {"ok": False, "err": "keys written, but update-initramfs failed: " + (u["err"] or u["out"]).strip()[-300:]}
+    return {"ok": True, "out": f"{len(keys)} key(s) can unlock at boot: ssh -p {UNLOCK_PORT} root@arise-server, then type the passphrase. "
+                               "Church network or the closet keyboard only."}
 
 
 # ---- system snapshots (Timeshift) ------------------------------------------------------

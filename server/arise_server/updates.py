@@ -319,8 +319,11 @@ def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> 
         result["summary"] = f"{done_pkgs} packages, {done_apps} apps" + (", reboot needed" if reboot_needed else ", no reboot needed")
         _finish(cfg, result)
         if reboot_needed and q["reboot"] and result["ok"]:
-            if _in_service() and not force_service:
-                log("reboot skipped: a service is on")
+            go, why = reboot_ok(_needs_passphrase(), _in_service(), force_service)
+            if not go:
+                log(f"reboot skipped: {why}")
+                result["summary"] += f"; restart waiting ({why})"
+                _finish(cfg, result)
             else:
                 log("rebooting")
                 q["reboot"] = False
@@ -329,6 +332,25 @@ def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> 
         return result
     finally:
         _lock.release()
+
+
+def reboot_ok(needs_passphrase: bool, in_service: bool, force_service: bool = False) -> tuple[bool, str]:
+    """Pure: may the 03:30 run restart the box by itself? Never during a service, and never when
+    the disk waits for its passphrase at boot (no TPM 2.0, Bradly Oct 30): the box would sit at the
+    prompt until someone came. That restart is a person's click (System, Restart) instead."""
+    if needs_passphrase:
+        return False, "the disk needs its passphrase at boot: restart from System when someone can type it"
+    if in_service and not force_service:
+        return False, "a service is on"
+    return True, ""
+
+
+def _needs_passphrase() -> bool:
+    try:
+        from . import security
+        return bool(security.encrypt_status().get("needs_passphrase"))
+    except Exception:  # noqa: BLE001
+        return True   # unsure: don't strand the box at a prompt
 
 
 def _finish(cfg, result):
