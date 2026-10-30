@@ -365,9 +365,10 @@ Two to know about:
 
 - **PTZOptics is unsigned:** macOS can't vouch for who made it. It's the camera maker's own tool,
   but if it ever needs reinstalling, get it from ptzoptics.com only.
-- **TeamViewer** lets someone outside the church take over the media Mac. That's separate from the
-  server (rule 7 covers the server), and it's Bradly's call; worth knowing that it's there and who
-  has the account.
+- **TeamViewer stays** (Bradly, Oct 30: "it stays, it lets me do stuff from home"). It's how he
+  works on the media Mac from home. The helper leaves it alone: it never removes or blocks an app,
+  and the DNS filter doesn't touch TeamViewer's servers. It's separate from the server, which
+  stays unreachable from the internet (rule 7).
 
 ## The disk, a silent Mac, and telling a person something
 
