@@ -32,7 +32,7 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-30T02:30:37",
+"last_run": "2026-10-30T02:34:15",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-31T02:05:00",
@@ -90,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T16:30:37"
+"since": "2026-10-16T16:34:15"
 }
 ]
 },
@@ -169,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T18:30:37",
+"last_logon": "2026-10-30T18:34:15",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -183,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T19:30:37",
+"last_logon": "2026-10-29T19:34:15",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -197,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T16:30:37",
+"last_logon": "2026-10-28T16:34:15",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -211,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-24T19:30:37",
+"last_logon": "2026-10-24T19:34:15",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -239,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T19:30:37",
+"last_logon": "2026-10-27T19:34:15",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -253,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-21T19:30:37",
+"last_logon": "2026-10-21T19:34:15",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -270,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T15:30:37",
+"last_logon": "2026-10-29T15:34:15",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -287,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T19:30:37",
+"last_logon": "2026-10-28T19:34:15",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -303,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T12:30:37",
+"last_logon": "2026-10-29T12:34:15",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -409,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-30T18:30:37",
+"last_seen": "2026-10-30T18:34:15",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-29T19:30:37",
+"last_seen": "2026-10-29T19:34:15",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-28T19:30:37",
+"last_seen": "2026-10-28T19:34:15",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-30T19:26:37",
+"last_seen": "2026-10-30T19:30:15",
 "ip": "192.168.1.20"
 }
 ]
@@ -1958,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-21T19:30:37",
+"last_check": "2026-10-21T19:34:15",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1990,7 +1990,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-30T02:30:37",
+"last_run": "2026-10-30T02:34:15",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-10-31T02:05:00",
@@ -2124,17 +2124,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-30T14:30:37",
+"when": "2026-10-30T14:34:15",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-30T14:30:37",
+"when": "2026-10-30T14:34:15",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-30T14:30:37",
+"when": "2026-10-30T14:34:15",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2224,7 +2224,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2241,7 +2241,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2258,7 +2258,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2275,7 +2275,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2292,7 +2292,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-28T19:30:37",
+"updated": "2026-10-28T19:34:15",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2309,7 +2309,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2326,7 +2326,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2343,7 +2343,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-29T19:30:37",
+"updated": "2026-10-29T19:34:15",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2360,7 +2360,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2377,7 +2377,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-27T19:30:37",
+"updated": "2026-10-27T19:34:15",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3225,7 +3225,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-29T17:30:37",
+"last": "2026-10-29T17:34:15",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3489,7 +3489,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-30T19:30"
+"when": "2026-10-30T19:34"
 },
 {
 "user": "bradly",
@@ -3723,8 +3723,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-28T19:30",
-"expires": "2026-11-04T19:30",
+"created": "2026-10-28T19:34",
+"expires": "2026-11-04T19:34",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4072,8 +4072,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2309,
-"in_words": "38 h 29 min"
+"in_minutes": 2305,
+"in_words": "38 h 25 min"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4206,8 +4206,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2309,
-"in_words": "38 h 29 min"
+"in_minutes": 2305,
+"in_words": "38 h 25 min"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4253,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-30T19:30"
+"now": "2026-10-30T19:34"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4357,7 +4357,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-30T19:30:38+00:00",
+"last_check": "2026-10-30T19:34:15+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4370,7 +4370,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-30T15:30:38",
+"t": "2026-10-30T15:34:15",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4378,7 +4378,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-29T14:30:38",
+"t": "2026-10-29T14:34:15",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4386,7 +4386,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T19:30:38",
+"t": "2026-10-28T19:34:15",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4394,7 +4394,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T17:30:38",
+"t": "2026-10-27T17:34:15",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4402,7 +4402,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T19:30:38",
+"t": "2026-10-25T19:34:15",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4410,7 +4410,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T18:30:38",
+"t": "2026-10-25T18:34:15",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4418,7 +4418,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T16:30:38",
+"t": "2026-10-24T16:34:15",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4426,7 +4426,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T16:30:38",
+"t": "2026-10-24T16:34:15",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -5012,8 +5012,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "HARDWARE",
 "title": "Hardware — what to send, what is enough, what to expect",
-"size": 10777,
-"lines": 186,
+"size": 12488,
+"lines": 206,
 "blurb": "The specs of the old PC are not known yet (Bradly, Oct 27 2026: \"I'll"
 },
 {
@@ -5302,7 +5302,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-30T19:30:38+00:00",
+"checked_at": "2026-10-30T19:34:16+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5327,7 +5327,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-30T19:30:38+00:00",
+"queued_at": "2026-10-30T19:34:16+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5335,16 +5335,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-25T19:30",
+"when": "2026-10-25T19:34",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-30T19:30:38+00:00"
+"last_check": "2026-10-30T19:34:16+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793388638.3086963,
+"t": 1793388856.07944,
 "processes": [
 {
 "pid": 470,
@@ -5354,7 +5354,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792179038.3086746,
+"since": 1792179256.0794246,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5371,7 +5371,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792179038.308673,
+"since": 1792179256.0794234,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5388,7 +5388,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792179038.3086343,
+"since": 1792179256.0793972,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5405,7 +5405,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792179038.308645,
+"since": 1792179256.0794053,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5422,7 +5422,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792179038.3086636,
+"since": 1792179256.0794187,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5439,7 +5439,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792179038.3086407,
+"since": 1792179256.0794022,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5456,7 +5456,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792179038.3086433,
+"since": 1792179256.079404,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5473,7 +5473,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792179038.3086505,
+"since": 1792179256.0794096,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5490,7 +5490,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792179038.3086755,
+"since": 1792179256.0794258,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5507,7 +5507,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792179038.3086526,
+"since": 1792179256.0794113,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5524,7 +5524,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792179038.3086789,
+"since": 1792179256.0794284,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5541,7 +5541,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792179038.3086712,
+"since": 1792179256.0794218,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5558,7 +5558,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792179038.3086772,
+"since": 1792179256.079427,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5575,7 +5575,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792179038.308669,
+"since": 1792179256.0794199,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5853,7 +5853,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-30T13:30",
+"as_of": "2026-10-30T13:34",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5926,62 +5926,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-30T19:30"
+"mtime": "2026-10-30T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-23T19:30"
+"mtime": "2026-10-23T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-16T19:30"
+"mtime": "2026-10-16T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-09T19:30"
+"mtime": "2026-10-09T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-02T19:30"
+"mtime": "2026-10-02T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-25T19:30"
+"mtime": "2026-09-25T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-18T19:30"
+"mtime": "2026-09-18T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-11T19:30"
+"mtime": "2026-09-11T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-04T19:30"
+"mtime": "2026-09-04T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-28T19:30"
+"mtime": "2026-08-28T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-21T19:30"
+"mtime": "2026-08-21T19:34"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-14T19:30"
+"mtime": "2026-08-14T19:34"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5998,17 +5998,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-17T19:30"
+"mtime": "2025-06-17T19:34"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-17T19:30"
+"mtime": "2025-06-17T19:34"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-17T19:30"
+"mtime": "2025-06-17T19:34"
 }
 ],
 "old_days": 365
@@ -8104,7 +8104,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8119,7 +8119,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8134,7 +8134,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8149,7 +8149,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8164,7 +8164,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8179,7 +8179,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8194,7 +8194,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 },
 {
@@ -8209,11 +8209,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-30T19:30:38+00:00",
+"when": "2026-10-30T19:34:16+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-30T19:30:38+00:00",
+"last": "2026-10-30T19:34:16+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8625,7 +8625,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-28T19:30",
+"when": "2026-10-28T19:34",
 "from": "portal"
 },
 {
@@ -8637,7 +8637,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-18T19:30",
+"when": "2026-10-18T19:34",
 "from": "mac"
 },
 {
@@ -8649,7 +8649,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-03T19:30",
+"when": "2026-10-03T19:34",
 "from": "mac"
 }
 ],
@@ -8941,35 +8941,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-30T15:30:38",
+"when": "2026-10-30T15:34:15",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-29T14:30:38",
+"when": "2026-10-29T14:34:15",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-28T19:30:38",
+"when": "2026-10-28T19:34:15",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-25T19:30:38",
+"when": "2026-10-25T19:34:15",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-24T16:30:38",
+"when": "2026-10-24T16:34:15",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9273,8 +9273,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2309,
-"in_words": "38 h 29 min"
+"in_minutes": 2305,
+"in_words": "38 h 25 min"
 },
 "call_time": "09:00",
 "demo": true
@@ -9300,8 +9300,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 2309,
-"in_words": "38 h 29 min"
+"in_minutes": 2305,
+"in_words": "38 h 25 min"
 },
 "demo": true
 },
@@ -10790,7 +10790,7 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-10-30T19:30",
+"checked": "2026-10-30T19:34",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
@@ -14493,14 +14493,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-21T19:30:37",
+"enrolled": "2026-10-21T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T13:30:37",
+"last_checkin": "2026-10-30T13:34:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-21T19:30:37",
+"ariseadmin_at": "2026-10-21T19:34:15",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14518,14 +14518,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-27T19:30:37",
+"enrolled": "2026-10-27T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T19:28:37",
+"last_checkin": "2026-10-30T19:32:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-27T19:30:37",
+"ariseadmin_at": "2026-10-27T19:34:15",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14543,14 +14543,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-29T19:30:37",
+"enrolled": "2026-10-29T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T19:26:37",
+"last_checkin": "2026-10-30T19:30:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-29T19:30:37",
+"ariseadmin_at": "2026-10-29T19:34:15",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14587,14 +14587,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-21T19:30:37",
+"enrolled": "2026-10-21T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T13:30:37",
+"last_checkin": "2026-10-30T13:34:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-21T19:30:37",
+"ariseadmin_at": "2026-10-21T19:34:15",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14613,7 +14613,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-26T19:30:37"
+"last_login": "2026-10-26T19:34:15"
 }
 ],
 "tasks": [
@@ -14624,9 +14624,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-29T23:30:37",
+"made": "2026-10-29T23:34:15",
 "by": "the overnight window",
-"finished": "2026-10-30T00:30:37",
+"finished": "2026-10-30T00:34:15",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14647,14 +14647,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-27T19:30:37",
+"enrolled": "2026-10-27T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T19:28:37",
+"last_checkin": "2026-10-30T19:32:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-27T19:30:37",
+"ariseadmin_at": "2026-10-27T19:34:15",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14673,7 +14673,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-29T19:30:37"
+"last_login": "2026-10-29T19:34:15"
 },
 {
 "user": "media",
@@ -14683,12 +14683,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-30T16:30:37",
+"last_login": "2026-10-30T16:34:15",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-28T19:30:37",
+"at": "2026-10-28T19:34:15",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14705,9 +14705,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-28T19:30:37",
+"made": "2026-10-28T19:34:15",
 "by": "bradly",
-"finished": "2026-10-28T19:30:37",
+"finished": "2026-10-28T19:34:15",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14717,9 +14717,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-27T19:30:37",
+"made": "2026-10-27T19:34:15",
 "by": "the directory",
-"finished": "2026-10-27T19:30:37",
+"finished": "2026-10-27T19:34:15",
 "detail": "mobile account made"
 }
 ],
@@ -14740,14 +14740,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-29T19:30:37",
+"enrolled": "2026-10-29T19:34:15",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T19:26:37",
+"last_checkin": "2026-10-30T19:30:15",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-29T19:30:37",
+"ariseadmin_at": "2026-10-29T19:34:15",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14766,7 +14766,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-28T19:30:37"
+"last_login": "2026-10-28T19:34:15"
 },
 {
 "user": "levi",
@@ -14776,7 +14776,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-25T19:30:37",
+"last_login": "2026-10-25T19:34:15",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14803,7 +14803,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T17:30:37",
+"made": "2026-10-30T17:34:15",
 "by": "enrolment"
 },
 {
@@ -14811,7 +14811,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T17:30:37",
+"made": "2026-10-30T17:34:15",
 "by": "enrolment"
 },
 {
@@ -14819,7 +14819,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T17:30:37",
+"made": "2026-10-30T17:34:15",
 "by": "enrolment"
 },
 {
@@ -14827,7 +14827,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-30T17:30:37",
+"made": "2026-10-30T17:34:15",
 "by": "enrolment"
 },
 {
@@ -14835,9 +14835,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-29T19:30:37",
+"made": "2026-10-29T19:34:15",
 "by": "enrolment",
-"finished": "2026-10-29T19:30:37",
+"finished": "2026-10-29T19:34:15",
 "detail": "1 printer"
 },
 {
@@ -14847,9 +14847,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-29T19:30:37",
+"made": "2026-10-29T19:34:15",
 "by": "the directory",
-"finished": "2026-10-29T19:30:37",
+"finished": "2026-10-29T19:34:15",
 "detail": "mobile account made"
 }
 ],
@@ -16247,7 +16247,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "HARDWARE",
 "title": "Hardware — what to send, what is enough, what to expect",
-"html": "<h1 id=\"hardware-what-to-send-what-is-enough-what-to-expect\">Hardware — what to send, what is enough, what to expect</h1>\n<p>The specs of the old PC are <strong>not known yet</strong> (Bradly, Oct 27 2026: \"I'll\nlet you know system specs at a different date\"). This page is what to\ncollect, and what each answer means for the install. The Synology's model is\nalso unknown; its page is <code>SYNOLOGY.md</code>.</p>\n<h2 id=\"what-to-send\">What to send</h2>\n<p>Open <strong>Settings → System → About</strong> on the old PC, and <strong>Device Manager</strong> for\nthe rest, or run this in PowerShell and paste the whole output:</p>\n<pre><code class=\"language-powershell\">Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, TotalPhysicalMemory\nGet-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors\nGet-PhysicalDisk | Select FriendlyName, MediaType, Size, BusType\nGet-NetAdapter | Select Name, InterfaceDescription, LinkSpeed, Status\nConfirm-SecureBootUEFI\nGet-Tpm | Select TpmPresent, TpmReady\n</code></pre>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Make and model</strong></td>\n<td>Tells me the BIOS key, whether it is UEFI, and what it is likely to have inside</td>\n</tr>\n<tr>\n<td><strong>CPU</strong> (name, cores)</td>\n<td>2 cores is enough. Anything from the last 12 years is fine. A Celeron/Atom is the one thing to flag</td>\n</tr>\n<tr>\n<td><strong>RAM</strong> (GB)</td>\n<td>The number that decides the most — see the table</td>\n</tr>\n<tr>\n<td><strong>Disks</strong> (SSD or spinning, size, how many)</td>\n<td>A spinning disk makes everything feel slow; an SSD is the single best upgrade. 64 GB is enough for the system; data lives on the NAS</td>\n</tr>\n<tr>\n<td><strong>Network</strong> (wired speed)</td>\n<td>Must be wired. Gigabit is normal; 100 Mbit works but the first backup takes all night</td>\n</tr>\n<tr>\n<td><strong>UEFI / Secure Boot / TPM</strong></td>\n<td>Ubuntu handles all of them; I just need to know for the USB (MBR vs GPT)</td>\n</tr>\n<tr>\n<td><strong>Free USB port on the back</strong></td>\n<td>For the install stick</td>\n</tr>\n<tr>\n<td><strong>Where it will sit</strong></td>\n<td>On 24/7, plugged into the router or a switch by cable, somewhere the fan noise does not matter</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"minimums\">Minimums</h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Server profile (Linux, everything)</th>\n<th>Windows mode</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>2 cores, x86-64</td>\n<td>2 cores</td>\n</tr>\n<tr>\n<td>RAM</td>\n<td><strong>4 GB</strong></td>\n<td>4 GB</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td><strong>64 GB SSD</strong> (128 preferred)</td>\n<td>32 GB free</td>\n</tr>\n<tr>\n<td>Network</td>\n<td><strong>wired</strong> Ethernet</td>\n<td>wired</td>\n</tr>\n<tr>\n<td>Recommended</td>\n<td>8 GB RAM once Docker apps are on</td>\n<td>—</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"what-you-have-what-to-expect\">What you have → what to expect</h2>\n<table>\n<thead>\n<tr>\n<th>RAM</th>\n<th>Directory + dashboard + automator + backups</th>\n<th>Docker apps</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>2 GB</td>\n<td>Works, tight. The domain controller alone wants ~600 MB. No Docker.</td>\n<td>No</td>\n</tr>\n<tr>\n<td><strong>4 GB</strong></td>\n<td>Comfortable. This is the normal case.</td>\n<td>One or two light ones (file browser, uptime monitor). Not a photo library.</td>\n</tr>\n<tr>\n<td><strong>8 GB</strong></td>\n<td>Everything, with room.</td>\n<td>All the templates, together.</td>\n</tr>\n<tr>\n<td>16 GB+</td>\n<td>Nothing more to say.</td>\n<td>Anything you like.</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>Disk</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Spinning HDD only</td>\n<td>Installs fine. Logins and the dashboard feel laggy. The first <code>restic</code> run of a big home folder takes hours. <strong>Buy an SSD</strong> — a 240 GB SATA SSD is about $20–30 and turns an old PC into a different machine.</td>\n</tr>\n<tr>\n<td>SSD, 64–120 GB</td>\n<td>Fine. Homes and shares go to the NAS, so the system disk stays small.</td>\n</tr>\n<tr>\n<td>SSD, 240 GB+</td>\n<td>Fine, and homes can stay local until the NAS is set up.</td>\n</tr>\n<tr>\n<td>Two disks</td>\n<td>Ubuntu on the SSD; the other one becomes a second restic target (<code>arisectl backup</code> can keep a copy off the NAS too).</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>CPU</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Any Core i3/i5/i7, Ryzen, Xeon from 2012 on</td>\n<td>Fine for everything.</td>\n</tr>\n<tr>\n<td>Celeron / Pentium / Atom</td>\n<td>Fine for the domain, the dashboard and the automator. Docker apps and the first big backup will be slow; the nightly run still finishes long before morning.</td>\n</tr>\n<tr>\n<td>32-bit only</td>\n<td>Cannot run Ubuntu 24.04. Tell me; a different plan.</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-rules-about-the-box-itself\">Two rules about the box itself</h2>\n<ol>\n<li><strong>Wired, always.</strong> A domain controller on Wi‑Fi is a bad day: every Mac\n   login, every file open, every DNS lookup on the network waits on that\n   link, and when it drops at 2 AM so does the automator. If the only\n   Ethernet is across the room, a $15 flat cable along the baseboard is\n   the whole fix.</li>\n<li><strong>On 24/7.</strong> The automator runs at 2:05 AM, backups at 3:00, the mirror\n   at 4:00. If the PC is off they run when it next boots (<code>Persistent=true</code>\n   on every timer), but a domain controller that is off means nobody can\n   log in. Turn off sleep in the BIOS (it is on by default on most desktops)\n   and leave the power button alone.</li>\n</ol>\n<h2 id=\"things-that-are-not-a-problem\">Things that are not a problem</h2>\n<ul>\n<li>No monitor after the install. Everything is reachable over SSH and the\n  dashboard.</li>\n<li>Old Windows licence. Path A wipes it; nothing on the server needs it.</li>\n<li>A noisy fan. Blow the dust out before it goes in the closet.</li>\n<li>A PC that is \"too slow for Windows 11\". Ubuntu Server with no desktop\n  needs a fraction of that; the 4 GB row above is a 2013 machine.</li>\n</ul>\n<h2 id=\"oct-27-2026-the-box-is-a-dell-optiplex-and-it-gets-wiped\">Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped</h2>\n<p>Bradly confirmed the old PC will be wiped (install path A). It is believed to be a\nDell OptiPlex; model and specs to follow. The service tag on its sticker, put into\ndell.com/support, answers every line above at once. <code>docs/PRE-WIPE.md</code> is the\nchecklist for the days before the wipe: specs, the two credential files if the\nautomator runs there today, the USB stick, the F12/F2 boot steps.</p>\n<h2 id=\"oct-30-2026-later-the-server-is-the-hp-elitedesk-800-g1-sff\">Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF</h2>\n<p>Bradly: \"The other windows pc is an hp elite desk 800 g1 SFF\", then \"EliteDesk\" and \"Free to\nwipe\" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770</td>\n<td>about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4)</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3-1600, <strong>4 slots, 32 GB</strong> most (Q87 chipset)</td>\n<td>8 GB runs the core five; <strong>16 GB</strong> (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>one 3.5-inch bay, plus a slim optical bay; <strong>SATA only</strong> (no M.2)</td>\n<td>the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>Infineon TPM 1.2</td>\n<td>HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> shows the version</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD 4600 (on the CPU), DisplayPort and VGA</td>\n<td>fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>Intel gigabit (I217-LM)</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe</strong> (it's free to wipe, H6):</p>\n<ol>\n<li>Write down from its sticker the <strong>product number</strong> and serial; hp.com/support with them\n   lists the exact CPU, memory and BIOS.</li>\n<li>From Windows, install the <strong>newest BIOS</strong> from that HP page (a SoftPaq), while Windows is\n   still there to run it.</li>\n<li>Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security\n   devices (the TPM). Send them to Claude.</li>\n</ol>\n<p><strong>In the BIOS</strong> (F10 at the HP logo; names shift a little between BIOS versions):</p>\n<ol>\n<li><strong>Storage → Storage Options → SATA Emulation: AHCI</strong>.</li>\n<li><strong>Storage → Boot Order:</strong> UEFI boot sources on, Legacy off if offered; the Ubuntu stick\n   boots either way.</li>\n<li><strong>Advanced → Power-On Options → After Power Loss: On</strong>. After a power cut it turns\n   itself back on and waits at the passphrase. Without this it stays off.</li>\n<li><strong>Security → Device Security → Embedded Security Device: Device available</strong>; the TPM is on, even\n   though clevis can't use a 1.2 chip.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n<li><strong>F9</strong> at the logo is the one-time boot menu for the USB stick (F12 on the Dell).</li>\n</ol>\n<p><strong>Shopping list</strong> (H5, for the EliteDesk):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);</li>\n<li>memory <strong>only if</strong> About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,\n  non-ECC);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.\nThe installer runs on it unchanged.</p>\n<h2 id=\"oct-30-2026-the-optiplex-3010-now-the-spare-and-the-synology-is-a-ds216\">Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216</h2>\n<p>Bradly: \"The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216.\"\nHis choices on the same day are rows H1 to H5 in docs/ANSWERS.md.</p>\n<p><strong>The OptiPlex 3010</strong> (2012):</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz)</td>\n<td>plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3, 2 slots; Dell lists <strong>8 GB</strong> as the most</td>\n<td>buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>probably a spinning hard drive</td>\n<td>buy a <strong>500 GB SATA SSD</strong> (about $30). There is <strong>no M.2 slot</strong>: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>none, or a 1.2 chip</td>\n<td>the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> says which</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD (on the CPU)</td>\n<td>fine for the closet monitor's desktop</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>gigabit Ethernet</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe, in the BIOS</strong> (F2 at the Dell logo):</p>\n<ol>\n<li>Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).</li>\n<li><strong>System Configuration → SATA Operation: AHCI</strong>.</li>\n<li><strong>Boot Sequence:</strong> UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.</li>\n<li><strong>Power Management → AC Recovery: Power On</strong> (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n</ol>\n<p><strong>Shopping list</strong> (Bradly: \"Yes, both\"):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);</li>\n<li>2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin \"PC3-12800\" DIMMs);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The SSD holds Ubuntu, the apps and <code>/srv/arise</code>. If the old hard drive is still good, it can stay in as a second disk: <code>arisectl backup</code> keeps a second restic copy on it.</p>\n<h2 id=\"round-7-oct-29-what-is-known-now\">Round 7 (Oct 29): what is known now</h2>\n<ul>\n<li><strong>Internet at Pineville:</strong> Optimum Business, the highest plan (127).</li>\n<li><strong>The Synology:</strong> on the Netgear Nighthawk, router A (128), the same network\n  as the server, so it mounts directly.</li>\n<li><strong>Alexandria:</strong> one church Mac (134).</li>\n<li><strong>The old PC:</strong> \"just there existing, unused\" (126); nothing on it has to\n  keep running.</li>\n<li><strong>Disk health:</strong> SMART's own verdict and 80 °C for the CPU (137); a disk is\n  replaced when its health check warns, not on a calendar (138).\n  <code>sudo arisectl upkeep health</code> reads every disk; a warning is a red line in\n  Needs You and one post to Discord <code>#alerts</code>. <code>smartmontools</code> is installed\n  by the installer's care step.</li>\n<li><strong>Spare parts:</strong> none kept (142).</li>\n</ul>",
+"html": "<h1 id=\"hardware-what-to-send-what-is-enough-what-to-expect\">Hardware — what to send, what is enough, what to expect</h1>\n<p>The specs of the old PC are <strong>not known yet</strong> (Bradly, Oct 27 2026: \"I'll\nlet you know system specs at a different date\"). This page is what to\ncollect, and what each answer means for the install. The Synology's model is\nalso unknown; its page is <code>SYNOLOGY.md</code>.</p>\n<h2 id=\"what-to-send\">What to send</h2>\n<p>Open <strong>Settings → System → About</strong> on the old PC, and <strong>Device Manager</strong> for\nthe rest, or run this in PowerShell and paste the whole output:</p>\n<pre><code class=\"language-powershell\">Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, TotalPhysicalMemory\nGet-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors\nGet-PhysicalDisk | Select FriendlyName, MediaType, Size, BusType\nGet-NetAdapter | Select Name, InterfaceDescription, LinkSpeed, Status\nConfirm-SecureBootUEFI\nGet-Tpm | Select TpmPresent, TpmReady\n</code></pre>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>Why it matters</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Make and model</strong></td>\n<td>Tells me the BIOS key, whether it is UEFI, and what it is likely to have inside</td>\n</tr>\n<tr>\n<td><strong>CPU</strong> (name, cores)</td>\n<td>2 cores is enough. Anything from the last 12 years is fine. A Celeron/Atom is the one thing to flag</td>\n</tr>\n<tr>\n<td><strong>RAM</strong> (GB)</td>\n<td>The number that decides the most — see the table</td>\n</tr>\n<tr>\n<td><strong>Disks</strong> (SSD or spinning, size, how many)</td>\n<td>A spinning disk makes everything feel slow; an SSD is the single best upgrade. 64 GB is enough for the system; data lives on the NAS</td>\n</tr>\n<tr>\n<td><strong>Network</strong> (wired speed)</td>\n<td>Must be wired. Gigabit is normal; 100 Mbit works but the first backup takes all night</td>\n</tr>\n<tr>\n<td><strong>UEFI / Secure Boot / TPM</strong></td>\n<td>Ubuntu handles all of them; I just need to know for the USB (MBR vs GPT)</td>\n</tr>\n<tr>\n<td><strong>Free USB port on the back</strong></td>\n<td>For the install stick</td>\n</tr>\n<tr>\n<td><strong>Where it will sit</strong></td>\n<td>On 24/7, plugged into the router or a switch by cable, somewhere the fan noise does not matter</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"minimums\">Minimums</h2>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>Server profile (Linux, everything)</th>\n<th>Windows mode</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>2 cores, x86-64</td>\n<td>2 cores</td>\n</tr>\n<tr>\n<td>RAM</td>\n<td><strong>4 GB</strong></td>\n<td>4 GB</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td><strong>64 GB SSD</strong> (128 preferred)</td>\n<td>32 GB free</td>\n</tr>\n<tr>\n<td>Network</td>\n<td><strong>wired</strong> Ethernet</td>\n<td>wired</td>\n</tr>\n<tr>\n<td>Recommended</td>\n<td>8 GB RAM once Docker apps are on</td>\n<td>—</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"what-you-have-what-to-expect\">What you have → what to expect</h2>\n<table>\n<thead>\n<tr>\n<th>RAM</th>\n<th>Directory + dashboard + automator + backups</th>\n<th>Docker apps</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>2 GB</td>\n<td>Works, tight. The domain controller alone wants ~600 MB. No Docker.</td>\n<td>No</td>\n</tr>\n<tr>\n<td><strong>4 GB</strong></td>\n<td>Comfortable. This is the normal case.</td>\n<td>One or two light ones (file browser, uptime monitor). Not a photo library.</td>\n</tr>\n<tr>\n<td><strong>8 GB</strong></td>\n<td>Everything, with room.</td>\n<td>All the templates, together.</td>\n</tr>\n<tr>\n<td>16 GB+</td>\n<td>Nothing more to say.</td>\n<td>Anything you like.</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>Disk</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Spinning HDD only</td>\n<td>Installs fine. Logins and the dashboard feel laggy. The first <code>restic</code> run of a big home folder takes hours. <strong>Buy an SSD</strong> — a 240 GB SATA SSD is about $20–30 and turns an old PC into a different machine.</td>\n</tr>\n<tr>\n<td>SSD, 64–120 GB</td>\n<td>Fine. Homes and shares go to the NAS, so the system disk stays small.</td>\n</tr>\n<tr>\n<td>SSD, 240 GB+</td>\n<td>Fine, and homes can stay local until the NAS is set up.</td>\n</tr>\n<tr>\n<td>Two disks</td>\n<td>Ubuntu on the SSD; the other one becomes a second restic target (<code>arisectl backup</code> can keep a copy off the NAS too).</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>CPU</th>\n<th>What to expect</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Any Core i3/i5/i7, Ryzen, Xeon from 2012 on</td>\n<td>Fine for everything.</td>\n</tr>\n<tr>\n<td>Celeron / Pentium / Atom</td>\n<td>Fine for the domain, the dashboard and the automator. Docker apps and the first big backup will be slow; the nightly run still finishes long before morning.</td>\n</tr>\n<tr>\n<td>32-bit only</td>\n<td>Cannot run Ubuntu 24.04. Tell me; a different plan.</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-rules-about-the-box-itself\">Two rules about the box itself</h2>\n<ol>\n<li><strong>Wired, always.</strong> A domain controller on Wi‑Fi is a bad day: every Mac\n   login, every file open, every DNS lookup on the network waits on that\n   link, and when it drops at 2 AM so does the automator. If the only\n   Ethernet is across the room, a $15 flat cable along the baseboard is\n   the whole fix.</li>\n<li><strong>On 24/7.</strong> The automator runs at 2:05 AM, backups at 3:00, the mirror\n   at 4:00. If the PC is off they run when it next boots (<code>Persistent=true</code>\n   on every timer), but a domain controller that is off means nobody can\n   log in. Turn off sleep in the BIOS (it is on by default on most desktops)\n   and leave the power button alone.</li>\n</ol>\n<h2 id=\"things-that-are-not-a-problem\">Things that are not a problem</h2>\n<ul>\n<li>No monitor after the install. Everything is reachable over SSH and the\n  dashboard.</li>\n<li>Old Windows licence. Path A wipes it; nothing on the server needs it.</li>\n<li>A noisy fan. Blow the dust out before it goes in the closet.</li>\n<li>A PC that is \"too slow for Windows 11\". Ubuntu Server with no desktop\n  needs a fraction of that; the 4 GB row above is a 2013 machine.</li>\n</ul>\n<h2 id=\"oct-27-2026-the-box-is-a-dell-optiplex-and-it-gets-wiped\">Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped</h2>\n<p>Bradly confirmed the old PC will be wiped (install path A). It is believed to be a\nDell OptiPlex; model and specs to follow. The service tag on its sticker, put into\ndell.com/support, answers every line above at once. <code>docs/PRE-WIPE.md</code> is the\nchecklist for the days before the wipe: specs, the two credential files if the\nautomator runs there today, the USB stick, the F12/F2 boot steps.</p>\n<h2 id=\"oct-30-2026-later-the-server-is-the-hp-elitedesk-800-g1-sff\">Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF</h2>\n<p>Bradly: \"The other windows pc is an hp elite desk 800 g1 SFF\", then \"EliteDesk\" and \"Free to\nwipe\" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770</td>\n<td>about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4)</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3-1600, <strong>4 slots, 32 GB</strong> most (Q87 chipset)</td>\n<td>8 GB runs the core five; <strong>16 GB</strong> (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>one 3.5-inch bay, plus a slim optical bay; <strong>SATA only</strong> (no M.2)</td>\n<td>the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>Infineon TPM 1.2</td>\n<td>HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> shows the version</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD 4600 (on the CPU), DisplayPort and VGA</td>\n<td>fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>Intel gigabit (I217-LM)</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe</strong> (it's free to wipe, H6):</p>\n<ol>\n<li>Write down from its sticker the <strong>product number</strong> and serial; hp.com/support with them\n   lists the exact CPU, memory and BIOS.</li>\n<li>From Windows, install the <strong>newest BIOS</strong> from that HP page (a SoftPaq), while Windows is\n   still there to run it.</li>\n<li>Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security\n   devices (the TPM). Send them to Claude.</li>\n</ol>\n<p><strong>In the BIOS</strong> (F10 at the HP logo; names shift a little between BIOS versions):</p>\n<ol>\n<li><strong>Storage → Storage Options → SATA Emulation: AHCI</strong>.</li>\n<li><strong>Storage → Boot Order:</strong> UEFI boot sources on, Legacy off if offered; the Ubuntu stick\n   boots either way.</li>\n<li><strong>Advanced → Power-On Options → After Power Loss: On</strong>. After a power cut it turns\n   itself back on and waits at the passphrase. Without this it stays off.</li>\n<li><strong>Security → Device Security → Embedded Security Device: Device available</strong>; the TPM is on, even\n   though clevis can't use a 1.2 chip.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n<li><strong>F9</strong> at the logo is the one-time boot menu for the USB stick (F12 on the Dell).</li>\n</ol>\n<p><strong>Shopping list</strong> (H5, for the EliteDesk):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);</li>\n<li>memory <strong>only if</strong> About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,\n  non-ECC);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p><strong>Drivers, the file system and the boot</strong> (nothing to download: HP's Windows drivers aren't\nneeded, only the BIOS SoftPaq above):</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>Linux driver</th>\n<th>Notes</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Intel I217-LM network</td>\n<td><code>e1000e</code>, in Ubuntu's kernel</td>\n<td>the port is named <code>eno1</code> or similar; the installer pins the address on whatever it's called</td>\n</tr>\n<tr>\n<td>Intel HD 4600 graphics</td>\n<td><code>i915</code>, in the kernel</td>\n<td>drives the closet monitor's desktop (cage + Epiphany); DisplayPort and VGA both work</td>\n</tr>\n<tr>\n<td>Q87 SATA (AHCI)</td>\n<td><code>ahci</code>, in the kernel</td>\n<td>needs SATA Emulation: AHCI in the BIOS. RAID mode hides the disk from Ubuntu</td>\n</tr>\n<tr>\n<td>USB 3</td>\n<td><code>xhci_hcd</code>, in the kernel</td>\n<td>the install stick boots from any port</td>\n</tr>\n<tr>\n<td>CPU temperature</td>\n<td><code>coretemp</code>, in the kernel</td>\n<td>feeds the 80 °C alert (round 7, 137)</td>\n</tr>\n<tr>\n<td>TPM 1.2</td>\n<td><code>tpm_tis</code>, in the kernel</td>\n<td>seen, but too old for clevis (H3)</td>\n</tr>\n<tr>\n<td>CPU microcode</td>\n<td><code>intel-microcode</code></td>\n<td><strong>the installer adds it</strong> (Intel's fixes for the CPU, loaded at boot)</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th>Layer</th>\n<th>What it is</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Partitions</td>\n<td>GPT: <code>/boot/efi</code> (FAT32, about 1 GB), <code>/boot</code> (ext4, about 2 GB, not encrypted, so the passphrase prompt can load), the rest LUKS</td>\n</tr>\n<tr>\n<td>Inside LUKS</td>\n<td>LVM, one volume <code>/</code> in ext4. The installer grows it to the whole SSD; <code>/srv/arise</code> lives on it</td>\n</tr>\n<tr>\n<td>TRIM</td>\n<td>the weekly <code>fstrim</code> cleanup. <strong>The installer adds <code>discard</code> to <code>/etc/crypttab</code></strong> so it reaches the SSD through the encryption (a copy of the original is kept beside it)</td>\n</tr>\n<tr>\n<td>Boot</td>\n<td>UEFI, Secure Boot on or off: Ubuntu's signed shim, then GRUB, then the passphrase prompt. <strong>The installer also writes the fallback boot file</strong> <code>EFI/BOOT/BOOTX64.EFI</code> if Ubuntu didn't, so the box still boots if the HP firmware forgets Ubuntu's boot entry (a BIOS update or a CMOS reset)</td>\n</tr>\n</tbody>\n</table>\n<p>The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.\nThe installer runs on it unchanged.</p>\n<h2 id=\"oct-30-2026-the-optiplex-3010-now-the-spare-and-the-synology-is-a-ds216\">Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216</h2>\n<p>Bradly: \"The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216.\"\nHis choices on the same day are rows H1 to H5 in docs/ANSWERS.md.</p>\n<p><strong>The OptiPlex 3010</strong> (2012):</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>What it has</th>\n<th>What it means</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>CPU</td>\n<td>Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz)</td>\n<td>plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off</td>\n</tr>\n<tr>\n<td>Memory</td>\n<td>DDR3, 2 slots; Dell lists <strong>8 GB</strong> as the most</td>\n<td>buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap</td>\n</tr>\n<tr>\n<td>Disk</td>\n<td>probably a spinning hard drive</td>\n<td>buy a <strong>500 GB SATA SSD</strong> (about $30). There is <strong>no M.2 slot</strong>: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter</td>\n</tr>\n<tr>\n<td>TPM</td>\n<td>none, or a 1.2 chip</td>\n<td>the disk passphrase is typed at boot (H3). <code>arisectl encrypt status</code> says which</td>\n</tr>\n<tr>\n<td>Graphics</td>\n<td>Intel HD (on the CPU)</td>\n<td>fine for the closet monitor's desktop</td>\n</tr>\n<tr>\n<td>Network</td>\n<td>gigabit Ethernet</td>\n<td>fine</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Before the wipe, in the BIOS</strong> (F2 at the Dell logo):</p>\n<ol>\n<li>Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).</li>\n<li><strong>System Configuration → SATA Operation: AHCI</strong>.</li>\n<li><strong>Boot Sequence:</strong> UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.</li>\n<li><strong>Power Management → AC Recovery: Power On</strong> (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.</li>\n<li>Leave Secure Boot as it is; Ubuntu boots with it on or off.</li>\n</ol>\n<p><strong>Shopping list</strong> (Bradly: \"Yes, both\"):</p>\n<ul>\n<li>one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);</li>\n<li>2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin \"PC3-12800\" DIMMs);</li>\n<li>for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).</li>\n</ul>\n<p>The SSD holds Ubuntu, the apps and <code>/srv/arise</code>. If the old hard drive is still good, it can stay in as a second disk: <code>arisectl backup</code> keeps a second restic copy on it.</p>\n<h2 id=\"round-7-oct-29-what-is-known-now\">Round 7 (Oct 29): what is known now</h2>\n<ul>\n<li><strong>Internet at Pineville:</strong> Optimum Business, the highest plan (127).</li>\n<li><strong>The Synology:</strong> on the Netgear Nighthawk, router A (128), the same network\n  as the server, so it mounts directly.</li>\n<li><strong>Alexandria:</strong> one church Mac (134).</li>\n<li><strong>The old PC:</strong> \"just there existing, unused\" (126); nothing on it has to\n  keep running.</li>\n<li><strong>Disk health:</strong> SMART's own verdict and 80 °C for the CPU (137); a disk is\n  replaced when its health check warns, not on a calendar (138).\n  <code>sudo arisectl upkeep health</code> reads every disk; a warning is a red line in\n  Needs You and one post to Discord <code>#alerts</code>. <code>smartmontools</code> is installed\n  by the installer's care step.</li>\n<li><strong>Spare parts:</strong> none kept (142).</li>\n</ul>",
 "demo": true
 },
 "GET /help/IDEAS": {

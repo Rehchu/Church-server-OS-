@@ -330,6 +330,39 @@ fi
 # ----------------------------------------------------------------------------
 # 2. Hostname and timezone
 # ----------------------------------------------------------------------------
+# --- the hardware layer (Oct 30, the HP EliteDesk 800 G1): Ubuntu's kernel already drives the Intel
+# network card (e1000e), the HD 4600 graphics (i915), the SATA controller (ahci), USB 3 and the
+# temperature sensor (coretemp). Three things it doesn't do by itself:
+#  1. the CPU's microcode (Intel's security and bug fixes, loaded at every boot);
+if grep -q GenuineIntel /proc/cpuinfo 2>/dev/null; then
+  dpkg -s intel-microcode >/dev/null 2>&1 || { run apt-get install -y -q --no-install-recommends intel-microcode && note "Intel microcode installed (loads at the next boot)" || warn "intel-microcode did not install; the box runs without it (re-run later)"; }
+elif grep -q AuthenticAMD /proc/cpuinfo 2>/dev/null; then
+  dpkg -s amd64-microcode >/dev/null 2>&1 || { run apt-get install -y -q --no-install-recommends amd64-microcode || warn "amd64-microcode did not install"; }
+fi
+#  2. TRIM through the encryption: without "discard" in /etc/crypttab the weekly fstrim stops at
+#     the LUKS layer and the SSD slowly loses speed. Only a plain four-field "luks" line is touched;
+#     a copy is kept, and the change takes effect from the next boot.
+if [ -f /etc/crypttab ] && [ "$DRY_RUN" = 0 ] && awk '!/^[[:space:]]*#/ && NF==4 && $4 ~ /(^|,)luks(,|$)/ && $4 !~ /discard/ {f=1} END {exit !f}' /etc/crypttab; then
+  cp -a /etc/crypttab "/etc/crypttab.arise-$(date +%Y%m%d%H%M%S)"
+  awk 'BEGIN{OFS=" "} !/^[[:space:]]*#/ && NF==4 && $4 ~ /(^|,)luks(,|$)/ && $4 !~ /discard/ {$4=$4",discard"} {print}' /etc/crypttab > /etc/crypttab.arise-new \
+    && mv /etc/crypttab.arise-new /etc/crypttab && chmod 644 /etc/crypttab \
+    && run update-initramfs -u && note "TRIM passes through the disk encryption from the next boot (crypttab: discard; the old file kept beside it)" \
+    || warn "could not add discard to /etc/crypttab (the copy beside it is the original); the SSD still works, fstrim just can't reach it"
+fi
+#  3. a fallback boot file. HP's firmware can forget Ubuntu's boot entry (a BIOS update, a CMOS
+#     reset) and then says "no boot device"; \EFI\BOOT\BOOTX64.EFI is the path every UEFI tries
+#     next. Ubuntu usually writes it; when it hasn't, the signed shim and GRUB are copied there.
+if [ -d /sys/firmware/efi ] && [ -d /boot/efi/EFI/ubuntu ] && [ ! -e /boot/efi/EFI/BOOT/BOOTX64.EFI ] && [ "$DRY_RUN" = 0 ]; then
+  if [ -f /boot/efi/EFI/ubuntu/shimx64.efi ] && [ -f /boot/efi/EFI/ubuntu/grubx64.efi ]; then
+    mkdir -p /boot/efi/EFI/BOOT \
+      && cp /boot/efi/EFI/ubuntu/shimx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI \
+      && cp /boot/efi/EFI/ubuntu/grubx64.efi /boot/efi/EFI/BOOT/grubx64.efi \
+      && { [ ! -f /boot/efi/EFI/ubuntu/mmx64.efi ] || cp /boot/efi/EFI/ubuntu/mmx64.efi /boot/efi/EFI/BOOT/mmx64.efi; } \
+      && note "fallback boot file written (EFI/BOOT/BOOTX64.EFI): the box boots even if the firmware forgets Ubuntu's entry" \
+      || warn "could not write the fallback boot file; the normal boot entry still works"
+  fi
+fi
+
 # --- the whole disk for the system: Ubuntu's own disk screen leaves part of the LVM group unused
 # (the autoinstall now shows that screen so encryption can be ticked, Oct 30). /srv/arise lives on /,
 # so the free space goes there. ext4 grows while mounted; nothing is erased or moved.

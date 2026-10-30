@@ -134,6 +134,26 @@ wipe" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.
   non-ECC);
 - for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).
 
+**Drivers, the file system and the boot** (nothing to download: HP's Windows drivers aren't
+needed, only the BIOS SoftPaq above):
+
+| Part | Linux driver | Notes |
+|---|---|---|
+| Intel I217-LM network | `e1000e`, in Ubuntu's kernel | the port is named `eno1` or similar; the installer pins the address on whatever it's called |
+| Intel HD 4600 graphics | `i915`, in the kernel | drives the closet monitor's desktop (cage + Epiphany); DisplayPort and VGA both work |
+| Q87 SATA (AHCI) | `ahci`, in the kernel | needs SATA Emulation: AHCI in the BIOS. RAID mode hides the disk from Ubuntu |
+| USB 3 | `xhci_hcd`, in the kernel | the install stick boots from any port |
+| CPU temperature | `coretemp`, in the kernel | feeds the 80 °C alert (round 7, 137) |
+| TPM 1.2 | `tpm_tis`, in the kernel | seen, but too old for clevis (H3) |
+| CPU microcode | `intel-microcode` | **the installer adds it** (Intel's fixes for the CPU, loaded at boot) |
+
+| Layer | What it is |
+|---|---|
+| Partitions | GPT: `/boot/efi` (FAT32, about 1 GB), `/boot` (ext4, about 2 GB, not encrypted, so the passphrase prompt can load), the rest LUKS |
+| Inside LUKS | LVM, one volume `/` in ext4. The installer grows it to the whole SSD; `/srv/arise` lives on it |
+| TRIM | the weekly `fstrim` cleanup. **The installer adds `discard` to `/etc/crypttab`** so it reaches the SSD through the encryption (a copy of the original is kept beside it) |
+| Boot | UEFI, Secure Boot on or off: Ubuntu's signed shim, then GRUB, then the passphrase prompt. **The installer also writes the fallback boot file** `EFI/BOOT/BOOTX64.EFI` if Ubuntu didn't, so the box still boots if the HP firmware forgets Ubuntu's boot entry (a BIOS update or a CMOS reset) |
+
 The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.
 The installer runs on it unchanged.
 

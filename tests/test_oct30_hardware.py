@@ -91,5 +91,27 @@ class DiskScreen(unittest.TestCase):
             self.assertIn(row, a)
 
 
+class HardwareLayer(unittest.TestCase):
+    def setUp(self):
+        self.s = (ROOT / "installer" / "install.sh").read_text()
+
+    def test_microcode_for_the_cpu(self):
+        self.assertIn("intel-microcode", self.s)
+        self.assertIn("amd64-microcode", self.s)
+
+    def test_trim_reaches_the_ssd_through_luks(self):
+        prog = re.search(r"awk 'BEGIN\{OFS=\" \"\} (.*?)' /etc/crypttab >", self.s).group(1)
+        import subprocess
+        src = "dm_crypt-0 UUID=abc none luks\n# dm_crypt-1 UUID=x none luks\nother UUID=y none luks,discard\nsw /dev/x /dev/urandom swap\n"
+        out = subprocess.run(["awk", "BEGIN{OFS=\" \"} " + prog], input=src, capture_output=True, text=True, check=True).stdout
+        self.assertEqual(out.splitlines(), ["dm_crypt-0 UUID=abc none luks,discard", "# dm_crypt-1 UUID=x none luks",
+                                            "other UUID=y none luks,discard", "sw /dev/x /dev/urandom swap"])
+        self.assertIn('cp -a /etc/crypttab "/etc/crypttab.arise-', self.s)
+
+    def test_the_fallback_boot_file(self):
+        self.assertIn("/boot/efi/EFI/BOOT/BOOTX64.EFI", self.s)
+        self.assertIn("cp /boot/efi/EFI/ubuntu/shimx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI", self.s)
+
+
 if __name__ == "__main__":
     unittest.main()
