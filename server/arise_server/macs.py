@@ -80,7 +80,10 @@ DNS_FILTER = ["1.1.1.3", "1.0.0.3", "2606:4700:4700::1113", "2606:4700:4700::100
 # Round 7, 31. Team IDs from each maker's signing identity as Installomator's labels record it
 # (github.com/Installomator/Installomator, fragments/labels/firefoxpkg.sh, googlechromepkg.sh,
 # zoom.sh, nextcloud.sh); the helper refuses a package not signed by that team and notarized.
-# Proclaim is left out: its Team ID is not confirmed from a source we trust yet (docs/MACS.md).
+# Proclaim's Team ID was read off the media Mac's own signed copy by Bradly (Oct 30:
+# `codesign -dv /Applications/Proclaim.app` -> G2ET27DGDP). It goes to the media Mac only, and has no
+# download link (Faithlife's installer isn't a signed .pkg the helper can check), so the helper
+# confirms the copy there is Faithlife's and says so if it's missing.
 DEFAULT_APPS = [
     {"name": "Nextcloud", "app": "Nextcloud.app", "team": "NKUJUXUJ3B", "url": ""},   # nextcloud.sh installs the pinned client
     {"name": "Firefox", "app": "Firefox.app", "team": "43AQ936H96",
@@ -88,6 +91,7 @@ DEFAULT_APPS = [
     {"name": "Google Chrome", "app": "Google Chrome.app", "team": "EQHXZ8M8AV",
      "url": "https://dl.google.com/chrome/mac/stable/accept_tos%3Dhttps%253A%252F%252Fwww.google.com%252Fintl%252Fen_ph%252Fchrome%252Fterms%252F%26_and_accept_tos%3Dhttps%253A%252F%252Fpolicies.google.com%252Fterms/googlechrome.pkg"},
     {"name": "Zoom", "app": "zoom.us.app", "team": "BJ4HAAB9B3", "url": "https://zoom.us/client/latest/ZoomInstallerIT.pkg"},
+    {"name": "Proclaim", "app": "Proclaim.app", "team": "G2ET27DGDP", "url": "", "media_only": True},
 ]
 TEAM_RE = re.compile(r"^[A-Z0-9]{10}$")
 
@@ -1171,7 +1175,8 @@ def apps_for(m: dict | None) -> list[dict]:
             continue
         if a.get("media_only") and not (m or {}).get("media"):
             continue
-        out.append({"name": str(a["name"])[:60], "app": str(a["app"])[:80], "team": a["team"], "url": str(a.get("url", ""))[:600]})
+        out.append({"name": str(a["name"])[:60], "app": str(a["app"])[:80], "team": a["team"], "url": str(a.get("url", ""))[:600],
+                    "media_only": bool(a.get("media_only"))})
     return out
 
 

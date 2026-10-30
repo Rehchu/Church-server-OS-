@@ -470,9 +470,10 @@ class RealMode(unittest.TestCase):
             self.assertTrue(macs.set_media(r["mac_id"], True, "bradly")["ok"])
             self.assertIn("APP Proclaim Proclaim.app ABCDEFGHIJ -", macs.config_lines(macs._read()["macs"][r["mac_id"]]))
             self.assertTrue(any(t["kind"] == "apps" for t in macs._read()["tasks"][r["mac_id"]]))
-            # the default apps carry only the four confirmed Team IDs; Proclaim waits for Bradly (round 7, 31)
-            self.assertEqual({a["team"] for a in macs.DEFAULT_APPS}, {"43AQ936H96", "EQHXZ8M8AV", "BJ4HAAB9B3", "NKUJUXUJ3B"})
-            self.assertNotIn("Proclaim", [a["name"] for a in macs.DEFAULT_APPS])
+            # the default apps: the four from Installomator, and Proclaim read off the media Mac (Oct 30)
+            self.assertEqual({a["team"] for a in macs.DEFAULT_APPS}, {"43AQ936H96", "EQHXZ8M8AV", "BJ4HAAB9B3", "NKUJUXUJ3B", "G2ET27DGDP"})
+            proclaim = [a for a in macs.DEFAULT_APPS if a["name"] == "Proclaim"][0]
+            self.assertTrue(proclaim["media_only"]); self.assertEqual(proclaim["url"], "")
             self.assertEqual(macs.LOGIN_TEXT, "Arise Church: sign in with your church account. Help: Bradly")
             self.assertTrue(macs.run_task(r["mac_id"], "dnsfilter", "bradly", {"mode": "off"})["ok"])
             self.assertFalse(macs.run_task(r["mac_id"], "dnsfilter", "bradly", {"mode": "maybe"})["ok"])

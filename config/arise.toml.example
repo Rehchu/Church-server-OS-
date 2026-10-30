@@ -315,9 +315,9 @@ login_text = "Arise Church: sign in with your church account. Help: Bradly"   # 
 help = ["Bradly Dyer", "Kristina Robinson", "Ronnie"]   # round 7, 3 and 141: who to ask, on the welcome page
 dns_filter = ["1.1.1.3", "1.0.0.3", "2606:4700:4700::1113", "2606:4700:4700::1003"]   # round 7, 71: Cloudflare for Families (malware and adult); [] leaves DNS alone
 # The apps every church Mac gets (round 7, 31). A package must be signed by that Apple Developer Team
-# and notarized, or it is refused. Proclaim waits for its Team ID: on the media Mac run
-#   codesign -dv /Applications/Proclaim.app 2>&1 | grep TeamIdentifier
-# then add { name = "Proclaim", app = "Proclaim.app", url = "<Faithlife's .pkg link>", team = "<that ID>", media_only = true }.
+# and notarized, or it is refused. Left unset, the list is Nextcloud, Firefox, Chrome, Zoom, and Proclaim
+# on the media Mac only (team G2ET27DGDP, read off the media Mac's copy Oct 30; no download link, so the
+# helper only confirms the copy there is Faithlife's). Setting apps replaces the whole list.
 # apps = [{ name = "Firefox", app = "Firefox.app", url = "https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US", team = "43AQ936H96" }]
 # printers = [{ name = "Office", uri = "ipp://192.168.1.40/ipp/print", driver = "everywhere", location = "Church office" }]
 # bookmarks = [{ name = "Arise Church", url = "https://arisecenla.church" }]   # the Church folder in Chrome and Safari

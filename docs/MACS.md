@@ -334,15 +334,40 @@ keeps against each maker's signing identity
 (`github.com/Installomator/Installomator`, `fragments/labels/firefoxpkg.sh`,
 `googlechromepkg.sh`, `zoom.sh`, `nextcloud.sh`), checked Oct 29.
 
-**Proclaim is not in the list yet.** It belongs only on the media Mac (the
-**This is the media Mac** box in its card), but its Team ID could not be
-confirmed from a source we trust: one third-party app catalogue gives a value,
-nothing from Faithlife or Installomator does. Rather than guess, it is left out.
-To add it, on a Mac with Proclaim installed run
-`codesign -dv --verbose=4 /Applications/Proclaim.app 2>&1 | grep TeamIdentifier`
-and add it to `[macs] apps` with `media_only = true` (the example is in
-`config/arise.toml.example`). An entry without a real 10-character Team ID is
-ignored.
+**Proclaim** goes on the media Mac only (the **This is the media Mac** box in its card). Its Team
+ID, `G2ET27DGDP` (Faithlife), was read by Bradly on Oct 30 from the media Mac's own copy:
+`codesign -dv --verbose=4 /Applications/Proclaim.app 2>&1 | grep TeamIdentifier`. Faithlife's
+installer isn't a signed `.pkg` the helper can check, so Proclaim has no download link: the helper
+confirms the copy on the media Mac is signed by Faithlife, and reports it (missing, or signed by
+someone else) rather than installing it. A new media Mac gets Proclaim by hand, from Faithlife.
+
+### What's on the media Mac (Oct 30)
+
+Bradly's list from the media Mac, each app with the Apple Team ID that signed it. None of these is
+installed by the helper except Proclaim (checked only); the list is the baseline for spotting an app
+that changes signer.
+
+| App | Team ID | | App | Team ID |
+|---|---|---|---|---|
+| Actions | YG56YK5RN5 | | NDI Tools (Access Manager, Discovery, Launcher, Router, Scan Converter, Test Patterns, Video Monitor, Virtual Input) | W8U66ET244 |
+| Bible Study | LK7K8N66CQ | | OBS Hub | 89L5C7D745 |
+| Discord | 53Q6R32WPB | | Pixelmator Pro Creator Studio | 4R6749AYRE |
+| Final Cut Pro, iMovie, Motion (Creator Studio) | PTN9T2S29T | | Presenter | Z7SLB2HRWL |
+| GarageBand | F3LWYJ7GM7 | | **Proclaim** | **G2ET27DGDP** |
+| Keynote, Numbers, Pages | 74J34U3R6X | | ProPresenter | 97GAAZ6CPX |
+| Keynote, Numbers (Creator Studio) | JCRTNEU7GK | | PTZ Scene Manager | 92RP9V4XB5 |
+| LanScan | AATLWWB4MZ | | PTZOptics | **unsigned** |
+| Lightkey | 9466VHH352 | | Spotify | 2FNC3A47ZF |
+| Monster, Monster Light, Monster Smart | R2MF7TKKGF, BJ28Q55N7G, 5L7243R728 | | TeamViewer | H7UGFBUGV6 |
+| | | | X32-Mix | KZ84TRLT54 |
+
+Two to know about:
+
+- **PTZOptics is unsigned:** macOS can't vouch for who made it. It's the camera maker's own tool,
+  but if it ever needs reinstalling, get it from ptzoptics.com only.
+- **TeamViewer** lets someone outside the church take over the media Mac. That's separate from the
+  server (rule 7 covers the server), and it's Bradly's call; worth knowing that it's there and who
+  has the account.
 
 ## The disk, a silent Mac, and telling a person something
 

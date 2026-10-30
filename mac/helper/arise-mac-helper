@@ -436,7 +436,13 @@ t_apps() {   # round 7, 31: each app from its maker, refused unless that maker s
     [ "$kind" = APP ] || continue
     name="$(urldec "$name")"; app="$(urldec "$app")"; team="$(urldec "$team")"; url="$(urldec "$url")"
     if [ -d "/Applications/$app" ] && [ "$(app_team "/Applications/$app")" = "$team" ]; then skip="$skip $name"; continue; fi
-    if [ "$url" = - ] || [ -z "$url" ]; then skip="$skip $name(its own task)"; continue; fi
+    if [ "$url" = - ] || [ -z "$url" ]; then
+      # no download link: Nextcloud has its own task; anything else (Proclaim) is installed by hand
+      if [ "$name" = Nextcloud ]; then skip="$skip $name(its own task)"
+      elif [ -d "/Applications/$app" ]; then bad="$bad $name(the copy here is not signed by $team)"
+      else bad="$bad $name(missing: install it by hand from its maker)"; fi
+      continue
+    fi
     pkg="$(mktemp /tmp/arise-app.XXXXXX)"
     if ! curl -fsSL --max-time 900 -o "$pkg" "$url" >>"$LOG" 2>&1; then bad="$bad $name(download)"; rm -f "$pkg"; continue; fi
     if ! pkg_ok "$pkg" "$team"; then bad="$bad $name(not signed by $team, or not notarized)"; rm -f "$pkg"; continue; fi
