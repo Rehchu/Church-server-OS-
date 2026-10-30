@@ -27,8 +27,8 @@ VirtualBox → **New**:
 | Name | arise-test |
 | ISO | `ariseos-0.8.0-amd64.iso`, or the plain Ubuntu 24.04 server ISO |
 | Unattended install | **Skip** (tick "Skip Unattended Installation") |
-| Memory | 8192 MB: what the OptiPlex 3010 will have (H5) |
-| Processors | 2, like the 3010's i3 (4 if the soft-lockup warning appears) |
+| Memory | 8192 MB (the EliteDesk will have 8 to 16 GB, H6) |
+| Processors | 4, like the EliteDesk's i5 |
 | Disk | 80 GB, VDI, dynamically allocated |
 
 Then **Settings** before the first start:

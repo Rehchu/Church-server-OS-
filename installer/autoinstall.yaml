@@ -31,7 +31,7 @@
 # =============================================================================
 autoinstall:
   version: 1
-  # Asked: who you are, and the disk (Bradly, Oct 30: no TPM 2.0 on the OptiPlex 3010, so the
+  # Asked: who you are, and the disk (Bradly, Oct 30: no TPM 2.0 on the EliteDesk 800 G1, so the
   # passphrase is typed at boot; Ubuntu's disk screen is the only place encryption is switched on,
   # and it also shows WHICH disk is erased). Everything else runs by itself.
   interactive-sections:

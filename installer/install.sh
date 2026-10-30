@@ -90,8 +90,8 @@ WITH_HARDENING=1
 WITH_SPLASH=1
 WITH_UPS=1
 PIN_IP=1
-# The core set (Bradly, Oct 30: the box is an OptiPlex 3010, a 2-core i3 with 8 GB at most; this
-# replaces round 3, 5's "every template preinstalled"): sync, passwords, the uptime monitor, the
+# The core set (Bradly, Oct 30, H4; replaces round 3, 5's "every template preinstalled"; the box
+# is an HP EliteDesk 800 G1 SFF, H6): sync, passwords, the uptime monitor, the
 # health graphs and the web file browser. Every other template stays in the Store, one click away.
 # `--apps all` deploys every template (started only within RAM minus 2 GB); `--apps "a b c"` a
 # list; `--no-apps` skips the step.
@@ -1744,7 +1744,8 @@ TS
   elif [ "$WITH_TPM" = 0 ]; then
     note "LUKS on $LUKS_DEV; --no-tpm: the passphrase is typed at every boot"
   elif [ "$(cat /sys/class/tpm/tpm0/tpm_version_major 2>/dev/null || { [ -e /dev/tpmrm0 ] && echo 2; } || echo 0)" != 2 ] && [ "$DRY_RUN" = 0 ]; then
-    # No TPM 2.0 (the OptiPlex 3010 has a 1.2 chip at most, which clevis can't use). Bradly, Oct 30:
+    # No TPM 2.0 (the EliteDesk 800 G1 and the OptiPlex 3010 have a 1.2 chip at most, which clevis
+    # can't use). Bradly, Oct 30 (H3):
     # the passphrase is typed at boot, at the closet keyboard or over SSH from a church computer.
     note "LUKS on $LUKS_DEV, no TPM 2.0: the passphrase is typed at every boot (Bradly, Oct 30)"
     if /usr/local/bin/arisectl encrypt ssh >>"$LOG_FILE" 2>&1; then

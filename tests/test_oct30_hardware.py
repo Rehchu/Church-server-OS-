@@ -1,5 +1,5 @@
-"""Oct 30: the real hardware is an OptiPlex 3010 (no TPM 2.0, 8 GB at most) and a two-bay DS216.
-docs/ANSWERS.md rows H1 to H5."""
+"""Oct 30: the server is an HP EliteDesk 800 G1 SFF (TPM 1.2, so no clevis) and the NAS a two-bay DS216.
+docs/ANSWERS.md rows H1 to H6."""
 import os
 import re
 import sys
@@ -87,7 +87,7 @@ class DiskScreen(unittest.TestCase):
 
     def test_answers_record_the_hardware(self):
         a = (ROOT / "docs" / "ANSWERS.md").read_text()
-        for row in ("| H1 |", "| H2 |", "| H3 |", "| H4 |", "| H5 |"):
+        for row in ("| H1 |", "| H2 |", "| H3 |", "| H4 |", "| H5 |", "| H6 |"):
             self.assertIn(row, a)
 
 

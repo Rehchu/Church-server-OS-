@@ -336,7 +336,7 @@ def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> 
 
 def reboot_ok(needs_passphrase: bool, in_service: bool, force_service: bool = False) -> tuple[bool, str]:
     """Pure: may the 03:30 run restart the box by itself? Never during a service, and never when
-    the disk waits for its passphrase at boot (no TPM 2.0, Bradly Oct 30): the box would sit at the
+    the disk waits for its passphrase at boot (no TPM 2.0, Bradly Oct 30, H3): the box would sit at the
     prompt until someone came. That restart is a person's click (System, Restart) instead."""
     if needs_passphrase:
         return False, "the disk needs its passphrase at boot: restart from System when someone can type it"

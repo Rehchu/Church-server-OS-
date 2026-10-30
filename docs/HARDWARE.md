@@ -92,7 +92,52 @@ dell.com/support, answers every line above at once. `docs/PRE-WIPE.md` is the
 checklist for the days before the wipe: specs, the two credential files if the
 automator runs there today, the USB stick, the F12/F2 boot steps.
 
-## Oct 30 2026: it is an OptiPlex 3010, and the Synology is a DS216
+## Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF
+
+Bradly: "The other windows pc is an hp elite desk 800 g1 SFF", then "EliteDesk" and "Free to
+wipe" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.
+
+| | What it has | What it means |
+|---|---|---|
+| CPU | Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770 | about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4) |
+| Memory | DDR3-1600, **4 slots, 32 GB** most (Q87 chipset) | 8 GB runs the core five; **16 GB** (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin |
+| Disk | one 3.5-inch bay, plus a slim optical bay; **SATA only** (no M.2) | the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses |
+| TPM | Infineon TPM 1.2 | HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). `arisectl encrypt status` shows the version |
+| Graphics | Intel HD 4600 (on the CPU), DisplayPort and VGA | fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI |
+| Network | Intel gigabit (I217-LM) | fine |
+
+**Before the wipe** (it's free to wipe, H6):
+
+1. Write down from its sticker the **product number** and serial; hp.com/support with them
+   lists the exact CPU, memory and BIOS.
+2. From Windows, install the **newest BIOS** from that HP page (a SoftPaq), while Windows is
+   still there to run it.
+3. Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security
+   devices (the TPM). Send them to Claude.
+
+**In the BIOS** (F10 at the HP logo):
+
+1. **Storage → Storage Options → SATA Emulation: AHCI**.
+2. **Storage → Boot Order:** UEFI boot sources on, Legacy off if offered; the Ubuntu stick
+   boots either way.
+3. **Power → Hardware Power Management → After Power Loss: On**. After a power cut it turns
+   itself back on and waits at the passphrase. Without this it stays off.
+4. **Security → System Security → Embedded Security Device: Available**; the TPM is on, even
+   though clevis can't use a 1.2 chip.
+5. Leave Secure Boot as it is; Ubuntu boots with it on or off.
+6. F12 at the logo is the one-time boot menu for the USB stick.
+
+**Shopping list** (H5, for the EliteDesk):
+
+- one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);
+- memory **only if** About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,
+  non-ECC);
+- for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).
+
+The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.
+The installer runs on it unchanged.
+
+## Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216
 
 Bradly: "The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216."
 His choices on the same day are rows H1 to H5 in docs/ANSWERS.md.

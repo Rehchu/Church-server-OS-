@@ -222,7 +222,7 @@ def encrypt_status() -> dict:
     r = run(["lsblk", "-J", "-o", "NAME,TYPE,FSTYPE,MOUNTPOINT"], timeout=10)
     st = parse_lsblk(r["out"] if r["ok"] else "{}")
     st["tpm_version"] = tpm_version()
-    st["tpm"] = st["tpm_version"] == 2   # clevis-tpm2 needs a 2.0 chip; the OptiPlex 3010's is 1.2 at best (Oct 30)
+    st["tpm"] = st["tpm_version"] == 2   # clevis-tpm2 needs a 2.0 chip; the EliteDesk 800 G1's is 1.2 (Oct 30, H6)
     st["clevis"] = bool(which("clevis"))
     bound = False
     if st["clevis"]:
@@ -254,7 +254,7 @@ def encrypt_tpm(passphrase: str | None = None) -> dict:
         return {"ok": False, "err": "no LUKS volume on this box; nothing to bind"}
     if not st["tpm"]:
         return {"ok": False, "err": ("this TPM is version 1.2, which clevis can't use" if st.get("tpm_version") == 1 else "no TPM 2.0 found")
-                + ". The OptiPlex 3010 has none: the passphrase is typed at boot (sudo arisectl encrypt ssh lets you type it from a church computer)"}
+                + ". The passphrase is typed at boot instead (Oct 30, H3); sudo arisectl encrypt ssh lets you type it from a church computer"}
     if not which("clevis"):
         return {"ok": False, "err": "clevis missing: apt install clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools"}
     if st["tpm_bound"]:

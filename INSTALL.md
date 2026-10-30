@@ -99,7 +99,7 @@ Flags that arrived with v0.8 (the installer's header lists them all):
 | `--no-tpm` | do not bind the encrypted disk to the TPM. Default: if the disk is LUKS and a TPM 2.0 is there, step 6j asks the passphrase once and binds it, so the box boots alone (round 3, 22) |
 | `--no-safety` | skip step 6j: the break-glass admin, ClamAV, Timeshift, the TPM binding, the safe card |
 | `--restore REPO` | **reinstall**: on a fresh Ubuntu, step 0b pulls `/etc/arise`, `/etc/samba`, the domain's offline backup and the pinned address back from that restic repository first, then installs around them. docs/REINSTALL.md |
-| `--apps "a,b"` / `--apps all` / `--no-apps` | the default is the **core five** (Bradly, Oct 30, for the OptiPlex 3010): Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser. `--apps all` deploys every template (`arisectl app install-all`, started within RAM minus 2 GB); the rest are one click in the Store |
+| `--apps "a,b"` / `--apps all` / `--no-apps` | the default is the **core five** (Bradly, Oct 30, H4): Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser. `--apps all` deploys every template (`arisectl app install-all`, started within RAM minus 2 GB); the rest are one click in the Store |
 | `--kiosk` | also installs step 6d-2: the panel off at 23:00 and on at 06:00, and Screen Sharing of it through Guacamole (wayvnc) |
 
 The disk: Bradly has not decided one partition or two (round 4, 91: "depends

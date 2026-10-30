@@ -13,7 +13,7 @@ read the same facts.
 | SSH | keys only, password login off (Oct 28) | `/etc/ssh/sshd_config.d/arise.conf`; the admin's key enrolled by `install.sh --ssh-key` | re-run the installer with `--ssh-key` |
 | Asking twice | delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28) | `POST /api/auth/reauth`, `require_recent_auth`, `withReauth()` in the dashboard | nothing |
 | The restic password | on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58) | `/etc/arise/secrets/restic-password` on the box | `sudo arisectl rescue card` rewrites the card; the restic line stays blank for the pen |
-| Encryption | LUKS on the disk; no TPM 2.0 on the OptiPlex 3010, so the passphrase is typed at boot (Oct 30, H3; replaces r3 22) | ticked on Ubuntu's disk screen; typed at the closet keyboard or `ssh -p 2222 root@arise-server` | `sudo arisectl encrypt status` / `encrypt ssh` |
+| Encryption | LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22) | ticked on Ubuntu's disk screen; typed at the closet keyboard or `ssh -p 2222 root@arise-server` | `sudo arisectl encrypt status` / `encrypt ssh` |
 | System snapshots | before every update, five kept (r3 23) | Timeshift, rsync mode, `/timeshift` on the root disk | `sudo arisectl snapshot create "note"` |
 | Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | `sudo arisectl reinstall <repo>` |
 | Lockout | none (r3 27) | no fail2ban; domain lockout threshold 0 | nothing: his decision |
@@ -171,7 +171,7 @@ copy included.
 
 ## Encryption: the passphrase at boot (Oct 30)
 
-The OptiPlex 3010 has no TPM 2.0, so nothing can unlock the disk by itself. Bradly chose the
+The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the
 passphrase at boot (docs/ANSWERS.md, H3):
 
 - **Install:** the install disc shows Ubuntu's disk screen. Check it is the right disk, keep
@@ -186,7 +186,7 @@ passphrase at boot (docs/ANSWERS.md, H3):
 - **No surprise restarts:** the Saturday 03:30 update installs but never restarts the box by
   itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks
   System → Restart when they can unlock it.
-- **The BIOS:** set AC Recovery to Power On, so after a power cut the box waits at the prompt
+- **The BIOS:** set Power → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt
   rather than staying off.
 
 The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.
