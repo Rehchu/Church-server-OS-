@@ -70,7 +70,7 @@ provider = "resend"
 api_key_file = "/etc/arise/secrets/resend-api-key"
 from_name = "Arise Church"
 server_from_name = "Arise Church IT"   # round 7, 132: what the server itself sends (resets, notices, forwards)
-from_email = ""           # e.g. "news@mail.arisecenla.com" once the domain is verified in Resend
+from_email = "it@mail.arisecenla.com"   # mail.arisecenla.com is set up in the church's Resend (Oct 31, H8); another name there works too
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
 # domain = ""             # first.last@<domain>: empty = the directory's realm in lower case (round 5, 1). Never typed anywhere else.

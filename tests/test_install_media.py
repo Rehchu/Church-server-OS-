@@ -147,6 +147,25 @@ class Builder(unittest.TestCase):
             if z:
                 self.assertIn("autoinstall.yaml", z)
                 self.assertIn("arise/ariseos-src.tar.gz", z)
+            self.assertNotIn("/arise/secrets", ls)                  # the plain disc never carries a key
+
+    @unittest.skipUnless(shutil.which("xorriso") and shutil.which("zip") and shutil.which("git")
+                         and (ROOT / ".git").exists(), "xorriso, zip or a git checkout missing")
+    def test_a_private_disc_carries_only_the_named_keys(self):
+        """Oct 31, H9: the Resend key rides on a private disc, never in git or the shared one."""
+        with tempfile.TemporaryDirectory() as out, tempfile.TemporaryDirectory() as sec:
+            Path(sec, "resend-api-key").write_text("re_" + "x" * 30 + "\n")
+            Path(sec, "something-else").write_text("not allowed\n")
+            r = subprocess.run(["bash", str(BUILDER), "--out", out, "--secrets", sec], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertNotIn("re_xxx", r.stdout + r.stderr)          # never printed
+            iso = Path(out) / "ariseos-addon-private.iso"
+            ls = subprocess.run(["xorriso", "-indev", str(iso), "-find", "/", "-type", "f"],
+                                capture_output=True, text=True).stdout
+            self.assertIn("'/arise/secrets/resend-api-key'", ls)
+            self.assertNotIn("something-else", ls)
+        y = YAML_PATH.read_text()
+        self.assertIn('install -m 0600 -o root -g root "$f" "/target/etc/arise/secrets/$(basename "$f")"', y)
 
 
 class Wizard(unittest.TestCase):

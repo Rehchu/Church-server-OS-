@@ -4,6 +4,10 @@
 #   bash scripts/make-install-media.sh                 the add-on disc and the USB files
 #   bash scripts/make-install-media.sh --full          also the one ariseOS ISO (about 3 GB)
 #   bash scripts/make-install-media.sh --full --ubuntu-iso ~/ubuntu-24.04.3-live-server-amd64.iso
+#   bash scripts/make-install-media.sh --secrets DIR   a PRIVATE disc that also carries the keys in DIR
+#                                                      (only the names below), named ...-private.iso:
+#                                                      the installer puts them in /etc/arise/secrets/
+#                                                      by itself. Keep it off GitHub and out of shares.
 #   bash scripts/make-install-media.sh --test-identity a TEST build: the identity is filled
 #                                                      in (user tester), so a VM run is fully
 #                                                      unattended. Never for a real box.
@@ -28,12 +32,16 @@ OUT="$ROOT/dist"
 FULL=0
 UBUNTU_ISO=""
 TEST_IDENTITY=0
+SECRETS_DIR=""
+# The keys a private disc may carry, by file name in /etc/arise/secrets/ (Bradly, Oct 31, H9).
+SECRET_NAMES="resend-api-key"
 UBUNTU_REL="https://releases.ubuntu.com/24.04"
 while [ $# -gt 0 ]; do
   case "$1" in
     --full) FULL=1; shift ;;
     --ubuntu-iso) UBUNTU_ISO="$2"; shift 2 ;;
     --test-identity) TEST_IDENTITY=1; shift ;;
+    --secrets) SECRETS_DIR="$2"; shift 2 ;;
     --out) OUT="$2"; shift 2 ;;
     -h|--help) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $1" >&2; exit 2 ;;
@@ -61,6 +69,18 @@ else
   COMMIT="not a git checkout"
 fi
 printf 'ariseOS %s (%s), made %s\n' "$VERSION" "$COMMIT" "$(date -u +%Y-%m-%dT%H:%MZ)" > "$STAGE/arise/VERSION"
+# 1b. a private disc: the keys Bradly chose to carry (H9). Never part of the tarball or its checksum
+#     line, never printed; the file name says "private" so it isn't mistaken for the shareable disc.
+if [ -n "$SECRETS_DIR" ]; then
+  [ -d "$SECRETS_DIR" ] || die "--secrets: no folder $SECRETS_DIR"
+  mkdir -p "$STAGE/arise/secrets"; chmod 700 "$STAGE/arise/secrets"
+  n=0
+  for f in $SECRET_NAMES; do
+    if [ -s "$SECRETS_DIR/$f" ]; then install -m 600 "$SECRETS_DIR/$f" "$STAGE/arise/secrets/$f"; n=$((n + 1)); fi
+  done
+  [ "$n" -gt 0 ] || die "--secrets: none of ($SECRET_NAMES) in $SECRETS_DIR"
+  say "private disc: $n key file(s) on it ($SECRET_NAMES); keep it off GitHub and out of shared folders"
+fi
 (cd "$STAGE/arise" && sha256sum ariseos-src.tar.gz > SHA256SUMS)
 
 # 2. the autoinstall config: as committed, or with a TEST identity for an unattended VM run
@@ -88,7 +108,7 @@ PY
 { echo "#cloud-config"; sed '1{/^#cloud-config/d}' "$STAGE/autoinstall.yaml"; } > "$STAGE/user-data"
 printf 'instance-id: ariseos-%s\nlocal-hostname: arise-server\n' "$VERSION" > "$STAGE/meta-data"
 
-SUF=""; [ "$TEST_IDENTITY" = 1 ] && SUF="-TEST"
+SUF=""; [ "$TEST_IDENTITY" = 1 ] && SUF="-TEST"; [ -n "$SECRETS_DIR" ] && SUF="$SUF-private"
 # 3. the add-on disc (CIDATA) and the USB files
 rm -f "$OUT/ariseos-addon$SUF.iso" "$OUT/ariseos-addon$SUF.zip"
 xorriso -as mkisofs -quiet -V CIDATA -J -r -o "$OUT/ariseos-addon$SUF.iso" \

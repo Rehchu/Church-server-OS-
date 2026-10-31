@@ -94,6 +94,13 @@ autoinstall:
       tar -xzf "$M/ariseos-src.tar.gz" -C /target/opt/arise-src
       cp "$M/SHA256SUMS" /target/opt/arise-src/.media-SHA256SUMS
       [ -f "$M/VERSION" ] && cp "$M/VERSION" /target/opt/arise-src/.media-VERSION || true
+      # A private disc (make-install-media.sh --secrets, Bradly Oct 31, H9) carries keys: root only.
+      if [ -d "$M/secrets" ]; then
+        mkdir -p /target/etc/arise/secrets && chmod 0711 /target/etc/arise/secrets
+        for f in "$M"/secrets/*; do
+          [ -f "$f" ] && install -m 0600 -o root -g root "$f" "/target/etc/arise/secrets/$(basename "$f")"
+        done
+      fi
     # 2. The packages, the code, the config and the units. The domain waits for
     #    the first boot, where the wizard asks for its password.
     - |

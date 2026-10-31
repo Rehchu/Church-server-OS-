@@ -11,6 +11,12 @@ install and restarts into the Arise desktop (INSTALL.md, Path C).
 The media carries the code (the repo is private, so the install never runs
 `git clone`) and no password.
 
+**A private disc** (Oct 31, H9): `bash scripts/make-install-media.sh --secrets <folder>`
+makes `ariseos-addon-private.iso`, which also carries the keys in that folder (today only
+`resend-api-key`). The install puts them in `/etc/arise/secrets/` by itself, so nothing is
+pasted on install day. Keep that disc on your PC and USB stick only: never GitHub, never a shared
+folder. The plain disc has no keys and is the one to share.
+
 **Back up the old PC first.** Whatever is on the disk you confirm is gone.
 
 ## 1. Make the files
