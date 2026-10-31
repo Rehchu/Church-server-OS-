@@ -266,7 +266,7 @@ By hand on a Mac:
 ## An internal mail server: decided, not built yet
 
 Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the
-department accounts, `first.last@ad.arisecenla.com`, with every message
+department accounts, `first.last@arisecenla.com` (Oct 31, H10), with every message
 forwarded out through Resend's SMTP relay to the person's personal address
 (stored on their Directory account), Reply-To set to the original sender.
 Nothing of it is built in v0.8. What it needs when it is:
@@ -277,7 +277,7 @@ Nothing of it is built in v0.8. What it needs when it is:
   at it; the From must be at the domain verified in Resend (the same rule the
   Mail app already enforces: never a gmail.com address).
 - **No inbound port.** Nothing on this box is reachable from the internet
-  (rule 7). Mail *to* `first.last@ad.arisecenla.com` is internal only
+  (rule 7). Mail *to* `first.last@arisecenla.com` from inside is internal only
   (Macs and phones on the LAN or Tailscale); the outside world reaches people
   at their personal address, which is where the forward lands.
 - **Dovecot IMAP on the LAN and Tailscale only** (ufw: 993 from the LAN

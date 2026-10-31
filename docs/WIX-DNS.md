@@ -1,5 +1,24 @@
 # Wix DNS for arisecenla.com, step by step (round 7, 131)
 
+> **As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10).** The church's Resend account verified
+> the main domain, **arisecenla.com**, not `mail.arisecenla.com`. What Wix holds now:
+>
+> | Type | Host | Value | What for |
+> |---|---|---|---|
+> | TXT | `resend._domainkey` | the `p=…` key | sending: Resend signs the church's mail |
+> | CNAME | `send` | `send.forge.rmta.net` | sending (Resend's SPF / bounces) |
+> | CNAME | `rsend` | `rsend.forge.rmta.net` | sending (Resend's SPF / bounces) |
+> | MX | `@` | `receive.forge.rmta.net`, 10 | **receiving**: all mail to `@arisecenla.com` arrives at Resend; the box forwards `first.last@arisecenla.com` (H10) |
+> | CNAME | `links` | `links2.resend-dns.com` | Resend's link tracking |
+>
+> The MX at `@` was safe to add because arisecenla.com received no mail anywhere before it (no MX
+> existed). The server sends from `it@arisecenla.com` ("Arise Church IT"). The `mail.` records
+> (`resend._domainkey.mail`, `send.mail`, `rsend.mail`, `_dmarc.mail`) from the first try are no
+> longer used; they harm nothing, and removing them is Bradly's click. **One record to add:**
+> TXT `_dmarc` → `v=DMARC1; p=none;` (DMARC for the main domain; Gmail and Yahoo look for it).
+> The rest of this page is the original plan, kept for the record; where it says
+> `mail.arisecenla.com` or `ad.arisecenla.com` for mail, read `arisecenla.com`.
+
 Bradly asked to be walked through it. This page is every DNS record ariseOS
 needs at Wix, in the order to add them, with what each Wix screen shows. You
 only change DNS at Wix for **arisecenla.com**; `arisecenla.church` is at

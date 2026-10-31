@@ -239,8 +239,8 @@ class MailForwarding(unittest.TestCase):
            "office": {"to": "", "enabled": True}}
 
     def test_route(self):
-        to = mailfwd.addresses(["Bryant <Bryant.Sanders@ad.arisecenla.com>", {"email": "old.timer@ad.arisecenla.com"},
-                                "office@ad.arisecenla.com", "someone@gmail.com", "nobody@ad.arisecenla.com", "bryant.sanders@ad.arisecenla.com"])
+        to = mailfwd.addresses(["Bryant <Bryant.Sanders@arisecenla.com>", {"email": "old.timer@arisecenla.com"},
+                                "office@arisecenla.com", "someone@gmail.com", "nobody@arisecenla.com", "bryant.sanders@arisecenla.com"])
         r = mailfwd.route(to, self.ALS)
         self.assertEqual(r[0], {"alias": "bryant.sanders", "to": "b@example.com"})
         self.assertEqual([x.get("why") for x in r[1:]], ["account switched off", "no personal email on their profile", "no such person"])
@@ -248,22 +248,22 @@ class MailForwarding(unittest.TestCase):
 
     def test_the_forward(self):
         b = mailfwd.forward_body({"from": "Guest Speaker <guest@example.org>", "subject": "Notes", "text": "hi",
-                                  "attachments": [{"filename": "a.pdf", "download_url": "https://x/a.pdf"}]}, "b@example.com", "it@mail.arisecenla.com")
-        self.assertEqual(b["from"], "Guest Speaker via Arise Church IT <it@mail.arisecenla.com>")
+                                  "attachments": [{"filename": "a.pdf", "download_url": "https://x/a.pdf"}]}, "b@example.com", "it@arisecenla.com")
+        self.assertEqual(b["from"], "Guest Speaker via Arise Church IT <it@arisecenla.com>")
         self.assertEqual((b["reply_to"], b["to"], b["subject"]), ("guest@example.org", ["b@example.com"], "Notes"))
         self.assertIn("Forwarded by the church server", b["text"])
         self.assertEqual(b["attachments"], [{"filename": "a.pdf", "path": "https://x/a.pdf"}])
         self.assertEqual(mailfwd.mask("bradly@gmail.com"), "b***@gmail.com")
 
     def test_one_poll(self):
-        with real_mode('[mailfwd]\nenabled = true\n[mail]\nfrom_email = "it@mail.arisecenla.com"\n'):
+        with real_mode('[mailfwd]\nenabled = true\n[mail]\nfrom_email = "it@arisecenla.com"\n'):
             calls = []
 
             def call(method, path, body=None):
                 calls.append((method, path, body))
                 if path.startswith(mailfwd.RECEIVED_LIST):
-                    return {"ok": True, "data": {"data": [{"id": "r2", "to": ["bryant.sanders@ad.arisecenla.com"], "from": "g@x.org", "subject": "two"},
-                                                          {"id": "r1", "to": ["old.timer@ad.arisecenla.com"], "from": "v@x.org", "subject": "one"}]}}
+                    return {"ok": True, "data": {"data": [{"id": "r2", "to": ["bryant.sanders@arisecenla.com"], "from": "g@x.org", "subject": "two"},
+                                                          {"id": "r1", "to": ["old.timer@arisecenla.com"], "from": "v@x.org", "subject": "one"}]}}
                 if path.startswith("/emails/receiving/"):
                     return {"ok": True, "data": {"from": "g@x.org", "subject": "two", "text": "body"}}
                 return {"ok": True, "data": {"id": "sent"}}

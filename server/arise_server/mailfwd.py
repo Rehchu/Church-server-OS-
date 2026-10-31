@@ -1,15 +1,15 @@
 """Staff addresses, forwarding only (round 7, 155; round 6, 28; round 5, 38).
 
-first.last@ad.arisecenla.com reaches each person at the personal email on their
-profile. Nothing on this box listens to the internet (rule 7), so the box cannot
-be anyone's mail server. Instead:
+first.last@arisecenla.com (Bradly, Oct 31, ANSWERS H10; it was @ad.arisecenla.com) reaches
+each person at the personal email on their profile. Nothing on this box listens to the
+internet (rule 7), so the box cannot be anyone's mail server. Instead:
 
-  1. The public MX for ad.arisecenla.com (one record in Wix, docs/WIX-DNS.md)
+  1. The public MX for arisecenla.com (Wix: @ -> receive.forge.rmta.net, set up Oct 31)
      points at Resend's receiving servers. Resend keeps each message.
   2. Every five minutes (arise-mailfwd.timer) the box ASKS Resend, over an
      outgoing HTTPS call like any other, for mail that has arrived, and sends each
      message on to the person's personal address through Resend. The box opens
-     no port; inside the church, ad.arisecenla.com still answers from Samba.
+     no port. The domain sign-in inside the church stays ad.arisecenla.com.
   3. No mailbox is kept here: a forwarded message is not stored. The forwarding
      log keeps who, from whom, the subject and when (never the body), root only.
 
@@ -36,7 +36,7 @@ from .util import read_json, write_json
 
 RECEIVED_LIST = "/emails/receiving?limit=100"     # list what arrived (newest first, 100 at most)
 RECEIVED_ONE = "/emails/receiving/{id}"           # one message in full: text, html, headers, attachments
-DOMAIN = "ad.arisecenla.com"
+DOMAIN = "arisecenla.com"            # Bradly, Oct 31 (H10): first.last@arisecenla.com
 SEEN_KEEP = 5000
 ADDR_RE = re.compile(r"<?([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+)>?")
 

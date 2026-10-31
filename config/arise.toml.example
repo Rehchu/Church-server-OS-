@@ -70,10 +70,10 @@ provider = "resend"
 api_key_file = "/etc/arise/secrets/resend-api-key"
 from_name = "Arise Church"
 server_from_name = "Arise Church IT"   # round 7, 132: what the server itself sends (resets, notices, forwards)
-from_email = "it@mail.arisecenla.com"   # mail.arisecenla.com is set up in the church's Resend (Oct 31, H8); another name there works too
+from_email = "it@arisecenla.com"   # arisecenla.com is verified in the church's Resend (Oct 31, H8, H10); any name @arisecenla.com works
 reply_to = ""             # e.g. the church Gmail
 audience_name = "Arise Church family"
-# domain = ""             # first.last@<domain>: empty = the directory's realm in lower case (round 5, 1). Never typed anywhere else.
+domain = "arisecenla.com"   # first.last@<domain> (Oct 31, H10; empty = the directory's realm). The sign-in realm stays AD.ARISECENLA.COM
 # maildir_root = "/srv/arise/mail"   # where the internal mail server (planned) keeps Maildirs; a leaver's mail is exported from here (round 5, 38)
 
 # Push notifications to phones (answer 10: Bradly only). The admin_user always
@@ -335,10 +335,10 @@ mac_silent_days = 3             # 82: a church Mac not heard from this long goes
 it_portal_url = "https://itportal.myfaithtech.com"   # 118/119: AriseHub's IT portal, for help and the equipment list
 # call = [{ name = "Bradly Dyer", role = "media and IT" }, { name = "Minister Kristina Robinson", role = "..." }, { name = "Ronnie", role = "..." }]
 
-# Staff addresses, forwarding only (round 7, 155; docs/WIX-DNS.md part 3). first.last@ad.arisecenla.com
-# goes on to the personal email on each profile. The box ASKS Resend for what arrived every five
-# minutes (an outgoing call); it opens no port and keeps no mailbox. Turn on once the Wix MX
-# record and Resend's receiving are set up.
+# Staff addresses, forwarding only (round 7, 155; Oct 31, H10). first.last@arisecenla.com goes on to
+# the personal email on each profile. The box ASKS Resend for what arrived every five minutes (an
+# outgoing call); it opens no port and keeps no mailbox. The Wix MX and Resend's receiving were set
+# up on Oct 31; turn this on once each profile has a personal email.
 [mailfwd]
 enabled = false
-domain = "ad.arisecenla.com"
+domain = "arisecenla.com"

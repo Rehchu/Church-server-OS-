@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793414250
+"boot_time": 1793459224
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,14 +32,14 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-31T02:41:56",
+"last_run": "2026-10-31T02:10:21",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-01T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 1.4,
+"token_days_left": 0.9,
 "holds": 8
 },
 "backup": {
@@ -70,6 +70,10 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "level": "warn",
+"text": "The server's YouTube sign-in ends Sun Nov 1, 12:14 PM; renew it from the Media Mac: Automator → Sign-in."
+},
+{
+"level": "warn",
 "text": "The Mac helper is in watch mode: 4 task(s) on 3 Mac(s) would run. Read them in Macs, then press Switch on."
 },
 {
@@ -90,56 +94,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-16T23:41:56"
+"since": "2026-10-17T12:10:21"
 }
 ]
 },
@@ -169,7 +173,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T01:41:56",
+"last_logon": "2026-10-31T14:10:21",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -183,7 +187,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T02:41:56",
+"last_logon": "2026-10-30T15:10:21",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -197,7 +201,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T23:41:56",
+"last_logon": "2026-10-29T12:10:21",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -211,7 +215,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T02:41:56",
+"last_logon": "2026-10-25T15:10:21",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -239,7 +243,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T02:41:56",
+"last_logon": "2026-10-28T15:10:21",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -253,7 +257,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T02:41:56",
+"last_logon": "2026-10-22T15:10:21",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -270,7 +274,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T22:41:56",
+"last_logon": "2026-10-30T11:10:21",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -287,7 +291,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T02:41:56",
+"last_logon": "2026-10-29T15:10:21",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -303,7 +307,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T19:41:56",
+"last_logon": "2026-10-30T08:10:21",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -409,28 +413,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-31T01:41:56",
+"last_seen": "2026-10-31T14:10:21",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-30T02:41:56",
+"last_seen": "2026-10-30T15:10:21",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-29T02:41:56",
+"last_seen": "2026-10-29T15:10:21",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-31T02:37:56",
+"last_seen": "2026-10-31T15:06:21",
 "ip": "192.168.1.20"
 }
 ]
@@ -1958,7 +1962,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-22T02:41:56",
+"last_check": "2026-10-22T15:10:21",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1990,7 +1994,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-31T02:41:56",
+"last_run": "2026-10-31T02:10:21",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-01T02:05:00",
@@ -2002,7 +2006,7 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 1.4,
+"token_days_left": 0.9,
 "token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 1, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
@@ -2026,10 +2030,10 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 33.5,
-"days_left": 1.4,
+"hours_left": 21.1,
+"days_left": 0.9,
 "expired": false,
-"soon": false,
+"soon": true,
 "by": "bradly"
 },
 "demo": true,
@@ -2041,7 +2045,7 @@ window.ARISE_DEMO_DATA = {
 "machine": "ariseOS",
 "is_runner": false,
 "budget": 6000,
-"day": "fri",
+"day": "sat",
 "note": "pc runs the 02:05 job; this server writes a 'not the runner' report and changes nothing"
 }
 },
@@ -2124,17 +2128,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-30T21:41:56",
+"when": "2026-10-31T10:10:21",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-30T21:41:56",
+"when": "2026-10-31T10:10:21",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-30T21:41:56",
+"when": "2026-10-31T10:10:21",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2224,7 +2228,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2241,7 +2245,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2258,7 +2262,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2275,7 +2279,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2292,7 +2296,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-29T02:41:56",
+"updated": "2026-10-29T15:10:21",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2309,7 +2313,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2326,7 +2330,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2343,7 +2347,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-30T02:41:56",
+"updated": "2026-10-30T15:10:21",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2360,7 +2364,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2377,7 +2381,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-28T02:41:56",
+"updated": "2026-10-28T15:10:21",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3225,7 +3229,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-30T00:41:56",
+"last": "2026-10-30T13:10:21",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3489,7 +3493,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-31T02:41"
+"when": "2026-10-31T15:10"
 },
 {
 "user": "bradly",
@@ -3723,8 +3727,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-29T02:41",
-"expires": "2026-11-05T02:41",
+"created": "2026-10-29T15:10",
+"expires": "2026-11-05T15:10",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4072,8 +4076,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 1878,
-"in_words": "31 h 18 min"
+"in_minutes": 1129,
+"in_words": "18 h 49 min"
 },
 "verse": {
 "ref": "Romans 8:28",
@@ -4206,8 +4210,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 1878,
-"in_words": "31 h 18 min"
+"in_minutes": 1129,
+"in_words": "18 h 49 min"
 },
 "verse": {
 "ref": "Romans 8:28",
@@ -4253,7 +4257,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-31T02:41"
+"now": "2026-10-31T15:10"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4357,7 +4361,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-31T02:41:57+00:00",
+"last_check": "2026-10-31T15:10:23+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4370,7 +4374,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-30T22:41:57",
+"t": "2026-10-31T11:10:23",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4378,7 +4382,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-29T21:41:57",
+"t": "2026-10-30T10:10:23",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4386,7 +4390,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-29T02:41:57",
+"t": "2026-10-29T15:10:23",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4394,7 +4398,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T00:41:57",
+"t": "2026-10-28T13:10:23",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4402,7 +4406,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T02:41:57",
+"t": "2026-10-26T15:10:23",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4410,7 +4414,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T01:41:57",
+"t": "2026-10-26T14:10:23",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4418,7 +4422,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T23:41:57",
+"t": "2026-10-25T12:10:23",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4426,7 +4430,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-24T23:41:57",
+"t": "2026-10-25T12:10:23",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4882,7 +4886,7 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "ANSWERS",
 "title": "Answers from Bradly (Oct 28 2026) and what they decide",
-"size": 88053,
+"size": 88597,
 "lines": 678,
 "blurb": "The multiple-choice questions in docs/QUESTIONS.md, answered in the chat"
 },
@@ -4973,7 +4977,7 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "EMAIL-DNS",
 "title": "The email records in Wix (round 6, 27)",
-"size": 6135,
+"size": 6191,
 "lines": 111,
 "blurb": "Bradly adds these himself (round 6, 27). They let Resend send mail from"
 },
@@ -5120,14 +5124,14 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "ROADMAP",
 "title": "ariseOS roadmap",
-"size": 14509,
+"size": 14512,
 "lines": 132,
 "blurb": "The order is Bradly's (round 2, question 50): Feel first, then Safety, then"
 },
 {
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"size": 18095,
+"size": 18115,
 "lines": 307,
 "blurb": "What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,"
 },
@@ -5204,9 +5208,9 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "WIX-DNS",
 "title": "Wix DNS for arisecenla.com, step by step (round 7, 131)",
-"size": 7971,
-"lines": 153,
-"blurb": "Bradly asked to be walked through it. This page is every DNS record ariseOS"
+"size": 9345,
+"lines": 172,
+"blurb": "> As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10). The church's Resend account verified"
 }
 ],
 "role": "admin",
@@ -5291,7 +5295,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-31T02:41:57+00:00",
+"checked_at": "2026-10-31T15:10:23+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5316,7 +5320,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-31T02:41:57+00:00",
+"queued_at": "2026-10-31T15:10:23+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5324,16 +5328,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-26T02:41",
+"when": "2026-10-26T15:10",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-31T02:41:57+00:00"
+"last_check": "2026-10-31T15:10:23+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793414517.1155689,
+"t": 1793459423.6115463,
 "processes": [
 {
 "pid": 470,
@@ -5343,7 +5347,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792204917.1155539,
+"since": 1792249823.6114933,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5360,7 +5364,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792204917.1155531,
+"since": 1792249823.6114922,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5377,7 +5381,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792204917.1155288,
+"since": 1792249823.6114066,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5394,7 +5398,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792204917.1155367,
+"since": 1792249823.6114173,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5411,7 +5415,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792204917.1155488,
+"since": 1792249823.611486,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5428,7 +5432,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792204917.1155336,
+"since": 1792249823.611413,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5445,7 +5449,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792204917.1155353,
+"since": 1792249823.6114159,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5462,7 +5466,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792204917.1155407,
+"since": 1792249823.6114223,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5479,7 +5483,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792204917.115555,
+"since": 1792249823.6114945,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5496,7 +5500,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792204917.1155424,
+"since": 1792249823.6114247,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5513,7 +5517,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792204917.1155574,
+"since": 1792249823.6114979,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5530,7 +5534,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792204917.1155517,
+"since": 1792249823.6114902,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5547,7 +5551,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792204917.115556,
+"since": 1792249823.611496,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5564,7 +5568,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792204917.1155503,
+"since": 1792249823.6114886,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5654,8 +5658,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-backup.service",
 "name": "Backups to the Synology",
 "what": "03:00: every restic job in backups.yaml, then prune to 30 daily, 12 weekly, 24 monthly.",
-"next": "2026-10-31T03:00:00",
-"last": "2026-10-30T03:00:00",
+"next": "2026-11-01T03:00:00",
+"last": "2026-10-31T03:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5669,8 +5673,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-mirror.service",
 "name": "GitHub mirror",
 "what": "04:00: refreshes the bare mirrors of the church's repositories under /srv/arise/backups/github-mirror.",
-"next": "2026-10-31T04:00:00",
-"last": "2026-10-30T04:00:00",
+"next": "2026-11-01T04:00:00",
+"last": "2026-10-31T04:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5684,8 +5688,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-31T03:00:00",
-"last": "2026-10-30T03:00:00",
+"next": "2026-10-31T16:00:00",
+"last": "2026-10-30T16:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5699,7 +5703,7 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-notify.service",
 "name": "The daily note",
 "what": "07:00: a Discord/Slack note of what needs you. Off until a webhook is set (Bradly: no daily note).",
-"next": "2026-10-31T07:00:00",
+"next": "2026-11-01T07:00:00",
 "last": null,
 "enabled": false,
 "state": "disabled",
@@ -5715,7 +5719,7 @@ window.ARISE_DEMO_DATA = {
 "name": "The restore drill",
 "what": "Monthly: one random file restored from last night's backup to a scratch folder and compared.",
 "next": "2026-11-01T03:30:00",
-"last": "2026-10-30T03:30:00",
+"last": "2026-10-31T03:30:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5730,7 +5734,7 @@ window.ARISE_DEMO_DATA = {
 "name": "Software updates",
 "what": "Saturday 03:30: installs what Bradly queued in Software Update, after a system snapshot; reboots only if the kernel asks and no service is on.",
 "next": "2026-11-07T03:30:00",
-"last": "2026-10-30T03:30:00",
+"last": "2026-10-31T03:30:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5759,8 +5763,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-on.service",
 "name": "Monitor on",
 "what": "06:00: the closet panel wakes.",
-"next": "2026-10-31T06:00:00",
-"last": "2026-10-30T06:00:00",
+"next": "2026-11-01T06:00:00",
+"last": "2026-10-31T06:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5789,8 +5793,8 @@ window.ARISE_DEMO_DATA = {
 "service": "apt-daily-upgrade.service",
 "name": "Security patches",
 "what": "Daily: unattended-upgrades installs security updates only, never a reboot.",
-"next": "2026-10-31T06:20:00",
-"last": "2026-10-30T06:20:00",
+"next": "2026-11-01T06:20:00",
+"last": "2026-10-31T06:20:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5842,7 +5846,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-30T20:41",
+"as_of": "2026-10-31T09:10",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5915,62 +5919,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-31T02:41"
+"mtime": "2026-10-31T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-24T02:41"
+"mtime": "2026-10-24T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-17T02:41"
+"mtime": "2026-10-17T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-10T02:41"
+"mtime": "2026-10-10T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-03T02:41"
+"mtime": "2026-10-03T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-26T02:41"
+"mtime": "2026-09-26T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-19T02:41"
+"mtime": "2026-09-19T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-12T02:41"
+"mtime": "2026-09-12T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-05T02:41"
+"mtime": "2026-09-05T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-29T02:41"
+"mtime": "2026-08-29T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-22T02:41"
+"mtime": "2026-08-22T15:10"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-15T02:41"
+"mtime": "2026-08-15T15:10"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5987,17 +5991,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-18T02:41"
+"mtime": "2025-06-18T15:10"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-18T02:41"
+"mtime": "2025-06-18T15:10"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-18T02:41"
+"mtime": "2025-06-18T15:10"
 }
 ],
 "old_days": 365
@@ -8093,7 +8097,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8108,7 +8112,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8123,7 +8127,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8138,7 +8142,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8153,7 +8157,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8168,7 +8172,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8183,7 +8187,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 },
 {
@@ -8198,11 +8202,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T02:41:57+00:00",
+"when": "2026-10-31T15:10:24+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-31T02:41:57+00:00",
+"last": "2026-10-31T15:10:24+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8614,7 +8618,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-29T02:41",
+"when": "2026-10-29T15:10",
 "from": "portal"
 },
 {
@@ -8626,7 +8630,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-19T02:41",
+"when": "2026-10-19T15:10",
 "from": "mac"
 },
 {
@@ -8638,7 +8642,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-04T02:41",
+"when": "2026-10-04T15:10",
 "from": "mac"
 }
 ],
@@ -8876,10 +8880,10 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-10-25T12:14",
 "expires": "2026-11-01T12:14",
 "expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 33.5,
-"days_left": 1.4,
+"hours_left": 21.1,
+"days_left": 0.9,
 "expired": false,
-"soon": false,
+"soon": true,
 "by": "bradly"
 },
 "GET /auth/pin/status": {
@@ -8930,35 +8934,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-30T22:41:57",
+"when": "2026-10-31T11:10:23",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-29T21:41:57",
+"when": "2026-10-30T10:10:23",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-29T02:41:57",
+"when": "2026-10-29T15:10:23",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-26T02:41:57",
+"when": "2026-10-26T15:10:23",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-24T23:41:57",
+"when": "2026-10-25T12:10:23",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9046,7 +9050,7 @@ window.ARISE_DEMO_DATA = {
 "GET /mail/forwarding": {
 "demo": true,
 "enabled": false,
-"domain": "ad.arisecenla.com",
+"domain": "arisecenla.com",
 "aliases": [
 {
 "alias": "bryant.sanders",
@@ -9262,8 +9266,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 1878,
-"in_words": "31 h 18 min"
+"in_minutes": 1129,
+"in_words": "18 h 49 min"
 },
 "call_time": "09:00",
 "demo": true
@@ -9289,8 +9293,8 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-01T10:00",
-"in_minutes": 1878,
-"in_words": "31 h 18 min"
+"in_minutes": 1129,
+"in_words": "18 h 49 min"
 },
 "demo": true
 },
@@ -9316,7 +9320,7 @@ window.ARISE_DEMO_DATA = {
 "file": "/etc/arise/secrets/discord.toml",
 "demo": true
 },
-"weekly": "📋 Arise Server, the week to 2026-10-31\nBackups: 40 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
+"weekly": "📋 Arise Server, the week to 2026-10-31\nBackups: 35 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
 "channel": {
 "ok": true,
 "demo": true,
@@ -9463,1176 +9467,1176 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-24T02:05",
+"at": "2026-10-24T15:05",
 "down": 929.1,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-24T03:05",
+"at": "2026-10-24T16:05",
 "down": 934.9,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-24T04:05",
+"at": "2026-10-24T17:05",
 "down": 938.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-24T05:05",
+"at": "2026-10-24T18:05",
 "down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T06:05",
-"down": 939.0,
+"at": "2026-10-24T19:05",
+"down": 516.4,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T07:05",
-"down": 935.6,
+"at": "2026-10-24T20:05",
+"down": 514.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-24T08:05",
-"down": 930.0,
+"at": "2026-10-24T21:05",
+"down": 511.5,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-24T09:05",
+"at": "2026-10-24T22:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-24T10:05",
+"at": "2026-10-24T23:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-24T11:05",
+"at": "2026-10-25T00:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-24T12:05",
+"at": "2026-10-25T01:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-24T13:05",
+"at": "2026-10-25T02:05",
 "down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T14:05",
+"at": "2026-10-25T03:05",
 "down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T15:05",
+"at": "2026-10-25T04:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T16:05",
+"at": "2026-10-25T05:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-24T17:05",
+"at": "2026-10-25T06:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-24T18:05",
+"at": "2026-10-25T07:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-24T19:05",
-"down": 453.1,
+"at": "2026-10-25T08:05",
+"down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-24T20:05",
-"down": 451.4,
+"at": "2026-10-25T09:05",
+"down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-24T21:05",
-"down": 451.0,
+"at": "2026-10-25T10:05",
+"down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-24T22:05",
+"at": "2026-10-25T11:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-24T23:05",
+"at": "2026-10-25T12:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T00:05",
+"at": "2026-10-25T13:05",
 "down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T01:05",
+"at": "2026-10-25T14:05",
 "down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T02:05",
+"at": "2026-10-25T15:05",
 "down": 849.9,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-25T03:05",
+"at": "2026-10-25T16:05",
 "down": 860.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-25T04:05",
+"at": "2026-10-25T17:05",
 "down": 872.5,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-25T05:05",
+"at": "2026-10-25T18:05",
 "down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-25T06:05",
-"down": 896.3,
+"at": "2026-10-25T19:05",
+"down": 492.9,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-25T07:05",
-"down": 907.4,
+"at": "2026-10-25T20:05",
+"down": 499.1,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-25T08:05",
-"down": 917.5,
+"at": "2026-10-25T21:05",
+"down": 504.6,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-25T09:05",
+"at": "2026-10-25T22:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T10:05",
+"at": "2026-10-25T23:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T11:05",
+"at": "2026-10-26T00:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T12:05",
+"at": "2026-10-26T01:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-25T13:05",
+"at": "2026-10-26T02:05",
 "down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-25T14:05",
+"at": "2026-10-26T03:05",
 "down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-25T15:05",
+"at": "2026-10-26T04:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-25T16:05",
+"at": "2026-10-26T05:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-25T17:05",
+"at": "2026-10-26T06:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-25T18:05",
+"at": "2026-10-26T07:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T19:05",
-"down": 492.7,
+"at": "2026-10-26T08:05",
+"down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T20:05",
-"down": 486.2,
+"at": "2026-10-26T09:05",
+"down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-25T21:05",
-"down": 479.6,
+"at": "2026-10-26T10:05",
+"down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-25T22:05",
+"at": "2026-10-26T11:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-25T23:05",
+"at": "2026-10-26T12:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-26T00:05",
+"at": "2026-10-26T13:05",
 "down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-26T01:05",
+"at": "2026-10-26T14:05",
 "down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-26T02:05",
+"at": "2026-10-26T15:05",
 "down": 825.7,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T03:05",
+"at": "2026-10-26T16:05",
 "down": 821.7,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T04:05",
+"at": "2026-10-26T17:05",
 "down": 820.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T05:05",
+"at": "2026-10-26T18:05",
 "down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T06:05",
-"down": 823.9,
+"at": "2026-10-26T19:05",
+"down": 453.1,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T07:05",
-"down": 829.2,
+"at": "2026-10-26T20:05",
+"down": 456.1,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T08:05",
-"down": 836.6,
+"at": "2026-10-26T21:05",
+"down": 460.1,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-26T09:05",
+"at": "2026-10-26T22:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-26T10:05",
+"at": "2026-10-26T23:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-26T11:05",
+"at": "2026-10-27T00:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-26T12:05",
+"at": "2026-10-27T01:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-26T13:05",
+"at": "2026-10-27T02:05",
 "down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T14:05",
+"at": "2026-10-27T03:05",
 "down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T15:05",
+"at": "2026-10-27T04:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T16:05",
+"at": "2026-10-27T05:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-26T17:05",
+"at": "2026-10-27T06:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
+"at": "2026-10-27T07:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
-"down": 516.5,
+"at": "2026-10-27T08:05",
+"down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
-"down": 517.0,
+"at": "2026-10-27T09:05",
+"down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 516.2,
+"at": "2026-10-27T10:05",
+"down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-27T11:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T12:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T13:05",
 "down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T14:05",
 "down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T15:05",
 "down": 900.6,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T16:05",
 "down": 889.0,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T17:05",
 "down": 877.0,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T18:05",
 "down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
-"down": 853.9,
+"at": "2026-10-27T19:05",
+"down": 469.7,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
-"down": 843.7,
+"at": "2026-10-27T20:05",
+"down": 464.0,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
-"down": 834.9,
+"at": "2026-10-27T21:05",
+"down": 459.2,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T22:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T23:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-28T00:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-28T01:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-28T02:05",
 "down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
+"at": "2026-10-28T03:05",
 "down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
+"at": "2026-10-28T04:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
+"at": "2026-10-28T05:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
+"at": "2026-10-28T06:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
+"at": "2026-10-28T07:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
-"down": 481.0,
+"at": "2026-10-28T08:05",
+"down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
-"down": 487.6,
+"at": "2026-10-28T09:05",
+"down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 494.0,
+"at": "2026-10-28T10:05",
+"down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-28T11:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T12:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T13:05",
 "down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T14:05",
 "down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T15:05",
 "down": 937.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T16:05",
 "down": 939.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T17:05",
 "down": 939.4,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T18:05",
 "down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
-"down": 931.5,
+"at": "2026-10-28T19:05",
+"down": 512.4,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
-"down": 924.4,
+"at": "2026-10-28T20:05",
+"down": 508.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
-"down": 915.5,
+"at": "2026-10-28T21:05",
+"down": 503.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T22:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T23:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-29T00:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-29T01:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-29T02:05",
 "down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
+"at": "2026-10-29T03:05",
 "down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
+"at": "2026-10-29T04:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
+"at": "2026-10-29T05:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
+"at": "2026-10-29T06:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
+"at": "2026-10-29T07:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
-"down": 451.0,
+"at": "2026-10-29T08:05",
+"down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
-"down": 451.6,
+"at": "2026-10-29T09:05",
+"down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 453.5,
+"at": "2026-10-29T10:05",
+"down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-29T11:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T12:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T13:05",
 "down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T14:05",
 "down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T15:05",
 "down": 869.5,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T16:05",
 "down": 881.5,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T17:05",
 "down": 893.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T18:05",
 "down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
-"down": 915.1,
+"at": "2026-10-29T19:05",
+"down": 503.3,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
-"down": 924.1,
+"at": "2026-10-29T20:05",
+"down": 508.2,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
-"down": 931.3,
+"at": "2026-10-29T21:05",
+"down": 512.2,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T09:05",
+"at": "2026-10-29T22:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T10:05",
+"at": "2026-10-29T23:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-29T11:05",
+"at": "2026-10-30T00:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-29T12:05",
+"at": "2026-10-30T01:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T13:05",
+"at": "2026-10-30T02:05",
 "down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T14:05",
+"at": "2026-10-30T03:05",
 "down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T15:05",
+"at": "2026-10-30T04:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-29T16:05",
+"at": "2026-10-30T05:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T17:05",
+"at": "2026-10-30T06:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T18:05",
+"at": "2026-10-30T07:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T19:05",
-"down": 481.3,
+"at": "2026-10-30T08:05",
+"down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-29T20:05",
-"down": 474.8,
+"at": "2026-10-30T09:05",
+"down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T21:05",
-"down": 468.7,
+"at": "2026-10-30T10:05",
+"down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T22:05",
+"at": "2026-10-30T11:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T23:05",
+"at": "2026-10-30T12:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-30T00:05",
+"at": "2026-10-30T13:05",
 "down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-30T01:05",
+"at": "2026-10-30T14:05",
 "down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T02:05",
+"at": "2026-10-30T15:05",
 "down": 820.2,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T03:05",
+"at": "2026-10-30T16:05",
 "down": 820.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T04:05",
+"at": "2026-10-30T17:05",
 "down": 822.9,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-30T05:05",
+"at": "2026-10-30T18:05",
 "down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-30T06:05",
-"down": 834.6,
+"at": "2026-10-30T19:05",
+"down": 459.0,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-30T07:05",
-"down": 843.3,
+"at": "2026-10-30T20:05",
+"down": 463.8,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T08:05",
-"down": 853.4,
+"at": "2026-10-30T21:05",
+"down": 469.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-30T09:05",
+"at": "2026-10-30T22:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-30T10:05",
+"at": "2026-10-30T23:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-30T11:05",
+"at": "2026-10-31T00:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T12:05",
+"at": "2026-10-31T01:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T13:05",
+"at": "2026-10-31T02:05",
 "down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T14:05",
+"at": "2026-10-31T03:05",
 "down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-30T15:05",
+"at": "2026-10-31T04:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-30T16:05",
+"at": "2026-10-31T05:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-30T17:05",
+"at": "2026-10-31T06:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-30T18:05",
+"at": "2026-10-31T07:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-30T19:05",
-"down": 516.5,
+"at": "2026-10-31T08:05",
+"down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-30T20:05",
-"down": 514.8,
+"at": "2026-10-31T09:05",
+"down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T21:05",
-"down": 511.8,
+"at": "2026-10-31T10:05",
+"down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T22:05",
+"at": "2026-10-31T11:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T23:05",
+"at": "2026-10-31T12:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T00:05",
+"at": "2026-10-31T13:05",
 "down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-31T01:05",
+"at": "2026-10-31T14:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10640,7 +10644,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "last": {
-"at": "2026-10-31T01:05",
+"at": "2026-10-31T14:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10779,12 +10783,12 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-10-31T02:41",
+"checked": "2026-10-31T15:10",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-10-31T01:05",
+"at": "2026-10-31T14:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -14451,7 +14455,7 @@ window.ARISE_DEMO_DATA = {
 "GET /mail/forwarding/export/bryant.sanders": {
 "ok": true,
 "user": "bryant.sanders",
-"address": "bryant.sanders@ad.arisecenla.com",
+"address": "bryant.sanders@arisecenla.com",
 "messages": 1,
 "csv": "when,from,subject,forwarded,note\r\n2026-10-28T14:02:00,guest.speaker@example.org,Notes for Sunday (sample),yes,\r\n",
 "note": "Forwarding only: the messages themselves went to their personal address and are not kept on the server. This is the record of what arrived and where it went."
@@ -14459,7 +14463,7 @@ window.ARISE_DEMO_DATA = {
 "GET /mail/forwarding/export/kristina.robinson": {
 "ok": true,
 "user": "kristina.robinson",
-"address": "kristina.robinson@ad.arisecenla.com",
+"address": "kristina.robinson@arisecenla.com",
 "messages": 0,
 "csv": "when,from,subject,forwarded,note\r\n",
 "note": "Forwarding only: the messages themselves went to their personal address and are not kept on the server. This is the record of what arrived and where it went."
@@ -14467,7 +14471,7 @@ window.ARISE_DEMO_DATA = {
 "GET /mail/forwarding/export/office": {
 "ok": true,
 "user": "office",
-"address": "office@ad.arisecenla.com",
+"address": "office@arisecenla.com",
 "messages": 0,
 "csv": "when,from,subject,forwarded,note\r\n",
 "note": "Forwarding only: the messages themselves went to their personal address and are not kept on the server. This is the record of what arrived and where it went."
@@ -14482,14 +14486,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-22T02:41:56",
+"enrolled": "2026-10-22T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T20:41:56",
+"last_checkin": "2026-10-31T09:10:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-22T02:41:56",
+"ariseadmin_at": "2026-10-22T15:10:23",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14507,14 +14511,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-28T02:41:56",
+"enrolled": "2026-10-28T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T02:39:56",
+"last_checkin": "2026-10-31T15:08:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T02:41:56",
+"ariseadmin_at": "2026-10-28T15:10:23",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14532,14 +14536,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-30T02:41:56",
+"enrolled": "2026-10-30T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T02:37:56",
+"last_checkin": "2026-10-31T15:06:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T02:41:56",
+"ariseadmin_at": "2026-10-30T15:10:23",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14576,14 +14580,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-22T02:41:56",
+"enrolled": "2026-10-22T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-30T20:41:56",
+"last_checkin": "2026-10-31T09:10:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-22T02:41:56",
+"ariseadmin_at": "2026-10-22T15:10:23",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14602,7 +14606,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-27T02:41:56"
+"last_login": "2026-10-27T15:10:23"
 }
 ],
 "tasks": [
@@ -14613,9 +14617,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-30T06:41:56",
+"made": "2026-10-30T19:10:23",
 "by": "the overnight window",
-"finished": "2026-10-30T07:41:56",
+"finished": "2026-10-30T20:10:23",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14636,14 +14640,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-28T02:41:56",
+"enrolled": "2026-10-28T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T02:39:56",
+"last_checkin": "2026-10-31T15:08:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T02:41:56",
+"ariseadmin_at": "2026-10-28T15:10:23",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14662,7 +14666,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-30T02:41:56"
+"last_login": "2026-10-30T15:10:23"
 },
 {
 "user": "media",
@@ -14672,12 +14676,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-30T23:41:56",
+"last_login": "2026-10-31T12:10:23",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-29T02:41:56",
+"at": "2026-10-29T15:10:23",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14694,9 +14698,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-29T02:41:56",
+"made": "2026-10-29T15:10:23",
 "by": "bradly",
-"finished": "2026-10-29T02:41:56",
+"finished": "2026-10-29T15:10:23",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14706,9 +14710,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-28T02:41:56",
+"made": "2026-10-28T15:10:23",
 "by": "the directory",
-"finished": "2026-10-28T02:41:56",
+"finished": "2026-10-28T15:10:23",
 "detail": "mobile account made"
 }
 ],
@@ -14729,14 +14733,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-30T02:41:56",
+"enrolled": "2026-10-30T15:10:23",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T02:37:56",
+"last_checkin": "2026-10-31T15:06:23",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T02:41:56",
+"ariseadmin_at": "2026-10-30T15:10:23",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14755,7 +14759,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-29T02:41:56"
+"last_login": "2026-10-29T15:10:23"
 },
 {
 "user": "levi",
@@ -14765,7 +14769,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-26T02:41:56",
+"last_login": "2026-10-26T15:10:23",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14792,7 +14796,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T00:41:56",
+"made": "2026-10-31T13:10:23",
 "by": "enrolment"
 },
 {
@@ -14800,7 +14804,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T00:41:56",
+"made": "2026-10-31T13:10:23",
 "by": "enrolment"
 },
 {
@@ -14808,7 +14812,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T00:41:56",
+"made": "2026-10-31T13:10:23",
 "by": "enrolment"
 },
 {
@@ -14816,7 +14820,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T00:41:56",
+"made": "2026-10-31T13:10:23",
 "by": "enrolment"
 },
 {
@@ -14824,9 +14828,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-30T02:41:56",
+"made": "2026-10-30T15:10:23",
 "by": "enrolment",
-"finished": "2026-10-30T02:41:56",
+"finished": "2026-10-30T15:10:23",
 "detail": "1 printer"
 },
 {
@@ -14836,9 +14840,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-30T02:41:56",
+"made": "2026-10-30T15:10:23",
 "by": "the directory",
-"finished": "2026-10-30T02:41:56",
+"finished": "2026-10-30T15:10:23",
 "detail": "mobile account made"
 }
 ],
@@ -16208,7 +16212,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "EMAIL-DNS",
 "title": "The email records in Wix (round 6, 27)",
-"html": "<h1 id=\"the-email-records-in-wix-round-6-27\">The email records in Wix (round 6, 27)</h1>\n<p>Bradly adds these himself (round 6, 27). They let Resend send mail <strong>from</strong>\n<code>mail.arisecenla.com</code> (round 5, 3): the Mail app's newsletters, password-reset\nlinks, and later the internal mail server's forwards. With the MX of docs/WIX-DNS.md part 2 they are the only DNS\nrecords ariseOS needs at Wix, and none of them points at the server (rule 7:\nnothing on the box is reachable from the internet).</p>\n<p>What does <strong>not</strong> change:</p>\n<ul>\n<li>The domain stays <code>AD.ARISECENLA.COM</code> (NetBIOS <code>ARISE</code>), and the server is its\n  DNS inside the building (round 6, 25).</li>\n<li>Staff addresses are <code>first.last@ad.arisecenla.com</code> (round 6, 28), forwarded\n  to each person's own email (round 7, 155). That needs <strong>one</strong> more record, an\n  MX for <code>ad</code> pointing at Resend's receiving, added only when forwarding is\n  turned on: docs/WIX-DNS.md, part 2. It points at Resend, never at the box.</li>\n</ul>\n<p><strong>docs/WIX-DNS.md is the screen-by-screen walkthrough</strong> of everything below\nplus that MX record (round 7, 131). This page stays as the reference.\n- The website's records (both addresses show the site, round 6, 26) and any\n  mail the church already receives at <code>arisecenla.com</code> are left alone. Every\n  record below sits on the <code>mail</code> subdomain, so none of them can disturb the\n  root domain's mail or the site.</p>\n<h2 id=\"1-add-the-domain-in-resend-and-read-its-records\">1. Add the domain in Resend and read its records</h2>\n<ol>\n<li>Sign in at <strong>resend.com</strong> → <strong>Domains</strong> (left side) → <strong>Add Domain</strong>.</li>\n<li>Name: <code>mail.arisecenla.com</code>. Region: leave the default (North Virginia,\n   <code>us-east-1</code>) unless there is a reason to pick another; the records below\n   change with it.</li>\n<li>Resend opens the domain's page with a <strong>DNS Records</strong> table. That table is\n   where the values come from; keep this tab open. It shows three or four rows:</li>\n</ol>\n<table>\n<thead>\n<tr>\n<th>Purpose</th>\n<th>Type</th>\n<th>Name Resend shows</th>\n<th>Value (copy it from Resend)</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>DKIM</strong> (proves the mail is the church's)</td>\n<td>TXT</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>a long key starting <code>p=MIGfMA0GCSqGSIb3…</code>. Unique to this domain: always copy it from Resend's page, never from a doc</td>\n</tr>\n<tr>\n<td><strong>SPF</strong> (who may send)</td>\n<td>TXT</td>\n<td><code>send.mail</code></td>\n<td><code>v=spf1 include:amazonses.com ~all</code></td>\n</tr>\n<tr>\n<td><strong>SPF</strong> (the bounce address)</td>\n<td>MX</td>\n<td><code>send.mail</code></td>\n<td><code>feedback-smtp.us-east-1.amazonses.com</code>, priority <code>10</code></td>\n</tr>\n<tr>\n<td>DMARC (optional, recommended)</td>\n<td>TXT</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n</tr>\n</tbody>\n</table>\n<p>On Oct 31 2026 Resend showed the church its newer style instead of the two SPF rows:\ntwo CNAMEs, <code>rsend.mail</code> → <code>rsend.forge.rmta.net</code> and <code>send.mail</code> →\n<code>send.forge.rmta.net</code> (docs/WIX-DNS.md has that table). The rows above are the older\n<code>us-east-1</code> style; <strong>Resend's own table wins</strong> if it differs (another region changes the\nMX host, and the DKIM key is always different). If a row's Name already ends in\n<code>.arisecenla.com</code>, drop that part when typing it into Wix: Wix adds it.</p>\n<h2 id=\"2-type-them-into-wixs-dns\">2. Type them into Wix's DNS</h2>\n<ol>\n<li>Sign in at <strong>wix.com</strong> → open the church site's dashboard → <strong>Settings</strong> →\n   <strong>Domains</strong>.</li>\n<li>Next to <code>arisecenla.com</code>, open the <strong>⋯</strong> menu (Domain Actions) →\n   <strong>Manage DNS Records</strong>.</li>\n<li>Wix shows one section per record type (A, CNAME, MX, TXT, …). For each row\n   from Resend:</li>\n<li><strong>TXT (DKIM):</strong> in the <strong>TXT</strong> section, <strong>+ Add Record</strong>. Host name\n     <code>resend._domainkey.mail</code>. Value: paste the whole key from Resend, nothing\n     before or after it. TTL: leave the default.</li>\n<li><strong>TXT (SPF):</strong> <strong>+ Add Record</strong> again. Host name <code>send.mail</code>. Value\n     <code>v=spf1 include:amazonses.com ~all</code>.</li>\n<li><strong>MX:</strong> in the <strong>MX</strong> section, <strong>+ Add Record</strong>. Host name <code>send.mail</code>.\n     Points to <code>feedback-smtp.us-east-1.amazonses.com</code>. Priority <code>10</code>. If Wix\n     asks about a mail provider, choose the \"other\" or custom option; this\n     record is only for <code>send.mail</code>, so it does not replace any mail the root\n     domain already gets.</li>\n<li><strong>TXT (DMARC), optional:</strong> Host name <code>_dmarc.mail</code>. Value\n     <code>v=DMARC1; p=none;</code>.</li>\n<li><strong>Save</strong> (Wix's button is at the bottom of the page). Do not edit or delete\n   any record that was there before.</li>\n</ol>\n<p>Wix's screens move now and then; the names of the steps above are what they\nwere called at the time of writing. If Wix says the domain's DNS is not managed\nthere (the domain was connected \"by pointing\" rather than by its name servers),\nthe same four records go wherever the name servers point (step 3 shows where).</p>\n<h2 id=\"3-check-them\">3. Check them</h2>\n<p>DNS can take from a few minutes to a few hours. Then:</p>\n<ol>\n<li><strong>In Resend:</strong> on the domain's page, <strong>Verify DNS Records</strong>. Each row turns\n   <strong>Verified</strong>; the domain then says <strong>Verified</strong>.</li>\n<li><strong>From the box or any Mac</strong> (Terminal):</li>\n</ol>\n<p><code>dig +short TXT resend._domainkey.mail.arisecenla.com    # the p=… key\n   dig +short TXT send.mail.arisecenla.com                 # \"v=spf1 include:amazonses.com ~all\"\n   dig +short MX  send.mail.arisecenla.com                 # 10 feedback-smtp.us-east-1.amazonses.com.\n   dig +short TXT _dmarc.mail.arisecenla.com               # \"v=DMARC1; p=none;\" (if added)\n   dig +short NS  arisecenla.com                           # who serves the DNS: Wix's are *.wixdns.net</code></p>\n<p>An empty answer means the record is not there yet (or has a typo in the\n   host name). Asking a public resolver directly skips the church's caches:\n   <code>dig +short TXT send.mail.arisecenla.com @1.1.1.1</code>.\n3. <strong>Then on the server:</strong> put the sending address into <code>/etc/arise/arise.toml</code>\n   (<code>[mail] from_email = \"news@mail.arisecenla.com\"</code>, or another name at\n   <code>mail.arisecenla.com</code>), and the Resend API key into\n   <code>/etc/arise/secrets/resend-api-key</code> (never into a doc or a chat).\n   <code>sudo arisectl mail status</code> shows the from address and whether the key is\n   configured; the Mail app's <strong>Send a test</strong> sends one message to an address\n   you choose.</p>\n<h2 id=\"if-something-is-wrong\">If something is wrong</h2>\n<ul>\n<li><strong>Resend says \"Failed\" on DKIM:</strong> the value was cut short or has a space or a\n  quote added. Delete that one TXT record in Wix (the one you just added) and\n  paste the value again in one piece.</li>\n<li><strong>SPF verified but mail lands in spam:</strong> add the DMARC row; give it a day.</li>\n<li><strong>Two SPF records on the same name:</strong> only one <code>v=spf1</code> TXT may exist per\n  name. <code>send.mail</code> is new, so this only happens if the record was added twice.</li>\n</ul>",
+"html": "<h1 id=\"the-email-records-in-wix-round-6-27\">The email records in Wix (round 6, 27)</h1>\n<p>Bradly adds these himself (round 6, 27). They let Resend send mail <strong>from</strong>\n<code>mail.arisecenla.com</code> (round 5, 3): the Mail app's newsletters, password-reset\nlinks, and later the internal mail server's forwards. With the MX of docs/WIX-DNS.md part 2 they are the only DNS\nrecords ariseOS needs at Wix, and none of them points at the server (rule 7:\nnothing on the box is reachable from the internet).</p>\n<p>What does <strong>not</strong> change:</p>\n<ul>\n<li>The domain stays <code>AD.ARISECENLA.COM</code> (NetBIOS <code>ARISE</code>), and the server is its\n  DNS inside the building (round 6, 25).</li>\n<li>Staff addresses are <code>first.last@arisecenla.com</code> (Oct 31, H10; round 6, 28 had <code>@ad.</code>), forwarded\n  to each person's own email (round 7, 155). That needs <strong>one</strong> more record, an\n  MX for <code>ad</code> pointing at Resend's receiving, added only when forwarding is\n  turned on: docs/WIX-DNS.md, part 2. It points at Resend, never at the box.</li>\n</ul>\n<p><strong>docs/WIX-DNS.md is the screen-by-screen walkthrough</strong> of everything below\nplus that MX record (round 7, 131). This page stays as the reference.\n- The website's records (both addresses show the site, round 6, 26) and any\n  mail the church already receives at <code>arisecenla.com</code> are left alone. Every\n  record below sits on the <code>mail</code> subdomain, so none of them can disturb the\n  root domain's mail or the site.</p>\n<h2 id=\"1-add-the-domain-in-resend-and-read-its-records\">1. Add the domain in Resend and read its records</h2>\n<ol>\n<li>Sign in at <strong>resend.com</strong> → <strong>Domains</strong> (left side) → <strong>Add Domain</strong>.</li>\n<li>Name: <code>mail.arisecenla.com</code>. Region: leave the default (North Virginia,\n   <code>us-east-1</code>) unless there is a reason to pick another; the records below\n   change with it.</li>\n<li>Resend opens the domain's page with a <strong>DNS Records</strong> table. That table is\n   where the values come from; keep this tab open. It shows three or four rows:</li>\n</ol>\n<table>\n<thead>\n<tr>\n<th>Purpose</th>\n<th>Type</th>\n<th>Name Resend shows</th>\n<th>Value (copy it from Resend)</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>DKIM</strong> (proves the mail is the church's)</td>\n<td>TXT</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>a long key starting <code>p=MIGfMA0GCSqGSIb3…</code>. Unique to this domain: always copy it from Resend's page, never from a doc</td>\n</tr>\n<tr>\n<td><strong>SPF</strong> (who may send)</td>\n<td>TXT</td>\n<td><code>send.mail</code></td>\n<td><code>v=spf1 include:amazonses.com ~all</code></td>\n</tr>\n<tr>\n<td><strong>SPF</strong> (the bounce address)</td>\n<td>MX</td>\n<td><code>send.mail</code></td>\n<td><code>feedback-smtp.us-east-1.amazonses.com</code>, priority <code>10</code></td>\n</tr>\n<tr>\n<td>DMARC (optional, recommended)</td>\n<td>TXT</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n</tr>\n</tbody>\n</table>\n<p>On Oct 31 2026 Resend showed the church its newer style instead of the two SPF rows:\ntwo CNAMEs, <code>rsend.mail</code> → <code>rsend.forge.rmta.net</code> and <code>send.mail</code> →\n<code>send.forge.rmta.net</code> (docs/WIX-DNS.md has that table). The rows above are the older\n<code>us-east-1</code> style; <strong>Resend's own table wins</strong> if it differs (another region changes the\nMX host, and the DKIM key is always different). If a row's Name already ends in\n<code>.arisecenla.com</code>, drop that part when typing it into Wix: Wix adds it.</p>\n<h2 id=\"2-type-them-into-wixs-dns\">2. Type them into Wix's DNS</h2>\n<ol>\n<li>Sign in at <strong>wix.com</strong> → open the church site's dashboard → <strong>Settings</strong> →\n   <strong>Domains</strong>.</li>\n<li>Next to <code>arisecenla.com</code>, open the <strong>⋯</strong> menu (Domain Actions) →\n   <strong>Manage DNS Records</strong>.</li>\n<li>Wix shows one section per record type (A, CNAME, MX, TXT, …). For each row\n   from Resend:</li>\n<li><strong>TXT (DKIM):</strong> in the <strong>TXT</strong> section, <strong>+ Add Record</strong>. Host name\n     <code>resend._domainkey.mail</code>. Value: paste the whole key from Resend, nothing\n     before or after it. TTL: leave the default.</li>\n<li><strong>TXT (SPF):</strong> <strong>+ Add Record</strong> again. Host name <code>send.mail</code>. Value\n     <code>v=spf1 include:amazonses.com ~all</code>.</li>\n<li><strong>MX:</strong> in the <strong>MX</strong> section, <strong>+ Add Record</strong>. Host name <code>send.mail</code>.\n     Points to <code>feedback-smtp.us-east-1.amazonses.com</code>. Priority <code>10</code>. If Wix\n     asks about a mail provider, choose the \"other\" or custom option; this\n     record is only for <code>send.mail</code>, so it does not replace any mail the root\n     domain already gets.</li>\n<li><strong>TXT (DMARC), optional:</strong> Host name <code>_dmarc.mail</code>. Value\n     <code>v=DMARC1; p=none;</code>.</li>\n<li><strong>Save</strong> (Wix's button is at the bottom of the page). Do not edit or delete\n   any record that was there before.</li>\n</ol>\n<p>Wix's screens move now and then; the names of the steps above are what they\nwere called at the time of writing. If Wix says the domain's DNS is not managed\nthere (the domain was connected \"by pointing\" rather than by its name servers),\nthe same four records go wherever the name servers point (step 3 shows where).</p>\n<h2 id=\"3-check-them\">3. Check them</h2>\n<p>DNS can take from a few minutes to a few hours. Then:</p>\n<ol>\n<li><strong>In Resend:</strong> on the domain's page, <strong>Verify DNS Records</strong>. Each row turns\n   <strong>Verified</strong>; the domain then says <strong>Verified</strong>.</li>\n<li><strong>From the box or any Mac</strong> (Terminal):</li>\n</ol>\n<p><code>dig +short TXT resend._domainkey.mail.arisecenla.com    # the p=… key\n   dig +short TXT send.mail.arisecenla.com                 # \"v=spf1 include:amazonses.com ~all\"\n   dig +short MX  send.mail.arisecenla.com                 # 10 feedback-smtp.us-east-1.amazonses.com.\n   dig +short TXT _dmarc.mail.arisecenla.com               # \"v=DMARC1; p=none;\" (if added)\n   dig +short NS  arisecenla.com                           # who serves the DNS: Wix's are *.wixdns.net</code></p>\n<p>An empty answer means the record is not there yet (or has a typo in the\n   host name). Asking a public resolver directly skips the church's caches:\n   <code>dig +short TXT send.mail.arisecenla.com @1.1.1.1</code>.\n3. <strong>Then on the server:</strong> put the sending address into <code>/etc/arise/arise.toml</code>\n   (<code>[mail] from_email = \"it@arisecenla.com\"</code>, the default since Oct 31; any name at\n   <code>arisecenla.com</code> works), and the Resend API key: on the private install disc (H9), or\n   <code>sudo arisectl mail key</code> (never into a doc or a chat).\n   <code>sudo arisectl mail status</code> shows the from address and whether the key is\n   configured; the Mail app's <strong>Send a test</strong> sends one message to an address\n   you choose.</p>\n<h2 id=\"if-something-is-wrong\">If something is wrong</h2>\n<ul>\n<li><strong>Resend says \"Failed\" on DKIM:</strong> the value was cut short or has a space or a\n  quote added. Delete that one TXT record in Wix (the one you just added) and\n  paste the value again in one piece.</li>\n<li><strong>SPF verified but mail lands in spam:</strong> add the DMARC row; give it a day.</li>\n<li><strong>Two SPF records on the same name:</strong> only one <code>v=spf1</code> TXT may exist per\n  name. <code>send.mail</code> is new, so this only happens if the record was added twice.</li>\n</ul>",
 "demo": true
 },
 "GET /help/EVERYDAY": {
@@ -16348,14 +16352,14 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "ROADMAP",
 "title": "ariseOS roadmap",
-"html": "<h1 id=\"ariseos-roadmap\">ariseOS roadmap</h1>\n<p>The order is Bradly's (round 2, question 50): Feel first, then Safety, then\nSunday, then Sermons. Releases are named after books of the Bible from here\non (question 20). Each line: what it is, what it needs from Bradly, and an\nhonest cost in time. \"Small\" is an evening, \"a day\" is a day, \"several days\"\nmeans it should not be promised for a date.</p>\n<h2 id=\"v07-genesis-feel\">v0.7 \"Genesis\": Feel</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Boot splash</td>\n<td>a Plymouth theme: the flame on ink, a progress bar, no sound (1)</td>\n<td>nothing</td>\n<td>a day (testing on the real Dell is the slow part)</td>\n</tr>\n<tr>\n<td>The name</td>\n<td>ariseOS on the splash, the About window and the docs; Arise Server stays the service name (19)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Sounds</td>\n<td>dock click, checklist chime, failure tone, all quiet, a mute in Control Center (34)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Bone theme</td>\n<td>the website's light paper look as a Control Center switch, per browser; the monitor stays dark (36)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>About flair</td>\n<td>the week's verse, services held, hours streamed, the latest title, from the box's data (35)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Phone app</td>\n<td>a web app manifest so the portal installs on a home screen (9)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Push</td>\n<td>web push to Bradly's phone for failures, stream down, a new device (10)</td>\n<td>tap \"allow\" once on the phone</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Walkthrough</td>\n<td>five steps in the portal on each person's first sign-in (45)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v08-exodus-the-everyday-os-and-the-safety-basics-built-oct-28\">v0.8 \"Exodus\": the everyday OS and the safety basics. Built Oct 28</h2>\n<p>Round 3 (Oct 28) asked what Windows 11 and macOS have that ariseOS does not,\nand what any OS needs underneath. docs/PARITY.md is the map. Status is\nagainst the merged code; \"built\" means it is in the tree and walked in sample\nmode, not that it has run on the Dell.</p>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Status</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Trash</td>\n<td>a Trash on every share: the Macs' deletes (Samba recycle) and the portal's land there; put back your own; emptied after 30 days (r3 1)</td>\n<td>built (docs/FINDER.md)</td>\n</tr>\n<tr>\n<td>Previous Versions</td>\n<td>right-click a file in Finder, see last night's and last week's copy from the backup, put one back beside the original (r3 2)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>System Settings</td>\n<td>one window: appearance, users, sharing, backups, updates, time, notifications, about (r3 3)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Software Update</td>\n<td>security automatic as now; the rest listed with a badge, installed on his click in the Saturday 03:30 window, a snapshot first (r3 4, 23, 25)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Store</td>\n<td>the core five preinstalled (Oct 30, H4; every other template one click away), within the memory budget (RAM shown), a catalogue of 35 more free apps, start/stop/open, a cap on every app (r3 5, 40)</td>\n<td>built (docs/STORE.md)</td>\n</tr>\n<tr>\n<td>Activity Monitor, Logs, Automations, Storage</td>\n<td>the four admin tools every OS has (r3 6, 7, 8, 9)</td>\n<td>built (docs/SYSTEM-APPS.md)</td>\n</tr>\n<tr>\n<td>Calendar</td>\n<td>one church calendar on the server; an ICS feed every Mac and phone subscribes to (r3 10)</td>\n<td>built (docs/EVERYDAY.md)</td>\n</tr>\n<tr>\n<td>Notes, Photos</td>\n<td>Trilium and Immich as the Notes and Photos icons, for admins and the Staff and Media groups (r3 11, 12)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Weather, Calculator, Clock</td>\n<td>the small apps (r3 13, 14)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Finder extras</td>\n<td>text editor, Compress, Get Info, Recents, Open on my Mac, Fonts (r3 15, 16, 18, 39)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Screen Sharing</td>\n<td>the closet monitor through Guacamole, Bradly only (r3 17)</td>\n<td>built; wayvnc against guacd unverified without the hardware</td>\n</tr>\n<tr>\n<td>Snap windows, accessibility</td>\n<td>tiling, larger text, reduce motion, high contrast, keyboard (r3 19, 32)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Power menu, monitor sleep</td>\n<td>Restart and Shut Down in the flame menu, never during a service; the panel off 23:00 to 06:00 (r3 30, 31)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Help, What's New, password meter</td>\n<td>the docs in the dashboard, the note after an update, the rules at a change (r3 34, 35, 36)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>2FA</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (r2 11, Oct 28)</td>\n<td>built (docs/SECURITY.md)</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td><code>arise-rescue</code> for when the domain is down; the closet monitor only; logged and pushed (r3 21)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS chosen at the Ubuntu install; the installer or <code>arisectl encrypt tpm</code> binds it to the TPM; the passphrase on the safe card (r3 22)</td>\n<td>built; untested on a real TPM</td>\n</tr>\n<tr>\n<td>Rollback, reinstall</td>\n<td>a system snapshot before each update; <code>arisectl reinstall</code> from the Synology (r3 23, 24)</td>\n<td>built (docs/REINSTALL.md); the first real reinstall is a rehearsal (r4 105)</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>ClamAV Sunday night, quarantine, a report, a push (r3 28)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Church CA</td>\n<td>Caddy on by default; <code>/ca.crt</code>; enroll-mac.sh trusts it (r3 29)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>the password again for deleting a user and the power menu (r4 54)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>The Dock that hides, the greeting, the lock-screen line</td>\n<td>round 4, 12 to 19</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Audit log</td>\n<td>who signed in, shared, changed a user, ticked the checklist; kept forever (r2 23; r4 79); admins read it</td>\n<td>next, after this merge</td>\n</tr>\n<tr>\n<td>Offboarding</td>\n<td>a \"leaving\" button in Directory: 30 days of grace, then disable; a \"move files to\" picker; the mailbox deleted with the account (r2 24; r4 82)</td>\n<td>next, after this merge</td>\n</tr>\n<tr>\n<td>Decided, nothing built</td>\n<td>no lockout (r3 27), manual theme (33), hot corners (20), browsers never sign out (38), logs kept a year (26), MIT (37)</td>\n<td>done as decisions</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v081-exodus-part-two-round-4-the-whole-os\">v0.8.1 \"Exodus, part two\": round 4, the whole OS</h2>\n<p>Round 4 (Oct 28, 115 answers) covered the entirety of the OS. These are the\ndecisions not yet built, grouped. Costs are honest estimates.</p>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>The nodes</strong></td>\n<td>Arise-Pineville and Arise-Home: a second domain controller, Syncthing for shares and homes both ways, the apps' data copied nightly, a full restic copy at home, automatic takeover after an hour with a fence, a Nodes page that pushes updates and runs doctor over Tailscale, node mode <code>home</code> invisible to the home network (r4 106 to 115; docs/NODES.md)</td>\n<td>the specs of both PCs on Friday; the second PC wiped</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>The staff tier</td>\n<td>admin, staff, member by the Staff and Media groups: Photos, Notes, transcripts, calendar events, internal mail for staff (99)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The internal mail server</td>\n<td>Postfix + Dovecot, staff and departments, <code>first.last@ad.arisecenla.com</code>, every account may send, 100 MB attachments, forwarded out through Resend's relay to each person's own address kept on their Directory account, Reply-To the sender; no inbound from the internet (3, 5 to 7, 68, 69)</td>\n<td>the Resend SMTP credential</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>OnlyOffice from Finder</td>\n<td>click a .docx/.xlsx/.pptx, edit in place, co-editing live, saved to the share (2, 70)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Desktop programs' idle stop</td>\n<td>the catalogue's GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity stop after an hour idle (1); the sweep exists, the \"last used\" signal from each needs wiring</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The theme pack</td>\n<td>house red, ink, the flame, Anton and Oswald on every app that takes them; the fields exist, the deeper wiring per app is next (4)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Trash on the media share</td>\n<td>7 days there, 30 everywhere else (98)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Whisper transcripts</td>\n<td>one recording a night transcribed on the box after the backup, captions as the fallback; feeds the chapters and the transcript pages (100)</td>\n<td>nothing</td>\n<td>a day, then a CPU night per service</td>\n</tr>\n<tr>\n<td>Discord, four channels</td>\n<td>#alerts, #sunday, #weekly, #daily through four webhooks in <code>/etc/arise/secrets/discord.toml</code> (101; docs/DISCORD.md); the Sunday live link (77), the 9:30 checklist nudge (78), the Monday weekly (37), birthdays in the weekly if the Wix field exists (94)</td>\n<td>the four webhook URLs</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The glance view</td>\n<td>the closet monitor idle shows the clock, the next service and the verse, nothing else; nothing clickable (102; round 5, 34: built)</td>\n<td>nothing</td>\n<td>done</td>\n</tr>\n<tr>\n<td>Faces at sign-in</td>\n<td>faces on the closet monitor's sign-in, nobody preselected; the administrators only, since staff use their Macs (14, 16; round 5, 31). Initials now; each person's own photo when profiles land</td>\n<td>photos</td>\n<td>initials done</td>\n</tr>\n<tr>\n<td>Immich's library</td>\n<td>watch Media/Photos and every staff member's Photos folder, read-only; no public share links (103, 81)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Departments as groups</td>\n<td>each person has their own account; a department is a group with its share folder and mail; membership grants it (104)</td>\n<td>the department list</td>\n<td>small</td>\n</tr>\n<tr>\n<td>USB import</td>\n<td>a plugged-in drive sorted by type into the signed-in person's home, scanned, the stick untouched, a push when done (31)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The Songs app</td>\n<td>every song per service from the automator's credits, confirmed per service, counts, a CCLI-shaped export; numbers only from the song bank (52, 75)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The campus kiosk image</td>\n<td>any old PC or a Pi boots into the dashboard over Tailscale as a campus account with a badge; the Campuses app shows each campus's screen, devices and sign-ins (63, 64, 66)</td>\n<td>an old PC per campus</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The Windows join script</td>\n<td>one PowerShell file from the dashboard: join, drive letters, the certificate; nothing else (26, 67)</td>\n<td>a Windows PC to test on</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The install wizard</td>\n<td>a short on-screen set of questions, flags still working (59)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Spotlight inside documents</td>\n<td>text inside .docx/.pdf/.txt on the shares indexed nightly; the calendar, mail subjects, the Bible, sums (73)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Quick Look: video and Office</td>\n<td>video scrubbing streamed from the Synology, Office files through OnlyOffice (74)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>ariseOS updates from releases</td>\n<td>GitHub releases checked daily, What's New shown, installed on his click in the window (53)</td>\n<td>tag a release</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The 75% disk alert, the morning report line for heat, no quiet hours</td>\n<td>the push rules (35, 36, 38, 47)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Scans</td>\n<td>scan-to-share when the printer can: the signed-in person's Documents, a copy to the Mac, an offer to share (87)</td>\n<td>the printer's model</td>\n<td>small, after CUPS</td>\n</tr>\n<tr>\n<td>Jellyfin's libraries</td>\n<td>recordings, worship, graphics loops, podcast audio from the Synology, staff only (88)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Mail export logged</td>\n<td>admins only, in the audit (80)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Easter eggs, the anniversary</td>\n<td>the Konami code lights the flame, a verse typed in Spotlight, the About flame on the anniversary; only the year 2018 is known, no day is invented (83, 84)</td>\n<td>the founding date, if there is one</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The reboot rule</td>\n<td>the Saturday reboot waits until nobody is signed in (92)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Time Machine, the Synology layout, the disk split</td>\n<td>two backups per Mac kept; three drives one volume and one drive for the backups; the partition plan (58, 55, 91)</td>\n<td>the Synology model and the PCs' specs on Friday</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Decided, nothing built</td>\n<td>no prayer box (93), no hot corners, no Wake-on-LAN (41), no remote Mac screens (42), no chat server (89), Nextcloud stays stopped (90; replaced by round 6, 14: it is the sync now), Cockpit stays (34), KJV (51), Proclaim keeps the lobby TV (10), the automator keeps its PC backups and the server runs the real job (95, 96), the YouTube token question is with the automator chat (97)</td>\n<td></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v09-leviticus-sunday\">v0.9 \"Leviticus\": Sunday</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>House Lights Down mode</td>\n<td>from an hour before a service the desktop dims the admin noise and shows the stream, the checklist, the countdown and one-tap doors; off after; automatic by the clock (3)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Stream watch</td>\n<td>Uptime Kuma pings the YouTube live page and StreamYard every 30 s on service days; push, Discord and a red monitor if it drops (44)</td>\n<td>the YouTube live URL stays the same</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Discord</td>\n<td>a webhook: failures, and the Sunday \"all green\" (40)</td>\n<td>a webhook URL from Discord</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Checklist sounds</td>\n<td>the chime when the Sunday list completes (34)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>YouTube Partner widget</td>\n<td>subscribers toward 1,000 and watch hours toward 4,000 from the automator's numbers, desktop only (2)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v10-numbers-sermons\">v1.0 \"Numbers\": Sermons</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Podcast feed</td>\n<td>ffmpeg pulls audio from each new recording, an RSS feed Spotify and Apple read, the 16:9 art; episodes automatic, each title approved (4, 42)</td>\n<td>submit the feed once to Spotify and Apple</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Transcript pages</td>\n<td>a cleaned, searchable, printable page per sermon for admins and staff, no sung words (15)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Thumbnails on the server</td>\n<td>pick a frame in Sermons; the house layout in YouTube and Spotify sizes; approve before anything is set (42)</td>\n<td>the house fonts on the box (Anton, Oswald)</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Channel page</td>\n<td>views this week, top video, Shorts count under Sermons from the automator's data, no extra quota (41)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Holds</td>\n<td>the hold list editable in the dashboard with a note and a name per hold; holds.json stays the source (43)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Claude's drafts</td>\n<td>titles and descriptions drafted from the transcript and the automator's rules, shown for approval, never live on their own; a \"Why?\" button on any red item; a help box in the portal that reads the docs (17)</td>\n<td>sign in to Claude on the box</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Morning report</td>\n<td>06:00, the box's own data, in the dashboard only (7, 18)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"later-when-the-thing-it-needs-arrives\">Later, when the thing it needs arrives</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Time Machine</td>\n<td>a Time Machine share on the Synology for every church Mac (5)</td>\n<td>Synology space about equal to each Mac's used disk (estimate)</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Printing</td>\n<td>CUPS with AirPrint so every Mac and phone prints to the office printer behind router B (6, 26)</td>\n<td>the printer's brand and model</td>\n<td>small to a day, by the driver</td>\n</tr>\n<tr>\n<td>Syncthing mirrors</td>\n<td>three pairs: Proclaim assets, the thumbnails folder, the office documents share (25)</td>\n<td>nothing</td>\n<td>small each</td>\n</tr>\n<tr>\n<td>Second domain controller</td>\n<td>an installer mode that joins an old PC at Alexandria or the Hub as a second DC (31); now part of the node work, docs/NODES.md</td>\n<td>the second PC (round 4)</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Pineville's VPN after the move</td>\n<td>Tailscale on each church Mac or a route box; decided at the move (30)</td>\n<td>the Hub's date (29: none yet)</td>\n<td>small either way</td>\n</tr>\n<tr>\n<td>Jellyfin for families</td>\n<td>staff only for now (13); open to families when asked</td>\n<td>a decision</td>\n<td>small</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"not-being-built-by-his-answers\">Not being built, by his answers</h2>\n<p>A clip cutter (8), a website feed from the server (16), guest accounts (21),\nkids check-in (27), a volunteer rota (28), SMS (38), member self-service on\nthe mail list (39), any hardware purchase for now (32).</p>",
+"html": "<h1 id=\"ariseos-roadmap\">ariseOS roadmap</h1>\n<p>The order is Bradly's (round 2, question 50): Feel first, then Safety, then\nSunday, then Sermons. Releases are named after books of the Bible from here\non (question 20). Each line: what it is, what it needs from Bradly, and an\nhonest cost in time. \"Small\" is an evening, \"a day\" is a day, \"several days\"\nmeans it should not be promised for a date.</p>\n<h2 id=\"v07-genesis-feel\">v0.7 \"Genesis\": Feel</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Boot splash</td>\n<td>a Plymouth theme: the flame on ink, a progress bar, no sound (1)</td>\n<td>nothing</td>\n<td>a day (testing on the real Dell is the slow part)</td>\n</tr>\n<tr>\n<td>The name</td>\n<td>ariseOS on the splash, the About window and the docs; Arise Server stays the service name (19)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Sounds</td>\n<td>dock click, checklist chime, failure tone, all quiet, a mute in Control Center (34)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Bone theme</td>\n<td>the website's light paper look as a Control Center switch, per browser; the monitor stays dark (36)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>About flair</td>\n<td>the week's verse, services held, hours streamed, the latest title, from the box's data (35)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Phone app</td>\n<td>a web app manifest so the portal installs on a home screen (9)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Push</td>\n<td>web push to Bradly's phone for failures, stream down, a new device (10)</td>\n<td>tap \"allow\" once on the phone</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Walkthrough</td>\n<td>five steps in the portal on each person's first sign-in (45)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v08-exodus-the-everyday-os-and-the-safety-basics-built-oct-28\">v0.8 \"Exodus\": the everyday OS and the safety basics. Built Oct 28</h2>\n<p>Round 3 (Oct 28) asked what Windows 11 and macOS have that ariseOS does not,\nand what any OS needs underneath. docs/PARITY.md is the map. Status is\nagainst the merged code; \"built\" means it is in the tree and walked in sample\nmode, not that it has run on the Dell.</p>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Status</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Trash</td>\n<td>a Trash on every share: the Macs' deletes (Samba recycle) and the portal's land there; put back your own; emptied after 30 days (r3 1)</td>\n<td>built (docs/FINDER.md)</td>\n</tr>\n<tr>\n<td>Previous Versions</td>\n<td>right-click a file in Finder, see last night's and last week's copy from the backup, put one back beside the original (r3 2)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>System Settings</td>\n<td>one window: appearance, users, sharing, backups, updates, time, notifications, about (r3 3)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Software Update</td>\n<td>security automatic as now; the rest listed with a badge, installed on his click in the Saturday 03:30 window, a snapshot first (r3 4, 23, 25)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Store</td>\n<td>the core five preinstalled (Oct 30, H4; every other template one click away), within the memory budget (RAM shown), a catalogue of 35 more free apps, start/stop/open, a cap on every app (r3 5, 40)</td>\n<td>built (docs/STORE.md)</td>\n</tr>\n<tr>\n<td>Activity Monitor, Logs, Automations, Storage</td>\n<td>the four admin tools every OS has (r3 6, 7, 8, 9)</td>\n<td>built (docs/SYSTEM-APPS.md)</td>\n</tr>\n<tr>\n<td>Calendar</td>\n<td>one church calendar on the server; an ICS feed every Mac and phone subscribes to (r3 10)</td>\n<td>built (docs/EVERYDAY.md)</td>\n</tr>\n<tr>\n<td>Notes, Photos</td>\n<td>Trilium and Immich as the Notes and Photos icons, for admins and the Staff and Media groups (r3 11, 12)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Weather, Calculator, Clock</td>\n<td>the small apps (r3 13, 14)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Finder extras</td>\n<td>text editor, Compress, Get Info, Recents, Open on my Mac, Fonts (r3 15, 16, 18, 39)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Screen Sharing</td>\n<td>the closet monitor through Guacamole, Bradly only (r3 17)</td>\n<td>built; wayvnc against guacd unverified without the hardware</td>\n</tr>\n<tr>\n<td>Snap windows, accessibility</td>\n<td>tiling, larger text, reduce motion, high contrast, keyboard (r3 19, 32)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Power menu, monitor sleep</td>\n<td>Restart and Shut Down in the flame menu, never during a service; the panel off 23:00 to 06:00 (r3 30, 31)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Help, What's New, password meter</td>\n<td>the docs in the dashboard, the note after an update, the rules at a change (r3 34, 35, 36)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>2FA</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (r2 11, Oct 28)</td>\n<td>built (docs/SECURITY.md)</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td><code>arise-rescue</code> for when the domain is down; the closet monitor only; logged and pushed (r3 21)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS chosen at the Ubuntu install; the installer or <code>arisectl encrypt tpm</code> binds it to the TPM; the passphrase on the safe card (r3 22)</td>\n<td>built; untested on a real TPM</td>\n</tr>\n<tr>\n<td>Rollback, reinstall</td>\n<td>a system snapshot before each update; <code>arisectl reinstall</code> from the Synology (r3 23, 24)</td>\n<td>built (docs/REINSTALL.md); the first real reinstall is a rehearsal (r4 105)</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>ClamAV Sunday night, quarantine, a report, a push (r3 28)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Church CA</td>\n<td>Caddy on by default; <code>/ca.crt</code>; enroll-mac.sh trusts it (r3 29)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>the password again for deleting a user and the power menu (r4 54)</td>\n<td>built</td>\n</tr>\n<tr>\n<td>The Dock that hides, the greeting, the lock-screen line</td>\n<td>round 4, 12 to 19</td>\n<td>built</td>\n</tr>\n<tr>\n<td>Audit log</td>\n<td>who signed in, shared, changed a user, ticked the checklist; kept forever (r2 23; r4 79); admins read it</td>\n<td>next, after this merge</td>\n</tr>\n<tr>\n<td>Offboarding</td>\n<td>a \"leaving\" button in Directory: 30 days of grace, then disable; a \"move files to\" picker; the mailbox deleted with the account (r2 24; r4 82)</td>\n<td>next, after this merge</td>\n</tr>\n<tr>\n<td>Decided, nothing built</td>\n<td>no lockout (r3 27), manual theme (33), hot corners (20), browsers never sign out (38), logs kept a year (26), MIT (37)</td>\n<td>done as decisions</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v081-exodus-part-two-round-4-the-whole-os\">v0.8.1 \"Exodus, part two\": round 4, the whole OS</h2>\n<p>Round 4 (Oct 28, 115 answers) covered the entirety of the OS. These are the\ndecisions not yet built, grouped. Costs are honest estimates.</p>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>The nodes</strong></td>\n<td>Arise-Pineville and Arise-Home: a second domain controller, Syncthing for shares and homes both ways, the apps' data copied nightly, a full restic copy at home, automatic takeover after an hour with a fence, a Nodes page that pushes updates and runs doctor over Tailscale, node mode <code>home</code> invisible to the home network (r4 106 to 115; docs/NODES.md)</td>\n<td>the specs of both PCs on Friday; the second PC wiped</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>The staff tier</td>\n<td>admin, staff, member by the Staff and Media groups: Photos, Notes, transcripts, calendar events, internal mail for staff (99)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The internal mail server</td>\n<td>Postfix + Dovecot, staff and departments, <code>first.last@arisecenla.com</code> (H10), every account may send, 100 MB attachments, forwarded out through Resend's relay to each person's own address kept on their Directory account, Reply-To the sender; no inbound from the internet (3, 5 to 7, 68, 69)</td>\n<td>the Resend SMTP credential</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>OnlyOffice from Finder</td>\n<td>click a .docx/.xlsx/.pptx, edit in place, co-editing live, saved to the share (2, 70)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Desktop programs' idle stop</td>\n<td>the catalogue's GIMP, Inkscape, Krita, Kdenlive, Shotcut, LibreOffice, Audacity stop after an hour idle (1); the sweep exists, the \"last used\" signal from each needs wiring</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The theme pack</td>\n<td>house red, ink, the flame, Anton and Oswald on every app that takes them; the fields exist, the deeper wiring per app is next (4)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Trash on the media share</td>\n<td>7 days there, 30 everywhere else (98)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Whisper transcripts</td>\n<td>one recording a night transcribed on the box after the backup, captions as the fallback; feeds the chapters and the transcript pages (100)</td>\n<td>nothing</td>\n<td>a day, then a CPU night per service</td>\n</tr>\n<tr>\n<td>Discord, four channels</td>\n<td>#alerts, #sunday, #weekly, #daily through four webhooks in <code>/etc/arise/secrets/discord.toml</code> (101; docs/DISCORD.md); the Sunday live link (77), the 9:30 checklist nudge (78), the Monday weekly (37), birthdays in the weekly if the Wix field exists (94)</td>\n<td>the four webhook URLs</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The glance view</td>\n<td>the closet monitor idle shows the clock, the next service and the verse, nothing else; nothing clickable (102; round 5, 34: built)</td>\n<td>nothing</td>\n<td>done</td>\n</tr>\n<tr>\n<td>Faces at sign-in</td>\n<td>faces on the closet monitor's sign-in, nobody preselected; the administrators only, since staff use their Macs (14, 16; round 5, 31). Initials now; each person's own photo when profiles land</td>\n<td>photos</td>\n<td>initials done</td>\n</tr>\n<tr>\n<td>Immich's library</td>\n<td>watch Media/Photos and every staff member's Photos folder, read-only; no public share links (103, 81)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Departments as groups</td>\n<td>each person has their own account; a department is a group with its share folder and mail; membership grants it (104)</td>\n<td>the department list</td>\n<td>small</td>\n</tr>\n<tr>\n<td>USB import</td>\n<td>a plugged-in drive sorted by type into the signed-in person's home, scanned, the stick untouched, a push when done (31)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The Songs app</td>\n<td>every song per service from the automator's credits, confirmed per service, counts, a CCLI-shaped export; numbers only from the song bank (52, 75)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The campus kiosk image</td>\n<td>any old PC or a Pi boots into the dashboard over Tailscale as a campus account with a badge; the Campuses app shows each campus's screen, devices and sign-ins (63, 64, 66)</td>\n<td>an old PC per campus</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>The Windows join script</td>\n<td>one PowerShell file from the dashboard: join, drive letters, the certificate; nothing else (26, 67)</td>\n<td>a Windows PC to test on</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The install wizard</td>\n<td>a short on-screen set of questions, flags still working (59)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Spotlight inside documents</td>\n<td>text inside .docx/.pdf/.txt on the shares indexed nightly; the calendar, mail subjects, the Bible, sums (73)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Quick Look: video and Office</td>\n<td>video scrubbing streamed from the Synology, Office files through OnlyOffice (74)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>ariseOS updates from releases</td>\n<td>GitHub releases checked daily, What's New shown, installed on his click in the window (53)</td>\n<td>tag a release</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The 75% disk alert, the morning report line for heat, no quiet hours</td>\n<td>the push rules (35, 36, 38, 47)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Scans</td>\n<td>scan-to-share when the printer can: the signed-in person's Documents, a copy to the Mac, an offer to share (87)</td>\n<td>the printer's model</td>\n<td>small, after CUPS</td>\n</tr>\n<tr>\n<td>Jellyfin's libraries</td>\n<td>recordings, worship, graphics loops, podcast audio from the Synology, staff only (88)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Mail export logged</td>\n<td>admins only, in the audit (80)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Easter eggs, the anniversary</td>\n<td>the Konami code lights the flame, a verse typed in Spotlight, the About flame on the anniversary; only the year 2018 is known, no day is invented (83, 84)</td>\n<td>the founding date, if there is one</td>\n<td>small</td>\n</tr>\n<tr>\n<td>The reboot rule</td>\n<td>the Saturday reboot waits until nobody is signed in (92)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Time Machine, the Synology layout, the disk split</td>\n<td>two backups per Mac kept; three drives one volume and one drive for the backups; the partition plan (58, 55, 91)</td>\n<td>the Synology model and the PCs' specs on Friday</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Decided, nothing built</td>\n<td>no prayer box (93), no hot corners, no Wake-on-LAN (41), no remote Mac screens (42), no chat server (89), Nextcloud stays stopped (90; replaced by round 6, 14: it is the sync now), Cockpit stays (34), KJV (51), Proclaim keeps the lobby TV (10), the automator keeps its PC backups and the server runs the real job (95, 96), the YouTube token question is with the automator chat (97)</td>\n<td></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v09-leviticus-sunday\">v0.9 \"Leviticus\": Sunday</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>House Lights Down mode</td>\n<td>from an hour before a service the desktop dims the admin noise and shows the stream, the checklist, the countdown and one-tap doors; off after; automatic by the clock (3)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Stream watch</td>\n<td>Uptime Kuma pings the YouTube live page and StreamYard every 30 s on service days; push, Discord and a red monitor if it drops (44)</td>\n<td>the YouTube live URL stays the same</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Discord</td>\n<td>a webhook: failures, and the Sunday \"all green\" (40)</td>\n<td>a webhook URL from Discord</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Checklist sounds</td>\n<td>the chime when the Sunday list completes (34)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>YouTube Partner widget</td>\n<td>subscribers toward 1,000 and watch hours toward 4,000 from the automator's numbers, desktop only (2)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"v10-numbers-sermons\">v1.0 \"Numbers\": Sermons</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs from Bradly</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Podcast feed</td>\n<td>ffmpeg pulls audio from each new recording, an RSS feed Spotify and Apple read, the 16:9 art; episodes automatic, each title approved (4, 42)</td>\n<td>submit the feed once to Spotify and Apple</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Transcript pages</td>\n<td>a cleaned, searchable, printable page per sermon for admins and staff, no sung words (15)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Thumbnails on the server</td>\n<td>pick a frame in Sermons; the house layout in YouTube and Spotify sizes; approve before anything is set (42)</td>\n<td>the house fonts on the box (Anton, Oswald)</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Channel page</td>\n<td>views this week, top video, Shorts count under Sermons from the automator's data, no extra quota (41)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Holds</td>\n<td>the hold list editable in the dashboard with a note and a name per hold; holds.json stays the source (43)</td>\n<td>nothing</td>\n<td>small</td>\n</tr>\n<tr>\n<td>Claude's drafts</td>\n<td>titles and descriptions drafted from the transcript and the automator's rules, shown for approval, never live on their own; a \"Why?\" button on any red item; a help box in the portal that reads the docs (17)</td>\n<td>sign in to Claude on the box</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Morning report</td>\n<td>06:00, the box's own data, in the dashboard only (7, 18)</td>\n<td>nothing</td>\n<td>a day</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"later-when-the-thing-it-needs-arrives\">Later, when the thing it needs arrives</h2>\n<table>\n<thead>\n<tr>\n<th>Item</th>\n<th>What it is</th>\n<th>Needs</th>\n<th>Cost</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Time Machine</td>\n<td>a Time Machine share on the Synology for every church Mac (5)</td>\n<td>Synology space about equal to each Mac's used disk (estimate)</td>\n<td>a day</td>\n</tr>\n<tr>\n<td>Printing</td>\n<td>CUPS with AirPrint so every Mac and phone prints to the office printer behind router B (6, 26)</td>\n<td>the printer's brand and model</td>\n<td>small to a day, by the driver</td>\n</tr>\n<tr>\n<td>Syncthing mirrors</td>\n<td>three pairs: Proclaim assets, the thumbnails folder, the office documents share (25)</td>\n<td>nothing</td>\n<td>small each</td>\n</tr>\n<tr>\n<td>Second domain controller</td>\n<td>an installer mode that joins an old PC at Alexandria or the Hub as a second DC (31); now part of the node work, docs/NODES.md</td>\n<td>the second PC (round 4)</td>\n<td>several days</td>\n</tr>\n<tr>\n<td>Pineville's VPN after the move</td>\n<td>Tailscale on each church Mac or a route box; decided at the move (30)</td>\n<td>the Hub's date (29: none yet)</td>\n<td>small either way</td>\n</tr>\n<tr>\n<td>Jellyfin for families</td>\n<td>staff only for now (13); open to families when asked</td>\n<td>a decision</td>\n<td>small</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"not-being-built-by-his-answers\">Not being built, by his answers</h2>\n<p>A clip cutter (8), a website feed from the server (16), guest accounts (21),\nkids check-in (27), a volunteer rota (28), SMS (38), member self-service on\nthe mail list (39), any hardware purchase for now (32).</p>",
 "demo": true
 },
 "GET /help/SECURITY": {
 "ok": true,
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22)</td>\n<td>ticked on Ubuntu's disk screen; typed at the closet keyboard or <code>ssh -p 2222 root@arise-server</code></td>\n<td><code>sudo arisectl encrypt status</code> / <code>encrypt ssh</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Open for Bradly:</strong> an admin PIN session can open the root <strong>Terminal</strong>\nwindow, because row 161 does not list it. If it should need the full\npassword, that is one line in <code>main.py</code>, its websocket route.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-the-passphrase-at-boot-oct-30\">Encryption: the passphrase at boot (Oct 30)</h2>\n<p>The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the\npassphrase at boot (docs/ANSWERS.md, H3):</p>\n<ul>\n<li><strong>Install:</strong> the install disc shows Ubuntu's disk screen. Check it is the right disk, keep\n  \"Set up this disk as an LVM group\", tick <strong>Encrypt the LVM group with LUKS</strong>, type the\n  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).</li>\n<li><strong>Every boot:</strong> the box stops at \"Please unlock disk\". Either type it at the closet keyboard,\n  or, from a church computer, <code>ssh -p 2222 root@arise-server</code>. That SSH is dropbear inside the\n  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the\n  passphrase prompt: no shell, no tunnels. <code>sudo arisectl encrypt ssh</code> sets it up (the installer\n  runs it); run it again after adding a key. Church network only: nothing is forwarded from the\n  internet (rule 7), and Tailscale isn't running that early.</li>\n<li><strong>No surprise restarts:</strong> the Saturday 03:30 update installs but never restarts the box by\n  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks\n  System → Restart when they can unlock it.</li>\n<li><strong>The BIOS:</strong> set Advanced → Power-On Options → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt\n  rather than staying off.</li>\n</ul>\n<p>The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@ad.arisecenla.com</code>, with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@ad.arisecenla.com</code> is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
+"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22)</td>\n<td>ticked on Ubuntu's disk screen; typed at the closet keyboard or <code>ssh -p 2222 root@arise-server</code></td>\n<td><code>sudo arisectl encrypt status</code> / <code>encrypt ssh</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Open for Bradly:</strong> an admin PIN session can open the root <strong>Terminal</strong>\nwindow, because row 161 does not list it. If it should need the full\npassword, that is one line in <code>main.py</code>, its websocket route.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-the-passphrase-at-boot-oct-30\">Encryption: the passphrase at boot (Oct 30)</h2>\n<p>The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the\npassphrase at boot (docs/ANSWERS.md, H3):</p>\n<ul>\n<li><strong>Install:</strong> the install disc shows Ubuntu's disk screen. Check it is the right disk, keep\n  \"Set up this disk as an LVM group\", tick <strong>Encrypt the LVM group with LUKS</strong>, type the\n  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).</li>\n<li><strong>Every boot:</strong> the box stops at \"Please unlock disk\". Either type it at the closet keyboard,\n  or, from a church computer, <code>ssh -p 2222 root@arise-server</code>. That SSH is dropbear inside the\n  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the\n  passphrase prompt: no shell, no tunnels. <code>sudo arisectl encrypt ssh</code> sets it up (the installer\n  runs it); run it again after adding a key. Church network only: nothing is forwarded from the\n  internet (rule 7), and Tailscale isn't running that early.</li>\n<li><strong>No surprise restarts:</strong> the Saturday 03:30 update installs but never restarts the box by\n  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks\n  System → Restart when they can unlock it.</li>\n<li><strong>The BIOS:</strong> set Advanced → Power-On Options → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt\n  rather than staying off.</li>\n</ul>\n<p>The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.</p>\n<h2 id=\"encryption-luks-with-the-tpm\">Encryption: LUKS with the TPM</h2>\n<p>Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).\nOn one disk, \"the data disk\" is the Ubuntu root disk, so the choice is made\n<strong>in the Ubuntu Server installer</strong>, not later:</p>\n<ol>\n<li>Ubuntu Server 24.04 installer → <em>Guided storage configuration</em> → keep\n   <em>Use an entire disk</em> → tick <strong>Set up this disk as an LVM group</strong> → tick\n   <strong>Encrypt the LVM group with LUKS</strong> → type a passphrase twice.</li>\n<li>Write that passphrase on the closet card by hand (it leaves a blank line\n   for it), and give it to Kristina (round 7, 58). Without it and without the\n   TPM the disk is a brick.</li>\n<li>\n<p>First boot asks for the passphrase once. Then <code>install.sh</code> (step 6j) finds\n   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to\n   bind the disk to the TPM with clevis:</p>\n<p>clevis luks bind -d /dev/sda3 tpm2 '{\"pcr_bank\":\"sha256\",\"pcr_ids\":\"7\"}'\n   update-initramfs -u</p>\n</li>\n</ol>\n<p>From the next boot the TPM hands over the key and the box starts alone.\n   The passphrase keeps working as the fallback (a BIOS change, a new board,\n   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,\n   then <code>sudo arisectl encrypt tpm</code> again).</p>\n<p><code>arisectl encrypt status</code> says which of the three is true: LUKS present, TPM\npresent, bound. <code>--no-tpm</code> on the installer skips the binding (someone types\nthe passphrase at every boot). No TPM in the Dell: enable it in the BIOS\n(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since\n2016 have one.</p>\n<p>Not verified here: no LUKS disk and no TPM in this environment. The commands\nare the documented clevis path for Ubuntu with initramfs-tools; the first run\non the real Dell is the test, with the passphrase on the closet card as the way\nback if it does not take.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped (hours of CPU, never carriers), so are the\nTrash and caches. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@arisecenla.com</code> (Oct 31, H10), with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@arisecenla.com</code> from inside is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>",
 "demo": true
 },
 "GET /help/SETUP-GUIDE": {
@@ -16432,7 +16436,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "WIX-DNS",
 "title": "Wix DNS for arisecenla.com, step by step (round 7, 131)",
-"html": "<h1 id=\"wix-dns-for-arisecenlacom-step-by-step-round-7-131\">Wix DNS for arisecenla.com, step by step (round 7, 131)</h1>\n<p>Bradly asked to be walked through it. This page is every DNS record ariseOS\nneeds at Wix, in the order to add them, with what each Wix screen shows. You\nonly change DNS at Wix for <strong>arisecenla.com</strong>; <code>arisecenla.church</code> is at\nGoDaddy, nobody has access to it, and nothing here needs it (round 7, 133).</p>\n<p>Nothing below points at the server. Rule 7 holds: the box is not reachable\nfrom the internet, and none of these records changes that.</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it is for</th>\n<th>Records</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Resend <strong>sends</strong> from <code>mail.arisecenla.com</code>: reset links, notices, newsletters (\"Arise Church IT\", round 7, 132)</td>\n<td>3, plus 1 optional</td>\n<td>now</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Staff addresses <code>first.last@ad.arisecenla.com</code> <strong>arrive</strong> at Resend so the box can forward them (round 7, 155)</td>\n<td>1 MX</td>\n<td>when you turn forwarding on</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Check them</td>\n<td>none</td>\n<td>after each part</td>\n</tr>\n</tbody>\n</table>\n<p>Values marked <strong>(from Resend)</strong> are only shown on Resend's own pages: copy\nthem from there, never from this page or a chat. Everything else is exact.</p>\n<p>The screen names below are what Wix and Resend called them when this was\nwritten. Both rename buttons now and then; the order of the steps does not\nchange.</p>\n<h2 id=\"before-you-start-open-the-two-tabs\">Before you start: open the two tabs</h2>\n<ol>\n<li><strong>Resend.</strong> Sign in at resend.com with the <strong>church's</strong> Resend account, not a\n   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where\n   values come from. Make the API key on install day, not before: sending access\n   only, for <code>mail.arisecenla.com</code>.</li>\n<li><strong>Wix.</strong> Sign in at wix.com → the church site → <strong>Settings</strong> (left menu,\n   near the bottom) → <strong>Domains</strong>. You see <code>arisecenla.com</code> with a <strong>⋯</strong> button\n   on its right (Domain Actions). Click <strong>⋯</strong> → <strong>Manage DNS Records</strong>.</li>\n</ol>\n<p>What you see: one box per record type, top to bottom: <strong>A (Host)</strong>,\n   <strong>CNAME (Aliases)</strong>, <strong>MX (Mail Exchange)</strong>, <strong>TXT (Text)</strong>, then SPF, NS\n   and the rest. Each box has the records already there and a <strong>+ Add Record</strong>\n   link under it. There is one <strong>Save</strong> button at the bottom of the page.</p>\n<p>If Wix says the DNS is not managed here (\"connected by pointing\"), stop:\n   the records go wherever <code>arisecenla.com</code>'s name servers are, and part 3's\n   <code>dig NS</code> line shows where. Tell Claude what it says.</p>\n<p><strong>Leave every record that is already there alone.</strong> The website's A and\nCNAME records and any mail the church already gets at <code>arisecenla.com</code> stay\nexactly as they are. Every record below sits on a subdomain (<code>mail</code>,\n<code>send.mail</code>, <code>ad</code>), so none of them can touch the website or the root\ndomain's mail.</p>\n<h2 id=\"part-1-sending-mailarisecenlacom\">Part 1: sending (mail.arisecenla.com)</h2>\n<p><strong>In Resend:</strong> left menu <strong>Domains</strong> → <strong>Add Domain</strong> → Name\n<code>mail.arisecenla.com</code> → Region: leave <strong>North Virginia (us-east-1)</strong> → <strong>Add</strong>.\nResend opens the domain's page with a <strong>DNS Records</strong> table. Keep it open.</p>\n<p><strong>In Wix</strong>, add each row. Where Resend's Name ends in <code>.arisecenla.com</code>, type\nonly the part before it: Wix adds the rest.</p>\n<p>Check the domain name at the top of Resend's page first: it must say\n<strong>mail.arisecenla.com</strong>. Resend's table then shows names like <code>resend._domainkey.mail</code>\nand <code>send.mail</code>. If its names have no <code>.mail</code> (<code>resend._domainkey</code>, <code>send</code>, <code>@</code>), the\ndomain added was <code>arisecenla.com</code> itself: remove it in Resend (it is unverified and\nnothing uses it) and add <code>mail.arisecenla.com</code> instead.</p>\n<p>What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to\n<code>forge.rmta.net</code> instead of an SPF TXT and an amazonses MX):</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Wix box</th>\n<th>Host name (type this)</th>\n<th>Value</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>the long key starting <code>p=</code> <strong>(from Resend)</strong>, pasted in one piece</td>\n<td></td>\n</tr>\n<tr>\n<td>2</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>rsend.mail</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>3</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>send.mail</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>4 (optional)</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>An older Resend domain shows an SPF TXT (<code>v=spf1 include:amazonses.com ~all</code>) and an\nMX (<code>feedback-smtp.us-east-1.amazonses.com</code>, 10) on <code>send.mail</code> instead of rows 2\nand 3. <strong>Resend's own table wins</strong> over this page.</p>\n<p><strong>Skip Resend's \"Enable receiving\" MX</strong> on this page. Receiving is part 2, on\n<code>ad.arisecenla.com</code>. An MX at <code>@</code> in Wix would take <strong>all</strong> of arisecenla.com's\nemail away from wherever it goes today.</p>\n<p>What Wix shows when you add an MX record: it may offer a list of mail\nproviders (Google Workspace, Microsoft 365, \"Other\"). Choose <strong>Other</strong> (or\n\"custom\"). It may warn that changing MX records affects your email: this one\nis only for <code>send.mail</code>, so the church's existing mail is not affected; go on.</p>\n<p>TTL: leave whatever Wix suggests (usually 1 hour). Then <strong>Save</strong> at the bottom.</p>\n<p><strong>Back in Resend:</strong> <strong>Verify DNS Records</strong>. Each row turns <strong>Verified</strong> within\nminutes to a few hours.</p>\n<p><strong>On the server</strong> (Claude can do this part): <code>[mail] from_email</code> in\n<code>/etc/arise/arise.toml</code> becomes an address at <code>mail.arisecenla.com</code>, and the\nResend API key goes in with <code>sudo arisectl mail key</code> (a hidden prompt; it writes\n<code>/etc/arise/secrets/resend-api-key</code>, root only, and never into a doc or a chat). <code>sudo arisectl mail status</code> then says configured.</p>\n<h2 id=\"part-2-receiving-for-staff-addresses-adarisecenlacom\">Part 2: receiving for staff addresses (ad.arisecenla.com)</h2>\n<p>Only when you are ready to turn forwarding on (round 7, 155).</p>\n<p><code>ad.arisecenla.com</code> is the church domain inside the building: the server\nanswers for it there, and that does not change. On the internet it has no\nrecords yet. This part adds <strong>one MX record</strong> so that mail sent to\n<code>first.last@ad.arisecenla.com</code> from anywhere lands at Resend, which keeps it\nuntil the box asks for it (every five minutes, an outgoing call).</p>\n<p><strong>In Resend:</strong> left menu <strong>Receiving</strong> (it may say <strong>Inbound</strong>; in 2026 it was\nstill a beta, so it may need switching on for the account) → <strong>Add domain</strong>\n(or \"Custom domain\") → <code>ad.arisecenla.com</code>. Resend shows <strong>one MX record</strong>:\na host name and a priority <strong>(from Resend)</strong>.</p>\n<p><strong>In Wix:</strong></p>\n<table>\n<thead>\n<tr>\n<th>Wix box</th>\n<th>Host name</th>\n<th>Points to</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>MX</strong> → + Add Record</td>\n<td><code>ad</code></td>\n<td>the MX host Resend showed <strong>(from Resend)</strong></td>\n<td>the priority Resend showed (it must be the lowest number for <code>ad</code>; there is no other MX for <code>ad</code>, so it is)</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Save.</strong> Back in Resend, <strong>Verify</strong>.</p>\n<p>Then on the server: <code>[mailfwd] enabled = true</code> in <code>/etc/arise/arise.toml</code>.\n<code>sudo arisectl mail forward</code> lists every person, whether they have a personal\nemail on their profile, and whether their mail will be forwarded. Send a test\nto your own church address from your phone; within five minutes it is in your\npersonal inbox, from \"&lt;sender&gt; via Arise Church IT\", and a reply goes straight\nto the sender.</p>\n<p>Inside the building nothing changes: a church Mac still asks the server about\n<code>ad.arisecenla.com</code> (its resolver file) and never sees this record.</p>\n<h2 id=\"part-3-check\">Part 3: check</h2>\n<p>DNS takes from minutes to a few hours. From the box or any Mac (Terminal):</p>\n<pre><code>dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net\ndig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key\ndig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.\ndig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.\ndig +short TXT _dmarc.mail.arisecenla.com                # &quot;v=DMARC1; p=none;&quot; (if added)\ndig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:\n                                                         # inside the church the server answers for &quot;ad&quot;)\n</code></pre>\n<p>An empty answer means the record is not there yet, or the host name has a\ntypo. docs/EMAIL-DNS.md has the \"if something is wrong\" list.</p>\n<h2 id=\"what-never-goes-into-wix\">What never goes into Wix</h2>\n<ul>\n<li>Anything pointing at the server's address. The box is not on the internet.</li>\n<li>Records for the website you didn't add. Leave them.</li>\n<li>A second <code>v=spf1</code> record on the same host name (only one is allowed).</li>\n<li>An MX record at <code>@</code> (the root). That moves all of arisecenla.com's email.</li>\n</ul>",
+"html": "<h1 id=\"wix-dns-for-arisecenlacom-step-by-step-round-7-131\">Wix DNS for arisecenla.com, step by step (round 7, 131)</h1>\n<blockquote>\n<p><strong>As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10).</strong> The church's Resend account verified\nthe main domain, <strong>arisecenla.com</strong>, not <code>mail.arisecenla.com</code>. What Wix holds now:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Host</th>\n<th>Value</th>\n<th>What for</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>TXT</td>\n<td><code>resend._domainkey</code></td>\n<td>the <code>p=…</code> key</td>\n<td>sending: Resend signs the church's mail</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>send</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>rsend</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>MX</td>\n<td><code>@</code></td>\n<td><code>receive.forge.rmta.net</code>, 10</td>\n<td><strong>receiving</strong>: all mail to <code>@arisecenla.com</code> arrives at Resend; the box forwards <code>first.last@arisecenla.com</code> (H10)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>links</code></td>\n<td><code>links2.resend-dns.com</code></td>\n<td>Resend's link tracking</td>\n</tr>\n</tbody>\n</table>\n<p>The MX at <code>@</code> was safe to add because arisecenla.com received no mail anywhere before it (no MX\nexisted). The server sends from <code>it@arisecenla.com</code> (\"Arise Church IT\"). The <code>mail.</code> records\n(<code>resend._domainkey.mail</code>, <code>send.mail</code>, <code>rsend.mail</code>, <code>_dmarc.mail</code>) from the first try are no\nlonger used; they harm nothing, and removing them is Bradly's click. <strong>One record to add:</strong>\nTXT <code>_dmarc</code> → <code>v=DMARC1; p=none;</code> (DMARC for the main domain; Gmail and Yahoo look for it).\nThe rest of this page is the original plan, kept for the record; where it says\n<code>mail.arisecenla.com</code> or <code>ad.arisecenla.com</code> for mail, read <code>arisecenla.com</code>.</p>\n</blockquote>\n<p>Bradly asked to be walked through it. This page is every DNS record ariseOS\nneeds at Wix, in the order to add them, with what each Wix screen shows. You\nonly change DNS at Wix for <strong>arisecenla.com</strong>; <code>arisecenla.church</code> is at\nGoDaddy, nobody has access to it, and nothing here needs it (round 7, 133).</p>\n<p>Nothing below points at the server. Rule 7 holds: the box is not reachable\nfrom the internet, and none of these records changes that.</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it is for</th>\n<th>Records</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Resend <strong>sends</strong> from <code>mail.arisecenla.com</code>: reset links, notices, newsletters (\"Arise Church IT\", round 7, 132)</td>\n<td>3, plus 1 optional</td>\n<td>now</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Staff addresses <code>first.last@ad.arisecenla.com</code> <strong>arrive</strong> at Resend so the box can forward them (round 7, 155)</td>\n<td>1 MX</td>\n<td>when you turn forwarding on</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Check them</td>\n<td>none</td>\n<td>after each part</td>\n</tr>\n</tbody>\n</table>\n<p>Values marked <strong>(from Resend)</strong> are only shown on Resend's own pages: copy\nthem from there, never from this page or a chat. Everything else is exact.</p>\n<p>The screen names below are what Wix and Resend called them when this was\nwritten. Both rename buttons now and then; the order of the steps does not\nchange.</p>\n<h2 id=\"before-you-start-open-the-two-tabs\">Before you start: open the two tabs</h2>\n<ol>\n<li><strong>Resend.</strong> Sign in at resend.com with the <strong>church's</strong> Resend account, not a\n   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where\n   values come from. Make the API key on install day, not before: sending access\n   only, for <code>mail.arisecenla.com</code>.</li>\n<li><strong>Wix.</strong> Sign in at wix.com → the church site → <strong>Settings</strong> (left menu,\n   near the bottom) → <strong>Domains</strong>. You see <code>arisecenla.com</code> with a <strong>⋯</strong> button\n   on its right (Domain Actions). Click <strong>⋯</strong> → <strong>Manage DNS Records</strong>.</li>\n</ol>\n<p>What you see: one box per record type, top to bottom: <strong>A (Host)</strong>,\n   <strong>CNAME (Aliases)</strong>, <strong>MX (Mail Exchange)</strong>, <strong>TXT (Text)</strong>, then SPF, NS\n   and the rest. Each box has the records already there and a <strong>+ Add Record</strong>\n   link under it. There is one <strong>Save</strong> button at the bottom of the page.</p>\n<p>If Wix says the DNS is not managed here (\"connected by pointing\"), stop:\n   the records go wherever <code>arisecenla.com</code>'s name servers are, and part 3's\n   <code>dig NS</code> line shows where. Tell Claude what it says.</p>\n<p><strong>Leave every record that is already there alone.</strong> The website's A and\nCNAME records and any mail the church already gets at <code>arisecenla.com</code> stay\nexactly as they are. Every record below sits on a subdomain (<code>mail</code>,\n<code>send.mail</code>, <code>ad</code>), so none of them can touch the website or the root\ndomain's mail.</p>\n<h2 id=\"part-1-sending-mailarisecenlacom\">Part 1: sending (mail.arisecenla.com)</h2>\n<p><strong>In Resend:</strong> left menu <strong>Domains</strong> → <strong>Add Domain</strong> → Name\n<code>mail.arisecenla.com</code> → Region: leave <strong>North Virginia (us-east-1)</strong> → <strong>Add</strong>.\nResend opens the domain's page with a <strong>DNS Records</strong> table. Keep it open.</p>\n<p><strong>In Wix</strong>, add each row. Where Resend's Name ends in <code>.arisecenla.com</code>, type\nonly the part before it: Wix adds the rest.</p>\n<p>Check the domain name at the top of Resend's page first: it must say\n<strong>mail.arisecenla.com</strong>. Resend's table then shows names like <code>resend._domainkey.mail</code>\nand <code>send.mail</code>. If its names have no <code>.mail</code> (<code>resend._domainkey</code>, <code>send</code>, <code>@</code>), the\ndomain added was <code>arisecenla.com</code> itself: remove it in Resend (it is unverified and\nnothing uses it) and add <code>mail.arisecenla.com</code> instead.</p>\n<p>What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to\n<code>forge.rmta.net</code> instead of an SPF TXT and an amazonses MX):</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Wix box</th>\n<th>Host name (type this)</th>\n<th>Value</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>the long key starting <code>p=</code> <strong>(from Resend)</strong>, pasted in one piece</td>\n<td></td>\n</tr>\n<tr>\n<td>2</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>rsend.mail</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>3</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>send.mail</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>4 (optional)</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>An older Resend domain shows an SPF TXT (<code>v=spf1 include:amazonses.com ~all</code>) and an\nMX (<code>feedback-smtp.us-east-1.amazonses.com</code>, 10) on <code>send.mail</code> instead of rows 2\nand 3. <strong>Resend's own table wins</strong> over this page.</p>\n<p><strong>Skip Resend's \"Enable receiving\" MX</strong> on this page. Receiving is part 2, on\n<code>ad.arisecenla.com</code>. An MX at <code>@</code> in Wix would take <strong>all</strong> of arisecenla.com's\nemail away from wherever it goes today.</p>\n<p>What Wix shows when you add an MX record: it may offer a list of mail\nproviders (Google Workspace, Microsoft 365, \"Other\"). Choose <strong>Other</strong> (or\n\"custom\"). It may warn that changing MX records affects your email: this one\nis only for <code>send.mail</code>, so the church's existing mail is not affected; go on.</p>\n<p>TTL: leave whatever Wix suggests (usually 1 hour). Then <strong>Save</strong> at the bottom.</p>\n<p><strong>Back in Resend:</strong> <strong>Verify DNS Records</strong>. Each row turns <strong>Verified</strong> within\nminutes to a few hours.</p>\n<p><strong>On the server</strong> (Claude can do this part): <code>[mail] from_email</code> in\n<code>/etc/arise/arise.toml</code> becomes an address at <code>mail.arisecenla.com</code>, and the\nResend API key goes in with <code>sudo arisectl mail key</code> (a hidden prompt; it writes\n<code>/etc/arise/secrets/resend-api-key</code>, root only, and never into a doc or a chat). <code>sudo arisectl mail status</code> then says configured.</p>\n<h2 id=\"part-2-receiving-for-staff-addresses-adarisecenlacom\">Part 2: receiving for staff addresses (ad.arisecenla.com)</h2>\n<p>Only when you are ready to turn forwarding on (round 7, 155).</p>\n<p><code>ad.arisecenla.com</code> is the church domain inside the building: the server\nanswers for it there, and that does not change. On the internet it has no\nrecords yet. This part adds <strong>one MX record</strong> so that mail sent to\n<code>first.last@ad.arisecenla.com</code> from anywhere lands at Resend, which keeps it\nuntil the box asks for it (every five minutes, an outgoing call).</p>\n<p><strong>In Resend:</strong> left menu <strong>Receiving</strong> (it may say <strong>Inbound</strong>; in 2026 it was\nstill a beta, so it may need switching on for the account) → <strong>Add domain</strong>\n(or \"Custom domain\") → <code>ad.arisecenla.com</code>. Resend shows <strong>one MX record</strong>:\na host name and a priority <strong>(from Resend)</strong>.</p>\n<p><strong>In Wix:</strong></p>\n<table>\n<thead>\n<tr>\n<th>Wix box</th>\n<th>Host name</th>\n<th>Points to</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>MX</strong> → + Add Record</td>\n<td><code>ad</code></td>\n<td>the MX host Resend showed <strong>(from Resend)</strong></td>\n<td>the priority Resend showed (it must be the lowest number for <code>ad</code>; there is no other MX for <code>ad</code>, so it is)</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Save.</strong> Back in Resend, <strong>Verify</strong>.</p>\n<p>Then on the server: <code>[mailfwd] enabled = true</code> in <code>/etc/arise/arise.toml</code>.\n<code>sudo arisectl mail forward</code> lists every person, whether they have a personal\nemail on their profile, and whether their mail will be forwarded. Send a test\nto your own church address from your phone; within five minutes it is in your\npersonal inbox, from \"&lt;sender&gt; via Arise Church IT\", and a reply goes straight\nto the sender.</p>\n<p>Inside the building nothing changes: a church Mac still asks the server about\n<code>ad.arisecenla.com</code> (its resolver file) and never sees this record.</p>\n<h2 id=\"part-3-check\">Part 3: check</h2>\n<p>DNS takes from minutes to a few hours. From the box or any Mac (Terminal):</p>\n<pre><code>dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net\ndig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key\ndig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.\ndig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.\ndig +short TXT _dmarc.mail.arisecenla.com                # &quot;v=DMARC1; p=none;&quot; (if added)\ndig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:\n                                                         # inside the church the server answers for &quot;ad&quot;)\n</code></pre>\n<p>An empty answer means the record is not there yet, or the host name has a\ntypo. docs/EMAIL-DNS.md has the \"if something is wrong\" list.</p>\n<h2 id=\"what-never-goes-into-wix\">What never goes into Wix</h2>\n<ul>\n<li>Anything pointing at the server's address. The box is not on the internet.</li>\n<li>Records for the website you didn't add. Leave them.</li>\n<li>A second <code>v=spf1</code> record on the same host name (only one is allowed).</li>\n<li>An MX record at <code>@</code> (the root). That moves all of arisecenla.com's email.</li>\n</ul>",
 "demo": true
 },
 "POST /me/2fa/setup": {

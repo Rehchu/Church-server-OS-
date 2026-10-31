@@ -10,7 +10,7 @@ What does **not** change:
 
 - The domain stays `AD.ARISECENLA.COM` (NetBIOS `ARISE`), and the server is its
   DNS inside the building (round 6, 25).
-- Staff addresses are `first.last@ad.arisecenla.com` (round 6, 28), forwarded
+- Staff addresses are `first.last@arisecenla.com` (Oct 31, H10; round 6, 28 had `@ad.`), forwarded
   to each person's own email (round 7, 155). That needs **one** more record, an
   MX for `ad` pointing at Resend's receiving, added only when forwarding is
   turned on: docs/WIX-DNS.md, part 2. It points at Resend, never at the box.
@@ -93,9 +93,9 @@ DNS can take from a few minutes to a few hours. Then:
    host name). Asking a public resolver directly skips the church's caches:
    `dig +short TXT send.mail.arisecenla.com @1.1.1.1`.
 3. **Then on the server:** put the sending address into `/etc/arise/arise.toml`
-   (`[mail] from_email = "news@mail.arisecenla.com"`, or another name at
-   `mail.arisecenla.com`), and the Resend API key into
-   `/etc/arise/secrets/resend-api-key` (never into a doc or a chat).
+   (`[mail] from_email = "it@arisecenla.com"`, the default since Oct 31; any name at
+   `arisecenla.com` works), and the Resend API key: on the private install disc (H9), or
+   `sudo arisectl mail key` (never into a doc or a chat).
    `sudo arisectl mail status` shows the from address and whether the key is
    configured; the Mail app's **Send a test** sends one message to an address
    you choose.
