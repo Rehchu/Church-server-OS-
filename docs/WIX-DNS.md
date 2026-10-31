@@ -55,15 +55,29 @@ Resend opens the domain's page with a **DNS Records** table. Keep it open.
 **In Wix**, add each row. Where Resend's Name ends in `.arisecenla.com`, type
 only the part before it: Wix adds the rest.
 
+Check the domain name at the top of Resend's page first: it must say
+**mail.arisecenla.com**. Resend's table then shows names like `resend._domainkey.mail`
+and `send.mail`. If its names have no `.mail` (`resend._domainkey`, `send`, `@`), the
+domain added was `arisecenla.com` itself: remove it in Resend (it is unverified and
+nothing uses it) and add `mail.arisecenla.com` instead.
+
+What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to
+`forge.rmta.net` instead of an SPF TXT and an amazonses MX):
+
 | # | Wix box | Host name (type this) | Value | Priority |
 |---|---|---|---|---|
 | 1 | **TXT** → + Add Record | `resend._domainkey.mail` | the long key starting `p=` **(from Resend)**, pasted in one piece | |
-| 2 | **TXT** → + Add Record | `send.mail` | `v=spf1 include:amazonses.com ~all` | |
-| 3 | **MX** → + Add Record | `send.mail` | `feedback-smtp.us-east-1.amazonses.com` | `10` |
+| 2 | **CNAME** → + Add Record | `rsend.mail` | `rsend.forge.rmta.net` | |
+| 3 | **CNAME** → + Add Record | `send.mail` | `send.forge.rmta.net` | |
 | 4 (optional) | **TXT** → + Add Record | `_dmarc.mail` | `v=DMARC1; p=none;` | |
 
-Rows 2 and 3 are what Resend shows for a us-east-1 domain; **if Resend's table
-differs, Resend's wins.**
+An older Resend domain shows an SPF TXT (`v=spf1 include:amazonses.com ~all`) and an
+MX (`feedback-smtp.us-east-1.amazonses.com`, 10) on `send.mail` instead of rows 2
+and 3. **Resend's own table wins** over this page.
+
+**Skip Resend's "Enable receiving" MX** on this page. Receiving is part 2, on
+`ad.arisecenla.com`. An MX at `@` in Wix would take **all** of arisecenla.com's
+email away from wherever it goes today.
 
 What Wix shows when you add an MX record: it may offer a list of mail
 providers (Google Workspace, Microsoft 365, "Other"). Choose **Other** (or
@@ -120,8 +134,8 @@ DNS takes from minutes to a few hours. From the box or any Mac (Terminal):
 ```
 dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net
 dig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key
-dig +short TXT send.mail.arisecenla.com                  # "v=spf1 include:amazonses.com ~all"
-dig +short MX  send.mail.arisecenla.com                  # 10 feedback-smtp.us-east-1.amazonses.com.
+dig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.
+dig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.
 dig +short TXT _dmarc.mail.arisecenla.com                # "v=DMARC1; p=none;" (if added)
 dig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:
                                                          # inside the church the server answers for "ad")
@@ -135,3 +149,4 @@ typo. docs/EMAIL-DNS.md has the "if something is wrong" list.
 - Anything pointing at the server's address. The box is not on the internet.
 - Records for the website you didn't add. Leave them.
 - A second `v=spf1` record on the same host name (only one is allowed).
+- An MX record at `@` (the root). That moves all of arisecenla.com's email.

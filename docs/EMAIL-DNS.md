@@ -38,8 +38,10 @@ plus that MX record (round 7, 131). This page stays as the reference.
 | **SPF** (the bounce address) | MX | `send.mail` | `feedback-smtp.us-east-1.amazonses.com`, priority `10` |
 | DMARC (optional, recommended) | TXT | `_dmarc.mail` | `v=DMARC1; p=none;` |
 
-The rows above are what Resend shows for a `us-east-1` domain as of this
-writing; **Resend's own table wins** if it differs (another region changes the
+On Oct 31 2026 Resend showed the church its newer style instead of the two SPF rows:
+two CNAMEs, `rsend.mail` → `rsend.forge.rmta.net` and `send.mail` →
+`send.forge.rmta.net` (docs/WIX-DNS.md has that table). The rows above are the older
+`us-east-1` style; **Resend's own table wins** if it differs (another region changes the
 MX host, and the DKIM key is always different). If a row's Name already ends in
 `.arisecenla.com`, drop that part when typing it into Wix: Wix adds it.
 
