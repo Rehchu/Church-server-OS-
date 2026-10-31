@@ -91,8 +91,8 @@ minutes to a few hours.
 
 **On the server** (Claude can do this part): `[mail] from_email` in
 `/etc/arise/arise.toml` becomes an address at `mail.arisecenla.com`, and the
-Resend API key goes into `/etc/arise/secrets/resend-api-key` (never into a doc
-or a chat). `sudo arisectl mail status` then says configured.
+Resend API key goes in with `sudo arisectl mail key` (a hidden prompt; it writes
+`/etc/arise/secrets/resend-api-key`, root only, and never into a doc or a chat). `sudo arisectl mail status` then says configured.
 
 ## Part 2: receiving for staff addresses (ad.arisecenla.com)
 
