@@ -23,8 +23,10 @@ change.
 
 ## Before you start: open the two tabs
 
-1. **Resend.** Sign in at resend.com (the church's account, the one whose API
-   key is on the server). Leave this tab open; it is where values come from.
+1. **Resend.** Sign in at resend.com with the **church's** Resend account, not a
+   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where
+   values come from. Make the API key on install day, not before: sending access
+   only, for `mail.arisecenla.com`.
 2. **Wix.** Sign in at wix.com → the church site → **Settings** (left menu,
    near the bottom) → **Domains**. You see `arisecenla.com` with a **⋯** button
    on its right (Domain Actions). Click **⋯** → **Manage DNS Records**.
