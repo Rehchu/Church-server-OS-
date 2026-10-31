@@ -1,0 +1,11 @@
+[Unit]
+Description=Arise Server offboarding sweep, daily (a leaver's login off on their day, files to the next person)
+
+[Timer]
+# 05:15 America/Chicago: after the backup, the mirror and the Trash sweep; never near a service.
+OnCalendar=*-*-* 05:15:00 America/Chicago
+RandomizedDelaySec=5m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

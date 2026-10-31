@@ -1,0 +1,11 @@
+[Unit]
+Description=Arise Server Trash sweep, daily (items older than 30 days)
+
+[Timer]
+# 04:30 America/Chicago: after the 03:00 backup and the 04:00 mirror, never near a service.
+OnCalendar=*-*-* 04:30:00 America/Chicago
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

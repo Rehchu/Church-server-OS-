@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arise Server Boot Preview</title>
+<meta name="description" content="What the OptiPlex's own screen shows from power-on: the installer, the console banner, the login, the arisetui dashboard, then the desktop in a browser. Interactive, sample data.">
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one monitor in the middle of a dark stage, a numbered strap of scenes above it, a caption and controls below. Single-theme by design: this is a screen in a dark closet. */
+:root{--red:#D6222D;--redL:#DB3F48;--ink:#0A0A0C;--scrim:#060608;--panel:#111115;--line:rgba(255,255,255,.12);--text:rgba(255,255,255,.88);--text2:rgba(255,255,255,.62);--muted:#8A8A90;--ok:#3DBE7A;--warn:#E0A32E;--green:#58d68d;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--scrim);color:var(--text);font-family:'Oswald',Helvetica,Arial,sans-serif;font-weight:300;min-height:100vh;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:radial-gradient(60% 50% at 80% 10%,rgba(214,34,45,.22),transparent 60%),repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 48px)}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:'Anton',Impact,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.02em;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(28px,4vw,46px);color:#fff}
+.mark{display:flex;align-items:center;margin-bottom:12px}
+.mark::before{content:"";flex:0 0 auto;width:34px;height:5px;background:var(--red);box-shadow:46px 0 0 var(--red);margin-right:60px}
+.kicker{font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--redL);white-space:nowrap}
+.lede{color:var(--text2);max-width:70ch;margin-top:10px;font-size:15px;line-height:1.6}
+.strap{display:flex;gap:0;margin:22px 0 14px;border-bottom:1px solid var(--line);overflow-x:auto}
+.strap button{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;font:500 11.5px 'Oswald';letter-spacing:.16em;text-transform:uppercase;color:var(--text2);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap}
+.strap button i{font-style:normal;font-family:'Anton';color:var(--redL);letter-spacing:.12em}
+.strap button.on{color:#fff;border-bottom-color:var(--red)}
+.strap button.done i{color:var(--ok)}
+.monitor{background:#1a1a1f;border:1px solid #2a2a30;padding:14px 14px 22px;box-shadow:0 40px 90px rgba(0,0,0,.7);position:relative}
+.monitor::after{content:"DELL OPTIPLEX · the closet monitor";position:absolute;left:50%;bottom:5px;transform:translateX(-50%);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:#5a5a60}
+.screen{background:#000;aspect-ratio:16/9;max-width:100%;position:relative;overflow:hidden;border:1px solid #000;font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;font-size:clamp(9px,1.05vw,14px);line-height:1.35;color:#d7d7dc}
+.screen pre{white-space:pre;margin:0;font:inherit}
+.scene{position:absolute;inset:0;padding:2.2% 2.6%;display:none;overflow:hidden}
+.scene.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.r{color:var(--redL)} .g{color:var(--green)} .y{color:var(--warn)} .d{color:#7a7a80} .w{color:#fff;font-weight:700} .inv{background:var(--red);color:#fff}
+.cur::after{content:"▌";animation:blink 1s steps(1) infinite;color:var(--redL)}
+@keyframes blink{50%{opacity:0}}
+.foot{position:absolute;left:0;right:0;bottom:0;height:3%;background:var(--red)}
+.center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.bios{color:#9a9aa0}
+.ubuntu-bar{height:6px;background:#222;margin:1.2% 0;width:60%}
+.ubuntu-bar i{display:block;height:100%;background:var(--red);transition:width .4s}
+.tui{display:grid;grid-template-columns:1fr 1fr;gap:0 3%}
+.tui .full{grid-column:1/-1}
+.tuitabs span{display:inline-block;padding:0 .6em;margin-right:.4em;color:#9a9aa0}
+.tuitabs span.on{background:var(--red);color:#fff}
+.barline b{font-weight:400}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;font:600 11.5px 'Oswald';letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--red);border:1.5px solid var(--red);cursor:pointer;text-decoration:none}
+.btn:hover{background:transparent}
+.btn--ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn--ghost:hover{border-color:#fff}
+.cap{margin-top:16px;background:var(--panel);border-left:3px solid var(--red);padding:14px 16px;font-size:14px;line-height:1.55;color:var(--text2)}
+.cap b{color:#fff;font-weight:500}
+.cap code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:rgba(255,255,255,.07);padding:1px 5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.card{background:var(--panel);border-top:3px solid var(--red);padding:14px 16px;font-size:13.5px;color:var(--text2);line-height:1.5}
+.card h3{font-size:14px;color:#fff;margin-bottom:6px;letter-spacing:.06em}
+.hint{font-size:12px;color:var(--muted);letter-spacing:.06em;margin-left:auto}
+@media(max-width:700px){.screen{font-size:7.5px;aspect-ratio:auto;height:440px}.scene{overflow:auto;-webkit-overflow-scrolling:touch}.tui{grid-template-columns:1fr}.monitor{padding:8px 8px 10px}.monitor::after{display:none}.hint{display:none}.kicker{white-space:normal;letter-spacing:.2em}.mark::before{margin-right:70px;box-shadow:40px 0 0 var(--red);width:28px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="mark"><span class="kicker">Arise Server · what the box itself shows</span></div>
+  <h1>From power-on to the desktop.</h1>
+  <p class="lede">This is the OptiPlex's own screen in the closet, scene by scene, with sample data: the one-time boot menu, the unattended Ubuntu install, the Arise installer, the console banner, a login, the <code>arisetui</code> dashboard, and finally the Arise desktop the four admins use, full screen on the monitor itself with <code>--kiosk</code>. Staff never see any of this: they sign in on their Macs as normal. Press <b>Enter</b> or the Next button to move through it; in the dashboard scene, keys 1 to 5 switch tabs.</p>
+
+  <div class="strap" id="strap"></div>
+
+  <div class="monitor"><div class="screen" id="screen" tabindex="0" aria-live="polite">
+    <div class="scene" data-n="0"><div class="center bios"><div><pre class="d">Dell OptiPlex                                   F2 = Setup   F12 = Boot Menu</pre><br><pre>Boot Menu
+──────────────────────────────
+  UEFI: SanDisk Ultra USB 3.0   <span class="inv">◀ selected</span>
+  UEFI: SATA SSD (Ubuntu)
+  Setup
+  Diagnostics</pre><br><pre class="d">Use ↑↓ to choose, Enter to boot</pre></div></div></div>
+
+    <div class="scene" data-n="1"><pre><span class="w">Ubuntu Server 24.04 LTS</span>  ·  autoinstall from installer/autoinstall.yaml  ·  nothing to click
+</pre><div class="ubuntu-bar"><i id="ubar" style="width:8%"></i></div><pre id="ulog"></pre></div>
+
+    <div class="scene" data-n="2"><pre id="ilog"></pre></div>
+
+    <div class="scene" data-n="3"><pre>
+<span class="r">      ▄▄</span>          <span class="w">ARISE SERVER</span>  ·  arise-server.ad.arisecenla.com  ·  Ubuntu 24.04.3 LTS
+<span class="r">     ▟██▙</span>         Arise Church, Pineville LA
+<span class="r">    ▟████▙</span>
+<span class="r">   ▟██▛▜██▙</span>       dashboard   http://arise-server:4147
+<span class="r">  ▟██▛  ▜██▙</span>      console     arisetui        help  arisectl doctor
+<span class="r">  ▜██▙▄▄▟██▛</span>
+<span class="r">   ▜██████▛</span>       Tue Oct 28 2026  02:00:41
+<span class="r">     ▀▀▀▀</span>
+
+arise-server login: <span id="loginTyped"></span><span class="cur"></span></pre></div>
+
+    <div class="scene" data-n="4"><pre id="motd"></pre></div>
+
+    <div class="scene" data-n="5"><pre><span class="r">      ▄▄      </span> <span class="w">ARISE SERVER</span>
+<span class="r">     ▟██▙     </span> <span class="d">v0.8.0 “Exodus”  ·  arise-server  ·  AD.ARISECENLA.COM</span>
+<span class="r">    ▟████▙    </span> <span id="tuiClock">Tue Oct 28  02:01:12 AM</span>
+<span class="r">   ▟██▛▜██▙   </span>
+<span class="r">  ▟██▛  ▜██▙  </span> <span class="d">up 14d 3h 7m   load 0.42 0.58 0.61   46°C</span>
+<span class="r">  ▜██▙▄▄▟██▛  </span>
+<span class="r">   ▜██████▛   </span>
+<span class="r">     ▀▀▀▀     </span>
+<span class="tuitabs" id="tuitabs"><span class="on"> 1 OVERVIEW </span><span> 2 SERVICES </span><span> 3 BACKUPS </span><span> 4 AUTOMATOR </span><span> 5 DIRECTORY </span></span>                      <span class="d">q quit · keys 1-5</span>
+<span class="r">────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre><div id="tuibody"></div><div class="foot"></div></div>
+
+    <div class="scene" data-n="6"><div class="center"><div><pre class="d">The desktop. On the closet monitor (install.sh --kiosk: cage + Firefox), signed in by one of the four admins:</pre><br><pre style="text-align:left;display:inline-block"><span class="w">https://arise-server.ad.arisecenla.com</span>   on the church network, the church certificate
+<span class="w">over Tailscale</span>                           from Alexandria or home; nothing is open to the internet</pre><br><br><a class="btn" href="https://claude.ai/artifact/WhHiMtc1ZshDUW49NthvRS" target="_blank" rel="noopener">Open the desktop preview</a><br><br><pre class="d">Finder · menu bar · dock · Spotlight · Macs · Sync · Automator · Firefox · 35 apps</pre></div></div><div class="foot"></div></div>
+  </div></div>
+
+  <div class="ctrl">
+    <button class="btn btn--ghost" id="prev">◀ Back</button>
+    <button class="btn" id="next">Next ▶</button>
+    <button class="btn btn--ghost" id="replay">Replay this scene</button>
+    <span class="hint">Enter / → next · ← back · 1-5 in the dashboard</span>
+  </div>
+  <div class="cap" id="cap"></div>
+
+  <div class="grid">
+    <div class="card"><h3>What is real here</h3>Every screen is a thing in the repo: <code>installer/autoinstall.yaml</code>, <code>installer/install.sh</code>, <code>config/console/issue</code>, the login message, <code>cli/arisetui</code> and <code>arise-console.service</code>. The numbers are sample data.</div>
+    <div class="card"><h3>What is not</h3>The boot menu is a stand-in for Dell's; the install log is condensed from minutes to seconds; nothing here touched a real domain or NAS yet.</div>
+    <div class="card"><h3>The closet monitor</h3>With <code>install.sh --kiosk</code>, tty1 shows the Arise desktop all day (<code>arise-kiosk.service</code>: cage + Firefox, locks itself after ten idle minutes). Each admin who signs in gets their own Firefox profile; locking puts the monitor back on a neutral one. <code>--console</code> gives the text <code>arisetui</code> instead. Alt+F2 is a normal login either way.</div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const SCENES = [
+  ['01', 'Boot menu', 'Power on, tap <b>F12</b>, pick the USB stick. The one Dell-specific moment. If the stick is missing from the list, F2 → Boot Sequence → UEFI, and SATA Operation → AHCI.'],
+  ['02', 'Ubuntu install', 'The stick carries <code>installer/autoinstall.yaml</code>, so Ubuntu Server installs itself: whole disk, hostname <code>arise-server</code>, user <code>bradly</code>, OpenSSH on. Walk away; about ten minutes on an SSD.'],
+  ['03', 'Arise installer', 'First boot runs <code>install.sh</code>: packages, the Samba Active Directory domain, the owner account, the Python service, Nextcloud, timers, firewall, Tailscale, the kiosk. Seven loud steps (with lettered sub-steps), every one safe to run again. It ends with what still needs a human.'],
+  ['04', 'Console banner', '<code>/etc/issue</code>: what the monitor shows before anyone logs in. The flame, the name, the two addresses that matter. Type a user name and press Enter.'],
+  ['05', 'Login', 'The login message: the flame, <code>arisectl info</code> for this box, and the three commands worth knowing. Then the prompt. Type <code>arisetui</code> or press Enter.'],
+  ['06', 'arisetui', 'The console dashboard, like Monolith\'s <code>mntui</code>: live CPU and memory, disks, what needs you, tonight\'s jobs, then services, backups, the automator and the directory on keys <b>1 to 5</b>. With <code>--console</code> this is what tty1 shows all day.'],
+  ['07', 'The desktop', 'A macOS-style desktop themed for Arise with 35 apps: Finder, Directory, Macs, Sync, Automator (videos, transcript search, songs), Backups, Security and the rest, with Firefox as a full browser. With <code>--kiosk</code> this is what the closet monitor shows all day, for Bradly, Kristina and the two pastors. That is the preview linked here.'],
+];
+let cur = 0, timers = [];
+const strap = $('#strap');
+strap.innerHTML = SCENES.map((s, i) => `<button data-i="${i}"><i>${s[0]}</i>${s[1]}</button>`).join('');
+$$('button', strap).forEach(b => b.onclick = () => go(+b.dataset.i));
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+function go(n) {
+  cur = Math.max(0, Math.min(SCENES.length - 1, n)); clearTimers();
+  $$('.scene').forEach(s => s.classList.toggle('on', +s.dataset.n === cur));
+  $$('button', strap).forEach((b, i) => { b.classList.toggle('on', i === cur); b.classList.toggle('done', i < cur); });
+  $('#cap').innerHTML = `<b>${SCENES[cur][0]} · ${SCENES[cur][1]}.</b> ${SCENES[cur][2]}`;
+  $('#prev').disabled = cur === 0; $('#next').textContent = cur === SCENES.length - 1 ? 'Start over' : 'Next ▶';
+  [bios, ubuntu, installer, banner, login, tui, desktop][cur]();
+  $('#screen').focus({ preventScroll: true });
+}
+function bios() {}
+function ubuntu() {
+  const steps = ['Probing disks … /dev/sda 240 GB SSD', 'Partitioning: EFI 1 GB, / 239 GB (LVM)', 'Copying the system image', 'Hostname: arise-server', 'Timezone: America/Chicago', 'User: bradly (sudo)', 'OpenSSH: on', 'Installing kernel and bootloader', 'late-commands: git clone Church-server-OS- → /opt/arise', 'late-commands: install.sh --no-start', 'Rebooting …'];
+  const log = $('#ulog'); log.innerHTML = '';
+  steps.forEach((s, i) => later(() => { log.innerHTML += `<span class="g">✓</span> ${esc(s)}\n`; $('#ubar').style.width = Math.round(100 * (i + 1) / steps.length) + '%'; if (i === steps.length - 1) later(() => go(2), 900); }, 380 * (i + 1)));
+}
+function installer() {
+  const lines = [
+    ['w', '$ sudo bash /opt/arise/installer/install.sh --kiosk --with-tailscale'],
+    ['r', '== Preflight'], ['', '   Ubuntu 24.04 · run by bradly (the owner) · domain admin password: ******** (asked once)'],
+    ['r', '== 1/7  Packages'], ['', '   samba winbind krb5-user restic docker.io python3-venv ufw fail2ban chrony acl auditd inotify-tools … ok'],
+    ['r', '== 2/7  Hostname and timezone'], ['', '   arise-server.ad.arisecenla.com · America/Chicago'],
+    ['r', '== 2b/7  Pin this box\'s address (the one DHCP gave it)'], ['', '   /etc/netplan/60-arise-pinned.yaml: 192.168.1.20/24 · no router touched'],
+    ['r', '== 3/7  Code to /opt/arise and the Python venv'], ['', '   /usr/local/bin/arisectl, /usr/local/bin/arisetui'],
+    ['r', '== 4/7  Config (/etc/arise), state (/var/lib/arise), data (/srv/arise)'],
+    ['r', '== 5/7  Active Directory domain AD.ARISECENLA.COM (NetBIOS ARISE)'], ['', '   samba-tool domain provision … ok · SRV _ldap._tcp.ad.arisecenla.com resolves'],
+    ['r', '== 5b/7  Password policy, groups and the nine shares'], ['', '   Church · departments · Pastors (the two pastors only) · Shared with me · homes 50 GB · Trash 30 days'],
+    ['r', '== 6/7  Docker and the Arise services'], ['', '   arise-web.service active on :4147 · owner bradly: sudo, every ariseOS group, the 02:05 job'],
+    ['', '   arise-automator.timer 02:05 (the PC stays the runner until runner.json says this box) · arise-backup.timer 03:00'],
+    ['r', '== 6a/7  Apps: the templates, deployed; the Store starts the rest'], ['', '   sync: Nextcloud is set up (https://cloud.ad.arisecenla.com); every church Mac\'s helper installs the client'],
+    ['r', '== 6b/7  Remote access and the firewall'], ['', '   ufw: deny incoming; the LAN and Tailscale only · ssh keys only · nothing forwarded from the internet'], ['y', '   tailscale installed. Once, in a browser:  sudo tailscale up --ssh --advertise-routes=192.168.1.0/24'],
+    ['r', '== 6c/7  Console: banner, login message'],
+    ['r', '== 6d/7  Kiosk: the Arise desktop on the closet monitor'], ['', '   cage + Firefox (packages.mozilla.org), a profile per admin · tty1 now shows the Arise desktop'],
+    ['r', '== 6j/7  Safety: arise-rescue, virus scan, system snapshots, encryption'],
+    ['r', '== 7/7  Done. What still needs you'],
+    ['', '   1. Dashboard password:   sudo arisectl admin set-password'],
+    ['', '   2. The automator:        deploy key on GitHub (read-only) · sudo arisectl automator setup · signin · cutover'],
+    ['', '   3. restic password:      /etc/arise/secrets/restic-password  (and a copy off the server)'],
+    ['', '   4. Synology:             /etc/arise/secrets/synology.cred ; sudo arisectl nas mount'],
+    ['', '   5. Then:                 sudo arisectl doctor'],
+    ['d', '   log: /var/log/arise/install.log'],
+  ];
+  const log = $('#ilog'); log.innerHTML = '';
+  lines.forEach((l, i) => later(() => { log.innerHTML += `<span class="${l[0]}">${esc(l[1])}</span>\n`; log.scrollTop = 1e6; }, 160 * (i + 1)));
+}
+function banner() { const t = $('#loginTyped'); t.textContent = ''; 'bradly'.split('').forEach((c, i) => later(() => t.textContent += c, 900 + i * 140)); }
+function login() {
+  const m = $('#motd'); m.innerHTML = '';
+  const lines = ['<span class="d">Password:</span>', '', '<span class="r">      ▄▄</span>', '<span class="r">     ▟██▙</span>      <span class="w">ARISE SERVER</span>', '<span class="r">    ▟████▙</span>     Arise Church · Pineville, LA', '<span class="r">   ▟██▛▜██▙</span>', '<span class="r">  ▟██▛  ▜██▙</span>   arisetui        the console dashboard', '<span class="r">  ▜██▙▄▄▟██▛</span>   arisectl doctor what needs fixing', '<span class="r">   ▜██████▛</span>    arisectl info   what this box is', '<span class="r">     ▀▀▀▀</span>', '  host      arise-server  (Ubuntu 24.04, 4 cores, 16 GB RAM)', '  profile   server   config /etc/arise/arise.toml', '  realm     AD.ARISECENLA.COM / ARISE   directory on', '  web       http://arise-server:4147   password set', '  owner     bradly   the 02:05 job runs as him (the PC is the runner until he switches)', '  macs      3 church Macs · sync: Nextcloud on cloud.ad.arisecenla.com', '  backups   /mnt/synology/arise-backups/restic  at 03:00  (30/12/24 kept)', '', '<span class="g">bradly@arise-server</span>:~$ <span id="shTyped"></span><span class="cur"></span>'];
+  lines.forEach((l, i) => later(() => { m.innerHTML += l + '\n'; }, 120 * (i + 1)));
+  later(() => { const t = $('#shTyped'); if (t) 'arisetui'.split('').forEach((c, i) => later(() => t.textContent += c, i * 120)); }, 120 * lines.length + 600);
+}
+const bar = (p, w, c = 'r') => `<span class="${c}">${'█'.repeat(Math.round(w * p / 100))}</span><span class="d">${'░'.repeat(w - Math.round(w * p / 100))}</span>`;
+const TUI = {
+  1: () => `<div class="tui"><pre><span class="d">CPU</span>  <span class="w">${(S.cpu).toFixed(1).padStart(5)}%</span>
+${bar(S.cpu, 44)}
+<span class="r">${S.cores.map(c => '▁▂▃▄▅▆▇█'[Math.min(7, Math.floor(c / 12.5))]).join(' ')}</span>
+
+<span class="d">MEMORY</span>  <span class="w">5.8 GB of 16.0 GB  36%</span>
+${bar(36, 44, 'y')}
+
+<span class="d">NETWORK</span>  ↓ ${(S.rx / 1e6).toFixed(1)} MB/s   ↑ ${(S.rx / 4e6).toFixed(1)} MB/s
+
+<span class="d">DISKS</span>
+/                   66.1 GB / 223.5 GB
+${bar(30, 44, 'g')}
+/srv/arise         242.1 GB / 894.1 GB
+${bar(27, 44, 'g')}
+/mnt/synology        4.5 TB /  15.0 TB
+${bar(31, 44, 'g')}</pre><pre><span class="g">ALL CLEAR</span>
+<span class="d">services up · automator clean · backups ok · NAS mounted</span>
+
+<span class="d">THE BOX</span>
+<span class="d">directory </span> online · 11 users
+<span class="d">macs      </span> 3 church Macs · 1 waiting for a choice
+<span class="d">automator </span> 3 jobs done · 0 failed · 1 skipped · 1,962 units
+<span class="d">quota     </span> 1962 / 10000 units
+<span class="d">backups   </span> Server config · ok
+<span class="d">synology  </span> mounted · 10.1 TB free
+
+<span class="d">TONIGHT  (America/Chicago)</span>
+<span class="r">02:00</span>  YouTube quota resets
+<span class="r">02:05</span>  automator
+<span class="r">03:00</span>  backups → Synology
+<span class="r">04:00</span>  GitHub mirror
+<span class="r">04:30</span>  the 30-day Trash sweep
+<span class="r">hourly</span> Nextcloud conflicts: newest wins</pre></div>`,
+  2: () => `<pre><span class="d">UNIT                           SERVICE                        STATE</span>
+arise-web.service              Arise dashboard                <span class="g">● active running</span>
+samba-ad-dc.service            Active Directory               <span class="g">● active running</span>
+docker.service                 Docker                         <span class="g">● active running</span>
+arise-automator.timer          YouTube automator (02:05)      <span class="g">● active waiting</span>
+arise-backup.timer             Backups (03:00)                <span class="g">● active waiting</span>
+arise-mirror.timer             GitHub mirror (04:00)          <span class="g">● active waiting</span>
+arise-cloud-conflicts.timer    Nextcloud conflicts (hourly)   <span class="g">● active waiting</span>
+arise-kiosk.service            The closet desktop (Firefox)   <span class="g">● active running</span>
+arise-nas-mount.service        Synology mount                 <span class="g">● active exited</span>
+tailscaled.service             Tailscale                      <span class="g">● active running</span>
+ssh.service                    SSH                            <span class="g">● active running</span></pre>`,
+  3: () => `<pre><span class="d">REPOSITORY /mnt/synology/arise-backups/restic</span>
+<span class="w">53 snapshots · 296.2 GB stored · keep 30/12/24</span>
+
+<span class="d">JOB                    LAST RUN           RESULT        ADDED  NOTE</span>
+YouTube automator      2026-10-27T03:00   <span class="g">ok</span>       797.1 MB
+Home folders           2026-10-27T03:04   <span class="g">ok</span>       451.3 MB
+Shared folders         2026-10-27T03:08   <span class="g">ok</span>       615.7 MB
+GitHub mirror          2026-10-27T03:12   <span class="g">ok</span>       698.4 MB
+Server config          2026-10-27T03:16   <span class="g">ok</span>       739.5 MB
+App data               2026-10-27T03:19   <span class="g">ok</span>        38.0 MB
+Media on the Synology  2026-10-24T03:04   <span class="r">FAILED</span>          —  mount not present (the NAS was rebooting)</pre>`,
+  4: () => `<pre><span class="d">LAST RUN</span>   2026-10-27T02:05   3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used
+<span class="d">NEXT</span>       2026-10-28T02:05  (02:05 America/Chicago)
+<span class="d">QUOTA</span>      1,962 / 10,000 units
+           ${bar(20, 40, 'g')}
+<span class="d">TOKEN</span>      <span class="g">ok · ~5 days left</span>
+           <span class="y">OAuth app is still in Testing: Google expires the token every 7 days. Publish it.</span>
+<span class="d">HOLDS</span>      8 videos · 3 rules · worklist 4/6 enabled
+
+<span class="d">LATEST REPORT</span>
+<span class="r">## Preflight</span>
+- signed in as Arise Church
+- quota: 9,999 of 10,000 units left today (resets 2 AM Central)
+- 8 videos on hold, 3 standing rules loaded
+<span class="r">## Job: star-cleanup (priority 1)</span>
+- applied 19 · read back 19 · backed up first to desc_backups/
+<span class="r">## Job: shorts-tags (priority 2)</span>
+- skipped — disabled in worklist.json until Bradly sets the priority</pre>`,
+  5: () => `<pre><span class="w">AD.ARISECENLA.COM  ·  ARISE  ·  arise-server.ad.arisecenla.com</span>
+<span class="g">● LDAP</span>          <span class="g">● KERBEROS</span>      <span class="g">● DNS</span>
+
+<span class="d">USER                  NAME                          GROUPS                             LAST LOGIN</span>
+bradly                Bradly Dyer                   Domain Admins, Media, Staff        2026-10-27T22:01
+bryant.sanders        Apostle Bryant Sanders        Domain Admins, Staff, Pastors      2026-10-26T20:12
+vanessa.sanders       Pastor Vanessa Sanders        Domain Admins, Staff, Pastors      2026-10-26T19:40
+kristina.robinson     Minister Kristina Robinson    Domain Admins, Staff, Worship      2026-10-26T21:03
+office                Church Office                 Staff                              2026-10-25T20:01
+childrens.department  Children's Department         Childrens-Department               2026-10-24T11:15
+<span class="d">guest-speaker         Guest Speaker (loaner)        Volunteers                         never · disabled</span>
+
+<span class="d">CHURCH MAC       MODEL                 macOS   HELPER        FILEVAULT</span>
+MEDIA-MAC-01     iMac (24-inch, M3)    15.3    checked in    on, key escrowed
+OFFICE-MAC-01    MacBook Air (M2)      14.7    checked in    on, key escrowed   <span class="y">levi: waiting for a choice</span>
+KIDS-MAC         Mac mini (M1)         15.2    6 h ago       on, key escrowed</pre>`,
+};
+const S = { cpu: 22, cores: [20, 30, 15, 25], rx: 1.2e6, tab: 1 };
+function tui() { S.tab = 1; paintTui(); }
+function paintTui() {
+  $$('#tuitabs span').forEach((s, i) => s.classList.toggle('on', i + 1 === S.tab));
+  $('#tuibody').innerHTML = TUI[S.tab]();
+}
+setInterval(() => { S.cpu = Math.max(3, Math.min(95, S.cpu + (Math.random() - .5) * 12)); S.cores = S.cores.map(() => Math.max(0, Math.min(100, S.cpu + (Math.random() - .5) * 40))); S.rx = Math.max(2e5, S.rx + (Math.random() - .5) * 5e5);
+  const d = new Date(); $('#tuiClock').textContent = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  if (cur === 5 && S.tab === 1) paintTui(); }, 1000);
+function desktop() {}
+$('#next').onclick = () => go(cur === SCENES.length - 1 ? 0 : cur + 1);
+$('#prev').onclick = () => go(cur - 1);
+$('#replay').onclick = () => go(cur);
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (cur === 5 && e.key >= '1' && e.key <= '5') { S.tab = +e.key; paintTui(); return; }
+  if (e.key === 'Enter' || e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(cur === SCENES.length - 1 ? 0 : cur + 1); }
+  if (e.key === 'ArrowLeft') go(cur - 1);
+});
+$('#tuitabs').onclick = e => { const i = $$('#tuitabs span').indexOf(e.target); if (i >= 0) { S.tab = i + 1; paintTui(); } };
+const fromHash = () => { const h = parseInt((location.hash || '').replace('#scene', ''), 10); go(isNaN(h) ? 0 : h); };
+window.addEventListener('hashchange', fromHash);
+fromHash();
+})();
+</script>
+
+</body>
+</html>

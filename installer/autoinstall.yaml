@@ -1,0 +1,112 @@
+#cloud-config
+# =============================================================================
+#  ariseOS: the hands-off Ubuntu Server 24.04 install (subiquity autoinstall)
+#
+#  You don't use this file by hand. scripts/make-install-media.sh puts it on
+#  the install media three ways (installer/MAKE-USB.md):
+#    - the ariseOS ISO (one file):  /autoinstall.yaml, with `autoinstall` on
+#      the boot menu's first entry
+#    - the ariseOS add-on disc:     user-data on a disc labelled CIDATA, next
+#      to the plain Ubuntu ISO (VirtualBox: two optical drives)
+#    - a Rufus USB stick:           autoinstall.yaml and arise/ at the stick's root
+#
+#  What it does:
+#    - asks who you are (name, user name, password, server name:
+#      type arise-server; the wizard sets it anyway)
+#    - shows Ubuntu's disk screen, set to the largest disk and LVM: check it is the
+#      right disk and tick "Encrypt the LVM group with LUKS" (the passphrase is typed
+#      at every boot; install.sh grows the system volume to the whole disk)
+#    - ERASES THE DISK YOU CONFIRM and installs Ubuntu Server 24.04 LTS on LVM
+#    - America/Chicago, US keyboard, OpenSSH on
+#    - copies ariseOS from the media (no git, no GitHub token: the repo is
+#      private, so the media carries the code) to /opt/arise-src, checks it
+#      against SHA256SUMS, and runs install.sh --no-start --skip-domain
+#    - first boot: the ariseOS wizard on the screen (scripts/arise-firstboot)
+#      asks church or home, the domain password and the rest, then finishes
+#
+#  No password is in this file. The one you type at the identity screen goes
+#  to Ubuntu only; the domain password is asked by the wizard on first boot.
+#  Validated against subiquity's autoinstall-schema.json
+#  (installer/schema/, commit noted in tests/test_install_media.py).
+# =============================================================================
+autoinstall:
+  version: 1
+  # Asked: who you are, and the disk (Bradly, Oct 30: no TPM 2.0 on the EliteDesk 800 G1, so the
+  # passphrase is typed at boot; Ubuntu's disk screen is the only place encryption is switched on,
+  # and it also shows WHICH disk is erased). Everything else runs by itself.
+  interactive-sections:
+    - identity
+    - storage
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  timezone: America/Chicago
+
+  ssh:
+    install-server: true
+    allow-pw: true
+
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: all
+      match:
+        size: largest
+
+  network:
+    version: 2
+    ethernets:
+      all-wired:
+        match:
+          name: "en*"
+        dhcp4: true
+
+  packages:
+    - git
+    - python3
+    - python3-venv
+    - curl
+    - ca-certificates
+
+  updates: security
+
+  late-commands:
+    # 1. Find ariseOS on the media: the ISO or a USB stick (/cdrom/arise), or
+    #    the add-on disc labelled CIDATA. Check it, then copy it into the new system.
+    - |
+      set -e
+      M=""
+      [ -f /cdrom/arise/ariseos-src.tar.gz ] && M=/cdrom/arise
+      if [ -z "$M" ]; then
+        D="$(blkid -L CIDATA 2>/dev/null || true)"
+        if [ -n "$D" ]; then
+          mkdir -p /run/arise-media
+          mount -o ro "$D" /run/arise-media 2>/dev/null || true
+          [ -f /run/arise-media/arise/ariseos-src.tar.gz ] && M=/run/arise-media/arise
+        fi
+      fi
+      if [ -z "$M" ]; then
+        echo "ariseOS: the install media has no arise/ariseos-src.tar.gz; Ubuntu is installed, ariseOS is not" | tee -a /target/etc/motd
+        exit 0
+      fi
+      (cd "$M" && sha256sum -c SHA256SUMS) || { echo "ariseOS: the copy on the media is damaged (SHA256SUMS); make the media again" | tee -a /target/etc/motd; exit 0; }
+      mkdir -p /target/opt/arise-src
+      tar -xzf "$M/ariseos-src.tar.gz" -C /target/opt/arise-src
+      cp "$M/SHA256SUMS" /target/opt/arise-src/.media-SHA256SUMS
+      [ -f "$M/VERSION" ] && cp "$M/VERSION" /target/opt/arise-src/.media-VERSION || true
+      # A private disc (make-install-media.sh --secrets, Bradly Oct 31, H9) carries keys: root only.
+      if [ -d "$M/secrets" ]; then
+        mkdir -p /target/etc/arise/secrets && chmod 0711 /target/etc/arise/secrets
+        for f in "$M"/secrets/*; do
+          [ -f "$f" ] && install -m 0600 -o root -g root "$f" "/target/etc/arise/secrets/$(basename "$f")"
+        done
+      fi
+    # 2. The packages, the code, the config and the units. The domain waits for
+    #    the first boot, where the wizard asks for its password.
+    - |
+      curtin in-target --target=/target -- bash -c '[ -f /opt/arise-src/installer/install.sh ] || exit 0; mkdir -p /var/log/arise; bash /opt/arise-src/installer/install.sh --no-start --skip-domain --skip-docker >/var/log/arise-autoinstall.log 2>&1 || echo "ariseOS: the install step failed: see /var/log/arise-autoinstall.log, then sudo arisectl setup" >> /etc/motd'
+    # 3. The first-boot wizard on the screen.
+    - |
+      curtin in-target --target=/target -- bash -c '[ -f /opt/arise-src/config/systemd/arise-firstboot.service ] || exit 0; install -m 0644 /opt/arise-src/config/systemd/arise-firstboot.service /etc/systemd/system/arise-firstboot.service; systemctl enable arise-firstboot.service'
+
+  shutdown: reboot

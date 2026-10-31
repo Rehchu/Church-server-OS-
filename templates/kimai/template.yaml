@@ -1,0 +1,22 @@
+name: kimai
+title: Kimai
+description: Timesheets for hourly staff and volunteer hours, with weekly reports and exports. One container, SQLite, under 200 MB.
+category: office
+icon: folder
+version: "2.22.0"
+ports:
+  - 8089:8001
+volumes:
+  - /srv/arise/apps/kimai/data:/opt/kimai/var/data
+env:
+  ADMINMAIL: bradly.dyer@ad.arisecenla.com
+  ADMINPASS: CHANGE-ME-12chars
+autostart: false
+ram_mb: 250
+limits:
+  mem_mb: 512
+  cpus: 1.0
+notes: |
+  The admin login is the ADMINMAIL / ADMINPASS pair above (set them in the
+  app's .env before the first start; the password needs 8+ characters).
+  Verify the image tag before the first deploy; Kimai releases often.

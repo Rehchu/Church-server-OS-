@@ -1,0 +1,29 @@
+# Arise Server — the nightly YouTube automator (arise_daily.py), per the
+# automator's SERVER_HANDOFF.md section 7 (there called arise-nightly.service).
+# Fired by arise-automator.timer at 02:05 America/Chicago. It changes nothing
+# unless automator/runner.json in the repo names "ariseOS": while it names the
+# PC, each night writes a "not the runner" report and spends no quota.
+# The switch is Bradly's, made on the PC (docs/AUTOMATOR.md, "Cutover").
+# By hand: systemctl start arise-automator.service (harmless while the PC is the runner).
+[Unit]
+Description=Arise Church YouTube nightly automator
+Wants=network-online.target
+After=network-online.target time-sync.target
+ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
+
+[Service]
+Type=oneshot
+# User= and Group= come from the drop-in arise-automator-setup writes
+# (arise-automator.service.d/10-owner.conf): Bradly's own account (Oct 28).
+# Without it the job would run as root, which it must never do; this refuses.
+ExecStartPre=/bin/sh -c 'test "$$(id -u)" != 0 || { echo "refusing to run the automator as root: sudo arisectl automator setup writes the owner drop-in"; exit 1; }'
+EnvironmentFile=/etc/arise/arise.env
+# Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]): skipped, not failed.
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
+ExecStart=/opt/arise/scripts/arise-nightly.sh
+TimeoutStartSec=3h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/automator/ARISE_YouTube_Updater /var/lib/arise/automator /etc/arise/secrets/youtube

@@ -1,0 +1,13 @@
+# Weekly full rebuild, Wednesday 04:15 Central: not Saturday (the 03:30 update
+# window may reboot), never Sunday or Monday service hours.
+[Unit]
+Description=Arise archive: weekly full rebuild (Wednesday 04:15 Central)
+
+[Timer]
+OnCalendar=Wed *-*-* 04:15:00 America/Chicago
+RandomizedDelaySec=5m
+Persistent=true
+Unit=arise-archive-rebuild.service
+
+[Install]
+WantedBy=timers.target

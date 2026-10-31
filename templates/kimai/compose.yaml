@@ -1,0 +1,18 @@
+# Kimai: timesheets for hourly staff and volunteer hours, with reports and
+# export. SQLite inside the container, so one container and no database to
+# mind; the data folder is backed up nightly like every app.
+services:
+  kimai:
+    image: kimai/kimai2:apache-2.22.0
+    container_name: arise-app-kimai
+    restart: unless-stopped
+    ports:
+      - "8089:8001"
+    environment:
+      - TZ=America/Chicago
+      - DATABASE_URL=sqlite:///%kernel.project_dir%/var/data/kimai.sqlite
+      - ADMINMAIL=${ADMINMAIL:-bradly.dyer@ad.arisecenla.com}
+      - ADMINPASS=${ADMINPASS:-CHANGE-ME-12chars}
+      - TRUSTED_HOSTS=arise-server,localhost,127.0.0.1
+    volumes:
+      - /srv/arise/apps/kimai/data:/opt/kimai/var/data

@@ -1,0 +1,194 @@
+# =============================================================================
+#  Arise Server — Samba AD DC smb.conf, the Arise additions
+#
+#  `samba-tool domain provision` writes /etc/samba/smb.conf with its own
+#  [global], [netlogon] and [sysvol]. install.sh does not replace that file;
+#  it APPENDS everything below the ">>> arise-server shares" marker, and
+#  inserts the "vfs objects / fruit:" lines into [global]. See README.md here.
+#
+#  Shown in full so the whole file can be read in one place. The [global]
+#  block below is what the provision writes plus our Mac lines.
+# =============================================================================
+
+[global]
+        dns forwarder = 1.1.1.1
+        netbios name = ARISE-SERVER
+        realm = AD.ARISECENLA.COM
+        server role = active directory domain controller
+        workgroup = ARISE
+        idmap_ldb:use rfc2307 = yes
+
+        # ---- macOS over SMB ------------------------------------------------
+        # Macs store resource forks, Finder tags and extended attributes on
+        # every file. Without `fruit` Samba drops or mangles them, Finder
+        # copies fail with -36 / -43 errors, and Time Machine refuses the share.
+        # On a domain controller dfs_samba4 must stay in the [global] list (sysvol, netlogon).
+        vfs objects = dfs_samba4 acl_xattr fruit streams_xattr
+        # Keep the Mac metadata inside NTFS-style alternate streams (the
+        # Windows-compatible way), not as ._AppleDouble sidecar files.
+        fruit:metadata = stream
+        # Advertise as a Mac server so macOS turns on its SMB fast paths.
+        fruit:model = MacSamba
+        # Rename a file even while a Mac holds it open (Finder does this constantly).
+        fruit:posix_rename = yes
+        # Do not hide ._ files that were made by older clients; leave them visible so they can be cleaned up.
+        fruit:veto_appledouble = no
+        # Remove the empty resource fork macOS leaves on every file it touches.
+        fruit:wipe_intentionally_left_blank_rfork = yes
+        # Delete the ._ sidecar when it holds nothing.
+        fruit:delete_empty_adfiles = yes
+
+[sysvol]
+        path = /var/lib/samba/sysvol
+        read only = No
+
+[netlogon]
+        path = /var/lib/samba/sysvol/ad.arisecenla.com/scripts
+        read only = No
+
+# >>> arise-server shares (appended by installer/install.sh; keep this marker)
+
+[homes]
+        # One folder per domain user: \\arise-server\homes\<user> appears to the
+        # user as \\arise-server\<user>. %U is the logged-in user, %S the share
+        # name they asked for — "valid users = %S" means only that person.
+        comment = Home folder
+        path = /srv/arise/homes/%U
+        valid users = %S
+        read only = no
+        browseable = no
+        # Files 0600, folders 0700: nothing in a home is readable by anyone else.
+        create mask = 0600
+        directory mask = 0700
+        # Make the folder the first time the user connects.
+        # ... with Desktop, Documents, Photos, Videos, Music and Downloads inside it (Bradly, Oct 28),
+        # and a "Start here" note in a brand-new home only (round 5, 32).
+        root preexec = /bin/sh -c 'h="/srv/arise/homes/%U"; n=0; [ -d "$h" ] || n=1; mkdir -p "$h/Desktop" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads" && if [ "$n" = 1 ] && [ -f "/opt/arise/config/home/Start here.md" ]; then cp "/opt/arise/config/home/Start here.md" "$h/" && chmod 0600 "$h/Start here.md"; fi; chown "%U" "$h" "$h/Desktop" "$h/Documents" "$h/Photos" "$h/Videos" "$h/Music" "$h/Downloads"; [ -f "$h/Start here.md" ] && chown "%U" "$h/Start here.md"; chmod 0700 "$h"'
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
+
+[shares]
+        # The church's shared folders: media, graphics, documents. Anyone in the
+        # domain can read and write; subfolder permissions are set with
+        # `arisectl share` or from the dashboard.
+        comment = Arise Church shared folders
+        path = /srv/arise/shares
+        valid users = @"ARISE\Domain Users"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Domain Users"
+
+# ---- The church's shares (Bradly, Oct 28 2026; docs/ANSWERS.md 37) ----------
+# One folder each under /srv/arise/shares, one security group each. The
+# installer makes the groups and the folders (step 2b). Add a person to a
+# group and the share appears for them; nothing else to touch.
+# recordings lives on the Synology because of its size, and restic does not
+# back it up (docs/ANSWERS.md 51); the Synology's RAID is its protection.
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
+
+[staff]
+        comment = Staff: pastors and paid staff
+        path = /srv/arise/shares/staff
+        valid users = @"ARISE\Staff" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Staff"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
+
+[leadership]
+        comment = Leadership only
+        path = /srv/arise/shares/leadership
+        valid users = @"ARISE\Leadership" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0660
+        directory mask = 0770
+        force group = "Leadership"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
+
+[graphics]
+        comment = Proclaim backgrounds, loops, lower thirds (synced to the media Mac)
+        path = /srv/arise/shares/graphics
+        valid users = @"ARISE\Media" @"ARISE\Staff" @"ARISE\Domain Admins"
+        write list = @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = yes
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775
+        force group = "Media"
+        # ---- Trash (docs/ANSWERS.md round 3, 1): a Mac's delete lands in
+        # .Trash/<user>/ under the share, where the dashboard's Trash lists it,
+        # Put Back returns it and arise-trash.timer removes it after 30 days.
+        # A share's "vfs objects" replaces the global list, so fruit comes along.
+        vfs objects = acl_xattr fruit streams_xattr recycle
+        recycle:repository = .Trash/%U
+        recycle:keeptree = yes
+        recycle:versions = yes
+        recycle:touch = yes
+        recycle:directory_mode = 0770
+        recycle:exclude = *.tmp,*.temp,~$*,.DS_Store,._*,*.part,*.crdownload
+        recycle:exclude_dir = .Trash,/tmp
+
+# ---- Round 5 (docs/ANSWERS.md, rows 16-18, 36): the Church folder, the department
+# folders (childrens-department, inedge, media, worship, kids, alexandria), the
+# Pastors folder and Shared with me are NOT here. They are generated from
+# arise.toml [storage] into /etc/samba/arise-folders.conf, with the ACLs that make
+# them true on disk, by `sudo arisectl share folders` (install.sh runs it):
+# server/arise_server/sharing.py. One rule, written once, for SMB and the dashboard.
+
+[recordings]
+        # No recycle here: the Synology keeps its own #recycle for this folder.
+        comment = Sunday recordings (on the Synology; not in the restic backup)
+        path = /mnt/synology/arise/recordings
+        valid users = @"ARISE\Media" @"ARISE\Domain Admins"
+        read only = no
+        browseable = yes
+        create mask = 0664
+        directory mask = 0775

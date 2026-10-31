@@ -1,0 +1,151 @@
+# Arise Server: notes for Claude Code running on this box
+
+You are on `arise-server`, the Arise Church server (Pineville, LA). Bradly
+Dyer runs it; this file is how he wants you to behave here. Read it before
+you run anything. docs/ANSWERS.md is the record of every decision he made;
+when a doc and ANSWERS.md disagree, ANSWERS.md wins.
+
+## What this box is
+
+- Ubuntu Server 24.04 on a Dell OptiPlex in a closet, with a monitor that
+  shows the Arise desktop (a kiosk browser on tty1).
+- A Samba Active Directory domain controller: realm `AD.ARISECENLA.COM`,
+  NetBIOS `ARISE`. It is also the DNS for that domain.
+- The dashboard (`arise-web.service`, port 4147): the desktop, the member
+  portal, every app page. Code in `/opt/arise`, config in
+  `/etc/arise/arise.toml`, data in `/srv/arise`, the Synology at
+  `/mnt/synology`, state in `/var/lib/arise`, logs in `/var/log/arise/`.
+- Apps are Docker Compose stacks under `/srv/arise/apps/<name>/`, deployed
+  from `/opt/arise/templates/<name>/`. Their generated passwords live in
+  `/etc/arise/secrets/apps/`.
+- `arisectl` (`/usr/local/bin/arisectl`) is the command line for all of it.
+
+## Where to look first
+
+```
+sudo arisectl doctor                       what is wrong, in order
+sudo arisectl info                         what this box is
+journalctl -u arise-web -n 100             the dashboard
+journalctl -u samba-ad-dc -n 100           the domain
+ls /var/log/arise/                         install, backup and automator logs
+sudo arisectl backup status                last backups, with the reason for a failure
+sudo arisectl automator status             the nightly YouTube job
+sudo arisectl security                     encryption, the virus scan, the certificate, two-step, arise-rescue
+sudo arisectl update                       what Software Update is waiting to install
+arisectl automations list                  every timer, next run, last result
+arisectl storage                           what is eating the disk
+arisectl trash list                        what sits in the shares' Trash
+sudo arisectl owner                        Bradly's account: groups, sudo, the job's drop-in;
+                                           [owners] users (Kristina): the same sudo, not the job, not Claude
+```
+
+## Rules that do not bend
+
+1. Deleting is Bradly's click, not yours: never delete a user, a group, a
+   share, a snapshot, a home folder, an app's data folder, or a file in
+   `/srv/arise` unless he typed the name in this conversation. `arisectl`
+   verbs that delete ask for the name; do not script around that.
+2. Never change anything on a router, switch or the Google Mesh, and never
+   suggest it as a fix. The network stays as it is (docs/ANSWERS.md). The
+   server adapts: `/etc/netplan/60-arise-pinned.yaml` on this box, resolver
+   files on the Macs, Tailscale for the rest.
+3. Never run the automator in apply mode by hand: `arise-automator.timer`
+   fires at 02:05 America/Chicago, as Bradly's own account (`[owner] user`,
+   which is also yours: sudo, no password), and `automator/runner.json`
+   in its repo decides whether this box is the runner (the PC is, until
+   Bradly switches it on the PC; never edit runner.json, holds.json or
+   worklist.json here). `arisectl automator preview` is the plan-only run;
+   its reads still spend the shared quota: you may run it once a week, never on a Sunday or
+   Monday (round 7, 146 and 157). Never run arise_daily.py as root.
+   Never invent a CCLI number, a speaker or a sermon title. docs/AUTOMATOR.md
+   and the automator repo's SERVER_HANDOFF.md are the rules.
+4. `/etc/samba/smb.conf`: edit only with a backup copy made first and
+   `testparm -s` run after; a bad smb.conf takes the domain down. Prefer
+   `arisectl share add` / `remove`, which write `arise-shares.conf` instead.
+5. Prefer `arisectl` verbs over raw commands; they log, they refuse the
+   dangerous shapes, and the dashboard agrees with them.
+6. Secrets stay where they are: `/etc/arise/secrets/` (the restic password,
+   `vapid.json`, `apps/*.env`, `totp/<user>.json`, `rescue-password`,
+   `wayvnc`, `discord.toml`, and `youtube/`: the automator's `token.json`,
+   `client_secret.json` and deploy key), the apps' `.env` files, and
+   `/etc/arise/SAFE-CARD.txt`. Never print one into the conversation, never
+   move one into git, never paste one into a doc. You can read and write the
+   whole box (Oct 28); a credential's content is the one thing you don't open.
+   Song lyrics (`/srv/arise/songs/lyrics`) are the church's licensed copies:
+   search them for Bradly, never quote them into a title, description or Short.
+7. Nothing on this box is reachable from the internet, by Bradly's choice.
+   Do not open a port, add a port forward, or turn `public_url` on.
+8. `--staging` means the box is at Bradly's house: the domain is on
+   loopback and no scan runs. Do not "fix" that; `install.sh` at the church
+   relocates it.
+9. Tell him what failed. A command that did nothing is a result to report,
+   not a step to skip.
+10. You may fix small things yourself and tell him after (round 4, 43):
+    restart a stuck service, re-run a failed backup, clear a full log, put
+    a timer back. Anything bigger (a user, a share, an app's data, the
+    network, the domain) waits for his word.
+11. Never teleport into, branch in or edit the automator job's checkout
+    (`/srv/arise/automator/ARISE_YouTube_Updater`): you can, but it is the
+    02:05 job's, `main` only, and a change there makes the next pull fail. Work on the automator from a separate clone in Bradly's
+    home (docs/CLAUDE-ON-THE-BOX.md).
+11b. You talk to Bradly only (round 4, 44).
+11c. Staff home folders (`/srv/arise/homes/<user>`, except Bradly's): open a
+    file there only when Bradly names it (round 5, 21). The Pastors share is
+    the two pastors' only: never open it (round 5, 18), not even while Bradly's
+    emergency look is open (round 7, 69: that is his, at the dashboard).
+11d. You may read the audit log (`arisectl audit`, `/var/lib/arise/audit.jsonl`) to explain what
+    happened (round 7, 76). It is kept forever; nothing edits it.
+13. The Arise repos live in `/srv/arise/repos/<name>` and sync two-way with
+    GitHub every 15 minutes (docs/REPOS.md): a commit there is on GitHub
+    within 15 minutes. Commit only when Bradly says so. Never commit a
+    secret (the sync refuses it anyway). AriseHub is pull-only from here
+    (its main deploys the live site); the automator repo's main is the PC's. Members get the Help app, not
+    you. This file is yours to edit (45); keep it short and true.
+12. Never during a service: Sundays 10:30, Mondays 19:00. The verbs refuse;
+    so do you. A delete in Finder is a move to the Trash; emptying it is his.
+
+## The timers
+
+| When (America/Chicago) | Unit | What |
+|---|---|---|
+| 02:05 | `arise-automator.timer` | the nightly YouTube job |
+| 03:00 | `arise-backup.timer` | restic to the Synology (30/12/24 kept), then the off-site copy to Arise-Home |
+| 04:00 | `arise-mirror.timer` | GitHub mirror refresh |
+| 04:15 | `arise-archive.timer` | the archive index, new files only (not Wednesdays) |
+| Wed 04:15 | `arise-archive-rebuild.timer` | the archive index, rebuilt in full |
+| 04:30 | `arise-trash.timer` | the 30-day Trash sweep |
+| 04:45 | `arise-channel-copy.timer` | the nightly copy of the channel's titles, descriptions and thumbnails (no quota) |
+| 05:15 | `arise-offboard.timer` | leavers: disabled, then their files moved after 30 days |
+| 07:00 | `arise-notify.timer` | the daily note (off: no webhook set; Discord's #daily is the plan) |
+| Mon 07:30 | `arise-weekly.timer` | the Monday report to Discord #weekly |
+| hourly | `arise-devices.timer` | the network scan |
+| hourly | `arise-upkeep.timer` | upkeep: a missed backup night, a church Mac silent 3 days, a disk to replace, the CPU at 80 °C, each to Discord #alerts once |
+| hourly | `arise-speedtest.timer` | the internet speed test (skips services) |
+| hourly | `arise-cloud-conflicts.timer` | Nextcloud conflicts: newest wins, the older copy to the Trash (skips services) |
+| every 15 min | `arise-idle-apps.timer` | idle desktop programs stopped |
+| every 5 min | `arise-mailfwd.timer` | staff addresses forwarded from Resend (off until `[mailfwd] enabled`) |
+| every 15 min | `arise-repos.timer` | the Arise repos synced two-way with GitHub |
+| every 15 min | `arise-lyrics-inbox.timer` | Nextcloud's Lyrics inbox imported into the Songs tab |
+| 1 Jan/Apr/Jul/Oct 08:10 | `arise-ccli.timer` | the CCLI song-usage report for the quarter just ended |
+| monthly | `arise-drill.timer` | the restore drill |
+| Jan 5 09:12 | `arise-january.timer` | the January clean-up report and the Google export reminder (lists; never deletes) |
+| Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |
+| Sun 23:30 | `arise-clamscan.timer` | the virus scan of the shares |
+| 23:00 / 06:00 | `arise-monitor-off/on.timer` | the closet panel sleeps and wakes |
+
+Do not schedule anything during a service: Sundays 10:30, Mondays 19:00.
+
+## Working on the code
+
+```
+cd /opt/arise
+python3 -m unittest discover -s tests -q     # must stay green
+bash -n installer/install.sh                 # before touching the installer
+python3 scripts/gen-demo-data.py             # after any API change
+sudo systemctl restart arise-web             # after a change to server/ or web/
+```
+
+Change the OS in `/srv/arise/repos/Church-server-OS-`, not `/opt/arise`
+(Software Update replaces it). Fixed names (hostname, realm, port, paths above) are the contract in
+docs/ARCHITECTURE.md: change none of them. Usernames are `first.last`.
+Commits are Bradly's to push; stage and show him the diff.

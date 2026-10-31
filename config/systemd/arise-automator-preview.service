@@ -1,0 +1,26 @@
+# Arise Server — the automator's dry run (--plan-only). Changes nothing on
+# YouTube, but its reads DO spend real quota on the shared 10,000-unit project
+# (handoff rule 6), so it runs only when someone asks: arisectl automator
+# preview, or Preview in the dashboard. Same user, environment, lock and
+# hardening as the nightly unit; the lock stops it overlapping a real run.
+[Unit]
+Description=Arise Church YouTube automator - plan only (dry run)
+Wants=network-online.target
+After=network-online.target time-sync.target
+ConditionPathExists=/srv/arise/automator/ARISE_YouTube_Updater/automator/arise_daily.py
+
+[Service]
+Type=oneshot
+# User= and Group= come from the drop-in arise-automator-setup writes
+# (arise-automator.service.d/10-owner.conf): Bradly's own account (Oct 28).
+# Without it the job would run as root, which it must never do; this refuses.
+ExecStartPre=/bin/sh -c 'test "$$(id -u)" != 0 || { echo "refusing to run the automator as root: sudo arisectl automator setup writes the owner drop-in"; exit 1; }'
+EnvironmentFile=/etc/arise/arise.env
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
+ExecStart=/opt/arise/scripts/arise-nightly.sh --plan-only
+TimeoutStartSec=1h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/automator/ARISE_YouTube_Updater /var/lib/arise/automator /etc/arise/secrets/youtube

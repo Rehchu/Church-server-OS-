@@ -1,0 +1,66 @@
+# ariseOS boot splash. Ink background, the flame centred, a thin red progress
+# bar, the name in small caps under it. No Linux text: the kernel is told
+# "quiet splash loglevel=3" by the installer. Pictures from scripts/gen-plymouth-art.py.
+
+Window.SetBackgroundTopColor(0.039, 0.039, 0.047);
+Window.SetBackgroundBottomColor(0.039, 0.039, 0.047);
+
+w = Window.GetWidth();
+h = Window.GetHeight();
+
+flame.image = Image("flame.png");
+flame.sprite = Sprite(flame.image);
+flame.sprite.SetX(w / 2 - flame.image.GetWidth() / 2);
+flame.sprite.SetY(h / 2 - flame.image.GetHeight() / 2 - 40);
+flame.sprite.SetOpacity(0.0);
+
+name.image = Image.Text("A R I S E O S", 0.96, 0.95, 0.94, 1, "Sans 11");
+name.sprite = Sprite(name.image);
+name.sprite.SetX(w / 2 - name.image.GetWidth() / 2);
+name.sprite.SetY(h / 2 + flame.image.GetHeight() / 2 + 6);
+
+box.image = Image("progress_box.png");
+box.sprite = Sprite(box.image);
+box.sprite.SetX(w / 2 - box.image.GetWidth() / 2);
+box.sprite.SetY(h / 2 + flame.image.GetHeight() / 2 + 44);
+
+bar.original = Image("progress_bar.png");
+bar.sprite = Sprite();
+bar.sprite.SetX(box.sprite.GetX());
+bar.sprite.SetY(box.sprite.GetY());
+
+# The flame breathes in over the first second; the bar follows the boot.
+fun refresh_callback() {
+  if (flame.opacity < 1.0) {
+    flame.opacity = flame.opacity + 0.04;
+    flame.sprite.SetOpacity(flame.opacity);
+  }
+}
+flame.opacity = 0.0;
+Plymouth.SetRefreshFunction(refresh_callback);
+
+fun progress_callback(duration, progress) {
+  width = Math.Int(bar.original.GetWidth() * progress);
+  if (width < 1) width = 1;
+  bar.image = bar.original.Scale(width, bar.original.GetHeight());
+  bar.sprite.SetImage(bar.image);
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# Shutdown and reboot show the same picture, bar full.
+fun quit_callback() {
+  bar.sprite.SetImage(bar.original);
+}
+Plymouth.SetQuitFunction(quit_callback);
+
+# Messages from the boot (fsck, "A start job is running") are kept small and
+# bone, under the bar, instead of a wall of text.
+message.sprite = Sprite();
+message.sprite.SetX(0);
+message.sprite.SetY(h - 40);
+fun message_callback(text) {
+  message.image = Image.Text(text, 0.6, 0.6, 0.62, 1, "Sans 9");
+  message.sprite.SetImage(message.image);
+  message.sprite.SetX(w / 2 - message.image.GetWidth() / 2);
+}
+Plymouth.SetMessageFunction(message_callback);

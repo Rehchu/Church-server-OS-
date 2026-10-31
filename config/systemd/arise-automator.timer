@@ -1,0 +1,16 @@
+# 02:05 Central every night (the handoff's arise-nightly.timer).
+# Persistent=false ON PURPOSE (handoff section 7): a night missed to a power
+# cut must not fire at 10 AM on a Sunday and eat the quota Bradly needs for
+# that day's service. A missed night costs nothing; the worklist runs the next.
+# 02:05 is five minutes after Google's quota day resets (midnight Pacific).
+[Unit]
+Description=Run the Arise automator at 02:05 Central
+
+[Timer]
+OnCalendar=*-*-* 02:05:00 America/Chicago
+Persistent=false
+AccuracySec=1min
+Unit=arise-automator.service
+
+[Install]
+WantedBy=timers.target

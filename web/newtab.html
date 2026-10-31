@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab · ariseOS</title>
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500&display=swap">
+<style>
+  /* ariseOS new tab: Firefox opens this for every new tab on the closet monitor
+     (config/firefox/ariseos.cfg). The house fonts come from the box
+     (/usr/local/share/fonts/arise), so it looks right with the internet down. */
+  :root{--red:#D6222D;--redL:#DB3F48;--ink:#0A0A0C;--panel:#111115;--panel2:#16161B;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.07);
+        --text:rgba(255,255,255,.88);--text2:rgba(255,255,255,.64);--muted:#8A8A90}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--ink);color:var(--text);font-family:'Oswald',Helvetica,Arial,sans-serif;font-weight:300;display:flex;flex-direction:column;overflow:hidden}
+  .stage{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 55% at 50% 118%,rgba(214,34,45,.42),transparent 70%),radial-gradient(ellipse 40% 30% at 50% 108%,rgba(255,120,90,.18),transparent 70%)}
+  .grid{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,transparent,#000 40%,transparent)}
+  main{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:28px;text-align:center}
+  .kicker{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--redL)}
+  .time{font-family:'Anton',sans-serif;font-size:clamp(72px,13vw,168px);line-height:.92;color:#fff;letter-spacing:.01em}
+  .date{font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2)}
+  .next{font-size:16px;color:var(--text);border-top:3px solid var(--red);background:rgba(17,17,21,.82);padding:10px 18px;min-height:44px}
+  .next b{color:#fff;font-weight:500}
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,150px));gap:12px;width:min(660px,100%)}
+  .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:108px;background:rgba(17,17,21,.86);border:1px solid var(--line2);border-top:3px solid transparent;
+        color:var(--text);text-decoration:none;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transition:border-color .15s,background .15s,transform .15s}
+  .tile:hover,.tile:focus-visible{border-top-color:var(--red);background:var(--panel2);color:#fff;transform:translateY(-2px);outline:none}
+  .tile svg{width:30px;height:30px;fill:currentColor}
+  .tile.home{border-top-color:var(--red)} .tile.home svg{fill:var(--red)}
+  blockquote{max-width:640px;font-size:17px;line-height:1.5;color:var(--text2);font-style:italic}
+  blockquote cite{display:block;margin-top:8px;font-style:normal;font-family:'Anton',sans-serif;letter-spacing:.2em;font-size:12px;color:var(--redL)}
+  footer{position:relative;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center}
+  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="stage" aria-hidden="true"></div><div class="grid" aria-hidden="true"></div>
+<main>
+  <div class="kicker" id="who">Arise Church · Pineville</div>
+  <div><div class="time" id="time">--:--</div><div class="date" id="date"></div></div>
+  <div class="next" id="next" hidden></div>
+  <nav class="tiles" aria-label="Places">
+    <a class="tile home" href="/?kiosk=1" data-app=""><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z"/></svg>The desktop</a>
+    <a class="tile" href="https://claude.ai/new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg>Claude</a>
+    <a class="tile" href="https://chatgpt.com/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>ChatGPT</a>
+    <a class="tile" href="https://grok.com/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="2.4" fill="none"/></svg>Grok</a>
+    <a class="tile" href="https://studio.youtube.com/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h20v12H2zm8 3v6l5-3z"/></svg>YouTube Studio</a>
+    <a class="tile" href="https://streamyard.com/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h12v12H3zm13 4l5-3v10l-5-3z"/></svg>StreamYard</a>
+    <a class="tile" href="https://arisecenla.church/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-1 2.1A8 8 0 0 0 4.1 11H8c.1-2.6.9-5 3-6.9zm2 0c2.1 1.9 2.9 4.3 3 6.9h3.9A8 8 0 0 0 13 4.1zM10 11h4c-.1-2.3-.8-4.3-2-5.8-1.2 1.5-1.9 3.5-2 5.8zm-5.9 2A8 8 0 0 0 11 19.9C8.9 18 8.1 15.6 8 13zm5.9 0c.1 2.3.8 4.3 2 5.8 1.2-1.5 1.9-3.5 2-5.8zm6 0c-.1 2.6-.9 5-3 6.9a8 8 0 0 0 6.9-6.9z"/></svg>Our website</a>
+    <a class="tile" href="/?kiosk=1#bible" data-app="bible"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2zm2 14v2h10v-2zm4-11v3H8v2h3v5h2v-5h3V9h-3V6z"/></svg>Bible</a>
+  </nav>
+  <blockquote id="verse" hidden></blockquote>
+</main>
+<footer>ariseOS · Firefox · close this tab to go back to the desktop</footer>
+<script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function tick() {
+      var d = new Date();
+      $('time').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      $('date').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    function when(n) {
+      var t = n.time || '', h = +t.split(':')[0], m = t.split(':')[1] || '00';
+      var hm = isNaN(h) ? t : ((h % 12) || 12) + ':' + m + (h < 12 ? ' AM' : ' PM');
+      return n.in_words ? n.day + ' ' + hm + ' · in ' + n.in_words : n.day + ' ' + hm;
+    }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    tick(); setInterval(tick, 1000 * 15);
+    // The desktop is already open in the first tab. Ask it (BroadcastChannel) to open
+    // the app, then close this tab so Firefox lands back on the desktop. If closing is
+    // not allowed (an ordinary Firefox, not the monitor's), just go there instead.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-app]'), function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        try { new BroadcastChannel('arise-kiosk').postMessage({ open: a.dataset.app || null }); } catch (er) {}
+        window.close();
+        setTimeout(function () { location.href = a.href; }, 300);
+      });
+    });
+    fetch('/api/public/signage').then(function (r) { return r.ok ? r.json() : null; }).then(function (s) {
+      if (!s) return;
+      $('who').textContent = (s.name || 'Arise Church') + ' · ' + String(s.city || 'Pineville').split(',')[0];
+      if (s.next) { $('next').innerHTML = 'Next: <b>' + esc(s.next.name) + '</b> · ' + esc(s.next.site || '') + ' · ' + esc(when(s.next)); $('next').hidden = false; }
+      // the verse text comes from the Bible source on the box; nothing is written here if there is none
+      if (s.verse && s.verse.text) { $('verse').innerHTML = '“' + esc(s.verse.text) + '”<cite>' + esc(s.verse.ref) + ' · ' + esc(s.verse.translation || '') + '</cite>'; $('verse').hidden = false; }
+    }).catch(function () {});
+  })();
+</script>
+</body>
+</html>

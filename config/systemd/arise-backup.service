@@ -1,0 +1,22 @@
+# Arise Server — restic backups of every job in /etc/arise/backups.yaml.
+# Fired by arise-backup.timer at 03:00. Every run writes a row to
+# /var/lib/arise/backup-history.json, success or failure.
+[Unit]
+Description=Arise backups (restic, all jobs)
+After=network-online.target arise-nas-mount.service
+Wants=network-online.target arise-nas-mount.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/arise
+# Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]): a firing or a
+# Persistent= catch-up inside that window is skipped, not failed. arisectl service-now.
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/usr/local/bin/arisectl backup run
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+TimeoutStartSec=6h
+Nice=10
+IOSchedulingClass=idle
+StandardOutput=append:/var/log/arise/backup.log
+StandardError=append:/var/log/arise/backup.log

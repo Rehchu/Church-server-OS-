@@ -1,0 +1,344 @@
+# =============================================================================
+#  Arise Server — master configuration
+#  Lives at /etc/arise/arise.toml (Linux) or C:\Arise\config\arise.toml (Windows mode).
+#
+#  Written by the installer and by `arisectl`. The dashboard never writes this
+#  file; it writes only /var/lib/arise/state.json. Edit by hand with care and
+#  restart arise-web afterwards:  sudo systemctl restart arise-web
+#
+#  Secrets never go here. They live in /etc/arise/secrets/ (mode 0600):
+#    restic-password   the restic repository password
+#    synology.cred     username= / password= / domain=  for the SMB mount
+#    dsm.json          {"user": "...", "pass": "..."} for the optional DSM API
+# =============================================================================
+
+[system]
+hostname = "arise-server"
+timezone = "America/Chicago"
+# "server"  = the Linux install: directory, files, automator, backups, apps.
+# "windows" = Windows mode: dashboard, automator, backups only (no directory).
+profile = "server"
+data_root = "/srv/arise"
+
+[web]
+# 0.0.0.0 = reachable from the church LAN. The dashboard has its own login.
+bind = "0.0.0.0"
+port = 4147
+# bcrypt hash of the dashboard password, written by `arisectl admin set-password`.
+# Empty = nobody can log in until it is set.
+admin_user = "bradly"
+admin_password_hash = ""
+session_hours = 8760   # a year: a browser or phone stays signed in until they sign out (round 3, 38). The closet monitor still locks at ten minutes.
+# Everyone in the directory may sign in with their domain password. Members get
+# their own files, the shares their groups allow, share links, Sermons, Bible.
+member_login = true
+# What a staff member or volunteer gets when they sign in here (round 5, after 26).
+# "none": a short page saying their files are on their Mac; the dashboard is for
+# the administrators, in the closet. "portal": their own files, shares and links.
+staff_access = "none"
+# Members of this group get the administrator's desktop as well.
+admins_group = "Domain Admins"
+# The address share links are written with. Empty = whatever address the person
+# used to open the dashboard. Set it once Caddy/HTTPS is up, e.g. "https://arise.arisecenla.com" (Wix DNS; .church is not ours to change).
+public_url = ""
+
+# The church itself: the widgets, the lock screen, the lobby signage and the
+# Sunday app read this. Times are 24-hour, local (America/Chicago).
+[church]
+name = "Arise Church"
+city = "Pineville, LA"
+tagline = ""
+services = [
+  { name = "Sunday Service", day = "Sunday", time = "10:30", site = "Pineville" },
+  { name = "Sunday Service", day = "Sunday", time = "10:00", site = "Alexandria" },
+  { name = "Glory Night",    day = "Monday", time = "19:00", site = "Pineville" },
+]
+# The Sunday app's checklist, one line per item; ticks reset each week.
+# Leave it out to get the default list (server/arise_server/church.py).
+# sunday_checklist = ["Streaming Mac on", "Cameras answering", "Slides updated"]
+# Departments with their own checklist in the Sunday app (round 5, 29-30): one
+# group each; its leader edits the list, members tick it, it resets before each
+# service. Each list's nudge time is set in the app.
+# departments = ["Media", "Childrens-Department", "Inedge", "Worship"]
+
+# Mass email to the church family, through Resend (resend.com). The API key is
+# a root-only file. from_email must be at a domain VERIFIED in Resend: not
+# gmail.com. reply_to may be the Gmail inbox. audience_id is created on first
+# use and remembered in /var/lib/arise/mail.json; set it here to pin one.
+[mail]
+provider = "resend"
+api_key_file = "/etc/arise/secrets/resend-api-key"
+from_name = "Arise Church"
+server_from_name = "Arise Church IT"   # round 7, 132: what the server itself sends (resets, notices, forwards)
+from_email = "it@arisecenla.com"   # arisecenla.com is verified in the church's Resend (Oct 31, H8, H10); any name @arisecenla.com works
+reply_to = ""             # e.g. the church Gmail
+audience_name = "Arise Church family"
+domain = "arisecenla.com"   # first.last@<domain> (Oct 31, H10; empty = the directory's realm). The sign-in realm stays AD.ARISECENLA.COM
+# maildir_root = "/srv/arise/mail"   # where the internal mail server (planned) keeps Maildirs; a leaver's mail is exported from here (round 5, 38)
+
+# Push notifications to phones (answer 10: Bradly only). The admin_user always
+# may subscribe; add more names here to widen it. Keys are made on the box.
+[push]
+users = []
+
+[links]
+# Share links (a public download address for one file or folder). Round 7, 47: only admins make
+# them, and each ends after 7 days.
+days = 7        # default life in days
+max_days = 7    # the longest life a link may be given
+admins_only = true
+max_zip_bytes = 2147483648   # folders bigger than this are not zipped
+
+[people]
+# Round 7 (docs/ANSWERS.md): accounts and privacy.
+inactive_days = 90          # row 17: an account unused this long is named in Discord #alerts, once
+leavers_archive = ""        # row 60: empty = <nas mount>/arise/leavers; a leaver's files are copied here and kept forever
+breakglass_hours = 2        # row 69: Bradly's emergency look into the Pastors folder (both pastors told at once)
+welcome_email = true        # row 10: a new account's welcome email to their personal address
+contacts = true             # rows 21 and 152: the church contacts as a read-only address book (/carddav/)
+
+
+[directory]
+# The Samba Active Directory Domain Controller. Provisioned by install.sh.
+enabled = true
+realm = "AD.ARISECENLA.COM"
+netbios = "ARISE"
+# Where the DC sends lookups it does not own (everything that is not the realm).
+dns_forwarder = "1.1.1.1"
+# Where domain users' home folders live. Leave it at /srv/arise/homes and choose with
+# [storage] homes_on below; a different path here is taken as set by hand and wins.
+homes_path = "/srv/arise/homes"
+
+# Bradly's own Linux account (Oct 28: "the Automator doesn't need its own profile, it can run on mine").
+# It runs the 02:05 job and has sudo without a password, so his Claude can change anything.
+# install.sh fills it in from the account that ran sudo (or --owner NAME).
+[owner]
+user = ""
+
+# Round 6, 23: Kristina has the same powers (Linux accounts on this box, if they have one):
+# every ariseOS group and sudo without a password. The 02:05 job and Claude stay [owner] user's.
+# Applied by: sudo arisectl owner setup
+[owners]
+users = []              # e.g. ["kristina"]
+
+[automator]
+# The nightly YouTube job. The checkout is a clone of Rehchu/arise-youtube-automation;
+# token.json and client_secret.json go in that folder by hand (never in git).
+enabled = true
+path = "/srv/arise/automator/ARISE_YouTube_Updater"
+python = "/opt/arise/venv/bin/python"
+# Local time, America/Chicago. 02:05 = five minutes after the YouTube quota resets.
+# The systemd timer carries the same time; change both or use `arisectl automator schedule`.
+schedule = "02:05"
+
+[backups]
+# restic repository. On the Synology once it is mounted; the first `arisectl backup run`
+# initialises it. The password file must exist first (install.sh prints how).
+restic_repo = "/mnt/synology/arise-backups/restic"
+# Round 5, row 15: where tonight's backup goes. The first READY target in this order is
+# used: the Synology while it is mounted, else Arise-Home over Tailscale. Neither ready =
+# the job fails red, never a quiet skip. The dashboard's Backups page shows the live one.
+targets = ["synology", "arise-home"]
+synology_repo = ""        # empty: restic_repo above
+# restic over sftp to Arise-Home (its Tailscale name). root's key, an sftp-only account
+# on the far side (docs/BACKUPS.md, "Arise-Home until the Synology").
+arise_home_repo = ""      # e.g. "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville"
+# Round 7, 53/54: Arise-Home is the off-site copy. After the nightly run every snapshot on the
+# Synology is copied to arise_home_repo (restic copy: only what is new travels), raw recordings
+# never. While the Synology is not ready, Arise-Home already IS the live target, and the
+# Backups page says the off-site copy and the only copy are the same place. "" turns it off.
+offsite = "arise-home"
+offsite_skip_tags = ["recordings"]
+password_file = "/etc/arise/secrets/restic-password"
+schedule = "03:00"
+# Retention: restic forget --keep-daily 30 --keep-weekly 12 --keep-monthly 24, then prune.
+keep_daily = 30
+keep_weekly = 12
+keep_monthly = 24   # Bradly: more history than the default (docs/ANSWERS.md 47)
+jobs_file = "/etc/arise/backups.yaml"
+
+[nas]
+# The 4-bay Synology. Model and DSM version: not known yet — fill in docs/SYNOLOGY.md
+# once it is on the bench.
+enabled = true
+# Empty: synology.<realm> from [directory] realm (the AD subdomain may change; nothing
+# hardcodes it). Set a name here only if the Synology is called something else.
+host = ""
+mount = "/mnt/synology"
+# "smb" (works once the NAS is in the domain) or "nfs" (simplest if it is not).
+protocol = "smb"
+share = "arise"
+# Optional: the DSM web API for health, disk and Hyper Backup status in the dashboard.
+# Leave empty to skip. e.g. "https://synology.ad.arisecenla.com:5001"
+dsm_url = ""
+dsm_credentials_file = "/etc/arise/secrets/dsm.json"
+
+[storage]
+# Round 5 (docs/ANSWERS.md, rows 12-20, 36; docs/SHARES.md "Round 5").
+homes_on = "server"          # "server" (/srv/arise/homes) or "synology" (<nas mount>/arise/homes)
+home_quota_gb = 50           # per home: the warning line (round 7, 45: nobody is ever stopped)
+quota_soft = true            # false = the dashboard refuses past it and setquota enforces it
+quota_notify_pct = [80, 95]  # round 7, 44: the person and Bradly are told at each, once
+quota_warn_pct = 90          # Finder and Storage warn here
+versions_days = 365          # round 7, 46: earlier versions kept a year (restic retention is unchanged)
+pastors = ["bryant.sanders", "vanessa.sanders"]   # the Pastors folder: theirs alone, admins included
+pastors_path = ""            # empty: /srv/arise/pastors (outside shares/, so no share above reaches it)
+departments = ["childrens-department", "inedge", "media", "worship", "kids", "alexandria"]
+department_accounts = { media = ["media-mac"] }   # logins besides the one named like the folder
+church_folder = "church"     # every account reads and writes
+staff_group = "Staff"        # all staff write every department folder
+shared_path = ""             # empty: /srv/arise/shared (Shared with me: one folder of links per person)
+
+[cloud]
+# Mac and phone syncing, round 6 (docs/SYNC.md): Nextcloud over the homes and shares above.
+enabled = true
+host = ""                    # empty: cloud.<realm in lower case>; the church network and Tailscale only
+sync_folders = ["Desktop", "Documents", "Downloads", "Pictures", "Music"]   # synced in full on every Mac (round 7, 42, 43); the shares come on demand
+# The Photos and Music libraries inside Pictures and Music never sync: a live library database
+# copied file by file corrupts (docs/SYNC.md). The Mac helper and the removal check skip them.
+conflicts = "newest"         # the newer copy keeps the name; the older goes to that folder's Trash
+client_version = "3.14.3"    # the Nextcloud desktop client the Mac helper installs (signature checked)
+client_team_id = "NKUJUXUJ3B"   # Nextcloud GmbH's Apple team; a package signed by anyone else is refused
+
+[apps]
+# Docker Compose templates from templates/. Off in Windows mode.
+docker = true
+root = "/srv/arise/apps"
+
+[github]
+# Bare mirrors of every Arise repo, refreshed at 04:00 and included in the backups.
+# Private repos need a token in /etc/arise/secrets/github-token (one line).
+mirror = true
+mirror_path = "/srv/arise/backups/github-mirror"
+repos = [
+  "Rehchu/Church-server-OS-", "Rehchu/arise-youtube-automation", "Rehchu/arisechurch",
+  "Rehchu/arisehub", "Rehchu/arise-church-backup", "Rehchu/arise-youtube",
+  "Rehchu/projectbackups", "Rehchu/ai-chat-backups"
+]
+
+# -----------------------------------------------------------------------------
+# Remote access (v0.2). See docs/REMOTE-ACCESS.md.
+# vpn: "tailscale" (recommended, no port-forward), "wireguard" (self-hosted,
+# UDP 51820 forwarded on the Pineville router), or "none".
+# -----------------------------------------------------------------------------
+[remote]
+ssh_port = 22
+vpn = "tailscale"
+wg_interface = "wg0"
+wg_endpoint = ""                   # e.g. "arise.duckdns.org:51820" once the router forwards it
+wg_subnet = "10.47.0.0/24"
+lan_subnet = "192.168.1.0/24"
+guacamole_url = "http://arise-server:8084"
+
+# The daily note (07:00): what needs you, to a Discord or Slack webhook.
+# Leave webhook_url empty and nothing is sent; the dashboard still shows it.
+# Bradly, Oct 28 2026: no daily note for now (docs/ANSWERS.md 49).
+[notify]
+webhook_url = ""
+hour = 7
+only_when_attention = true
+# Staff reminders (calendar 30 minutes ahead, shared with you, the checklists)
+# go to the notification feed and to push. On: also email each person's
+# personal address through Resend (round 5, 28).
+email_staff = false
+
+# Routers the server may READ (never change): consumer Netgear routers answer
+# an "attached devices" question over their SOAP API with the admin password,
+# which is how the Network app lists what sits behind the office Netgear
+# (its own network, invisible to an ARP scan). Nothing is ever written to a
+# router. Google Mesh has no such API; its clients are in the Google Home app.
+# kind: netgear. password_file: a root-only file with the router's admin password.
+# [[routers]]
+# id = "netgear-b"
+# name = "Netgear B (office)"
+# kind = "netgear"
+# host = "10.0.0.1"
+# user = "admin"
+# password_file = "/etc/arise/secrets/router-netgear-b"
+
+# The campuses. The server lives at the main site; the rest reach it over the
+# VPN. probe = a host at that site that is always on (its router, a Mac).
+[[sites]]
+id = "pineville"
+name = "Arise Church Pineville"
+kind = "main"
+address = "501 Ates Road, Pineville, LA"
+subnet = "192.168.1.0/24"
+probe = ""
+services = "Sunday 10:30 AM · Glory Night Monday 7 PM"
+note = "The server, the Synology and the domain live here."
+
+[[sites]]
+id = "alexandria"
+name = "Arise Church Alexandria"
+kind = "campus"
+address = ""
+subnet = "192.168.2.0/24"
+probe = ""
+services = "Sunday 10:00 AM"
+note = "Reaches the server over the VPN. Macs here bind to the domain through it."
+
+[[sites]]
+id = "hub"
+name = "The Apostolic Hub"
+kind = "office"
+address = ""
+subnet = "192.168.3.0/24"
+probe = ""
+services = ""
+note = "Office and leadership computers: VPN clients, no site router needed."
+
+# The closet monitor's browser: Firefox in the ariseOS theme (docs/BROWSER.md).
+# Applied with: sudo arisectl browser apply   (rewrites the policy, restarts the monitor)
+[browser]
+open_web = true         # a full web browser (Bradly, Oct 29). false: only the built-in list (the box, the Assistants, YouTube, StreamYard, the church site) plus `allow`
+allow = []              # extra sites, e.g. ["bible.com", "*.planningcenteronline.com"]
+
+# The Arise repos on the server, two-way with GitHub (docs/REPOS.md). The list is [github] repos.
+# policy per repo: "all" (pull and push), "branches" (push branches but not the default one), "none" (pull only).
+[repos]
+enabled = true
+root = "/srv/arise/repos"
+[repos.policy]
+AriseHub = "none"                      # a push to main deploys the live site; a branch push blocks Cloudflare secret changes
+Arise-Youtube-Automation = "branches"  # its main is edited on the PC (SERVER_HANDOFF.md)
+
+# The church Macs (round 6, docs/MACS.md). The server is their Active Directory (Samba; no
+# Microsoft licence). Only a Mac enrolled from the Macs app is touched; a personal Mac never is.
+[macs]
+exclude = []                    # directory users never given an account on the Macs, e.g. ["kids-checkin"]
+login_window = "faces"          # "faces": everyone's picture on the login window; "name": a name and password box
+sync_folders = ["Desktop", "Documents", "Downloads", "Pictures", "Music"]   # what must be on the server before a profile comes off a Mac
+server_ip = ""                  # the address the enrol line uses; empty = this box's own address on the church network
+watch = true                    # round 7, 4: the helper reports what it would do and does nothing until an admin presses Switch on
+login_text = "Arise Church: sign in with your church account. Help: Bradly"   # round 7, 27: under the faces
+help = ["Bradly Dyer", "Kristina Robinson", "Ronnie"]   # round 7, 3 and 141: who to ask, on the welcome page
+dns_filter = ["1.1.1.3", "1.0.0.3", "2606:4700:4700::1113", "2606:4700:4700::1003"]   # round 7, 71: Cloudflare for Families (malware and adult); [] leaves DNS alone
+# The apps every church Mac gets (round 7, 31). A package must be signed by that Apple Developer Team
+# and notarized, or it is refused. Left unset, the list is Nextcloud, Firefox, Chrome, Zoom, and Proclaim
+# on the media Mac only (team G2ET27DGDP, read off the media Mac's copy Oct 30; no download link, so the
+# helper only confirms the copy there is Faithlife's). Setting apps replaces the whole list.
+# apps = [{ name = "Firefox", app = "Firefox.app", url = "https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US", team = "43AQ936H96" }]
+# printers = [{ name = "Office", uri = "ipp://192.168.1.40/ipp/print", driver = "everywhere", location = "Church office" }]
+# bookmarks = [{ name = "Arise Church", url = "https://arisecenla.church" }]   # the Church folder in Chrome and Safari
+
+# ariseOS updates, in two steps (round 7, 135/136). Any admin presses Install. "home" (Arise-Home,
+# the test box) takes a new version the day it lands; "pineville" takes only versions a week old.
+[updates]
+ring = "pineville"              # on Arise-Home: "home"
+
+# Upkeep (round 7). Who to call goes on the closet card, the Help app and the welcome page: names
+# only, the phone numbers are written on the printed card by hand.
+[upkeep]
+cpu_hot_c = 80                  # 137: warn at this CPU temperature; disks warn by their own SMART check (138)
+mac_silent_days = 3             # 82: a church Mac not heard from this long goes to Discord #alerts
+it_portal_url = "https://itportal.myfaithtech.com"   # 118/119: AriseHub's IT portal, for help and the equipment list
+# call = [{ name = "Bradly Dyer", role = "media and IT" }, { name = "Minister Kristina Robinson", role = "..." }, { name = "Ronnie", role = "..." }]
+
+# Staff addresses, forwarding only (round 7, 155; Oct 31, H10). first.last@arisecenla.com goes on to
+# the personal email on each profile. The box ASKS Resend for what arrived every five minutes (an
+# outgoing call); it opens no port and keeps no mailbox. The Wix MX and Resend's receiving were set
+# up on Oct 31; turn this on once each profile has a personal email.
+[mailfwd]
+enabled = false
+domain = "arisecenla.com"

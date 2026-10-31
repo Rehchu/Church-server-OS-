@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# ariseOS: the searchable archive of both private repos, for Claude on the box
+# (the automator's SERVER_HANDOFF.md section 13; docs/ARCHIVE.md).
+#
+#   sudo bash scripts/arise-archive-setup [--dry-run] [--src DIR] [--force-disk] [--claude-user NAME]
+#
+# Idempotent; `arisectl archive setup` runs it again any time. In order:
+#   1. the user arise-kb and the group arise-claude (whoever may start the MCP server)
+#   2. /srv/arise/archive (the two mirrors + media-assembled/) and /var/lib/arise/archive (the index)
+#   3. TWO read-only deploy keys: GitHub lets a deploy key sit on one repo only, and the
+#      archive's clones are its own (never the automator's checkout, never /srv/arise/repos)
+#   4. a disk check, then the clones (branch main), each through its own key
+#   5. the libraries it reads with (openpyxl, Pillow; ffprobe from ffmpeg)
+#   6. the sudoers rule that lets arise-claude run exactly the MCP server as arise-kb
+#   7. /opt/arise/.mcp.json, which registers arise-archive for Claude sessions in /opt/arise
+#   8. a first build, if a clone is there
+# What it cannot do, and prints: Bradly adds the two keys on GitHub (read-only).
+set -uo pipefail
+
+DRY_RUN=0
+FORCE_DISK=0
+CLAUDE_USER="${SUDO_USER:-}"
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift ;;
+    --src) SRC="$2"; shift 2 ;;
+    --force-disk) FORCE_DISK=1; shift ;;
+    --claude-user) CLAUDE_USER="$2"; shift 2 ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
+  esac
+done
+
+U=arise-kb
+UID_WANTED=1503
+GRP=arise-claude
+ROOT=/srv/arise/archive
+STATE=/var/lib/arise/archive
+KEYS=/etc/arise/secrets/archive
+KH=/etc/arise/archive/github_known_hosts
+VENV_PY=/opt/arise/venv/bin/python
+MCP=/opt/arise/archive/arise-archive-mcp
+CLI=/opt/arise/archive/arise-archive
+SUDOERS=/etc/sudoers.d/arise-archive
+# name|remote|key file|GB needed free before cloning (2x checkout + its history)
+REPOS=(
+  "arise-youtube-automation|git@github.com:Rehchu/arise-youtube-automation.git|deploy_key_automation|1"
+  "ProjectBackups|git@github.com:Rehchu/ProjectBackups.git|deploy_key_projectbackups|17"
+)
+FAILED=0; NEEDS=()
+
+say()  { printf '  %s\n' "$*"; }
+warn() { printf '  ! %s\n' "$*" >&2; }
+run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; fi; }
+as_u() { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] (as %s) %s\n' "$U" "$*"; else runuser -u "$U" -- "$@"; fi; }
+
+if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
+echo "== The archive of both repos (read-only, for Claude on the box)"
+
+# 1. the user and the group
+if id -u "$U" >/dev/null 2>&1; then say "user $U exists"; else
+  run groupadd -g "$UID_WANTED" "$U" 2>/dev/null || run groupadd "$U"
+  run useradd -u "$UID_WANTED" -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS archive (read-only)" "$U" \
+    || run useradd -g "$U" -M -d "$STATE" -s /usr/sbin/nologin -c "ariseOS archive (read-only)" "$U"
+fi
+# arisectl reads /etc/arise/arise.toml (0640 root:arise-conf); `arisectl archive build` as arise-kb needs it
+getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-kb
+getent group "$GRP" >/dev/null 2>&1 || run groupadd -g 1506 "$GRP" 2>/dev/null || run groupadd "$GRP"
+if [ -n "$CLAUDE_USER" ] && [ "$CLAUDE_USER" != root ] && id -u "$CLAUDE_USER" >/dev/null 2>&1; then
+  run usermod -aG "$GRP" "$CLAUDE_USER"
+  say "$CLAUDE_USER may start the archive's MCP server (group $GRP)"
+fi
+
+# 2. the folders. The handoff: the mirrors are read-only to everyone else. They hold
+# private folders (emails/, memory/), so "everyone else" is the group arise-claude only:
+# 2750 = arise-kb writes, arise-claude reads (arisectl archive search), nobody else enters.
+run install -d -m 2750 -o "$U" -g "$GRP" "$ROOT" "$STATE"
+run install -d -m 2755 -o "$U" -g "$GRP" "$ROOT/media-assembled"
+# /etc/arise/secrets is root's; 0711 lets arise-kb reach ITS key folder by name without
+# listing the others. Every file directly in it stays 0600 root.
+run install -d -m 0711 -o root -g root /etc/arise/secrets
+run install -d -m 0700 -o "$U" -g "$U" "$KEYS"
+run install -d -m 0755 /etc/arise/archive
+run install -m 0644 "$SRC/config/automator/github_known_hosts" "$KH"
+
+# 3 and 4. a key per repo, the disk check, the clones
+for spec in "${REPOS[@]}"; do
+  IFS='|' read -r name remote keyname need_gb <<<"$spec"
+  key="$KEYS/$keyname"
+  dir="$ROOT/$name"
+  if [ -f "$key" ]; then say "deploy key for $name present"; else
+    as_u ssh-keygen -q -t ed25519 -N '' -C "ariseOS archive read-only key: $name ($(hostname))" -f "$key"
+  fi
+  sshcmd="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes"
+  if [ -d "$dir/.git" ]; then
+    say "$name mirror present"
+    as_u git -C "$dir" config core.sshCommand "$sshcmd"
+    continue
+  fi
+  free_gb=$(df --output=avail -BG "$ROOT" 2>/dev/null | tail -1 | tr -dc '0-9')
+  if [ "$DRY_RUN" = 0 ] && [ "$FORCE_DISK" = 0 ] && [ -n "$free_gb" ] && [ "$free_gb" -lt "$need_gb" ]; then
+    warn "$name not cloned: $ROOT has ${free_gb} GB free and the clone needs about ${need_gb} GB (twice the files plus their history). Free space, or --force-disk."
+    FAILED=1
+    continue
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] (as $U) GIT_SSH_COMMAND='$sshcmd' clone --branch main $remote $dir   (needs ${need_gb} GB free)"
+  elif runuser -u "$U" -- env GIT_SSH_COMMAND="$sshcmd" git clone --quiet --branch main "$remote" "$dir" 2>/dev/null; then
+    runuser -u "$U" -- git -C "$dir" config core.sshCommand "$sshcmd"
+    say "cloned $name at $(runuser -u "$U" -- git -C "$dir" rev-parse --short HEAD); $(du -sh "$dir" | cut -f1) on disk"
+  else
+    NEEDS+=("$name: add the key below on GitHub, then: sudo arisectl archive setup")
+  fi
+done
+
+# 5. what the indexer reads with
+if [ -x "$VENV_PY" ]; then
+  run "$VENV_PY" -m pip install -q openpyxl pillow || { warn "pip install openpyxl pillow failed: tables or image sizes will be skipped"; }
+else
+  warn "no venv at $VENV_PY yet (install.sh makes it)"
+fi
+command -v ffprobe >/dev/null 2>&1 || run env DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends ffmpeg \
+  || warn "ffmpeg did not install: video and audio durations will be skipped"
+
+# 6. sudoers: exactly the MCP command, as arise-kb, for the group arise-claude
+RULE="%$GRP ALL=($U) NOPASSWD: $VENV_PY $MCP"
+if [ "$DRY_RUN" = 1 ]; then
+  say "[dry-run] $SUDOERS: $RULE (checked with visudo -cf)"
+else
+  tmp=$(mktemp)
+  printf '# ariseOS: Claude sessions start the read-only archive MCP server as arise-kb (docs/ARCHIVE.md).\n%s\n' "$RULE" > "$tmp"
+  if visudo -cf "$tmp" >/dev/null; then
+    install -m 0440 -o root -g root "$tmp" "$SUDOERS"
+  else
+    warn "the sudoers rule did not validate; not installed"; FAILED=1
+  fi
+  rm -f "$tmp"
+fi
+
+# 7. register the MCP server for Claude sessions in /opt/arise (the file is generated, never committed)
+MCPJSON=/opt/arise/.mcp.json
+if [ "$DRY_RUN" = 1 ]; then
+  say "[dry-run] write $MCPJSON registering arise-archive: sudo -n -u $U $VENV_PY $MCP"
+elif [ -d /opt/arise ]; then
+  "$VENV_PY" - "$MCPJSON" "$U" "$VENV_PY" "$MCP" <<'PY' 2>/dev/null || python3 - "$MCPJSON" "$U" "$VENV_PY" "$MCP" <<'PY2'
+import json, os, sys
+path, user, py, mcp = sys.argv[1:5]
+doc = {}
+if os.path.exists(path):
+    try:
+        doc = json.load(open(path))
+    except ValueError:
+        doc = {}
+doc.setdefault("mcpServers", {})["arise-archive"] = {"type": "stdio", "command": "sudo", "args": ["-n", "-u", user, py, mcp]}
+open(path, "w").write(json.dumps(doc, indent=2) + "\n")
+PY
+import json, os, sys
+path, user, py, mcp = sys.argv[1:5]
+doc = {}
+if os.path.exists(path):
+    try:
+        doc = json.load(open(path))
+    except ValueError:
+        doc = {}
+doc.setdefault("mcpServers", {})["arise-archive"] = {"type": "stdio", "command": "sudo", "args": ["-n", "-u", user, py, mcp]}
+open(path, "w").write(json.dumps(doc, indent=2) + "\n")
+PY2
+  chmod 0644 "$MCPJSON"
+  say "registered arise-archive in $MCPJSON"
+fi
+
+# 8. a first build, as arise-kb
+if [ -d "$ROOT/arise-youtube-automation/.git" ] || [ -d "$ROOT/ProjectBackups/.git" ]; then
+  as_u env ARISE_ARCHIVE_ROOT="$ROOT" ARISE_ARCHIVE_STATE="$STATE" "$VENV_PY" "$CLI" build --no-pull >/dev/null \
+    && say "index built: $STATE/index.sqlite (build.log beside it)" || { warn "the first build failed: $STATE/build.log"; FAILED=1; }
+fi
+
+if [ ${#NEEDS[@]} -gt 0 ]; then
+  echo "  Still needs Bradly:"
+  for n in "${NEEDS[@]}"; do echo "    - $n"; done
+  echo "  Each key goes on its own repo, READ-ONLY (leave \"Allow write access\" unticked):"
+  echo "    github.com/<repo> -> Settings -> Deploy keys -> Add deploy key, title \"ariseOS archive\""
+  for spec in "${REPOS[@]}"; do
+    IFS='|' read -r name remote keyname need_gb <<<"$spec"
+    [ -f "$KEYS/$keyname.pub" ] && echo "    Rehchu/$name:  $(cat "$KEYS/$keyname.pub")"
+  done
+fi
+if [ "$FAILED" = 1 ]; then echo "  archive setup finished with failures (above)"; exit 1; fi
+echo "  ready. arise-archive.timer refreshes at 04:15 (Wednesday: full rebuild)."

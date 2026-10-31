@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ariseOS: a working folder per Arise repo, /srv/arise/repos/<name>, kept in step
+# with GitHub both ways by arise-repos.timer (docs/REPOS.md).
+#   sudo bash scripts/arise-repos-setup [--dry-run] [--src DIR]
+# Safe to run again. It needs the fine-grained GitHub token in
+# /etc/arise/secrets/github-token (the same one the 04:00 backup mirror uses).
+set -uo pipefail
+DRY_RUN=0
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+while [ $# -gt 0 ]; do
+  case "$1" in --dry-run) DRY_RUN=1; shift ;; --src) SRC="$2"; shift 2 ;; *) echo "unknown flag: $1" >&2; exit 2 ;; esac
+done
+say()  { printf '  %s\n' "$*"; }
+warn() { printf '  ! %s\n' "$*" >&2; }
+run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; fi; }
+if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
+echo "== The Arise repos on the server (two-way with GitHub)"
+
+getent group arise-repos >/dev/null 2>&1 || run groupadd -g 1502 arise-repos 2>/dev/null || run groupadd arise-repos
+if id -u arise-git >/dev/null 2>&1; then say "user arise-git exists"; else
+  run useradd -u 1502 -g arise-repos -M -d /var/lib/arise/repos -s /usr/sbin/nologin -c "ariseOS repo sync" arise-git \
+    || run useradd -g arise-repos -M -d /var/lib/arise/repos -s /usr/sbin/nologin -c "ariseOS repo sync" arise-git
+fi
+# The people who work in the folders: Bradly's accounts, if they exist on this box yet.
+for u in bradly bradly.dyer; do
+  if id -u "$u" >/dev/null 2>&1; then run usermod -aG arise-repos "$u"; say "$u can work in /srv/arise/repos"; fi
+done
+getent group arise-conf >/dev/null 2>&1 && run usermod -aG arise-conf arise-git   # may read arise.toml (no secrets in it)
+run install -d -m 2775 -o arise-git -g arise-repos /srv/arise/repos
+run install -d -m 0750 -o arise-git -g arise-repos /var/lib/arise/repos
+# arise-git only ever touches these folders; people in arise-repos own some of their files.
+if [ "$DRY_RUN" = 1 ]; then say "[dry-run] git config (as arise-git): safe.directory=/srv/arise/repos/*, user.name/email for no commits (it never commits)"; else
+  runuser -u arise-git -- env HOME=/var/lib/arise/repos git config --global --replace-all safe.directory '/srv/arise/repos/*'
+  runuser -u arise-git -- env HOME=/var/lib/arise/repos git config --global core.hooksPath /dev/null
+fi
+if [ -s /etc/arise/secrets/github-token ]; then
+  say "GitHub token present; the first sync clones the repos (about 6 GB checked out, ~12 GB with history)"
+  if [ "$DRY_RUN" = 0 ] && command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
+    systemctl start --no-block arise-repos.service || warn "could not start arise-repos.service"
+  fi
+else
+  echo "  Still needs Bradly: a fine-grained GitHub token for the Arise repos (docs/REPOS.md):"
+  echo "    github.com -> Settings -> Developer settings -> Personal access tokens -> Fine-grained -> Generate"
+  echo "    Repository access: only the 8 Arise repos. Permissions: Contents read and write, Metadata read."
+  echo "    Then: sudo install -m 0600 /dev/stdin /etc/arise/secrets/github-token   (paste, Enter, Ctrl+D)"
+fi
+echo "  ready: arise-repos.timer syncs every 15 minutes; sudo arisectl repos status"

@@ -1,0 +1,11 @@
+[Unit]
+Description=Arise backups — 03:00 America/Chicago
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 America/Chicago
+Persistent=true
+RandomizedDelaySec=5m
+Unit=arise-backup.service
+
+[Install]
+WantedBy=timers.target

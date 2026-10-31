@@ -1,0 +1,34 @@
+name: guacamole
+title: Guacamole remote desktop
+description: Remote desktop to any church computer from a browser tab, through the server. RDP for the Windows PCs, VNC (Screen Sharing) for the Macs, SSH for the server itself. The way into the closet from Alexandria, the Hub, or home.
+category: remote
+icon: screen
+version: "1.5.5"
+ports:
+  - 8084:8080
+volumes:
+  - /srv/arise/apps/guacamole/db:/var/lib/postgresql/data
+  - /srv/arise/apps/guacamole/home:/etc/guacamole
+  - /srv/arise/apps/guacamole/drive:/drive
+  - /srv/arise/apps/guacamole/record:/record
+env:
+  POSTGRES_PASSWORD: "CHANGE-ME-run-openssl-rand-base64-24"
+autostart: true
+ram_mb: 900
+limits:
+  mem_mb: 1536
+  cpus: 1.5
+notes: |
+  BEFORE THE FIRST START, make the database schema once:
+    mkdir -p /srv/arise/apps/guacamole/initdb
+    docker run --rm guacamole/guacamole:1.5.5 /opt/guacamole/bin/initdb.sh --postgresql \
+        > /srv/arise/apps/guacamole/initdb/001-initdb.sql
+  and set POSTGRES_PASSWORD in /srv/arise/apps/guacamole/.env.
+  Open http://arise-server:8084/guacamole. First login guacadmin / guacadmin:
+  CHANGE IT AT ONCE (Settings > Preferences), then add connections
+  (Settings > Connections). Domain logins: uncomment the LDAP_* lines in
+  compose.yaml after creating a plain `guac-ldap` domain user for the lookup;
+  docs/REMOTE-ACCESS.md (c) has the matching guacamole.properties lines.
+  Image tags 1.5.5 / postgres:15 were current when written: verify before
+  first deploy. Put it behind Caddy (remote.ad.arisecenla.com) for HTTPS;
+  clipboard and file transfer need a secure context.

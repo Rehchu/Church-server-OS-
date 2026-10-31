@@ -1,0 +1,22 @@
+name: filebrowser
+title: File Browser
+description: Browse, upload and share files in /srv/arise/shares from any browser. Good for a volunteer who needs one flyer and does not have a Mac bound to the domain.
+category: files
+icon: folder
+version: "2.32.0"
+ports:
+  - 8081:80
+volumes:
+  - /srv/arise/shares:/srv
+  - /srv/arise/apps/filebrowser:/database
+  - /srv/arise/apps/filebrowser/config:/config
+env:
+  FB_BASEURL: ""
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 256
+  cpus: 0.5
+notes: |
+  First login is admin / admin. Change it immediately (Settings > User Management).
+  It runs as the 'arise' user (uid 1500) so it can only touch what that user can.

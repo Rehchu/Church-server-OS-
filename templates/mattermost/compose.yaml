@@ -1,0 +1,33 @@
+# Mattermost Team Edition: the church's own chat, channels per ministry, file
+# drops, calls, on the server instead of someone's free plan. Two containers.
+# DB password in /srv/arise/apps/mattermost/.env as DB_PASSWORD=...
+services:
+  db:
+    image: postgres:15
+    container_name: arise-app-mattermost-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=mattermost
+      - POSTGRES_USER=mmuser
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/mattermost/db:/var/lib/postgresql/data
+
+  mattermost:
+    image: mattermost/mattermost-team-edition:9.11.2
+    container_name: arise-app-mattermost
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8065:8065"
+    environment:
+      - TZ=America/Chicago
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:${DB_PASSWORD:-CHANGE-ME}@db:5432/mattermost?sslmode=disable
+      - MM_SERVICESETTINGS_SITEURL=http://arise-server:8065
+    volumes:
+      - /srv/arise/apps/mattermost/config:/mattermost/config
+      - /srv/arise/apps/mattermost/data:/mattermost/data
+      - /srv/arise/apps/mattermost/logs:/mattermost/logs
+      - /srv/arise/apps/mattermost/plugins:/mattermost/plugins

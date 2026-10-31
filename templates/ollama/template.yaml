@@ -1,0 +1,21 @@
+name: ollama
+title: Ollama
+description: A local, private language model server with no account and no internet once the model is pulled. CPU only on this box, so small models only; slow but entirely the church's own.
+category: ai
+icon: pulse
+version: "0.3.14"
+ports:
+  - 11434:11434
+volumes:
+  - /srv/arise/apps/ollama/models:/root/.ollama
+env: {}
+autostart: false
+ram_mb: 2500
+limits:
+  mem_mb: 6144
+  cpus: 3.0
+notes: |
+  After deploy:  docker exec arise-app-ollama ollama pull llama3.2:3b
+  Memory: the model plus about 500 MB, so 3 GB for a 3b model while it answers
+  (an estimate); it unloads after 10 idle minutes. Pair it with open-webui for
+  a chat page. Verify the image tag before the first deploy; Ollama releases weekly.

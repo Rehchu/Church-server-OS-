@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=ariseOS
+Description=Arise Church: ink, the flame, a red progress bar, no text scrolling
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/ariseos
+ScriptFile=/usr/share/plymouth/themes/ariseos/ariseos.script

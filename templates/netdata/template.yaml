@@ -1,0 +1,21 @@
+name: netdata
+title: Netdata
+description: Per-second graphs of the whole box, every container, Samba and the network, with alarms, zero configuration. Local only, no cloud account.
+category: monitoring
+icon: pulse
+version: "1.47.5"
+ports:
+  - 19999:19999
+volumes:
+  - /srv/arise/apps/netdata/config:/etc/netdata
+  - /srv/arise/apps/netdata/lib:/var/lib/netdata
+env: {}
+autostart: true
+ram_mb: 250
+limits:
+  mem_mb: 512
+  cpus: 1.0
+notes: |
+  Open http://arise-server:19999. Memory: about 150 to 300 MB (an estimate).
+  Runs on the host network so it can see every interface. Ignore the
+  "connect to Netdata Cloud" banner; everything works without it.

@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server Lyrics inbox import (round 7, 99 and 100)
+
+[Timer]
+# Every 15 minutes: files dropped into Nextcloud's Lyrics inbox are imported into the Songs tab.
+OnCalendar=*:0/15
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

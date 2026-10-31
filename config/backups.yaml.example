@@ -1,0 +1,112 @@
+# =============================================================================
+#  Arise Server — backup jobs
+#  Lives at /etc/arise/backups.yaml. Read by `arisectl backup run` and the dashboard.
+#
+#  Every job is one `restic backup` with these paths, excludes and tags into the
+#  repository named in [backups] of arise.toml. Every run — done, failed or
+#  skipped — writes a row to /var/lib/arise/backup-history.json. Silence is
+#  not an outcome.
+#
+#  Add a job: copy a block, give it a new id. Remove one: delete the block.
+#  Paths that do not exist are reported as "skipped", not treated as success.
+# =============================================================================
+jobs:
+  - id: automator
+    name: YouTube automator
+    # The checkout (scripts, song bank, transcripts, the job's in-checkout state)
+    # and the job's own state dir (reports, the quota ledger, last-run.log).
+    # Never a credential (the automator's rule 1): token.json and client_secret*.json
+    # live in /etc/arise/secrets/youtube, which no job backs up; the excludes below
+    # catch an old PC-layout copy that lands in the checkout by mistake.
+    paths: ["/srv/arise/automator", "/var/lib/arise/automator"]
+    exclude: ["**/__pycache__", "**/*.zip", "**/token.json", "**/client_secret*.json", "**/deploy_key*", "**/.nightly.lock"]
+    tags: [automator]
+
+  - id: songs
+    name: Song lyrics
+    # The lyrics Bradly adds from Proclaim or SongSelect (the Automator app's Songs tab),
+    # one text file per song, with every earlier version. They are the church's licensed
+    # copies (CCLI): kept here and on the Synology, never in a git repository.
+    paths: ["/srv/arise/songs"]
+    tags: [songs]
+
+  - id: homes
+    name: Home folders
+    # Every domain user's home share. Caches and trash are noise.
+    paths: ["/srv/arise/homes"]
+    exclude: ["**/Library/Caches", "**/.Trash", "**/node_modules"]
+    tags: [homes]
+
+  - id: shares
+    name: Shared folders
+    # The nine church shares. The recordings share is NOT here: it lives on the
+    # Synology (/mnt/synology/arise/recordings) and a 6 GB file a week would
+    # swallow the backup history; its RAID is its protection until an off-site
+    # copy exists (docs/ANSWERS.md 48, 51).
+    paths: ["/srv/arise/shares"]
+    # The Trash is not backed up: what someone threw away need not fill the
+    # repository. Put Back is the way home for 30 days (docs/FINDER.md).
+    exclude: ["**/.Trash"]
+    tags: [shares]
+
+  - id: pastors
+    name: Pastors folder
+    # Round 5, row 18: the two pastors' own folder. It sits outside /srv/arise/shares on
+    # purpose (no share above it), so the shares job does not reach it. The backup runs as
+    # root (the system itself), which auditd logs like any other root read
+    # (`ausearch -k arise-pastors`). Its Previous Versions show only to the pastors.
+    # /srv/arise/shared (Shared with me) is only links and is not backed up.
+    paths: ["/srv/arise/pastors"]
+    exclude: ["**/.Trash"]
+    tags: [pastors]
+
+  - id: github
+    name: GitHub mirror
+    # Bare mirrors refreshed by arise-mirror.timer at 04:00.
+    paths: ["/srv/arise/backups/github-mirror"]
+    tags: [github]
+
+  - id: config
+    name: The box itself
+    # Everything `arisectl reinstall` needs to rebuild this server on a fresh
+    # Ubuntu (docs/REINSTALL.md): arise.toml and the secrets (root-only files;
+    # the repository is encrypted with the restic password, which is on the
+    # safe card), the backup jobs, smb.conf, the pinned address, each app's
+    # generated .env (those ride with the apps job below), and the domain itself as an OFFLINE backup:
+    # samba_offline runs `samba-tool domain backup offline` into
+    # /var/lib/arise/samba-backup/ first (a consistent copy of sam.ldb; copying
+    # /var/lib/samba/private while Samba writes can tear it), keeps the last two.
+    # /var/lib/samba/private still rides along for a quick single-file look.
+    samba_offline: true
+    paths: ["/etc/arise", "/etc/samba", "/var/lib/arise/samba-backup", "/var/lib/samba/private", "/etc/netplan/60-arise-pinned.yaml"]
+    # The YouTube token, its OAuth client and the deploy key stay out of every archive
+    # (the automator's rule 1). After a reinstall the server signs in again (5 minutes).
+    # The archive's two read-only deploy keys stay out the same way: after a reinstall
+    # `arisectl archive setup` makes new ones. No job takes the archive itself
+    # (/srv/arise/archive, /var/lib/arise/archive): it is a copy of two GitHub repos,
+    # rebuilt from GitHub in about an hour (docs/ARCHIVE.md).
+    exclude: ["/etc/arise/secrets/youtube", "/etc/arise/secrets/archive"]
+    tags: [system, config]
+
+  - id: apps
+    name: App data
+    # Vaultwarden's vault, Uptime Kuma's history, Syncthing's config, File Browser's database.
+    paths: ["/srv/arise/apps"]
+    exclude: ["**/cache", "**/*.log"]
+    tags: [apps]
+
+  - id: media
+    name: Media on the Synology
+    # Proclaim graphics, loops, thumbnails, podcast art. Lives on the NAS; this
+    # job only runs when /mnt/synology is mounted, and says so when it is not.
+    paths: ["/mnt/synology/arise/media"]
+    exclude: ["**/.DS_Store", "**/@eaDir"]
+    tags: [media]
+
+  - id: repos
+    name: The Arise repos (working folders)
+    # /srv/arise/repos (docs/REPOS.md). GitHub holds everything committed and pushed;
+    # this keeps what is not there yet: uncommitted edits and commits a policy holds back.
+    paths: ["/srv/arise/repos"]
+    exclude: ["**/node_modules", "**/.next", "**/.open-next", "**/__pycache__", "**/token*.json", "**/client_secret*.json", "**/.env"]
+    tags: [repos]

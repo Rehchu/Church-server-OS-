@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise GitHub mirror — 04:00 America/Chicago
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 America/Chicago
+Persistent=true
+Unit=arise-mirror.service
+
+[Install]
+WantedBy=timers.target

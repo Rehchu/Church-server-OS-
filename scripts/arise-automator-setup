@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# ariseOS: gets the server ready to take over the Arise YouTube nightly job,
+# following SERVER_HANDOFF.md in Rehchu/arise-youtube-automation (sections 3 to 7).
+#
+#   sudo bash scripts/arise-automator-setup [--dry-run] [--src DIR]
+#
+# Run by installer/install.sh and by `arisectl automator setup`; safe to run
+# again. It makes the server READY. It never makes the server the runner: that
+# is automator/runner.json on the PC, Bradly's change (docs/AUTOMATOR.md).
+#   1. the folders the job uses, owned by Bradly's account ([owner] user, Oct 28),
+#      and the units' User= drop-in, so the 02:05 job runs as him
+#   2. /etc/arise/arise.env (paths only), if it is not there yet
+#   3. a read-only deploy key and GitHub's published host keys
+#   4. the checkout of the private repo, on branch main, owned by the owner
+#   5. the automator's Python libraries in the venv
+#   6. logrotate for last-run.log
+# What it cannot do, and prints: Bradly adds the deploy key on GitHub, publishes
+# the OAuth app and creates the "ariseOS server" client in the Cloud Console,
+# copies its JSON in, and signs in once (arisectl automator signin).
+set -uo pipefail
+
+DRY_RUN=0
+U=""
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift ;;
+    --src) SRC="$2"; shift 2 ;;
+    --owner) U="$2"; shift 2 ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
+  esac
+done
+
+# The job runs as Bradly's own account (Oct 28), named in arise.toml [owner] user.
+U="${U:-$(python3 -c 'import sys, tomllib; print((tomllib.load(open("/etc/arise/arise.toml", "rb")).get("owner") or {}).get("user", ""))' 2>/dev/null)}"
+U="${U:-${SUDO_USER:-}}"
+STATE=/var/lib/arise/automator
+SECRETS=/etc/arise/secrets/youtube
+ENVF=/etc/arise/arise.env
+KH=/etc/arise/automator/github_known_hosts
+PARENT=/srv/arise/automator
+REPO_DIR=$PARENT/ARISE_YouTube_Updater
+REMOTE=git@github.com:Rehchu/arise-youtube-automation.git
+VENV=/opt/arise/venv
+KEY=$SECRETS/deploy_key
+FAILED=0; NEEDS=()
+
+say()  { printf '  %s\n' "$*"; }
+warn() { printf '  ! %s\n' "$*" >&2; }
+run()  { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] %s\n' "$*"; else "$@"; fi; }
+as_u() { if [ "$DRY_RUN" = 1 ]; then printf '  [dry-run] (as %s) %s\n' "$U" "$*"; else runuser -u "$U" -- "$@"; fi; }
+
+if [ "$DRY_RUN" = 0 ] && [ "$(id -u)" != 0 ]; then echo "run as root (sudo)" >&2; exit 1; fi
+echo "== The YouTube automator (ready, not the runner)"
+
+# 1. the owner and the folders the job uses
+if [ -z "$U" ] || [ "$U" = root ]; then
+  warn "no owner account: set [owner] user in /etc/arise/arise.toml (sudo arisectl owner setup), or pass --owner NAME"; exit 1
+fi
+if ! id -u "$U" >/dev/null 2>&1; then
+  if [ "$DRY_RUN" = 1 ]; then say "[dry-run] $U is not an account here; on the box it is Bradly's"; else warn "$U is not an account on this machine"; exit 1; fi
+fi
+G="$(id -gn "$U" 2>/dev/null || echo "$U")"
+say "the job runs as $U (Bradly's account)"
+run install -d -m 0750 -o "$U" -g "$G" "$STATE" "$STATE/reports"
+run install -d -m 0711 -o root -g root /etc/arise/secrets   # traverse only: the owner reaches youtube/, nothing is listed
+run install -d -m 0700 -o "$U" -g "$G" "$SECRETS"
+run install -d -m 0755 -o "$U" -g "$G" "$PARENT"
+run install -d -m 0755 /etc/arise/automator
+
+# An earlier install ran the job as arise-yt: its files move to the owner. The arise-yt
+# account itself is left alone (removing an account is Bradly's click).
+for d in "$STATE" "$SECRETS" "$PARENT"; do
+  if [ -e "$d" ] && [ "$(stat -c %U "$d" 2>/dev/null)" = arise-yt ]; then run chown -R "$U:$G" "$d"; say "moved $d from arise-yt to $U"; fi
+done
+
+# The units run as the owner: a drop-in, so the unit files stay the same on every box.
+for unit in arise-automator.service arise-automator-preview.service; do
+  run install -d -m 0755 "/etc/systemd/system/$unit.d"
+  if [ "$DRY_RUN" = 1 ]; then say "[dry-run] /etc/systemd/system/$unit.d/10-owner.conf: User=$U Group=$G"
+  else printf '# Written by arise-automator-setup: the job runs as Bradly'"'"'s account (Oct 28).\n[Service]\nUser=%s\nGroup=%s\n' "$U" "$G" > "/etc/systemd/system/$unit.d/10-owner.conf"; fi
+done
+command -v systemctl >/dev/null 2>&1 && run systemctl daemon-reload 2>/dev/null || true
+
+# 2. the environment file (paths only)
+if [ -f "$ENVF" ]; then say "$ENVF present (left as it is)"; else
+  run install -m 0644 "$SRC/config/automator/arise.env" "$ENVF"
+fi
+
+# 3. the deploy key and GitHub's host keys
+run install -m 0644 "$SRC/config/automator/github_known_hosts" "$KH"
+if [ -f "$KEY" ]; then say "deploy key present"; else
+  as_u ssh-keygen -q -t ed25519 -N '' -C "ariseOS read-only deploy key ($(hostname))" -f "$KEY"
+fi
+SSHCMD="ssh -i $KEY -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes"
+
+# 4. the checkout
+if [ -d "$REPO_DIR/.git" ]; then
+  say "checkout present at $REPO_DIR"
+  run chown -R "$U:$G" "$REPO_DIR"
+  as_u git -C "$REPO_DIR" remote set-url origin "$REMOTE"
+  as_u git -C "$REPO_DIR" config core.sshCommand "$SSHCMD"
+  if [ "$DRY_RUN" = 0 ] && ! runuser -u "$U" -- git -C "$REPO_DIR" fetch --quiet origin main 2>/dev/null; then
+    NEEDS+=("the deploy key on GitHub (below): the checkout is there but cannot fetch")
+  fi
+else
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] (as $U) GIT_SSH_COMMAND='$SSHCMD' git clone --branch main $REMOTE $REPO_DIR"
+  elif runuser -u "$U" -- env GIT_SSH_COMMAND="$SSHCMD" git clone --quiet --branch main "$REMOTE" "$REPO_DIR" 2>/dev/null; then
+    runuser -u "$U" -- git -C "$REPO_DIR" config core.sshCommand "$SSHCMD"
+    say "cloned $REMOTE (main) at $(runuser -u "$U" -- git -C "$REPO_DIR" rev-parse --short HEAD)"
+  else
+    NEEDS+=("the deploy key on GitHub (below), then: sudo arisectl automator setup")
+  fi
+fi
+
+# 5. the automator's libraries (handoff section 3)
+if [ -x "$VENV/bin/pip" ]; then
+  if [ -f "$REPO_DIR/requirements.txt" ]; then run "$VENV/bin/pip" install -q -r "$REPO_DIR/requirements.txt" || FAILED=1; fi
+  run "$VENV/bin/pip" install -q google-api-python-client google-auth-oauthlib pillow tzdata youtube-transcript-api || FAILED=1
+else
+  warn "no venv at $VENV yet (install.sh makes it); the libraries go in on the next run"
+fi
+
+# 6. logrotate
+if [ "$DRY_RUN" = 1 ]; then say "[dry-run] /etc/logrotate.d/arise-automator (su $U $G)"
+else sed "s/@OWNER@ @GROUP@/$U $G/" "$SRC/config/logrotate/arise-automator" > /etc/logrotate.d/arise-automator; chmod 0644 /etc/logrotate.d/arise-automator; fi
+
+# What only Bradly can do
+[ -f "$SECRETS/client_secret.json" ] || NEEDS+=("the server's own OAuth client JSON at $SECRETS/client_secret.json (Cloud Console, docs/AUTOMATOR.md step 2)")
+[ -f "$SECRETS/token.json" ] || NEEDS+=("the server's sign-in: sudo arisectl automator signin")
+if [ ${#NEEDS[@]} -gt 0 ]; then
+  echo "  Still needs Bradly:"
+  for n in "${NEEDS[@]}"; do echo "    - $n"; done
+  if [ -f "$KEY.pub" ]; then
+    echo "  The deploy key to add, READ-ONLY (leave \"Allow write access\" unticked):"
+    echo "    github.com/Rehchu/arise-youtube-automation -> Settings -> Deploy keys -> Add deploy key, title \"ariseOS server\""
+    echo "    $(cat "$KEY.pub")"
+  fi
+fi
+if [ "$FAILED" = 1 ]; then echo "  automator setup finished with failures (above)"; exit 1; fi
+echo "  ready. The 02:05 timer may stay on: while runner.json names the PC it writes a \"not the runner\" report and changes nothing."

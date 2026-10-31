@@ -1,0 +1,443 @@
+# The directory — Arise Server as the church's Active Directory
+
+The server runs **Samba as an Active Directory Domain Controller**. That is
+not "like" Active Directory; it is the same protocol set Microsoft ships, so
+Macs, Windows PCs and the Synology all join it the normal way and treat it as
+AD. One account per person, one password, every device.
+
+## What you get
+
+| Piece | What it does for the church |
+|---|---|
+| **Kerberos** | Single sign-on. Log in once at the Mac; shares and the NAS open without a second password. |
+| **LDAP** | The user and group database. The dashboard, `arisectl`, the NAS and the Macs all read from it. |
+| **DNS** | The DC runs its own DNS for the realm. Every joined device finds the DC through it. This is the part that most often goes wrong, see below. |
+| **Group Policy (GPO)** | Rules pushed to Windows PCs (wallpaper, drive maps, password rules). Macs ignore GPO; they get settings from the bind options instead. |
+| **Home shares** | Each user has `\\arise-server\homes\<user>` (or the same folder on the Synology once it is joined). |
+
+## Active Directory, and what makes this one better
+
+First the honest part. This **is** Active Directory: Samba 4 implements the
+same Kerberos, LDAP, DNS and SMB that a Windows Server domain controller
+does. A Mac binds to it with Apple's own Directory Utility. A Windows 10 or 11
+Pro PC joins it from the System dialog. The Synology joins it as an AD member.
+Group Policy objects can be stored and applied to Windows PCs. One account,
+one password, every device, and when someone leaves one click disables them
+everywhere.
+
+What a Windows Server domain does not give a church of this size, and this
+does:
+
+| | Windows Server AD | Arise Server |
+|---|---|---|
+| Where people see their files when they are not at church | nowhere without extra products | the **dashboard**: any member signs in from anywhere, browses their own home and the shares they belong to, uploads, downloads, shares a file with a link, changes their password |
+| Creating a person | Active Directory Users and Computers on a Windows PC | three ways: the Directory app in the dashboard, the same desktop on the closet monitor, `arisectl user add` over SSH |
+| Reaching it from Alexandria or the Hub | a site-to-site VPN appliance | Tailscale (or WireGuard) built in; the server is the same name from every campus |
+| Backups of the domain itself | a separate backup product | restic nightly at 03:00, plus a weekly `samba-tool domain backup offline` |
+| Where the Macs' work ends up | nowhere unless you buy into folder redirection scripts | the server home share at login and a fifteen-minute sync (docs/MAC-MIGRATION.md) |
+| Which computer sits at which campus | not a concept | the Campuses app |
+| Cost | a Windows Server licence plus CALs per person | the old OptiPlex |
+
+What it does **not** do, so nobody expects it later: no Microsoft Entra ID
+(Azure AD) sync, no Microsoft 365 accounts, no Intune or any other MDM (device
+management, pushing settings and apps to Macs). If the church ever wants MDM,
+the free option to look at is a self-hosted **MicroMDM** or **NanoMDM**; both
+are an idea only, nothing here depends on them. Group Policy editing still
+needs the RSAT tools on one Windows PC. See the full list at the end of this
+document.
+
+## Creating people, three ways
+
+All three end in the same `samba-tool user create` and the same home folder;
+pick whichever is in front of you.
+
+**1. The dashboard, from anywhere** (`http://arise-server:4147`, or over the
+VPN): Directory → Users → **Add**. Username (`first.last`, lower case:
+`jane.smith`; answer 23), full name, a first password, groups. The row shows green
+when the home folder exists. Members can then change their own password under
+flame menu → Change Password.
+
+**2. The desktop on the closet monitor**: it is the same dashboard, full
+screen, so it is the same Directory app. Spotlight (⌘Space, or Ctrl+Space on
+the Windows keyboard) → type `directory` → Enter → Users → Add.
+
+**3. SSH, from any Mac or PC**:
+
+```bash
+ssh bradly.dyer@arise-server
+sudo arisectl user add jane.smith --display "Jane Smith" --groups Staff,Media
+#   prompts for the first password; add --password P to give it on the line
+sudo arisectl user passwd jane.smith      # change it later
+sudo arisectl group addmember Leadership jane.smith
+sudo arisectl user list
+```
+
+A church Mac with people already on it does not need any of this:
+`mac/enroll-mac.sh` creates every local account's twin in the directory for
+you, as `first.last`, with `--map oldname=first.last` where the Mac's name
+differs (docs/MAC-MIGRATION.md, "The automatic way").
+
+## The names, and why not `.local`
+
+| | |
+|---|---|
+| Realm (Kerberos / DNS) | `AD.ARISECENLA.COM` |
+| NetBIOS (short) name | `ARISE` |
+| Domain controller | `arise-server.ad.arisecenla.com` |
+
+The realm is a **subdomain of a domain the church owns and controls**:
+`arisecenla.com`, whose DNS Bradly manages at Wix. (`arisecenla.church` is at
+GoDaddy, out of reach, so nothing in ariseOS depends on it; round 6, 25 and
+round 5, 40.) That is Microsoft's and Samba's recommended practice: it never
+collides with a public name, and the public websites keep resolving normally
+because the DC only answers for `ad.arisecenla.com`. Nothing needs adding at
+Wix for the directory itself; only the two email records (docs/EMAIL-DNS.md).
+
+Do **not** use `arise.local`. macOS reserves the `.local` suffix for Bonjour
+(mDNS). A Mac asked to find a `.local` domain controller tries multicast first,
+waits, and the bind either times out or works one day and not the next. This is
+the single most common reason Mac–AD binding fails, and renaming a realm after
+the fact means rebuilding the domain.
+
+## DNS on the church network — read this before anything else
+
+AD does not work unless every device asks the **domain controller** for the
+church domain's names. Devices find the DC by looking up SRV records
+(`_ldap._tcp.ad.arisecenla.com`, `_kerberos._tcp...`) that only the DC's
+DNS holds.
+
+**Bradly's rule (Oct 28): no router, switch or Mesh setting changes, at
+all.** So the routers keep handing out whatever DNS they hand out today, and
+the church domain is wired in on each device instead:
+
+1. The server has a **static address** set in netplan on the server itself
+   (INSTALL.md § 5), chosen outside Netgear A's DHCP range. Looking at that
+   range on the router page is allowed; changing anything there is not.
+2. Every church Mac gets a **per-domain resolver file**,
+   `/etc/resolver/ad.arisecenla.com`, holding `nameserver <server ip>`.
+   `mac/bind-mac.sh --dns <server ip>` writes it (and `enroll-mac.sh --dns`
+   passes it through). macOS then asks the server only for names ending in
+   `ad.arisecenla.com` and keeps the router's DNS for everything else, so
+   the internet keeps working even when the server is off.
+3. Any device on **Tailscale** gets the same thing from the tailnet's split
+   DNS rule (docs/REMOTE-ACCESS.md step 5), wherever it is. The two do not
+   conflict.
+4. The server still **forwards** anything it is asked that is not the church
+   domain to `1.1.1.1` (`dns_forwarder` in `arise.toml`), for its own sake.
+
+Check from any Mac on the network:
+
+```bash
+dig +short arise-server.ad.arisecenla.com
+dig +short _ldap._tcp.ad.arisecenla.com SRV
+```
+
+Both must print an answer. `dig` ignores `/etc/resolver`, so on a Mac that
+uses the resolver file test with `dscacheutil -q host -a name
+arise-server.ad.arisecenla.com` instead. Empty output means the Mac is not
+asking the DC; nothing below will work until that is fixed.
+
+If the server is ever off, the Macs lose only the church domain's names; the
+internet keeps working because the router's DNS is untouched. That is the
+one advantage of this layout over the usual "router hands out the DC" setup.
+
+## Organisational units and groups — the proposal
+
+Keep it small. A church of this size does not need a tree of OUs.
+
+```
+DC=ad,DC=arisecenla,DC=com
+├── OU=People
+│   ├── OU=Staff
+│   └── OU=Volunteers
+├── OU=Computers
+│   ├── OU=Macs
+│   └── OU=PCs
+└── OU=Groups
+```
+
+Groups (security groups, created by `install.sh`) and the share each one
+opens (answers 25, 27 and 37):
+
+| Group | Who | What it unlocks |
+|---|---|---|
+| `Domain Admins` | Apostle Bryant Sanders, Pastor Vanessa Sanders, Kristina Robinson, Bradly | everything in the dashboard; also the account that binds Macs. SSH is Bradly's only |
+| `Staff` | paid staff and pastors | the `staff` share, their own home share |
+| `Leadership` | the senior pastors and whoever they name | the `leadership` share |
+| `Media` | Bradly and the media team; the shared `media` login on the media Mac | the `media`, `graphics` and `recordings` shares, the StreamYard and Proclaim Macs |
+| `Childrens-Department` | the Children's Department login | the `childrens-department` share, and `kids` |
+| `Inedge` | the Inedge login | the `inedge` share |
+| `Worship` | the worship / music login | the `worship` share |
+| `Volunteers` | nobody today: volunteers use a department login (answer 24) | kept for the day that changes |
+| `Kids-Check-in` | nobody today: there is no check-in station yet (answer 28) | the check-in machine login, later |
+
+Other departments get the same shape when their names come. Bradly's rule
+since round 4 (104): **everyone has their own account**; a department is a
+*group* with its own share folder (and, when the mail server comes, its own
+address), and being in the group is what opens it. The shared department
+logins in the table above are the sample data's shape from round 1 and are
+not needed. Round 4 (99) also adds a **staff tier** in the dashboard: anyone
+in `Staff` or `Media` sees Photos, Notes and, later, the transcripts and the
+calendar's edit buttons; that tier is the next block, not yet in the code. Nine shares in all today: `staff`, `leadership`,
+`media`, `kids`, `graphics`, `childrens-department`, `inedge`, `worship`,
+`recordings`. `recordings` is on the Synology, holds every Sunday's video
+(answer 51), and is excluded from restic because a file of several GB a
+week would swallow the backup history; the Synology's RAID is its
+protection until there is an off-site copy. The examples below use a
+made-up person on purpose.
+
+## Password policy
+
+Samba's defaults after `samba-tool domain provision`:
+
+| Setting | Default | |
+|---|---|---|
+| Minimum length | 7 | fine |
+| Complexity | on | upper + lower + digit or symbol |
+| Maximum age | 42 days | **too short for a church** — people forget, Bradly gets the call |
+| Lockout | off | |
+
+Bradly's choice (answer 26, then round 3, 27): never expires, 12 characters
+minimum, **no lockout**. The settings the installer's step 5b applies:
+
+```bash
+samba-tool domain passwordsettings set --max-pwd-age=0        # never expires
+samba-tool domain passwordsettings set --min-pwd-length=12
+samba-tool domain passwordsettings set --complexity=on
+samba-tool domain passwordsettings set --account-lockout-threshold=0   # none (round 3, 27)
+```
+
+The dashboard shows these rules in words, with a strength meter, when
+someone changes their password (`GET /api/me/password/rules`). Two-step
+sign-in is optional per person on top (docs/SECURITY.md).
+
+See the current policy any time with `samba-tool domain passwordsettings show`.
+
+## Adding people
+
+**From the CLI**, on the server (or over SSH):
+
+```bash
+sudo arisectl user add jane.smith --display "Jane Smith" --groups Staff,Media
+sudo arisectl user passwd jane.smith   # prompts; the person can also change it in the dashboard
+sudo arisectl group addmember Leadership jane.smith
+sudo arisectl user list
+```
+
+Under the hood that is `samba-tool user create`, `samba-tool group addmembers`
+and a `mkdir` + `chown` of `/srv/arise/homes/jane.smith` (or the NAS home when
+`homes_path` points there).
+
+**From the dashboard**: Directory → Users → **Add**. Same fields, same result,
+and the row shows green once the home folder exists.
+
+**Removing** someone is Bradly's click, twice: the dashboard asks for the
+username typed back before `samba-tool user delete` runs, and it never deletes
+the home folder. Disable instead of delete when someone leaves; their files
+stay readable to Domain Admins.
+
+## First passwords, resets and profiles (round 5)
+
+Staff and volunteers use their Macs, not the dashboard, so everything here works
+from a Mac's login window too.
+
+- **A first password is temporary** (round 5, 5). Directory → New user and
+  Password, `arisectl user add/passwd`, and the people list all set it with
+  `--must-change-at-next-login`: AD's own flag (pwdLastSet = 0). A Mac's login
+  window asks for a new password at the next login; so does the dashboard's
+  sign-in (and the lock screen), which hands the change to `kinit` as that
+  person, so the domain's rules apply exactly as on the Mac. The Directory list
+  shows "new password due" until it is done. Untick "Temporary" for the rare
+  password that should stay (`arisectl user passwd --permanent`).
+- **"Forgot your password?"** (round 5, 6) on the sign-in screen, and the page
+  `http://arise-server:4147/reset` on its own (it needs no desktop): a link to
+  the personal email on the person's profile, sent through Resend from
+  `[mail] from_email` (an address at mail.arisecenla.com, round 5, 3). The link
+  works once, for 30 minutes; only its sha256 is kept
+  (`/var/lib/arise/password-resets.json`, 0600). The page never says whether an
+  account exists, and it allows three requests an hour per account. Every
+  request and every reset is in the audit log. Admins can still reset. The link
+  opens wherever the person can reach the server: inside the church, or over
+  Tailscale.
+- **Profiles** (round 5, 7 to 10): title, departments, personal email, mobile
+  and birthday (month and day only), kept in `/var/lib/arise/profiles.json`
+  (0640). The domain keeps what it enforces (account, password, groups, the
+  must-change flag); the dashboard's file keeps the rest, because AD has no
+  birthday or "personal email" in this sense and each write would be an
+  ldbmodify against the domain's database for data only the dashboard reads.
+  The title goes before the name everywhere people see it ("Apostle Bryant
+  Sanders"; the greeting says "Apostle Bryant"). Everyone edits their own phone,
+  personal email and birthday (flame menu → My Profile); admins edit everything
+  (Directory → Profile). Staff and admins see the details; members never do,
+  which the server enforces (`/api/people`).
+- **Settings follow the account** (round 5, 11): theme, sounds, Dock, text size
+  and the accessibility switches are saved with the profile, so the monitor, a
+  Mac and a phone look the same. The browser keeps a copy for when the server
+  cannot be reached.
+- **Your own sign-ins** (round 5, 22): My Profile lists the last ten, with the
+  device and address, failed tries included.
+- **The day-one people list** (round 5, 8): `sudo arisectl directory import
+  people.csv` checks every row and changes nothing; `--apply` creates them. The
+  guided setup has the same (`POST /api/directory/import`). Columns: `first, last,
+  title, departments, personal_email, mobile, birthday, role` (role: admin, staff
+  or member; departments separated by `;`). User names are made as first.last
+  (accents dropped); a second john.smith becomes john.smith2 (round 7, 12), and
+  the check says so on that row, so a list imported twice by mistake is caught
+  before Apply. Bad names are refused per row. The temporary passwords are
+  printed once, on that screen, and kept nowhere else.
+- **A leaver's mail** (round 5, 38): the 30-day sweep exports their Maildir as
+  an mbox file into the "From <name>" folder of whoever takes their files,
+  before anything else happens to the mailbox. There is no internal mail server
+  yet; the sweep says so.
+
+## Round 7: what happens around an account
+
+- **Who makes accounts** (9): any of the four admins, in Directory or with
+  `arisectl user add`.
+- **A new account** (10, 86): a second john.smith becomes **john.smith2** by
+  itself (12). The title goes into the domain's own name too (11):
+  `samba-tool user rename NAME --display-name="Apostle Bryant Sanders"`, so the
+  Macs' login window, Nextcloud and Contacts show it. A **welcome email** goes to
+  the personal address on the profile, once, when there is one (it waits until
+  one is added): their login, that their first password comes from the admin
+  who made the account, their folders, Nextcloud, the reset link. Never a
+  password. Their face appears on every church Mac at the helper's next
+  check-in, as before. Discord **#alerts** gets a line when an account is made
+  or switched off.
+- **Rename** (13): Directory → **Rename…**, or `sudo arisectl user rename OLD
+  --to NEW`. `samba-tool user rename` (Samba 4.17 and later) changes the login,
+  the UPN and the mail address; the account keeps its SID, so its groups, the
+  ownership of its files and every permission follow by themselves. The home
+  folder is renamed in place, and the dashboard's records (profile, shares,
+  links) move to the new name. The old address is kept as an alias for when
+  mail is built (155). On a church Mac there is **no supported way to rename an
+  Active Directory (mobile) account in place**: the old Mac account stays until
+  someone renames it there by hand, or the person signs in with the new name
+  (their files come back from the server) and the old one comes off through the
+  usual checked removal. Renames are recorded in
+  `/var/lib/arise/renames.json` for the Mac helper. If arise.toml names the old
+  login (`[storage] pastors`, `[owner]`, `[owners]`), the answer says to change
+  it there.
+- **Accounts nobody uses** (17): the daily 05:15 sweep (`arise-offboard.timer`)
+  names each account with no sign-in for 90 days in #alerts, once (again only
+  after they sign in and fall quiet again). Directory shows the same list;
+  `arisectl user unused` prints it.
+- **Birthdays** (18): the admins' Calendar shows each birthday from the
+  profiles, month and day only.
+- **Photos** (20): staff don't use the dashboard, so an admin adds the photo the
+  person chose (Directory → **Photo…**, a JPEG or PNG up to 200 KB). It shows on
+  the closet monitor's faces and is written to the account's `thumbnailPhoto`
+  with `ldbmodify` (JPEG only), which Nextcloud reads for avatars. Whether a Mac
+  shows it on its login window is not confirmed. Until there is a photo, the
+  initials show.
+- **The church contacts** (21, 152): one read-only address book, **Arise
+  Church**, served by the dashboard itself as CardDAV at
+  `https://arise-server.ad.arisecenla.com/carddav/`. It holds the staff
+  directory (name with title, departments, the church address, the mobile
+  number from the profile) and the Mail app's contacts list (round 2, 39: one
+  source, staff keep it). Staff and admins read it with their church login in
+  Contacts on a church Mac (Contacts → Settings → Accounts → + → Other Contacts
+  Account → CardDAV → Manual) and on their phones (Settings → Contacts →
+  Accounts → Add Account → Other → Add CardDAV Account), or by opening
+  `https://arise-server.ad.arisecenla.com/contacts.mobileconfig`, which asks for
+  the login. Nobody edits it there: admins keep the people in Directory and the
+  list in Mail. Why not Nextcloud: its own sharing is off (round 6), and a
+  shared Nextcloud address book needs that sharing; its built-in address book
+  holds only accounts. Not yet tried against a real Mac or iPhone.
+- **A sign-in from a new device** (70): an email to the person and a notice to
+  Bradly. The first sign-in ever only sets the baseline.
+- **The audit log** (66, 67): all four admins read it; it is kept forever.
+- **The Pastors folder in an emergency** (69): only Bradly ([owner] user), from
+  Directory → **Pastors folder…**, with a reason and the word "pastors" typed,
+  and his password again. For two hours (`[people] breakglass_hours`) his
+  dashboard shows the folder in Finder; both pastors are emailed at once with
+  his reason; it goes to the audit log and #alerts, and auditd logs every file
+  touched. It never opens the Samba share and never reaches Claude (the owner's
+  Claude settings deny `/srv/arise/pastors`).
+- **A leaver's files** (60): after the 30-day hold the sweep first **copies**
+  their home to the Synology (`[people] leavers_archive`, by default
+  `/mnt/synology/arise/leavers/<name> (<date>)`), checks every file and byte
+  arrived, and only then moves the files to the person taking them. If the
+  Synology is not mounted, nothing moves; it tries again the next day and says
+  so in #alerts. The copy is kept forever.
+
+The realm and the mail domain are read from `arise.toml` (`[directory] realm`,
+`[mail] domain`, which defaults to the realm in lower case) wherever they are
+shown or written: the sign-in screen, the reset page and email, the import.
+
+## Joining a Windows PC
+
+Bradly (round 4, 26): "add windows pc capabilities just in case we get them
+at a location". The two Windows PCs the church has become the ariseOS nodes
+(docs/NODES.md), so today this is still reference. The decided shape (67)
+is a join script from the dashboard that joins, maps the shares as drives
+and trusts the church certificate, nothing else; not yet built. Windows 10/11
+**Pro** or better (Home edition cannot join a domain):
+
+1. Set the PC's DNS to the server in the PC's own network settings (the
+   router hands out its usual DNS and is not touched).
+2. Settings → System → About → **Domain or workgroup** → Change → Domain:
+   `ad.arisecenla.com`.
+3. Credentials: `ARISE\administrator` (or Bradly's Domain Admin account).
+4. Reboot. Log in as `ARISE\jane.smith`.
+
+Macs: see `docs/MAC-MIGRATION.md`. The Synology: `docs/SYNOLOGY.md`.
+
+## Backing up the domain controller
+
+The `config` job in `backups.yaml` already covers the three things that *are*
+the domain:
+
+```
+/etc/samba/smb.conf
+/var/lib/samba/private      # sam.ldb and the rest of the directory database
+/etc/arise
+```
+
+restic snapshots them nightly at 03:00. Also take a logical export now and then
+(it is small and human-readable):
+
+```bash
+samba-tool domain backup offline --targetdir=/srv/arise/backups/dc-offline
+```
+
+`install.sh` adds that to a weekly timer. Those tarballs are inside the
+`shares`/`backups` paths restic already snapshots.
+
+## Recovering
+
+**The server died, the disk is gone.** Reinstall Ubuntu + Arise Server with
+`install.sh --skip-domain`, mount the Synology, restore the `config` job
+(`arisectl backup restore latest --tag config --target /`, see docs/BACKUPS.md), and it
+restores `/var/lib/samba/private` and `/etc/samba` before starting
+`samba-ad-dc`. Same hostname, same IP, same realm; every joined device carries
+on as if nothing happened (Kerberos tickets are good for 10 hours, so fix it
+the same day). Alternatively use the offline tarball:
+
+```bash
+samba-tool domain backup restore --backup-file=<tar> --newservername=arise-server --targetdir=/var/lib/samba
+```
+
+**A single user's password is lost.** `arisectl user passwd <name>`.
+
+**The DC is fine but a Mac says "unable to contact domain".** It is DNS. Run
+the two `dig` lines above on that Mac.
+
+## What this does not do
+
+Honest list, so nobody expects it later:
+
+- **No Microsoft Entra ID (Azure AD) sync.** Accounts here do not become
+  Microsoft 365 accounts. If the church ever needs that, Entra Connect wants a
+  Windows Server; Samba is not supported as a source.
+- **No Exchange, no email.** Mail stays where it is (Google).
+- **Group Policy editing needs RSAT on a Windows PC.** The DC *stores* GPOs
+  and PCs *apply* them, but the editor (`gpmc.msc`) is a Windows tool. Install
+  RSAT on one Windows 11 Pro PC joined to the domain and edit from there.
+  Macs do not read GPO at all.
+- **One DC.** A second DC (another old PC) is possible with
+  `samba-tool domain join ... DC` and is the proper answer to "what if the
+  server is off"; not in scope until there is a second box.
+- **Samba's AD is one major version behind Microsoft's** on a few features
+  (no Windows Server 2025 functional level). Nothing the church uses needs
+  them.

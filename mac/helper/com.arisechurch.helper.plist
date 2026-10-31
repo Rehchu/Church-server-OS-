@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The church Mac helper (docs/MACS.md): root, at boot and every five minutes.
+     Installed by enrol.sh to /Library/LaunchDaemons; removed by the retire task. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.arisechurch.helper</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/arise/helper/arise-mac-helper</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>300</integer>
+    <key>LowPriorityIO</key>
+    <true/>
+    <!-- The restart notice the updates task shows outlives the five-minute run (launchd would
+         otherwise end every process the job started when the script exits). -->
+    <key>AbandonProcessGroup</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/var/log/arise-helper.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/arise-helper.log</string>
+</dict>
+</plist>

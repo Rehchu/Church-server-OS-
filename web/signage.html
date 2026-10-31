@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arise Church</title><meta name="color-scheme" content="dark">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="/assets/styles.css">
+<style>html,body{height:100%;margin:0;background:#050507;cursor:none}.saver{position:fixed}.sig__svc{margin-top:30px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:.14em;font-size:13px;color:#F4F2F0}.sig__svc b{color:var(--redL);font-weight:500}</style></head>
+<body><div class="saver" id="saver"><div class="saver__in"><div class="saver__time" id="t"></div><div class="saver__next" id="n"></div><blockquote class="saver__verse" id="v"></blockquote><div class="sig__svc" id="s"></div><div class="saver__foot"><span class="saver__flame"></span><span id="name">Arise Church</span></div></div><div class="saver__art" id="art"></div></div>
+<script>
+/* The lobby screen: any old Mac mini, Pi or TV browser opens http://arise-server:4147/signage. No login; it reads one public feed. */
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmt = t => { const [h, m] = String(t).split(':').map(Number); const d = new Date(); d.setHours(h, m || 0); return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+let data = null, i = 0;
+async function load() { try { data = await (await fetch('/api/public/signage')).json(); } catch {} paint(); }
+function paint() {
+  const d = new Date(); document.getElementById('t').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  if (!data) return; const n = data.next;
+  document.getElementById('n').textContent = n ? `Next: ${n.name} · ${n.site} · ${n.day} ${fmt(n.time)} · in ${n.in_words}` : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById('v').innerHTML = data.verse?.text ? `${esc(data.verse.text)}<cite>${esc(data.verse.ref)}</cite>` : '';
+  document.getElementById('s').innerHTML = (data.services || []).map(x => `<span>${esc(x.day)}s <b>${esc(fmt(x.time))}</b> ${esc(x.name === 'Sunday Service' ? x.site : x.name)}</span>`).join('');
+  document.getElementById('name').textContent = `${data.name} · ${data.city}`;
+  const th = (data.latest || []).map(x => x.thumb).filter(Boolean); if (th.length) document.getElementById('art').style.backgroundImage = `url(${th[i++ % th.length]})`;
+}
+load(); setInterval(paint, 30000); setInterval(load, 10 * 60000);
+</script></body></html>

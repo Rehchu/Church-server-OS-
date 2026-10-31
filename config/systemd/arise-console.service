@@ -1,0 +1,21 @@
+[Unit]
+Description=Arise Server console dashboard on the closet monitor (tty1)
+# Replaces the login prompt on tty1 with the read-only arisetui. Alt+F2 is a
+# normal login. Enabled by install.sh --console.
+After=arise-web.service
+Conflicts=getty@tty1.service
+
+[Service]
+ExecStart=/usr/local/bin/arisetui --kiosk
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+Environment=TERM=linux
+Environment=ARISE_HOME=/opt/arise
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

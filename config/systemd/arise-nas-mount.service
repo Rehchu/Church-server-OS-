@@ -1,0 +1,22 @@
+# Arise Server — mount the Synology at /mnt/synology as described in [nas] of
+# /etc/arise/arise.toml (SMB or NFS). Credentials: /etc/arise/secrets/synology.cred.
+# Runs at boot and before every backup; a failed mount fails the backup loudly
+# rather than backing up into an empty folder on the local disk.
+[Unit]
+Description=Arise Server — mount the Synology NAS
+After=network-online.target samba-ad-dc.service
+Wants=network-online.target
+Before=arise-backup.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/arisectl nas mount
+ExecStop=/usr/local/bin/arisectl nas unmount
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+TimeoutStartSec=2m
+StandardOutput=append:/var/log/arise/nas.log
+StandardError=append:/var/log/arise/nas.log
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,40 @@
+# BookStack: the church's handbook as a wiki. Books > chapters > pages:
+# "Sunday service runbook", "Livestream", "Safety policies", "Who to call".
+# Two containers: the app and MariaDB. Put the DB password in
+# /srv/arise/apps/bookstack/.env as DB_PASSWORD=... (CHANGE-ME is not one).
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:24.10.1
+    container_name: arise-app-bookstack
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8085:80"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - APP_URL=http://arise-server:8085
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=bookstack
+      - DB_PASS=${DB_PASSWORD:-CHANGE-ME}
+      - DB_DATABASE=bookstackapp
+    volumes:
+      - /srv/arise/apps/bookstack/config:/config
+
+  db:
+    image: lscr.io/linuxserver/mariadb:10.11.8
+    container_name: arise-app-bookstack-db
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MYSQL_DATABASE=bookstackapp
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/bookstack/db:/config

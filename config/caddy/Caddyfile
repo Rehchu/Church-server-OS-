@@ -1,0 +1,65 @@
+# Arise Server - Caddy reverse proxy with the server's own certificate authority.
+# Installed by:  sudo bash installer/install.sh   (on by default since v0.8; --no-caddy skips it)
+# Lives at:      /etc/caddy/Caddyfile      reload: sudo systemctl reload caddy
+#
+# `tls internal` = Caddy signs certificates with a CA it creates on this box:
+# the church certificate (round 3, 29). enroll-mac.sh and bind-mac.sh --dns
+# fetch the root from http://arise-server:4147/ca.crt and trust it, so every
+# enrolled Mac shows the padlock. Phones on Tailscale use Tailscale's own
+# certificate. The root certificate is at
+#   /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+# and is served, read-only, at /ca.crt by the dashboard (a root cert is public).
+#
+# Staging (install.sh --staging): the installer prepends
+#   { default_bind 127.0.0.1 }
+# so Caddy answers on this box only, like the domain.
+#
+# Every name below needs an A record in the domain's DNS pointing at this
+# server's LAN address (replace 192.168.1.10):
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com vault  A 192.168.1.10
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com remote A 192.168.1.10
+# (`arise-server` already has one from the domain provision.) Off-site, the
+# Tailscale split-DNS rule or the WireGuard DNS line sends these lookups to
+# the same DNS, so the names work through the tunnel too.
+#
+# Nothing here is reachable from the internet: Caddy listens on 443 on the LAN
+# and the VPN; the router forwards nothing to it.
+
+# The dashboard (and its Terminal app, which is a websocket - Caddy proxies
+# websockets without any extra directive).
+arise-server.ad.arisecenla.com, arise-server {
+	tls internal
+	reverse_proxy 127.0.0.1:4147
+}
+
+# Vaultwarden. The Bitwarden apps refuse plain HTTP; this is what makes them
+# work. Set DOMAIN=https://vault.ad.arisecenla.com in the vaultwarden .env.
+vault.ad.arisecenla.com {
+	tls internal
+	reverse_proxy 127.0.0.1:8083
+}
+
+# Guacamole. Its web app lives under /guacamole/; this strips the prefix so
+# https://remote.ad.arisecenla.com/ opens it directly. Guacamole's tunnel is
+# a websocket; Caddy's reverse_proxy passes the Upgrade headers through
+# unchanged, so no special handling is needed. Clipboard sync and file
+# transfer in the browser need this HTTPS origin.
+remote.ad.arisecenla.com {
+	tls internal
+	redir / /guacamole/ 302
+	reverse_proxy /guacamole/* 127.0.0.1:8084
+}
+
+# Nextcloud: the church's sync (round 6, docs/SYNC.md). Every church Mac's client, the phone app
+# and the web page reach it here, on the church certificate, on the church network and over
+# Tailscale. The container listens on 127.0.0.1:8091 only. Its DNS name is a CNAME to this box,
+# added by the installer (or by hand):
+#   sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com cloud CNAME arise-server.ad.arisecenla.com -P
+# Caddy sets no upload size limit (row 18); the clients send big files in 100 MB chunks anyway.
+cloud.ad.arisecenla.com {
+	tls internal
+	header Strict-Transport-Security "max-age=15552000"
+	redir /.well-known/carddav /remote.php/dav/ 301
+	redir /.well-known/caldav /remote.php/dav/ 301
+	reverse_proxy 127.0.0.1:8091
+}

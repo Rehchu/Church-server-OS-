@@ -1,0 +1,88 @@
+# Nextcloud: the church's sync service (round 6, rows 13-19, 39, 40; docs/SYNC.md).
+# Every Mac's Desktop and Documents, the shares in Finder's sidebar, and the phone
+# app, all over the server's own folders: a person's Nextcloud files ARE their home
+# folder, the shares are the same folders SMB serves. Nothing is copied.
+#
+# Published on 127.0.0.1 only: Caddy serves it as https://cloud.ad.arisecenla.com on
+# the church certificate, on the church network and over Tailscale. Never the
+# internet (CLAUDE.md rule 7). Secrets in /srv/arise/apps/nextcloud/.env (the deploy
+# writes them, a copy in /etc/arise/secrets/apps/nextcloud.env).
+# `sudo arisectl cloud setup` then makes it ariseOS's: the domain sign-in, the
+# mounts, the theme, each home linked (server/arise_server/cloud.py). It also writes
+# this box's real paths and names into .env (ARISE_HOMES, CLOUD_HOST, DC_FQDN...).
+services:
+  db:
+    image: mariadb:10.11
+    container_name: arise-app-nextcloud-db
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+    volumes:
+      - /srv/arise/apps/nextcloud/db:/var/lib/mysql
+
+  redis:
+    # File locking (two Macs never write one file at once) and the cache.
+    image: redis:7-alpine
+    container_name: arise-app-nextcloud-redis
+    restart: unless-stopped
+
+  nextcloud:
+    image: nextcloud:29-apache
+    container_name: arise-app-nextcloud
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "127.0.0.1:8091:80"
+    environment:
+      - TZ=America/Chicago
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - REDIS_HOST=redis
+      # Nextcloud's own admin: a service account that scans the mounts, never a person.
+      - NEXTCLOUD_ADMIN_USER=arise-sync
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD:-CHANGE-ME}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${CLOUD_HOST:-cloud.ad.arisecenla.com} arise-server ${DC_FQDN:-arise-server.ad.arisecenla.com} localhost
+      - OVERWRITEPROTOCOL=https
+      - TRUSTED_PROXIES=172.16.0.0/12
+      - PHP_UPLOAD_LIMIT=16G
+      - PHP_MEMORY_LIMIT=1G
+      # Samba's LDAPS certificate authority, so the domain sign-in checks the DC's certificate.
+      - LDAPTLS_CACERT=/etc/ssl/arise-samba-ca.pem
+    extra_hosts:
+      # The DC answers LDAPS on the host; the container reaches it by its own name.
+      - "${DC_FQDN:-arise-server.ad.arisecenla.com}:host-gateway"
+    volumes:
+      - /srv/arise/apps/nextcloud/html:/var/www/html
+      - /srv/arise/apps/nextcloud/data:/var/www/html/data
+      - /srv/arise/apps/nextcloud/arise:/arise:ro
+      - ${ARISE_HOMES:-/srv/arise/homes}:/homes
+      - ${ARISE_SHARES:-/srv/arise/shares}:/shares
+      - ${ARISE_SHARED:-/srv/arise/shared}:/shared
+      - ${ARISE_PASTORS:-/srv/arise/pastors}:/pastors
+      - /opt/arise/web:/arise-web:ro
+      - /var/lib/samba/private/tls/ca.pem:/etc/ssl/arise-samba-ca.pem:ro
+
+  cron:
+    # Nextcloud's background jobs every five minutes (versions, trash, previews).
+    image: nextcloud:29-apache
+    container_name: arise-app-nextcloud-cron
+    restart: unless-stopped
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - /srv/arise/apps/nextcloud/html:/var/www/html
+      - /srv/arise/apps/nextcloud/data:/var/www/html/data
+      - ${ARISE_HOMES:-/srv/arise/homes}:/homes
+      - ${ARISE_SHARES:-/srv/arise/shares}:/shares
+      - ${ARISE_SHARED:-/srv/arise/shared}:/shared
+      - ${ARISE_PASTORS:-/srv/arise/pastors}:/pastors

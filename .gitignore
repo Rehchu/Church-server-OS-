@@ -1,0 +1,37 @@
+# secrets never go to GitHub
+token.json
+client_secret.json
+*.cred
+secrets/
+restic-password
+github-token
+dsm.json
+web-secret
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# state and logs
+/var/
+state/
+logs/
+*.log
+backup-history.json
+
+# editors
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code worker worktrees (local only)
+.claude/worktrees/
+
+# generated on the box by scripts/arise-archive-setup (docs/ARCHIVE.md)
+/.mcp.json
+
+# install media made by scripts/make-install-media.sh
+dist/

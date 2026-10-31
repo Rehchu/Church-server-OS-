@@ -1,0 +1,50 @@
+#!/bin/sh
+# ariseOS: the closet monitor's browser. cage runs this as arise-kiosk on tty1
+# (config/systemd/arise-kiosk.service). Firefox from packages.mozilla.org,
+# themed by the profile's chrome/userChrome.css, governed by
+# /etc/firefox/policies/policies.json. One window: the desktop is the home
+# tab; anything it opens arrives as a tab with the themed bar and closes back
+# to the desktop.
+#
+# Round 6, 29-33: one profile per admin. This is a loop: it starts Firefox with
+# the profile /run/arise-kiosk/want names (written by arise-browser-profile when
+# an admin signs in at the monitor, or when the screen locks), and starts it
+# again whenever it exits. Locked, it runs a neutral profile made fresh each
+# time in this session's runtime folder, so nothing is remembered.
+STATE=/run/arise-kiosk
+TEMPLATE=/var/lib/arise/browser/template
+URL="${1:-http://127.0.0.1:4147/?kiosk=1}"
+# The monitor's text size (round 5, 27): /var/lib/arise/kiosk-scale, written by the dashboard
+# (Settings -> The monitor); 1.25 when it is not there. ariseos.cfg hands it to Firefox.
+ARISE_KIOSK_SCALE=$(cat /var/lib/arise/kiosk-scale 2>/dev/null | tr -cd '0-9.' | cut -c1-4)
+export ARISE_KIOSK_SCALE="${ARISE_KIOSK_SCALE:-1.25}"
+export MOZ_ENABLE_WAYLAND=1
+export MOZ_DBUS_REMOTE=0
+
+if [ ! -x /usr/bin/firefox ]; then
+  # Fallback: Firefox is not installed (its setup failed or was skipped). The old browser keeps the monitor alive.
+  echo "arise-browser: /usr/bin/firefox missing; using Epiphany (sudo bash scripts/arise-browser-setup)" >&2
+  exec /usr/bin/epiphany --application-mode --profile=/var/lib/arise/kiosk "$URL"
+fi
+
+NEUTRAL="${XDG_RUNTIME_DIR:-/tmp}/arise-neutral"
+while :; do
+  n=0; while [ -e "$STATE/switching" ] && [ $n -lt 60 ]; do sleep 0.5; n=$((n+1)); done
+  P=$(sed -n 's/^profile=//p' "$STATE/want" 2>/dev/null | head -n1)
+  U=$(sed -n 's/^url=//p' "$STATE/want" 2>/dev/null | head -n1)
+  case "$U" in http://127.0.0.1:*|http://localhost:*) ;; *) U="$URL" ;; esac
+  if [ -z "$P" ] || [ "$P" = neutral ] || [ ! -w "$P" ]; then
+    rm -rf "$NEUTRAL"; mkdir -p "$NEUTRAL/chrome"
+    cp -f "$TEMPLATE"/chrome/* "$NEUTRAL/chrome/" 2>/dev/null
+    cp -f "$TEMPLATE/user.js" "$NEUTRAL/user.js" 2>/dev/null
+    P="$NEUTRAL"
+    [ "$U" = "$URL" ] || U="$URL"   # a hand-over link is only for the admin's own profile
+  fi
+  # a crashed session must not leave a lock that stops the next start
+  rm -f "$P/lock" "$P/.parentlock" 2>/dev/null
+  started=$(date +%s)
+  /usr/bin/firefox --profile "$P" --new-instance "$U"
+  [ "$P" = "$NEUTRAL" ] && rm -rf "$NEUTRAL"
+  # a Firefox that dies at once is not restarted in a tight loop
+  [ $(( $(date +%s) - started )) -lt 5 ] && sleep 3
+done

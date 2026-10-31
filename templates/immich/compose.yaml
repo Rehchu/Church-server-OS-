@@ -1,0 +1,54 @@
+# Immich - the church's photo library (round 3, 12: "Yes, Immich for staff").
+# Four containers: the server (web + API), machine learning (faces, search),
+# redis, and postgres with the vector extension Immich documents. Photos land
+# under /srv/arise/apps/immich/upload (the apps backup job covers it).
+#
+# Honest RAM: about 2.5 GB with machine learning running; the ML container
+# can be stopped (Store → immich → Stop) and the library still works, minus
+# faces and smart search. Tags were current when written: verify before
+# first deploy (https://github.com/immich-app/immich/releases).
+services:
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:v1.119.0
+    container_name: arise-app-immich
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - database
+    ports:
+      - "2283:2283"
+    volumes:
+      - /srv/arise/apps/immich/upload:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - DB_HOSTNAME=database
+      - DB_USERNAME=immich
+      - DB_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=redis
+      - TZ=America/Chicago
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:v1.119.0
+    container_name: arise-app-immich-ml
+    restart: unless-stopped
+    volumes:
+      - /srv/arise/apps/immich/model-cache:/cache
+
+  redis:
+    image: docker.io/redis:6.2-alpine
+    container_name: arise-app-immich-redis
+    restart: unless-stopped
+
+  database:
+    image: docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0
+    container_name: arise-app-immich-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - POSTGRES_USER=immich
+      - POSTGRES_DB=immich
+      - POSTGRES_INITDB_ARGS=--data-checksums
+    volumes:
+      - /srv/arise/apps/immich/db:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_preload_libraries=vectors.so", "-c", "search_path=\"$$user\", public, vectors", "-c", "logging_collector=on", "-c", "max_wal_size=2GB", "-c", "shared_buffers=512MB", "-c", "wal_compression=on"]
