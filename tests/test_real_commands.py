@@ -224,6 +224,11 @@ class ServicesTimersPower(unittest.TestCase):
             self.assertIn("boom", automations.pause("arise-backup.timer", False, "arise-backup.timer")["err"])
 
     def test_power(self):
+        from types import SimpleNamespace
+        from arise_server import maintenance
+        directory = self.enterContext(tempfile.TemporaryDirectory())
+        self.enterContext(mock.patch.object(maintenance, "load", return_value=SimpleNamespace(demo=False, state_dir=Path(directory))))
+        self.enterContext(mock.patch.object(security, "encrypt_status", return_value={"known": True, "needs_passphrase": True}))
         with real(system) as rec:
             self.assertFalse(system.power("reboot", "")["ok"])
             self.assertTrue(system.power("reboot", "reboot")["ok"])
@@ -238,16 +243,17 @@ class ServicesTimersPower(unittest.TestCase):
 class AppsNasPeers(unittest.TestCase):
     def test_app_actions_are_compose_commands_on_its_own_folder(self):
         with tempfile.TemporaryDirectory() as d:
-            Path(d, "netdata").mkdir(); Path(d, "netdata", "compose.yaml").write_text("services: {}\n")
+            Path(d, "netdata").mkdir(); Path(d, "netdata", "compose.yaml").write_text("services:\n  web:\n    image: example/test\n    mem_limit: 128m\n")
             from types import SimpleNamespace
-            fake = SimpleNamespace(demo=False, apps=SimpleNamespace(root=d, docker=True))
-            with real(apps) as rec, mock.patch.object(apps, "available", lambda: True), mock.patch.object(apps, "load", lambda: fake):
+            from arise_server import maintenance
+            fake = SimpleNamespace(demo=False, state_dir=Path(d) / "state", apps=SimpleNamespace(root=d, docker=True))
+            with real(apps) as rec, mock.patch.object(apps, "available", lambda: True), mock.patch.object(apps, "load", lambda: fake), mock.patch.object(maintenance, "load", lambda: fake):
                 self.assertTrue(apps.act("netdata", "stop")["ok"])
                 self.assertTrue(apps.act("netdata", "start")["ok"])
                 self.assertFalse(apps.act("netdata", "remove", "wrong")["ok"])
                 self.assertFalse(apps.act("nope", "start")["ok"])            # not installed: said so
             base = ["docker", "compose", "-p", "netdata", "-f", os.path.join(d, "netdata", "compose.yaml"), "--env-file", os.path.join(d, "netdata", ".env")]
-            self.assertEqual(rec.calls, [base + ["stop"], base + ["up", "-d"]])
+            self.assertEqual(rec.calls, [base + ["stop"], ["docker", "ps", "-aq"], base + ["up", "-d"]])
 
     def test_nas_mount_command(self):
         self.assertEqual(nas.mount_cmd("smb", "synology.ad.arisecenla.com", "arise", "/mnt/synology", "/etc/arise/secrets/synology.cred"),
@@ -269,7 +275,11 @@ class AppsNasPeers(unittest.TestCase):
 
 class SafetyAndBackups(unittest.TestCase):
     def test_missing_tools_are_failures_not_sample_successes(self):
-        with real(security, system, backups, tools=()):
+        # Even a failed backup writes history. Keep that real write inside the
+        # fixture instead of requiring access to the installed /var/lib/arise.
+        with tempfile.TemporaryDirectory() as state, \
+                real(security, system, backups, tools=()), \
+                mock.patch.object(config.load().paths, "state_dir", state):
             self.assertFalse(security.scan_run()["ok"])
             self.assertFalse(security.snapshot_create("before update")["ok"])
             self.assertFalse(security.rescue_rotate()["ok"])
@@ -277,6 +287,7 @@ class SafetyAndBackups(unittest.TestCase):
             self.assertFalse(backups.check()["ok"])
             row = backups._execute({"id": "homes", "name": "Home folders", "paths": ["/srv/arise/homes"]})
             self.assertFalse(row["ok"]); self.assertIn("restic is not installed", row["error"])
+            self.assertEqual(backups.history()["rows"][0]["error"], row["error"])
 
     def test_snapshot_command(self):
         rec = Recorder([(["timeshift", "--list"], {"out": "Num     Name                 Tags  Description\n------------------------------------------\n0    >  2026-10-28_03-30-01  O     before update\n"})])

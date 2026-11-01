@@ -127,6 +127,7 @@ sudo arisectl owner                        Bradly's account: groups, sudo, the j
 | every 15 min | `arise-repos.timer` | the Arise repos synced two-way with GitHub |
 | every 15 min | `arise-lyrics-inbox.timer` | Nextcloud's Lyrics inbox imported into the Songs tab |
 | 1 Jan/Apr/Jul/Oct 08:10 | `arise-ccli.timer` | the CCLI song-usage report for the quarter just ended |
+| First Sun monthly 05:00 | `arise-backup-verify.timer` | checks 10% of the backup repository; backup/update locking prevents overlap |
 | monthly | `arise-drill.timer` | the restore drill |
 | Jan 5 09:12 | `arise-january.timer` | the January clean-up report and the Google export reminder (lists; never deletes) |
 | Sat 03:30 | `arise-update.timer` | only what Software Update queued; a snapshot first |

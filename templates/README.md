@@ -4,15 +4,17 @@ Each folder is one app: a `compose.yaml` and a `template.yaml` manifest
 (name, description, ports, volumes, env, category, icon). Deploy with
 
 ```bash
-arisectl app deploy filebrowser --name files
+arisectl app deploy filebrowser
 ```
 
 or Dashboard → Apps → Templates → **Deploy**. Data for every app lives under
 `/srv/arise/apps/<name>/` and the `apps` backup job snapshots it nightly.
+Each template supports one instance under its template name. Custom names
+are refused because these Compose files have fixed ports and data paths.
 
 | Template | What it is for | Port |
 |---|---|---|
-| `filebrowser` | a web file manager over `/srv/arise/shares` for anyone with a browser; uses the domain accounts through the share permissions it runs as | 8081 |
+| `filebrowser` | a web file manager over `/srv/arise/shares`; separate app accounts, with every filesystem operation performed as the `arise` service user (UID 1500), not each person's domain identity | 8081 |
 | `uptime-kuma` | watches the website, the NAS, the server and the YouTube live page; sends a notification when one goes down | 8082 |
 | `syncthing` | keeps a folder on the media Mac and a folder on the server identical, without anyone dragging files | 8384, 22000 |
 | `vaultwarden` | the church's own password vault (Bitwarden-compatible apps on every phone and Mac) | 8083 |

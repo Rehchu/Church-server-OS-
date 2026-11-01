@@ -74,6 +74,10 @@ async function api(path, opts = {}) {
   }
   if (r.status === 401) { const j = await r.json().catch(() => ({})); throw Object.assign(new Error(j.error?.message || 'Sign in'), { status: 401, setup: j.error?.setup }); }
   const j = await r.json();
+  if (r.status === 403 && j.error?.reauth && !opts._reauthRetried && path !== '/auth/reauth') {
+    await reauth();
+    return api(path, { ...opts, _reauthRetried: true });
+  }
   if (!r.ok) throw Object.assign(new Error(j.error?.message || j.err || `HTTP ${r.status}`), { status: r.status, reauth: !!j.error?.reauth });
   return j;
 }
@@ -1955,7 +1959,7 @@ V.apps = async () => {
   const card = x => {
     const inst = installed.get(x.id); const th = x.theme || { via: 'none' };
     return `<div class="card store__card ${x.experimental ? 'store__card--exp' : ''}"><div class="row row--between"><span class="cat">${esc(CAT_NAMES[x.category] || x.category)}${x.source === 'catalog' ? ' · catalogue' : ''}</span>${inst ? badge(inst.status === 'running' ? 'running' : 'stopped', inst.status === 'running' ? 'ok' : 'warn') : ''}</div><h3>${esc(x.name)}</h3><p>${esc(x.description)}</p>
-      <div class="store__meta"><span title="an honest estimate at rest">~${mb(x.ram_mb)} · cap ${mb(x.limits?.mem_mb)} · ${x.limits?.cpus} CPU</span>${x.idle_stop_minutes ? `<span>stops itself after ${x.idle_stop_minutes} min idle</span>` : ''}<span>${th.via === 'none' ? 'keeps its own look' : 'house look via ' + esc(th.via)}</span>${x.experimental ? '<span style="color:var(--warn)">experiment: expect it not to work</span>' : ''}</div>
+      <div class="store__meta"><span title="an honest estimate at rest">~${mb(x.ram_mb)} · cap ${mb(x.cap_mb ?? x.limits?.mem_mb)} · ${x.limits?.cpus} CPU</span>${x.idle_stop_minutes ? `<span>stops itself after ${x.idle_stop_minutes} min idle</span>` : ''}<span>${th.via === 'none' ? 'keeps its own look' : 'house look via ' + esc(th.via)}</span>${x.experimental ? '<span style="color:var(--warn)">experiment: expect it not to work</span>' : ''}</div>
       ${x.notes ? `<p style="color:var(--warn);font-size:12px">${esc(x.notes.slice(0, 220))}${x.notes.length > 220 ? '…' : ''}</p>` : ''}${x.source === 'catalog' ? '<p style="color:var(--muted);font-size:11.5px">image tag not pulled from this build: verify before first deploy</p>' : ''}
       <div class="row row--between"><span class="mono dim" style="font-size:11.5px">${(x.ports || []).map(esc).join(' · ')}</span><span class="row">${th.via !== 'none' ? `<button class="btn btn--ghost btn--xs" data-theme="${esc(x.id)}">House look</button>` : ''}${inst ? `<button class="btn btn--ghost btn--xs" data-deploy="${esc(x.id)}">Redeploy</button>` : `<button class="btn btn--xs" data-deploy="${esc(x.id)}">Install</button>`}</span></div></div>`;
   };
@@ -1969,7 +1973,7 @@ V.apps = async () => {
     <div class="tabs" id="storeTabs"><button class="${S.storeTab === 'installed' ? 'active' : ''}" data-t="installed">Installed · ${(a.apps || []).length}</button><button class="${S.storeTab === 'catalog' ? 'active' : ''}" data-t="catalog">Catalogue · ${all.length}</button></div>
     <div data-tab="installed" ${S.storeTab === 'installed' ? '' : 'hidden'}>${gauge}
       ${(a.apps || []).length ? `<div class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>App</th><th>State</th><th>Address</th><th class="num">CPU</th><th class="num">Memory</th><th></th><th></th></tr></thead><tbody>${instRows}</tbody></table></div>` : '<div class="empty">Nothing installed yet. The Catalogue has everything.</div>'}
-      <p class="note" style="margin-top:12px">The core five were installed with the server (Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser); every other template is one Install click away, if the box has room. <b>Remove</b> takes the containers down and keeps the data folder under /srv/arise/apps. Deleting a data folder is your click, by hand.</p>
+      <p class="note" style="margin-top:12px">The installer deploys the selected apps and starts those that fit within the memory budget. Add more from the Catalogue when needed. <b>Remove</b> takes the containers down and keeps the data folder under /srv/arise/apps. Deleting a data folder is your click, by hand.</p>
       <pre class="log" id="appLog" hidden style="margin-top:14px"></pre></div>
     <div data-tab="catalog" ${S.storeTab === 'catalog' ? '' : 'hidden'}>
       <div class="toolbar"><input class="search" id="storeQ" placeholder="Search the catalogue" value="${esc(S.storeQ)}"><select class="search" id="storeCat"><option value="">Every category</option>${cats.map(k => `<option value="${esc(k)}" ${S.storeCat === k ? 'selected' : ''}>${esc(CAT_NAMES[k] || k)}</option>`).join('')}</select><span class="spacer"></span><span class="sub" style="font-size:12px;color:var(--muted)">${shown.length} apps · free, self-hosted, capped</span></div>
@@ -2401,7 +2405,7 @@ function ccFeel() {
     ${ccA11y()}`;
 }
 async function runAllBackups() { const jobs = (await api('/backups/jobs')).jobs || []; for (const j of jobs) await api(`/backups/run/${encodeURIComponent(j.id)}`, { method: 'POST' }); toast(`Started ${jobs.length} backup jobs; rows appear in Backups as they finish`); }
-function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Everything stops for about a minute. Logged-in Macs keep working on cached accounts. The desktop comes back by itself.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await withReauth(() => api('/system/power', { method: 'POST', body: { action, confirm: action } })); if (r.ok === false) throw new Error(r.err); toast(r.demo ? (r.out || 'Sample mode: nothing restarted') : action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
+function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Services stop while the server restarts. If the disk needs a passphrase, someone must unlock it at the closet keyboard or through previously configured SSH unlock before the desktop and services return. Have that person ready before continuing.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await withReauth(() => api('/system/power', { method: 'POST', body: { action, confirm: action } })); if (r.ok === false) throw new Error(r.err); toast(r.demo ? (r.out || 'Sample mode: nothing restarted') : action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
 
 /* ---------------- dock + launchpad + desktop icons ---------------- */
 const DOCK_DEFAULT = { admin: ['files', 'overview', 'sunday', 'sermons', 'calendar', 'mail', 'apps', 'settings', 'terminal'], member: ['files', 'sermons', 'bible', 'sunday', 'calendar', 'assist', 'help'] };

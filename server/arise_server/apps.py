@@ -2,9 +2,9 @@
 catalogue (catalog/catalog.yaml) of further free apps, like HomeDock's store.
 
 v0.8 (round 3, 5 and 40): every template carries autostart, ram_mb and limits;
-a deploy writes mem_limit/cpus into every service so no app can starve the
-domain or the dashboard; the installer deploys all of them and starts only what
-the box's memory allows; each app remembers its own autostart choice in
+a deploy writes per-service memory/CPU limits and admits starts using their
+aggregate memory caps, leaving core-service headroom. The installer deploys
+the selected templates and starts those within this budget; each remembers its autostart choice in
 /srv/arise/apps/<name>/arise.json."""
 from __future__ import annotations
 
@@ -12,16 +12,114 @@ import json
 import os
 import re
 import shutil
+import math
+import threading
+from functools import wraps
+from pathlib import Path
 
 import yaml
 
 from . import demo, demo_state
 from .config import load
-from .util import now_iso, read_json, run, which, write_json
+from .util import now_iso, read_json, run, run_stream, which, write_json
 
 NAME_RE = re.compile(r"^[a-z][a-z0-9-]{1,31}$")
 RESERVE_MB = 2048          # what the domain, Samba, the dashboard and the kiosk keep for themselves
 DEFAULT_LIMITS = {"mem_mb": 512, "cpus": 1.0}
+APP_SECRETS_DIR = Path("/etc/arise/secrets/apps")
+_mutation_lock = threading.RLock()
+_lock_state = threading.local()
+
+
+def _serialized(fn):
+    """Budget decisions and starts are one transaction across CLI/web processes."""
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        if load().demo:
+            return fn(*args, **kwargs)
+        from .maintenance import exclusive, MaintenanceBusy
+        try:
+            with exclusive("apps"):
+                with _mutation_lock:
+                    if getattr(_lock_state, "held", False):
+                        return fn(*args, **kwargs)
+                    root = Path(load().apps.root)
+                    root.mkdir(parents=True, exist_ok=True)
+                    with (root / ".operations.lock").open("a") as lock:
+                        if os.name == "posix":
+                            import fcntl
+                            fcntl.flock(lock, fcntl.LOCK_EX)
+                        _lock_state.held = True
+                        try:
+                            return fn(*args, **kwargs)
+                        finally:
+                            _lock_state.held = False
+        except MaintenanceBusy as e:
+            return {"ok": False, "err": str(e)}
+    return wrapped
+
+
+def compose_cap_mb(doc: dict) -> int:
+    """Sum actual per-service hard limits; missing/unparseable caps fail closed."""
+    total = 0
+    services = doc.get("services") or {}
+    if not services:
+        raise ValueError("compose has no services")
+    for name, service in services.items():
+        raw = str(service.get("mem_limit", ""))
+        m = re.fullmatch(r"([0-9]+(?:\.[0-9]+)?)\s*([bkmg]?)b?", raw, re.I)
+        if not m:
+            raise ValueError(f"{name}: a valid positive mem_limit is required")
+        size = float(m[1]) * {"": 1, "b": 1, "k": 1024, "m": 1024**2, "g": 1024**3}[m[2].lower()]
+        if size <= 0:
+            raise ValueError(f"{name}: mem_limit must be positive")
+        total += math.ceil(size / 1024**2)
+    return total
+
+
+def _docker_allocations() -> list[dict]:
+    """Read only non-secret fields, including stopped containers set to restart."""
+    r = run(["docker", "ps", "-aq"], timeout=20)
+    if not r["ok"]:
+        raise ValueError("cannot inspect Docker's existing memory allocations")
+    ids = r["out"].split()
+    if not ids:
+        return []
+    fmt = '{"id":{{json .Id}},"project":{{json (index .Config.Labels "com.docker.compose.project")}},"running":{{json .State.Running}},"restart":{{json .HostConfig.RestartPolicy.Name}},"memory":{{json .HostConfig.Memory}}}'
+    r = run(["docker", "inspect", "--format", fmt, *ids], timeout=30)
+    if not r["ok"]:
+        raise ValueError("cannot inspect Docker's existing memory allocations")
+    try:
+        rows = [json.loads(line) for line in r["out"].splitlines() if line.strip()]
+        if len(rows) != len(ids) or any(not isinstance(c, dict) or not c.get("id")
+                                      or not isinstance(c.get("running"), bool)
+                                      or not isinstance(c.get("memory"), int)
+                                      or not isinstance(c.get("restart"), str) for c in rows):
+            raise ValueError("incomplete Docker allocation response")
+        return rows
+    except (ValueError, TypeError) as e:
+        raise ValueError("Docker returned unreadable allocation data") from e
+
+
+def _budget_guard(name: str, doc: dict) -> dict:
+    try:
+        wanted = compose_cap_mb(doc)
+        others = [c for c in _docker_allocations() if c.get("project") != name
+                  and (c.get("running") or c.get("restart") in ("always", "unless-stopped"))]
+        if any(int(c.get("memory") or 0) <= 0 for c in others):
+            return {"ok": False, "err": "An existing running/autostart container has no memory cap. Set its cap before starting another app."}
+        allocated = sum(math.ceil(int(c["memory"]) / 1024**2) for c in others)
+    except (ValueError, TypeError, KeyError) as e:
+        return {"ok": False, "err": str(e)}
+    budget = max(0, ram_total_mb() - RESERVE_MB)
+    if allocated + wanted > budget:
+        return {"ok": False, "err": f"{name} needs {wanted} MiB of container caps; {allocated} MiB already allocated, {budget} MiB app budget. Stop apps and turn their autostart off, or add RAM. {RESERVE_MB} MiB is reserved for core services."}
+    return {"ok": True, "cap_mb": wanted, "allocated_mb": allocated, "budget_mb": budget}
+
+
+def _restart_policy(doc: dict, enabled: bool) -> None:
+    for service in doc.get("services", {}).values():
+        service["restart"] = "unless-stopped" if enabled else "no"
 
 # The house look (Bradly, Oct 28: a theme pack per app). What an app can take
 # is in its manifest's `theme:` block; these are the values that go in.
@@ -171,7 +269,13 @@ def templates() -> dict:
             except yaml.YAMLError as e:
                 out.append({"id": d.name, "name": d.name, "description": f"template.yaml does not parse: {str(e).splitlines()[0][:80]}", "category": "broken", "ports": [], "icon": "app", "data": "", "notes": "", "version": "", "autostart": False, "ram_mb": 0, "limits": dict(DEFAULT_LIMITS), "source": "template", "homepage": ""})
                 continue
-            out.append(_meta_row(d.name, m, cfg.apps.root))
+            row = _meta_row(d.name, m, cfg.apps.root)
+            try:
+                doc = inject_limits(yaml.safe_load((d / "compose.yaml").read_text(encoding="utf-8")), row["limits"])
+                row["cap_mb"] = compose_cap_mb(doc)
+            except (OSError, ValueError, yaml.YAMLError) as e:
+                row.update(category="broken", autostart=False, description=str(e))
+            out.append(row)
     if not out:
         return {"demo": True, "templates": demo.TEMPLATES}
     return {"demo": False, "templates": out}
@@ -191,6 +295,7 @@ def catalog() -> dict:
             continue
         row = _meta_row(e["name"], e, cfg.apps.root, source="catalog")
         row["image"] = e.get("image", "")
+        row["cap_mb"] = compose_cap_mb(inject_limits(compose_from_catalog(e), row["limits"]))
         row["autostart"] = bool(e.get("autostart", True))
         row["verify"] = True
         out.append(row)
@@ -231,9 +336,7 @@ def compose_from_catalog(entry: dict) -> dict:
 
 
 def inject_limits(doc: dict, limits: dict) -> dict:
-    """Write mem_limit/cpus into every service that does not set its own. Pure.
-    The cap is per service; a four-container app (Immich) gets the cap on each,
-    which is still a cap. Swarm-only `deploy.resources` is not used."""
+    """Apply per-service defaults; admission sums the resulting hard limits."""
     lim = dict(DEFAULT_LIMITS)
     lim.update({k: v for k, v in (limits or {}).items() if k in lim})
     for _, s in (doc.get("services") or {}).items():
@@ -245,14 +348,13 @@ def inject_limits(doc: dict, limits: dict) -> dict:
 
 
 def autostart_plan(items: list[dict], ram_total_mb: int, reserve_mb: int = RESERVE_MB) -> dict:
-    """Which apps may start at install. Pure. items: [{"id","autostart","ram_mb"}].
-    Those marked autostart are taken biggest-last until the budget (RAM minus the
-    reserve) is spent; the rest are deployed but left stopped, with the reason."""
+    """Plan with aggregate hard caps, prioritizing required sync before optional apps."""
     budget = max(0, int(ram_total_mb) - int(reserve_mb))
-    wanted = sorted([i for i in items if i.get("autostart")], key=lambda i: int(i.get("ram_mb") or 0))
+    wanted = sorted([i for i in items if i.get("autostart")],
+                    key=lambda i: (i["id"] != "nextcloud", int(i.get("cap_mb", i.get("ram_mb", 0)))))
     start, stopped, used = [], [], 0
     for i in wanted:
-        r = int(i.get("ram_mb") or 0)
+        r = int(i.get("cap_mb", i.get("ram_mb", 0)) or 0)
         if used + r <= budget:
             start.append(i["id"])
             used += r
@@ -278,6 +380,7 @@ def _app_meta(name: str) -> dict:
     return read_json(os.path.join(cfg.apps.root, name, "arise.json"), default=None) or {}
 
 
+@_serialized
 def set_autostart(name: str, on: bool) -> dict:
     if not NAME_RE.match(name or ""):
         return {"ok": False, "err": "bad app name"}
@@ -291,12 +394,39 @@ def set_autostart(name: str, on: bool) -> dict:
     p = os.path.join(cfg.apps.root, name, "arise.json")
     if not os.path.isdir(os.path.dirname(p)):
         return {"ok": False, "err": f"{name} is not installed"}
+    if not available():
+        return {"ok": False, "err": DOCKER_DOWN}
+    compose_path = Path(cfg.apps.root) / name / "compose.yaml"
+    try:
+        previous_compose = compose_path.read_text()
+        doc = yaml.safe_load(previous_compose)
+        containers = [c["id"] for c in _docker_allocations() if c.get("project") == name]
+    except (OSError, ValueError, yaml.YAMLError) as e:
+        return {"ok": False, "err": str(e)}
+    if on:
+        allowed = _budget_guard(name, doc)
+        if not allowed["ok"]:
+            return allowed
+    policy = "unless-stopped" if on else "no"
+    if containers and not on:
+        r = run(["docker", "update", "--restart=" + policy, *containers], timeout=30)
+        if not r["ok"]:
+            return r
+    _restart_policy(doc, on)
+    compose_path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    if on:
+        base = ["docker", "compose", "-p", name, "-f", str(compose_path), "--env-file", os.path.join(cfg.apps.root, name, ".env")]
+        r = run(base + ["up", "-d"], timeout=600)
+        if not r["ok"]:
+            compose_path.write_text(previous_compose, encoding="utf-8")
+            if containers:
+                previous_policy = "unless-stopped" if _app_meta(name).get("autostart", True) else "no"
+                run(["docker", "update", "--restart=" + previous_policy, *containers], timeout=30)
+            return r
     m = _app_meta(name)
     m["autostart"] = bool(on)
     write_json(p, m)
-    # restart: unless-stopped restarts a running app at boot; a stopped one stays stopped. So the
-    # choice takes effect through start/stop, which the Store does with the toggle.
-    return {"ok": True, "autostart": bool(on)}
+    return {"ok": True, "autostart": bool(on), "out": "Autostart enabled and app started." if on else "Autostart disabled; currently running containers keep running until stopped."}
 
 
 def _sample_apps() -> list[dict]:
@@ -333,7 +463,7 @@ def list_apps() -> dict:
         meta = _app_meta(name)
         apps.append({"name": name, "template": meta.get("template", name), "source": meta.get("source", "template"), "status": "running" if "running" in s.get("Status", "") else "exited",
                      "ports": ports, "cpu": st.get("cpu", 0.0), "mem": st.get("mem", 0), "url": _app_url(meta, ports), "updated": meta.get("deployed"),
-                     "autostart": meta.get("autostart", True), "ram_mb": meta.get("ram_mb"), "limit_mb": (meta.get("limits") or {}).get("mem_mb")})
+                     "autostart": meta.get("autostart", True), "ram_mb": meta.get("ram_mb"), "limit_mb": meta.get("cap_mb") or (meta.get("limits") or {}).get("mem_mb")})
     return {"demo": False, "apps": apps, "docker": True, "ram_total_mb": ram_total_mb(), "reserve_mb": RESERVE_MB}
 
 
@@ -359,16 +489,23 @@ def open_url(name: str) -> dict:
 
 
 def _stats() -> dict:
-    r = run(["docker", "stats", "--no-stream", "--format", "{{json .}}"], timeout=20)
+    try:
+        allocations = _docker_allocations()
+    except ValueError:
+        return {}
+    r = run(["docker", "stats", "--no-stream", "--format", '{"id":{{json .ID}},"cpu":{{json .CPUPerc}},"memory":{{json .MemUsage}}}'], timeout=20)
     out = {}
     for line in r["out"].splitlines():
         try:
             d = json.loads(line)
         except json.JSONDecodeError:
             continue
-        proj = d.get("Name", "").rsplit("-", 2)[0] if "-" in d.get("Name", "") else d.get("Name", "")
-        cpu = float(d.get("CPUPerc", "0%").rstrip("%") or 0)
-        mem = _parse_mem(d.get("MemUsage", "0B / 0B").split("/")[0].strip())
+        ident = d.get("id", "")
+        proj = next((c.get("project") for c in allocations if ident and c["id"].startswith(ident)), None)
+        if not proj:
+            continue
+        cpu = float(d.get("cpu", "0%").rstrip("%") or 0)
+        mem = _parse_mem(d.get("memory", "0B / 0B").split("/")[0].strip())
         cur = out.setdefault(proj, {"cpu": 0.0, "mem": 0})
         cur["cpu"] = round(cur["cpu"] + cpu, 1)
         cur["mem"] += mem
@@ -433,10 +570,11 @@ def _template_env(template: str) -> dict:
 def _read_env(path: str) -> dict:
     out = {}
     try:
-        for line in open(path, encoding="utf-8"):
-            if "=" in line and not line.startswith("#"):
-                k, _, v = line.rstrip("\n").partition("=")
-                out[k] = v
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if "=" in line and not line.startswith("#"):
+                    k, _, v = line.rstrip("\n").partition("=")
+                    out[k] = v
     except OSError:
         pass
     return out
@@ -454,6 +592,8 @@ def fill_secrets(defaults: dict, given: dict | None = None, existing: dict | Non
     for k, v in defaults.items():
         if k in given and given[k]:
             out[k] = given[k]
+        elif k in existing and not str(existing[k]).startswith("CHANGE-ME"):
+            out[k] = existing[k]
         elif str(v).startswith("CHANGE-ME"):
             if existing.get(k) and not str(existing[k]).startswith("CHANGE-ME"):
                 out[k] = existing[k]
@@ -467,6 +607,53 @@ def fill_secrets(defaults: dict, given: dict | None = None, existing: dict | Non
     return out, made
 
 
+def _prepare_filebrowser(dest: str) -> dict:
+    """Give UID 1500 only its data/config directories, never the app's .env.
+
+    Legacy databases are copied after a clean stop. The original is retained;
+    a completed destination always wins on repeat deploys.
+    """
+    root = Path(dest)
+    dbdir, confdir = root / "database", root / "config"
+    if dbdir.is_symlink() or confdir.is_symlink():
+        return {"ok": False, "err": "File Browser data/config directories must not be symlinks."}
+    try:
+        dbdir.mkdir(exist_ok=True)
+        confdir.mkdir(exist_ok=True)
+        legacy, target = root / "filebrowser.db", dbdir / "filebrowser.db"
+        if legacy.exists() and not target.exists():
+            if legacy.is_symlink() or not (root / "compose.yaml").is_file():
+                return {"ok": False, "err": "Legacy File Browser database needs its original Compose configuration before migration."}
+            r = run(["docker", "compose", "-p", "filebrowser", "-f", str(root / "compose.yaml"),
+                     "--env-file", str(root / ".env"), "stop"], timeout=120)
+            if not r["ok"]:
+                return {"ok": False, "err": "File Browser could not be stopped; its database was not migrated."}
+            pending = []
+            # Commit the main database last; its presence marks a complete copy.
+            for suffix in ("-wal", "-shm", ""):
+                source = root / ("filebrowser.db" + suffix)
+                if source.is_symlink():
+                    return {"ok": False, "err": "Legacy File Browser database files must not be symlinks."}
+                if source.is_file():
+                    final = dbdir / source.name
+                    temp = dbdir / (source.name + ".migration")
+                    shutil.copy2(source, temp)
+                    pending.append((temp, final))
+            for temp, final in pending:
+                os.replace(temp, final)
+        for folder in (dbdir, confdir):
+            os.chown(folder, 1500, 1500)
+            os.chmod(folder, 0o700)
+            for item in folder.iterdir():
+                if item.is_file() and not item.is_symlink():
+                    os.chown(item, 1500, 1500)
+                    os.chmod(item, 0o600)
+        return {"ok": True}
+    except OSError:
+        return {"ok": False, "err": "Cannot prepare File Browser's private database/config directories; original data was retained."}
+
+
+@_serialized
 def deploy(template: str, name: str | None = None, env: dict | None = None, start: bool | None = None) -> dict:
     """Deploy a template or a catalogue entry. start=None follows the manifest's
     autostart; False creates the containers (images pulled) and leaves them stopped."""
@@ -474,6 +661,8 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     name = name or template
     if not NAME_RE.match(name):
         return {"ok": False, "err": "name: lowercase letters, digits, dashes; 2-32 chars"}
+    if not NAME_RE.fullmatch(template) or name != template:
+        return {"ok": False, "err": "Templates currently support one instance under their template name. Custom names would share ports and data; use the template name."}
     src = cfg.templates_dir / template
     entry = None
     if not (src / "compose.yaml").exists():
@@ -483,7 +672,8 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     meta = _template_meta(template) if entry is None else entry
     lim = dict(DEFAULT_LIMITS)
     lim.update({k: v for k, v in (meta.get("limits") or {}).items() if k in lim})
-    autostart = bool(meta.get("autostart", True)) if start is None else bool(start)
+    old = _app_meta(name)
+    autostart = bool(old.get("autostart", meta.get("autostart", True))) if start is None else bool(start)
     if not available():
         if not _sample_mode():
             return {"ok": False, "err": DOCKER_DOWN}
@@ -498,22 +688,43 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
         _sample_apps().append(row)
         return {"ok": True, "demo": True, "app": row, "out": f"(sample) deployed {template} as {name}" + ("" if autostart else " (left stopped)")}
     dest = os.path.join(cfg.apps.root, name)
-    os.makedirs(dest, exist_ok=True)
     if entry is None:
         doc = yaml.safe_load((src / "compose.yaml").read_text(encoding="utf-8")) or {}
     else:
         doc = compose_from_catalog(entry)
     doc = inject_limits(doc, lim)
-    with open(os.path.join(dest, "compose.yaml"), "w", encoding="utf-8") as f:
-        f.write(f"# written by arisectl app deploy from {'templates/' + template if entry is None else 'catalog/catalog.yaml (' + template + ')'}; limits from its manifest. Edit the manifest, not this.\n")
-        yaml.safe_dump(doc, f, sort_keys=False, default_flow_style=False)
+    try:
+        cap_mb = compose_cap_mb(doc)
+    except ValueError as e:
+        return {"ok": False, "err": str(e)}
+    if autostart:
+        allowed = _budget_guard(name, doc)
+        if not allowed["ok"]:
+            return allowed
+    _restart_policy(doc, autostart)
     tp = theme_plan(meta)
     defaults = dict(_template_env(template))
     if template == "nextcloud":
         from . import cloud
-        defaults.update(cloud.env_keys())   # this box's homes, shares and names (round 6, docs/SYNC.md)
-    defaults.update(tp["env"])          # the house look where the app takes it through its env
-    values, made = fill_secrets(defaults, env, _read_env(os.path.join(dest, ".env")))
+        defaults.update(cloud.env_keys())
+    defaults.update(tp["env"])
+    saved = _read_env(str(APP_SECRETS_DIR / f"{name}.env"))
+    for key, value in _read_env(os.path.join(dest, ".env")).items():
+        if not str(value).startswith("CHANGE-ME") or key not in saved:
+            saved[key] = value
+    values, made = fill_secrets(defaults, env, saved)
+    # A restored database must never be given a newly invented password.
+    data_present = os.path.isdir(dest) and any(p.is_dir() and any(p.iterdir()) for p in Path(dest).iterdir())
+    if made and data_present:
+        return {"ok": False, "err": "Existing app data found but required credentials are missing. Restore the app .env or its secrets/apps file before redeploying; no passwords were replaced."}
+    os.makedirs(dest, exist_ok=True)
+    if template == "filebrowser":
+        prepared = _prepare_filebrowser(dest)
+        if not prepared["ok"]:
+            return prepared
+    with open(os.path.join(dest, "compose.yaml"), "w", encoding="utf-8") as f:
+        f.write(f"# written by arisectl app deploy from {'templates/' + template if entry is None else 'catalog/catalog.yaml (' + template + ')'}; limits from its manifest. Edit the manifest, not this.\n")
+        yaml.safe_dump(doc, f, sort_keys=False, default_flow_style=False)
     if tp["env"] and entry is not None:
         # a catalogue app's main service reads every env key from .env; template compose files name theirs explicitly
         doc["services"][name].setdefault("environment", [])
@@ -531,24 +742,27 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
             os.makedirs(os.path.dirname(fp), exist_ok=True)
             with open(fp, "w", encoding="utf-8") as f:
                 f.write(content)
-    with open(os.path.join(dest, ".env"), "w", encoding="utf-8") as f:
+    with os.fdopen(os.open(os.path.join(dest, ".env"), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w", encoding="utf-8") as f:
+        os.fchmod(f.fileno(), 0o600)
         f.write(f"APP_NAME={name}\nDATA={dest}/data\nSHARES={cfg.system.data_root}/shares\n")
         for k, v in values.items():
             if re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", k):   # mixed case too: Gitea's GITEA__server__ROOT_URL
                 f.write(f"{k}={v}\n")
     os.chmod(os.path.join(dest, ".env"), 0o600)
-    if made:
+    secret_keys = [k for k, v in defaults.items() if str(v).startswith("CHANGE-ME")]
+    if secret_keys:
         # A copy of every generated secret, root-only, so a person can find it.
-        sec_dir = "/etc/arise/secrets/apps"
+        sec_dir = str(APP_SECRETS_DIR)
         try:
             os.makedirs(sec_dir, exist_ok=True)
-            with open(os.path.join(sec_dir, f"{name}.env"), "w", encoding="utf-8") as f:
+            with os.fdopen(os.open(os.path.join(sec_dir, f"{name}.env"), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w", encoding="utf-8") as f:
+                os.fchmod(f.fileno(), 0o600)
                 f.write(f"# {name} ({template}): secrets the deploy generated. Same values are in {dest}/.env\n")
-                for k in made:
+                for k in secret_keys:
                     f.write(f"{k}={values[k]}\n")
             os.chmod(os.path.join(sec_dir, f"{name}.env"), 0o600)
         except OSError:
-            pass
+            return {"ok": False, "err": "Cannot save the root-only app credential copy; deployment stopped."}
     os.makedirs(os.path.join(dest, "data"), exist_ok=True)
     for v in (meta.get("volumes") or []):
         host = str(v).split(":")[0]
@@ -557,11 +771,14 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
     pre = _pre_deploy(template, dest, values)
     if pre and not pre.get("ok", True):
         return pre
-    old = _app_meta(name)
-    write_json(os.path.join(dest, "arise.json"), {"template": template, "source": "template" if entry is None else "catalog", "autostart": old.get("autostart", autostart) if old else autostart,
+    write_json(os.path.join(dest, "arise.json"), {"template": template, "source": "template" if entry is None else "catalog", "autostart": autostart, "cap_mb": cap_mb,
                                                    "ram_mb": int(meta.get("ram_mb") or lim["mem_mb"]), "limits": lim, "deployed": now_iso(), "version": str(meta.get("version") or meta.get("image") or ""),
                                                    "idle_stop_minutes": int(meta.get("idle_stop_minutes") or 0), "kind": meta.get("kind", "service"), "theme_via": tp["via"]})
     base = ["docker", "compose", "-p", name, "-f", os.path.join(dest, "compose.yaml"), "--env-file", os.path.join(dest, ".env")]
+    print(f"{name}: pulling images (one Compose pull at a time; {cap_mb} MiB aggregate cap)", flush=True)
+    pulled = run_stream(base[:2] + ["--parallel", "1"] + base[2:] + ["pull"], timeout=1800)
+    if not pulled["ok"]:
+        return pulled
     if autostart:
         r = run(base + ["up", "-d"], timeout=1800)
         if r["ok"] and tp["commands"]:
@@ -574,7 +791,7 @@ def deploy(template: str, name: str | None = None, env: dict | None = None, star
                 notes.append(f"theme: {' '.join(c)[:60]}: {'ok' if rc['ok'] else 'not yet (' + (rc['err'] or rc['out']).strip()[:80] + ')'}")
             r["out"] = (r["out"] or "") + "\n" + "\n".join(notes)
     else:
-        r = run(base + ["create", "--pull", "missing"], timeout=1800)
+        r = run(base + ["create", "--pull", "never"], timeout=1800)
         if r["ok"]:
             r["out"] = (r["out"] or "") + f"\n{name}: deployed and left stopped (autostart off). Start it from the Store or: arisectl app start {name}"
     r["secrets_generated"] = made
@@ -588,14 +805,16 @@ def install_all(log=print) -> dict:
     t = templates()
     if t["demo"]:
         return {"ok": True, "demo": True, "out": "(sample) would deploy every template"}
-    plan = autostart_plan([{"id": x["id"], "autostart": x["autostart"], "ram_mb": x["ram_mb"]} for x in t["templates"] if x["category"] != "broken"], ram_total_mb())
+    plan = autostart_plan([x for x in t["templates"] if x["category"] != "broken"], ram_total_mb())
     log(f"app budget: {plan['budget_mb']} MB for apps after {RESERVE_MB} MB kept for the domain and the dashboard; starting {len(plan['start'])} of {len(t['templates'])}")
     results = {"ok": True, "started": [], "stopped": [], "failed": [], "plan": plan}
-    for x in t["templates"]:
+    for x in sorted(t["templates"], key=lambda x: (x["id"] != "nextcloud", x["id"])):
         if x["category"] == "broken":
             results["failed"].append({"id": x["id"], "err": x["description"]})
+            results["ok"] = False
             continue
         start = x["id"] in plan["start"]
+        log(f"deploying {x['id']} ({'start' if start else 'leave stopped'})")
         r = deploy(x["id"], start=start)
         if r.get("ok"):
             (results["started"] if start else results["stopped"]).append(x["id"])
@@ -611,12 +830,17 @@ def install_all(log=print) -> dict:
 
 def caps_check() -> dict:
     """For arisectl doctor: do the autostart caps fit in RAM minus the reserve?"""
-    t = templates()
-    rows = [x for x in t["templates"] if x.get("autostart") and x["category"] != "broken"]
-    total_caps = sum(int(x["limits"]["mem_mb"]) for x in rows)
-    total_est = sum(int(x["ram_mb"]) for x in rows)
+    total_caps, total_est, count = 0, 0, 0
+    for p in Path(load().apps.root).glob("*/compose.yaml"):
+        meta = _app_meta(p.parent.name)
+        if not meta.get("autostart", True):
+            continue
+        doc = yaml.safe_load(p.read_text(encoding="utf-8"))
+        total_caps += compose_cap_mb(doc)
+        total_est += int(meta.get("ram_mb") or 0)
+        count += 1
     ram = ram_total_mb()
-    return {"ram_mb": ram, "budget_mb": max(0, ram - RESERVE_MB), "autostart_caps_mb": total_caps, "autostart_est_mb": total_est, "ok": total_caps <= max(0, ram - RESERVE_MB), "count": len(rows)}
+    return {"ram_mb": ram, "budget_mb": max(0, ram - RESERVE_MB), "autostart_caps_mb": total_caps, "autostart_est_mb": total_est, "ok": total_caps <= max(0, ram - RESERVE_MB), "count": count}
 
 
 def _pre_deploy(template: str, dest: str, values: dict) -> dict | None:
@@ -650,6 +874,7 @@ def _pre_deploy(template: str, dest: str, values: dict) -> dict | None:
     return None
 
 
+@_serialized
 def act(name: str, action: str, confirm: str = "") -> dict:
     cfg = load()
     if not NAME_RE.match(name or ""):
@@ -679,13 +904,21 @@ def act(name: str, action: str, confirm: str = "") -> dict:
     if not os.path.exists(os.path.join(dest, "compose.yaml")):
         return {"ok": False, "err": f"{name} is not installed (no {dest}/compose.yaml)"}
     base = ["docker", "compose", "-p", name, "-f", os.path.join(dest, "compose.yaml"), "--env-file", os.path.join(dest, ".env")]
+    if action in ("start", "restart", "update"):
+        try:
+            doc = yaml.safe_load(Path(dest, "compose.yaml").read_text())
+        except (OSError, yaml.YAMLError) as e:
+            return {"ok": False, "err": str(e)}
+        allowed = _budget_guard(name, doc)
+        if not allowed["ok"]:
+            return allowed
     if action == "remove":
         r = run(base + ["down"], timeout=300)
         if r["ok"]:
             r["out"] = (r["out"] or "") + f"\nremoved the containers of {name}; its data folder {dest} is kept (delete it by hand if you mean it)"
         return r
     if action == "update":
-        r = run(base + ["pull"], timeout=1800)
+        r = run_stream(base[:2] + ["--parallel", "1"] + base[2:] + ["pull"], timeout=1800)
         if not r["ok"]:
             return r
         return run(base + ["up", "-d"], timeout=600)

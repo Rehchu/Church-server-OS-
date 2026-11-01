@@ -1,0 +1,10 @@
+[Unit]
+Description=Verify Arise backup data monthly, first Sunday 05:00 Central
+
+[Timer]
+OnCalendar=Sun *-*-01..07 05:00:00 America/Chicago
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

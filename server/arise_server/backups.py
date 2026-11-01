@@ -11,16 +11,21 @@ import re
 import subprocess
 import threading
 import time
+from contextlib import contextmanager, nullcontext
 from datetime import datetime, timedelta
 
 import yaml
 
-from . import demo, sharing
+from . import demo, sharing, maintenance
 from .config import load
 from .util import now_iso, read_json, run, which, write_json
 
 _running: dict[str, dict] = {}
 _lock = threading.Lock()
+
+
+class _OptionalSourceMissing(Exception):
+    pass
 
 
 def available() -> bool:
@@ -36,7 +41,7 @@ def jobs() -> dict:
     try:
         with open(cfg.backups.jobs_file, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-        js = data.get("jobs", [])
+        js = [resolve_job(j) for j in data.get("jobs", [])]
         return {"demo": False, "jobs": js, "file": cfg.backups.jobs_file}
     except FileNotFoundError:
         if cfg.demo:
@@ -44,6 +49,115 @@ def jobs() -> dict:
         return {"demo": False, "jobs": [], "file": cfg.backups.jobs_file, "error": f"{cfg.backups.jobs_file} is missing (copy config/backups.yaml.example there)"}
     except yaml.YAMLError as e:
         return {"demo": cfg.demo, "jobs": [], "file": cfg.backups.jobs_file, "error": f"{cfg.backups.jobs_file} does not parse: {str(e)[:200]}"}
+
+
+def resolve_job(job: dict) -> dict:
+    """Resolve configured storage paths; preserve explicitly customized paths."""
+    cfg = load()
+    job = dict(job)
+    source = job.get("source")
+    # Existing installs used literal defaults: follow configured homes/app roots.
+    if job.get("id") == "homes" and job.get("paths") == ["/srv/arise/homes"]:
+        source = "homes"
+    if job.get("id") == "apps" and job.get("paths") == ["/srv/arise/apps"]:
+        source = "apps"
+    if source:
+        from .offboard import archive_root
+        paths = {"homes": cfg.directory.homes_path, "apps": cfg.apps.root,
+                 "state": str(cfg.state_dir), "leavers": archive_root()}
+        if source not in paths:
+            raise ValueError(f"unknown backup source: {source}")
+        job["paths"] = [str(paths[source])]
+    # Old app jobs require the same consistency protection as fresh installs.
+    if job.get("id") == "apps" or source == "apps":
+        job["quiesce_apps"] = True
+    if job.get("id") == "config":
+        job["optional_paths"] = list(dict.fromkeys([*job.get("optional_paths", []), "/etc/netplan/60-arise-pinned.yaml"]))
+    return job
+
+
+@contextmanager
+def _apps_lock():
+    import fcntl
+    p = load().state_dir / "backup-apps.lock"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
+
+
+def _resume_apps() -> dict:
+    """Restart only containers recorded before this backup stopped them."""
+    p = load().state_dir / "backup-apps-stopped.json"
+    pending = read_json(p, default=None)
+    if not pending:
+        return {"ok": True, "resumed": []}
+    ids = pending.get("containers", [])
+    if not isinstance(ids, list) or any(not re.fullmatch(r"[0-9a-f]{12,64}", str(i)) for i in ids):
+        return {"ok": False, "err": "invalid backup restart record; inspect backup-apps-stopped.json"}
+    if ids:
+        r = run(["docker", "start", *ids], timeout=300)
+        if not r["ok"]:
+            return {"ok": False, "err": "could not restart all backed-up containers; recovery record retained"}
+    p.unlink(missing_ok=True)
+    return {"ok": True, "resumed": ids}
+
+
+def resume_apps() -> dict:
+    """ExecStopPost/boot recovery, also safe after a completed backup."""
+    try:
+        with maintenance.exclusive("backup recovery"), _apps_lock():
+            return _resume_apps()
+    except (OSError, ValueError, maintenance.MaintenanceBusy) as e:
+        return {"ok": False, "err": str(e)}
+
+
+@contextmanager
+def quiesced_apps():
+    """Cold file backup: stop running Arise containers, always restart them.
+
+    The restart record also survives process death. The systemd backup unit's
+    ExecStopPost and the boot recovery unit consume it if finally cannot run.
+    Never operate on unrelated Docker projects or start previously stopped apps.
+    """
+    with maintenance.exclusive("app backup"), _apps_lock():
+        old = _resume_apps()
+        if not old["ok"]:
+            raise RuntimeError(old["err"])
+        root = Path(load().apps.root)
+        projects = sorted(d.name for d in root.iterdir() if d.is_dir() and (d / "compose.yaml").is_file()) if root.exists() else []
+        if not projects:
+            yield
+            return
+        ids = []
+        for project in projects:
+            r = run(["docker", "ps", "-q", "--no-trunc", "--filter", f"label=com.docker.compose.project={project}"], timeout=30)
+            if not r["ok"]:
+                raise RuntimeError("cannot list running app containers; no consistent backup taken")
+            ids.extend(r["out"].split())
+        ids = list(dict.fromkeys(ids))
+        if any(not re.fullmatch(r"[0-9a-f]{12,64}", cid) for cid in ids):
+            raise RuntimeError("Docker returned an invalid container ID")
+        if not ids:
+            yield
+            return
+        p = load().state_dir / "backup-apps-stopped.json"
+        write_json(p, {"when": now_iso(), "containers": ids})
+        os.chmod(p, 0o600)
+        try:
+            r = run(["docker", "stop", "--time", "120", *ids], timeout=180)
+            if not r["ok"]:
+                raise RuntimeError("apps did not stop cleanly; backup refused")
+            for cid in ids:
+                r = run(["docker", "inspect", "--format", "{{json .State}}", cid], timeout=20)
+                state = json.loads(r["out"] or "{}") if r["ok"] else {}
+                if state.get("Running", True) or state.get("ExitCode") == 137 or state.get("OOMKilled"):
+                    raise RuntimeError("an app was still running or forcibly killed; backup refused")
+            yield
+        finally:
+            resumed = _resume_apps()
+            if not resumed["ok"]:
+                raise RuntimeError(resumed["err"])
 
 
 def history(limit: int = 200) -> dict:
@@ -79,8 +193,11 @@ def _env():
 
 def repo() -> dict:
     cfg = load()
-    if not available():
+    if cfg.demo:
         return {"demo": True, **demo.BACKUP_REPO, "target": sharing.backup_targets()}
+    if not available():
+        return {"demo": False, "ok": False, "snapshots": 0, "repo": cfg.backups.restic_repo,
+                "error": "restic is not installed; backup status is unavailable"}
     tg = sharing.backup_targets()
     out = {"demo": False, "repo": tg.get("repo") or cfg.backups.restic_repo, "ok": False, "snapshots": 0, "target": tg,
            "keep": {"daily": cfg.backups.keep_daily, "weekly": cfg.backups.keep_weekly, "monthly": cfg.backups.keep_monthly}}
@@ -126,10 +243,12 @@ def _restic(args: list[str], timeout: int, repo: str | None = None) -> dict:
 
 
 def snapshots(limit: int = 100) -> dict:
-    if not available():
+    if load().demo:
         rows = [{"id": r["snapshot_id"], "time": r["started"], "tags": [r["job"]], "paths": next((j["paths"] for j in demo.BACKUP_JOBS if j["id"] == r["job"]), [])}
                 for r in demo.BACKUP_HISTORY if r["ok"]][-limit:]
         return {"demo": True, "snapshots": list(reversed(rows))}
+    if not available():
+        return {"demo": False, "snapshots": [], "error": "restic is not installed"}
     r = _restic(["snapshots", "--json"], 60)
     if not r["ok"]:
         return {"demo": False, "snapshots": [], "error": (r["err"] or r["out"])[:400]}
@@ -157,6 +276,19 @@ def run_job(job_id: str, blocking: bool = False) -> dict:
 
 
 def _execute(job: dict) -> dict:
+    try:
+        with maintenance.exclusive("backup"):
+            return _execute_locked(job)
+    except maintenance.MaintenanceBusy as e:
+        row = {"job": job["id"], "started": now_iso(), "finished": now_iso(), "ok": False,
+               "error": str(e), "deferred": True, "snapshot_id": None, "bytes_added": 0}
+        _append_history(row)
+        with _lock:
+            _running.pop(job["id"], None)
+        return row
+
+
+def _execute_locked(job: dict) -> dict:
     started = now_iso()
     row = {"job": job["id"], "name": job.get("name", job["id"]), "started": started, "finished": None, "ok": False,
            "snapshot_id": None, "bytes_added": 0, "files_new": 0, "error": None}
@@ -170,6 +302,7 @@ def _execute(job: dict) -> dict:
         elif not live_repo():
             raise RuntimeError(sharing.backup_targets().get("error") or "no backup target is ready; nothing was backed up")
         else:
+            timeout = maintenance.backup_budget()
             row["target"] = sharing.backup_targets().get("live")
             args = ["backup", "--json", "--host", load().system.hostname]
             for t in job.get("tags", []):
@@ -179,12 +312,21 @@ def _execute(job: dict) -> dict:
             if job.get("samba_offline"):
                 pre = samba_offline_backup()
                 if not pre.get("ok"):
-                    row["warning"] = "samba offline backup skipped: " + str(pre.get("err", ""))[:200]
+                    raise RuntimeError("fresh Samba offline backup failed: " + str(pre.get("err", ""))[:200])
+            mount = Path(load().nas.mount)
+            if any(Path(p).is_relative_to(mount) for p in job.get("paths", [])) and not os.path.ismount(mount):
+                raise RuntimeError("the Synology is not mounted; NAS source was not backed up")
             existing = [p for p in job.get("paths", []) if os.path.exists(p)]
             missing = [p for p in job.get("paths", []) if not os.path.exists(p)]
             if not existing:
+                if job.get("optional"):
+                    raise _OptionalSourceMissing("optional source does not exist yet")
                 raise RuntimeError(f"skipped - none of the paths exist (is the NAS mounted?): {missing}")
-            r = _restic(args + existing, timeout=6 * 3600)
+            required_missing = [p for p in missing if p not in job.get("optional_paths", [])]
+            if required_missing:
+                raise RuntimeError(f"required backup paths are missing: {required_missing}")
+            with quiesced_apps() if job.get("quiesce_apps") or job.get("id") == "apps" else nullcontext():
+                r = _restic(args + existing, timeout=min(timeout, maintenance.backup_budget()))
             summary = None
             for line in r["out"].splitlines():
                 if line.startswith("{") and '"summary"' in line:
@@ -201,6 +343,8 @@ def _execute(job: dict) -> dict:
                 row["warning"] = f"skipped missing paths: {missing}"
             if not r["ok"]:
                 row["error"] = (r["err"] or r["out"]).strip()[-600:]
+    except _OptionalSourceMissing as e:
+        row.update(ok=True, skipped=True, note=str(e))
     except Exception as e:
         row["error"] = str(e)
     row["finished"] = now_iso()
@@ -250,6 +394,7 @@ def offsite_ids(snaps: list[dict], skip_tags: list[str]) -> list[str]:
     return out
 
 
+@maintenance.guarded("offsite backup")
 def offsite_copy() -> dict:
     """After the nightly run: restic copy into Arise-Home. Only what is new travels (restic skips
     snapshots already there). Writes a history row like any job, so a failure is red, never quiet."""
@@ -291,7 +436,7 @@ def offsite_copy() -> dict:
             row.update({"ok": True, "note": "nothing to copy yet", "finished": now_iso()})
             _append_history(row)
             return row
-        r = _restic(["copy", "--from-repo", src, "--from-password-file", pw, *ids], 8 * 3600, repo=dst)
+        r = _restic(["copy", "--from-repo", src, "--from-password-file", pw, *ids], maintenance.backup_budget(8 * 3600), repo=dst)
         row["ok"] = r["ok"]
         row["copied"] = len(ids)
         if not r["ok"]:
@@ -299,7 +444,7 @@ def offsite_copy() -> dict:
         else:
             # The far side keeps the same history as here (30/12/24).
             fp = _restic(["forget", "--prune", "--keep-daily", str(cfg.backups.keep_daily), "--keep-weekly", str(cfg.backups.keep_weekly),
-                          "--keep-monthly", str(cfg.backups.keep_monthly)], 3600, repo=dst)
+                          "--keep-monthly", str(cfg.backups.keep_monthly)], maintenance.backup_budget(3600), repo=dst)
             if not fp["ok"]:
                 row["warning"] = "copied, but pruning Arise-Home failed: " + (fp["err"] or fp["out"]).strip()[-200:]
     except Exception as e:  # noqa: BLE001
@@ -319,7 +464,7 @@ def missed_night(rows: list[dict], now: datetime | None = None, grace_h: float =
         return None
     last = None
     for r in rows:
-        if r.get("ok") and r.get("job") != "offsite" and r.get("started"):
+        if r.get("ok") and not r.get("skipped") and r.get("job") not in ("offsite", "verify") and r.get("started"):
             try:
                 t = datetime.fromisoformat(str(r["started"])[:19])
             except ValueError:
@@ -345,10 +490,14 @@ def samba_offline_backup(keep: int = 2) -> dict:
     d = Path(SAMBA_BACKUP_DIR)
     d.mkdir(parents=True, exist_ok=True)
     os.chmod(d, 0o700)
+    before = {p: (p.stat().st_mtime_ns, p.stat().st_size) for p in d.glob("samba-backup-*.tar.bz2")}
     r = run(["samba-tool", "domain", "backup", "offline", f"--targetdir={d}"], timeout=1800)
     if not r["ok"]:
         return {"ok": False, "err": (r["err"] or r["out"]).strip()[-300:]}
     tars = sorted(d.glob("samba-backup-*.tar.bz2"), key=lambda x: x.stat().st_mtime)
+    fresh = [p for p in tars if p.stat().st_size > 0 and before.get(p) != (p.stat().st_mtime_ns, p.stat().st_size)]
+    if not fresh:
+        return {"ok": False, "err": "samba-tool reported success but produced no fresh nonempty domain backup"}
     for old in tars[:-keep] if len(tars) > keep else []:
         try:
             old.unlink()
@@ -357,6 +506,7 @@ def samba_offline_backup(keep: int = 2) -> dict:
     return {"ok": True, "file": str(tars[-1]) if tars else ""}
 
 
+@maintenance.guarded("backup retention")
 def forget_prune() -> dict:
     cfg = load()
     if cfg.demo:
@@ -364,20 +514,25 @@ def forget_prune() -> dict:
     if not available():
         return {"ok": False, "err": "restic is not installed; nothing was pruned"}
     return _restic(["forget", "--prune", "--keep-daily", str(cfg.backups.keep_daily), "--keep-weekly", str(cfg.backups.keep_weekly),
-                    "--keep-monthly", str(cfg.backups.keep_monthly)], timeout=3600)
+                    "--keep-monthly", str(cfg.backups.keep_monthly)], timeout=maintenance.backup_budget(3600))
 
 
+@maintenance.guarded("backup verification")
 def check() -> dict:
     if load().demo:
         return {"ok": True, "demo": True, "out": "(sample) no errors were found"}
     if not available():
         return {"ok": False, "err": "restic is not installed; the repository was not checked"}
-    r = _restic(["check"], timeout=3600)
+    started = now_iso()
+    r = _restic(["check", "--read-data-subset=10%"], timeout=maintenance.backup_budget())
     state_p = load().state_dir / "state.json"
     st = read_json(state_p, default={})
     st["restic_last_check"] = now_iso()
     st["restic_last_check_ok"] = r["ok"]
     write_json(state_p, st)
+    _append_history({"job": "verify", "name": "Repository integrity check (10%)", "started": started,
+                     "finished": now_iso(), "ok": r["ok"], "snapshot_id": None,
+                     "error": None if r["ok"] else (r["err"] or r["out"]).strip()[-400:]})
     return r
 
 
@@ -444,6 +599,7 @@ def _git(args: list[str], token: str, timeout: int = 600) -> dict:
 
 
 # ---- the restore drill -----------------------------------------------------------
+@maintenance.guarded("restore drill")
 def drill(quiet: bool = False) -> dict:
     """Restore one random file from the latest snapshot into a scratch folder and
     compare it with the live file. A backup nobody has restored from is a hope,
@@ -454,9 +610,11 @@ def drill(quiet: bool = False) -> dict:
     import shutil
     cfg = load()
     hist_p = cfg.state_dir / "drill-history.json"
-    if not available():
+    if cfg.demo:
         row = {"when": now_iso(), "snapshot": "a1b2c3d4", "file": "/srv/arise/homes/bradly.dyer/Documents/Sunday setlist 2026-10-26.pdf", "bytes": 182_000, "matched": True, "ok": True, "note": "sample drill", "demo": True}
         return {**row, "history": [row]}
+    if not available():
+        return {"when": now_iso(), "ok": False, "note": "restic is not installed; no restore drill ran"}
     row = {"when": now_iso(), "snapshot": "", "file": "", "bytes": 0, "matched": None, "ok": False, "note": ""}
     scratch = cfg.state_dir / "drill"
     try:
@@ -501,8 +659,11 @@ def drill(quiet: bool = False) -> dict:
             row["note"] = "restic said ok but the file is not in the scratch folder"
             return _drill_done(hist_p, row)
         got = hashlib.sha256(restored.read_bytes()).hexdigest()
-        row["ok"] = True
         row["system_job"] = _drill_system_check()
+        if not row["system_job"]["ok"]:
+            row["note"] = "system restore prerequisites failed: " + row["system_job"]["note"]
+            return _drill_done(hist_p, row)
+        row["ok"] = True
         live = pick["path"]
         if os.path.isfile(live):
             same = hashlib.sha256(open(live, "rb").read()).hexdigest() == got
@@ -539,7 +700,7 @@ def _drill_system_check() -> dict:
         ls = _restic(["ls", snap, "/etc/arise/arise.toml", SAMBA_BACKUP_DIR], 300)
         has_toml = "/etc/arise/arise.toml" in ls["out"]
         has_samba = "samba-backup-" in ls["out"]
-        return {"ok": has_toml, "snapshot": snap, "arise_toml": has_toml, "samba_backup": has_samba,
+        return {"ok": bool(ls["ok"] and has_toml and has_samba), "snapshot": snap, "arise_toml": has_toml, "samba_backup": has_samba,
                 "note": "arise.toml " + ("present" if has_toml else "MISSING") + "; samba offline backup " + ("present" if has_samba else "missing")}
     except Exception as e:
         return {"ok": False, "note": f"could not check: {e}"[:160]}
@@ -553,7 +714,7 @@ def _drill_done(hist_p, row: dict) -> dict:
 
 
 def drill_history() -> list[dict]:
-    if not available():
+    if load().demo:
         return [drill()] if False else [{"when": now_iso(), "snapshot": "a1b2c3d4", "file": "/srv/arise/homes/bradly.dyer/Documents/Sunday setlist 2026-10-26.pdf", "bytes": 182_000, "matched": True, "ok": True, "note": "sample drill", "demo": True}]
     return read_json(load().state_dir / "drill-history.json", default=[]) or []
 
@@ -590,11 +751,13 @@ def parse_find(out: str, snap_times: dict) -> list[dict]:
 def versions_of(path: str) -> dict:
     """Every nightly copy of a file the backup holds."""
     job = job_for(path)
-    if not available():
+    if load().demo:
         rows = [{"snapshot": f"{(abs(hash(path)) + i * 7919) % 16 ** 8:08x}", "time": (datetime.now().replace(hour=3, minute=0, second=0, microsecond=0) - timedelta(days=d)).isoformat(timespec="seconds"),
                  "size": 182_000 - d * 1_200, "mtime": (datetime.now() - timedelta(days=d + 1)).isoformat(timespec="seconds"), "dir": False} for i, d in enumerate((0, 1, 2, 6, 13, 45, 120))]
         return {"demo": True, "path": path, "job": job["id"] if job else None, "job_name": job.get("name") if job else None,
                 "versions": sharing.within_versions(rows) if job else [], "backed_up": bool(job), "days": sharing.versions_days()}
+    if not available():
+        return {"demo": False, "path": path, "versions": [], "backed_up": False, "error": "restic is not installed"}
     if not job:
         return {"demo": False, "path": path, "job": None, "job_name": None, "versions": [], "backed_up": False}
     snaps = _restic(["snapshots", "--json"], 60)
@@ -623,13 +786,16 @@ def restored_name(name: str, date: str, taken) -> str:
     return cand
 
 
+@maintenance.guarded("file restore")
 def restore_version(path: str, snapshot: str, who: dict | None = None) -> dict:
     """Bring one snapshot's copy of a file back BESIDE the live one; never over it."""
     import shutil
     cfg = load()
     name = os.path.basename(path)
-    if not available():
+    if cfg.demo:
         return {"ok": True, "demo": True, "restored": restored_name(name, datetime.now().strftime("%Y-%m-%d"), lambda n: False)}
+    if not available():
+        return {"ok": False, "err": "restic is not installed; no file was restored"}
     if not re.fullmatch(r"[0-9a-f]{8,64}|latest", snapshot or ""):
         return {"ok": False, "err": "bad snapshot id"}
     scratch = cfg.state_dir / "restore-scratch" / f"{int(time.time())}-{os.getpid()}"

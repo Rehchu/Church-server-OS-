@@ -429,6 +429,10 @@ def suggest_user(local: str, realname: str, users: list[dict]) -> str | None:
 def enrol_token(by: str, name: str = "") -> dict:
     """An admin makes a one-time enrol line, good for an hour."""
     tok = secrets.token_urlsafe(24)
+    try:
+        command = enrol_command(tok, name=name)
+    except ValueError as e:
+        return {"ok": False, "err": str(e)}
     with _lock:
         d = _read()
         now = time.time()
@@ -436,7 +440,7 @@ def enrol_token(by: str, name: str = "") -> dict:
         d["tokens"][_hash(tok)] = {"by": by, "name": (name or "")[:60], "made": _now(), "expires": now + TOKEN_TTL}
         _write(d)
     audit.record(by, "macs.enrol_token", name or "")
-    return {"ok": True, "token": tok, "expires_in": TOKEN_TTL, "command": enrol_command(tok, name=name), "demo": load().demo}
+    return {"ok": True, "token": tok, "expires_in": TOKEN_TTL, "command": command, "demo": load().demo}
 
 
 def server_names() -> dict:
@@ -472,23 +476,25 @@ def enrol_command(tok: str, ip: str | None = None, name: str = "") -> str:
     n = server_names()
     ip = ip or lan_ip()
     fp = ca_fingerprint()
-    tail = f"--token {tok} --dns {ip}"
+    if not fp:
+        raise ValueError("Start Caddy and verify the church HTTPS certificate before enrolling a Mac; HTTP enrollment is disabled")
+    tail = f"--token {tok} --dns {ip} --ca-sha256 {fp}"
     nm = re.sub(r"[^A-Za-z0-9-]", "", (name or "").replace(" ", "-"))[:15]
     if nm:
         tail += f" --name {nm}"
-    if fp:
-        return (f"curl -fsSL http://{ip}:{n['port']}/ca.crt -o /tmp/arise-ca.crt && "
-                f"[ \"$(shasum -a 256 /tmp/arise-ca.crt | cut -c1-64)\" = \"{fp}\" ] && "
-                f"curl -fsSL --cacert /tmp/arise-ca.crt --resolve {n['host']}:443:{ip} https://{n['host']}/mac/enrol.sh"
-                f" | sudo bash -s -- {tail} --server https://{n['host']}")
-    return f"curl -fsSL http://{ip}:{n['port']}/mac/enrol.sh | sudo bash -s -- {tail} --server http://{ip}:{n['port']}"
+    return ('(arise_enrol_ca="$(mktemp /tmp/arise-ca.XXXXXX)" || exit 1; '
+            'trap \'rm -f "$arise_enrol_ca"\' EXIT; '
+            f'curl -fsSL http://{ip}/ca.crt -o "$arise_enrol_ca" && '
+            f'[ "$(shasum -a 256 "$arise_enrol_ca" | cut -c1-64)" = "{fp}" ] && '
+            f'curl -fsSL --cacert "$arise_enrol_ca" --resolve {n["host"]}:443:{ip} https://{n["host"]}/mac/enrol.sh'
+            f' | sudo bash -s -- {tail} --server https://{n["host"]})')
 
 
 def ca_fingerprint() -> str | None:
     try:
         from . import security
         pem = security.ca_cert()
-    except Exception:  # noqa: BLE001 - no CA yet: the plain-http line, on the church network only
+    except Exception:  # noqa: BLE001 - no CA yet: enrollment must wait for HTTPS
         pem = None
     if load().demo:
         return "0" * 64
@@ -778,14 +784,20 @@ def _nextcloud_off(mac_id: str, by: str) -> dict:
 
 def result(m: dict, task_id: str, state: str, detail: str = "", extra: dict | None = None) -> dict:
     """The helper reports a task. Accounts it made or removed are noted on the Mac at once."""
-    if state not in ("done", "failed", "refused", "skipped"):
-        return {"ok": False, "err": "state is done, failed, refused or skipped"}
+    if state not in ("done", "failed", "refused", "skipped", "pending"):
+        return {"ok": False, "err": "state is done, failed, refused, skipped or pending"}
     with _lock:
         d = _read()
         t = next((x for x in d["tasks"].get(m["id"], []) if x["id"] == task_id), None)
         if not t:
             return {"ok": False, "err": "no such task"}
-        t["state"], t["detail"], t["finished"] = state, (detail or "")[:500], _now()
+        if state == "pending" and t["kind"] != "filevault":
+            return {"ok": False, "err": "pending is reserved for deferred FileVault escrow"}
+        t["state"], t["detail"] = ("queued" if state == "pending" else state), (detail or "")[:500]
+        if state == "pending":
+            t.pop("finished", None)
+        else:
+            t["finished"] = _now()
         cur = d["macs"][m["id"]]
         if state == "done" and t["kind"] == "ariseadmin":
             cur["ariseadmin_at"] = _now()
@@ -800,7 +812,7 @@ def result(m: dict, task_id: str, state: str, detail: str = "", extra: dict | No
     if state == "done" and t["kind"] == "retire":
         _nextcloud_off(m["id"], by=f"mac:{m['name']} (retired)")
     audit.record(f"mac:{m['name']}", f"macs.task.{t['kind']}", t["args"].get("user") or t["args"].get("local") or "",
-                 ok=state in ("done", "skipped"), detail=f"{state}: {(detail or '')[:120]}")
+                 ok=state in ("done", "skipped", "pending"), detail=f"{state}: {(detail or '')[:120]}")
     return {"ok": True}
 
 

@@ -1,90 +1,58 @@
-# The Synology — four bays, joined to the domain, holding the real data
+# The Synology — storage and backups alongside the server
 
-> **Oct 30 2026: it is a DS216, with two bays.** Bradly's Synology is a DS216 (black, no letter):
-> a 2-core 1.3 GHz ARM with 512 MB, **two drive bays**, and ext4 only, so no Btrfs and no
-> Snapshot Replication. Where this page says four bays, read two:
->
-> - **Two drives, mirrored.** Create the pool as SHR (or RAID 1) with the first drive. Add the
->   second drive the next month and let it mirror; until then a dead drive loses the NAS copy,
->   and the off-site restic copy at Arise-Home is the safety net. Capacity is the smaller
->   drive's: two 4 TB drives give 4 TB.
-> - **Mixed brands are fine**, but avoid SMR drives (below). The safest cheap pick is two NAS
->   drives (IronWolf or WD Red Plus) of the same size.
-> - **History comes from restic**, not Synology snapshots: 30 daily, 12 weekly and 24 monthly
->   (docs/BACKUPS.md). The Snapshot Replication section below doesn't apply to this model.
-> - **512 MB is enough** for what the server asks of it: SMB shares, the restic repository and
->   the Macs' Time Machine. Don't add Synology packages that run in the background (Photos
->   indexing, Drive); Docker isn't offered on this model anyway.
-> - Check its DSM version (Control Panel → Info Center), update it before joining it to the
->   domain, and note whether Synology still ships updates for it.
->
-> Rows H2 and H5 in docs/ANSWERS.md.
+The server authenticates people and runs the dashboard, automator and apps.
+The current owner decision keeps homes, shares and apps on the server's disk;
+the Synology holds media, recordings and backups. An optional NAS-home layout
+needs explicit mounts and backup-path checks before use. One old disk should
+never hold the only copy of important files.
 
-The old PC is the brain: it authenticates people, runs the dashboard, the
-automator and the apps. The **Synology is where the bytes live**: four drives
-in RAID, the home folders, the media archive, the restic repository. One old
-disk in a PC should never be the only copy of anything.
+**Confirmed model: Synology DS216**, black, no suffix (Oct 30, H2). It has
+**two bays**, a small ARM CPU and 512 MB RAM. Use it for storage and backups;
+run ariseOS and its apps on the HP. This model uses **ext4**, not Btrfs, and
+has **no Snapshot Replication**. Restic supplies the versioned backup history.
+The old four-drive plan does not fit this NAS.
 
-**Model unknown.** Bradly has not said which Synology it is yet. Read these off
-it before going further, from DSM → Control Panel → Info Center:
+Before changing anything, record DSM version, installed drive models/sizes,
+health, pool/volume type and existing data from DSM. Menu names depend on
+DSM version. Existing data must be copied and a restore verified before any
+pool recreation; nothing below authorizes reformatting an existing volume.
 
-| Read off the NAS | Why it matters |
-|---|---|
-| Model (e.g. DS923+, DS423, DS224+) | "+" models support Btrfs snapshots and Docker; "j"/value models may not |
-| DSM version (7.x) | the menus below are DSM 7 |
-| Drive count and sizes | decides SHR vs SHR-2 |
-| Current RAID / volume type | if it already has data on it, nothing below reformats it |
+## 1. Two drives, eventually mirrored
 
-## 1. RAID — the decision for four bays
+The owner plans one drive now and another next month. For a new empty pool,
+start with **SHR and ext4**, then add a compatible second drive to obtain
+one-drive redundancy. If both drives are available initially, two-drive SHR
+or RAID 1 provides a mirror. Check the DS216 support/drive compatibility and
+DSM's actual expansion options before buying or confirming a storage change.
 
-| Layout | Survives | Usable space (4 × 4 TB) | When |
+| Stage | Example drives | Approximate usable capacity | Protection |
 |---|---|---|---|
-| **SHR (1-drive redundancy)** | one drive failing | ~12 TB | the default; good enough with the off-site copy in place |
-| SHR-2 (2-drive redundancy) | two drives failing | ~8 TB | if the church would rather lose a third of the space than ever rebuild from backup |
-| RAID 10 | one drive per mirror pair | ~8 TB | faster, same loss as SHR; no benefit here |
+| First drive | 1 × 4 TB | 4 TB nominal, about 3.6 TiB before overhead | No drive redundancy. Keep independent copies of every important file. |
+| Second drive, mirror healthy | 2 × 4 TB | 4 TB nominal, about 3.6 TiB before overhead | One drive may fail; deletion, ransomware or loss of the NAS still needs backups. |
 
-Recommendation: **SHR with 1-drive redundancy**, **Btrfs** file system (needed
-for snapshots), and a replacement drive on the shelf. A rebuild on a 4 TB
-drive takes most of a day; during it a second failure loses the volume. That
-is what the restic copy and the off-site copy are for (section 6).
+There is no third or fourth bay. Larger drives require a supported replacement
+and expansion procedure; adding a second drive to a mirror does not double
+usable space. A mirror is not a separate document-backup disk.
 
-If the NAS already holds data on a volume, leave it; add the shared folders to
-the existing volume.
-
-### One drive a month (Bradly, Oct 29)
-
-Four new 4 TB drives at once is not in the budget, so the pool grows one drive
-a month. SHR is what allows that: it starts on one drive, takes mismatched
-drives, and grows each time a drive is added.
-
-| Month | Drives | Usable | Protection |
-|---|---|---|---|
-| 1 | 1 | 4 TB | none: the originals stay on the server and Arise-Home holds the off-site copy |
-| 2 | 2 | 4 TB | one drive can fail (SHR mirrors the two) |
-| 3 | 3 | 8 TB | one drive can fail |
-| 4 | 4 | 12 TB, or 8 TB plus one separate 4 TB drive for document backups (round 4, 55) | one drive can fail |
-
-- **Create the pool as SHR from day one** (Storage Manager → Create → SHR, Btrfs);
-  a Basic volume cannot become SHR later without starting over.
-- Each new drive: Storage Manager → the pool → Add Drive. The expansion runs in
-  the background for about a day per 4 TB; the NAS stays usable.
-- **Drives:** CMR NAS drives (Seagate IronWolf, WD Red Plus). Mixed makes are
-  fine. Avoid SMR drives in the pool (WD Blue WD40EZAZ, for one): RAID
-  rebuilds on SMR crawl or fail. WD Blue WD40EZAX is CMR. A 7200 rpm desktop
-  drive (WD Black) works but runs hotter; it suits the server better.
-- **Check the model first:** the NAS must support SHR, and Synology's 2025
-  Plus models limited third-party drives at launch. Confirm against the model
-  on Friday before buying the second drive.
-- Until month 2, a failed drive loses the Synology's copy (not the church's
-  files). The nightly backup still runs to it and to Arise-Home.
+Choose compatible **CMR NAS drives**, checking the exact part number rather
+than the brand alone. Match or exceed the existing drive size as required by
+DSM. Verify backups before adding/replacing a drive, inspect the proposed
+operation in Storage Manager and wait for the pool to return to Healthy.
+Rebuild time depends on drive health, size and load; do not promise a fixed
+number of hours. During the first-drive stage, a drive failure loses the
+NAS copy, including any recordings stored only there. Configure and verify
+an independent off-site copy before treating that data as protected.
 
 ## 2. Join the NAS to the domain
 
-The NAS must use the server for DNS, like everything else.
+For the optional domain join, the NAS must resolve the AD domain and have
+a working time source. Leave its existing network address in place; the owner
+forbids router/DHCP changes. Verify a reachable, stable DC endpoint first.
 
 1. DSM → Control Panel → Network → General → **DNS server: the server's IP**
    (uncheck "get automatically" if the router hands out something else).
-   Set a **static IP** on the NAS too.
+   Verify ordinary name resolution still works through the server's forwarders.
+   Do not invent a static address or change the router's DHCP configuration.
 2. Control Panel → **Domain/LDAP** → Domain → **Join**:
    - Domain: `ad.arisecenla.com`
    - DNS server: the server's IP (it asks again)
@@ -94,31 +62,51 @@ The NAS must use the server for DNS, like everything else.
    AD. Permissions on shared folders are granted to domain users and groups
    from here.
 
-If the join fails on "unable to find domain", it is DNS on the NAS (step 1).
-If it fails on the clock, Control Panel → Regional Options → Time → sync with
-`arise-server.ad.arisecenla.com`.
+If the join fails, check domain DNS/SRV records, actual network reachability,
+credentials and clock agreement. For a clock error, inspect Control Panel →
+Regional Options → Time and verify its time source is reachable.
 
 ## 3. Shared folders
 
-Two shared folders on the volume:
+The `arise` share is mounted directly at `/mnt/synology`. Existing configuration
+uses a nested `arise/` folder inside that share for some data:
+
+| Server path | Path inside the NAS's `arise` share |
+|---|---|
+| `/mnt/synology/arise-backups/restic` | `arise-backups/restic` |
+| `/mnt/synology/arise/media` | `arise/media` |
+| `/mnt/synology/arise/recordings` | `arise/recordings` |
+| `/mnt/synology/arise/leavers` | `arise/leavers` |
+
+Do not flatten existing directories without updating configuration and checking
+backups. A folder under this mount is not the NAS's separate `homes` share.
+
+Optional DSM home service and data-share permissions:
 
 | Folder | Purpose | Permissions |
 |---|---|---|
 | **`homes`** (DSM's User Home service) | one home folder per domain user, created the first time they connect | each user: their own; `Domain Admins`: read/write all |
-| **`arise`** | the church's data: `media/` (graphics, loops, thumbnails, the podcast art), `shares/` (staff, leadership, kids), `arise-backups/` (the restic repository, the DC's offline backups) | `Media` group: `media/`; `Staff`/`Leadership` as named; `arise-backups/`: the server's service account only |
+| **`arise`** | `arise/media/`, `arise/recordings/`, `arise/leavers/`, `arise-backups/` as mapped above | Media access only where needed; leavers/backups restricted to authorized administrators and the server |
 
 Turn on **Control Panel → User & Group → Advanced → Enable user home service**
-and tick "Enable home service for domain users". That is what makes
-`\\synology\homes\<user>` exist.
+and tick "Enable home service for domain users" if choosing DSM homes.
+Normal users connect to their own `home` share; `homes` is the administrative
+collection of home directories.
 
-When the NAS is joined and `homes` exists, set in `/etc/arise/arise.toml`:
+Homes currently remain on the server. If the owner later elects to store them
+on the NAS, mount the intended storage explicitly and then set its real path,
+for example a dedicated folder inside the `arise` share:
 
 ```toml
 [directory]
-homes_path = "/mnt/synology/homes"
+homes_path = "/mnt/synology/arise/homes"
 ```
 
-and `arisectl user add` makes homes there instead of on the PC's disk.
+`arisectl user add` then makes homes there instead of on the PC's disk. This is
+not DSM's separate user-home share. Verify domain ownership/ACL support before
+using CIFS-backed homes; the ordinary server mount maps ownership to root.
+`arisectl backup jobs` must show the same path (`source: homes` follows config).
+Do not move existing homes simply to follow this example.
 
 ## 4. SMB for the Macs
 
@@ -133,14 +121,17 @@ Control Panel → File Services → SMB:
 - Advanced → "Enable macOS-friendly options" / `vfs_fruit` if the DSM version
   shows it: on. It makes Finder metadata and Time Machine behave.
 
-Macs connect as `smb://synology/homes/<user>`; Kerberos from the domain login
-means no password prompt.
+For optional DSM homes, Macs connect as `smb://<nas-name>/home`, authenticated
+as the intended domain user. For media, use `smb://<nas-name>/arise` and its
+allowed subfolders. Test permissions and Kerberos; linked local Mac accounts
+may need to enter their directory credentials. Server homes remain at
+`smb://arise-server.ad.arisecenla.com/<user>`.
 
 ## 5. Mounting it on the server
 
 The server mounts the `arise` share at `/mnt/synology` for the restic repo and
-the media backup paths. `install.sh` writes the fstab line; `arisectl nas
-mount` does the same by hand.
+the media backup paths. `arisectl nas mount` mounts the configured share; it
+does not write an fstab entry. `arise-nas-mount.service` handles startup mounting.
 
 **SMB/CIFS (default):**
 
@@ -151,11 +142,12 @@ password=<the service account's password>
 domain=ARISE
 
 # /etc/fstab
-//synology.ad.arisecenla.com/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=arise,gid=arise,vers=3.0,iocharset=utf8,_netdev,nofail  0  0
+//synology.ad.arisecenla.com/arise  /mnt/synology  cifs  credentials=/etc/arise/secrets/synology.cred,uid=0,gid=0,file_mode=0660,dir_mode=0770,vers=3.0,iocharset=utf8,_netdev,nofail  0  0
 ```
 
-`arise-server` is a domain service account created by `install.sh` for this
-(not Bradly's login, so a password change does not break backups).
+Create or verify a dedicated NAS service account and its write access to the
+backup paths. The example name alone does not create an account. Avoid using
+Bradly's interactive login so his password changes do not break backups.
 
 **NFS** (faster for restic, no credentials file): Control Panel → File
 Services → NFS → enable; on the `arise` shared folder → Edit → NFS
@@ -177,28 +169,31 @@ last Hyper Backup result) through the DSM API with the read-only account in
 
 | Copy | Where | Protects against |
 |---|---|---|
-| **1. The data itself** | the NAS volume, SHR | one drive dying |
-| **2. restic snapshots** | `/mnt/synology/arise-backups/restic` — the server's folders (automator, config, GitHub mirror, homes if they are on the PC) and the NAS's own `media/` and `shares/` | deleted or overwritten files, ransomware on a Mac, "it was fine yesterday" |
-| **3. Off-site** | **Hyper Backup** on the NAS → a USB drive that goes home with Bradly, **or** a cloud bucket (Backblaze B2, Synology C2, Google Drive) | the building: fire, theft, flood, a power surge that takes the NAS and the PC together |
+| **1. The data itself** | server homes/shares/apps; NAS media/recordings | primary working data; SHR redundancy only where configured |
+| **2. restic snapshots** | `/mnt/synology/arise-backups/restic`, jobs in `docs/BACKUPS.md` | versioned recovery from accidental changes |
+| **3. Off-site** | restic copy to **Arise-Home** over Tailscale (the current decision) | loss of the building or main hardware, once copying and recovery are tested |
 
-Copy 2 living on the same NAS as copy 1 is deliberate: it is a *version
-history*, not a disaster copy. Copy 3 is the disaster copy.
+For NAS-resident files, copies 1 and 2 share a failure domain. The source server
+can modify both online backup targets, so this is not an immutable ransomware
+defense. Consider a separately protected or offline copy with the owner.
 
-**Hyper Backup** (Package Center → install): create a task, source =
+**Optional additional protection, not configured by ariseOS:** if the owner
+selects Hyper Backup (Package Center → install), create a task, source =
 `homes`, `arise`, destination = the USB drive (`usbshare1`) or the cloud
-account, schedule nightly 04:30 (after restic has finished at ~03:30), keep
+account, schedule after verifying the restic run has finished, keep
 versions with Smart Recycle, **client-side encryption on**, write the key down
 on paper. Test a restore once in the first week.
 
-**Snapshot Replication** (if the model is Btrfs-capable; Package Center →
-Snapshot Replication): hourly snapshots of `homes` and `arise`, keep 24
-hourly / 7 daily / 4 weekly. This is the fastest "I deleted it ten minutes ago"
-fix and costs almost no space. If the package is not offered for this model,
-restic's snapshots do the same job a day coarser.
+**The DS216 cannot provide Btrfs Snapshot Replication.** Restic snapshots
+are versioned backup records, not NAS filesystem snapshots. Recovery points
+are only as recent as the last successful job; verify the actual schedule,
+retention and a restore. The server's Timeshift OS snapshots are separate
+and do not protect NAS files.
 
 ## 7. Things to check once a month
 
 - Storage Manager: volume **Healthy**, no drive "Warning"; SMART quick test scheduled weekly.
-- Hyper Backup: last run **Succeeded**, with the date.
+- Arise-Home: last offsite copy succeeded and a restore works.
+- If separately configured, Hyper Backup: last run **Succeeded**, with the date.
 - `arisectl backup status` on the server: last night green.
-- The USB off-site drive actually left the building.
+- If an offline USB copy was selected, the drive actually left the building.

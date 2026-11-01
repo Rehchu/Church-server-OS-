@@ -42,23 +42,19 @@ real. The other is the **standby**. The role is a record both nodes read
 (`/var/lib/arise/primary.json`, mirrored by Syncthing and checked over
 Tailscale), not an assumption.
 
-Bradly chose **automatic takeover after an hour** (113). The fence that
-makes that safe:
+Bradly requested **automatic takeover after an hour** (113). That remains a
+requirement for future work, not a safe implemented capability. Loss of a
+Tailscale heartbeat can mean a network partition while Pineville is still
+serving clients. A primary.json file mirrored by Syncthing cannot fence that
+server: both nodes can retain different copies and run the same jobs.
 
-1. Home watches Pineville over Tailscale. After sixty minutes without a
-   reply it promotes itself: takes the primary record, starts the apps from
-   last night's copy, enables the timers, and pushes "Arise-Home took over
-   at HH:MM; Pineville unreachable since HH:MM".
-2. The nightly job and the timers run on **exactly one node**. A standby
-   never enables them; a node that finds the record says the other is
-   primary disables its own.
-3. When Pineville comes back it reads the record, sees Home holds the role,
-   and **stays standby** until Bradly hands the role back from the Nodes page
-   (`arisectl node promote pineville`, the name typed). Nothing flips back
-   on its own, so a flapping internet link at the church cannot make the
-   automator run twice in one night.
-4. Handing the role back syncs the apps' data from Home to Pineville first
-   (the direction reversed for that one run), then moves the timers.
+Until a tested witness/lease and enforced fencing mechanism exist, promotion
+must be manual and must first establish that the old primary has stopped all
+writers and scheduled jobs. Rejoining nodes stay standby until their data is
+reconciled and the operator explicitly hands the role back. Never promote a
+standby solely because the peer cannot be reached. Partition, delayed restart,
+rejoin and interrupted hand-back tests are required before enabling automatic
+takeover. The current one-box installer does not provide this node workflow.
 
 While Home is primary, the church's Macs reach it over Tailscale: the
 domain already lives in both places, and the Macs' resolver files name both

@@ -1,14 +1,9 @@
 # The Store (08)
 
-> **Oct 30 2026: superseded for install day.** Bradly chose the core set (H4), so `install.sh`
-> installs only the **core five**: Nextcloud, Vaultwarden, Uptime Kuma,
-> Netdata and File Browser (Bradly: "Core set only"). Every other template is listed in the Store
-> with an **Install** button; `install.sh --apps all` or `arisectl app install-all` still deploys
-> them all. What follows is the round 3 design, which still describes how the budget works.
-
-Bradly, round 3, 5: "The 24 app templates should already be preinstalled,
-but definitely an App Store for other Linux programs that are free!" And
-round 3, 40: cap every app so none can starve the domain or the dashboard.
+Bradly's Oct 30 answer H4 replaces the earlier all-template installation:
+install **Nextcloud, Vaultwarden, Uptime Kuma, Netdata and File Browser** first.
+The other templates stay available in the Store. Every app has resource caps
+(round 3, 40); measure actual headroom as well as the configured limits.
 
 ## Two tabs
 
@@ -16,9 +11,12 @@ round 3, 40: cap every app so none can starve the domain or the dashboard.
 an **auto** tick (starts with the box), Start/Stop/Restart, Logs, and
 Remove (typed name; the containers go, the data folder under
 `/srv/arise/apps/<name>` stays, and deleting that is a by-hand decision).
-Above the table a gauge: the memory **promised** to the running apps (the
-sum of their caps) against the box's RAM, with 2 GB always kept for the
-domain, Samba, the dashboard and the kiosk.
+Above the table a gauge shows the sum of the running apps' **container caps**.
+The startup budget is physical RAM minus 2048 MiB for core services. This is
+headroom in the allocation plan, not a measurement of core-service usage.
+Every start, restart, update and autostart enable checks the caps of existing
+running/autostart containers, including containers outside the Store. An
+uncapped existing container or an unreadable allocation blocks another start.
 
 **Catalogue**: the 26 templates in `templates/` and the 35 entries in
 `catalog/catalog.yaml`, one card each with an honest memory estimate, the
@@ -26,11 +24,15 @@ cap, the CPU limit, whether it stops itself when idle, and what it does
 with the house look. Search and a category filter. Catalogue cards say
 "image tag not pulled from this build: verify before first deploy".
 
-## Preinstalled, within the budget
+## The core set, within the budget
 
-`install.sh` step 6a now runs `arisectl app install-all`: every template is
-deployed (compose written with its caps, secrets generated, images pulled),
-and **started only within the memory budget**. Each `template.yaml` carries
+The installer defaults to the five apps above. Choose `--apps all`
+explicitly to deploy every template, or `--no-apps` for a
+desktop/directory-only rehearsal. Deployment writes Compose with caps,
+generates secrets and pulls images; apps are **started only within the
+memory budget** and according to their autostart setting. A core app may
+therefore be installed but stopped, including File Browser by default.
+Each `template.yaml` carries
 
 ```yaml
 autostart: true        # start with the box
@@ -38,24 +40,44 @@ ram_mb: 350            # an honest estimate at rest
 limits: {mem_mb: 768, cpus: 1.0}   # the cap written into every service
 ```
 
-Nextcloud is not in that list: since round 6 (14) it is the Macs' and
-phones' sync and starts with the box (docs/SYNC.md).
-`apps.autostart_plan` takes the autostart apps smallest-first until RAM
-minus 2 GB is spent; the rest, and everything marked `autostart: false`
+Since round 6 (14), Nextcloud is the Macs' and phones' sync service
+(docs/SYNC.md), so a selected sync installation budgets it before optional apps.
+`apps.autostart_plan` reserves the required Nextcloud stack first, then takes
+optional autostart apps smallest-cap-first until RAM minus 2048 MiB is spent.
+It uses each stack's sum of per-service hard caps, never its estimated idle RAM.
+Among the selected apps, the rest and everything marked `autostart: false`
 (ollama, open-webui, frigate, moodle, synapse, mattermost, kimai, churchcrm,
 phplist, nginx-rtmp, wg-easy, filebrowser, every desktop program
 and both experiments), are deployed with `docker compose create` and left
 stopped, one click away. `arisectl doctor` warns when the autostart caps
 exceed the budget. The choice is remembered per app in
 `/srv/arise/apps/<name>/arise.json`; `arisectl app autostart <name> on|off`
-or the tick in the Store changes it.
+or the tick in the Store changes it. Enabling autostart checks the memory
+budget, writes the restart policy and starts the stack. Disabling autostart
+sets Docker's restart policy to `no`; it leaves a currently running stack
+running until Stop is pressed. Turn autostart off and stop an unused app to
+release its reserved capacity. Docker operations are serialized across the
+dashboard and CLI so concurrent starts cannot both claim the same headroom.
 
 ## Caps
 
 `apps.inject_limits` writes `mem_limit` and `cpus` into every service of the
-compose it deploys (a service that sets its own keeps it). Compose's
-`deploy.resources` is swarm-only, so these plain keys are used. A
-four-container app (Immich) gets the cap on each container.
+Compose file it deploys (a service that sets its own keeps it). The manifest's
+limits are per-service defaults; the Store reports the sum of actual service
+memory limits. Nextcloud has explicit limits totaling 2688 MiB; Immich totals
+5248 MiB. Idle RAM estimates are informative and do not control admission.
+Compose supports resource limits without Swarm; these files use its direct
+`mem_limit` and `cpus` keys.
+
+Image pulls run one template at a time with Compose parallelism set to one.
+Current app and pull progress reach the console and install log, with a bounded
+output tail preserved on errors and timeouts. Templates remain available even
+when the machine cannot start them all. A custom deployment name is refused:
+the templates currently use fixed container names, ports and data paths.
+
+Redeployment reuses the app's `.env`, or its root-only copy under
+`/etc/arise/secrets/apps/` after a restore. If data exists but required credentials
+are missing, deployment stops before replacing configuration or passwords.
 
 ## The catalogue
 
@@ -95,8 +117,8 @@ Finder hook that hands .docx/.xlsx/.pptx to it is a later block.
 
 **Game night**: a KDE desktop in a tab (webtop) for the lobby TV, with a
 note on installing Heroic Games Launcher and free games inside it; Heroic
-has no container image of its own, and the OptiPlex's iGPU limits this to
-older 2D titles through a browser stream. Off by default.
+has no container image of its own. Check the HP's actual GPU, driver and
+streaming performance before choosing games. Off by default.
 
 **Proclaim under Wine**: an experiment, marked as one (`experimental: true`,
 a warning on the card). Proclaim is a .NET/WPF app; expect it not to work;
@@ -131,8 +153,9 @@ Staff or Media groups (`/api/auth/me` carries the groups). The only app
 route a member may call is `/api/apps/open/{trilium|immich}`, which answers
 with the address and whether it is running. `templates/immich` is new: the
 server, machine learning, redis and the pgvecto-rs postgres, about 2.5 GB
-with machine learning on, capped at 4 GB; stop the ML container in the
-Store if the box is short and the library keeps working.
+estimated idle usage with machine learning on, with aggregate service caps of
+5248 MiB. Store → Immich → Stop stops the whole photo stack. The Store does
+not currently offer an ML-only switch.
 
 ## arisectl
 

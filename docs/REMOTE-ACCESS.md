@@ -7,9 +7,9 @@ This page is the whole story of how that works and what it costs in
 exposure. Nothing here opens the dashboard to the internet; a public door for
 members is a separate decision, docs/SETUP-GUIDE.md § 9.
 
-Which VLAN may reach which port, how a whole site (Alexandria) joins
-through one route box, and what happens to all of this when the server moves
-to the Hub are in **docs/NETWORK.md** and **docs/MOVING-DAY.md**; the order to
+The existing network, direct Tailscale access from Alexandria's Mac, and
+what happens when the server moves to the Hub are in **docs/NETWORK.md** and
+**docs/MOVING-DAY.md**; the order to
 set it all up is **docs/SETUP-GUIDE.md**. Only the four admins use the
 dashboard; staff and volunteers reach their files through Nextcloud over
 Tailscale (docs/SYNC.md, docs/ANSWERS.md round 5, 41).
@@ -21,7 +21,7 @@ Four doors, in the order you will use them:
 | **SSH** | a terminal on the box | anywhere, over the VPN |
 | **The VPN** | the church network on your laptop, wherever it is | anywhere |
 | **Guacamole** | remote desktop (RDP, VNC, SSH) to any church computer, in a browser tab | anywhere, over the VPN |
-| **The dashboard** | everything in `http://arise-server:4147`, including the Terminal app | anywhere, over the VPN |
+| **The dashboard** | everything in `https://arise-server.ad.arisecenla.com`, including the Terminal app | anywhere, over the VPN |
 
 The VPN is the door the other three sit behind. Set it up first.
 
@@ -32,9 +32,9 @@ The VPN is the door the other three sit behind. Set it up first.
 `arise-web` is the dashboard; `ssh` is what you use when the dashboard is
 the thing that is broken.
 
-**Port.** `[remote] ssh_port` in `arise.toml`, 22 by default. The firewall
-the installer writes allows it from anywhere; the VPN is what keeps "anywhere"
-small.
+**Port.** `[remote] ssh_port` in `arise.toml`, 22 by default. Verify the effective host firewall rules. A rule allowing SSH from anywhere
+is not limited by the existence of a VPN; LAN hosts can reach it too. No router
+port is forwarded.
 
 **Keys, not passwords.** On your Mac, once:
 
@@ -139,88 +139,23 @@ What you need to know before choosing it:
   device-to-device, encrypted with WireGuard; Tailscale cannot read it. When
   two devices cannot reach each other directly, traffic is relayed through
   Tailscale's DERP servers, still encrypted end to end.
-- **Plans.** The free Personal plan is for one user and up to 100 devices.
-  A church with several people logging in from their own accounts is more
-  than one user; read the current pricing page before you add the second
-  person. One shared church login on the free plan works for a handful of
-  machines, with the trade-off that everyone shares one identity.
-- **If Tailscale goes away** (the company, your account), you fall back to
-  the WireGuard option below. Nothing on the server depends on it except the
-  tunnel.
+- **Plans.** Check current Tailscale pricing and organizational eligibility. A shared
+  church login makes every device share one identity; do not infer eligibility
+  or a free allowance from an old user/device count.
+- **If Tailscale is unavailable**, local access and SSH recovery remain
+  necessary. An alternative remote-access design needs separate testing and
+  must respect the no-router-change rule; there is no automatic fallback.
 
 The dashboard's **Remote** app reads `tailscale status` and shows every
 device, online or not, and which site it belongs to.
 
-### WireGuard — self-hosted, nothing in the middle
+### Other VPN designs
 
-**Not used at Arise:** Bradly chose Tailscale only, with nothing forwarded
-on any router (docs/ANSWERS.md 36, 111). This section stays for reference.
-
-Plain WireGuard on the server. You own every key; nobody relays anything.
-The price is the plumbing: a port forward, a public name, and a config file
-per device.
-
-On the server, `install.sh --with-wireguard` does this:
-
-- installs `wireguard`, writes `/etc/wireguard/wg0.conf` with a fresh server
-  key, `Address 10.47.0.1/24`, `ListenPort 51820`, and PostUp/PostDown rules
-  that NAT the tunnel onto the LAN;
-- enables `wg-quick@wg0`; opens `51820/udp` in the firewall.
-
-Then you:
-
-1. **Forward UDP 51820** on the Pineville router to the server's LAN IP.
-   It is the only port the outside world ever sees.
-2. **Give the church a public name.** Either a static IP from the ISP, or a
-   dynamic DNS name updated by the router (most routers have a DDNS page;
-   DuckDNS, No-IP and Cloudflare all work). Put it in `arise.toml`:
-   `[remote] wg_endpoint = "arise.duckdns.org:51820"`.
-3. **Add a device.** Dashboard → Remote → *Add WireGuard peer* → name it
-   (`bradly-macbook`), or `sudo arisectl remote add-peer bradly-macbook`.
-   Either way you get a client config:
-
-   ```
-   [Interface]
-   PrivateKey = …
-   Address = 10.47.0.2/32
-   DNS = 10.47.0.1
-   [Peer]
-   PublicKey = …
-   PresharedKey = …
-   Endpoint = arise.duckdns.org:51820
-   AllowedIPs = 10.47.0.0/24, 192.168.1.0/24
-   PersistentKeepalive = 25
-   ```
-
-   Paste it into the WireGuard app (Mac App Store, Windows, iOS, Android) as a
-   new tunnel. `DNS = 10.47.0.1` points the device at the DC's DNS while the
-   tunnel is up, so `ad.arisecenla.com` resolves. The server keeps the
-   peer's public key in `/etc/wireguard/peers/<name>.json`; it never sees the
-   private key again, so if the config is lost, delete the peer and make a
-   new one.
-4. **Alexandria as a site.** Instead of a tunnel on every Mac there, run one
-   tunnel at the site: WireGuard on the Alexandria router if it supports it
-   (many do: UniFi, pfSense/OPNsense, GL.iNet, MikroTik), or on a small box
-   (a Raspberry Pi, an old laptop) that the Alexandria router routes
-   `192.168.1.0/24` and `10.47.0.0/24` through. Add it as a peer with
-   `AllowedIPs = 10.47.0.2/32, 192.168.2.0/24` on the server side so
-   Pineville can reach Alexandria too. Then every Mac in Alexandria is "on
-   the network" without running anything. The Tailscale version of the same
-   box is docs/NETWORK.md option B; after the server moves to the Hub,
-   Pineville needs one as well (docs/MOVING-DAY.md).
-
-**wg-easy** (the `wg-easy` template) is the same WireGuard with a web page
-for adding devices and QR codes for phones. Use it *instead of* native
-WireGuard, not alongside it: both want UDP 51820. If you deploy the template,
-do not pass `--with-wireguard` to the installer.
-
-### Which one
-
-Tailscale, unless the third-party part bothers you or the plan does not fit.
-It is what gets Bradly's laptop onto the church network from a hotel in five
-minutes, and it is what lets a Mac in Alexandria stay domain-joined without
-anyone touching the Alexandria router. WireGuard is there for the day that
-answer changes, and the dashboard supports both.
+The approved setup is Tailscale with no router changes and no public listener.
+The native WireGuard and wg-easy templates are legacy alternatives, not steps
+to enable for this install. Changing to a design that requires router forwarding
+is outside the current plan. Check current Tailscale terms instead of relying
+on the old free-plan user/device figures in historical documents.
 
 ---
 
@@ -255,8 +190,8 @@ Add these lines to `guacamole.properties` (the template mounts it at
 
 ```
 ldap-hostname: arise-server.ad.arisecenla.com
-ldap-port: 389
-ldap-encryption-method: none
+ldap-port: 636
+ldap-encryption-method: ssl
 ldap-user-base-dn: CN=Users,DC=ad,DC=arisecenla,DC=com
 ldap-username-attribute: sAMAccountName
 ldap-search-bind-dn: CN=guac-ldap,CN=Users,DC=ad,DC=arisecenla,DC=com
@@ -267,25 +202,28 @@ ldap-member-attribute: member
 
 `guac-ldap` is an ordinary domain user with no groups
 (`sudo arisectl user add guac-ldap --display "Guacamole lookup"`); Guacamole
-uses it only to search. `ldap-encryption-method: none` is fine because the
-traffic never leaves the server (Guacamole and the DC are on the same box).
+uses it only to search. Install the DC certificate authority in Guacamole’s
+Java trust store and verify the DC hostname. Do not disable Samba’s strong
+authentication requirement to make a plaintext simple bind work. A container
+sharing the physical host is not a reason to send LDAP passwords unencrypted.
 The LDAP extension has to be present in the Guacamole image's extensions
 folder; the template's notes say where it goes and the version has to match
 the Guacamole version.
 
-What Guacamole does not do: wake a sleeping computer. Turn off sleep on any
-Mac or PC you want to reach from home (Energy Saver / Power settings), or
-use Wake-on-LAN from the router.
+Guacamole requires the remote computer to be awake. Configure its own Energy
+Saver / Power settings if it must remain reachable; no router change or
+Wake-on-LAN service is part of this setup.
 
 ---
 
 ## (d) The dashboard, from anywhere
 
-Over the VPN the dashboard is just `http://arise-server:4147` (MagicDNS) or
-`http://<tailscale ip>:4147` or `http://10.47.0.1:4147` (WireGuard). Same
-login, same everything. The dashboard listens on every interface and the
-firewall allows 4147 from the LAN and the VPN ranges; it is never forwarded
-on the router.
+Over the VPN use `https://arise-server.ad.arisecenla.com` with verified church
+certificate trust and working split DNS. Caddy listens on 443; the application
+backend on 4147 listens only on loopback. Do not use a raw Tailscale IP for an
+HTTPS hostname unless the certificate actually covers it. Port80 exposes only
+the public bootstrap certificate at `/ca.crt`; no authentication or management
+API is served there. Verify its expected SHA256 before trusting it.
 
 **The Terminal app** in the dashboard is a real shell on the server, running
 as the user `arise-web` runs as, which is root on the Linux install. It is
@@ -311,10 +249,11 @@ v0.8** (round 3, 29; `--no-caddy` to skip, `--with-caddy` still accepted):
 | `remote.ad.arisecenla.com` | Guacamole, :8084 |
 
 `tls internal` means Caddy makes its own certificate authority on the server
-and signs a certificate for each name. Browsers do not know that CA. Every
-Mac that runs `enroll-mac.sh` or `bind-mac.sh --dns` fetches the root from
-`http://arise-server:4147/ca.crt` and trusts it; the Security app says
-whether the certificate is there. By hand, once per Mac:
+and signs a certificate for each name. Browsers do not know that CA. The current dashboard enrollment line pins the root certificate’s SHA256
+before trusting it. Standalone `bind-mac.sh` requires both `--ca-file` and
+`--ca-sha256` to add certificate trust; `--dns` alone never trusts an HTTP-fetched
+root. Obtain the fingerprint through a trusted connection, not from the same
+unverified download. The Security app says whether the server certificate exists. By hand, once per Mac:
 
 ```bash
 scp bradly@arise-server:/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/Desktop/arise-ca.crt
@@ -344,23 +283,18 @@ from (b) sends those lookups to the same DNS, so they work off-site too.
 ## (f) From the closet to anywhere — the checklist
 
 1. `ssh-copy-id` from your Mac. Confirm `ssh bradly@arise-server` needs no password.
-2. Run `sudo bash installer/install.sh --with-tailscale --ssh-key-file ~/.ssh/id_ed25519.pub` (Caddy is on by default; `--with-wireguard` if chosen). Re-running it is safe.
+2. Use the installer’s approved Tailscale and SSH-key settings. Inspect effective sshd and firewall policy after installation; do not enable WireGuard forwarding.
 3. `sudo tailscale up --ssh --advertise-routes=192.168.1.0/24`, sign in, approve the route, set MagicDNS and the split DNS for `ad.arisecenla.com`.
-4. Install Tailscale on your laptop and phone. From your phone's hotspot, open `http://arise-server:4147`. If it opens, the closet door can close.
+4. Install Tailscale on your laptop and phone. From your phone's hotspot, open `https://arise-server.ad.arisecenla.com`. If it opens, the closet door can close.
 5. Deploy Guacamole, change `guacadmin`, add the media Mac (VNC) and the lobby PC (RDP). Open each one from the laptop on the hotspot.
 6. Trust the Caddy CA on your Mac; open `https://arise-server.ad.arisecenla.com`.
 7. Turn off sleep on every computer you intend to reach.
 8. `sudo arisectl doctor`, then the Remote app in the dashboard: SSH key-only, VPN up, Guacamole running.
 
-**What is exposed to the internet, in total.** With Tailscale: nothing. No
-port on the church router is forwarded; the server makes outbound
-connections only. With WireGuard: one UDP port, 51820, and WireGuard does
-not even answer a packet unless it is signed by a known peer key, so a port
-scan sees it as closed. In both cases: no SSH port, no dashboard port, no
-RDP, no SMB, no DNS, nothing of the domain controller. Everything that can
-talk to the server does so because it holds a key you gave it, and the
-dashboard behind that still asks for its password. What is **not** covered:
-a church computer that is itself exposed (a Windows PC with RDP forwarded
-"for convenience"), a VPN key on a laptop that gets stolen (remove the device
-in the Tailscale console or delete the peer file and `wg set wg0 peer <key>
-remove`), and the dashboard password written on a sticky note in the closet.
+**Exposure to verify.** No church router port is forwarded in this plan.
+Remote access uses authenticated Tailscale devices; authorized LAN clients
+also reach the server directly, so the VPN is not the entire access boundary.
+Verify effective host/container firewall rules, DNS and certificate trust on
+the actual installation. Revoke lost devices in Tailscale and their application
+sessions. Other church machines' existing public listeners, stolen credentials
+and an unlocked administrator session remain separate access paths.

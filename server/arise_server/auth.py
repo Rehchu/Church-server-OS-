@@ -19,6 +19,8 @@ from itsdangerous import BadSignature, URLSafeTimedSerializer
 from .config import load
 
 COOKIE = "arise_session"
+_SECRET_LOCK = threading.Lock()
+_DEMO_SECRETS: dict[str, str] = {}
 
 
 def _secret(cfg) -> str:
@@ -32,14 +34,27 @@ def _secret(cfg) -> str:
             return s
     except OSError:
         pass
-    s = secrets.token_urlsafe(32)
-    try:
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(s)
-        os.chmod(p, 0o600)
-    except OSError:
-        pass  # ephemeral secret: sessions end on restart, which is fine
-    return s
+    with _SECRET_LOCK:
+        s = secrets.token_urlsafe(32)
+        try:
+            p.parent.mkdir(parents=True, exist_ok=True)
+            # Never replace a key another worker has just created, or expose it
+            # with the caller's default file mode even briefly.
+            try:
+                fd = os.open(p, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            except FileExistsError:
+                existing = p.read_text().strip()
+                if not existing:
+                    raise OSError("The configured session key is empty")
+                return existing
+            with os.fdopen(fd, "w") as f:
+                f.write(s)
+            return s
+        except OSError:
+            if not cfg.demo:
+                raise RuntimeError("Cannot load or create the session signing key; check the configured secret file permissions") from None
+            # A non-root demo has one key per process, not one per request.
+            return _DEMO_SECRETS.setdefault(str(p), s)
 
 
 def _serializer():
@@ -365,6 +380,13 @@ def require_admin(request: Request) -> dict:
     who = current_user(request)
     if who.get("role") != "admin":
         raise HTTPException(403, {"message": "Administrator only"})
+    return who
+
+
+def require_recent_admin(request: Request) -> dict:
+    """Both administrator authority and a recent full-password check."""
+    who = require_admin(request)
+    require_recent_auth(request)
     return who
 
 

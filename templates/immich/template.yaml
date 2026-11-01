@@ -22,8 +22,8 @@ notes: |
   media team's address, then invite staff by email from Administration.
   The phone app is "Immich" on iOS and Android; server address is the same
   URL over Tailscale. Machine learning (faces, smart search) is the heavy
-  container; stop it in the Store if the box is short on memory and the
-  library keeps working without it. Image tags were current when written:
+  container. The Store's Stop button stops the entire photo stack, not just
+  machine learning. Aggregate container caps total 5248 MiB. Image tags were current when written:
   verify before first deploy.
 theme:
   accepts: [primary, dark, css]

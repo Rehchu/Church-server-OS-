@@ -13,7 +13,7 @@ read the same facts.
 | SSH | keys only, password login off (Oct 28) | `/etc/ssh/sshd_config.d/arise.conf`; the admin's key enrolled by `install.sh --ssh-key` | re-run the installer with `--ssh-key` |
 | Asking twice | delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28) | `POST /api/auth/reauth`, `require_recent_auth`, `withReauth()` in the dashboard | nothing |
 | The restic password | on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58) | `/etc/arise/secrets/restic-password` on the box | `sudo arisectl rescue card` rewrites the card; the restic line stays blank for the pen |
-| Encryption | LUKS on the disk; no TPM 2.0 on the EliteDesk 800 G1 (H6), so the passphrase is typed at boot (Oct 30, H3; replaces r3 22) | ticked on Ubuntu's disk screen; typed at the closet keyboard or `ssh -p 2222 root@arise-server` | `sudo arisectl encrypt status` / `encrypt ssh` |
+| Encryption | LUKS; passphrase at boot on the expected TPM 1.2 hardware (H3/H6) | chosen in the Ubuntu installer; optional LAN SSH unlock; TPM 2.0 only if verified usable | `sudo arisectl encrypt status` |
 | System snapshots | before every update, five kept (r3 23) | Timeshift, rsync mode, `/timeshift` on the root disk | `sudo arisectl snapshot create "note"` |
 | Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | `sudo arisectl reinstall <repo>` |
 | Lockout | none (r3 27) | no fail2ban; domain lockout threshold 0 | nothing: his decision |
@@ -92,7 +92,7 @@ for ten minutes; after that, or in a PIN session, the sheet asks for it again.
 file as MMDD or DDMM, and the end of the mobile number on file.
 
 **Stored:** `/var/lib/arise/pins.json`, mode 0600, one bcrypt hash per
-person (cost 10, about 80 to 100 ms a check on the OptiPlex). A name with no
+person (bcrypt cost 10; verify performance on the actual hardware). A name with no
 PIN costs the same time against a dummy hash. The PIN is never stored, never
 logged and never sent back in an answer, and admins never see one.
 
@@ -125,9 +125,10 @@ The rest is the same: the session cookie, two-step (the six digits are still
 asked after a PIN), the new-device email, and the home folder. A Mac sign-in,
 a share mount and the Nextcloud app's device passwords never take a PIN.
 
-**Open for Bradly:** an admin PIN session can open the root **Terminal**
-window, because row 161 does not list it. If it should need the full
-password, that is one line in `main.py`, its websocket route.
+**Full password for administration:** the root Terminal requires a recent full
+password after PIN sign-in. Administrator mutation routes use
+`require_recent_admin`, which checks both the role and the password recheck.
+The dashboard handles the reauthentication prompt and retries once.
 
 Rules: `server/arise_server/pins.py`. Tests: `tests/test_pins.py`, plus the
 PIN steps in `tests/ui/sweep.js`.
@@ -169,62 +170,60 @@ too (round 7, 58). On the box it is `/etc/arise/secrets/restic-password`, root
 only. Lose all three and the backups cannot be read by anyone, Arise-Home's
 copy included.
 
-## Encryption: the passphrase at boot (Oct 30)
+## Encryption: LUKS and the boot passphrase
 
-The server, an HP EliteDesk 800 G1 SFF (H6), has a TPM 1.2 that clevis can't use and HP doesn't upgrade, so nothing can unlock the disk by itself. Bradly chose the
-passphrase at boot (docs/ANSWERS.md, H3):
+H3 replaces round 3's automatic TPM-unlock assumption. The primary HP
+EliteDesk 800 G1 SFF is expected to have TPM 1.2, which clevis cannot use for
+TPM 2.0 unlock. Plan for **a passphrase at every boot**. H6 permits TPM binding
+if the actual hardware has a usable TPM 2.0; verify its version and a successful
+restart before relying on unattended unlock.
 
-- **Install:** the install disc shows Ubuntu's disk screen. Check it is the right disk, keep
-  "Set up this disk as an LVM group", tick **Encrypt the LVM group with LUKS**, type the
-  passphrase twice. Write it on the safe card. Bradly and Kristina know it (row 58).
-- **Every boot:** the box stops at "Please unlock disk". Either type it at the closet keyboard,
-  or, from a church computer, `ssh -p 2222 root@arise-server`. That SSH is dropbear inside the
-  early boot, on port 2222, accepting only the owner's SSH keys, and each key can only answer the
-  passphrase prompt: no shell, no tunnels. `sudo arisectl encrypt ssh` sets it up (the installer
-  runs it); run it again after adding a key. Church network only: nothing is forwarded from the
-  internet (rule 7), and Tailscale isn't running that early.
-- **No surprise restarts:** the Saturday 03:30 update installs but never restarts the box by
-  itself while the disk needs a passphrase. Its note says a restart is waiting; someone clicks
-  System → Restart when they can unlock it.
-- **The BIOS:** set Advanced → Power-On Options → After Power Loss to On (docs/HARDWARE.md), so after a power cut the box waits at the prompt
-  rather than staying off.
+1. In the Ubuntu Server storage screen, identify the intended disk, choose
+   an LVM layout and **Encrypt the LVM group with LUKS**. Review the final
+   plan before confirming disk erasure. Encryption is chosen at installation;
+   the later ariseOS wizard does not encrypt an existing plain root filesystem.
+2. Write the passphrase on the closet card by hand, as the owner chose.
+   Bradly and Kristina know it (round 7, 58). Keep it available for recovery
+   even if TPM 2.0 binding is later possible.
+3. Boot with the install USB removed and test the passphrase at the keyboard.
+   Check `sudo arisectl encrypt status`. A successful VM test does not verify
+   the HP's firmware, disk encryption, TPM or physical recovery path.
 
-The rest of this section is the TPM design from round 3, for a later box that has TPM 2.0.
+On passphrase boot, power-on-after-AC-loss stops at unlock. Scheduled updates
+must not restart the server automatically when unattended unlock is unknown
+or unavailable. Plan a supervised restart outside services, with someone able
+to unlock it. The full OS, Samba DNS, dashboard and Tailscale start only after
+that step.
 
-## Encryption: LUKS with the TPM
+### Optional SSH unlock on the church LAN
 
-Bradly chose: encrypt the data disk, let the TPM unlock it (round 3, 22).
-On one disk, "the data disk" is the Ubuntu root disk, so the choice is made
-**in the Ubuntu Server installer**, not later:
+Set this up only after the keyboard recovery path works:
 
-1. Ubuntu Server 24.04 installer → *Guided storage configuration* → keep
-   *Use an entire disk* → tick **Set up this disk as an LVM group** → tick
-   **Encrypt the LVM group with LUKS** → type a passphrase twice.
-2. Write that passphrase on the closet card by hand (it leaves a blank line
-   for it), and give it to Kristina (round 7, 58). Without it and without the
-   TPM the disk is a brick.
-3. First boot asks for the passphrase once. Then `install.sh` (step 6j) finds
-   the LUKS volume and a TPM 2.0 and asks the passphrase one more time to
-   bind the disk to the TPM with clevis:
+```sh
+sudo arisectl encrypt ssh --network dhcp --authorized-keys /path/to/owner-public-keys
+```
 
-       clevis luks bind -d /dev/sda3 tpm2 '{"pcr_bank":"sha256","pcr_ids":"7"}'
-       update-initramfs -u
+The file contains **bare RSA (at least 2048-bit), ECDSA or Ed25519 public
+keys**, not private keys, FIDO keys, certificates or lines with
+`authorized_keys` options. The command requires an explicit boot-network
+choice and creates a restricted initramfs SSH service on port 2222, forced
+to `cryptroot-unlock` without forwarding or a general shell. Review the
+command's result and test a supervised reboot before relying on it.
 
-   From the next boot the TPM hands over the key and the box starts alone.
-   The passphrase keeps working as the fallback (a BIOS change, a new board,
-   a Secure Boot change: PCR 7 moves and the TPM refuses; type the passphrase,
-   then `sudo arisectl encrypt tpm` again).
+From a permitted church LAN computer, use `ssh -p 2222 root@<boot-lan-ip>`.
+Record and verify the early-boot SSH host-key fingerprint locally. DHCP may
+assign an address different from the running server's address. Do not assume
+`arise-server` resolves while its own DNS is locked, or that its Tailscale
+address works before boot. The normal OS firewall is also unavailable at
+this stage; use the trusted church LAN and verify actual reachability. No
+router, DHCP or port-forward change is part of this setup. Retain the local
+keyboard if the preboot network is unavailable.
 
-`arisectl encrypt status` says which of the three is true: LUKS present, TPM
-present, bound. `--no-tpm` on the installer skips the binding (someone types
-the passphrase at every boot). No TPM in the Dell: enable it in the BIOS
-(Security → TPM 2.0 Security, or PTT on Intel boards); most OptiPlexes since
-2016 have one.
-
-Not verified here: no LUKS disk and no TPM in this environment. The commands
-are the documented clevis path for Ubuntu with initramfs-tools; the first run
-on the real Dell is the test, with the passphrase on the closet card as the way
-back if it does not take.
+TPM 2.0 binding, when applicable under H6, uses `sudo arisectl encrypt tpm`.
+It does not remove the recovery passphrase. Firmware or Secure Boot changes
+can affect measured boot and require the passphrase; verify recovery before
+such maintenance. Physical LUKS, TPM and early-boot SSH remain installation
+rehearsal checks, not claims established by mocked or VM-only tests.
 
 ## System snapshots before updates
 
@@ -239,8 +238,8 @@ five are kept; `arisectl snapshot restore <name>` rolls the system back
 ## The virus scan
 
 ClamAV, Sunday 23:30, over `/srv/arise/homes` and `/srv/arise/shares`.
-Video and audio files are skipped (hours of CPU, never carriers), so are the
-Trash and caches. A found file is **moved** to `/srv/arise/.quarantine/<date>/`
+Video and audio files are skipped to reduce scan load, as are Trash and
+caches. Those exclusions are coverage gaps, not proof the files are harmless. A found file is **moved** to `/srv/arise/.quarantine/<date>/`
 with a manifest, never deleted; the report goes to
 `/var/log/arise/clamscan-<date>.json`; Bradly gets a push. The Security app
 lists quarantined files with a **Put back…** button that asks for the name
@@ -304,3 +303,24 @@ Nothing of it is built in v0.8. What it needs when it is:
 - **Browsers never sign out** (38): the cookie lasts a year. The monitor's
   ten-minute lock is unchanged.
 - **MIT** (37): `LICENSE` at the root.
+
+
+## Independent-review corrections
+
+TOTP challenges contain only a random reference; the waiting session remains in
+server memory and is released once after a valid code. Challenges expire after
+five minutes, three failures, or a server restart. Signed JSON is not encryption.
+
+With Caddy enabled the application binds loopback; remote browsers use HTTPS.
+The port-80 endpoint serves only the public CA certificate. Enrollment verifies
+its installer-supplied SHA256 fingerprint before trusting it.
+
+Folder compression checks each descendant and refuses filesystem links during
+reading. Public archive links never include the Pastors folder, including when
+a parent directory was selected. Emergency-access responses report actual
+notification delivery failures; contact the pastors directly if email fails.
+
+The audit file is append-only by application convention, not immutable against
+root. Write failures are exposed in upkeep; state and audit history are included
+in backups. Independently protected or offline copies remain necessary against
+a compromised source server.

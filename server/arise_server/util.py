@@ -5,6 +5,8 @@ import json
 import os
 import shutil
 import subprocess
+import queue
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +36,68 @@ def run(cmd: list[str], timeout: int = 60, input_text: str | None = None, check:
     if check and not res["ok"]:
         raise RuntimeError(res["err"] or res["out"] or res["cmd"])
     return res
+
+
+def run_stream(cmd: list[str], timeout: int = 1800, log=None) -> dict:
+    """Stream long-running tool output, retaining a bounded tail and its exit status.
+
+    Used for image pulls: the CLI/installer can tee this output into its log.
+    Unlike run(), a timeout preserves the diagnostic output received so far.
+    Never pass commands that print credentials to this helper.
+    """
+    log = log or (lambda line: print(line, flush=True))
+    started = time.monotonic()
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                text=True, bufsize=1, start_new_session=True)
+    except FileNotFoundError:
+        return {"ok": False, "code": 127, "out": "", "err": f"{cmd[0]}: not installed"}
+    output = queue.Queue()
+
+    def reader():
+        try:
+            for line in proc.stdout:
+                output.put(line)
+        finally:
+            proc.stdout.close()
+            output.put(None)
+
+    threading.Thread(target=reader, daemon=True).start()
+    tail, expired = "", False
+    def kill():
+        try:
+            if os.name == "posix":
+                import signal
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
+        except ProcessLookupError:
+            pass
+
+    while True:
+        remaining = timeout - (time.monotonic() - started)
+        if remaining <= 0:
+            expired = True
+            kill()
+            break
+        try:
+            line = output.get(timeout=min(remaining, 0.25))
+        except queue.Empty:
+            continue
+        if line is None:
+            break
+        tail = (tail + line)[-262144:]
+        log(line.rstrip("\r\n"))
+    try:
+        proc.wait(timeout=max(0.01, timeout - (time.monotonic() - started)))
+    except subprocess.TimeoutExpired:
+        expired = True
+        kill()
+        proc.wait()
+    code = 124 if expired else proc.returncode
+    err = f"timed out after {timeout}s" if expired else (tail if code else "")
+    return {"ok": code == 0, "code": code, "out": tail, "err": err,
+            "seconds": round(time.monotonic() - started, 2)}
 
 
 def read_json(path: str | os.PathLike, default=None):

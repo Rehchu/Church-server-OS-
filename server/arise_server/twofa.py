@@ -33,6 +33,7 @@ DEMO_ON = ["bradly"]  # the sample: Bradly has it on, nobody else
 _lock = threading.Lock()
 _wrong: dict[str, int] = {}       # pending nonce -> wrong codes so far
 _dead: set[str] = set()           # nonces that spent their three tries
+_pending: dict[str, dict] = {}    # sessions stay on the server until TOTP succeeds
 
 
 def _dir() -> Path:
@@ -280,8 +281,23 @@ def _serializer():
 
 
 def pending_token(session_token: str, user: str) -> str:
-    """Wraps the finished session token so it is handed out only after a code."""
-    return _serializer().dumps({"t": session_token, "u": user, "n": secrets.token_urlsafe(8)})
+    """Return an opaque challenge; a signed payload is not encryption.
+
+    Pending challenges intentionally expire on process restart. No completed
+    session, password, or TOTP secret is ever sent before the second factor.
+    """
+    now = time.time()
+    nonce = secrets.token_urlsafe(32)
+    with _lock:
+        for key, value in list(_pending.items()):
+            if value["expires"] <= now:
+                _pending.pop(key, None)
+                _wrong.pop(key, None)
+                _dead.discard(key)
+        if len(_pending) >= 4096:
+            raise RuntimeError("Too many pending sign-ins; try again shortly")
+        _pending[nonce] = {"token": session_token, "user": user, "expires": now + PENDING_SECONDS}
+    return _serializer().dumps({"n": nonce})
 
 
 def finish(pending: str, code: str, max_age: int = PENDING_SECONDS) -> dict:
@@ -293,17 +309,22 @@ def finish(pending: str, code: str, max_age: int = PENDING_SECONDS) -> dict:
         return {"ok": False, "err": "That took more than five minutes. Sign in again.", "left": 0, "expired": True}
     except BadSignature:
         return {"ok": False, "err": "Sign in again.", "left": 0, "expired": True}
-    user, nonce = d.get("u", ""), d.get("n", "")
-    rec = _read(user) or {}
+    nonce = d.get("n", "")
     with _lock:
-        if nonce in _dead:
-            return {"ok": False, "err": "Three wrong codes. Sign in again.", "left": 0, "expired": True}
+        pending_record = _pending.get(nonce)
+        if not pending_record or pending_record["expires"] <= time.time() or nonce in _dead:
+            _pending.pop(nonce, None)
+            return {"ok": False, "err": "Sign in again.", "left": 0, "expired": True}
+        user = pending_record["user"]
+        rec = _read(user) or {}
         good = bool(rec.get("on")) and fresh_code(user, rec.get("secret", ""), code)
         a = pending_attempt(nonce, good)
-        if good:
-            _dead.add(nonce)   # a pending sign-in is spent once it has worked
+        if good or a["dead"]:
+            _pending.pop(nonce, None)
+            _wrong.pop(nonce, None)
+            _dead.discard(nonce)
     if not a["ok"]:
         if a["dead"]:
             return {"ok": False, "err": "Three wrong codes. Sign in again.", "left": 0, "expired": True}
         return {"ok": False, "err": f"That code did not match ({a['left']} more {'try' if a['left'] == 1 else 'tries'}).", "left": a["left"], "expired": False}
-    return {"ok": True, "token": d["t"], "user": user}
+    return {"ok": True, "token": pending_record["token"], "user": user}

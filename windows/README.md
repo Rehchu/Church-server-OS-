@@ -20,7 +20,7 @@ dashboard's Help app). Open **PowerShell as Administrator** in that folder:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\join-arise.ps1 -ServerIp 192.168.1.20
+.\join-arise.ps1 -ServerIp 192.168.1.20 -CaSha256 <verified-church-CA-file-SHA256>
 ```
 
 It does six things and stops at the first that fails:
@@ -29,7 +29,10 @@ It does six things and stops at the first that fails:
 2. Adds one name-resolution rule (NRPT) so that only `*.ad.arisecenla.com`
    is asked of the server. The PC's own DNS, the router and the Mesh stay
    as they are. Over Tailscale the domain already resolves and no rule is added.
-3. Trusts the church certificate, so `https://arise-server` shows the padlock.
+3. Trusts the church certificate only after checking `-CaSha256` against the
+   downloaded certificate bytes. Obtain that SHA256 through a trusted admin or
+   trusted dashboard enrollment line; an unauthenticated HTTP response is not
+   an identity check. Without the pin, certificate trust is left unchanged.
 4. Joins `AD.ARISECENLA.COM` into `OU=PCs,OU=Computers` (the installer
    makes that OU). It asks for the domain admin.
 5. Installs a sign-in script for every user that maps the shares they may

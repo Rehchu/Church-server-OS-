@@ -1,205 +1,115 @@
-# Hardware — what to send, what is enough, what to expect
+# Hardware — the HP server, Dell spare and Synology
 
-The specs of the old PC are **not known yet** (Bradly, Oct 27 2026: "I'll
-let you know system specs at a different date"). This page is what to
-collect, and what each answer means for the install. The Synology's model is
-also unknown; its page is `SYNOLOGY.md`.
+Bradly's Oct 30 answers H1–H6 in `docs/ANSWERS.md` set the hardware plan:
 
-## What to send
+| Role | Confirmed model | Plan |
+|---|---|---|
+| **Primary: arise-server** | **HP EliteDesk 800 G1 SFF** | Free to wipe after preservation checks; Ubuntu Server 24.04 LTS. |
+| Spare | Dell OptiPlex 3010, Windows 7, Core i3 | Keep as the spare; it is no longer the primary installation target. |
+| NAS | Synology **DS216**, black, no suffix | Two bays, ext4, no Btrfs or Snapshot Replication. See `SYNOLOGY.md`. |
 
-Open **Settings → System → About** on the old PC, and **Device Manager** for
-the rest, or run this in PowerShell and paste the whole output:
+The exact installed CPU, RAM, disks and firmware still need checking. The HP
+family commonly has a fourth-generation Intel CPU and DDR3 memory, but the
+model name does not prove which processor, DIMMs or drives this unit contains.
+Neither this document nor a successful VM boot certifies the physical hardware.
+
+## Inventory before buying or wiping
+
+Use Windows **System Information** (`msinfo32`), Device Manager and Disk
+Management, or the BIOS inventory. Record the HP product/serial number and
+check its matching service manual. Factory specifications do not establish
+what is installed today. In PowerShell, where these commands are available:
 
 ```powershell
 Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, TotalPhysicalMemory
 Get-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors
-Get-PhysicalDisk | Select FriendlyName, MediaType, Size, BusType
+Get-CimInstance Win32_PhysicalMemory | Select DeviceLocator, Capacity, Speed, PartNumber
+Get-CimInstance Win32_DiskDrive | Select Model, Size, InterfaceType
 Get-NetAdapter | Select Name, InterfaceDescription, LinkSpeed, Status
 Confirm-SecureBootUEFI
 Get-Tpm | Select TpmPresent, TpmReady
 ```
 
-| Item | Why it matters |
+Older Windows versions may lack individual cmdlets. Read the corresponding
+firmware/Device Manager screen instead. `Get-Tpm` presence alone does not prove
+TPM 2.0; inspect the specification version in `tpm.msc` or firmware.
+
+| Check | Why it matters |
 |---|---|
-| **Make and model** | Tells me the BIOS key, whether it is UEFI, and what it is likely to have inside |
-| **CPU** (name, cores) | 2 cores is enough. Anything from the last 12 years is fine. A Celeron/Atom is the one thing to flag |
-| **RAM** (GB) | The number that decides the most — see the table |
-| **Disks** (SSD or spinning, size, how many) | A spinning disk makes everything feel slow; an SSD is the single best upgrade. 64 GB is enough for the system; data lives on the NAS |
-| **Network** (wired speed) | Must be wired. Gigabit is normal; 100 Mbit works but the first backup takes all night |
-| **UEFI / Secure Boot / TPM** | Ubuntu handles all of them; I just need to know for the USB (MBR vs GPT) |
-| **Free USB port on the back** | For the install stick |
-| **Where it will sit** | On 24/7, plugged into the router or a switch by cable, somewhere the fan noise does not matter |
+| CPU model and core count | Verify Ubuntu and selected app-image compatibility; measure indexing, backup and media workloads. |
+| Installed RAM and free DIMM slots | Choose compatible memory from the service manual, accounting for existing modules. |
+| Disk model, capacity and health | Identify the disk to erase. Budget for Ubuntu, images, databases, logs, local files and update space. |
+| Wired Ethernet and negotiated speed | Test the real link, DHCP and sustained transfers; a link light is insufficient. |
+| UEFI, Secure Boot, TPM version | Record current settings and rehearse the actual USB boot and encrypted-disk unlock. |
+| Cooling and power | Clean safely, check fan operation and temperatures, and identify the UPS. |
 
-## Minimums
+## Approved upgrades
 
-| | Server profile (Linux, everything) | Windows mode |
-|---|---|---|
-| CPU | 2 cores, x86-64 | 2 cores |
-| RAM | **4 GB** | 4 GB |
-| Disk | **64 GB SSD** (128 preferred) | 32 GB free |
-| Network | **wired** Ethernet | wired |
-| Recommended | 8 GB RAM once Docker apps are on | — |
+H5/H6 selects a **500 GB 2.5-inch SATA SSD** for the HP system disk. Check the
+SFF mounting bracket, power and SATA cables before ordering. If installed RAM
+is below 16 GB, bring it to **16 GB with compatible DDR3** after checking the
+actual slot layout and service manual; H6 suggests 2 × 8 GB DDR3-1600. Do not
+buy another 16 GB if the unit already has sufficient compatible memory.
+Prices and availability vary. Keep the original disk intact until its needed
+files have been preserved and the new installation has passed its checks.
 
-## What you have → what to expect
+## Apps and capacity
 
-| RAM | Directory + dashboard + automator + backups | Docker apps |
-|---|---|---|
-| 2 GB | Works, tight. The domain controller alone wants ~600 MB. No Docker. | No |
-| **4 GB** | Comfortable. This is the normal case. | One or two light ones (file browser, uptime monitor). Not a photo library. |
-| **8 GB** | Everything, with room. | All the templates, together. |
-| 16 GB+ | Nothing more to say. | Anything you like. |
+H4 installs only **Nextcloud, Vaultwarden, Uptime Kuma, Netdata and File
+Browser** by default. Other apps are available in the Store; `--apps all` is
+an explicit option. Installed does not mean running: autostart settings and
+the Store's memory admission checks still apply.
 
-| Disk | What to expect |
+These are rehearsal starting points, not capacity guarantees. The Store
+reserves 2 GB of physical RAM for the host, but container caps do not predict
+actual peak use, filesystem cache, database growth, CPU or disk contention.
+
+| RAM | Practical starting point |
 |---|---|
-| Spinning HDD only | Installs fine. Logins and the dashboard feel laggy. The first `restic` run of a big home folder takes hours. **Buy an SSD** — a 240 GB SATA SSD is about $20–30 and turns an old PC into a different machine. |
-| SSD, 64–120 GB | Fine. Homes and shares go to the NAS, so the system disk stays small. |
-| SSD, 240 GB+ | Fine, and homes can stay local until the NAS is set up. |
-| Two disks | Ubuntu on the SSD; the other one becomes a second restic target (`arisectl backup` can keep a copy off the NAS too). |
+| 2 GB | Below the planned rehearsal minimum; leave apps off. |
+| 4 GB | Limited desktop/directory-only evaluation; measure memory and swap during backups. |
+| 8 GB | Initial VM allocation if the host has enough free RAM; test the selected apps together. |
+| 16 GB+ | More headroom; still measure. Immich, Frigate, AI and transcoding require their own sizing. |
 
-| CPU | What to expect |
-|---|---|
-| Any Core i3/i5/i7, Ryzen, Xeon from 2012 on | Fine for everything. |
-| Celeron / Pentium / Atom | Fine for the domain, the dashboard and the automator. Docker apps and the first big backup will be slow; the nightly run still finishes long before morning. |
-| 32-bit only | Cannot run Ubuntu 24.04. Tell me; a different plan. |
+A 64–120 GB SSD is suitable only for a measured core evaluation. The approved
+500 GB SSD leaves more room, but monitor growth and preserve free space for
+image pulls, updates and restores. Data moves to NAS storage only after the
+intended layout has been configured and verified. A second disk is not
+a backup until a backup job writes to it and a restore has been tested.
 
-## Two rules about the box itself
+## Firmware and the first physical rehearsal
 
-1. **Wired, always.** A domain controller on Wi‑Fi is a bad day: every Mac
-   login, every file open, every DNS lookup on the network waits on that
-   link, and when it drops at 2 AM so does the automator. If the only
-   Ethernet is across the room, a $15 flat cable along the baseboard is
-   the whole fix.
-2. **On 24/7.** The automator runs at 2:05 AM, backups at 3:00, the mirror
-   at 4:00. If the PC is off they run when it next boots (`Persistent=true`
-   on every timer), but a domain controller that is off means nobody can
-   log in. Turn off sleep in the BIOS (it is on by default on most desktops)
-   and leave the power button alone.
+The HP normally uses **Esc/F9** for the boot menu and **F10** for setup;
+the Dell spare normally uses **F12/F2**. Follow the prompts on the actual
+machine. Use UEFI installation and inspect storage settings before changing
+them. Changing SATA mode can prevent an existing Windows installation from
+booting; finish preservation first. Ubuntu provides signed boot components,
+but Secure Boot must be tested on this unit with the produced install media.
+Do not assume a firmware update or a generic compatibility list proves it.
 
-## Things that are not a problem
+Check HP's model-specific firmware guidance. If an update is needed, use
+stable power, the correct image and the vendor procedure; record settings
+beforehand. After installation test Ethernet, USB keyboard, display, disk
+health, suspend policy, restart and power restoration. Confirm the installed
+system boots with the USB removed, and test the recovery passphrase.
 
-- No monitor after the install. Everything is reachable over SSH and the
-  dashboard.
-- Old Windows licence. Path A wipes it; nothing on the server needs it.
-- A noisy fan. Blow the dust out before it goes in the closet.
-- A PC that is "too slow for Windows 11". Ubuntu Server with no desktop
-  needs a fraction of that; the 4 GB row above is a 2013 machine.
+The expected HP TPM is **1.2**, which does not provide clevis TPM 2.0 unlock.
+H3 therefore means entering the LUKS passphrase at every boot. H6 allows
+TPM binding if this actual machine has a usable TPM 2.0; verify successful
+unlock before treating it as unattended. See `SECURITY.md` for the optional
+LAN SSH unlock path and its preboot network requirements.
 
-## Oct 27 2026: the box is a Dell OptiPlex, and it gets wiped
+## Operation
 
-Bradly confirmed the old PC will be wiped (install path A). It is believed to be a
-Dell OptiPlex; model and specs to follow. The service tag on its sticker, put into
-dell.com/support, answers every line above at once. `docs/PRE-WIPE.md` is the
-checklist for the days before the wipe: specs, the two credential files if the
-automator runs there today, the USB stick, the F12/F2 boot steps.
+Keep the server wired and powered continuously; domain logins, password
+changes, server files and jobs depend on it. Existing cached mobile accounts
+and linked local Mac accounts can still log in when it is unavailable.
+Turning on **power on after AC loss** in firmware does not unlock LUKS: on
+passphrase boot, someone must unlock it before services return. Keep a working
+keyboard/monitor and the owner-approved closet recovery card available.
 
-## Oct 30 2026 (later): the server is the HP EliteDesk 800 G1 SFF
-
-Bradly: "The other windows pc is an hp elite desk 800 g1 SFF", then "EliteDesk" and "Free to
-wipe" (docs/ANSWERS.md, H6). The OptiPlex 3010 below is now the spare.
-
-| | What it has | What it means |
-|---|---|---|
-| CPU | Intel 4th generation (Haswell), usually a 4-core i5-4570 or i5-4590, sometimes an i7-4770 | about twice the OptiPlex's power. AVX2, so the Store's heavier apps (BookStack, Jellyfin, even Immich) are realistic; the core five stay the default (H4) |
-| Memory | DDR3-1600, **4 slots, 32 GB** most (Q87 chipset) | 8 GB runs the core five; **16 GB** (2 × 8 GB, about $20 used) gives room for the Store. Non-ECC desktop DIMMs, 240-pin |
-| Disk | one 3.5-inch bay, plus a slim optical bay; **SATA only** (no M.2) | the same 500 GB 2.5-inch SATA SSD (H5), with a 3.5-inch adapter or the bracket HP uses |
-| TPM | Infineon TPM 1.2 | HP's community support says the 800 G1's chip isn't on HP's 1.2 to 2.0 upgrade list, so the disk passphrase is typed at boot (H3). `arisectl encrypt status` shows the version |
-| Graphics | Intel HD 4600 (on the CPU), DisplayPort and VGA | fine for the closet monitor; a DisplayPort-to-HDMI cable if the monitor is HDMI |
-| Network | Intel gigabit (I217-LM) | fine |
-
-**Before the wipe** (it's free to wipe, H6):
-
-1. Write down from its sticker the **product number** and serial; hp.com/support with them
-   lists the exact CPU, memory and BIOS.
-2. From Windows, install the **newest BIOS** from that HP page (a SoftPaq), while Windows is
-   still there to run it.
-3. Look in Windows: Settings → System → About (CPU and memory) and Device Manager → Security
-   devices (the TPM). Send them to Claude.
-
-**In the BIOS** (F10 at the HP logo; names shift a little between BIOS versions):
-
-1. **Storage → Storage Options → SATA Emulation: AHCI**.
-2. **Storage → Boot Order:** UEFI boot sources on, Legacy off if offered; the Ubuntu stick
-   boots either way.
-3. **Advanced → Power-On Options → After Power Loss: On**. After a power cut it turns
-   itself back on and waits at the passphrase. Without this it stays off.
-4. **Security → Device Security → Embedded Security Device: Device available**; the TPM is on, even
-   though clevis can't use a 1.2 chip.
-5. Leave Secure Boot as it is; Ubuntu boots with it on or off.
-6. **F9** at the logo is the one-time boot menu for the USB stick (F12 on the Dell).
-
-**Shopping list** (H5, for the EliteDesk):
-
-- one 500 GB 2.5-inch SATA SSD (Crucial MX500, Samsung 870 EVO or WD Blue SA510);
-- memory **only if** About shows less than 16 GB: 2 × 8 GB DDR3-1600 desktop DIMMs (PC3-12800,
-  non-ECC);
-- for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).
-
-**Drivers, the file system and the boot** (nothing to download: HP's Windows drivers aren't
-needed, only the BIOS SoftPaq above):
-
-| Part | Linux driver | Notes |
-|---|---|---|
-| Intel I217-LM network | `e1000e`, in Ubuntu's kernel | the port is named `eno1` or similar; the installer pins the address on whatever it's called |
-| Intel HD 4600 graphics | `i915`, in the kernel | drives the closet monitor's desktop (cage + Epiphany); DisplayPort and VGA both work |
-| Q87 SATA (AHCI) | `ahci`, in the kernel | needs SATA Emulation: AHCI in the BIOS. RAID mode hides the disk from Ubuntu |
-| USB 3 | `xhci_hcd`, in the kernel | the install stick boots from any port |
-| CPU temperature | `coretemp`, in the kernel | feeds the 80 °C alert (round 7, 137) |
-| TPM 1.2 | `tpm_tis`, in the kernel | seen, but too old for clevis (H3) |
-| CPU microcode | `intel-microcode` | **the installer adds it** (Intel's fixes for the CPU, loaded at boot) |
-
-| Layer | What it is |
-|---|---|
-| Partitions | GPT: `/boot/efi` (FAT32, about 1 GB), `/boot` (ext4, about 2 GB, not encrypted, so the passphrase prompt can load), the rest LUKS |
-| Inside LUKS | LVM, one volume `/` in ext4. The installer grows it to the whole SSD; `/srv/arise` lives on it |
-| TRIM | the weekly `fstrim` cleanup. **The installer adds `discard` to `/etc/crypttab`** so it reaches the SSD through the encryption (a copy of the original is kept beside it) |
-| Boot | UEFI, Secure Boot on or off: Ubuntu's signed shim, then GRUB, then the passphrase prompt. **The installer also writes the fallback boot file** `EFI/BOOT/BOOTX64.EFI` if Ubuntu didn't, so the box still boots if the HP firmware forgets Ubuntu's boot entry (a BIOS update or a CMOS reset) |
-
-The OptiPlex 3010 can hold a second restic copy, or wait on the shelf as the spare server.
-The installer runs on it unchanged.
-
-## Oct 30 2026: the OptiPlex 3010 (now the spare), and the Synology is a DS216
-
-Bradly: "The optiplex is a 3010 with windows 7 and an i3 processor, the synology is a ds216."
-His choices on the same day are rows H1 to H5 in docs/ANSWERS.md.
-
-**The OptiPlex 3010** (2012):
-
-| | What it has | What it means |
-|---|---|---|
-| CPU | Intel Core i3, 3rd generation (likely i3-3220: 2 cores, 4 threads, 3.3 GHz) | plenty for the domain, the shares, the dashboard and the core five apps. No AVX2: Ollama, Immich's face search and Frigate would crawl. They stay in the Store, off |
-| Memory | DDR3, 2 slots; Dell lists **8 GB** as the most | buy 2 × 4 GB DDR3-1600 (about $15 used). Many 3010s run 16 GB (2 × 8 GB), but Dell doesn't promise it: try it only if a pair is cheap |
-| Disk | probably a spinning hard drive | buy a **500 GB SATA SSD** (about $30). There is **no M.2 slot**: a plain 2.5-inch SATA SSD, in the drive bay or a 3.5-inch adapter |
-| TPM | none, or a 1.2 chip | the disk passphrase is typed at boot (H3). `arisectl encrypt status` says which |
-| Graphics | Intel HD (on the CPU) | fine for the closet monitor's desktop |
-| Network | gigabit Ethernet | fine |
-
-**Before the wipe, in the BIOS** (F2 at the Dell logo):
-
-1. Update the BIOS first, to the newest one on dell.com/support for the service tag (from Windows 7, before the wipe).
-2. **System Configuration → SATA Operation: AHCI**.
-3. **Boot Sequence:** UEFI if it is offered, with Legacy off; the Ubuntu stick boots either way.
-4. **Power Management → AC Recovery: Power On** (or Last State). After a power cut the box turns itself back on and waits at the passphrase. Without this it stays off.
-5. Leave Secure Boot as it is; Ubuntu boots with it on or off.
-
-**Shopping list** (Bradly: "Yes, both"):
-
-- one 500 GB 2.5-inch SATA SSD (any known brand: Crucial MX500, Samsung 870 EVO, WD Blue SA510);
-- 2 × 4 GB DDR3-1600 desktop memory (non-ECC, 240-pin "PC3-12800" DIMMs);
-- for the DS216: two NAS drives, one now and one later (docs/SYNOLOGY.md).
-
-The SSD holds Ubuntu, the apps and `/srv/arise`. If the old hard drive is still good, it can stay in as a second disk: `arisectl backup` keeps a second restic copy on it.
-
-## Round 7 (Oct 29): what is known now
-
-- **Internet at Pineville:** Optimum Business, the highest plan (127).
-- **The Synology:** on the Netgear Nighthawk, router A (128), the same network
-  as the server, so it mounts directly.
-- **Alexandria:** one church Mac (134).
-- **The old PC:** "just there existing, unused" (126); nothing on it has to
-  keep running.
-- **Disk health:** SMART's own verdict and 80 °C for the CPU (137); a disk is
-  replaced when its health check warns, not on a calendar (138).
-  `sudo arisectl upkeep health` reads every disk; a warning is a red line in
-  Needs You and one post to Discord `#alerts`. `smartmontools` is installed
-  by the installer's care step.
-- **Spare parts:** none kept (142).
+`sudo arisectl upkeep health` checks disks; inspect warnings and actual
+measurements. SMART does not predict every failure. The owner chose health
+warnings rather than a fixed replacement calendar, an 80 °C CPU warning,
+and no spare parts stock. Verify backups and a restore before depending on
+the machine. `PRE-WIPE.md` is the installation-day checklist.

@@ -51,7 +51,7 @@ def real_mode(tmp: Path, extra: str = "", watch: bool = False):
     try:
         with mock.patch.object(macs, "_directory_users", return_value=USERS), \
              mock.patch("arise_server.church.in_service_now", return_value=None), \
-             mock.patch.object(macs, "ca_fingerprint", return_value=None):
+             mock.patch.object(macs, "ca_fingerprint", return_value="a" * 64):
             yield
     finally:
         for k, v in old.items():
@@ -209,6 +209,31 @@ class RealMode(unittest.TestCase):
         r = macs.enrol(tok["token"], {"name": "OFFICE-MAC-02", "serial": "C02X", "model": "MacBook Air", "macos": "15.3", "accounts": ACCOUNTS})
         self.assertTrue(r["ok"], r)
         return tok, r
+
+    def test_enrollment_requires_a_pinned_https_certificate(self):
+        with real_mode(self.tmp), mock.patch.object(macs, "ca_fingerprint", return_value=None):
+            result = macs.enrol_token("bradly")
+            self.assertFalse(result["ok"])
+            self.assertIn("HTTPS", result["err"])
+            self.assertNotIn("token", result)
+        with real_mode(self.tmp):
+            line = macs.enrol_command("one-time", ip="192.168.1.20")
+            self.assertIn("--ca-sha256 " + "a" * 64, line)
+            self.assertIn("mktemp", line)
+            self.assertNotIn("/tmp/arise-ca.crt", line)
+
+    def test_deferred_filevault_is_retried_until_escrow_and_respects_watch(self):
+        with real_mode(self.tmp):
+            _, enrolled = self.enrol()
+            m = macs.agent_auth(f"{enrolled['mac_id']}:{enrolled['key']}")
+            lines = macs.checkin(m, {})
+            task_id = next(line.split()[1] for line in lines if line.split()[2] == "filevault")
+            self.assertTrue(macs.result(m, task_id, "pending", "waiting for next login")["ok"])
+            with mock.patch.object(macs, "watch_mode", return_value=True):
+                self.assertNotIn("filevault", [k for k, _ in tasks_of(macs.checkin(m, {}))])
+            self.assertIn("filevault", [k for k, _ in tasks_of(macs.checkin(m, {}))])
+            self.assertTrue(macs.result(m, task_id, "done", "key escrowed")["ok"])
+            self.assertNotIn("filevault", [k for k, _ in tasks_of(macs.checkin(m, {}))])
 
     def test_token_is_one_time_and_expires(self):
         with real_mode(self.tmp):

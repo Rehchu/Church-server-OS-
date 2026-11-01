@@ -465,9 +465,12 @@ def _sftp_host(repo: str) -> str | None:
 
 def _home_ready(repo: str) -> bool:
     host = _sftp_host(repo)
-    if not host or not which("ssh"):
+    if not host or host.startswith("-") or not which("sftp"):
         return False
-    r = run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "-o", "StrictHostKeyChecking=yes", host, "true"], timeout=12)
+    # The backup account deliberately permits internal-sftp only, not remote
+    # shell commands. Exercise that subsystem without writing anything.
+    r = run(["sftp", "-b", "-", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5",
+             "-o", "StrictHostKeyChecking=yes", host], input_text="pwd\nquit\n", timeout=12)
     return r["ok"]
 
 

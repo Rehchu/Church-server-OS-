@@ -3,6 +3,9 @@
 #
 #   sudo ./bind-mac.sh --computer-name MEDIA-MAC-01 --dns 192.168.1.20 [--ou "OU=Macs,OU=Computers,DC=ad,DC=arisecenla,DC=com"] [--admin administrator] [--test-user jane.smith]
 #
+# --ca-file F --ca-sha256 H trust only a certificate verified against H.
+# --dns alone never installs an HTTP-fetched trust root.
+#
 # --dns <server ip> writes /etc/resolver/ad.arisecenla.com on this Mac, so
 # only names in the church domain are asked of the server; everything else
 # keeps using whatever DNS the router hands out. No router is touched: the
@@ -21,6 +24,8 @@ ADMIN="administrator"
 COMPUTER=""
 TEST_USER=""
 DNS_IP=""
+CA_FILE=""
+CA_SHA256=""
 
 die()  { printf '\n  FAILED: %s\n\n' "$*" >&2; exit 1; }
 say()  { printf '  %s\n' "$*"; }
@@ -33,6 +38,8 @@ while [ $# -gt 0 ]; do
     --admin)         ADMIN="$2"; shift 2 ;;
     --test-user)     TEST_USER="$2"; shift 2 ;;
     --dns)           DNS_IP="$2"; shift 2 ;;
+    --ca-file)       CA_FILE="$2"; shift 2 ;;
+    --ca-sha256)     CA_SHA256="$2"; shift 2 ;;
     -h|--help)       sed -n '2,12p' "$0"; exit 0 ;;
     *) die "unknown option $1" ;;
   esac
@@ -57,8 +64,15 @@ if [ -n "$DNS_IP" ]; then
   # The church certificate (round 3, 29): Caddy's root, served by the dashboard.
   # Trusting it once gives this Mac the padlock on https://arise-server.ad.arisecenla.com.
   step "The church certificate (padlock on the dashboard)"
-  CA_TMP=$(mktemp /tmp/arise-root.XXXXXX)
-  if curl -fsS -m 8 -o "$CA_TMP" "http://$DNS_IP:4147/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$CA_TMP"; then
+  if [ -n "$CA_FILE" ] && [ -n "$CA_SHA256" ]; then
+    [[ "$CA_SHA256" =~ ^[a-f0-9]{64}$ ]] || die "invalid church CA fingerprint"
+    CA_DIR=$(mktemp -d /tmp/arise-root.XXXXXX) || die "cannot make a private certificate directory"
+    chmod 700 "$CA_DIR"
+    trap 'rm -rf "$CA_DIR"' EXIT
+    CA_TMP="$CA_DIR/ca.crt"
+    cp "$CA_FILE" "$CA_TMP" || die "cannot copy the supplied church certificate"
+    [ "$(shasum -a 256 "$CA_TMP" | cut -c1-64)" = "$CA_SHA256" ] || die "church certificate fingerprint mismatch; no trust added"
+    grep -q 'BEGIN CERTIFICATE' "$CA_TMP" || die "not a church certificate"
     if security verify-cert -c "$CA_TMP" >/dev/null 2>&1; then
       say "already trusted (the church certificate checks out against this Mac's trust settings)"
     elif security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$CA_TMP"; then
@@ -67,9 +81,8 @@ if [ -n "$DNS_IP" ]; then
       say "could not add the certificate (security add-trusted-cert failed); https will warn until it is trusted by hand"
     fi
   else
-    say "no certificate yet at http://$DNS_IP:4147/ca.crt (Caddy has not run on the server, or the dashboard is down); skipped, run again later"
+    say "certificate trust unchanged: use the dashboard's verified enrollment line, or supply --ca-file and --ca-sha256 from a trusted source"
   fi
-  rm -f "$CA_TMP"
 fi
 
 step "DNS — does this Mac use the domain controller?"

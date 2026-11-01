@@ -1,142 +1,90 @@
-# Trying ariseOS in VirtualBox
+# Testing ariseOS in VirtualBox
 
-A test box on Bradly's PC (Oct 29), long before the OptiPlex. It runs the real
-installer in staging mode: the domain stays on the VM itself, nothing on the
-home network is touched, and nothing on the PC changes but VirtualBox.
+Use the complete ariseOS ISO from `scripts/make-install-media.sh --full`
+(see `installer/MAKE-USB.md`). The target VM installs through on-screen
+choices and opens the ariseOS desktop; no manual Ubuntu install, Git clone
+or shell command is needed.
 
-## 1. The media
+## Create a disposable VM
 
-On a Linux box or Mac with the repo (`sudo apt install xorriso zip` first),
-make the files (installer/MAKE-USB.md):
+- Ubuntu 64-bit, 2–4 vCPUs, 8 GB RAM when the Windows host has adequate
+  headroom. More assigned resources are not automatically faster.
+- One empty dynamically allocated VDI of at least 80 GB, on a healthy disk
+  with sufficient free host space. No physical disk passthrough.
+- EFI enabled; VMSVGA, 128 MB video memory, 3D acceleration off.
+- NAT; skip VirtualBox's unattended installer. Attach the complete ariseOS
+  ISO as the optical disk.
+- Optional HTTPS forward: **Host IP 127.0.0.1**, Host Port 8443,
+  Guest Port 443. Optional SSH forward: Host IP 127.0.0.1, Host Port 2222,
+  Guest Port 22. SSH needs an enrolled public key after ariseOS setup.
 
-```
-bash scripts/make-install-media.sh            # dist/ariseos-addon.iso, a few MB
-bash scripts/make-install-media.sh --full     # or the one ISO: dist/ariseos-0.8.0-amd64.iso, about 3 GB
-```
+Start the VM, select **Install ariseOS**, select the empty virtual disk
+on the Storage screen and review the final erase confirmation. Choose LVM
+and LUKS encryption for a production-equivalent test. On Identity enter
+`arise-server` and your owner username. After Ubuntu finishes, eject the
+ISO so the next boot uses the disk.
 
-Copy what you made to the PC. With only the add-on, also download
-`ubuntu-24.04.x-live-server-amd64.iso` from https://releases.ubuntu.com/24.04/.
-No GitHub token is needed: the code is on the disc.
+On the ariseOS setup screen select **At home or in a test VM**. Leave the
+NAS blank, choose Tailscale off for an isolated rehearsal, and choose
+**Desktop and directory only** for the smallest first rehearsal. The normal
+default is **Core five** (Nextcloud, Vaultwarden, Uptime Kuma, Netdata and
+File Browser); test that selection next with adequate guest memory. Set the domain and dashboard
+passwords in their prompts. Successful setup restarts into the desktop;
+errors return to a Retry/Shutdown screen. Unlock LUKS at boot when prompted.
 
-## 2. The VM
+Staging binds Samba to guest loopback. The web backend is local-only;
+Caddy provides HTTPS. The kiosk requires no host setup. An optional Windows
+browser test through 8443 also needs the certificate hostname mapped locally
+and the verified church CA trusted on Windows. Do not bypass certificate
+verification or send login passwords over a raw HTTP forward.
 
-VirtualBox → **New**:
+## First functional checks
 
-| Setting | Value |
-|---|---|
-| Name | arise-test |
-| ISO | `ariseos-0.8.0-amd64.iso`, or the plain Ubuntu 24.04 server ISO |
-| Unattended install | **Skip** (tick "Skip Unattended Installation") |
-| Memory | 8192 MB (the EliteDesk will have 8 to 16 GB, H6) |
-| Processors | 4, like the EliteDesk's i5 |
-| Disk | 80 GB, VDI, dynamically allocated |
+At the desktop, sign in, create a disposable directory test user, upload a
+test file, move it to Trash and restore it. Restart from the desktop and
+verify sign-in and file persistence. Configure a disposable local backup
+target and restore a test file. Then install one small app from the Store,
+verify its function and restart behavior, and add other apps individually.
+Never enroll a church Mac or connect production data for the first rehearsal.
 
-Then **Settings** before the first start:
+A VM does not prove the real Synology, Mac permissions, router topology,
+HP EliteDesk 800 G1 display, SSD behavior, firmware fallback, TPM unlocking,
+UPS behavior or hardware performance. The physical HP remains unvalidated.
+A fresh-VM backup recovery test is separate from installation.
 
-- **System → Motherboard:** Enable EFI.
-- **Storage** (only with the plain Ubuntu ISO): on the IDE or SATA controller,
-  **Add optical drive** → `ariseos-addon.iso`. Two optical drives: Ubuntu and
-  the add-on.
-- **Display → Screen:** Graphics Controller VMSVGA, Video Memory 128 MB, 3D off.
-  The VM's window is the closet monitor.
-- **Network → Adapter 1:** NAT (keeps the VM's domain off the home network),
-  then **Port Forwarding**:
+## If a soft lockup appears
 
-| Name | Host port | Guest port | What |
-|---|---|---|---|
-| dash | 4147 | 4147 | the dashboard: http://localhost:4147 on the PC |
-| https | 8443 | 443 | the dashboard through Caddy (church certificate) |
-| ssh | 2222 | 22 | `ssh -p 2222 bradly@localhost` from the PC |
+A guest watchdog warning does not identify a cause. Record the guest kernel
+and full incident stack, VirtualBox version and VBox.log, actual VM settings,
+host/guest free space, host disk type, and Windows CPU/memory/disk load.
+Check whether the guest recovered and whether Docker is still active.
+Do not rerun the installer while the original one is running.
 
-## 3. The install
+Stacks deploy one at a time; Docker may parallelize image layers within a
+stack. Pull progress should now be visible. When diagnosing a lockup, select
+directory-only for the initial rehearsal and add apps incrementally. Use the current supported
+VirtualBox maintenance release and Ubuntu kernel before attributing a
+kernel hang to one resource setting.
 
-Start the VM.
+The turtle icon alone does not prove whether Windows Hyper-V/VBS is active;
+check the actual backend in VBox.log. Do not disable Windows security or
+the Linux watchdog as a speculative fix. KVM paravirtualization is suitable
+for a Linux guest. Host I/O cache and fixed versus dynamic VDI are controlled
+performance experiments, not guaranteed cures: change one setting only
+with the VM powered off and a recoverable checkpoint.
 
-- The ariseOS ISO: pick **Install ariseOS** in the boot menu. The plain Ubuntu
-  ISO: pick "Try or Install Ubuntu Server" and type `yes` at "Continue with
-  autoinstall?".
-- The two screens it asks:
-  - **the disk:** the VM's one disk with LVM. Tick **Encrypt the LVM group with LUKS** and
-    type a test passphrase to rehearse the real box (H3), or leave it unticked for a quicker
-    test. Then Done → Continue.
-  - **you:** your name Bradly Dyer, **server name `arise-server`**, **user name `bradly`**
-    (the box's owner account; the automator runs as it), and a password.
-- With encryption ticked, every start of the VM stops at "Please unlock disk": type the
-  passphrase in the VM window.
-- It wipes the VM's disk, installs Ubuntu and ariseOS, and restarts. If it
-  boots back into the installer, remove the discs (Devices → Optical Drives)
-  and restart.
+## If the install seems frozen
 
-On the first boot the **ariseOS setup** wizard is on the VM window:
+Every step prints its time, the app downloads show their progress, and nothing waits forever:
+each slow step has a time limit, and git never stops to ask for a password. If the screen
+hasn't changed for **20 minutes**:
 
-- Where is this box: **At home or in a test VM** (staging: the domain on the
-  VM only, no network scan, CLAUDE.md rule 8).
-- Your account: `bradly`.
-- The **domain Administrator password**, twice. Choose one for the test box only.
-- The Synology: leave it empty. Tailscale: **No**. The desktop on this monitor:
-  **Yes**. Discord: later.
-- Go. It takes 15 to 30 minutes, then asks for the **dashboard password**,
-  shows what still needs you (`arisectl doctor`) and restarts. The VM window
-  comes back as the closet monitor.
-
-On the PC, open **http://localhost:4147** for the dashboard in a browser.
-Run the wizard again any time with `sudo arisectl setup`.
-
-**Without the media** (the old way still works): install Ubuntu by hand, copy
-the repo to `/opt/arise-src`, and run
-`sudo bash installer/install.sh --staging --owner bradly --kiosk --no-tailscale`,
-then `sudo arisectl admin set-password`.
-
-## 3b. If the install seems frozen
-
-Every step now prints its time, long steps print "still working (N min)" every minute, and
-nothing waits forever: each slow step has a time limit, and git never stops to ask for a
-password. So if the screen hasn't changed for **20 minutes**:
-
-1. Press **Ctrl+Alt+F2** (in VirtualBox: Right Ctrl+F2) and log in. If that screen comes up,
-   the computer is fine and the install is busy or stuck on one thing. Run:
+1. Press **Right Ctrl+F2** (on the real HP: Ctrl+Alt+F2) and log in. If that screen comes up,
+   the computer is fine and the install is busy or stuck on one thing. Send Claude:
    `cat /var/log/arise/install-step` (the step and when it started),
-   `sudo tail -n 30 /var/log/arise/install.log` (what it last did), and
-   `top` (what is using the CPU; q to quit). Send those to Claude.
-2. If **nothing** answers, not even Ctrl+Alt+F2 or Caps Lock, the whole computer froze:
-   that's the hardware or the VM, not the installer. Hold the power button, start it again, and
-   run `sudo bash /opt/arise-src/installer/install.sh --staging --owner bradly --kiosk --no-tailscale`
-   (the install picks up where it was; finished steps are skipped). `cat /var/log/arise/install-step`
-   still says where it stopped.
-3. Ctrl+Alt+F1 goes back to the install screen.
-
-## 4. What to try
-
-- The VM window: the lock screen, signing in, your desktop after a restart (round 7, 107).
-- Directory: make people (a duplicate first.last becomes first.last2), titles,
-  a temporary password and its forced change, disable and enable.
-- Shares, Finder: upload, Trash and Put Back, Previous Versions, Share with…
-- Backups: there is no Synology, so point a backup target at a folder on the VM
-  and run one; then the restore drill.
-- The phone checklist: http://localhost:4147/checklist.
-- The Macs app: the enrol line works only once a Mac can reach the VM, so read
-  it but don't paste it on a church Mac.
-- `sudo arisectl automations list`, `arisectl storage`, `sudo arisectl security`.
-
-Copy anything that fails (the screen, or the output of `sudo arisectl doctor`)
-into the chat. Doctor never prints a password; anything from
-`/etc/arise/secrets/` stays out of the chat.
-
-## 5. Updating it
-
-Make the add-on again from the newer commit, attach it to the VM, and:
-
-```
-sudo mount -o ro "$(blkid -L CIDATA)" /mnt
-(cd /mnt/arise && sha256sum -c SHA256SUMS) && sudo tar -xzf /mnt/arise/ariseos-src.tar.gz -C /opt/arise-src
-sudo umount /mnt
-sudo bash /opt/arise-src/installer/install.sh --staging --owner bradly --kiosk --no-tailscale
-```
-
-The installer is safe to run again: a re-run changes only what changed.
-
-## What a VM can't show
-
-The TPM disk unlock, the real Synology, the routers and the church network,
-Macs enrolling over the network (NAT keeps them out), and the OptiPlex's own
-screen and power button. Those wait for the real box.
+   `sudo tail -n 30 /var/log/arise/install.log` (what it last did), and what `top` shows at the top.
+2. If **nothing** answers, not even that key or Caps Lock, the whole machine froze: the
+   VM or the hardware, not the installer. Power off, start it again: the setup screen comes
+   back with Retry (or run `sudo arisectl setup`). `cat /var/log/arise/install-step` still says
+   where it stopped.
+3. Right Ctrl+F1 (Ctrl+Alt+F1) goes back to the setup screen.

@@ -1,4 +1,11 @@
-# Macs — binding them to the domain and moving the data over
+# Macs — legacy manual binding and migration
+
+**Current default:** use the dashboard enrollment workflow in [MACS.md](MACS.md).
+It binds church Macs, links existing local accounts and configures Nextcloud
+sync after watch mode is switched off. The procedures below are the legacy
+SMB path for an explicitly chosen manual migration. Do not install the legacy
+Desktop/Documents symlink workflow alongside Nextcloud for the same folders.
+A symlink to an unavailable SMB share does not provide an offline cached copy.
 
 Two jobs, in this order, one Mac at a time:
 
@@ -68,7 +75,7 @@ three pieces, and each one covers a gap in the others:
 | Piece | What it does | When it is the one that matters |
 |---|---|---|
 | **Mobile account** (the bind) | the directory account is cached on the Mac, with a local home under `/Users/<name>` | login works with the server off, on Wi‑Fi, at home |
-| **Server home share** (`mount-home.sh` at login) | mounts `smb://arise-server/homes/<name>` as `/Volumes/<name>`; Desktop and Documents become links into it | every save in those two folders is on the server the moment it happens, and in the 03:00 backup |
+| **Server home share** (`mount-home.sh` at login) | mounts `smb://arise-server/<name>` as `/Volumes/<name>`; Desktop and Documents become links into it | every save in those two folders is on the server the moment it happens, and in the 03:00 backup |
 | **Home sync** (`arise-home-sync.sh`, every 15 minutes) | rsyncs the folders in `/usr/local/arise/sync-folders.txt` to the share, newest wins, older server copies kept aside | a Mac that was never migrated (local accounts with the same names), extra folders like Downloads, and any time the share was not mounted at login |
 
 macOS used to have "portable home directories" that synced the whole home.
@@ -212,7 +219,7 @@ works). The first login makes the mobile account and a local home at
 
 So: **mobile accounts**. The person logs in with the domain password, gets a
 fast local home, and `mac/mount-home.sh` (a LaunchAgent) mounts
-`smb://arise-server/homes/<user>` at login as `/Volumes/<user>`. Their
+`smb://arise-server/<user>` at login as `/Volumes/<user>`. Their
 **Desktop and Documents** folders are replaced by symlinks into that share, so
 everything they save there is on the server and in the nightly restic backup.
 Downloads, Pictures, Movies and Music stay local by default (Photos libraries
@@ -251,11 +258,11 @@ sudo ./migrate-mac-user.sh --from bradly --to bradly.dyer             # do it
 
 What happens:
 
-1. Mounts `smb://arise-server/homes/bradly.dyer` (prompts for the domain
+1. Mounts `smb://arise-server/bradly.dyer` (prompts for the domain
    password) at `/Volumes/bradly.dyer`.
 2. Writes a **before** manifest to the old user's Desktop:
    `ARISE-MIGRATION-<date>.txt` with file count and bytes per top-level folder.
-3. `rsync -aHX --progress` each folder into the share, with the skip list.
+3. `rsync` with the metadata flags supported by this Mac, and `--progress`, for each folder into the share, with the skip list.
    Nothing is removed from the Mac. Re-running copies only what changed.
 4. Writes the **after** manifest (same counts, measured on the share) next to
    the first one, and prints both side by side. If a folder's count differs,
@@ -286,6 +293,6 @@ is owned by the domain user), so the files are the person's when they log in.
 | Share mounts but files are read-only | home folder ownership | on the server: `arisectl user homefix <name>` |
 | `rsync` stops on a long filename or an `Icon\r` file | SMB name limits | the script skips `Icon\r`; for the rest, rename on the Mac and re-run |
 | Everything is slow | Wi‑Fi | Ethernet |
-| `arise-home-sync.log` says "could not mount" for a local account | no saved password for the share | open `smb://arise-server/homes/<name>` once in Finder as that person and tick "Remember this password in my keychain" |
+| `arise-home-sync.log` says "could not mount" for a local account | no saved password for the share | open `smb://arise-server/<name>` once in Finder as that person and tick "Remember this password in my keychain" |
 | `arise-home-sync.log` says "not reachable" away from church | no VPN on that Mac | install Tailscale on it (docs/REMOTE-ACCESS.md); the next run syncs |
 | A file on the server is older than the one on the Mac after a sync | it was open in an app during the run (rsync skipped it, code 23/24 in the log) | save and close; the next run copies it |

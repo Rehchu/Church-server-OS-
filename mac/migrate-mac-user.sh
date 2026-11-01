@@ -1,7 +1,7 @@
 #!/bin/bash
 # migrate-mac-user.sh — copy a local Mac account's data into a domain user's server home.
 #
-#   sudo ./migrate-mac-user.sh --from <localuser> --to <domainuser> [--share smb://arise-server/homes/<domainuser>] [--appsupport Name ...] [--dry-run]
+#   sudo ./migrate-mac-user.sh --from <localuser> --to <domainuser> [--share smb://arise-server/<domainuser>] [--appsupport Name ...] [--dry-run]
 #
 # Copies. Never deletes. Re-running copies only what changed. Writes a manifest
 # (counts and bytes per folder, before and after) to the local user's Desktop.
@@ -38,7 +38,7 @@ done
 [ -n "$FROM" ] && [ -n "$TO" ] || die "--from <localuser> and --to <domainuser> are both required"
 SRC=$(dscl . -read "/Users/$FROM" NFSHomeDirectory 2>/dev/null | sed -n 's/^NFSHomeDirectory: *//p' | head -1)
 [ -n "$SRC" ] && [ -d "$SRC" ] || die "no local user '$FROM' with a home folder"
-[ -z "$SHARE" ] && SHARE="smb://${SERVER}/homes/${TO}"
+[ -z "$SHARE" ] && SHARE="smb://${SERVER}/${TO}"
 command -v rsync >/dev/null || die "rsync not found (it ships with macOS; something is wrong)"
 
 if who | awk '{print $1}' | grep -qx "$FROM"; then
@@ -60,7 +60,7 @@ if mount | grep -q " on $MOUNT "; then
 else
   mkdir -p "$MOUNT" || die "cannot create $MOUNT"
   # mount_smbfs prompts for the password; the share path needs the user in the URL.
-  mount_smbfs "//${TO}@${SERVER}/homes/${TO}" "$MOUNT" 2>&1 | sed 's/^/    /'
+  mount_smbfs "//${TO}@${SERVER}/${TO}" "$MOUNT" 2>&1 | sed 's/^/    /'
   mount | grep -q " on $MOUNT " || { rmdir "$MOUNT" 2>/dev/null; die "the share did not mount. Check: the Mac resolves $SERVER, the user $TO exists (arisectl user list), and the password."; }
 fi
 touch "$MOUNT/.arise-write-test" 2>/dev/null || die "the share mounted read-only. On the server run: arisectl user homefix $TO"

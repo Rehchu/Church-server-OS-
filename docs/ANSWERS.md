@@ -1,7 +1,8 @@
 # Answers from Bradly (Oct 28 2026) and what they decide
 
 The multiple-choice questions in docs/QUESTIONS.md, answered in the chat
-pop-ups. Questions 1 to 7 (the OptiPlex and the Synology) come Sunday.
+pop-ups. Later answers supersede earlier ones where they conflict; see the
+Oct 30 hardware decisions H1–H6 for the current server, NAS, encryption and app plan.
 Where an answer changes the plan, the change is named here and made in the
 file it points to. Nothing in this file is assumed; every line is his answer.
 
@@ -662,9 +663,18 @@ then four answers on the pop-up. These rows win over anything earlier that assum
 | H5 | Upgrades before install day? | Yes, both | a 500 GB SATA SSD (about $30) for the system, and 8 GB of DDR3 (2 × 4 GB, about $15 used). docs/HARDWARE.md has the shopping list |
 | H6 | (Bradly, same day) "The other windows pc is an hp elite desk 800 g1 SFF." Should it be the server instead? | EliteDesk, and it is free to wipe | **the EliteDesk 800 G1 SFF is arise-server**, not the OptiPlex (H1 stays true of the OptiPlex, now the spare). A 4th-gen Intel (usually a 4-core i5), 4 memory slots up to 32 GB, AVX2, UEFI, SATA only. Its TPM is 1.2, and HP's community support says the 800 G1's chip is not on the 2.0 upgrade list, so H3 (the passphrase at boot) stands; if a 2.0 chip ever shows, the installer binds it and the box boots alone. H4 (core set) stands; the Store's heavier apps become realistic. H5 becomes: the SSD, and memory only up to 16 GB (2 × 8 GB DDR3-1600) if it has less. docs/HARDWARE.md || H7 | TeamViewer on the media Mac (it allows outside remote control): keep it? | "it stays, it lets me do stuff from home" | nothing on the Mac changes; the helper never removes or blocks an app. Recorded in docs/MACS.md beside the media Mac's app list (Proclaim's Team ID, G2ET27DGDP, came from that list) || H8 | Which Resend account sends for the church? | "I need to setup through the church resend account, not my personal one" | `mail.arisecenla.com` (and later `ad.arisecenla.com` receiving) goes in the **church's** Resend account, never Bradly's personal one. The API key is made on install day, sending access only, for that domain, and goes straight into `/etc/arise/secrets/resend-api-key` || H9 | (Bradly, Oct 31) "Add the key somewhere so i don't have to paste the key anywhere or run a code!" | a **private install disc** carries the Resend key | not GitHub: the repo is public, and a key there lets anyone send as the church. `make-install-media.sh --secrets DIR` makes `ariseos-addon-private.iso`; the autoinstall copies the key to `/etc/arise/secrets/resend-api-key` (root only), and `[mail] from_email` defaults to `it@mail.arisecenla.com`, so mail works with nothing typed. The private disc stays on Bradly's PC and USB stick; the plain disc stays the shareable one || H10 | (Oct 31) Resend verified the main domain, arisecenla.com, with its receiving MX at `@`. Staff addresses: first.last@arisecenla.com or keep @ad.arisecenla.com? | first.last@arisecenla.com | replaces round 6, 28's `@ad.`: `[mail] domain` and `[mailfwd] domain` are `arisecenla.com`, and the server sends from `it@arisecenla.com` (Arise Church IT). The sign-in realm stays `AD.ARISECENLA.COM` (sign-in names still end `@ad.arisecenla.com`). The MX at `@` broke nothing: the domain had no mail before. docs/WIX-DNS.md has Wix as it stands || H11 | (Nov 1) Kristina wants her own inbox she can log in to; Bradly still sees every inbox in Resend. Resend has no per-inbox logins: how? | an inbox on the dashboard | the **Inbox** app: she signs in with her own church account and sees only kristina.robinson@arisecenla.com (the server picks the inbox from who is signed in, never from the browser); read, reply, write new. Mail stays in Resend. `[inbox] users`, `sudo arisectl mail inbox create <user>`, `arisectl mail inbox check`. People with an inbox are left out of forwarding. The server's Resend key then needs **full access** |
 
+The H rows above supersede earlier hardware, encryption and app-default answers.
+Model-family specifications are planning information: inventory the actual CPU,
+RAM, disks, firmware and TPM before buying parts or selecting optional apps.
+On the expected TPM 1.2 hardware, H3 means a passphrase at every boot. H6's
+conditional TPM 2.0 exception applies only after its presence and a successful
+binding/unlock have been verified. Early-boot SSH is opt-in: use the configured
+LAN boot address, which may differ from `arise-server`; the server's Tailscale
+and AD DNS are not running at the unlock prompt. See docs/SECURITY.md.
+
 ## Still needed
 
-- Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
+- Inventory the HP EliteDesk 800 G1 SFF primary server and Dell OptiPlex 3010 spare: exact CPU, installed RAM, disk models/health, firmware and TPM version. Record the DS216's DSM version, existing pool and drive health before changing storage; models and primary role are decided (H1–H6).
 - The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (97).
 - The four Discord webhook URLs into /etc/arise/secrets/discord.toml (101).
 

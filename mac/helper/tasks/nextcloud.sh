@@ -109,7 +109,8 @@ quit_client() {   # as the user
 }
 
 # ----- the user's half: runs inside the person's own session (their keychain, their prefs) ------
-# Reads "SERVER_USER= CLOUD_URL= APP_PASSWORD=" lines on stdin, never from argv or the environment.
+# Reads "SERVER_USER= CLOUD_URL= APP_PASSWORD=" lines on stdin. The final Nextcloud
+# 3.14.3 invocation below still requires --apppassword in argv (docs/MACS.md).
 # Round 7, 43: the libraries inside Pictures and Music never sync. Photos' and Music's databases,
 # copied file by file while the app has them open, corrupt; they stay on the Mac (Time Machine has
 # them). These go in the person's own exclude list, next to the client's settings, where the client
@@ -140,6 +141,8 @@ user_half() {
   if ! idx="$(account_index "$cfg" "$su" "$h")"; then
     # The client's own command-line account set-up (3.6+): it stores the app password in this
     # person's login keychain, and makes the first folder pair, Desktop, in full (not virtual).
+    # 3.14.3 offers no stdin/password-file option; this device credential remains visible
+    # to processes able to inspect argv until quit_client. Never pass a domain password here.
     "$BIN" --userid "$su" --apppassword "$pw" --serverurl "$url" \
            --localdirpath "$HOME/Desktop" --remotedirpath /Desktop --isvfsenabled 0 >/dev/null 2>&1 &
     for _ in $(seq 1 90); do idx="$(account_index "$cfg" "$su" "$h")" && has_pair "$cfg" "$idx" "$HOME/Desktop" && break; sleep 1; done

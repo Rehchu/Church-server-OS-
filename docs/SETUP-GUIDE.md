@@ -1,26 +1,27 @@
-# The setup guide — from a wiped OptiPlex to three sites
+# The setup guide — from the HP server to three sites
 
 This is the one page to start from. It says what the system is, who gets
 what, and the order to do things in. Every step points at the page that has
 the commands, so nothing is repeated here twice. Read it once end to end
 before you touch the PC.
 
-Bradly's answers are in **docs/ANSWERS.md** (questions 1 to 7, the
-OptiPlex and the Synology, come Sunday). This guide follows those answers;
-where something still waits on Sunday or on a photo, it says so.
+Bradly's answers are in **docs/ANSWERS.md**. The Oct 30 decisions H1–H6
+select the HP EliteDesk 800 G1 SFF as the server, the Dell OptiPlex 3010
+as the spare and the two-bay DS216 as the NAS. Actual installed parts and
+physical behavior still need the checks in docs/HARDWARE.md.
 
 ---
 
 ## 1. What you are building, on one page
 
-One Dell OptiPlex, wiped, running Ubuntu Server 24.04 with Arise Server on
+One HP EliteDesk 800 G1 SFF, wiped, running Ubuntu Server 24.04 with Arise Server on
 top. Four faces, one box:
 
 | Face | What it is | Who uses it | From where |
 |---|---|---|---|
 | **The OS on the monitor** | the Arise desktop, full screen on the closet monitor from boot (`install.sh --kiosk`, docs/CONSOLE.md) | you, standing at the box | the closet |
-| **The dashboard** | the same desktop in a browser: `http://arise-server:4147`. Every directory user can sign in. Admins see everything; members see their files, the shares they are allowed, Sermons, Bible, Campuses, a share-link button and a change-password button | everyone with an account | the church network, or Tailscale from anywhere. Nothing is exposed to the open internet (answer 36) |
-| **SMB on the network** | `smb://arise-server/homes/<user>` and `smb://arise-server/shares/<name>`, the same folders the dashboard shows. Church Macs bound to the domain log in with the directory password and keep Desktop and Documents on the server | staff, media and the department logins at a church computer | any church site, on the LAN or over Tailscale |
+| **The dashboard** | the same desktop in a browser: `https://arise-server.ad.arisecenla.com`. Admins use the desktop. Staff use Nextcloud and the phone checklist; the optional member portal requires `staff_access = "portal"` | everyone with an account | the church network, or Tailscale from anywhere. Nothing is exposed to the open internet (answer 36) |
+| **SMB on the network** | `smb://arise-server.ad.arisecenla.com/<user>` and `smb://arise-server.ad.arisecenla.com/<share>`, the same folders the dashboard shows. Church Macs bound to the domain log in with the directory password and keep Desktop and Documents on the server | staff, media and the department logins at a church computer | any church site, on the LAN or over Tailscale |
 | **The directory** | a real Active Directory domain, `AD.ARISECENLA.COM`, run by Samba (docs/DIRECTORY.md). Users, groups, computers, passwords, Kerberos, DNS | every Mac and PC that joins; every login above | everywhere the DNS reaches |
 
 Underneath: the YouTube automator at 02:05, restic backups to the Synology
@@ -51,8 +52,8 @@ that is not on the server's own network runs Tailscale, signed in with the
 one church login. Alexandria is a single Mac (answer 19), so that Mac runs
 Tailscale itself and there is no route box there (answer 21). After the
 server moves to the Hub, Pineville's church Macs need the same: Tailscale on
-each, or one small route box for the building (that decision is still open,
-docs/MOVING-DAY.md).
+each, with domain-only DNS and tested reachability (docs/MOVING-DAY.md).
+No router, switch, Mesh, VLAN or DHCP configuration changes are part of setup.
 
 ---
 
@@ -74,14 +75,14 @@ groups). The dashboard reads them: a member of `Domain Admins` (or the
 
 Staff, departments and volunteers never sign in to the server OS: with
 `[web] staff_access = "none"` (the default, round 5, 41) a non-admin sign-in
-on the dashboard is told their files are on their Mac. SSH is Bradly's only;
-the other three admins get the admin desktop, not a shell, unless they ask. Volunteers do not get personal
-accounts (answer 24); they use a department login. The `Volunteers` group
-stays in the directory, empty, for the day that changes.
+on the dashboard is told their files are on their Mac. SSH access requires an explicitly enrolled public key. The admin desktop
+includes a root Terminal behind its authentication checks. Staff and volunteers
+use their individual accounts and department memberships; shared department
+logins also exist where Bradly has explicitly chosen them. The phone checklist
+is available even when the optional portal is disabled.
 
 What a member **cannot** do anywhere: see another person's home, see a share
-their group is not on, delete or move files from the dashboard (that is the
-Mac's own Finder over SMB, on purpose), see settings, services, logs, the
+their group is not on, see settings, services, logs, the
 Terminal, backups or the automator. What an admin cannot do from the
 dashboard: delete a home folder, delete a snapshot, delete a share's files
 (all by design; README § Rules it keeps).
@@ -105,19 +106,21 @@ keeping, the automator's `token.json` and `client_secret.json` copied to a
 USB stick **and** your Mac, the Synology admin password written down, a
 photo of the back of the PC and the switch port it is in.
 
-Questions 1 to 7 (the OptiPlex, the Synology) are answered on Sunday; the
-Cisco sticker and each router's LAN page still need a photo (answers 10 and
-12). Three decisions have to be made before the installer runs:
+Inventory the HP's actual CPU, RAM and disks and the DS216's current storage
+before sizing workloads. Observe the existing server connection and addresses; router
+configuration changes are prohibited. Resolve these prerequisites:
 
 - **where the server plugs in**: decided. Wired into the switch on Netgear
   A's network (the router at the modem). **No router, switch or Mesh
-  setting changes, ever, and no IP address changes**: the installer keeps
-  the address the router hands the box and pins it on the server, each Mac
-  gets a per-domain resolver file from `bind-mac.sh --dns`, and Tailscale
-  covers everything the NATs block. docs/NETWORK.md § The Pineville network
+  setting changes, ever**: the installer keeps DHCP enabled by default.
+  Pinning a lease does not reserve it. Verify a stable production DC
+  endpoint/address without changing the network; use `--pin-ip` only for
+  an address independently confirmed outside DHCP allocation. Each enrolled
+  Mac gets a per-domain resolver and Tailscale covers approved remote access. docs/NETWORK.md § The Pineville network
   as it is;
-- whether home folders live on the server's disk or on the Synology
-  (docs/SYNOLOGY.md; the OptiPlex's disk size decides, question 2, Sunday).
+- verify capacity for the chosen layout: homes, shares and apps on the HP;
+  media, recordings and backups on the DS216. Configure and test real NAS
+  mounts before depending on them (docs/SYNOLOGY.md).
 
 Also needed on day 1: the model of the Pineville UPS (answer 8) and a USB
 cable from the UPS to the server, for the step below.
@@ -131,13 +134,14 @@ open. At the church, the same command without `--staging` relocates it in
 one run.
 
 
-INSTALL.md § Path A, steps 1 to 5: make the USB, install Ubuntu, get the
-code on it, run the installer, set the fixed address. Run the installer with
-the flags you will actually use so the box is complete on the first pass:
-
-```bash
-sudo bash /opt/arise/installer/install.sh --with-tailscale --with-caddy --kiosk
-```
+Follow `INSTALL.md` for the on-screen ISO workflow: choose the target disk,
+production encryption and identity, then complete the ariseOS firstboot
+screens. Choose **At home or in a test VM** for the rehearsal. H4 defaults
+to the five core apps; **Desktop and directory only** is available for a
+smaller initial VM. Other apps are installed later from the Store. No shell
+command is required on the target computer.
+The wizard installs the kiosk. Advanced manual instructions use source under
+`/opt/arise-src`; `/opt/arise` is the installed runtime, not the initial clone.
 
 Plug the server and the Synology into the Pineville UPS (answer 8) and run
 the UPS's USB cable to the server. Install `nut` (Network UPS Tools, in
@@ -147,8 +151,11 @@ mid-write can corrupt its database. The exact `nut` lines wait on the UPS
 model; docs/IDEAS.md § 1 has the shape of it.
 
 The monitor in the closet shows the Arise desktop as soon as the installer
-finishes and the box reboots (docs/CONSOLE.md). The Windows keyboard works
-as is: **Ctrl** does what ⌘ does on a Mac, and the Windows key does too
+finishes, the box reboots and its encrypted disk is unlocked (docs/CONSOLE.md).
+On the expected TPM 1.2 HP, enter the passphrase at every boot (H3). Test the
+keyboard recovery path; optional early-boot LAN SSH is described in
+docs/SECURITY.md. Power restoration alone does not unlock the server.
+The Windows keyboard works as is: **Ctrl** does what ⌘ does on a Mac, and the Windows key does too
 where the browser reports it. The desktop prints shortcut labels as `Ctrl`
 on that keyboard.
 
@@ -160,11 +167,13 @@ opens on the LAN, the domain exists, nobody is in it yet.
 1. docs/DIRECTORY.md § DNS on the church network. The routers keep the DNS
    they hand out today; nothing on them changes (ANSWERS 111, 118).
    Enrolment writes a resolver file on each Mac that sends only
-   `ad.arisecenla.com` to the server. Verify with the two `dig` lines on a
-   Mac.
+   `ad.arisecenla.com` to the server. Verify system lookup with `dscacheutil -q host -a name
+   arise-server.ad.arisecenla.com`; use `dig @<dns-ip>` for explicit SRV
+   checks. macOS `dig` alone ignores the per-domain resolver file.
 2. Create yourself and the groups (§ 4 below): `bradly.dyer` in
    `Domain Admins`, `Staff` and `Media`.
-3. Enrol **one** church Mac, yours: Macs app → **Enrol a Mac**, paste the
+3. Deploy and validate Nextcloud from the Store before expecting file sync.
+   Enrol **one** church Mac, yours: Macs app → **Enrol a Mac**, paste the
    one Terminal line on the Mac (docs/MACS.md). Grant the helper Full Disk
    Access when enrolment asks. Log out, log in as `bradly.dyer`, and watch
    Desktop and Documents sync to your server home through Nextcloud
@@ -180,20 +189,21 @@ Synology mounted, `arisectl doctor`. Then Dashboard → Backups → run every
 job once by hand and read the history rows. A backup you have never watched
 succeed is not a backup.
 
-The automator keeps running on the old Windows PC until the server's timer
-is enabled, then it stops there (answer 46); never two copies at 02:05.
+The automator stays on its existing designated runner until Bradly deliberately
+changes the runner assignment and schedules through `docs/AUTOMATOR.md`.
+Enabling a server timer does not stop the PC; verify there is exactly one runner.
 Backup history is 30 daily, 12 weekly, 24 monthly (answer 47); how much
 Synology space that takes waits on question 4. The `recordings` share is
 excluded from restic on purpose (§ 4, Shares).
 
-Wait one night. In the morning the 02:05 automator report and the 03:00
-backup rows are in the dashboard. There is no daily note (answer 49): the
+Wait one night. Check the 02:05 job on its designated runner and the
+03:00 backup history; do not assume the server has taken over the job. There is no daily note (answer 49): the
 *Needs you* list on the Overview is what to read.
 
 ### Day 4 — remote access, the closet door closes
 
 docs/REMOTE-ACCESS.md § (f), the checklist. The test that matters: from
-your phone's hotspot, on your laptop, open `http://arise-server:4147`,
+your phone's hotspot, on your laptop, open `https://arise-server.ad.arisecenla.com`,
 sign in, open a file in the Finder. If that works the server no longer
 needs you in the room.
 
@@ -213,11 +223,11 @@ login"). Give each person the one-paragraph "what you do" from § 6 or § 7.
 
 ### Day 6 — the rest of Pineville's computers
 
-`mac/enroll-mac.sh` on each church Mac, one at a time, the person present
-for the first login (docs/MAC-MIGRATION.md). Six to ten Macs in all
+Use the verified enrollment line from the Macs app on each church Mac,
+one at a time, with the person present for first login (docs/MACS.md). Six to ten Macs in all
 (answer 30), so two or three days. There are no Windows PCs (answer 31).
-Where a Mac's local account name is not `first.last`, pass
-`--map oldname=first.last`.
+Existing local accounts are linked to the chosen server users; verify each
+mapping in the Macs app, preserve local passwords and test sync.
 
 **Personal Macs are not bound.** Apostle Bryant's and Pastor Vanessa's own
 Macs leave the building (answer 34); binding a personal Mac hands its login
@@ -247,8 +257,8 @@ Alexandria is one Mac and there is no place for a route box (answers 19
 and 21), so the Mac is its own tunnel: docs/NETWORK.md § A church across
 town, option A. The order: the split-DNS rule for `ad.arisecenla.com` in
 the Tailscale console (done on day 4), Tailscale installed on that Mac and
-set to start at login, `ping arise-server` and the two `dig` lines, then
-`mac/enroll-mac.sh` exactly like day 2. Drive there for it. Nobody streams
+set to start at login, the system DNS and explicit SRV checks from day 2, then the verified
+enrollment line from the Macs app, exactly like day 2. Drive there for it. Nobody streams
 from Alexandria (answer 22), so there is no bandwidth rule there.
 
 ### Day 8 — the Hub
@@ -291,9 +301,9 @@ person or department account, chosen by you. That becomes a "leaving"
 button in the Directory app (v0.8 "Exodus", docs/ROADMAP.md); until then it
 is `arisectl user disable` after the 30 days and a move in Finder.
 
-The four admins get two-step sign-in with codes from Microsoft
-Authenticator (round 2, 11; TOTP, so no Microsoft account is involved),
-enrolled from the flame menu before any member signs in. Also v0.8.
+Two-step sign-in is optional per person under the later owner decision.
+Those who opt in enroll standard TOTP from the flame menu using Microsoft
+Authenticator; test the second-factor check before relying on it.
 
 **Usernames are `first.last`** (answer 23): `bradly.dyer`, `bryant.sanders`,
 `vanessa.sanders`, `kristina.robinson`. Lower case, a dot, no spaces. A
@@ -357,24 +367,23 @@ Someone on the staff, at home, with a file to drop off and a video to
 collect:
 
 1. Open Tailscale (signed in with the church login), then the dashboard:
-   `http://arise-server:4147`. There is no public address (answer 36).
+   `https://arise-server.ad.arisecenla.com`. There is no public address (answer 36).
 2. Sign in with their directory username and password. The same one as the
    church Mac.
 3. The Finder opens on their home folder. The sidebar shows **Home** and the
    shares their groups allow (`staff`, maybe `media`). Nothing else.
 4. **Upload**: the Upload button, or drag files onto the window. Files land
    in the folder they are looking at, which is on the server, which is in
-   tonight's backup. 2 GB per file through the browser; bigger than that,
-   use Tailscale and the share over SMB.
+   tonight's backup. the current browser upload supports up to 10 GB using resumable chunks.
+   Test the real connection and free space; larger files can use SMB over
+   the approved LAN/Tailscale path.
 5. **Download**: double-click a file, or select it and press Download.
    Space previews most things first (Quick Look).
-6. **Share a link**: right-click a file, **Share Link…**. A
-   `http://arise-server:4147/s/<token>` address goes to the clipboard. Anyone
-   with it downloads that one file, no sign-in, for 7 days by default
-   (answer 39); the link is listed under the flame menu → **Shared Links…**,
-   with a Remove button. Because nothing is exposed to the internet, the
-   link only opens for someone on the church's Tailscale; a link to someone
-   outside the church needs the public door, which is off (answer 36).
+6. **Share a link**: ask an administrator. Current defaults allow only
+   admins to create download links, capped at seven days. Anyone with the
+   link still needs permitted LAN/Tailscale reachability; it is not a public
+   internet URL. For church colleagues, use **Share with…** instead.
+
 7. **Change Password**: flame menu → Change Password. Old password, new
    password twice. It changes in the directory, so the Mac at church uses the
    new one next login.
@@ -386,29 +395,28 @@ That is the whole portal. It is deliberately small.
 
 ## 7. What a staff Mac does
 
-After `mac/enroll-mac.sh`:
+After enrollment through the Macs app:
 
-- Login is the directory username and password. The helper makes every
-  server account on every church Mac ahead of time, so their face is on the
-  login window before their first sign-in (round 6, 41). After that the Mac
-  works with the server up or down, on site or at home: the account and
-  password are cached.
-- Desktop and Documents sync to the server through the Nextcloud client
-  (docs/SYNC.md), on the church network or over Tailscale. Downloads,
-  Pictures, Movies, Music stay on the Mac. `arise-home-sync` is the
-  fallback on a Mac where Nextcloud is not running.
-- Shares appear under Network in the Finder, or `⌘K` →
-  `smb://arise-server/shares/staff`. No password prompt: Kerberos from the
-  login carries it.
+- The church-owned Mac is AD-bound, with no MDM. Existing local accounts
+  are linked by default and keep their local password. New mobile AD accounts
+  use the domain password; test first sign-in and offline caching rather
+  than assuming every displayed face can already log in offline.
+- Desktop, Documents, Downloads, Pictures and Music sync through Nextcloud
+  according to the configured policy. Live Photos/Music library packages
+  stay excluded; raw recordings go to the recordings share. Validate sync
+  with the chosen account before enabling it across every church Mac.
+- Open a share with Finder → Go → Connect to Server, for example
+  `smb://arise-server.ad.arisecenla.com/staff`. A home uses the person's
+  username as the share name. Kerberos SSO requires a valid domain ticket;
+  a linked local login alone does not guarantee one.
 - Off site without Tailscale: the Mac works, the sync waits, Desktop and
   Documents show the last synced copy, the shares are not there. With
   Tailscale installed and signed in, everything is the same as at church,
   just slower.
 - A Mac that already had local users before enrolment: each local account
-  waits on the Macs page for an admin's choice: **Convert** (it becomes the
-  server user, files kept, with Undo), **Link** (it stays as it is and its
-  Desktop and Documents sync as the server user) or **Leave alone**
-  (docs/MACS.md). Nothing happens to it before that choice.
+  is linked by default under the later owner decision; verify its matching
+  server user. **Convert** remains a separate deliberate per-account operation.
+  Preserve its files, local password and recovery access (docs/MACS.md).
 - A personal Mac (Apostle Bryant's, Pastor Vanessa's) does none of this. It
   is never enrolled. It runs Tailscale and the Nextcloud app if its owner
   wants their files there.
@@ -416,7 +424,7 @@ After `mac/enroll-mac.sh`:
 ### The phone checklist (round 7, 19, 88-90)
 
 Staff and volunteers do not use the dashboard, with one exception: on church
-Wi-Fi or with Tailscale on, `http://arise-server:4147/checklist` on a phone.
+Wi-Fi or with Tailscale on, `https://arise-server.ad.arisecenla.com/checklist` on a phone.
 They sign in with the same account as on the Macs (a temporary password asks
 for their own first) and see their department's checklist for the next
 service. A list opens at call time, Sunday 09:00 and Glory Night 18:00:
@@ -449,30 +457,18 @@ console stays on `Ctrl+Alt+F2` for the admins.
 | **Weekly** | `sudo arisectl doctor`; Backups → last run per job is green; Updates on System Settings; a glance at the closet monitor | the dashboard or SSH |
 | **Monthly** | restore one file from a snapshot to prove the backups restore (docs/BACKUPS.md); `restic check`; Directory → Users, disable anyone who left; Remote → the device list, remove a lost laptop | Dashboard → Backups → Snapshots |
 | **Quarterly** | a full `apt upgrade` and a reboot on a weekday morning; the Synology's own update; re-read docs/QUESTIONS.md for anything that changed | System Settings → Updates → Upgrade packages |
-| **Yearly** | the off-site copy of the restic repository is still "nowhere" (answer 48): decide again; the automator's OAuth token re-consent if Google asks; the UPS battery test | — |
+| **Regularly** | verify the configured Arise-Home off-site copy and a restore; renew the Testing-mode YouTube authorization weekly; check the UPS battery | docs/BACKUPS.md and docs/AUTOMATOR.md |
 | **Before every move, every ISP change, every new router** | docs/MOVING-DAY.md, even if the box only moves to another room: the IP and DNS are what everything else points at | — |
 
 ---
 
 ## 9. The public door: off, by Bradly's choice
 
-Answer 36: Tailscale only, nothing exposed. Everything above works with
-**nothing** on the internet: off-site people install Tailscale, sign in
-once with the church login, and the dashboard is just there. The rest of
-this section is what the other choice would mean, kept for the day it
-changes.
-
-The alternative is a public HTTPS address for the dashboard so a member can
-sign in from any browser without installing anything. It means: a real
-domain name (`files.arisecenla.com` would be the one, set in Wix's DNS; arisecenla.church is at GoDaddy, out of reach), a port forward
-of 443 on the church router to the server, Caddy with a public certificate
-instead of `tls internal` (Caddy does Let's Encrypt by itself once the name
-resolves to your public IP), and fail2ban on the dashboard's login. The
-dashboard's login then stands between the internet and the directory
-passwords. It is a reasonable door for a church, and a bigger one than
-Tailscale. I have not opened it in the installer; it is a flag I will add
-the day you say yes to question 36. Until then the answer to "I'm at home
-and need a file" is "install Tailscale."
+Tailscale only, with no public dashboard or router port forwarding. Off-site
+people use an approved Tailscale device and the internal HTTPS hostname.
+Caddy's internal CA must be trusted through the verified enrollment process.
+A share link does not change this access rule. Router, switch and Mesh settings
+remain unchanged; a public URL or tunnel is not part of this setup.
 
 ---
 
@@ -480,7 +476,7 @@ and need a file" is "install Tailscale."
 
 | Symptom | Look here first | Then |
 |---|---|---|
-| A Mac will not bind, or a login hangs at church | the Mac is not using the server for DNS: `dig +short _ldap._tcp.ad.arisecenla.com SRV` on the Mac | docs/DIRECTORY.md § DNS; the VLAN the Mac is on (docs/NETWORK.md) |
+| A Mac will not bind, or a login hangs at church | check system DNS with `dscacheutil`, then SRV records with `dig @<dns-ip>`; also check time, credentials and connectivity | docs/DIRECTORY.md § DNS and docs/NETWORK.md; leave network infrastructure unchanged |
 | Everything is fine on site, nothing works from Alexandria | Tailscale on that Mac: signed in, running, the split-DNS rule in the console | Dashboard → Remote → the device list; docs/NETWORK.md § A church across town |
 | The dashboard says *Sample data* | the server has no `arise.toml` or a tool is missing | `sudo arisectl doctor` |
 | A backup row is red | the reason is in the row | Dashboard → Backups → History; docs/BACKUPS.md |

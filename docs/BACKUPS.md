@@ -25,13 +25,53 @@ every snapshot, with or without Arise Server.
 
 | Job | Paths | What it is |
 |---|---|---|
-| `automator` | `/srv/arise/automator` | the YouTube toolkit: scripts, song bank, transcripts, setlists, thumbnails, the reports and the quota ledger. `token.json` and `client_secret.json` are **in** this backup (they are not in git, so this is their only other copy) |
-| `homes` | `/srv/arise/homes` (or `/mnt/synology/homes` when homes are on the NAS) | every person's Desktop, Documents and whatever else they put in their home |
+| `automator` | `/srv/arise/automator`, `/var/lib/arise/automator` | toolkit, reports and quota ledger. Google tokens, OAuth client secrets and deploy keys are deliberately excluded; sign in again after recovery |
+| `homes` | the actual `[directory] homes_path` | every person's home; `source: homes` follows configuration, including an explicitly configured NAS path |
 | `shares` | `/srv/arise/shares` | the staff, leadership, media and kids shares |
 | `media` | `/mnt/synology/arise/media` | Proclaim graphics, loops, lower thirds, thumbnails, podcast art |
 | `github` | `/srv/arise/backups/github-mirror` | a bare mirror of every repo in `arise.toml` (see below) |
 | `config` (tagged `system`) | `/etc/arise` (with the secrets; the repository is encrypted), `/etc/samba`, `/var/lib/arise/samba-backup`, `/var/lib/samba/private`, the pinned netplan file | everything `arisectl reinstall` needs (docs/REINSTALL.md). `samba_offline: true` runs `samba-tool domain backup offline` into `/var/lib/arise/samba-backup/` first, a consistent copy of the domain database (copying `private/` while Samba writes can tear it); the last two kept |
-| `apps` | `/srv/arise/apps` | the Docker apps' data (Vaultwarden's vault, Uptime Kuma's history, Syncthing's config) |
+| `apps` | `[apps] root` (normally `/srv/arise/apps`) | Docker app data, backed up while running Arise containers are stopped cleanly |
+| `state` | `[paths] state_dir` (normally `/var/lib/arise`) | calendar, profiles, sharing grants, offboarding state and audit history; rebuildable archive, drill scratch, sessions and reset tokens are excluded |
+| `leavers` | `[people] leavers_archive`, otherwise `/mnt/synology/arise/leavers` | permanent leavers archive, included in offsite copying; an unmounted NAS fails this job |
+
+`source` fields resolve configured paths when a job runs. Existing default homes
+and apps paths also follow configuration. Explicit custom paths stay as written.
+After an upgrade, check `arisectl backup jobs` includes `state` and `leavers`;
+the installer adds missing jobs without replacing customized jobs.
+
+App consistency: before the apps job, the server records precisely which Arise
+Compose containers are running, stops them gracefully, and checks they stopped.
+A force-killed/OOM-killed container or failed stop refuses the snapshot. The
+containers are restarted in `finally`, even when restic fails. The backup unit's
+`ExecStopPost` and `arise-backup-recover.service` handle an interrupted process or
+reboot using `/var/lib/arise/backup-apps-stopped.json`. Previously stopped apps
+stay stopped. A failed restart leaves the record and reports failure. This means
+app downtime during the cold backup: measure it before production use. It is not
+a live database dump or proof of restore success; test each app's database restore
+in an isolated VM. Never restore app database files over running containers.
+
+The shared maintenance lock excludes software updates and app changes while a
+backup runs, including between jobs in a CLI batch. A new backup needs at least
+30 minutes before the ten-minute service cleanup allowance; its restic timeout
+is capped to leave that allowance before the next regular or calendar service.
+Timeout aborts the backup and restarts stopped apps; it never pauses restic with
+databases left stopped. Clock changes, a new service added after a run starts,
+or a failed app restart still need operator attention.
+
+Each job is a separate snapshot. Stopping the app databases for the `apps` job
+does not create an atomic snapshot with homes/shares copied earlier: SMB clients
+may still write those files. For Nextcloud acceptance, restore its database and
+files together on an isolated VM, run its supported consistency/rescan checks,
+and verify representative documents. Where that cannot satisfy the recovery
+target, schedule a documented full write freeze or use database-native backups
+with a coordinated storage snapshot. Do not call the entire server snapshot
+application-consistent merely because individual restic jobs succeeded.
+
+The system job requires a fresh, nonempty Samba offline backup on every run.
+Failure stops that job rather than saving only a stale domain copy. Missing
+required paths fail the job. A leavers archive that does not exist yet is an
+explicitly skipped optional source, provided its NAS is mounted.
 
 Each job has an `exclude` list (caches, `**/.Trash`, `node_modules`,
 `__pycache__`) and tags, so a snapshot can be found by what it is. The
@@ -63,17 +103,21 @@ restored and identical, restored but the live file has changed since (normal
 for a working file), or a failure with the reason. The dashboard reads the
 same history. Bradly's choice, answer 47: monthly, automatic. Since v0.8 the
 drill also checks that the newest `system` snapshot holds
-`/etc/arise/arise.toml` and a domain backup tarball, so a reinstall would
-have what it needs.
+`/etc/arise/arise.toml` and a domain backup tarball. Missing either fails the
+drill. This is a prerequisite check, not a full domain restore rehearsal.
 
 Policy from `arise.toml`: **keep 30 daily, 12 weekly, 24 monthly** snapshots (Bradly chose more than restic's usual default; docs/ANSWERS.md 47)
-per job. A file deleted on a Tuesday is in a daily snapshot for a month,
-in a weekly for about three months, in a monthly for two years.
+per snapshot group. A deleted file is recoverable only while a retained snapshot
+actually contains it; retention is not a guarantee that every version survives
+two years. The permanent leavers source remains on the NAS and is included in
+new snapshots. Retention pruning and the 30-day Trash sweep are explicit owner
+exceptions to the rule that arbitrary deletion requires a human decision.
 
-The run order matters: the automator must be finished before its folder is
-snapshotted, and the mirror must be refreshed before the next snapshot. If the
-automator is still running at 03:00 (it never has been; a run is under ten
-minutes), the backup job snapshots whatever is on disk and notes it.
+The mirror refresh is scheduled after the backup, so the next night's snapshot
+captures it. Schedule spacing alone does not prove the automator or backup has
+finished: measure runtimes and inspect the jobs before relying on these windows.
+The backup unit has a six-hour total limit, including offsite copying. A larger
+first copy needs a planned maintenance window and a reviewed timeout.
 
 ## Where to see that it ran
 
@@ -117,19 +161,21 @@ restic restore <id> --include "/srv/arise/shares/media/loops" --target /tmp/rest
 **A whole job to a date**
 
 ```bash
-arisectl backup restore --job automator --at 2026-10-20 --target /tmp/restore-automator
+arisectl backup restore latest --tag automator --at 2026-10-20 --target /tmp/restore-automator
 ```
 
 which is `restic restore latest --tag automator --time "2026-10-20 23:59" --target ...`.
-Restores go to a `--target` folder, never straight over the live data; moving
-the restored files into place is a person's step.
+Use a scratch `--target` folder for file recovery; moving files into place is a
+person's step. The CLI accepts `/` for a deliberate full recovery, so the target
+argument itself is not a safeguard against overwriting live files.
 
-**The whole server** — reinstall Ubuntu, run `installer/install.sh --skip-domain`,
-mount the NAS (`arisectl nas mount`), restore the `config` job on top of the
-fresh system (`arisectl backup restore latest --tag config --target /`), then
-`systemctl unmask samba-ad-dc && systemctl enable --now samba-ad-dc`. The domain
-comes back with every user and computer account. See
-`INSTALL.md`.
+**The whole server:** follow `docs/REINSTALL.md` on a fresh isolated machine.
+Restore the domain through `samba-tool domain backup restore` from its offline
+tarball; do not treat the copied live `private/` directory as a consistent domain
+backup. Restore app data and matching secrets before starting any app. Include
+the `state`, homes, shares, pastors, songs, repos and other configured jobs in the
+recovery plan. A missing or unusable domain backup is a recovery failure, not
+permission to provision a replacement domain silently.
 
 ## The GitHub mirror
 
@@ -174,7 +220,7 @@ the first one that is ready at 03:00 is used:
 | Target | Ready when | Repository |
 |---|---|---|
 | `synology` | `/mnt/synology` is mounted | `synology_repo`, or `restic_repo` when that is empty |
-| `arise-home` | `ssh` to it answers, non-interactively, over Tailscale | `arise_home_repo`, e.g. `sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville` |
+| `arise-home` | a read-only SFTP batch answers non-interactively over Tailscale | `arise_home_repo`, e.g. `sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville` |
 
 **Neither ready = the job fails red** with "no backup target is ready", in the
 history, on the Backups page and in `arisectl backup status`. It is never a
@@ -190,8 +236,9 @@ Setting up Arise-Home as the target (once, by Bradly):
    `/srv/arise/backups/restic-pineville` owned by it.
 2. On this server, as root: `ssh-keygen -t ed25519` (root's own key: the
    backup runs as root), copy the `.pub` to that account's
-   `authorized_keys`, then `sudo ssh arise-backup@arise-home` once so the
-   host key is recorded (the check refuses unknown host keys).
+   `authorized_keys`, then use `sudo sftp arise-backup@arise-home` once, verifying
+   the host-key fingerprint independently before accepting it. Quit after it
+   connects; no shell permission is needed. The check refuses unknown host keys.
 3. `arise_home_repo = "sftp:arise-backup@arise-home:/srv/arise/backups/restic-pineville"`
    in `/etc/arise/arise.toml`, restart arise-web, and
    `sudo arisectl backup run` once: the first run initialises the repository.
@@ -199,9 +246,8 @@ Setting up Arise-Home as the target (once, by Bradly):
 **The switch to the Synology** needs no change: once the Synology is mounted
 it is ready, it comes first in `targets`, and the next run goes there (a new
 repository is initialised there on the first run). The Arise-Home repository
-stays as it is and becomes the second copy below. To keep sending there too,
-that is a second job, not a setting; to stop, remove `arise-home` from
-`targets`.
+stays as it is and becomes the automatic offsite copy below when `[backups]
+offsite = "arise-home"`. No second job is needed.
 
 ## The off-site copy: Arise-Home (round 7, 53 and 54)
 
@@ -245,6 +291,11 @@ password is written by hand on the closet card taped inside the closet, and
 Kristina has it too; on the box it is `/etc/arise/secrets/restic-password`
 (root only, never in a chat, never in Vaultwarden). If Bradly can't be reached,
 Kristina follows the closet card.
+
+Encryption does not make backups immutable. A compromised server with write
+access to both destinations can delete both copies. A separately protected
+offline or immutable copy remains a recommendation requiring the owner's chosen
+storage design. Test recovery without access to the original server.
 
 ## What is NOT backed up here
 

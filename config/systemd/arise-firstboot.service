@@ -21,8 +21,7 @@ TTYVHangup=yes
 TTYVTDisallocate=yes
 Environment=TERM=linux
 TimeoutStartSec=0
-# When it ends without finishing (a problem, or Cancel), tty1 gets its login prompt back.
-ExecStopPost=-/bin/systemctl start getty@tty1.service
+# Cancellation and recoverable errors stay in the wizard; tty2 remains available for diagnostics.
 
 [Install]
 WantedBy=multi-user.target
