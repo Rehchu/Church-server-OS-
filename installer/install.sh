@@ -181,6 +181,26 @@ run() {
   fi
 }
 
+# long — a step that can take many minutes with nothing to show (an image pull, the virus
+# signatures, the first snapshot). Its output goes to the log; the screen gets a line every
+# minute, so a slow step never looks like a frozen one, and it is stopped after <limit>
+# seconds instead of hanging the install forever. Returns the command's status (124: timed out).
+#   long "<what>" <limit-seconds> <command...>
+long() {
+  local what="$1" lim="$2"; shift 2
+  if [ "$DRY_RUN" = 1 ]; then printf '    [dry-run] %s\n' "$*"; return 0; fi
+  printf '    $ %s\n      (%s: can take a while; follow it with: sudo tail -f %s)\n' "$*" "$what" "$LOG_FILE"
+  timeout -k 30 "$lim" "$@" >>"$LOG_FILE" 2>&1 &
+  local pid=$! t=0 rc=0
+  while kill -0 "$pid" 2>/dev/null; do
+    sleep 5; t=$((t + 5))
+    [ $((t % 60)) -eq 0 ] && printf '      ... %s: still working (%d min)\n' "$what" $((t / 60))
+  done
+  wait "$pid" || rc=$?
+  [ "$rc" -eq 124 ] && printf '    \033[1;33m! %s stopped after %d min (too long); the install goes on\033[0m\n' "$what" $((lim / 60))
+  return "$rc"
+}
+
 trap 'die "step failed at line $LINENO: $BASH_COMMAND  (see $LOG_FILE)"' ERR
 
 echo "============================================================="
@@ -295,6 +315,13 @@ fi
 # ----------------------------------------------------------------------------
 say "1/7  Packages"
 export DEBIAN_FRONTEND=noninteractive
+# Two ways a fresh Ubuntu can stall an unattended install: needrestart's "restart these
+# services?" dialog (list only, never ask), and the apt lock held by Ubuntu's own first
+# automatic update (wait for it, up to 15 minutes, with apt's "Waiting for cache lock" on screen).
+export NEEDRESTART_MODE=l NEEDRESTART_SUSPEND=1
+if [ "$DRY_RUN" = 0 ]; then
+  printf 'DPkg::Lock::Timeout "900";\n' > /etc/apt/apt.conf.d/52-arise-lock-wait
+fi
 # Kerberos asks three questions during install; answer them up front so apt
 # never stops to wait for a keyboard.
 if [ "$DRY_RUN" = 0 ]; then
@@ -977,7 +1004,7 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
     # RAM minus 2 GB (the domain, the dashboard, the kiosk) allows; the rest wait, stopped.
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] arisectl app install-all   (every template deployed; autostart ones started within RAM - 2 GB; heavy ones left stopped)"
-    elif /usr/local/bin/arisectl app install-all >>"$LOG_FILE" 2>&1; then
+    elif long "every app (image downloads)" 10800 env PYTHONUNBUFFERED=1 /usr/local/bin/arisectl app install-all; then
       note "apps: every template deployed; see 'arisectl app list' for what runs and what waits (the Store shows the same)"
     else
       warn "some apps did not deploy (see $LOG_FILE); arisectl app install-all to retry, or arisectl app deploy <name> one at a time"
@@ -987,7 +1014,7 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
   for a in $APPS; do
     if [ "$DRY_RUN" = 1 ]; then note "[dry-run] arisectl app deploy $a"; continue; fi
     if [ -d "$SRC/templates/$a" ]; then
-      if /usr/local/bin/arisectl app deploy "$a" >>"$LOG_FILE" 2>&1; then APPS_OK="$APPS_OK $a"; note "app $a: up"; else APPS_BAD="$APPS_BAD $a"; warn "app $a: deploy failed (see $LOG_FILE); arisectl app deploy $a to retry"; fi
+      if long "app $a (image download and first start)" 2400 /usr/local/bin/arisectl app deploy "$a"; then APPS_OK="$APPS_OK $a"; note "app $a: up"; else APPS_BAD="$APPS_BAD $a"; warn "app $a: deploy failed (see $LOG_FILE); arisectl app deploy $a to retry"; fi
     else
       warn "no template called $a"; APPS_BAD="$APPS_BAD $a"
     fi
@@ -1005,14 +1032,15 @@ if [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
   if [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] arisectl app deploy nextcloud (if not yet); arisectl cloud setup; cloud CNAME in the domain's DNS; arise-cloud-watch + the hourly conflicts timer"
   else
-    [ -f /srv/arise/apps/nextcloud/compose.yaml ] || /usr/local/bin/arisectl app deploy nextcloud >>"$LOG_FILE" 2>&1 || warn "nextcloud did not deploy (see $LOG_FILE): arisectl app deploy nextcloud"
+    [ -f /srv/arise/apps/nextcloud/compose.yaml ] || long "app nextcloud" 2400 /usr/local/bin/arisectl app deploy nextcloud || warn "nextcloud did not deploy (see $LOG_FILE): arisectl app deploy nextcloud"
     # inotify for the watcher: one watch per folder in every home and share
     printf 'fs.inotify.max_user_watches=1048576\nfs.inotify.max_user_instances=512\n' > /etc/sysctl.d/60-arise-cloud.conf
     sysctl -q -p /etc/sysctl.d/60-arise-cloud.conf >/dev/null 2>&1 || true
     if [ -f /srv/arise/apps/nextcloud/compose.yaml ]; then
       # The first start of Nextcloud installs itself (a minute or two) before occ answers.
-      for _ in $(seq 1 60); do docker exec -u www-data arise-app-nextcloud php occ status >/dev/null 2>&1 && break; sleep 5; done
-      if /usr/local/bin/arisectl cloud setup >>"$LOG_FILE" 2>&1; then
+      note "waiting for Nextcloud's first start (it installs itself; up to 5 min)"
+      for i in $(seq 1 60); do docker exec -u www-data arise-app-nextcloud php occ status >/dev/null 2>&1 && break; sleep 5; [ $((i % 12)) -eq 0 ] && note "... still waiting for Nextcloud ($((i / 12)) min)"; done
+      if long "Nextcloud setup (domain sign-in, folders)" 1800 /usr/local/bin/arisectl cloud setup; then
         note "sync: Nextcloud is set up (https://cloud.${REALM,,}); every church Mac's helper installs the client"
       else
         warn "sync: arisectl cloud setup had failures (see $LOG_FILE); run it again once Nextcloud is up"
@@ -1459,6 +1487,15 @@ if [ "$WITH_KIOSK" = 1 ]; then
   fi
   if [ -f "$SRC/config/systemd/arise-kiosk.service" ]; then
     run install -m 0644 "$SRC/config/systemd/arise-kiosk.service" /etc/systemd/system/arise-kiosk.service
+    # In a virtual machine (the VirtualBox test box) there is no real graphics card: draw in
+    # software and use a software cursor, or cage and Firefox fight a fake 3D driver and the VM
+    # crawls. A real PC never gets this file.
+    if command -v systemd-detect-virt >/dev/null 2>&1 && systemd-detect-virt -q && [ "$DRY_RUN" = 0 ]; then
+      mkdir -p /etc/systemd/system/arise-kiosk.service.d
+      printf '[Service]\nEnvironment=WLR_RENDERER=pixman\nEnvironment=WLR_NO_HARDWARE_CURSORS=1\nEnvironment=LIBGL_ALWAYS_SOFTWARE=1\nEnvironment=MOZ_WEBRENDER=0\n' \
+        > /etc/systemd/system/arise-kiosk.service.d/60-vm.conf
+      note "virtual machine ($(systemd-detect-virt)): the desktop draws in software (arise-kiosk.service.d/60-vm.conf)"
+    fi
     run systemctl daemon-reload
     if [ "$WITH_CONSOLE" = 1 ]; then
       warn "--console and --kiosk both given: the desktop takes tty1; arisetui is still 'arisetui' in any terminal"
@@ -1722,7 +1759,7 @@ if [ "$WITH_SAFETY" = 1 ]; then
   # --- the weekly virus scan (round 3, 28): Sunday 23:30, quarantine, a report ---
   if [ "$DRY_RUN" = 0 ]; then
     systemctl stop clamav-freshclam >/dev/null 2>&1 || true
-    freshclam >>"$LOG_FILE" 2>&1 || warn "freshclam could not fetch signatures yet (no internet?); the timer retries"
+    long "virus signatures (about 300 MB)" 1800 freshclam || warn "freshclam could not fetch signatures yet (no internet?); the timer retries"
     systemctl enable --now clamav-freshclam >/dev/null 2>&1 || true
     mkdir -p /srv/arise/.quarantine; chmod 700 /srv/arise/.quarantine
   else
@@ -1767,7 +1804,7 @@ if [ "$WITH_SAFETY" = 1 ]; then
 }
 TS
     if command -v timeshift >/dev/null 2>&1 && [ "$NO_START" = 0 ]; then
-      timeshift --create --comments "install $(date +%F)" --tags O --scripted >>"$LOG_FILE" 2>&1 && note "first system snapshot taken (timeshift, rsync mode; church files excluded, they are in the backup)" || warn "timeshift could not take the first snapshot (see $LOG_FILE); arisectl snapshot create to retry"
+      long "the first system snapshot" 3600 timeshift --create --comments "install $(date +%F)" --tags O --scripted && note "first system snapshot taken (timeshift, rsync mode; church files excluded, they are in the backup)" || warn "timeshift could not take the first snapshot (see $LOG_FILE); arisectl snapshot create to retry"
     fi
   fi
   # --- encryption: a TPM 2.0 unlocks the disk (round 3, 22); without one, the passphrase at boot (Oct 30, H3) ---

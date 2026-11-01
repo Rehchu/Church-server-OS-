@@ -35,3 +35,7 @@ backup-history.json
 
 # install media made by scripts/make-install-media.sh
 dist/
+
+# a private install disc carries keys (make-install-media.sh --secrets): never in git
+*-private.iso
+*-private.zip
