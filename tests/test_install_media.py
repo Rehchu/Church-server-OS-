@@ -168,6 +168,22 @@ class Builder(unittest.TestCase):
         self.assertIn('install -m 0600 -o root -g root "$f" "/target/etc/arise/secrets/$(basename "$f")"', y)
 
 
+class PublishedDisc(unittest.TestCase):
+    """install-media/ is in the public repo (Bradly, Nov 1): the plain disc only, never a key."""
+
+    def test_no_private_disc_and_no_secrets(self):
+        d = ROOT / "install-media"
+        if not d.exists():
+            self.skipTest("no install-media folder")
+        names = [p.name for p in d.iterdir()]
+        self.assertFalse([n for n in names if "private" in n], names)
+        self.assertIn("*-private.iso", (ROOT / ".gitignore").read_text())
+        iso = d / "ariseos-addon.iso"
+        if iso.exists():
+            self.assertNotIn(b"/arise/secrets", iso.read_bytes().replace(b"\x00", b""))
+            self.assertNotIn(b"resend-api-key", iso.read_bytes())
+
+
 class Wizard(unittest.TestCase):
     def test_parses(self):
         subprocess.run(["bash", "-n", str(WIZARD)], check=True)
