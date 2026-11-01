@@ -16,6 +16,12 @@
 > (`resend._domainkey.mail`, `send.mail`, `rsend.mail`, `_dmarc.mail`) from the first try are no
 > longer used; they harm nothing, and removing them is Bradly's click. **One record to add:**
 > TXT `_dmarc` → `v=DMARC1; p=none;` (DMARC for the main domain; Gmail and Yahoo look for it).
+> **ad.arisecenla.com needs nothing in Wix** (Bradly asked, Nov 1). It is the church's sign-in
+> domain, and the server itself answers for it: inside the building every church Mac asks the
+> server (its resolver file), and away from the building Tailscale's split DNS sends
+> `ad.arisecenla.com` questions to the server (docs/REMOTE-ACCESS.md, step 5). A Wix record for
+> `ad` would put the server's private address on the internet and reach nothing (rule 7). The
+> two never overlap: email uses `arisecenla.com`, sign-in uses `ad.arisecenla.com`.
 > The rest of this page is the original plan, kept for the record; where it says
 > `mail.arisecenla.com` or `ad.arisecenla.com` for mail, read `arisecenla.com`.
 

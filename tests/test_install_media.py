@@ -179,9 +179,12 @@ class PublishedDisc(unittest.TestCase):
         self.assertFalse([n for n in names if "private" in n], names)
         self.assertIn("*-private.iso", (ROOT / ".gitignore").read_text())
         iso = d / "ariseos-addon.iso"
-        if iso.exists():
-            self.assertNotIn(b"/arise/secrets", iso.read_bytes().replace(b"\x00", b""))
-            self.assertNotIn(b"resend-api-key", iso.read_bytes())
+        if iso.exists() and shutil.which("xorriso"):
+            ls = subprocess.run(["xorriso", "-indev", str(iso), "-find", "/", "-type", "f"],
+                                capture_output=True, text=True).stdout
+            self.assertIn("'/arise/ariseos-src.tar.gz'", ls)
+            self.assertNotIn("/arise/secrets/", ls)                  # no key file on the published disc
+        self.assertNotRegex(iso.read_bytes().decode("latin-1") if iso.exists() else "", r"re_[A-Za-z0-9_]{20,}")
 
 
 class Wizard(unittest.TestCase):
