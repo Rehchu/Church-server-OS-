@@ -1,7 +1,8 @@
 # Answers from Bradly (Oct 28 2026) and what they decide
 
 The multiple-choice questions in docs/QUESTIONS.md, answered in the chat
-pop-ups. Questions 1 to 7 (the OptiPlex and the Synology) come Sunday.
+pop-ups. Later answers supersede earlier ones where they conflict; see the
+Oct 30 hardware decisions H1–H6 for the current server, NAS, encryption and app plan.
 Where an answer changes the plan, the change is named here and made in the
 file it points to. Nothing in this file is assumed; every line is his answer.
 
@@ -662,9 +663,18 @@ then four answers on the pop-up. These rows win over anything earlier that assum
 | H5 | Upgrades before install day? | Yes, both | a 500 GB SATA SSD (about $30) for the system, and 8 GB of DDR3 (2 × 4 GB, about $15 used). docs/HARDWARE.md has the shopping list |
 | H6 | (Bradly, same day) "The other windows pc is an hp elite desk 800 g1 SFF." Should it be the server instead? | EliteDesk, and it is free to wipe | **the EliteDesk 800 G1 SFF is arise-server**, not the OptiPlex (H1 stays true of the OptiPlex, now the spare). A 4th-gen Intel (usually a 4-core i5), 4 memory slots up to 32 GB, AVX2, UEFI, SATA only. Its TPM is 1.2, and HP's community support says the 800 G1's chip is not on the 2.0 upgrade list, so H3 (the passphrase at boot) stands; if a 2.0 chip ever shows, the installer binds it and the box boots alone. H4 (core set) stands; the Store's heavier apps become realistic. H5 becomes: the SSD, and memory only up to 16 GB (2 × 8 GB DDR3-1600) if it has less. docs/HARDWARE.md |
 
+The H rows above supersede earlier hardware, encryption and app-default answers.
+Model-family specifications are planning information: inventory the actual CPU,
+RAM, disks, firmware and TPM before buying parts or selecting optional apps.
+On the expected TPM 1.2 hardware, H3 means a passphrase at every boot. H6's
+conditional TPM 2.0 exception applies only after its presence and a successful
+binding/unlock have been verified. Early-boot SSH is opt-in: use the configured
+LAN boot address, which may differ from `arise-server`; the server's Tailscale
+and AD DNS are not running at the unlock prompt. See docs/SECURITY.md.
+
 ## Still needed
 
-- Friday: the makes, models, RAM and disks of the two Windows PCs (the OptiPlex and the unknown one) and the Synology model; which PC is strongest decides Arise-Pineville (109, 111); the disk split (91) and the Synology layout (55) follow.
+- Inventory the HP EliteDesk 800 G1 SFF primary server and Dell OptiPlex 3010 spare: exact CPU, installed RAM, disk models/health, firmware and TPM version. Record the DS216's DSM version, existing pool and drive health before changing storage; models and primary role are decided (H1–H6).
 - The automator chat's answers to docs/ASK-THE-AUTOMATOR-CHAT.md (97).
 - The four Discord webhook URLs into /etc/arise/secrets/discord.toml (101).
 

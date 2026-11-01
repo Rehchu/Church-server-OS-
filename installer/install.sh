@@ -24,11 +24,12 @@
 #    --skip-docker       do not install Docker (no app templates)
 #    --no-start          install everything but do not start services/timers
 #    --with-tailscale    (default ON) install Tailscale; --no-tailscale to skip. `tailscale up` is still yours to run
-#    --apps "a,b"        only these apps at install (default: every template, started within the memory budget); --no-apps for none
+#    --apps "a,b"        only these apps at install (default: Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser); --no-apps for none
 #    --with-wireguard    native WireGuard server on UDP 51820 (wg0, 10.47.0.0/24)
 #    --with-caddy        (default ON since v0.8; --no-caddy to skip) Caddy in front of the dashboard with the box's own
 #                        certificate authority: the church certificate every enrolled Mac trusts (round 3, 29)
-#    --no-tpm            do not bind the encrypted disk to the TPM (default: if the disk is LUKS and a TPM is there, bind it)
+#    --no-tpm            keep passphrase boot even with TPM 2.0 (TPM 1.2 never supports automatic unlock)
+#    --grow-root         grow a single ext4 root LV into unused space in its VG (ISO firstboot enables this)
 #    --restore REPO      REINSTALL: on a fresh Ubuntu, pull /etc/arise, /etc/samba, the domain's offline backup and the
 #                        pinned address back from this restic repository first, then install around them (docs/REINSTALL.md)
 #    --with-cockpit      (default ON; --no-cockpit to skip) Cockpit (Red Hat's web console) on :9090: disks, services, logs, a terminal, a second door
@@ -48,8 +49,8 @@
 #                        monitor and arise-rescue are the way in without a key.
 #    --no-splash         skip the ariseOS boot splash (Plymouth theme, quiet kernel, 1 s GRUB menu)
 #    --no-ups            skip NUT (the UPS daemon; shuts the box down cleanly on low battery once the model is set)
-#    --no-pin-ip         do NOT pin the address DHCP gave this box (default: pin it, so the DC never moves;
-#                        nothing on any router changes, Bradly's rule)
+#    --pin-ip            opt in to static addressing ONLY after verifying this address is outside the DHCP pool
+#    --no-pin-ip         keep DHCP (default); never reserve a lease by silently disabling renewal
 #    --dry-run           print every step, change nothing
 #    -h | --help
 #
@@ -89,12 +90,10 @@ WITH_CLAUDE=1
 WITH_HARDENING=1
 WITH_SPLASH=1
 WITH_UPS=1
-PIN_IP=1
-# The core set (Bradly, Oct 30, H4; replaces round 3, 5's "every template preinstalled"; the box
-# is an HP EliteDesk 800 G1 SFF, H6): sync, passwords, the uptime monitor, the
-# health graphs and the web file browser. Every other template stays in the Store, one click away.
-# `--apps all` deploys every template (started only within RAM minus 2 GB); `--apps "a b c"` a
-# list; `--no-apps` skips the step.
+PIN_IP=0
+GROW_ROOT=0
+# Owner decision H4: the core five. Other templates remain available in the Store.
+# --apps all is explicit and remains subject to the aggregate memory budget.
 DEFAULT_APPS="nextcloud vaultwarden uptime-kuma netdata filebrowser"
 APPS="$DEFAULT_APPS"
 STAGING=0
@@ -125,6 +124,7 @@ while [ $# -gt 0 ]; do
     --with-caddy)  WITH_CADDY=1; shift ;;
     --no-caddy)    WITH_CADDY=0; shift ;;
     --no-tpm)      WITH_TPM=0; shift ;;
+    --grow-root)   GROW_ROOT=1; shift ;;
     --no-safety)   WITH_SAFETY=0; shift ;;
     --restore)     RESTORE_REPO="${2:-}"; shift 2 ;;
     --restore=*)   RESTORE_REPO="${1#*=}"; shift ;;
@@ -142,6 +142,7 @@ while [ $# -gt 0 ]; do
     --no-apps)     APPS=""; shift ;;
     --console)     WITH_CONSOLE=1; shift ;;
     --kiosk)       WITH_KIOSK=1; shift ;;
+    --pin-ip)      PIN_IP=1; shift ;;
     --no-pin-ip)   PIN_IP=0; shift ;;
     --staging)     STAGING=1; PIN_IP=0; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
@@ -149,6 +150,24 @@ while [ $# -gt 0 ]; do
     *) echo "unknown flag: $1" >&2; usage 2 ;;
   esac
 done
+[ -z "$RESTORE_REPO" ] || NO_START=1
+APPS_REQUESTED="$APPS"
+wants_app() {
+  [ "$APPS_REQUESTED" = all ] || [[ " $APPS_REQUESTED " = *" $1 "* ]]
+}
+# Keep installation without startup consistent across direct calls and shell helpers.
+systemctl() {
+  if [ "${NO_START:-0}" = 1 ]; then
+    case "${1:-}" in start|restart|reload|try-restart|reload-or-restart) return 0 ;; esac
+    local arg args=()
+    for arg in "$@"; do [ "$arg" = --now ] || args+=("$arg"); done
+    command systemctl "${args[@]}"
+  else
+    command systemctl "$@"
+  fi
+}
+export NO_START
+export -f systemctl
 
 # ----------------------------------------------------------------------------
 # Logging. Everything printed also goes to the install log. In --dry-run we
@@ -196,6 +215,50 @@ if [ "$(id -u)" -ne 0 ]; then
   die "run this as root:  sudo bash installer/install.sh"
 fi
 
+# Debian package post-install scripts also start services. Block that only for
+# this no-start/recovery run, preserving the administrator's original policy.
+POLICY_DIR=""
+POLICY_WRITTEN=0
+cleanup_install() {
+  if [ -n "$POLICY_DIR" ]; then
+    if [ -e "$POLICY_DIR/original" ] || [ -L "$POLICY_DIR/original" ]; then
+      rm -f /usr/sbin/policy-rc.d
+      mv "$POLICY_DIR/original" /usr/sbin/policy-rc.d
+    elif [ "$POLICY_WRITTEN" = 1 ]; then
+      rm -f /usr/sbin/policy-rc.d
+    fi
+    rmdir "$POLICY_DIR"
+  fi
+}
+trap cleanup_install EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+if [ "$DRY_RUN" = 0 ]; then
+  exec 9>/run/arise-installer.lock
+  flock -n 9 || die "Another ariseOS installer is already running. Wait for its on-screen result."
+  # A power loss must not lose an administrator's original startup policy.
+  if [ -d "$STATE_DIR/install-policy" ]; then
+    if [ ! -e /usr/sbin/policy-rc.d ] || grep -q '^# ariseOS temporary startup policy$' /usr/sbin/policy-rc.d; then
+      POLICY_DIR="$STATE_DIR/install-policy"; POLICY_WRITTEN=1
+      cleanup_install
+      POLICY_DIR=""; POLICY_WRITTEN=0
+    else
+      die "An interrupted install preserved its startup policy in $STATE_DIR/install-policy; the current policy changed. Restore/review those files before continuing."
+    fi
+  fi
+fi
+if [ "$NO_START" = 1 ] && [ "$DRY_RUN" = 0 ]; then
+  mkdir -p "$STATE_DIR"
+  POLICY_DIR="$STATE_DIR/install-policy"
+  mkdir -m 0700 "$POLICY_DIR"
+  if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then
+    mv /usr/sbin/policy-rc.d "$POLICY_DIR/original"
+  fi
+  POLICY_WRITTEN=1
+  printf '#!/bin/sh\n# ariseOS temporary startup policy\nexit 101\n' > /usr/sbin/policy-rc.d
+  chmod 0755 /usr/sbin/policy-rc.d
+fi
+
 if [ -r /etc/os-release ]; then
   # shellcheck disable=SC1091
   . /etc/os-release
@@ -212,14 +275,14 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 note "repo: $REPO_DIR"
 [ -f "$REPO_DIR/docs/ARCHITECTURE.md" ] || die "this script must be run from a checkout of the Church-server-OS repo (docs/ARCHITECTURE.md not found next to it)"
 
-if [ "$SKIP_DOMAIN" = 0 ] && [ "$DRY_RUN" = 0 ] && [ ! -f /var/lib/samba/private/sam.ldb ] && [ -z "$ADMIN_PASS" ]; then
+if [ "$SKIP_DOMAIN" = 0 ] && [ "$DRY_RUN" = 0 ] && [ ! -f /var/lib/samba/private/sam.ldb ] && [ -z "$ADMIN_PASS" ] && [ -z "$RESTORE_REPO" ]; then
   echo
-  echo "    The domain needs an Administrator password (Samba requires: 8+ chars,"
+  echo "    The domain needs an Administrator password (Samba requires: 12+ chars,"
   echo "    upper + lower + digit). It is NOT stored anywhere by this script."
   read -r -s -p "    Domain Administrator password: " ADMIN_PASS; echo
   read -r -s -p "    Again: " ADMIN_PASS2; echo
   [ "$ADMIN_PASS" = "$ADMIN_PASS2" ] || die "passwords did not match"
-  [ ${#ADMIN_PASS} -ge 8 ] || die "password must be at least 8 characters"
+  [ ${#ADMIN_PASS} -ge 12 ] || die "password must be at least 12 characters"
 fi
 
 # Staging (at home) vs the church. The marker file remembers which this box
@@ -263,11 +326,13 @@ if [ -n "$RESTORE_REPO" ]; then
     restic restore latest --tag system --target / --include /etc/arise --include /etc/samba --include /var/lib/arise/samba-backup --include /etc/netplan/60-arise-pinned.yaml >>"$LOG_FILE" 2>&1 \
       || die "restic restore failed (see $LOG_FILE)"
     note "restored: $CONF_DIR, /etc/samba, /var/lib/arise/samba-backup, the pinned address"
+    NO_START=1; APPS=""; APPS_REQUESTED=""
+    note "Recovery mode keeps services stopped until application data and original credentials are restored."
     SAMBA_TAR="$(ls -1t /var/lib/arise/samba-backup/samba-backup-*.tar.bz2 2>/dev/null | head -1 || true)"
     if [ -n "$SAMBA_TAR" ]; then
       note "domain backup to restore in step 5: $SAMBA_TAR"
     else
-      warn "no samba offline backup in the repository; step 5 will PROVISION a new domain (users and passwords will not come back). docs/REINSTALL.md explains the live-copy fallback."
+      die "No Samba offline backup in this snapshot. Recovery stopped; a new domain will NOT be created."
     fi
     # The restored smb.conf would make step 5 think the domain exists; step 5 handles it.
     chmod 0711 "$CONF_DIR/secrets" 2>/dev/null || true   # traverse only (step 4)
@@ -295,6 +360,8 @@ fi
 # ----------------------------------------------------------------------------
 say "1/7  Packages"
 export DEBIAN_FRONTEND=noninteractive
+# Do not let package hooks restart the active setup screen mid-install.
+export NEEDRESTART_MODE=l
 # Kerberos asks three questions during install; answer them up front so apt
 # never stops to wait for a keyboard.
 if [ "$DRY_RUN" = 0 ]; then
@@ -330,48 +397,119 @@ fi
 # ----------------------------------------------------------------------------
 # 2. Hostname and timezone
 # ----------------------------------------------------------------------------
-# --- the hardware layer (Oct 30, the HP EliteDesk 800 G1): Ubuntu's kernel already drives the Intel
-# network card (e1000e), the HD 4600 graphics (i915), the SATA controller (ahci), USB 3 and the
-# temperature sensor (coretemp). Three things it doesn't do by itself:
-#  1. the CPU's microcode (Intel's security and bug fixes, loaded at every boot);
-if grep -q GenuineIntel /proc/cpuinfo 2>/dev/null; then
-  dpkg -s intel-microcode >/dev/null 2>&1 || { run apt-get install -y -q --no-install-recommends intel-microcode && note "Intel microcode installed (loads at the next boot)" || warn "intel-microcode did not install; the box runs without it (re-run later)"; }
-elif grep -q AuthenticAMD /proc/cpuinfo 2>/dev/null; then
-  dpkg -s amd64-microcode >/dev/null 2>&1 || { run apt-get install -y -q --no-install-recommends amd64-microcode || warn "amd64-microcode did not install"; }
-fi
-#  2. TRIM through the encryption: without "discard" in /etc/crypttab the weekly fstrim stops at
-#     the LUKS layer and the SSD slowly loses speed. Only a plain four-field "luks" line is touched;
-#     a copy is kept, and the change takes effect from the next boot.
-if [ -f /etc/crypttab ] && [ "$DRY_RUN" = 0 ] && awk '!/^[[:space:]]*#/ && NF==4 && $4 ~ /(^|,)luks(,|$)/ && $4 !~ /discard/ {f=1} END {exit !f}' /etc/crypttab; then
-  cp -a /etc/crypttab "/etc/crypttab.arise-$(date +%Y%m%d%H%M%S)"
-  awk 'BEGIN{OFS=" "} !/^[[:space:]]*#/ && NF==4 && $4 ~ /(^|,)luks(,|$)/ && $4 !~ /discard/ {$4=$4",discard"} {print}' /etc/crypttab > /etc/crypttab.arise-new \
-    && mv /etc/crypttab.arise-new /etc/crypttab && chmod 644 /etc/crypttab \
-    && run update-initramfs -u && note "TRIM passes through the disk encryption from the next boot (crypttab: discard; the old file kept beside it)" \
-    || warn "could not add discard to /etc/crypttab (the copy beside it is the original); the SSD still works, fstrim just can't reach it"
-fi
-#  3. a fallback boot file. HP's firmware can forget Ubuntu's boot entry (a BIOS update, a CMOS
-#     reset) and then says "no boot device"; \EFI\BOOT\BOOTX64.EFI is the path every UEFI tries
-#     next. Ubuntu usually writes it; when it hasn't, the signed shim and GRUB are copied there.
-if [ -d /sys/firmware/efi ] && [ -d /boot/efi/EFI/ubuntu ] && [ ! -e /boot/efi/EFI/BOOT/BOOTX64.EFI ] && [ "$DRY_RUN" = 0 ]; then
-  if [ -f /boot/efi/EFI/ubuntu/shimx64.efi ] && [ -f /boot/efi/EFI/ubuntu/grubx64.efi ]; then
-    mkdir -p /boot/efi/EFI/BOOT \
-      && cp /boot/efi/EFI/ubuntu/shimx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI \
-      && cp /boot/efi/EFI/ubuntu/grubx64.efi /boot/efi/EFI/BOOT/grubx64.efi \
-      && { [ ! -f /boot/efi/EFI/ubuntu/mmx64.efi ] || cp /boot/efi/EFI/ubuntu/mmx64.efi /boot/efi/EFI/BOOT/mmx64.efi; } \
-      && note "fallback boot file written (EFI/BOOT/BOOTX64.EFI): the box boots even if the firmware forgets Ubuntu's entry" \
-      || warn "could not write the fallback boot file; the normal boot entry still works"
-  fi
-fi
+# Hardware setup is limited to the installed root disk. Never choose a LUKS
+# volume just because it is the first attached disk (the NAS/backup may be one).
+root_luks_device() {
+  local root_source="$1" candidates=()
+  mapfile -t candidates < <(lsblk -snrpo NAME,FSTYPE "$root_source" 2>/dev/null | awk '$2=="crypto_LUKS"{print $1}' | sort -u)
+  [ "${#candidates[@]}" = 1 ] || return 1
+  printf '%s\n' "${candidates[0]}"
+}
 
-# --- the whole disk for the system: Ubuntu's own disk screen leaves part of the LVM group unused
-# (the autoinstall now shows that screen so encryption can be ticked, Oct 30). /srv/arise lives on /,
-# so the free space goes there. ext4 grows while mounted; nothing is erased or moved.
-ROOT_SRC="$(findmnt -no SOURCE / 2>/dev/null || true)"
-if [ -n "$ROOT_SRC" ] && command -v lvs >/dev/null 2>&1 && lvs "$ROOT_SRC" >/dev/null 2>&1; then
-  VG_FREE_G="$(vgs --noheadings --units g --nosuffix -o vg_free "$(lvs --noheadings -o vg_name "$ROOT_SRC" | tr -d ' ')" 2>/dev/null | tr -d ' ' | cut -d. -f1)"
-  if [ "${VG_FREE_G:-0}" -ge 2 ]; then
-    run lvextend -r -l +100%FREE "$ROOT_SRC" && note "the system volume grew by ${VG_FREE_G} GB (the free space Ubuntu's installer left in the disk group)" || warn "could not grow $ROOT_SRC (see $LOG_FILE); the box works, with less room: sudo lvextend -r -l +100%FREE $ROOT_SRC"
+tpm_version_major() {
+  local version_file="${1:-/sys/class/tpm/tpm0/tpm_version_major}" major
+  if [ -r "$version_file" ]; then
+    major="$(cat "$version_file" 2>/dev/null || true)"
+    case "$major" in 1|2) printf '%s\n' "$major" ;; *) echo 0 ;; esac
+  elif [ -c /dev/tpmrm0 ]; then
+    echo 2   # Linux's resource-manager device is specific to TPM 2.0.
+  else
+    echo 0
   fi
+}
+
+grow_root_volume() {
+  local ROOT_SRC="$1" root_vg count free segments
+  [ "$(findmnt -nro FSTYPE /)" = ext4 ] || { note "root growth skipped: only the installer's ext4 layout is supported"; return 0; }
+  command -v lvs >/dev/null 2>&1 || return 0
+  root_vg="$(lvs --noheadings -o vg_name "$ROOT_SRC" 2>/dev/null | xargs)" || return 0
+  [ -n "$root_vg" ] || return 0
+  count="$(vgs --noheadings -o lv_count "$root_vg" | xargs)" || return 1
+  segments="$(lvs --noheadings -o segtype "$ROOT_SRC" | sort -u | xargs)" || return 1
+  if [ "$count" != 1 ] || [ "$segments" != linear ]; then
+    note "root growth skipped: multiple LVs, snapshots or a non-linear layout need an administrator's storage plan"
+    return 0
+  fi
+  free="$(vgs --noheadings -o vg_free_count "$root_vg" | xargs)" || return 1
+  [[ "$free" =~ ^[0-9]+$ ]] || return 1
+  [ "$free" -gt 0 ] || return 0
+  run lvextend -r -l +100%FREE "$ROOT_SRC" || return 1
+  note "unused extents in the single-root volume group assigned to / (including /srv/arise)"
+}
+
+enable_root_trim() {
+  local crypttab="$1" device="$2" uuid backup replacement
+  [ -f "$crypttab" ] && [ ! -L "$crypttab" ] || return 0
+  uuid="$(blkid -s UUID -o value "$device")" || return 1
+  [ -n "$uuid" ] || return 1
+  if [ "$DRY_RUN" = 1 ]; then
+    note "[dry-run] inspect root SSD crypttab entry for discard; preserve other entries and rebuild all initramfs images if changed"
+    return 0
+  fi
+  replacement="$(mktemp "${crypttab}.arise-new.XXXXXX")" || return 1
+  # Retain ownership and mode, and only change an ordinary root-LUKS entry.
+  cp -p -- "$crypttab" "$replacement" || { rm -f -- "$replacement"; return 1; }
+  if ! awk -v dev="$device" -v uuid="$uuid" 'BEGIN{OFS=" "}
+    !/^[[:space:]]*#/ && NF==4 && ($2==dev || $2=="UUID="uuid || $2=="/dev/disk/by-uuid/"uuid) &&
+    $4 ~ /(^|,)luks(,|$)/ && $4 !~ /(^|,)(discard|nodiscard)(,|$)/ {$4=$4",discard"} {print}' "$crypttab" > "$replacement"; then
+    rm -f -- "$replacement"; return 1
+  fi
+  if cmp -s -- "$crypttab" "$replacement"; then rm -f -- "$replacement"; return 0; fi
+  backup="$(mktemp "${crypttab}.arise-backup.XXXXXX")" || { rm -f -- "$replacement"; return 1; }
+  cp -p -- "$crypttab" "$backup" && mv -f -- "$replacement" "$crypttab" || { rm -f -- "$replacement"; return 1; }
+  if ! update-initramfs -u -k all; then
+    cp -p -- "$backup" "$crypttab" || return 1
+    update-initramfs -u -k all || true
+    warn "initramfs update failed; crypttab restored from $backup. Resolve the error before restarting."
+    return 1
+  fi
+  note "root SSD TRIM enabled from next boot; original crypttab kept at $backup (discard reveals allocation patterns, not plaintext)"
+}
+
+install_efi_fallback() {
+  local esp="$1" source="$1/EFI/ubuntu" target="$1/EFI/BOOT" stage name
+  # A plain directory is not evidence of a mounted ESP. Never write boot files
+  # onto the root filesystem while the real EFI partition is absent.
+  mountpoint -q "$esp" && [ "$(findmnt -nro FSTYPE --target "$esp")" = vfat ] || return 0
+  [ ! -e "$target/BOOTX64.EFI" ] || return 0
+  # Preserve other operating systems' fallback files, including incomplete ones.
+  if [ -d "$target" ] && [ -n "$(ls -A "$target")" ]; then
+    warn "EFI/BOOT already contains files; preserving them instead of replacing another bootloader"
+    return 0
+  fi
+  for name in shimx64.efi grubx64.efi mmx64.efi grub.cfg; do
+    [ -f "$source/$name" ] || { warn "EFI fallback skipped: Ubuntu's $name is missing"; return 0; }
+  done
+  if [ "$DRY_RUN" = 1 ]; then note "[dry-run] stage Ubuntu's signed EFI fallback on the mounted ESP"; return 0; fi
+  stage="$(mktemp -d "$esp/EFI/.arise-fallback.XXXXXX")" || return 1
+  for name in grubx64.efi mmx64.efi grub.cfg; do
+    cp -- "$source/$name" "$stage/$name" || { rm -rf -- "$stage"; return 1; }
+  done
+  cp -- "$source/shimx64.efi" "$stage/BOOTX64.EFI" || { rm -rf -- "$stage"; return 1; }
+  # Publish the complete directory in one same-filesystem rename. A failed copy
+  # never leaves BOOTX64.EFI as a misleading success marker on the next retry.
+  mv -T -- "$stage" "$target" || { rm -rf -- "$stage"; return 1; }
+  note "Ubuntu signed shim/GRUB fallback installed; verify firmware and Secure Boot on the actual PC"
+}
+
+if grep -q GenuineIntel /proc/cpuinfo 2>/dev/null; then
+  run apt-get install -y -q --no-install-recommends intel-microcode || warn "Intel microcode installation failed; retry before production use"
+elif grep -q AuthenticAMD /proc/cpuinfo 2>/dev/null; then
+  run apt-get install -y -q --no-install-recommends amd64-microcode || warn "AMD microcode installation failed; retry before production use"
+fi
+ROOT_SRC="$(findmnt -nro SOURCE / 2>/dev/null || true)"
+if [ -n "$ROOT_SRC" ]; then
+  if [ "$GROW_ROOT" = 1 ]; then grow_root_volume "$ROOT_SRC" || die "root volume resize failed; check the storage error before continuing"; fi
+  ROOT_LUKS="$(root_luks_device "$ROOT_SRC" || true)"
+  # Every backing physical disk must be reported non-rotational. Unknown or
+  # mixed storage is left untouched; weekly fstrim is enabled by host hardening.
+  ROOT_ROTATION="$(lsblk -snro TYPE,ROTA "$ROOT_SRC" 2>/dev/null | awk '$1=="disk"{print $2}' | sort -u || true)"
+  if [ -n "$ROOT_LUKS" ] && [ "$ROOT_ROTATION" = 0 ]; then
+    enable_root_trim /etc/crypttab "$ROOT_LUKS" || die "root SSD TRIM configuration failed; setup will not restart this computer"
+  fi
+fi
+if [ -d /sys/firmware/efi ]; then
+  install_efi_fallback /boot/efi || warn "EFI fallback was not installed; Ubuntu's normal boot entry was preserved"
 fi
 
 say "2/7  Hostname and timezone"
@@ -423,6 +561,9 @@ if [ "$PIN_IP" = 1 ] && [ -n "$PRIMARY_IF" ] && [ -n "$PRIMARY_IP" ]; then
     note "[dry-run] write $PINNED: $PRIMARY_IF static $CIDR via $GW, DNS 127.0.0.1 (the DC), search ${REALM,,}; then netplan apply"
   else
     mkdir -p /etc/netplan
+    # Preserve upstream resolution until the DC is actually healthy.
+    UPSTREAM_DNS="$(awk '/^nameserver / && $2 !~ /^127\./ {printf "%s%s", sep, $2; sep=", "}' /run/systemd/resolve/resolv.conf 2>/dev/null || true)"
+    [ -n "$UPSTREAM_DNS" ] || die "Cannot determine upstream DNS safely; keep DHCP with --no-pin-ip."
     cat > "$PINNED" <<NETPLAN
 # Written by Arise Server install.sh. This is the address Netgear A handed
 # this box by DHCP, kept for good so the domain controller never moves.
@@ -438,7 +579,7 @@ network:
         - to: default
           via: $GW
       nameservers:
-        addresses: [127.0.0.1]
+        addresses: [$UPSTREAM_DNS]
         search: [${REALM,,}]
 NETPLAN
     chmod 600 "$PINNED"
@@ -446,14 +587,14 @@ NETPLAN
     # sorts later (60- > 50-) and wins for the keys it sets.
     if netplan generate >/dev/null 2>&1; then
       netplan apply >/dev/null 2>&1 || warn "netplan apply failed; the address stays as DHCP gave it until the next boot"
-      note "pinned $CIDR via $GW on $PRIMARY_IF; the router still thinks it is a DHCP lease, which is fine"
+      note "Static address $CIDR applied. Its exclusion from the DHCP pool must have been independently verified."
     else
       rm -f "$PINNED"; warn "netplan rejected the pin; removed $PINNED and left DHCP alone (INSTALL.md § 5 by hand)"
     fi
   fi
-  note "If the router ever hands this address to another device (it can, since the lease is not reserved), arisectl doctor reports the clash; the fix is to run this step again after a reboot."
+  warn "A static address inside a DHCP pool can collide. No router reservation was created by this installer."
 else
-  note "address pinning skipped (--no-pin-ip or no primary interface); the DC's address may change at the router's whim"
+  note "DHCP remains in control. Verify a stable address before production AD use; no router setting was changed."
 fi
 
 # ----------------------------------------------------------------------------
@@ -534,10 +675,47 @@ if [ ! -f "$CONF_DIR/arise.toml" ]; then
 else
   note "$CONF_DIR/arise.toml exists, left alone"
 fi
+# Password authentication is local to the kiosk or protected by Caddy HTTPS.
+# Preserve other web settings and a recoverable copy of pre-existing config.
+if [ "$WITH_CADDY" = 1 ] && [ "$DRY_RUN" = 0 ]; then
+  "$VENV/bin/python" - "$CONF_DIR/arise.toml" <<'PYWEB'
+import pathlib, re, shutil, sys
+p = pathlib.Path(sys.argv[1]); text = p.read_text()
+m = re.search(r"(?ms)^\[web\][^\n]*\n(.*?)(?=^\[|\Z)", text)
+if m:
+    body = m.group(1)
+    body = re.sub(r'(?m)^bind\s*=.*$', 'bind = "127.0.0.1"', body) if re.search(r'(?m)^bind\s*=', body) else 'bind = "127.0.0.1"\n' + body
+    updated = text[:m.start(1)] + body + text[m.end(1):]
+else:
+    updated = text + '\n[web]\nbind = "127.0.0.1"\n'
+if updated != text:
+    backup = p.with_name(p.name + '.before-local-web')
+    if not backup.exists(): shutil.copy2(p, backup)
+    p.write_text(updated)
+PYWEB
+fi
 if [ ! -f "$CONF_DIR/backups.yaml" ]; then
   run cp "$SRC/config/backups.yaml.example" "$CONF_DIR/backups.yaml"
 else
   note "$CONF_DIR/backups.yaml exists, left alone"
+fi
+# Add newly required recovery datasets without replacing user-defined jobs.
+if [ "$DRY_RUN" = 0 ]; then
+  "$VENV/bin/python" - "$CONF_DIR/backups.yaml" "$SRC/config/backups.yaml.example" <<'PYJOBS'
+import pathlib, shutil, sys, yaml
+p, defaults = map(pathlib.Path, sys.argv[1:])
+current = yaml.safe_load(p.read_text()) or {}
+shipped = yaml.safe_load(defaults.read_text()) or {}
+rows = current.setdefault("jobs", [])
+ids = {j.get("id") for j in rows}
+added = [j for j in shipped.get("jobs", []) if j.get("id") in {"state", "leavers"} and j.get("id") not in ids]
+if added:
+    backup = p.with_name(p.name + '.before-state-jobs')
+    if not backup.exists(): shutil.copy2(p, backup)
+    rows.extend(added)
+    p.write_text(yaml.safe_dump(current, sort_keys=False))
+    print("Backup coverage added: " + ", ".join(j["id"] for j in added))
+PYJOBS
 fi
 run chmod 0640 "$CONF_DIR/arise.toml" "$CONF_DIR/backups.yaml"
 # arise.toml holds no secrets, but stays closed: root, plus the group arise-conf, which the
@@ -572,10 +750,10 @@ if [ -n "$RESTORE_REPO" ] && [ "$SKIP_DOMAIN" = 0 ]; then
         RESTORED_DOMAIN=1
         note "domain restored from $SAMBA_TAR (every user, group and password came back)"
       else
-        warn "the restored smb.conf fails testparm; the domain is NOT up. Compare /etc/samba/smb.conf with /etc/samba/smb.conf.restored"
+        die "The restored smb.conf fails testparm. Recovery stopped; existing backups are preserved."
       fi
     else
-      warn "samba-tool domain backup restore failed (see $LOG_FILE). The domain will be provisioned fresh below; users will need to be re-created."
+      die "Samba domain restore failed (see $LOG_FILE). Recovery stopped; a new domain will NOT be created."
     fi
   fi
 fi
@@ -885,7 +1063,7 @@ else
   bash "$SRC/scripts/arise-archive-setup" --src "$SRC" || warn "archive setup incomplete (docs/ARCHIVE.md)"
 fi
 
-ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer arise-repos.timer arise-archive.timer arise-archive-rebuild.timer)
+ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-backup-verify.timer arise-backup-recover.service arise-mirror.timer arise-repos.timer arise-archive.timer arise-archive-rebuild.timer)
 for u in "${ENABLE_UNITS[@]}"; do
   if [ -f "/etc/systemd/system/$u" ] || [ -f "$UNIT_SRC/$u" ]; then
     if [ "$NO_START" = 0 ]; then
@@ -977,7 +1155,7 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
     # RAM minus 2 GB (the domain, the dashboard, the kiosk) allows; the rest wait, stopped.
     if [ "$DRY_RUN" = 1 ]; then
       note "[dry-run] arisectl app install-all   (every template deployed; autostart ones started within RAM - 2 GB; heavy ones left stopped)"
-    elif /usr/local/bin/arisectl app install-all >>"$LOG_FILE" 2>&1; then
+    elif PYTHONUNBUFFERED=1 /usr/local/bin/arisectl app install-all; then
       note "apps: every template deployed; see 'arisectl app list' for what runs and what waits (the Store shows the same)"
     else
       warn "some apps did not deploy (see $LOG_FILE); arisectl app install-all to retry, or arisectl app deploy <name> one at a time"
@@ -987,7 +1165,7 @@ if [ -n "$APPS" ] && [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
   for a in $APPS; do
     if [ "$DRY_RUN" = 1 ]; then note "[dry-run] arisectl app deploy $a"; continue; fi
     if [ -d "$SRC/templates/$a" ]; then
-      if /usr/local/bin/arisectl app deploy "$a" >>"$LOG_FILE" 2>&1; then APPS_OK="$APPS_OK $a"; note "app $a: up"; else APPS_BAD="$APPS_BAD $a"; warn "app $a: deploy failed (see $LOG_FILE); arisectl app deploy $a to retry"; fi
+      if PYTHONUNBUFFERED=1 /usr/local/bin/arisectl app deploy "$a"; then APPS_OK="$APPS_OK $a"; note "app $a: up"; else APPS_BAD="$APPS_BAD $a"; warn "app $a: deploy failed (see $LOG_FILE); arisectl app deploy $a to retry"; fi
     else
       warn "no template called $a"; APPS_BAD="$APPS_BAD $a"
     fi
@@ -1001,11 +1179,11 @@ fi
 # --- 6a-sync. Mac and phone syncing: Nextcloud over the homes and shares (round 6, docs/SYNC.md) ---
 # Nextcloud starts by default (row 14). `arisectl cloud setup` makes it ariseOS's: the domain
 # sign-in (its own read-only directory account), the mounts, the theme, each home linked.
-if [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ]; then
+if [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ] && wants_app nextcloud; then
   if [ "$DRY_RUN" = 1 ]; then
     note "[dry-run] arisectl app deploy nextcloud (if not yet); arisectl cloud setup; cloud CNAME in the domain's DNS; arise-cloud-watch + the hourly conflicts timer"
   else
-    [ -f /srv/arise/apps/nextcloud/compose.yaml ] || /usr/local/bin/arisectl app deploy nextcloud >>"$LOG_FILE" 2>&1 || warn "nextcloud did not deploy (see $LOG_FILE): arisectl app deploy nextcloud"
+    /usr/local/bin/arisectl app deploy nextcloud || warn "nextcloud did not deploy (see $LOG_FILE): arisectl app deploy nextcloud"
     # inotify for the watcher: one watch per folder in every home and share
     printf 'fs.inotify.max_user_watches=1048576\nfs.inotify.max_user_instances=512\n' > /etc/sysctl.d/60-arise-cloud.conf
     sysctl -q -p /etc/sysctl.d/60-arise-cloud.conf >/dev/null 2>&1 || true
@@ -1054,9 +1232,14 @@ fi
 run ufw --force default deny incoming
 run ufw --force default allow outgoing
 run ufw allow "$SSH_PORT/tcp" comment 'ssh'
-run ufw allow from "$LAN_SUBNET" to any port "$WEB_PORT" proto tcp comment 'arise dashboard'
-run ufw allow from "$WG_SUBNET" to any port "$WEB_PORT" proto tcp comment 'arise dashboard (vpn)'
-run ufw allow from 100.64.0.0/10 to any port "$WEB_PORT" proto tcp comment 'arise dashboard (tailscale)'
+if [ "$WITH_CADDY" = 1 ]; then
+  # Remove this installer's historical plaintext rules as well as binding locally.
+  for src in "$LAN_SUBNET" "$WG_SUBNET" 100.64.0.0/10; do
+    run ufw --force delete allow from "$src" to any port "$WEB_PORT" proto tcp >/dev/null 2>&1 || true
+  done
+else
+  warn "Caddy disabled: use the local kiosk or a secure SSH tunnel; remote plaintext sign-in is not enabled."
+fi
 # The domain controller's ports, LAN and VPN only. Nothing of the DC is ever
 # reachable from the internet. Staging: none of them, the DC is on loopback.
 DC_SRCS=("$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10")
@@ -1094,6 +1277,7 @@ fi
 if [ "$WITH_CADDY" = 1 ]; then
   for src in "$LAN_SUBNET" "$WG_SUBNET" "100.64.0.0/10"; do
     run ufw allow from "$src" to any port 443 proto tcp comment 'https (caddy)'
+    run ufw allow from "$src" to any port 80 proto tcp comment 'public CA certificate only (caddy)'
   done
 fi
 if [ "$WITH_COCKPIT" = 1 ]; then
@@ -1375,13 +1559,9 @@ if [ "$WITH_CADDY" = 1 ]; then
     if [ -f /etc/caddy/Caddyfile ] && ! grep -q 'Arise Server' /etc/caddy/Caddyfile 2>/dev/null; then
       run cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-arise
     fi
-    if [ "$STAGING" = 1 ]; then
-      # Staging: Caddy answers on this box only, like the domain (nothing at Bradly's house sees it).
-      if [ "$DRY_RUN" = 1 ]; then note "[dry-run] write /etc/caddy/Caddyfile = { default_bind 127.0.0.1 } + config/caddy/Caddyfile"
-      else { printf '{\n\tdefault_bind 127.0.0.1\n}\n\n'; cat "$SRC/config/caddy/Caddyfile"; } > /etc/caddy/Caddyfile; chmod 0644 /etc/caddy/Caddyfile; fi
-    else
-      run install -m 0644 "$SRC/config/caddy/Caddyfile" /etc/caddy/Caddyfile
-    fi
+    # The dashboard may answer over HTTPS during staging; Samba remains loopback-only.
+    # UFW restricts Caddy to the local subnet/VPN, and VM forwards should bind host loopback.
+    run install -m 0644 "$SRC/config/caddy/Caddyfile" /etc/caddy/Caddyfile
   else
     warn "config/caddy/Caddyfile missing from the repo; caddy left with its default config"
   fi
@@ -1580,6 +1760,17 @@ Unattended-Upgrade::Remove-Unused-Dependencies "true";
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";
 APT
+    # Package maintenance shares the same service-window and mutual-exclusion
+    # guard as dashboard updates and backups.
+    mkdir -p /etc/systemd/system/apt-daily-upgrade.service.d
+    cat > /etc/systemd/system/apt-daily-upgrade.service.d/arise.conf <<'APTGUARD'
+[Service]
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=
+ExecStart=/opt/arise/venv/bin/python -m arise_server.maintenance /usr/lib/apt/apt.systemd.daily install
+Environment=PYTHONPATH=/opt/arise/server
+APTGUARD
+    systemctl daemon-reload
     systemctl enable --now unattended-upgrades >/dev/null 2>&1 || true
     note "unattended-upgrades: security only, daily, no automatic reboot"
     # journald: a year of logs (round 3, 26), capped at 4 GB so a 256 GB disk never fills with them.
@@ -1770,22 +1961,16 @@ TS
       timeshift --create --comments "install $(date +%F)" --tags O --scripted >>"$LOG_FILE" 2>&1 && note "first system snapshot taken (timeshift, rsync mode; church files excluded, they are in the backup)" || warn "timeshift could not take the first snapshot (see $LOG_FILE); arisectl snapshot create to retry"
     fi
   fi
-  # --- encryption: a TPM 2.0 unlocks the disk (round 3, 22); without one, the passphrase at boot (Oct 30, H3) ---
-  LUKS_DEV="$(lsblk -rno NAME,FSTYPE 2>/dev/null | awk '$2=="crypto_LUKS"{print "/dev/"$1; exit}' || true)"
+  # H3: HP's TPM 1.2 cannot unlock LUKS. H6 permits binding only a real TPM 2.0.
+  LUKS_DEV="$(root_luks_device "$(findmnt -nro SOURCE / 2>/dev/null)" || true)"
+  TPM_MAJOR="$(tpm_version_major)"
   if [ -z "$LUKS_DEV" ]; then
-    warn "the disk is NOT encrypted (no LUKS volume). Bradly chose encryption (round 3, 22); it is picked in the Ubuntu installer, not later. docs/SECURITY.md"
+    warn "no single LUKS backing device was identified for /. Verify root encryption before production use; a separate encrypted disk is not enough. docs/SECURITY.md"
   elif [ "$WITH_TPM" = 0 ]; then
-    note "LUKS on $LUKS_DEV; --no-tpm: the passphrase is typed at every boot"
-  elif [ "$(cat /sys/class/tpm/tpm0/tpm_version_major 2>/dev/null || { [ -e /dev/tpmrm0 ] && echo 2; } || echo 0)" != 2 ] && [ "$DRY_RUN" = 0 ]; then
-    # No TPM 2.0 (the EliteDesk 800 G1 and the OptiPlex 3010 have a 1.2 chip at most, which clevis
-    # can't use). Bradly, Oct 30 (H3):
-    # the passphrase is typed at boot, at the closet keyboard or over SSH from a church computer.
-    note "LUKS on $LUKS_DEV, no TPM 2.0: the passphrase is typed at every boot (Bradly, Oct 30)"
-    if /usr/local/bin/arisectl encrypt ssh >>"$LOG_FILE" 2>&1; then
-      note "early-boot SSH on: from a church computer, ssh -p 2222 root@arise-server and type the passphrase"
-    else
-      warn "early-boot SSH not set up yet (no SSH key for $OWNER?). Add your PC's key, then: sudo arisectl encrypt ssh. The closet keyboard always works."
-    fi
+    note "LUKS on $LUKS_DEV; automatic TPM binding disabled. Existing bindings are unchanged; otherwise type the passphrase at every boot."
+  elif [ "$TPM_MAJOR" != 2 ]; then
+    note "LUKS on $LUKS_DEV, no confirmed TPM 2.0: type the passphrase at every boot (including the next restart)."
+    note "Optional early SSH unlock needs approved keys and explicit boot-network setup: arisectl encrypt ssh (docs/SECURITY.md). The local keyboard always works."
   else
     run apt-get install -y -q --no-install-recommends clevis clevis-luks clevis-tpm2 clevis-initramfs tpm2-tools || warn "clevis did not install; the disk still asks for its passphrase at boot until a re-run"
     if [ "$DRY_RUN" = 1 ]; then
@@ -1827,8 +2012,8 @@ TS
       echo "  rebuild   sudo arisectl reinstall /mnt/synology/arise-backups/restic     (docs/REINSTALL.md)"
       echo
       echo "Disk encryption (LUKS)"
-      echo "  passphrase  ________________________________   (write it here by hand; it is typed at every start, Bradly Oct 30 H3, unless a TPM 2.0 is bound below)"
-      echo "  unlock      at the closet keyboard, or from a church computer: ssh -p 2222 root@arise-server"
+      echo "  passphrase  ________________________________   (write it here by hand; type it at every start unless a TPM 2.0 binding below is working)"
+      echo "  unlock      the local keyboard; optional early SSH only after its keys and boot network are configured"
       echo "  bound to TPM: $(command -v clevis >/dev/null 2>&1 && [ -n "$LUKS_DEV" ] && clevis luks list -d "$LUKS_DEV" 2>/dev/null | grep -q tpm2 && echo yes || echo no)"
     } > "$CONF_DIR/SAFE-CARD.txt"
     chmod 600 "$CONF_DIR/SAFE-CARD.txt"
@@ -1856,7 +2041,7 @@ code{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padd
 <tr><td>Passwords and keys</td><td><code>/etc/arise/secrets/</code> &nbsp;root only: restic, Resend, the apps' generated passwords (<code>apps/</code>). Never on this card.</td></tr>
 <tr><td>Domain down?</td><td>The break-glass login <code>arise-rescue</code> works on this monitor (Alt+F2), never over SSH. Its password is on the <b>safe card</b> (in the safe; <code>sudo arisectl rescue card</code> prints it again). Every use is logged.</td></tr>
 <tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;This card is its only paper copy (Bradly's rule); on the box it is <code>/etc/arise/secrets/restic-password</code>, root only.</td></tr>
-<tr><td>Disk encrypted</td><td>It asks for its passphrase at every start: type it on this keyboard, or <code>ssh -p 2222 root@arise-server</code> from a church computer. The passphrase is on the safe card, not here. Rebuild from the Synology: <code>sudo arisectl reinstall</code> (docs/REINSTALL.md).</td></tr>
+<tr><td>Disk encrypted</td><td>The HP EliteDesk 800 G1 asks for its passphrase at every start; type it on this keyboard. Optional early SSH unlock needs prior key and boot-network configuration. TPM 2.0 unlock applies only if a supported chip was bound successfully. The passphrase is on the private safe card. Recovery: docs/REINSTALL.md.</td></tr>
 <tr><td>Config</td><td><code>/etc/arise/arise.toml</code> &nbsp;·&nbsp; code <code>/opt/arise</code> &nbsp;·&nbsp; data <code>/srv/arise</code> &nbsp;·&nbsp; logs <code>/var/log/arise</code>, <code>journalctl -u arise-web</code></td></tr>
 <tr><td>The docs</td><td><code>/opt/arise/docs/</code>, start with SETUP-GUIDE.md; MOVING-DAY.md for the move to the Hub</td></tr>
 <tr><td>Staging marker</td><td>If <code>/etc/arise/staging</code> exists the box thinks it is NOT at the church (domain on loopback, nothing scanned). Fix: <code>sudo bash /opt/arise/installer/install.sh --kiosk</code></td></tr></table>
@@ -1871,7 +2056,7 @@ else
   # Round 7, 57/73: one card, taped INSIDE the closet, with arise-rescue's password on it, and a
   # copy on the staff share with the password left out. arisectl writes both (and again after a
   # rotate); this page is only the fallback when arisectl cannot run yet.
-  if [ -x /usr/local/bin/arisectl ] && /usr/local/bin/arisectl rescue card >>"$LOG_FILE" 2>&1; then
+  if [ -x /usr/local/bin/arisectl ] && /usr/local/bin/arisectl rescue card >/dev/null 2>&1; then
     note "closet card: print $CONF_DIR/CLOSET-CARD.html at the closet monitor (root only: it has arise-rescue's password), tape it INSIDE the closet, give Kristina a copy"
   else
     printf '%s\n' "$CARD_BODY" > "$CONF_DIR/CLOSET-CARD.html"
@@ -1913,7 +2098,7 @@ $( [ "$WITH_TAILSCALE" = 1 ] && echo "       tailscale (needs a browser): sudo t
 $( [ "$WITH_WIREGUARD" = 1 ] && echo "       wireguard: forward UDP 51820 on the router; set [remote] wg_endpoint in $CONF_DIR/arise.toml; add devices from the Remote app" )
 $( [ "$WITH_CADDY" = 1 ] && echo "       https: every church Mac enrolled from the Macs app trusts the church certificate; by hand: http://$HOSTNAME_WANTED:4147/ca.crt" )
 $( [ "$WITH_SAFETY" = 1 ] && echo "    6b. The closet card:            sudo arisectl rescue card   (print $CONF_DIR/CLOSET-CARD.html: it has arise-rescue's password; write the restic password and disk passphrase on it by hand; a copy to Kristina)" )
-$( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS, the passphrase at boot, the SSH unlock; docs/SECURITY.md)" )
+$( [ "$WITH_SAFETY" = 1 ] && echo "        Encryption check:           sudo arisectl encrypt status   (LUKS; HP TPM 1.2 needs the passphrase at boot; docs/SECURITY.md)" )
     7. Apps, up and waiting (passwords in $CONF_DIR/secrets/apps/):
        Cockpit  https://$HOSTNAME_WANTED:9090   Netdata  http://$HOSTNAME_WANTED:19999   Uptime Kuma  http://$HOSTNAME_WANTED:8082
        NetAlertX :20211   Portainer https://:9443   BookStack :8085   Jellyfin :8096   Syncthing :8384

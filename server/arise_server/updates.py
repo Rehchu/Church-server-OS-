@@ -16,7 +16,7 @@ import re
 import threading
 from datetime import datetime, timedelta
 
-from . import apps as _apps
+from . import apps as _apps, maintenance
 from .config import load
 from .util import now_iso, read_json, run, which
 
@@ -253,6 +253,7 @@ def refresh() -> dict:
 
 
 # ----- apply ------------------------------------------------------------------
+@maintenance.guarded("software update")
 def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> dict:
     """Install what is queued. Called by `arisectl update apply` (the Saturday timer)
     and by the dashboard's Install now. Every step is logged; nothing is silent."""
@@ -326,9 +327,14 @@ def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> 
                 _finish(cfg, result)
             else:
                 log("rebooting")
-                q["reboot"] = False
-                write_json(_queue_path(), q)
-                run(["systemctl", "reboot"], timeout=10)
+                restarted = run(["systemctl", "reboot"], timeout=10)
+                if restarted["ok"]:
+                    q["reboot"] = False
+                    write_json(_queue_path(), q)
+                else:
+                    result["ok"] = False
+                    result["summary"] += "; restart command failed (still queued)"
+                    _finish(cfg, result)
         return result
     finally:
         _lock.release()
@@ -348,7 +354,8 @@ def reboot_ok(needs_passphrase: bool, in_service: bool, force_service: bool = Fa
 def _needs_passphrase() -> bool:
     try:
         from . import security
-        return bool(security.encrypt_status().get("needs_passphrase"))
+        status = security.encrypt_status()
+        return status.get("known") is not True or status.get("needs_passphrase") is not False
     except Exception:  # noqa: BLE001
         return True   # unsure: don't strand the box at a prompt
 

@@ -587,14 +587,26 @@ def breakglass_open(who: dict, reason: str, confirm: str, now: float | None = No
         g[user] = {"until": until, "reason": reason[:300], "at": now}
         _write("breakglass.json", g, 0o600)
     told = []
+    failures = {}
     for p in load().storage.pastors or []:
         r = tell_person(p, "Bradly opened the Pastors folder",
                         f"Bradly opened the Pastors folder in an emergency, for {hours:g} hours, at {datetime.fromtimestamp(now):%a %b %d, %I:%M %p}.\n\n"
                         f"His reason: {reason}\n\nEvery file he opens is in the audit log.", kind="security")
-        told.append(p)
+        if (r.get("email") or {}).get("ok"):
+            told.append(p)
+        else:
+            failures[p] = (r.get("email") or {}).get("err") or "Email delivery was not confirmed"
+    with _lock:
+        g = _read("breakglass.json", dict)
+        g[user]["notification_failures"] = failures
+        _write("breakglass.json", g, 0o600)
     audit.record(user, "pastors.breakglass", "pastors", detail=reason[:200])
-    alert(f"Pastors folder opened in an emergency by {user} for {hours:g} hours. Reason: {reason[:200]}. Both pastors were told.")
-    return {"ok": True, "until": datetime.fromtimestamp(until).isoformat(timespec="minutes"), "told": told, "hours": hours}
+    if failures:
+        audit.record(user, "pastors.notification", "pastors", ok=False, detail="Email failed for: " + ", ".join(failures))
+    delivery = "Both pastors were emailed." if len(told) == 2 and not failures else "Email delivery incomplete; contact the pastors directly."
+    alert(f"Pastors folder opened in an emergency by {user} for {hours:g} hours. Reason: {reason[:200]}. {delivery}")
+    return {"ok": True, "until": datetime.fromtimestamp(until).isoformat(timespec="minutes"), "told": told, "hours": hours,
+            "notification_failures": failures, "warning": "" if not failures else delivery}
 
 
 def breakglass_active(user: str, now: float | None = None) -> bool:
@@ -617,4 +629,4 @@ def breakglass_status(user: str) -> dict:
     g = _read("breakglass.json", dict).get(user)
     if not g or float(g.get("until", 0)) <= time.time():
         return {"open": False}
-    return {"open": True, "until": datetime.fromtimestamp(float(g["until"])).isoformat(timespec="minutes"), "reason": g.get("reason", "")}
+    return {"open": True, "until": datetime.fromtimestamp(float(g["until"])).isoformat(timespec="minutes"), "reason": g.get("reason", ""), "notification_failures": g.get("notification_failures", {})}

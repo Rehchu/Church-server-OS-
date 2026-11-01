@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import threading
+import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from .config import load
 _lock = threading.Lock()
 _DEMO: list[dict] = []          # demo mode keeps its events in memory, seeded below
 _SEEDED = {"done": False}
+_WRITE_FAILURES: dict[str, dict] = {}
 # The word before a value names the collection: /api/directory/users/<name>/disable
 COLLECTIONS = {"users", "groups", "members", "shares", "apps", "links", "calendar", "devices", "services", "automations",
                "broadcasts", "run", "leaving", "reports"}
@@ -81,10 +83,36 @@ def record(who: str, action: str, target: str = "", ok: bool = True, status: int
             p.parent.mkdir(parents=True, exist_ok=True)
             fd = os.open(p, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o640)
             with os.fdopen(fd, "a", encoding="utf-8") as f:
+                os.fchmod(f.fileno(), 0o640)
                 f.write(json.dumps(ev, ensure_ascii=False) + "\n")
-        except OSError:
-            pass  # the action itself must not fail because the log could not be written; doctor reports it
+        except OSError as e:
+            # Never log the event body or a credential-bearing exception string.
+            failure = {"ok": False, "when": ev["t"], "errno": e.errno,
+                       "error": "Audit log write failed; some events were not saved. Check disk space and permissions."}
+            _WRITE_FAILURES[str(cfg.state_dir)] = failure
+            logging.getLogger(__name__).error("Audit log write failed (errno %s); event was not saved", e.errno)
+            try:
+                from .util import write_json
+                write_json(cfg.state_dir / "audit-write-failure.json", failure)
+            except OSError:
+                pass  # stderr/journald plus process-local health still expose a full disk
+            ev["recorded"] = False
     return ev
+
+
+def write_health() -> dict:
+    """A failure stays visible until an operator acknowledges the gap by removing
+    audit-write-failure.json and restarting the process after repairing storage.
+    This is not an immutable log."""
+    cfg = load()
+    if cfg.demo:
+        return {"ok": True, "demo": True}
+    from .util import read_json
+    try:
+        failure = read_json(cfg.state_dir / "audit-write-failure.json", default=None)
+    except OSError:
+        failure = {"ok": False, "error": "Audit health record cannot be read; check storage permissions."}
+    return failure or _WRITE_FAILURES.get(str(cfg.state_dir)) or {"ok": True}
 
 
 def matches(ev: dict, q: str = "", who: str = "", failed_only: bool = False) -> bool:
@@ -147,4 +175,4 @@ def recent(limit: int = 200, q: str = "", who: str = "", failed_only: bool = Fal
         pass
     except OSError as e:
         return {"events": [], "error": str(e), "kept": "forever", "path": str(p)}
-    return {"events": rows, "kept": "forever", "path": str(p)}
+    return {"events": rows, "kept": "forever", "path": str(p), "write_health": write_health()}

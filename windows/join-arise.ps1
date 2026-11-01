@@ -20,7 +20,7 @@
        changed (docs/ANSWERS.md: the network stays as it is). Skipped with
        -NoDnsRule when the PC already resolves the domain (e.g. over Tailscale).
     3. Trusts the church certificate (the padlock on https://arise-server):
-       downloads http://<server>:4147/ca.crt into LocalMachine\Root.
+       downloads http://<server>/ca.crt into LocalMachine\Root.
     4. Joins AD.ARISECENLA.COM into OU=PCs,OU=Computers (install.sh makes
        that OU). Asks for a domain admin's name and password.
     5. Installs a sign-in script for every user that maps the shares they may
@@ -39,6 +39,7 @@
 [CmdletBinding()]
 param(
     [string]$ServerIp = "",
+    [string]$CaSha256 = "",
     [string]$Server = "arise-server",
     [string]$Realm = "ad.arisecenla.com",
     [string]$NetBios = "ARISE",
@@ -93,20 +94,37 @@ if ($resolves) {
 
 # ---- 3. the church certificate -----------------------------------------------
 Step "3/6  The church certificate (the padlock)"
-$tmp = Join-Path $env:TEMP "arise-ca.crt"
-$caUrls = @("http://${Fqdn}:4147/ca.crt")
-if ($ServerIp) { $caUrls += "http://${ServerIp}:4147/ca.crt" }
+$tmp = Join-Path $env:TEMP ("arise-ca-" + [guid]::NewGuid().ToString() + ".crt")
+$caUrls = @("http://${Fqdn}/ca.crt")
+if ($ServerIp) { $caUrls += "http://${ServerIp}/ca.crt" }
 $got = $false
+if ($CaSha256 -and $CaSha256 -notmatch '^[a-fA-F0-9]{64}$') { Fail "CaSha256 must be the church CA file's SHA256 from a trusted administrator/dashboard." }
+if (-not $CaSha256) {
+    Say "Certificate trust unchanged: provide -CaSha256 from a trusted administrator/dashboard to install the church root. An HTTP download alone is not proof of identity."
+} else {
 foreach ($u in $caUrls) {
     try { Invoke-WebRequest -Uri $u -OutFile $tmp -UseBasicParsing -TimeoutSec 10; $got = $true; break } catch { }
 }
 if (-not $got -or -not (Select-String -Path $tmp -Pattern "BEGIN CERTIFICATE" -Quiet)) {
     Say "could not fetch the certificate (Caddy not running on the server yet?); https will warn until it is trusted. Not fatal."
 } else {
-    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $tmp
+    # Hash and parse the same bytes; never re-open a replaceable file for trust.
+    $bytes = [System.IO.File]::ReadAllBytes($tmp)
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    try { $actual = ([BitConverter]::ToString($hasher.ComputeHash($bytes))).Replace('-', '').ToLowerInvariant() }
+    finally { $hasher.Dispose() }
+    if ($actual -ne $CaSha256.ToLowerInvariant()) { Remove-Item $tmp -ErrorAction SilentlyContinue; Fail "Church certificate fingerprint mismatch; no trust added." }
+    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList @(,$bytes)
     $have = Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Thumbprint -eq $cert.Thumbprint }
     if ($have) { Say "already trusted: $($cert.Subject)" }
-    else { Import-Certificate -FilePath $tmp -CertStoreLocation Cert:\LocalMachine\Root | Out-Null; Say "trusted: $($cert.Subject)" }
+    else {
+        $store = New-Object System.Security.Cryptography.X509Certificates.X509Store('Root', 'LocalMachine')
+        try { $store.Open('ReadWrite'); $store.Add($cert) }
+        finally { $store.Close() }
+        Say "trusted verified church certificate: $($cert.Subject)"
+    }
+}
+Remove-Item $tmp -ErrorAction SilentlyContinue
 }
 
 # ---- 4. the join -----------------------------------------------------------------

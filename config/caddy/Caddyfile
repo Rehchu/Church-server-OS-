@@ -4,15 +4,15 @@
 #
 # `tls internal` = Caddy signs certificates with a CA it creates on this box:
 # the church certificate (round 3, 29). enroll-mac.sh and bind-mac.sh --dns
-# fetch the root from http://arise-server:4147/ca.crt and trust it, so every
+# fetch the public root from http://arise-server/ca.crt and verify its installer-provided
+# SHA256 fingerprint before trusting it, so every
 # enrolled Mac shows the padlock. Phones on Tailscale use Tailscale's own
 # certificate. The root certificate is at
 #   /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 # and is served, read-only, at /ca.crt by the dashboard (a root cert is public).
 #
-# Staging (install.sh --staging): the installer prepends
-#   { default_bind 127.0.0.1 }
-# so Caddy answers on this box only, like the domain.
+# Staging keeps the domain on loopback; HTTPS remains available for VM testing.
+# The dashboard backend binds loopback. Only this public certificate uses HTTP.
 #
 # Every name below needs an A record in the domain's DNS pointing at this
 # server's LAN address (replace 192.168.1.10):
@@ -62,4 +62,14 @@ cloud.ad.arisecenla.com {
 	redir /.well-known/carddav /remote.php/dav/ 301
 	redir /.well-known/caldav /remote.php/dav/ 301
 	reverse_proxy 127.0.0.1:8091
+}
+
+# Certificate bootstrap only. Never proxy credentials or application routes over HTTP.
+:80 {
+	handle /ca.crt {
+		reverse_proxy 127.0.0.1:4147
+	}
+	handle {
+		respond "Use the HTTPS ariseOS address." 404
+	}
 }

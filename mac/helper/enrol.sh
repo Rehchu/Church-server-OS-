@@ -4,9 +4,9 @@
 # Nobody runs this by hand. An admin opens Macs on the dashboard, presses "Enrol a Mac",
 # and copies the one Terminal line it shows, which looks like:
 #
-#   curl -fsSL http://192.168.1.20:4147/ca.crt -o /tmp/arise-ca.crt && [ "$(shasum ...)" = "<fingerprint>" ] &&
-#   curl -fsSL --cacert /tmp/arise-ca.crt ... https://arise-server.ad.arisecenla.com/mac/enrol.sh |
-#   sudo bash -s -- --token <one-time token> --dns 192.168.1.20 --server https://arise-server.ad.arisecenla.com
+#   The generated line uses a private temporary CA, verifies its SHA256, then
+#   downloads this script over verified HTTPS and passes --ca-sha256 to root.
+#   Copy it from the trusted dashboard instead of reconstructing it by hand.
 #
 # The token works once, for an hour. Only a Mac enrolled with one is a church Mac; the
 # server never touches any other (a personal Mac never runs this).
@@ -26,7 +26,7 @@
 # switched on (round 7, 23): each stays as it is, with its own password, and its files sync.
 set -u
 
-SERVER=""; TOKEN=""; DNS_IP=""; NAME=""; BACKUP=1
+SERVER=""; TOKEN=""; DNS_IP=""; NAME=""; BACKUP=1; CA_SHA256=""
 BASE=/usr/local/arise/helper
 DB=/var/db/arise
 PLIST=/Library/LaunchDaemons/com.arisechurch.helper.plist
@@ -41,6 +41,7 @@ while [ $# -gt 0 ]; do
     --token)  TOKEN="$2"; shift 2 ;;
     --dns)    DNS_IP="$2"; shift 2 ;;
     --name)   NAME="$2"; shift 2 ;;
+    --ca-sha256) CA_SHA256="$2"; shift 2 ;;
     --no-backup) BACKUP=0; shift ;;
     -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
     *) die "unknown option $1" ;;
@@ -53,14 +54,25 @@ done
 [ -n "$DNS_IP" ] || die "--dns is required: copy the whole line from the Macs app"
 case "$DNS_IP" in *[!0-9.]*) die "--dns wants the server's address, e.g. 192.168.1.20";; esac
 case "$TOKEN" in *[!A-Za-z0-9_-]*) die "that token is not one the server makes";; esac
+case "$SERVER" in https://*) ;; *) die "enrollment requires HTTPS: start Caddy and copy a new enrollment line" ;; esac
+[[ "$CA_SHA256" =~ ^[a-f0-9]{64}$ ]] || die "--ca-sha256 must be the fingerprint from the trusted dashboard enrollment line"
 
 HOSTPART="${SERVER#*://}"; HOSTPART="${HOSTPART%%/*}"; HOST="${HOSTPART%%:*}"
 REALM_LC="${HOST#arise-server.}"
 [ "$REALM_LC" != "$HOST" ] || REALM_LC="ad.arisecenla.com"
 
 mkdir -p "$DB" "$DB/convert" && chmod 700 "$DB"
-TMP="$(mktemp -d /tmp/arise-enrol.XXXXXX)"
+TMP="$(mktemp -d /tmp/arise-enrol.XXXXXX)" || die "could not make a private temporary directory"
+chmod 700 "$TMP"
 trap 'rm -rf "$TMP"' EXIT
+
+fetch_pinned_ca() {
+  # Fetch again into root's private directory and verify here. Never trust a
+  # user-writable /tmp certificate just because an earlier command checked it.
+  curl -fsS -m 15 -o "$TMP/ca.crt" "http://$DNS_IP/ca.crt" || return 1
+  [ "$(shasum -a 256 "$TMP/ca.crt" | cut -c1-64)" = "$CA_SHA256" ] || return 1
+  grep -q 'BEGIN CERTIFICATE' "$TMP/ca.crt"
+}
 
 fetch() {   # fetch <path> <file>: from the server, checking the church certificate when it is https
   local opts=(-fsSL --max-time 60)
@@ -69,6 +81,7 @@ fetch() {   # fetch <path> <file>: from the server, checking the church certific
 }
 
 main() {
+fetch_pinned_ca || die "the church certificate could not be verified; no enrollment changes made"
 step "0. A Time Machine backup first (round 7, 6)"
 if [ "$BACKUP" = 0 ]; then
   say "skipped (--no-backup)"
@@ -87,11 +100,7 @@ dscacheutil -flushcache; killall -HUP mDNSResponder 2>/dev/null || true
 say "names in $REALM_LC are asked of $DNS_IP; everything else is unchanged"
 
 step "2. The church certificate"
-if [ -s /tmp/arise-ca.crt ] && grep -q 'BEGIN CERTIFICATE' /tmp/arise-ca.crt; then
-  cp /tmp/arise-ca.crt "$DB/arise-ca.crt"      # the line already checked its fingerprint
-elif curl -fsS -m 8 -o "$TMP/ca.crt" "http://$DNS_IP:4147/ca.crt" && grep -q 'BEGIN CERTIFICATE' "$TMP/ca.crt"; then
-  cp "$TMP/ca.crt" "$DB/arise-ca.crt"
-fi
+install -m 644 -o root -g wheel "$TMP/ca.crt" "$DB/arise-ca.crt" || die "could not install the verified certificate"
 if [ -s "$DB/arise-ca.crt" ]; then
   chmod 644 "$DB/arise-ca.crt"
   # verify-cert asks the trust settings, not just whether the certificate sits in the keychain.
@@ -103,8 +112,7 @@ if [ -s "$DB/arise-ca.crt" ]; then
     say "macOS did not trust it (the dialog was cancelled?). The helper still checks the server with its own copy."
   fi
 else
-  case "$SERVER" in https:*) die "no church certificate: cannot reach the server safely over https" ;; esac
-  say "the server has no certificate yet (plain http on the church network until it does)"
+  die "no verified church certificate"
 fi
 
 step "3. The helper's files"
@@ -127,7 +135,7 @@ else
 fi
 ADNAME="$(printf '%s' "$NAME" | tr ' ' '-' | tr -cd 'A-Za-z0-9-' | cut -c1-15)"
 [ -n "$ADNAME" ] || die "this Mac's name has no letters or digits; run the line again with --name OFFICE-MAC-02"
-bash "$TMP/bind-mac.sh" --computer-name "$ADNAME" --dns "$DNS_IP" </dev/tty || die "the bind did not finish (bind-mac.sh says why, above). Nothing was enrolled; fix that and run the same line again within the hour."
+bash "$TMP/bind-mac.sh" --computer-name "$ADNAME" --dns "$DNS_IP" --ca-file "$DB/arise-ca.crt" --ca-sha256 "$CA_SHA256" </dev/tty || die "the bind did not finish (bind-mac.sh says why, above). Nothing was enrolled; fix that and run the same line again within the hour."
 
 step "5. Enrolling $NAME"
 SERIAL="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/{print $4}')"
@@ -191,7 +199,7 @@ if [ -n "$LOCALS" ]; then
   say "with its own password, and its files sync. One that matches nobody gets a new first.last server user."
   say "The Macs app shows what it would do first; Convert or Leave alone are still there per account."
 fi
-printf '\n  %s is a church Mac now. The helper starts in watch mode: the Macs app lists what it would do, and nothing\n  changes until an admin presses Switch on. Then everyone with a server account appears on its login window.\n\n' "$NAME"
+printf '\n  %s is a church Mac now: DNS, certificate trust, domain binding and the helper are installed.\n  Watch mode holds subsequent management tasks until an admin presses Switch on. The Macs app shows the current mode.\n\n' "$NAME"
 }
 
 # The whole file is read before anything runs (curl | bash), and nothing below can eat it from stdin.

@@ -18,6 +18,7 @@ import json
 import os
 import shutil
 import threading
+import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -131,7 +132,7 @@ def tally(folder: str) -> tuple[int, int]:
 
 
 def same_tally(src: tuple[int, int], dst: tuple[int, int]) -> bool:
-    """Pure: every file and every byte arrived."""
+    """Quick size/count check; copy_to_archive also verifies file contents."""
     return src[0] == dst[0] and src[1] == dst[1]
 
 
@@ -160,6 +161,15 @@ def copy_to_archive(name: str, now: datetime) -> dict:
     a, b = tally(src), tally(dst)
     if not same_tally(a, b):
         return {"ok": False, "err": f"the copy is short: {b[0]} of {a[0]} files, {b[1]} of {a[1]} bytes; nothing moved", "to": dst}
+    for folder, _, files in os.walk(src):
+        for name_ in files:
+            source = Path(folder) / name_
+            if source.is_symlink() or not source.is_file():
+                continue
+            target = Path(dst) / source.relative_to(src)
+            with source.open("rb") as sf, target.open("rb") as tf:
+                if hashlib.file_digest(sf, "sha256").digest() != hashlib.file_digest(tf, "sha256").digest():
+                    return {"ok": False, "err": "archive content verification failed; nothing moved", "to": dst}
     return {"ok": True, "copied": a[0], "bytes": a[1], "to": dst}
 
 
@@ -173,8 +183,10 @@ def _move_home(name: str, move_to: str, now: datetime) -> dict:
     moved = 0
     for item in sorted(os.listdir(src)):
         target = os.path.join(dst, item)
-        if os.path.exists(target):
-            target += " (moved)"
+        suffix = 1
+        while os.path.lexists(target):
+            target = os.path.join(dst, f"{item} (moved {suffix})")
+            suffix += 1
         shutil.move(os.path.join(src, item), target)
         moved += 1
     try:
@@ -238,18 +250,36 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                         pass
                     continue
                 e["archived"] = r["archive"]
+                # Keep the destination stable across retries on later dates.
+                e.setdefault("move_started", now.isoformat(timespec="seconds"))
+                _write(entries)
+                move_date = datetime.fromisoformat(e["move_started"])
                 try:
-                    r["files"] = _move_home(e["name"], e["move_to"], now)
+                    r["files"] = e.get("files_moved") or _move_home(e["name"], e["move_to"], move_date)
                 except OSError as ex:
                     r["files"] = {"ok": False, "err": str(ex)}
+                if not r["files"].get("ok"):
+                    e["result"] = r
+                    results.append(r)
+                    audit.record(by, "directory.leaving.sweep", e["name"], ok=False,
+                                 detail="file transfer failed; will retry; Mac removals not queued")
+                    continue
+                e["files_moved"] = r["files"]
+                _write(entries)
             # Round 5, 38: their mail is saved into the next person's folder before the mailbox can go.
             # The mailbox is never deleted here; whatever deletes it later checks mailbox_exported first.
             if cfg.demo:
                 r["mailbox"] = {"ok": True, "demo": True, "exported": 0, "note": "(sample) no mail server in the sample"}
             else:
                 from . import profiles
-                r["mailbox"] = profiles.mailbox_export(e["name"], dest_dir(cfg.directory.homes_path, e["move_to"], e["name"], now))
+                r["mailbox"] = e.get("mailbox_result") or profiles.mailbox_export(e["name"], r["files"].get("to") or dest_dir(cfg.directory.homes_path, e["move_to"], e["name"], now))
             e["mailbox_exported"] = bool(r["mailbox"].get("ok"))
+            if not e["mailbox_exported"]:
+                e["result"] = r
+                results.append(r)
+                continue
+            e["mailbox_result"] = r["mailbox"]
+            _write(entries)
             # Round 6, 4: their profile comes off every church Mac, through the checked path
             # (the helper proves each file is on the server first; macs.py, docs/MACS.md).
             try:
@@ -257,6 +287,10 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                 r["macs"] = macs.queue_removals(e["name"], by=by, moved_to=(r.get("files") or {}).get("to"))
             except Exception as ex:  # noqa: BLE001 - a Mac problem never stops the leaving sweep
                 r["macs"] = {"ok": False, "err": str(ex)}
+            if not r["macs"].get("ok"):
+                e["result"] = r
+                results.append(r)
+                continue
             e["done"] = now.isoformat(timespec="seconds")
             e["result"] = r
             results.append(r)
@@ -264,5 +298,6 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                          detail=f"disabled; files to {e['move_to']}")
         if not dry_run:
             _write(entries)
-    return {"ok": all(r.get("disabled", True) and r.get("files", {}).get("ok", True) for r in results),
+    return {"ok": all(r.get("disabled", True) and r.get("files", {}).get("ok", True)
+                      and r.get("mailbox", {}).get("ok", True) and r.get("macs", {}).get("ok", True) for r in results),
             "results": results, "dry_run": dry_run, "demo": cfg.demo}

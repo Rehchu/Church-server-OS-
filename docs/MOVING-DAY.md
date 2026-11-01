@@ -1,213 +1,135 @@
 # Moving day — the server goes from Pineville to the Hub
 
-The PC lives at Arise Pineville until the Apostolic Hub is built, then it
-moves there. This is the plan for doing that with the least downtime, and
-with a way back if the Hub is not ready after all. Read it the week before,
-not the morning of.
+The server stays at Pineville until the Hub is ready. Plan the move for the
+quiet maintenance day Bradly chose, outside services, with a verified backup
+and a way to return. Allow the whole day; travel time alone is not a reliable
+downtime estimate.
 
-What makes this easy: **Tailscale addresses do not change when the box
-moves.** Every laptop, the personal Macs, Alexandria's one Mac, the
-split-DNS rule and every off-site person keep working exactly as before;
-the move does not touch them. What changes is the server's LAN address,
-which building has it on the switch, and the fact that Pineville becomes a
-remote site.
+The network rule applies at both buildings: **no router, switch or Google
+Mesh configuration changes, no DHCP reservations, no port forwards and no
+changes to other devices' addresses.** Configure the server and enrolled
+clients only. Never treat example subnet numbers as the actual network.
 
-Expected downtime: the drive between the buildings plus about thirty
-minutes at each end. Call it two hours (an estimate; measure your own
-drive). Nobody at a bound Mac notices until they need a file that is not
-cached.
+Tailscale node addresses normally survive a change of physical location as
+long as the node remains enrolled. Verify authentication, DNS and client
+reachability before relying on this. A second functioning DC and file server
+are not supplied merely by naming an Arise-Home node: `docs/NODES.md` marks
+replication and takeover as future work.
 
-Bradly (round 4, 65): "I'll probably move everything on a day nobody is
-there. So there should only be down time for maintenance that day." So: a
-quiet weekday, no cache box at Pineville, and the whole day is the window.
-With Arise-Home built (docs/NODES.md) the home node holds the domain and the
-files while the church's box is in the car.
+## Before the day
 
----
+- Verify every required backup job, run `sudo arisectl backup verify`, and
+  restore representative files into a separate location. Follow
+  `docs/BACKUPS.md` for the consistent domain and app backups. Keep a verified
+  off-site copy outside the building before moving the original disks.
+- Keep recovery credentials securely available to Bradly and Kristina, away
+  from the machine. If carrying a recovery USB, encrypt it; verify its copy
+  of configuration and domain recovery data without printing secrets.
+- Record the current server network configuration, address, gateway, DNS
+  records, NAS endpoint and Tailscale identity. Observe the Hub's existing
+  network from a client there; do not alter it or prescribe a new subnet.
+- Verify power, a working UPS, the existing network connection, internet,
+  monitor, keyboard and a secure place for the server at the Hub. Photograph
+  and label the server's existing cable connections for rollback.
+- Decide whether the Synology moves. If it stays, verify its Tailscale path
+  and measure remote file/backup throughput first. Moving it changes its
+  physical network; let its existing network configuration obtain a valid
+  address and verify its name/Tailscale endpoint before use.
+- Put Tailscale on every approved client that needs the remote server and
+  test it before the move. Church Macs remain domain-bound; existing linked
+  local accounts keep their local passwords. Personal Macs are never
+  enrolled in the helper or bound to AD.
+- Configure and test domain-only resolution on the enrolled clients and in
+  Tailscale. Prefer the server's reachable Tailscale address for remote DNS.
+  Remove no working resolver until its replacement has been verified.
+- Tell people the maintenance window. Close applications, let sync finish
+  and verify its status before shutting down. A disconnected session does
+  not prove its latest files were saved to the server.
 
-## Before the day (the week before)
+## At Pineville
 
-| Done | What | How you know |
-|---|---|---|
-| ☐ | Backups verified | Dashboard → Backups: every job green in the last 24 h; `sudo arisectl backup verify` (that is `restic check`) says ok; restore one file from a snapshot to your Mac and open it |
-| ☐ | A second copy of the restic repo exists outside the Pineville building, even if it is a USB disk you carry (docs/IDEAS.md § Off-site copy) | you can see its snapshots with `restic -r <path> snapshots` |
-| ☐ | The domain is backed up on its own (docs/DIRECTORY.md § Backing up the domain controller) | the `samba-tool domain backup offline` file is in the restic `config` job and on the USB disk |
-| ☐ | `/etc/arise/arise.toml` and `/etc/arise/secrets/` copied to the USB disk | `ls` |
-| ☐ | The Hub's subnet decided and set on the Hub router (docs/NETWORK.md: `192.168.30.0/24`); the server's new address decided (`192.168.30.10`); a DHCP reservation or a free static address for it | the router page |
-| ☐ | The Hub has: a switch port on the staff network, a UPS (Pineville has one, answer 8; the Hub has none yet: buy one or move Pineville's with the server), internet with a known upload speed, a closet that locks, a monitor and the Windows keyboard | you stood there |
-| ☐ | Decided where the **Synology** goes (question 7, Sunday). Moves with the server: it is the backup target, the home folder store and the `recordings` share, it should sit next to the server. Stays at Pineville: backups cross the VPN every night at 03:00 and the home folders are a WAN hop away, which is slow for everyone at the Hub. **Move it.** | |
-| ☐ | **Still needed: how Pineville's church Macs reach the server after the move.** Two choices (docs/NETWORK.md § A church across town): Tailscale on each church Mac at Pineville, the same as Alexandria's Mac and the personal Macs; or one route box for the building, bought and tested before the move by advertising a dummy route. Bradly said no route box for Alexandria (answer 21); the Pineville choice is open | Tailscale console shows each Mac, or the route |
-| ☐ | Everyone told the date and the two-hour window. Pick a weekday morning after the 03:00 backup, never a Sunday or Monday (Glory Night) | a message; there is no daily note (answer 49) |
-| ☐ | Photos of the back of the PC, the Synology, the switch ports they are in | your phone |
+1. Check last night's backups and the designated automator runner's status.
+2. Shut down the server cleanly from the dashboard, with its password and
+   confirmation prompts. Never pull the power on a running domain controller.
+3. Shut down the Synology from DSM if it is moving. Label the cables and move
+   only the equipment agreed for this maintenance window.
 
-If any box is unchecked, do not move. There is no hurry a church cannot
-survive.
+While the server is off, linked local Mac accounts still log in. Previously
+used mobile AD accounts may log in with cached credentials; test those
+accounts beforehand. New domain logins, password changes, server files,
+apps and backups wait. Local synced copies remain usable and changes may
+need reconciling when sync returns. Ordinary internet DNS should continue
+through each site's existing DNS; only the church domain uses split DNS.
 
----
+## At the Hub
 
-## The day
+1. Connect the server, monitor, keyboard and UPS to the existing facilities.
+   Start it and unlock LUKS at the local console. On the expected HP TPM 1.2,
+   H3 requires the passphrase after every restart; Tailscale is unavailable
+   before unlock. A previously tested early-boot SSH path may need a new
+   LAN address at the Hub. Keep the keyboard recovery path available.
+2. Check the actual address and default route. A static address from the old
+   building may be invalid here: back up the server's netplan configuration
+   and follow `INSTALL.md` to use DHCP on this network. `netplan try` from
+   the local console provides a rollback window for changes.
+3. DHCP is the current installer default. Before production domain use,
+   verify the stable address/endpoint strategy. Pinning a DHCP lease does
+   not reserve it; `--pin-ip` is only suitable for an address independently
+   confirmed outside the allocation pool. If that cannot be established
+   within the no-router-change rule, record the limitation instead of
+   silently introducing a collision risk.
+4. Check `/etc/hosts`, Samba's registered addresses and domain SRV records
+   against the actual reachable server. `sudo samba_dnsupdate --verbose`
+   requests registration; inspect its result. Identify individual stale
+   records before any manual correction. Do not delete records merely
+   because they contain an old-looking example subnet.
+5. Reconnect Tailscale using the existing node identity. Verify split DNS
+   points to a reachable nameserver. Do not copy obsolete subnet-route or
+   router-DHCP commands from earlier versions of this guide. Reachability
+   of DNS alone is insufficient: the addresses returned for LDAP, SMB and
+   app names must also be reachable by every intended client.
+6. Update the server's `[[sites]]` observations and NAS endpoint if needed.
+   Mount the NAS and verify the expected mount and files before a backup;
+   an empty local directory under `/mnt/synology` is not a successful mount.
+7. Run `sudo arisectl doctor` and inspect each failed or untested check.
+   Check time synchronization, directory, HTTPS dashboard, kiosk, NAS and
+   the selected apps. Do not enable additional apps during the move.
+8. From a Hub Mac, verify system resolution with
+   `dscacheutil -q host -a name arise-server.ad.arisecenla.com`. For SRV
+   records, query the intended DNS server explicitly with `dig @<dns-ip>
+   _ldap._tcp.ad.arisecenla.com SRV`; macOS `dig` does not use the per-domain
+   resolver file. Test a real login, an SMB file and Nextcloud sync.
+9. Repeat HTTPS, directory and file checks from Pineville and Alexandria,
+   and from an approved Tailscale device on a hotspot. No router setting
+   changes are part of any of these checks.
 
-**At Pineville, in order:**
+## After and rollback
 
-1. Confirm last night's backup and automator ran: Dashboard → Overview.
-2. Tell people it is happening (a message).
-3. Close the dashboard for everyone: nothing to do; sessions just stop.
-4. Shut down cleanly. Flame menu → **Shut Down…**, type the word; or
-   `sudo arisectl` has no power verb, so `sudo systemctl poweroff` over SSH.
-   Never pull the plug on a domain controller; Samba's database does not
-   like it.
-5. Shut down the Synology from DSM (Control Panel → Hardware & Power →
-   Shutdown) if it moves.
-6. Unplug, label the cables, drive.
+Run the required backups, inspect their results and restore a sample to a
+separate location. Verify Guacamole uses the media Mac's reachable endpoint
+and that the normal overnight jobs finish. The YouTube automator remains on
+its designated runner until a separate deliberate cutover. Keep the existing
+NDI/camera/streaming network unchanged; the move does not authorize rewiring.
 
-**While it is off**, this is what happens at each site:
+If the Hub cannot pass these checks, shut down cleanly and return the server
+to the recorded Pineville connection. Restore the server-side network and
+NAS configuration as appropriate, recheck DNS/Tailscale and repeat the same
+functional tests. Router configuration stays unchanged. If a disk failed,
+use `docs/REINSTALL.md` and the verified domain backup; do not provision a
+new domain over the recovery target.
 
-| | Works | Does not work |
-|---|---|---|
-| A bound church Mac with a mobile account | login with the cached password, everything local, Downloads, the apps | the server home (Desktop and Documents show the last synced copy, read-only in effect), the shares, the dashboard, password changes, new users |
-| A personal Mac, Alexandria's Mac, any Tailscale device | everything local; the tunnel to each other | the server, so nothing useful; they notice nothing else |
-| DNS at Pineville | **nothing**, if the server was the only DNS and the router does not forward. Internet looks down for staff devices. Guest Wi-Fi is fine | |
-| The automator, backups | — | all of it, for the window; they catch up on their next timer |
-
-The DNS line is the one people feel. Two ways round it, pick one the week
-before: give the Pineville staff router's DHCP a second DNS entry (the
-router itself) for the day, or have the Pineville Macs on Tailscale (or the
-route box in place) **before** the move with Tailscale's split DNS carrying
-`ad.arisecenla.com`, so lookups for the realm fail cleanly and everything
-else resolves through the router.
-
-**At the Hub:**
-
-1. Rack it, plug in the monitor and keyboard, switch port on the staff
-   network, the Synology beside it, both on the UPS. Power on. The monitor
-   shows the Arise desktop, which will show *Needs you* for the NAS mount
-   and probably a sample-data badge for anything that cannot reach its
-   tool. That is expected until step 2 is done.
-2. Log in at the monitor (Alt+F2 for a text login) or over Tailscale SSH
-   (`ssh arise-server` works the moment Tailscale is up, which is the moment
-   the box has internet; this is why Tailscale was worth it).
-3. The new address. Edit netplan (INSTALL.md § Fixed address) to
-   `192.168.30.10/24`, gateway `192.168.30.1`, DNS `127.0.0.1`; `sudo
-   netplan apply`. Or if the Hub router has a DHCP reservation for the
-   server's MAC, keep netplan on DHCP and just confirm the address.
-4. `/etc/hosts`: the line for `arise-server.ad.arisecenla.com
-   arise-server` carries the new address.
-5. The domain's own DNS records: Samba registers the DC's address at start,
-   but check and fix by hand:
-
-   ```bash
-   sudo samba_dnsupdate --verbose
-   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.com arise-server A
-   sudo samba-tool dns query 127.0.0.1 ad.arisecenla.com @ ALL | grep -i 192.168
-   ```
-
-   Any record still showing `192.168.10.10` (or the old `.1.x`): delete and
-   add it with `samba-tool dns delete` / `dns add`. The names `vault` and
-   `remote` from docs/REMOTE-ACCESS.md § (e) are two of them.
-6. `arise.toml`: in `[[sites]]`, the Hub's `subnet` is where the server
-   is now; its `note` and Pineville's swap roles. `[system]` has no address
-   in it, nothing to change there. `sudo systemctl restart arise-web`.
-7. The Synology: same subnet, new address `192.168.30.11`, set in DSM;
-   `/etc/arise/arise.toml` `[nas] host` updated if it is an address and not
-   a name; `sudo arisectl nas mount`.
-8. Tailscale: `sudo tailscale up --ssh --advertise-routes=192.168.30.0/24`
-   (the new subnet, replacing the old one), approve the route in the
-   console. Change the split-DNS nameserver in the Tailscale console from
-   the old LAN address to `192.168.30.10`. This one line is what makes every
-   remote Mac find the domain again.
-9. Hub DHCP: DNS = `192.168.30.10` for the staff network.
-10. `sudo arisectl doctor`. Everything that was green before must be green
-    now. The usual red lines after a move are the NAS mount (step 7), a DNS
-    record (step 5) and the time (if the box was off long enough: `sudo
-    chronyc makestep`).
-11. From a Hub Mac: the two `dig` checks, then bind one Mac. From your
-    laptop on a hotspot: the dashboard over Tailscale. From Alexandria's
-    Mac: a file on a share (nothing was changed there).
-
-**Back at Pineville**, the same day or the next, whichever way was chosen
-in the checklist:
-
-12. **Tailscale on each church Mac:** install, sign in with the church
-    login, start at login. The split-DNS rule already carries the realm, so
-    nothing on the Pineville router changes except its DHCP DNS, which goes
-    back to the router itself. **Or the route box:** `tailscale up
-    --advertise-routes=192.168.10.0/24 --accept-routes`, route approved, a
-    static route on the Pineville staff router toward `192.168.30.0/24` via
-    the box, DHCP DNS at Pineville = the server (`192.168.30.10`, reached
-    through the box) with the router second.
-13. A Pineville Mac: `ping 192.168.30.10`, the two `dig` checks, a login, a
-    file saved to Documents turning up on the server. The home-sync agent
-    carries on; it only needs the name `arise-server` to resolve.
-14. `arise.toml` `[[sites]] pineville`: `probe` = the route box, or the
-    media Mac's Tailscale name. Campuses shows both sites green.
-
----
-
-## After
-
-- Backups: run every job once by hand from the dashboard and read the rows.
-  `restic check` once more.
-- The automator runs that night at 02:05 as before; nothing in it knows
-  the building.
-- The Guacamole connection to the media Mac (the only one, answer 44)
-  works through the route box, or by the Mac's Tailscale address if that
-  was the choice; one that used the server's old address (the SSH
-  connection to the server itself) needs the new address.
-- Caddy's certificate names did not change; the DNS records behind them did
-  (step 5).
-- Vaultwarden, Uptime Kuma and the other apps follow the server; their
-  addresses are names, not numbers, if you set them up that way.
-- Re-read docs/NETWORK.md with the Hub as "the site where the server is."
-  The NDI rule stays at Pineville: the cameras, the Proclaim Mac and the
-  streaming Mac keep their own wired segment there, and the stream never
-  goes through the tunnel.
-
----
-
-## Rollback
-
-If at step 10 the box is not healthy and the reason is the Hub (internet,
-power, the switch), put it back:
-
-1. Shut down cleanly.
-2. Drive back, plug in where the photos say.
-3. Netplan back to the Pineville address, `/etc/hosts`, `samba_dnsupdate`,
-   the Tailscale route and split-DNS nameserver back to the old address,
-   Pineville DHCP DNS back to the server. The same steps as the move, with
-   the old numbers.
-4. `arisectl doctor`.
-
-Nothing in the move writes to the directory's data or the backups, so there
-is nothing to restore. If the disk itself died in transit: a fresh install
-(INSTALL.md), then docs/DIRECTORY.md § Recovering from the domain backup and
-`arisectl backup restore latest` for the data. That is what the USB copy in
-the checklist is for.
-
----
-
-## The printed checklist
-
-Print this half and take it with you.
+## Printed checklist
 
 ```
-BEFORE  ☐ backups green  ☐ restic check ok  ☐ one file restored
-        ☐ domain backup + arise.toml + secrets on USB
-        ☐ Hub subnet set  ☐ server address reserved  ☐ Synology address reserved
-        ☐ Hub: switch port, UPS, internet, closet, monitor, keyboard
-        ☐ Pineville after-move choice made (Tailscale per Mac, or route box tested)
-        ☐ Pineville DHCP second DNS set for the day
-        ☐ people told: date, window
-PINEVILLE ☐ last night's jobs ok  ☐ Shut Down (typed)  ☐ Synology shut down
-        ☐ cables labelled  ☐ photos
-HUB     ☐ power, monitor shows the desktop  ☐ login (Alt+F2 or Tailscale SSH)
-        ☐ netplan new address  ☐ /etc/hosts  ☐ samba_dnsupdate + check records
-        ☐ arise.toml sites  ☐ Synology address + nas mount
-        ☐ tailscale up --advertise-routes=<hub subnet>  ☐ route approved
-        ☐ split DNS nameserver = new address  ☐ Hub DHCP DNS = server
-        ☐ arisectl doctor green  ☐ dig from a Hub Mac  ☐ one Mac bound
-        ☐ dashboard from a hotspot  ☐ a share from Alexandria
-PINEVILLE AFTER ☐ Tailscale on each church Mac, OR route box advertising + static route
-        ☐ DHCP DNS set to match  ☐ ping + dig + login from a Pineville Mac
-        ☐ Campuses: three sites green
-AFTER   ☐ every backup job run by hand  ☐ restic check  ☐ Needs you clear next morning
+BEFORE    backups verified; sample restored; recovery credentials available
+          Hub power/network observed; original server settings recorded
+          NAS location agreed; clients and split DNS tested over Tailscale
+          users told; applications closed; sync complete
+MOVE      clean server/NAS shutdown; equipment and cables labeled
+HUB       actual address and route checked; stable endpoint limitation resolved
+          server DNS/hosts checked; Tailscale and returned addresses reachable
+          NAS mount verified; doctor and real login/file/sync checks passed
+REMOTE    Pineville, Alexandria and approved hotspot client checks passed
+AFTER     backup plus restore verified; overnight jobs checked
+ROLLBACK  recorded server settings and original connection available
 ```

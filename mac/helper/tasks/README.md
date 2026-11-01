@@ -2,8 +2,7 @@
 
 Extra task scripts the helper calls, one per task kind it hands off.
 
-- `nextcloud.sh`: the `nextcloud` task (round 6, sync). Not here yet; the Nextcloud
-  work adds it. The helper calls it as
+- `nextcloud.sh`: the `nextcloud` task (round 6, sync). Included in this repository. The helper calls it as
 
   ```
   /usr/local/arise/helper/tasks/nextcloud.sh --user <first.last> --local <short name> --server <https://...>

@@ -82,7 +82,7 @@ table. Deploy the day the question is asked, not before.
 | `mattermost` | "leadership wants its own chat" | 500 MB to 1 GB | the one app to think twice about on 8 GB |
 | `synapse` | the same question, encrypted, with the Element apps | 400 MB+ | Mattermost or this, never both |
 | `kimai` | "timesheets for the hourly staff" | under 200 MB | SQLite, one container |
-| `trilium` | "a study notebook that is not Apple Notes" | 150 MB | one notebook per deployment; deploy twice for two people |
+| `trilium` | "a study notebook that is not Apple Notes" | 150 MB | one shared notebook; this template supports one instance, not separate notebooks per person |
 | `nextcloud` | the Macs' and phones' sync (round 6, 14; docs/SYNC.md), started by the installer | 1 GB | the homes and shares are mounted into it, not copied; LDAPS ties it to the domain |
 | `moodle` | "a new-members course with a quiz" | 1 GB+ | heavy; deploy when someone will build the course |
 | `phplist` | "the weekly email to the families" | 250 MB | only through an SMTP relay; Mailchimp's free tier is simpler until the list is big |

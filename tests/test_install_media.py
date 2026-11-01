@@ -49,10 +49,9 @@ class AutoinstallConfig(unittest.TestCase):
         schema = json.loads(SCHEMA_PATH.read_text())
         jsonschema.validate(load_config(), schema)
 
-    def test_only_identity_and_the_disk_are_asked(self):
+    def test_disk_and_identity_are_always_confirmed_on_screen(self):
         c = load_config()
-        # the disk screen: encryption is ticked there (no TPM 2.0 on the OptiPlex 3010, Oct 30)
-        self.assertEqual(c["interactive-sections"], ["identity", "storage"])
+        self.assertEqual(c["interactive-sections"], ["storage", "identity"])
         # identity given here would need a password hash in the file
         self.assertNotIn("identity", c)
         self.assertNotIn("user-data", c)
@@ -63,7 +62,7 @@ class AutoinstallConfig(unittest.TestCase):
         self.assertEqual(c["keyboard"]["layout"], "us")
         self.assertEqual(c["timezone"], "America/Chicago")
         self.assertEqual(c["storage"]["layout"]["name"], "lvm")
-        self.assertEqual(c["storage"]["layout"]["match"], {"size": "largest"})
+        self.assertNotIn("match", c["storage"]["layout"])
         self.assertTrue(c["ssh"]["install-server"])
         self.assertEqual(c["updates"], "security")
         for pkg in ("git", "python3", "python3-venv", "curl", "ca-certificates"):
@@ -82,7 +81,9 @@ class AutoinstallConfig(unittest.TestCase):
         self.assertIn("CIDATA", text)
         self.assertIn("sha256sum -c SHA256SUMS", text)
         self.assertIn("/target/opt/arise-src", text)
-        self.assertRegex(text, r"install\.sh --no-start --skip-domain --skip-docker")
+        self.assertNotIn("install.sh", text)  # firstboot owns service/network setup after location choice
+        self.assertIn("set -eu", text)
+        self.assertNotIn("exit 0", text)  # payload failures must stop the install
         self.assertIn("systemctl enable arise-firstboot.service", text)
 
 
@@ -111,7 +112,7 @@ class Builder(unittest.TestCase):
                             str(out)], check=True)
             g = out.read_text()
         entries = [a or b for a, b in re.findall(r'''(?m)^menuentry\s+(?:"([^"]*)"|'([^']*)')''', g)]
-        self.assertEqual(entries[0], "Install ariseOS (ERASES the disk you confirm)")
+        self.assertEqual(entries[0], "Install ariseOS (choose disk and encryption on screen)")
         self.assertEqual(entries[1], "Install by hand (the plain Ubuntu installer)")
         first, second = re.findall(r"(?ms)^menuentry.*?^\}", g)[:2]
         self.assertRegex(first, r"(?m)^\tlinux\t/casper/vmlinuz\s+autoinstall ---$")
@@ -131,7 +132,7 @@ class Builder(unittest.TestCase):
                          and (ROOT / ".git").exists(), "xorriso, zip or a git checkout missing")
     def test_builds_a_cidata_disc(self):
         with tempfile.TemporaryDirectory() as out:
-            r = subprocess.run(["bash", str(BUILDER), "--out", out], capture_output=True, text=True)
+            r = subprocess.run(["bash", str(BUILDER), "--working-tree", "--out", out], capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             iso = Path(out) / "ariseos-addon.iso"
             pvd = iso.read_bytes()[16 * 2048:17 * 2048]       # the primary volume descriptor
@@ -148,6 +149,64 @@ class Builder(unittest.TestCase):
                 self.assertIn("autoinstall.yaml", z)
                 self.assertIn("arise/ariseos-src.tar.gz", z)
 
+    def test_working_tree_export_includes_edits_and_excludes_untracked(self):
+        import tarfile
+        code = re.search(r"<<'PYEXPORT'\n(.*?)\nPYEXPORT", BUILDER.read_text(), re.S).group(1)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "repo"; root.mkdir()
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            (root / "file.txt").write_text("before")
+            subprocess.run(["git", "-C", str(root), "add", "file.txt"], check=True)
+            (root / "file.txt").write_text("reviewed edit")
+            (root / "untracked-secret.txt").write_text("must not be shipped")
+            out = Path(d) / "payload.tar.gz"
+            subprocess.run(["python3", "-c", code, str(root), str(out)], check=True)
+            with tarfile.open(out) as archive:
+                self.assertEqual(archive.getnames(), ["file.txt"])
+                self.assertEqual(archive.extractfile("file.txt").read(), b"reviewed edit")
+            (root / ".env").write_text("credential")
+            subprocess.run(["git", "-C", str(root), "add", ".env"], check=True)
+            result = subprocess.run(["python3", "-c", code, str(root), str(out)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Refusing sensitive", result.stderr)
+            self.assertNotIn("credential", result.stderr)
+
+    def test_media_integrity_manifest_preserves_original_and_covers_changed_files(self):
+        import hashlib
+        code = re.search(r"<<'PYMD5'\n(.*?)\nPYMD5", BUILDER.read_text(), re.S).group(1)
+        with tempfile.TemporaryDirectory() as d:
+            stage = Path(d)
+            (stage / "arise").mkdir()
+            unchanged = hashlib.md5(b"original package", usedforsecurity=False).hexdigest()
+            (stage / "md5sum.orig.txt").write_text(
+                unchanged + "  ./pool/unchanged.deb\n" + "0" * 32 + "  ./boot/grub/grub.cfg\n"
+                + "1" * 32 + "  ./md5sum.txt\n" + "2" * 32 + "  ./arise/old-payload\n")
+            payloads = {"grub.cfg": b"new menu", "autoinstall.yaml": b"guided storage", "arise/ariseos-src.tar.gz": b"new source", "arise/VERSION": b"reviewed snapshot", "arise/SHA256SUMS": b"source checksum"}
+            for name, content in payloads.items():
+                (stage / name).write_bytes(content)
+            subprocess.run(["python3", "-c", code, str(stage)], check=True)
+            lines = (stage / "md5sum.txt").read_text().splitlines()
+            entries = dict(line.split("  ", 1)[::-1] for line in lines)
+            self.assertEqual(entries["./pool/unchanged.deb"], unchanged)
+            self.assertNotIn("./md5sum.txt", entries)
+            self.assertNotIn("./arise/old-payload", entries)
+            self.assertEqual(len(entries), 1 + len(payloads))
+            for name, content in payloads.items():
+                iso_name = "./boot/grub/grub.cfg" if name == "grub.cfg" else "./" + name
+                self.assertEqual(entries[iso_name], hashlib.md5(content, usedforsecurity=False).hexdigest())
+            # Deterministic merge: reprocessing the same inputs gives the same manifest.
+            before = (stage / "md5sum.txt").read_bytes()
+            subprocess.run(["python3", "-c", code, str(stage)], check=True)
+            self.assertEqual((stage / "md5sum.txt").read_bytes(), before)
+            (stage / "md5sum.orig.txt").write_text("malformed manifest\n")
+            result = subprocess.run(["python3", "-c", code, str(stage)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+
+    def test_supplied_base_iso_requires_checksum(self):
+        text = BUILDER.read_text()
+        self.assertIn('--ubuntu-iso requires --ubuntu-sha256', text)
+        self.assertIn('Supplied Ubuntu ISO does not match', text)
+
 
 class Wizard(unittest.TestCase):
     def test_parses(self):
@@ -158,6 +217,7 @@ class Wizard(unittest.TestCase):
         self.assertIn("--admin-pass-file", s)
         self.assertNotRegex(s, r'--admin-pass[ =]"?\$')
         self.assertIn("chmod 600", s)
+        self.assertNotIn("install -d -m 0700 /etc/arise/secrets", s)
         self.assertIn("shred -u", s)
         # the domain password is read without echo
         self.assertIn("--passwordbox", s)
@@ -191,6 +251,24 @@ class Wizard(unittest.TestCase):
         self.assertIn("--admin-pass-file)", inst)
         self.assertIn("ARISE_FIRSTBOOT", inst)
         subprocess.run(["bash", "-n", str(ROOT / "installer" / "install.sh")], check=True)
+
+    def test_completion_is_gated_by_password_and_readiness(self):
+        src = WIZARD.read_text()
+        done = src.index('touch "$DONE"')
+        self.assertLess(src.index('if [ "$PW_SET" != 1 ]'), done)
+        self.assertLess(src.index('if [ "$READY" != 1 ]'), done)
+        self.assertIn('ARISE_WIZARD_SESSION=1 bash "$0" --from-boot', src)
+        self.assertNotIn('Press Enter for a login prompt', src)
+        self.assertIn('core) FLAGS+=(--no-apps)', src)
+
+    def test_wizard_defaults_to_core_five_and_keeps_directory_only_test(self):
+        src = WIZARD.read_text()
+        menu = next(line for line in src.splitlines() if line.startswith('APP_SET='))
+        self.assertLess(menu.index(' essentials "'), menu.index(' core "'))
+        self.assertIn('essentials) FLAGS+=(--apps "nextcloud vaultwarden uptime-kuma netdata filebrowser")', src)
+        self.assertIn('core) FLAGS+=(--no-apps)', src)
+        self.assertIn('[ "$FROM_BOOT" = 1 ] && FLAGS+=(--grow-root)', src)
+        self.assertIn('needs its disk passphrase at every restart', src)
 
 
 class Docs(unittest.TestCase):

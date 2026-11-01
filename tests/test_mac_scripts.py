@@ -18,6 +18,7 @@ import subprocess
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -244,6 +245,92 @@ class HelperFunctions(unittest.TestCase):
         self.fake("sysadminctl", '[ "$2" = levi ] && echo "2026-10-29 sysadminctl[1] Secure token is ENABLED for user Levi Mercer" >&2 || echo "Secure token is DISABLED for user $2" >&2')
         r = self.run_fn(["has_token"], "has_token levi && echo yes; has_token jane.doe || echo no")
         self.assertEqual(r.stdout.split(), ["yes", "no"], r.stderr)
+
+    def test_certificate_fetch_rejects_substitution(self):
+        import hashlib
+        cert = self.tmp / "expected.crt"
+        cert.write_text("-----BEGIN CERTIFICATE-----\nexample\n-----END CERTIFICATE-----\n")
+        self.fake("curl", 'while [ "$1" != -o ]; do shift; done; cp "$CA_SOURCE" "$2"')
+        enrol = (MAC / "helper" / "enrol.sh").read_text()
+        fn = functions(enrol, "fetch_pinned_ca")
+        for fingerprint, expected in ((hashlib.sha256(cert.read_bytes()).hexdigest(), 0), ("0" * 64, 1)):
+            script = f'TMP="{self.tmp}"; DNS_IP=192.168.1.20; CA_SHA256={fingerprint}\n{fn}\nfetch_pinned_ca'
+            env = dict(os.environ, PATH=f"{self.tmp / 'bin'}:{os.environ['PATH']}", CA_SOURCE=str(cert))
+            r = subprocess.run([BASH, "-c", script], capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, expected, r.stderr)
+
+    def test_filevault_deferral_waits_then_escrows(self):
+        self.fake("fdesetup", 'echo enable >> "$DB/enables"; exit 0')
+        self.fake("defaults", 'cat "$DB/recovery-for-test" 2>/dev/null')
+        names = ["t_filevault"]
+        setup = 'export DB; LOG="$DB/log"; MAC_ID=mac-test; report(){ echo "$2 $3"; }; fv_state(){ echo off; }; api(){ echo called >> "$DB/api-calls"; }\n'
+        r = self.run_fn(names, setup + 't_filevault task; t_filevault task')
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual((self.tmp / "enables").read_text().splitlines(), ["enable"])
+        self.assertEqual(sum(line.startswith("pending ") for line in r.stdout.splitlines()), 2)
+        self.assertFalse((self.tmp / "api-calls").exists())
+        (self.tmp / "fv.plist").write_text("deferred result")
+        (self.tmp / "recovery-for-test").write_text("FAKE-RECOVERY-KEY")
+        r = self.run_fn(names, setup + 'fv_state(){ echo on; }; t_filevault task')
+        self.assertIn("done FileVault on; recovery key escrowed", r.stdout)
+        self.assertFalse((self.tmp / "fv.plist").exists())
+        self.assertFalse((self.tmp / "fv-pending").exists())
+        self.assertEqual((self.tmp / "fv-escrowed").read_text(), "mac-test")
+
+    def test_filevault_enabled_without_escrow_does_not_claim_success(self):
+        r = self.run_fn(["t_filevault"], 'LOG="$DB/log"; MAC_ID=mac-test; report(){ echo "$2 $3"; }; fv_state(){ echo on; }; t_filevault task')
+        self.assertIn("refused FileVault is on but recovery-key escrow is unverified", r.stdout)
+
+    def test_profile_removal_refuses_token_holders_and_unknown_status(self):
+        self.fake("dscl", 'exit 0')
+        for state in ("enabled", "unknown"):
+            r = self.run_fn(["t_remove_profile"], 'report(){ echo "$2 $3"; }; arg(){ [ "$1" = user ] && echo jane; }; is_mobile(){ return 0; }; in_use(){ return 1; }; token_state(){ echo ' + state + '; }; t_remove_profile task args')
+            self.assertTrue(r.stdout.startswith("refused "), r.stdout + r.stderr)
+
+    def test_profile_removal_never_bypasses_macos_refusal(self):
+        self.fake("dscl", 'if [ "$2" = -delete ]; then touch "$DB/bypassed"; fi; exit 0')
+        self.fake("sysadminctl", 'exit 0')  # macOS can exit zero while refusing the request
+        self.fake("hdiutil", 'for last; do :; done; touch "$last"')
+        src = self.src.replace('/Users/Deleted Users', str(self.tmp / "deleted"))
+        with mock.patch.object(self, "src", src):
+            r = self.run_fn(["t_remove_profile"], 'export DB; LOG="$DB/log"; report(){ echo "$2 $3"; }; arg(){ [ "$1" = user ] && echo jane; }; is_mobile(){ return 0; }; in_use(){ return 1; }; token_state(){ echo disabled; }; home_of(){ echo /Users/jane; }; server_has_it_all(){ echo "OK 1"; }; t_remove_profile task args')
+        self.assertIn("failed macOS refused", r.stdout, r.stderr)
+        self.assertFalse((self.tmp / "bypassed").exists())
+
+    def test_tailscale_requires_publisher_and_notarization_before_install(self):
+        self.fake("curl", 'while [ "$1" != -o ]; do shift; done; echo "$2" > "$DB/package-path"; touch "$2"')
+        self.fake("pkgutil", 'echo "Developer ID Installer: Tailscale ($PACKAGE_TEAM)"')
+        self.fake("spctl", 'echo "$NOTARIZATION"')
+        self.fake("installer", 'touch "$DB/installed"')
+        setup = 'export DB; LOG="$DB/log"; TS_TEAM=W5364U7YZB; report(){ echo "$2 $3"; }; ts_state(){ [ -f "$DB/installed" ] && echo down || echo "not installed"; }; t_tailscale task'
+        for team, notarization, expected in (("OTHERTEAM", "Notarized Developer ID", "refused"),
+                                             ("W5364U7YZB", "Developer ID", "refused"),
+                                             ("W5364U7YZB", "Notarized Developer ID", "skipped")):
+            with self.subTest(team=team, notarization=notarization):
+                r = self.run_fn(["pkg_ok", "t_tailscale"], setup,
+                                {"PACKAGE_TEAM": team, "NOTARIZATION": notarization})
+                self.assertEqual(r.returncode, 0, r.stderr)
+                self.assertTrue(r.stdout.startswith(expected + " "), r.stdout + r.stderr)
+                self.assertEqual((self.tmp / "installed").exists(), expected == "skipped")
+                package = Path((self.tmp / "package-path").read_text().strip())
+                self.assertTrue(package.parent.name.startswith("arise-tailscale."))
+                self.assertFalse(package.parent.exists(), "private download directory must be removed")
+
+    def test_tailscale_never_executes_an_untrusted_installed_app(self):
+        app = self.tmp / "Tailscale.app"
+        binary = app / "Contents" / "MacOS" / "Tailscale"
+        binary.parent.mkdir(parents=True)
+        binary.write_text('#!/bin/bash\ntouch "$DB/executed"\n')
+        binary.chmod(0o755)
+        self.fake("codesign", 'exit 0')
+        r = self.run_fn(["ts_state"], f'export DB; TS="{binary}"; TS_TEAM=W5364U7YZB; app_team(){{ echo OTHERTEAM; }}; ts_state')
+        self.assertEqual(r.stdout.strip(), "untrusted", r.stderr)
+        self.assertFalse((self.tmp / "executed").exists())
+
+    def test_tailscale_route_failure_is_not_success(self):
+        self.fake("Tailscale", 'exit 1')
+        r = self.run_fn(["t_tailscale"], f'LOG="$DB/log"; TS="{self.tmp / "bin" / "Tailscale"}"; ts_state(){{ echo up; }}; report(){{ echo "$2 $3"; }}; t_tailscale task')
+        self.assertTrue(r.stdout.startswith("failed "), r.stdout + r.stderr)
 
     def test_updates_stay_within_this_macos(self):
         listing = textwrap.dedent('''\

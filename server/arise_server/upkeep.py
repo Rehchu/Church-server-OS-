@@ -158,9 +158,13 @@ def _macs() -> list[dict]:
 def attention(now: datetime | None = None, hist: list[dict] | None = None, macs: list[dict] | None = None,
               health_v: list[dict] | None = None) -> list[dict]:
     """Every upkeep item that is true right now. The overview adds these to Needs You."""
-    from . import backups
+    from . import backups, audit
     now = now or datetime.now()
     items = []
+    audit_health = audit.write_health()
+    if not audit_health.get("ok"):
+        items.append({"level": "bad", "key": "audit-write-failed:" + str(audit_health.get("when", "unknown")),
+                      "text": audit_health["error"], "fix": "Inspect arise-web journal, disk space and audit log permissions; acknowledge the audit gap after repair."})
     rows = hist if hist is not None else backups.history(limit=400)["rows"]
     miss = backups.missed_night(rows, now)
     if miss:
@@ -417,7 +421,7 @@ code{{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;pad
 <h2>The backups</h2><table><tr><td>Tonight's copy</td><td><code>{e(f['repo'])}</code> at 03:00; restore: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
 <tr><td>Off-site copy</td><td>Arise-Home (Bradly's house){(' &nbsp;<code>' + e(f['home']) + '</code>') if f.get('home') else ''}, every snapshot but the raw recordings</td></tr>
 <tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;Kristina has it too.</td></tr>
-<tr><td>Disk passphrase</td><td>Asked at every start ("Please unlock disk"): type it on this keyboard, or <code>ssh -p 2222 root@arise-server</code> from a church computer. It is on the safe card, and Bradly and Kristina know it. Not written here.</td></tr>
+<tr><td>Disk passphrase</td><td>HP TPM 1.2: asked at every start ("Please unlock disk"); type it on this keyboard. If early-boot SSH has been configured and tested, use <code>ssh -p 2222 root@&lt;boot-LAN-IP&gt;</code> from the trusted LAN. Tailscale is unavailable before unlock. A supported TPM 2.0 may unlock automatically after a supervised test. Bradly and Kristina keep the passphrase on the safe card; it is not written here.</td></tr>
 <tr><td>Rebuild</td><td><code>sudo arisectl reinstall</code> from the Synology or Arise-Home (docs/REINSTALL.md)</td></tr></table>
 <h2>Who to call</h2><table>{who}</table>
 <h2>Staff with a Mac problem</h2><table><tr><td>The IT portal</td><td><code>{e(it_portal())}</code> &nbsp;a ticket reaches Bradly</td></tr></table>

@@ -32,7 +32,7 @@ mode, not that it has run on the Dell.
 | Previous Versions | right-click a file in Finder, see last night's and last week's copy from the backup, put one back beside the original (r3 2) | built |
 | System Settings | one window: appearance, users, sharing, backups, updates, time, notifications, about (r3 3) | built |
 | Software Update | security automatic as now; the rest listed with a badge, installed on his click in the Saturday 03:30 window, a snapshot first (r3 4, 23, 25) | built |
-| Store | the core five preinstalled (Oct 30, H4; every other template one click away), within the memory budget (RAM shown), a catalogue of 35 more free apps, start/stop/open, a cap on every app (r3 5, 40) | built (docs/STORE.md) |
+| Store | H4 core five installed by default: Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser; other templates and 35 catalogue apps available to install; `--apps all` explicit; starts checked against aggregate container caps | built (docs/STORE.md); selected workloads still need a real load test |
 | Activity Monitor, Logs, Automations, Storage | the four admin tools every OS has (r3 6, 7, 8, 9) | built (docs/SYSTEM-APPS.md) |
 | Calendar | one church calendar on the server; an ICS feed every Mac and phone subscribes to (r3 10) | built (docs/EVERYDAY.md) |
 | Notes, Photos | Trilium and Immich as the Notes and Photos icons, for admins and the Staff and Media groups (r3 11, 12) | built |
@@ -44,7 +44,7 @@ mode, not that it has run on the Dell.
 | Help, What's New, password meter | the docs in the dashboard, the note after an update, the rules at a change (r3 34, 35, 36) | built |
 | 2FA | optional, per person; Microsoft Authenticator when they opt in (r2 11, Oct 28) | built (docs/SECURITY.md) |
 | Break-glass admin | `arise-rescue` for when the domain is down; the closet monitor only; logged and pushed (r3 21) | built |
-| Encryption | LUKS chosen at the Ubuntu install; the installer or `arisectl encrypt tpm` binds it to the TPM; the passphrase on the safe card (r3 22) | built; untested on a real TPM |
+| Encryption | LUKS chosen at Ubuntu install; H3 passphrase boot on the expected HP TPM 1.2; H6 allows verified TPM 2.0 binding if present; optional restricted LAN SSH unlock; passphrase on the closet card | physical boot/unlock rehearsal required (docs/SECURITY.md) |
 | Rollback, reinstall | a system snapshot before each update; `arisectl reinstall` from the Synology (r3 23, 24) | built (docs/REINSTALL.md); the first real reinstall is a rehearsal (r4 105) |
 | Virus scan | ClamAV Sunday night, quarantine, a report, a push (r3 28) | built |
 | Church CA | Caddy on by default; `/ca.crt`; enroll-mac.sh trusts it (r3 29) | built |
@@ -88,7 +88,7 @@ decisions not yet built, grouped. Costs are honest estimates.
 | Mail export logged | admins only, in the audit (80) | nothing | small |
 | Easter eggs, the anniversary | the Konami code lights the flame, a verse typed in Spotlight, the About flame on the anniversary; only the year 2018 is known, no day is invented (83, 84) | the founding date, if there is one | small |
 | The reboot rule | the Saturday reboot waits until nobody is signed in (92) | nothing | small |
-| Time Machine, the Synology layout, the disk split | two backups per Mac kept; three drives one volume and one drive for the backups; the partition plan (58, 55, 91) | the Synology model and the PCs' specs on Friday | a day |
+| Time Machine, the Synology layout, the disk split | DS216 has two bays and ext4: one drive initially, then a two-drive mirror; no Btrfs snapshots. Homes/shares/apps remain on the HP; NAS holds media/recordings/backups (H2/H6) | verify actual disks, existing data, backup space and restores before changes | measured during rehearsal |
 | Decided, nothing built | no prayer box (93), no hot corners, no Wake-on-LAN (41), no remote Mac screens (42), no chat server (89), Nextcloud stays stopped (90; replaced by round 6, 14: it is the sync now), Cockpit stays (34), KJV (51), Proclaim keeps the lobby TV (10), the automator keeps its PC backups and the server runs the real job (95, 96), the YouTube token question is with the automator chat (97) | | |
 
 ## v0.9 "Leviticus": Sunday

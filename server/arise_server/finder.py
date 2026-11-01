@@ -343,20 +343,22 @@ def zip_path(root_id: str, rel: str, who=None) -> dict:
     if not got or not os.path.exists(got[1]):
         return {"ok": False, "err": "no such file"}
     t = got[1]
-    total = os.path.getsize(t) if os.path.isfile(t) else folder_size(t, limit_seconds=20)[0]
+    from .archive_safe import members, write_member
+    single = os.path.isfile(t)
+    selected = [(t, os.path.basename(t), os.path.getsize(t))] if single else members(t, who)
+    total = sum(size for _, _, size in selected)
     if total > ZIP_MAX:
         return {"ok": False, "err": f"{name} is over 2 GB ({total / 1024 ** 3:.1f} GB); too big to zip here. Open it on the share instead."}
     tmp = tempfile.mkdtemp(prefix="arise-zip-")
     out = os.path.join(tmp, name + ".zip")
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        if os.path.isfile(t):
-            z.write(t, name)
-        else:
-            for dp, dirs, fs in os.walk(t):
-                dirs[:] = [d for d in dirs if d != ".Trash"]
-                for f in fs:
-                    p = os.path.join(dp, f)
-                    z.write(p, os.path.join(name, os.path.relpath(p, t)))
+    try:
+        with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+            for full, relative, _ in selected:
+                write_member(z, os.path.dirname(t) if single else t, relative,
+                             name if single else os.path.join(name, relative), who)
+    except (OSError, ValueError):
+        shutil.rmtree(tmp)
+        return {"ok": False, "err": "A file changed or permission was lost while preparing the archive; try again."}
     return {"ok": True, "demo": False, "zip": out, "name": name + ".zip", "bytes": os.path.getsize(out)}
 
 

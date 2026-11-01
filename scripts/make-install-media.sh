@@ -3,7 +3,7 @@
 #
 #   bash scripts/make-install-media.sh                 the add-on disc and the USB files
 #   bash scripts/make-install-media.sh --full          also the one ariseOS ISO (about 3 GB)
-#   bash scripts/make-install-media.sh --full --ubuntu-iso ~/ubuntu-24.04.3-live-server-amd64.iso
+#   bash scripts/make-install-media.sh --full --working-tree --ubuntu-iso /path/to/ubuntu.iso --ubuntu-sha256 TRUSTED_SHA256
 #   bash scripts/make-install-media.sh --test-identity a TEST build: the identity is filled
 #                                                      in (user tester), so a VM run is fully
 #                                                      unattended. Never for a real box.
@@ -26,12 +26,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/dist"
 FULL=0
+WORKING_TREE=0
+UBUNTU_SHA256=""
 UBUNTU_ISO=""
 TEST_IDENTITY=0
 UBUNTU_REL="https://releases.ubuntu.com/24.04"
 while [ $# -gt 0 ]; do
   case "$1" in
     --full) FULL=1; shift ;;
+    --working-tree) WORKING_TREE=1; shift ;;
+    --ubuntu-sha256) UBUNTU_SHA256="$2"; shift 2 ;;
     --ubuntu-iso) UBUNTU_ISO="$2"; shift 2 ;;
     --test-identity) TEST_IDENTITY=1; shift ;;
     --out) OUT="$2"; shift 2 ;;
@@ -43,22 +47,54 @@ say() { printf '  %s\n' "$*"; }
 die() { printf '  ! %s\n' "$*" >&2; exit 1; }
 command -v xorriso >/dev/null || die "xorriso is needed: sudo apt install xorriso (Mac: brew install xorriso)"
 command -v zip >/dev/null || die "zip is needed: sudo apt install zip"
+command -v sha256sum >/dev/null || die "sha256sum is needed (Linux: coreutils; Mac: brew install coreutils)"
+python3 -c 'import yaml' 2>/dev/null || die "Python 3 and PyYAML are needed (Ubuntu: sudo apt install python3-yaml)"
+[ -z "$UBUNTU_SHA256" ] || [[ "$UBUNTU_SHA256" =~ ^[a-fA-F0-9]{64}$ ]] || die "--ubuntu-sha256 must be a SHA-256 from a trusted Ubuntu checksum list"
 VERSION="$(sed -n 's/^VERSION = "\(.*\)"/\1/p' "$ROOT/server/arise_server/__init__.py" | head -1)"
 [ -n "$VERSION" ] || die "no VERSION in server/arise_server/__init__.py"
 
 STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 mkdir -p "$OUT" "$STAGE/arise"
 
-# 1. the code: the committed tree (git archive), so nothing local or secret rides along
-if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-  if [ -n "$(git -C "$ROOT" status --porcelain -- . ':!dist' 2>/dev/null)" ]; then
-    say "note: uncommitted changes are NOT on the media (it carries the last commit)"
-  fi
-  git -C "$ROOT" archive --format=tar.gz -o "$STAGE/arise/ariseos-src.tar.gz" HEAD
-  COMMIT="$(git -C "$ROOT" rev-parse --short HEAD)"
+# 1. Export an explicit source snapshot. Never include untracked local files.
+if ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+  die "Build from a Git checkout so the payload has an explicit tracked-file allowlist"
+fi
+COMMIT="$(git -C "$ROOT" rev-parse --short HEAD)"
+if [ "$WORKING_TREE" = 1 ]; then
+  say "REVIEW BUILD: includes current tracked working files, including staged additions; untracked files are excluded"
+  python3 - "$ROOT" "$STAGE/arise/ariseos-src.tar.gz" <<'PYEXPORT'
+import io, os, pathlib, re, subprocess, sys, tarfile
+root = pathlib.Path(sys.argv[1]).resolve()
+paths = subprocess.check_output(["git", "-C", str(root), "ls-files", "--cached", "-z"]).split(b"\0")
+forbidden = {".env", "token.json", "client_secret.json", ".mcp.json", "id_rsa", "id_ed25519"}
+secret = re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|1//[A-Za-z0-9_-]{30,}|GOCSPX-[A-Za-z0-9_-]{20,}|ya29\.[A-Za-z0-9_-]{30,}")
+with tarfile.open(sys.argv[2], "w:gz") as archive:
+    for raw in sorted(set(paths)):
+        if not raw:
+            continue
+        rel = pathlib.PurePosixPath(os.fsdecode(raw))
+        if rel.is_absolute() or ".." in rel.parts or any(p in {".git", "dist", "node_modules", "venv", "secrets"} for p in rel.parts) or rel.name in forbidden:
+            raise SystemExit(f"Refusing sensitive or generated tracked path: {rel}")
+        path = root / rel
+        if not path.exists() and not path.is_symlink():
+            continue  # a tracked deletion belongs in this working snapshot
+        if path.is_symlink():
+            target = path.resolve()
+            if not target.is_relative_to(root):
+                raise SystemExit(f"Refusing symlink outside source: {rel}")
+            raise SystemExit(f"Review build requires regular tracked files: {rel}")
+        data = path.read_bytes()
+        if secret.search(data):
+            raise SystemExit(f"Possible credential in {rel}; build stopped without printing it")
+        info = archive.gettarinfo(str(path), arcname=str(rel))
+        info.uid = info.gid = 0; info.uname = info.gname = "root"
+        archive.addfile(info, io.BytesIO(data))
+PYEXPORT
+  COMMIT="$COMMIT+reviewed-working-tree"
 else
-  tar -czf "$STAGE/arise/ariseos-src.tar.gz" -C "$ROOT" --exclude=.git --exclude=dist --exclude=node_modules .
-  COMMIT="not a git checkout"
+  [ -z "$(git -C "$ROOT" status --porcelain -- . ':!dist' 2>/dev/null)" ] || die "Working files differ from HEAD. Review them, then build with --working-tree, or build a clean commit."
+  git -C "$ROOT" archive --format=tar.gz -o "$STAGE/arise/ariseos-src.tar.gz" HEAD
 fi
 printf 'ariseOS %s (%s), made %s\n' "$VERSION" "$COMMIT" "$(date -u +%Y-%m-%dT%H:%MZ)" > "$STAGE/arise/VERSION"
 (cd "$STAGE/arise" && sha256sum ariseos-src.tar.gz > SHA256SUMS)
@@ -72,8 +108,8 @@ if [ "$TEST_IDENTITY" = 1 ]; then
 import sys
 p, h = sys.argv[1], sys.argv[2]
 s = open(p).read()
-s = s.replace("  interactive-sections:\n    - identity\n",
-              "  # TEST BUILD: the identity is filled in so a VM run needs no typing. Never for a real box.\n"
+s = s.replace("  interactive-sections:\n    - storage\n    - identity\n",
+              "  interactive-sections:\n    - storage\n  # TEST BUILD: identity supplied, but disk selection remains interactive.\n"
               "  identity:\n    realname: ariseOS test\n    username: tester\n    hostname: arise-server\n"
               f"    password: \"{h}\"\n", 1)
 open(p, "w").write(s)
@@ -115,9 +151,17 @@ if [ "$FULL" = 1 ]; then
     say "$NAME matches Ubuntu's SHA256SUMS"
   fi
   [ -f "$UBUNTU_ISO" ] || die "no Ubuntu ISO at $UBUNTU_ISO"
+  if [ -n "$UBUNTU_SHA256" ]; then
+    GOT="$(sha256sum "$UBUNTU_ISO" | cut -d' ' -f1)"
+    [ "${GOT,,}" = "${UBUNTU_SHA256,,}" ] || die "Supplied Ubuntu ISO does not match its trusted SHA-256"
+  elif [ -z "${WANT:-}" ]; then
+    die "--ubuntu-iso requires --ubuntu-sha256 from a verified Ubuntu checksum list"
+  fi
   # the boot menu: a first entry with `autoinstall` (no "continue?" question), the rest as Ubuntu made them
-  xorriso -osirrox on -indev "$UBUNTU_ISO" -extract /boot/grub/grub.cfg "$STAGE/grub.orig.cfg" >/dev/null 2>&1 \
-    || die "could not read /boot/grub/grub.cfg from the Ubuntu ISO"
+  xorriso -osirrox on -indev "$UBUNTU_ISO" \
+    -extract /boot/grub/grub.cfg "$STAGE/grub.orig.cfg" \
+    -extract /md5sum.txt "$STAGE/md5sum.orig.txt" >/dev/null 2>&1 \
+    || die "could not read the boot menu and integrity manifest from the Ubuntu ISO"
   python3 - "$STAGE/grub.orig.cfg" "$STAGE/grub.cfg" <<'PY'
 import re, sys
 src, dst = sys.argv[1], sys.argv[2]
@@ -131,19 +175,54 @@ if not lin:
     sys.exit("no linux line in the first menuentry")
 args = lin.group(2)
 args = args.replace("---", "autoinstall ---", 1) if "---" in args else args + " autoinstall"
-entry = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install ariseOS (ERASES the disk you confirm)"', first, count=1)
+entry = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install ariseOS (choose disk and encryption on screen)"', first, count=1)
 entry = entry.replace(lin.group(0), f"\tlinux\t{lin.group(1)}{args}", 1)
 hand = re.sub(r'^menuentry\s+"[^"]*"', 'menuentry "Install by hand (the plain Ubuntu installer)"', first, count=1)
 s = s[:m.start()] + entry + "\n" + hand + "\n" + s[m.end():]
-# never boot the erasing entry by itself: wait for a choice
+# never boot an installation entry by itself: wait for a choice
 s = re.sub(r'(?m)^set timeout=.*$', 'set timeout=-1', s) if re.search(r'(?m)^set timeout=', s) else "set timeout=-1\n" + s
 open(dst, "w").write(s)
 PY
+  # Ubuntu's live media checker reads md5sum.txt. Keep its original entries
+  # for untouched files, replace changed mappings, and cover the added payload.
+  # This compatibility manifest does not replace the trusted base ISO SHA-256.
+  python3 - "$STAGE" <<'PYMD5'
+import hashlib, pathlib, re, sys
+stage = pathlib.Path(sys.argv[1])
+mapped = {"./boot/grub/grub.cfg": stage / "grub.cfg",
+          "./autoinstall.yaml": stage / "autoinstall.yaml"}
+for path in sorted((stage / "arise").rglob("*")):
+    if path.is_file():
+        mapped["./arise/" + path.relative_to(stage / "arise").as_posix()] = path
+kept = []
+seen = set()
+for line in (stage / "md5sum.orig.txt").read_text().splitlines():
+    if not line.strip():
+        continue
+    match = re.fullmatch(r"([0-9a-fA-F]{32}) [ *](.+)", line)
+    if not match:
+        raise SystemExit("Unsupported Ubuntu checksum manifest format; build stopped")
+    name = match.group(2)
+    normalized = "./" + name.removeprefix("./")
+    if normalized == "./md5sum.txt" or normalized in mapped or normalized.startswith("./arise/"):
+        continue
+    if normalized in seen:
+        raise SystemExit("Duplicate original media checksum path; build stopped")
+    seen.add(normalized)
+    kept.append(line)
+for name, path in sorted(mapped.items()):
+    digest = hashlib.md5(usedforsecurity=False)
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    kept.append(f"{digest.hexdigest()}  {name}")
+(stage / "md5sum.txt").write_text("\n".join(kept) + "\n")
+PYMD5
   FULL_ISO="$OUT/ariseos-$VERSION-amd64$SUF.iso"
   rm -f "$FULL_ISO"
   xorriso -indev "$UBUNTU_ISO" -outdev "$FULL_ISO" -volid ARISEOS_2404 \
     -map "$STAGE/arise" /arise -map "$STAGE/autoinstall.yaml" /autoinstall.yaml \
-    -map "$STAGE/grub.cfg" /boot/grub/grub.cfg \
+    -map "$STAGE/grub.cfg" /boot/grub/grub.cfg -map "$STAGE/md5sum.txt" /md5sum.txt \
     -boot_image any replay >/dev/null 2>&1 || die "xorriso could not make $FULL_ISO"
   say "the ariseOS ISO: dist/$(basename "$FULL_ISO") ($(du -h "$FULL_ISO" | cut -f1))"
 fi

@@ -33,6 +33,9 @@ CACERT="$DB/arise-ca.crt"
 LOG=/var/log/arise-helper.log
 CMA=/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount
 TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale
+# Publisher recorded by Installomator's fragments/labels/tailscale.sh (checked 2026-10-30).
+# https://github.com/Installomator/Installomator/blob/main/fragments/labels/tailscale.sh
+TS_TEAM=W5364U7YZB
 
 log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG"; }
 die() { log "ERROR $*"; exit 1; }
@@ -55,6 +58,8 @@ load_conf() {
   MAC_ID="$(sed -n 's/^MAC_ID=//p' "$CONF" | head -1)"
   KEY="$(cat "$KEYF" 2>/dev/null)"
   [ -n "$SERVER" ] && [ -n "$MAC_ID" ] && [ -n "$KEY" ] || die "helper.conf or helper.key is incomplete"
+  case "$SERVER" in https://*) ;; *) die "HTTPS is required; re-enroll with the verified line from the dashboard" ;; esac
+  [ -s "$CACERT" ] || die "the pinned church certificate is missing; re-enroll this Mac"
   # curl reads the key from a root-only header file: on its command line, ps would show it to anyone.
   ( umask 077; printf 'X-Arise-Mac: %s:%s\n' "$MAC_ID" "$KEY" > "$DB/helper.hdr" )
 }
@@ -93,7 +98,15 @@ accounts() {   # user|kind|uid|admin|home|signed_in|realname|last_login
   done
 }
 fv_state() { fdesetup status 2>/dev/null | grep -q "^FileVault is On" && echo on || echo off; }
-ts_state() { if [ -x "$TS" ]; then "$TS" status >/dev/null 2>&1 && echo up || echo down; else echo "not installed"; fi; }
+ts_state() {
+  if [ ! -x "$TS" ]; then echo "not installed"; return; fi
+  local app="${TS%/Contents/MacOS/Tailscale}"
+  # Facts/check-ins execute this binary as root too; check an existing app before running it.
+  if ! codesign --verify --deep --strict "$app" >/dev/null 2>&1 || [ "$(app_team "$app")" != "$TS_TEAM" ]; then
+    echo untrusted; return
+  fi
+  "$TS" status >/dev/null 2>&1 && echo up || echo down
+}
 # The disk the person's files are on (the APFS Data volume on macOS 10.15 and later), in percent.
 disk_used() { { df -k /System/Volumes/Data 2>/dev/null || df -k / 2>/dev/null; } | awk 'NR==2{gsub(/%/,"",$5); print $5; exit}'; }
 facts() {
@@ -180,6 +193,13 @@ t_remove_profile() {
   if ! dscl . -read "/Users/$user" >/dev/null 2>&1; then report "$id" done "not on this Mac"; return; fi
   is_mobile "$user" || { report "$id" refused "$user is a local account here; only AD accounts are removed"; return; }
   in_use "$user" && { report "$id" refused "$user is signed in (or has something running); tried again next time"; return; }
+  # A token/volume owner is an unlock path, even when the user is disabled in AD.
+  # Leave its removal to an admin who can verify another owner and recovery key.
+  case "$(token_state "$user")" in
+    disabled) ;;
+    enabled) report "$id" refused "$user holds a Secure Token; an admin must verify FileVault recovery and remove this profile manually"; return ;;
+    *) report "$id" refused "could not determine $user's Secure Token status; nothing removed"; return ;;
+  esac
   home="$(home_of "$user")"
   case "$home" in
     /Users/Shared|/Users/Shared/*|"/Users/Deleted Users"*) report "$id" refused "$user's home is '$home'; left for an admin"; return ;;
@@ -200,10 +220,9 @@ t_remove_profile() {
   chmod 600 "$keep"
   # sysadminctl exits 0 even when it did nothing, so the record itself is the answer.
   sysadminctl -deleteUser "$user" >>"$LOG" 2>&1
-  if dscl . -read "/Users/$user" >/dev/null 2>&1; then dscl . -delete "/Users/$user" >>"$LOG" 2>&1 && rm -rf "$home"; fi
   if ! dscl . -read "/Users/$user" >/dev/null 2>&1; then
     report "$id" done "removed after the server confirmed ${ans#OK } files; the rest of their Mac folder is kept in $keep"
-  else report "$id" failed "could not delete $user (see $LOG); the copy $keep stays"; fi
+  else report "$id" failed "macOS refused to delete $user; the account and saved copy remain for an admin (see $LOG)"; fi
 }
 
 # ----- an existing local account: convert (becomes the server user) or link ----------------
@@ -211,6 +230,10 @@ t_remove_profile() {
 # Deleting the local record takes its token with it, and nothing on this Mac can hand a token to
 # the new mobile account without a token holder's password, which the helper never has.
 has_token() { sysadminctl -secureTokenStatus "$1" 2>&1 | grep -q ENABLED; }
+token_state() {
+  local status; status="$(sysadminctl -secureTokenStatus "$1" 2>&1)"
+  case "$status" in *ENABLED*) echo enabled ;; *DISABLED*) echo disabled ;; *) echo unknown ;; esac
+}
 other_token_holder() {   # another account on this Mac that keeps a token after $1 is gone
   local u uid
   dscl . -list /Users UniqueID | while read -r u uid; do
@@ -535,6 +558,8 @@ t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 
   # The current one is kept as well (root, 0600; the server holds it anyway): an account with a
   # Secure Token must change its password with the old one (dscl -passwd), or FileVault's copy of
   # it goes stale. sysadminctl's exit code is not trusted: the record is checked instead.
+  # Apple account tools below still take credentials in argv. Their interactive input is not
+  # verified for an unattended daemon; docs/MACS.md records this remaining exposure explicitly.
   local id="$1" pw cur p="$DB/ariseadmin.pending" c="$DB/ariseadmin.current"
   if [ -s "$p" ]; then pw="$(cat "$p")"
   else pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"; ( umask 077; printf '%s' "$pw" > "$p" ); fi
@@ -558,18 +583,28 @@ t_ariseadmin() {   # the hidden admin, its password rotated and escrowed (round 
 }
 
 t_filevault() {   # on, deferred to the next sign-in; the recovery key escrowed (round 6, 10)
-  local id="$1" key kf
+  local id="$1" key kf state
+  state="$(fv_state)"
   if [ -f "$DB/fv.plist" ]; then
     key="$(defaults read "$DB/fv.plist" RecoveryKey 2>/dev/null)"
     kf="$DB/fv.key"; ( umask 077; printf '%s' "$key" > "$kf" )   # from a file, never the command line
-    if [ -n "$key" ] && api secret --data-urlencode "kind=filevault" --data-urlencode "value@$kf" >/dev/null 2>&1; then
-      rm -f "$DB/fv.plist" "$kf"; report "$id" done "FileVault on; recovery key escrowed"; return
+    if [ -n "$key" ] && [ "$state" = on ] && api secret --data-urlencode "kind=filevault" --data-urlencode "value@$kf" >/dev/null 2>&1; then
+      rm -f "$DB/fv.plist" "$kf" "$DB/fv-pending"
+      ( umask 077; printf '%s' "$MAC_ID" > "$DB/fv-escrowed" )
+      report "$id" done "FileVault on; recovery key escrowed"; return
     fi
     rm -f "$kf"
+    report "$id" pending "FileVault recovery is pending; waiting for encryption and verified server escrow"; return
   fi
-  if [ "$(fv_state)" = on ]; then report "$id" done "FileVault already on (its key was escrowed at enrolment, or turn it off and on to escrow)"; return; fi
+  if [ "$state" = on ]; then
+    if [ "$(cat "$DB/fv-escrowed" 2>/dev/null)" = "$MAC_ID" ]; then report "$id" done "FileVault is on; this enrollment previously confirmed key escrow"
+    else report "$id" refused "FileVault is on but recovery-key escrow is unverified; ask an admin to rotate and escrow its recovery key with the user's authorization"; fi
+    return
+  fi
+  if [ -f "$DB/fv-pending" ]; then report "$id" pending "FileVault enablement is waiting for the user's sign-in; recovery-key escrow is not complete"; return; fi
   if fdesetup enable -defer "$DB/fv.plist" -forceatlogin 0 -dontaskatlogout >>"$LOG" 2>&1; then
-    report "$id" skipped "FileVault turns on at the next sign-in; the key is escrowed after that"
+    ( umask 077; touch "$DB/fv-pending" )
+    report "$id" pending "FileVault turns on at the next sign-in; recovery-key escrow will be retried on subsequent check-ins"
   else report "$id" failed "fdesetup refused (see $LOG)"; fi
 }
 
@@ -653,15 +688,27 @@ t_updates() {   # security patches for this macOS, overnight; never a new macOS 
 }
 
 t_tailscale() {
-  local st; st="$(ts_state)"
+  local id="$1" st tmp pkg; st="$(ts_state)"
   if [ "$st" = "not installed" ]; then
-    curl -fsSL -o /tmp/tailscale.pkg https://pkgs.tailscale.com/stable/Tailscale-latest-macos.pkg >>"$LOG" 2>&1 && installer -pkg /tmp/tailscale.pkg -target / >>"$LOG" 2>&1
-    rm -f /tmp/tailscale.pkg; st="$(ts_state)"
+    tmp="$(mktemp -d /tmp/arise-tailscale.XXXXXX)" || { report "$id" failed "could not create a private download directory"; return; }
+    chmod 700 "$tmp"; pkg="$tmp/Tailscale.pkg"
+    if ! curl -fsSL --max-time 900 -o "$pkg" https://pkgs.tailscale.com/stable/Tailscale-latest-macos.pkg >>"$LOG" 2>&1; then
+      rm -rf "$tmp"; report "$id" failed "Tailscale download failed"; return
+    fi
+    if ! pkg_ok "$pkg" "$TS_TEAM"; then
+      rm -rf "$tmp"; report "$id" refused "Tailscale package is not notarized and signed by the expected publisher ($TS_TEAM)"; return
+    fi
+    if ! installer -pkg "$pkg" -target / >>"$LOG" 2>&1; then
+      rm -rf "$tmp"; report "$id" failed "Tailscale installer failed"; return
+    fi
+    rm -rf "$tmp"; st="$(ts_state)"
   fi
   # Off-site, the server is reached at its church address through its advertised Tailscale route
   # (docs/REMOTE-ACCESS.md): the check-ins, Nextcloud and the shares all keep working (round 6, 17).
-  [ "$st" = up ] && "$TS" set --accept-routes=true >>"$LOG" 2>&1
-  case "$st" in up) report "$1" done "Tailscale is up, using the church route" ;; down) report "$1" skipped "Tailscale is installed but signed out: sign in once with the church's Tailscale login" ;; *) report "$1" failed "Tailscale could not be installed" ;; esac
+  if [ "$st" = up ] && ! "$TS" set --accept-routes=true >>"$LOG" 2>&1; then
+    report "$id" failed "Tailscale is up but subnet-route acceptance could not be enabled"; return
+  fi
+  case "$st" in up) report "$id" done "Tailscale is up; subnet-route acceptance enabled (the church route must also be approved in Tailscale)" ;; down) report "$id" skipped "Tailscale is installed but signed out: sign in once with the church's Tailscale login" ;; untrusted) report "$id" refused "installed Tailscale app failed its expected-publisher signature check" ;; *) report "$id" failed "Tailscale could not be installed" ;; esac
 }
 
 t_nextcloud() {   # R6-SYNC fills tasks/nextcloud.sh: install and set up the Nextcloud client for this user

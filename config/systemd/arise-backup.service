@@ -13,9 +13,12 @@ WorkingDirectory=/opt/arise
 # Persistent= catch-up inside that window is skipped, not failed. arisectl service-now.
 ExecCondition=/usr/local/bin/arisectl service-now --quiet
 ExecStart=/usr/local/bin/arisectl backup run
+# Runs even if the backup was terminated: restore precisely its prior running apps.
+ExecStopPost=/opt/arise/venv/bin/python -c "from arise_server.backups import resume_apps; import sys; r=resume_apps(); print(r); sys.exit(0 if r['ok'] else 1)"
 Environment=PYTHONUTF8=1
 Environment=ARISE_CONFIG=/etc/arise/arise.toml
 TimeoutStartSec=6h
+TimeoutStopSec=15min
 Nice=10
 IOSchedulingClass=idle
 StandardOutput=append:/var/log/arise/backup.log

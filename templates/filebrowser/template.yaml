@@ -8,7 +8,7 @@ ports:
   - 8081:80
 volumes:
   - /srv/arise/shares:/srv
-  - /srv/arise/apps/filebrowser:/database
+  - /srv/arise/apps/filebrowser/database:/database
   - /srv/arise/apps/filebrowser/config:/config
 env:
   FB_BASEURL: ""
@@ -20,3 +20,7 @@ limits:
 notes: |
   First login is admin / admin. Change it immediately (Settings > User Management).
   It runs as the 'arise' user (uid 1500) so it can only touch what that user can.
+  App logins are separate from Samba domain identities. Only its database/ and
+  config/ directories are owned by that service user; the app .env remains root-only.
+  Redeployment copies a legacy filebrowser.db into database/ after stopping the
+  old container, retaining the original file. Existing new-layout data is never overwritten.

@@ -1,105 +1,83 @@
-# Making the install media
+# Making the ariseOS install media
 
-The install takes two pieces: Ubuntu Server 24.04 and ariseOS. Ubuntu asks
-who you are (your name, a user name, a password, the server name:
-`arise-server`). Then it shows **Ubuntu's disk screen** (set to the largest disk: check it, and tick **Encrypt the LVM group with LUKS**, docs/SECURITY.md), **erases that disk**, installs itself and
-ariseOS without more questions, and restarts. On that first boot the ariseOS
-wizard comes up on the monitor. It asks whether the box is at the church or
-at home, the domain password, the Synology and the rest, finishes the
-install and restarts into the Arise desktop (INSTALL.md, Path C).
+The finished ISO provides an on-screen Ubuntu disk/encryption and identity
+setup, followed by the ariseOS wizard and desktop. The target user does not
+need to type shell commands. An internet connection is needed for package
+installation; this is not an offline image with every app pre-downloaded.
 
-The media carries the code (the repo is private, so the install never runs
-`git clone`) and no password.
+## Build on a development machine
 
-**Back up the old PC first.** Whatever is on the disk you confirm is gone.
+Required: Git, Python 3 with PyYAML, xorriso, zip, curl, and `sha256sum`
+(coreutils). On Ubuntu: install `xorriso zip python3-yaml curl coreutils`.
+On macOS, install equivalent tools; stock macOS lacks `sha256sum`.
 
-## 1. Make the files
-
-On any Linux box or Mac with the repo (the server itself works, and so does
-a VM). You need `xorriso` and `zip` (`sudo apt install xorriso zip`, or
-`brew install xorriso` on a Mac).
+From a clean, tested Git checkout:
 
 ```bash
-bash scripts/make-install-media.sh            # the add-on disc and the USB files (a few MB)
-bash scripts/make-install-media.sh --full     # also the one ariseOS ISO (about 3 GB, needs 8 GB free)
+bash scripts/make-install-media.sh --full
 ```
 
-Out, in `dist/`:
+For a reviewed change that has not been committed:
 
-| File | What | Use it for |
-|---|---|---|
-| `ariseos-<version>-amd64.iso` | the official Ubuntu 24.04 server ISO with ariseOS inside (`--full`) | **the easy way**: one file, one stick |
-| `ariseos-addon.iso` | a small disc labelled `CIDATA` with the config and the code | VirtualBox (a second optical drive), or a second stick |
-| `ariseos-addon.zip` | the same files for a Rufus stick | Windows and Rufus with the plain Ubuntu ISO |
-| `SHA256SUMS` | their checksums | check a copy before writing it |
+```bash
+bash scripts/make-install-media.sh --full --working-tree
+```
 
-The media holds the last commit, not uncommitted changes (the script says so
-when there are some).
+`--working-tree` includes the current contents of tracked files, including
+reviewed staged additions and deletions. Untracked files are excluded.
+It rejects sensitive filenames, external/special symlinks, and recognizable
+credential material instead of silently adding local files. Review and
+stage intended new source files before using it. The default build refuses
+a dirty checkout so it cannot silently ship an old commit with new metadata.
+No build changes Git history.
 
-`--full` downloads `ubuntu-24.04.x-live-server-amd64.iso` from
-releases.ubuntu.com and checks it against Ubuntu's `SHA256SUMS` before using
-it (or use one you already have: `--ubuntu-iso PATH`). Its boot records are
-Ubuntu's own (`xorriso -boot_image any replay`), so it boots wherever the
-Ubuntu ISO boots, BIOS or UEFI, Secure Boot on or off. Its boot menu:
+To reuse an Ubuntu ISO, verify it against Ubuntu's authoritative published
+checksum list (and signature) first, then pass that expected SHA-256:
 
-1. **Install ariseOS (ERASES the disk you confirm)**: the hands-off install.
-2. **Install by hand (the plain Ubuntu installer)**: no autoinstall (INSTALL.md, Path A).
+```bash
+bash scripts/make-install-media.sh --full --working-tree \
+  --ubuntu-iso /path/to/ubuntu-24.04-live-server-amd64.iso \
+  --ubuntu-sha256 EXPECTED_64_CHARACTER_SHA256
+```
 
-The menu waits for a choice; it never starts the erasing entry by itself.
+The builder compares the supplied file with that checksum. Without a local
+ISO it downloads from `https://releases.ubuntu.com/24.04/` and verifies the
+image against that site's SHA256SUMS. TLS and checksum verification stay on.
+The full image needs space for both source and remastered ISOs (at least
+8 GB, plus sufficient margin for the actual image size).
 
-## 2. Write a stick (8 GB or larger; it gets wiped)
+Outputs in `dist/`:
 
-### The one ariseOS ISO (easiest)
+- `ariseos-<version>-amd64.iso`: the complete bootable installer (`--full`).
+- `ariseos-addon.iso`: CIDATA payload for use alongside a plain Ubuntu ISO.
+- `ariseos-addon.zip`: payload for a Rufus ISO-mode Ubuntu USB.
+- `SHA256SUMS`: checksums for the finished artifacts.
 
-- **Windows**: Rufus (https://rufus.ie). **Device** = the stick (check the
-  size), **Boot selection** = `ariseos-<version>-amd64.iso`, START, and
-  choose **Write in DD Image mode** when asked.
-- **Mac**:
+The source payload has its own checksum and version/source-snapshot marker.
+Missing or damaged payloads stop installation instead of producing a false
+success. The media preserves Ubuntu's boot records; BIOS/UEFI/Secure Boot
+compatibility still requires a real boot test on the target configuration.
 
-  ```bash
-  diskutil list                          # find the stick, e.g. /dev/disk4
-  diskutil unmountDisk /dev/disk4        # unmount, do not eject
-  sudo dd if=dist/ariseos-0.8.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
-  diskutil eject /dev/disk4              # "unreadable disk" before this is normal: Ignore
-  ```
+`--test-identity` is only for a disposable VM: it supplies a known test
+account but still asks for disk selection. Never use a TEST artifact on
+production hardware.
 
-### The plain Ubuntu ISO plus the add-on (when there is no `--full` ISO)
+## Use the finished ISO
 
-Download `ubuntu-24.04.x-live-server-amd64.iso` from
-https://releases.ubuntu.com/24.04/ and check it against the `SHA256SUMS`
-file on that page (`Get-FileHash .\ubuntu-24.04.3-live-server-amd64.iso -Algorithm SHA256`
-in PowerShell, `shasum -a 256` on a Mac).
+In VirtualBox, attach it as the boot optical disk and choose **Skip
+Unattended Installation**. On physical hardware, write it to a verified
+empty USB with Rufus **DD Image mode** (the USB will be erased). Boot it
+from the computer's one-time boot menu. Keep unrelated disks disconnected.
 
-- **Windows, one stick**: write the Ubuntu ISO with Rufus in **ISO Image
-  mode** (GPT / UEFI unless the old PC is BIOS-only). Then unzip
-  `ariseos-addon.zip` onto the stick's root, so `autoinstall.yaml` and the
-  `arise` folder sit next to `casper` and `boot`. Eject.
-- **Mac, two sticks**: `dd` the Ubuntu ISO to the first stick as above (a
-  `dd` stick is read-only), and `dd` `dist/ariseos-addon.iso` to a second
-  one. Plug in both. The installer finds the second by its `CIDATA` label.
+Select **Install ariseOS (choose disk and encryption on screen)**. On Storage,
+select the intended disk, LVM and encryption, and inspect the final disk
+confirmation. On Identity create the local owner account. Remove/eject the
+media on the first reboot and follow the ariseOS setup screens. Core five
+apps are selected by default; directory-only remains an isolated-test choice.
+The HP EliteDesk 800 G1 requires the disk passphrase after each restart;
+keep its keyboard available. The final
+reboot opens the desktop. See `INSTALL.md` for the complete screen sequence.
 
-With the plain Ubuntu ISO, the installer asks once, "Continue with
-autoinstall?" Type `yes`.
-
-## 3. Boot the old PC from it
-
-1. Plug the stick into a rear USB port (front ports on old PCs are often
-   USB 1.1, and the boot takes forever).
-2. Power on and press the boot-menu key: **F12** on most Dells and Lenovos,
-   **F8** on ASUS, **F11** on MSI, **Esc** or **F9** on HP. If the BIOS
-   comes up instead, put USB first in *Boot order*.
-3. If it refuses to boot, turn **Secure Boot** off in the BIOS and make sure
-   **UEFI** (not Legacy) is on. Ubuntu boots with Secure Boot on, but old
-   firmware sometimes blocks it anyway.
-4. Pick **Install ariseOS**, answer the identity screen (server name
-   `arise-server`), and leave it. It restarts by itself; take the stick out
-   then. The first-boot wizard is on the monitor next.
-
-To run the wizard again later: `sudo arisectl setup`.
-
-## The manual way (no autoinstall)
-
-Write the plain Ubuntu ISO with nothing added, answer the installer by hand
-(INSTALL.md, Path A), then copy the repo onto the box and run
-`sudo bash installer/install.sh` with the flags INSTALL.md lists. Every flag
-still works without the wizard.
+The ISO build, checksum verification, actual BIOS/UEFI boot, firstboot setup,
+application readiness and recovery rehearsal are distinct checks. Do not
+report an unexecuted VM boot as passed merely because media generation worked.

@@ -60,6 +60,17 @@ choose() { # choose "question" tag1 "item1" tag2 "item2" -> the tag
   fi
 }
 
+# Boot remains in the on-screen workflow after cancellation or failure.
+# The child owns secret lifetimes; each retry starts with a fresh session.
+if [ "$FROM_BOOT" = 1 ] && [ "${ARISE_WIZARD_SESSION:-}" != 1 ]; then
+  while :; do
+    ARISE_WIZARD_SESSION=1 bash "$0" --from-boot
+    [ ! -f "$DONE" ] || exit 0
+    action="$(choose "Setup has not finished. Your files and completed steps are kept. Check the on-screen error, then choose:" retry "Retry setup" poweroff "Shut down safely; setup resumes next boot")" || continue
+    if [ "$action" = poweroff ]; then systemctl poweroff; exit 0; fi
+  done
+fi
+
 # ----- the questions --------------------------------------------------------------------------
 say "Welcome to ariseOS, the Arise Church server.
 
@@ -68,8 +79,8 @@ A few questions, then it finishes the install by itself (15 to 30 minutes) and r
 Nothing is changed until you have answered everything and said Go."
 
 WHERE="$(choose "Where is this box right now?" \
-  church "At the church. It becomes the church's domain on the church network." \
-  home   "At home or in a test VM. The domain stays on this box only (staging).")" || exit 1
+  home   "At home or in a test VM (recommended for the first test)." \
+  church "At the church. The domain becomes available on the church network.")" || exit 1
 
 DEF_OWNER="$(getent passwd 1000 | cut -d: -f1)"
 while :; do
@@ -85,11 +96,11 @@ cleanup() { [ -n "$PASSFILE" ] && [ -f "$PASSFILE" ] && { shred -u "$PASSFILE" 2
 trap cleanup EXIT
 if [ "$NEED_DOMAIN" = 1 ]; then
   while :; do
-    P1="$(secret "The domain Administrator password (at least 8 characters, with upper case, lower case and a digit). Write it on the closet card.")" || exit 1
+    P1="$(secret "The domain Administrator password (at least 12 characters, with upper case, lower case and a digit). Keep it on the private SAFE card, stored securely.")" || exit 1
     P2="$(secret "The same password again:")" || exit 1
     if [ "$P1" != "$P2" ]; then say "The two passwords differ. Try again."; continue; fi
-    if [ ${#P1} -lt 8 ] || ! [[ "$P1" =~ [A-Z] ]] || ! [[ "$P1" =~ [a-z] ]] || ! [[ "$P1" =~ [0-9] ]]; then
-      say "The domain needs at least 8 characters with an upper-case letter, a lower-case letter and a digit."; continue
+    if [ ${#P1} -lt 12 ] || ! [[ "$P1" =~ [A-Z] ]] || ! [[ "$P1" =~ [a-z] ]] || ! [[ "$P1" =~ [0-9] ]]; then
+      say "The domain needs at least 12 characters with an upper-case letter, a lower-case letter and a digit."; continue
     fi
     break
   done
@@ -99,16 +110,24 @@ fi
 
 NAS="$(ask "The Synology's address, if it is on the network already (for example 192.168.0.50). Leave it empty to add it later in Settings." "")" || exit 1
 TAILSCALE=1; yesno "Install Tailscale (for reaching the server from home and from Alexandria)?" yes || TAILSCALE=0
-KIOSK=1;     yesno "Show the Arise desktop on this monitor (the closet screen)?" yes || KIOSK=0
+KIOSK=1
+APP_SET="$(choose "Choose the initial apps. The core five are the owner's default; other apps remain in the Store." essentials "Core five: Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser" core "Desktop and directory only (isolated test)" all "Every app template (large download, more disk/RAM)")" || exit 1
 DISCORD=0;   yesno "Add the Discord webhooks now (#alerts, #sunday, #weekly, #daily)? You can add them later." no && DISCORD=1
 declare -A HOOK
 if [ "$DISCORD" = 1 ]; then
   for c in alerts sunday weekly daily; do
-    HOOK[$c]="$(ask "The webhook address for #$c (https://discord.com/api/webhooks/...), or empty to skip:" "")" || exit 1
+    HOOK[$c]="$(secret "The webhook address for #$c (hidden), or empty to skip:")" || exit 1
   done
 fi
 
-FLAGS=(--owner "$OWNER")
+FLAGS=(--owner "$OWNER" --no-pin-ip)
+[ "$FROM_BOOT" = 1 ] && FLAGS+=(--grow-root)
+case "$APP_SET" in
+  core) FLAGS+=(--no-apps) ;;
+  essentials) FLAGS+=(--apps "nextcloud vaultwarden uptime-kuma netdata filebrowser") ;;
+  all) FLAGS+=(--apps all) ;;
+  *) exit 1 ;;
+esac
 [ "$WHERE" = home ] && FLAGS+=(--staging)
 [ "$KIOSK" = 1 ] && FLAGS+=(--kiosk)
 [ "$TAILSCALE" = 1 ] && FLAGS+=(--with-tailscale) || FLAGS+=(--no-tailscale)
@@ -122,12 +141,17 @@ SUMMARY="Here is what happens next:
   Synology:   ${NAS:-later}
   Tailscale:  $( [ "$TAILSCALE" = 1 ] && echo yes || echo no )
   Desktop:    $( [ "$KIOSK" = 1 ] && echo "on this monitor" || echo "no; the text console" )
+  Apps:       $APP_SET
+  Address:    DHCP retained; verify a stable address before production use
   Discord:    $( [ "$DISCORD" = 1 ] && echo "the webhooks you typed" || echo later )
 
 Then you choose the dashboard password, and the box restarts.
+The HP EliteDesk 800 G1 needs its disk passphrase at every restart.
+Keep the keyboard and passphrase ready. TPM 2.0 unlock is available only
+if this computer actually has a supported chip and binding succeeds.
 
 Go?"
-yesno "$SUMMARY" yes || { say "Nothing was changed. Run it again with: sudo arisectl setup"; exit 0; }
+yesno "$SUMMARY" yes || { say "Setup was cancelled. The setup screen will return."; exit 1; }
 
 # ----- doing it ---------------------------------------------------------------------------------
 clear 2>/dev/null || true
@@ -137,6 +161,10 @@ echo
 ARISE_FIRSTBOOT=1 bash "$SRC/installer/install.sh" "${FLAGS[@]}" 2>&1 | tee -a "$LOG"
 RC=${PIPESTATUS[0]}
 cleanup; PASSFILE=""
+if [ "$RC" != 0 ]; then
+  say "Installation stopped with an error (shown above). Completed steps are kept. Check the internet connection and retry from the next screen. Details are saved in $LOG."
+  exit "$RC"
+fi
 
 CONF=/etc/arise/arise.toml
 if [ -n "$NAS" ] && [ -f "$CONF" ]; then
@@ -158,7 +186,7 @@ PY
 fi
 if [ "$DISCORD" = 1 ]; then
   F=/etc/arise/secrets/discord.toml
-  install -d -m 0700 /etc/arise/secrets
+  install -d -m 0711 /etc/arise/secrets
   ( umask 077; : > "$F.new"
     for c in alerts sunday weekly daily; do
       v="${HOOK[$c]:-}"
@@ -174,18 +202,24 @@ PW_SET=0
 for _ in 1 2 3; do
   /usr/local/bin/arisectl admin set-password && { PW_SET=1; break; }
 done
-[ "$PW_SET" = 1 ] || echo "  ! The dashboard password is not set yet. Later: sudo arisectl admin set-password"
+if [ "$PW_SET" != 1 ]; then
+  say "The desktop password could not be saved. Setup will return so you can retry."
+  exit 1
+fi
+# Completion requires a functioning local API and installed kiosk prerequisites.
+READY=0
+for _ in $(seq 1 30); do
+  if curl -fsS --max-time 3 http://127.0.0.1:4147/api/health >/dev/null && systemctl is-active --quiet samba-ad-dc && host -W 3 -t SRV _ldap._tcp.ad.arisecenla.com 127.0.0.1 >/dev/null 2>&1; then READY=1; break; fi
+  sleep 2
+done
+if [ "$READY" != 1 ] || ! command -v cage >/dev/null || [ ! -x /usr/local/bin/arise-browser ] || ! { command -v firefox >/dev/null || command -v epiphany >/dev/null; } || ! systemctl is-enabled --quiet arise-kiosk.service; then
+  say "The desktop is not ready yet. Setup will return instead of marking this installation complete. Check the errors above, then retry."
+  exit 1
+fi
 
 echo
 echo "  What still needs you (sudo arisectl doctor):"
 /usr/local/bin/arisectl doctor 2>&1 | tail -n 25 || true
-
-if [ "$RC" != 0 ]; then
-  echo
-  echo "  The install reported a problem (above, and in $LOG). Nothing is lost: fix it, then sudo arisectl setup"
-  [ "$FROM_BOOT" = 1 ] && { read -r -t 600 -p "  Press Enter for a login prompt. " _ || true; }
-  exit "$RC"
-fi
 
 touch "$DONE"
 systemctl disable arise-firstboot.service >/dev/null 2>&1 || true
@@ -195,5 +229,5 @@ if [ "$FROM_BOOT" = 1 ]; then
   read -r -t 60 -p "  Press Enter to restart now (it restarts by itself in a minute). " _ || true
   systemctl reboot
 else
-  echo "  Restart when you are ready: sudo reboot"
+  if yesno "Setup is complete. Restart into the ariseOS desktop now?" yes; then systemctl reboot; fi
 fi

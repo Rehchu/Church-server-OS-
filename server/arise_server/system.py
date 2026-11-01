@@ -13,6 +13,7 @@ import urllib.request
 from datetime import datetime
 
 from .config import load
+from . import maintenance
 from .util import read_text, now_iso, read_json, run, which, write_json
 
 ARISE_HOME = "/opt/arise"
@@ -106,6 +107,7 @@ def apt_upgrade() -> dict:
     return {"ok": p.returncode == 0, "out": p.stdout[-1500:], "err": p.stderr[-800:]}
 
 
+@maintenance.guarded("power action")
 def power(action: str, confirm: str) -> dict:
     if action not in ("reboot", "poweroff"):
         return {"ok": False, "err": "action must be reboot or poweroff"}
@@ -118,11 +120,12 @@ def power(action: str, confirm: str) -> dict:
     out = f"{'restarting' if action == 'reboot' else 'shutting down'} now"
     try:   # worked out before the restart starts: the box needs its passphrase to come back (no TPM 2.0)
         from . import security
-        if security.encrypt_status().get("needs_passphrase"):
+        status = security.encrypt_status()
+        if status.get("known") is not True or status.get("needs_passphrase") is not False:
             out += ("; it stops at the disk passphrase when it starts: type it at the closet keyboard"
-                    + (" or ssh -p 2222 root@arise-server from a church computer" if security.ssh_unlock_ready() else ""))
+                    + (" or use the tested early-boot SSH LAN address" if status.get("ssh_unlock") else ""))
     except Exception:  # noqa: BLE001
-        pass
+        out += "; disk unlock status could not be checked: have someone at the closet keyboard with the passphrase"
     r = run(["systemctl", action], timeout=10)
     if not r["ok"]:
         return {"ok": False, "err": f"systemctl {action}: " + ((r["err"] or r["out"]).strip()[:300] or f"exit {r['code']}")}

@@ -25,9 +25,9 @@ MOUNT="/Volumes/$USER_NAME"
 tries=0
 until mount | grep -q " on $MOUNT "; do
   tries=$((tries+1))
-  if [ $tries -gt 12 ]; then log "gave up mounting smb://$SERVER/homes/$USER_NAME after 2 minutes"; exit 1; fi
+  if [ $tries -gt 12 ]; then log "gave up mounting smb://$SERVER/$USER_NAME after 2 minutes"; exit 1; fi
   # 'open' asks Finder to mount it, which reuses the Kerberos ticket from login.
-  open "smb://${SERVER}/homes/${USER_NAME}" >/dev/null 2>&1
+  open "smb://${SERVER}/${USER_NAME}" >/dev/null 2>&1
   sleep 10
 done
 log "mounted $MOUNT"

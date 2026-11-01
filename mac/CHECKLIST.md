@@ -1,4 +1,8 @@
-# Mac checklist — one sheet per Mac
+# Mac checklist — legacy manual migration
+
+For the current helper/Nextcloud workflow use docs/MACS.md. This checklist is
+only for the deliberately selected legacy SMB migration path; do not combine
+its Desktop/Documents symlinks with Nextcloud for the same account.
 
 Print one of these per Mac. Keep it in the Media folder on the server when done.
 

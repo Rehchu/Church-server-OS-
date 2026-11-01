@@ -34,7 +34,7 @@ class RealConfig(unittest.TestCase):
         t = Path(cls.tmp)
         (t / "data" / "homes").mkdir(parents=True)
         (t / "arise.toml").write_text(
-            f'[system]\ndata_root = "{t}/data"\n[web]\nadmin_user = "bradly"\n[directory]\nenabled = false\nhomes_path = "{t}/data/homes"\n'
+            f'[system]\ndata_root = "{t}/data"\n[web]\nadmin_user = "bradly"\nsecret_file = "{t}/web-secret"\n[directory]\nenabled = false\nhomes_path = "{t}/data/homes"\n'
             f'[paths]\nstate_dir = "{t}/state"\nlog_dir = "{t}/state"\n[church]\ndepartments = ["Media", "Inedge"]\n'
             f'[songs]\ninbox_users = ["worship.leader"]\n[owner]\nuser = "bradly"\n')
         cls.env = {k: os.environ.get(k) for k in ("ARISE_CONFIG", "ARISE_DEMO", "ARISE_STAFF_ACCESS")}

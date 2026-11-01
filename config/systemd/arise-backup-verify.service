@@ -1,0 +1,14 @@
+[Unit]
+Description=Check Arise backup integrity, reading 10 percent of repository data
+After=network-online.target arise-nas-mount.service
+Wants=network-online.target arise-nas-mount.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/arise
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/opt/arise/venv/bin/python -c "from arise_server.backups import check; import sys; r=check(); print(r); sys.exit(0 if r['ok'] else 1)"
+TimeoutStartSec=6h
+Nice=10
+IOSchedulingClass=idle

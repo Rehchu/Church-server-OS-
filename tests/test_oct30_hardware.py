@@ -5,19 +5,30 @@ import re
 import sys
 import tempfile
 import unittest
+import json
 from pathlib import Path
+from unittest.mock import patch
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "server"))
 os.environ.setdefault("ARISE_DEMO", "1")
 os.environ.setdefault("ARISE_CONFIG", str(ROOT / "config" / "arise.toml.example"))
 
-from arise_server import security, updates  # noqa: E402
+from arise_server import config, maintenance, security, system, updates  # noqa: E402
+
+
+def public_key(key=None):
+    key = key or ed25519.Ed25519PrivateKey.from_private_bytes(b"\x01" * 32).public_key()
+    return key.public_bytes(serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH).decode()
 
 
 class TpmVersion(unittest.TestCase):
     def _sysfs(self, major):
-        d = tempfile.mkdtemp()
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        d = temp.name
         os.makedirs(os.path.join(d, "tpm0"))
         with open(os.path.join(d, "tpm0", "tpm_version_major"), "w") as f:
             f.write(f"{major}\n")
@@ -37,13 +48,25 @@ class TpmVersion(unittest.TestCase):
 
 class UnlockKeys(unittest.TestCase):
     def test_each_key_may_only_answer_the_passphrase_prompt(self):
-        keys = security.unlock_keys("# mine\nssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA bradly@pc\n\nnot a key\n"
-                                    'from="10.0.0.0/8" ssh-rsa AAAAB3NzaC1yc2E= old\n')
+        ed = public_key()
+        rsa_key = public_key(rsa.generate_private_key(public_exponent=65537, key_size=2048).public_key())
+        keys = security.unlock_keys(f"# mine\n{ed} bradly@pc\n\n{rsa_key} old\n")
         self.assertEqual(len(keys), 2)
         for k in keys:
             self.assertTrue(k.startswith('no-port-forwarding,no-agent-forwarding,no-X11-forwarding,command="/usr/bin/cryptroot-unlock" '))
-        self.assertTrue(keys[0].endswith("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA bradly@pc"))
-        self.assertTrue(keys[1].endswith("ssh-rsa AAAAB3NzaC1yc2E= old"))
+        self.assertTrue(keys[0].endswith(ed))
+        self.assertTrue(keys[1].endswith(rsa_key))
+
+    def test_restricted_malformed_and_unsupported_keys_are_rejected(self):
+        valid = public_key()
+        for line in (f'from="10.0.0.0/8" {valid}', f'command="echo hi" {valid}',
+                     "not a key", "ssh-ed25519 AAAA", "ssh-rsa " + valid.split()[1],
+                     valid.replace("ssh-ed25519", "sk-ssh-ed25519@openssh.com"), valid + "\x00"):
+            with self.subTest(line=line[:35]), self.assertRaises(ValueError):
+                security.unlock_keys(line)
+        weak = public_key(rsa.generate_private_key(public_exponent=65537, key_size=1024).public_key())
+        with self.assertRaisesRegex(ValueError, "2048"):
+            security.unlock_keys(weak)
 
     def test_no_keys_no_lines(self):
         self.assertEqual(security.unlock_keys("# nothing\n\n"), [])
@@ -100,17 +123,141 @@ class HardwareLayer(unittest.TestCase):
         self.assertIn("amd64-microcode", self.s)
 
     def test_trim_reaches_the_ssd_through_luks(self):
-        prog = re.search(r"awk 'BEGIN\{OFS=\" \"\} (.*?)' /etc/crypttab >", self.s).group(1)
+        prog = re.search(r"awk -v dev=\"\$device\" -v uuid=\"\$uuid\" '(.*?)' \"\$crypttab\"", self.s, re.S).group(1)
         import subprocess
-        src = "dm_crypt-0 UUID=abc none luks\n# dm_crypt-1 UUID=x none luks\nother UUID=y none luks,discard\nsw /dev/x /dev/urandom swap\n"
-        out = subprocess.run(["awk", "BEGIN{OFS=\" \"} " + prog], input=src, capture_output=True, text=True, check=True).stdout
+        src = "dm_crypt-0 UUID=abc none luks\n# dm_crypt-1 UUID=x none luks\nother UUID=y none luks,discard\nsw /dev/x /dev/urandom swap\nexternal UUID=other none luks\n"
+        out = subprocess.run(["awk", "-v", "dev=/dev/sda3", "-v", "uuid=abc", prog], input=src, capture_output=True, text=True, check=True).stdout
         self.assertEqual(out.splitlines(), ["dm_crypt-0 UUID=abc none luks,discard", "# dm_crypt-1 UUID=x none luks",
-                                            "other UUID=y none luks,discard", "sw /dev/x /dev/urandom swap"])
-        self.assertIn('cp -a /etc/crypttab "/etc/crypttab.arise-', self.s)
+                                            "other UUID=y none luks,discard", "sw /dev/x /dev/urandom swap", "external UUID=other none luks"])
 
     def test_the_fallback_boot_file(self):
-        self.assertIn("/boot/efi/EFI/BOOT/BOOTX64.EFI", self.s)
-        self.assertIn("cp /boot/efi/EFI/ubuntu/shimx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI", self.s)
+        self.assertIn('cp -- "$source/shimx64.efi" "$stage/BOOTX64.EFI"', self.s)
+        self.assertIn('mountpoint -q "$esp"', self.s)
+
+
+class BootEncryption(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.cfg = config.Config(path=str(self.root / "arise.toml"), found=True, demo=False,
+                                 raw={"paths": {"state_dir": str(self.root / "state"), "log_dir": str(self.root)}})
+        for mod in (security, updates, system, maintenance):
+            self.enterContext(patch.object(mod, "load", return_value=self.cfg))
+        self.enterContext(patch.object(security, "which", side_effect=lambda name: "/usr/bin/" + name))
+        self.dropbear = self.root / "dropbear"
+        self.dropbear.mkdir()
+        self.boot = self.root / "boot"
+        self.boot.mkdir()
+        self.initrd = self.boot / "initrd.img-test"
+        self.initrd.write_bytes(b"test initramfs; no actual boot changes")
+        for name in ("DROPBEAR_HOOK", "CRYPTROOT_HOOK"):
+            file = self.root / name
+            file.touch()
+            self.enterContext(patch.object(security, name, str(file)))
+        self.enterContext(patch.object(security, "DROPBEAR_DIR", str(self.dropbear)))
+        self.enterContext(patch.object(security, "UNLOCK_NETWORK", str(self.root / "network")))
+        self.enterContext(patch.object(security, "UNLOCK_BOOT", str(self.boot)))
+        self.keys = self.root / "owner.pub"
+        self.keys.write_text(public_key() + " owner\n")
+        (self.dropbear / "dropbear_ed25519_host_key").write_bytes(b"test host key")
+
+    @staticmethod
+    def block_tree(extra=True):
+        root = {"name": "sda3", "fstype": "crypto_LUKS", "children": [
+            {"name": "rootcrypt", "type": "crypt", "mountpoint": "/"}]}
+        return json.dumps({"blockdevices": [*([{"name": "sdb1", "fstype": "crypto_LUKS"}] if extra else []), root]})
+
+    def test_partial_binding_does_not_allow_unattended_restart(self):
+        def run(cmd, **kwargs):
+            out = self.block_tree() if cmd[0] == "lsblk" else ('1: tpm2 {"pcr_ids":"7"}' if cmd[-1] == "/dev/sdb1" else "")
+            return {"ok": True, "out": out}
+        with patch.object(security, "run", side_effect=run), patch.object(security, "tpm_version", return_value=2):
+            status = security.encrypt_status()
+        self.assertEqual(status["root_luks"], ["/dev/sda3"])
+        self.assertEqual(status["tpm_bound_devices"], ["/dev/sdb1"])
+        self.assertFalse(status["tpm_bound"])
+        self.assertTrue(status["needs_passphrase"])
+
+    def test_unknown_or_failed_storage_probe_blocks_restart(self):
+        for result in ({"ok": False, "out": ""}, {"ok": True, "out": "not json"},
+                       {"ok": True, "out": "{}"}, {"ok": True, "out": "[]"}):
+            with self.subTest(result=result), patch.object(security, "run", return_value=result):
+                self.assertTrue(updates._needs_passphrase())
+        with patch.object(security, "encrypt_status", return_value={}):
+            self.assertTrue(updates._needs_passphrase())
+
+    def test_tpm_binding_targets_root_ancestor_not_first_data_disk(self):
+        status = {"known": True, "luks": ["/dev/sdb1", "/dev/sda3"], "root_luks": ["/dev/sda3"],
+                  "tpm": True, "tpm_bound": False, "tpm_bound_devices": []}
+        with patch.object(security, "encrypt_status", return_value=status), patch.object(security, "run", return_value={"ok": True}) as run:
+            self.assertTrue(security.encrypt_tpm("test passphrase")["ok"])
+        self.assertEqual(run.call_args_list[0].args[0][4], "/dev/sda3")
+        self.assertNotIn("test passphrase", run.call_args_list[0].args[0])
+
+    def _setup(self, *, fail_update=False, missing_unlock=False):
+        def run(cmd, **kwargs):
+            if cmd[0] == "lsinitramfs":
+                files = ["usr/sbin/dropbear", "root-AbCdEf1234/.ssh/authorized_keys",
+                         "etc/dropbear/dropbear_ed25519_host_key"]
+                if not missing_unlock:
+                    files.append("usr/bin/cryptroot-unlock")
+                return {"ok": True, "out": "\n".join(files), "err": ""}
+            return {"ok": not fail_update, "out": "", "err": "failed" if fail_update else ""}
+        self.enterContext(patch.object(security, "encrypt_status", return_value={"known": True, "root_encrypted": True}))
+        return self.enterContext(patch.object(security, "run", side_effect=run))
+
+    def test_setup_requires_explicit_network_and_rejects_shell_text(self):
+        self.assertEqual(security.unlock_network("enp0s25:dhcp"), ":::::enp0s25:dhcp")
+        self.assertEqual(security.unlock_network("192.168.1.20::192.168.1.1:255.255.255.0::eth0:none"),
+                         "192.168.1.20::192.168.1.1:255.255.255.0::eth0:none")
+        for invalid in ("", "dhcp; touch /tmp/unsafe", '$(id)', "192.168.1.20::bad:255.255.255.0::eth0:none"):
+            with self.subTest(network=invalid):
+                self.assertFalse(security.encrypt_ssh(network=invalid, authorized_keys=str(self.keys))["ok"])
+        self.assertFalse((self.dropbear / "authorized_keys").exists())
+
+    def test_setup_checks_all_boot_images_before_reporting_configured(self):
+        run = self._setup()
+        self.assertTrue(security.encrypt_ssh(network="dhcp", authorized_keys=str(self.keys))["ok"])
+        self.assertIn(["update-initramfs", "-u", "-k", "all"], [c.args[0] for c in run.call_args_list])
+        self.assertTrue(security.ssh_unlock_ready())
+        self.assertIn("command=", (self.dropbear / "authorized_keys").read_text())
+        self.assertIn("-s -j -k", (self.dropbear / "dropbear.conf").read_text())
+        self.assertEqual((self.dropbear / "authorized_keys").stat().st_mode & 0o777, 0o600)
+        self.initrd.write_bytes(b"new image invalidates prior validation")
+        self.assertFalse(security.ssh_unlock_ready())
+
+    def test_failed_initramfs_or_missing_unlock_never_reports_ready(self):
+        for fail, missing in ((True, False), (False, True)):
+            with self.subTest(failed=fail, missing=missing):
+                self._setup(fail_update=fail, missing_unlock=missing)
+                self.assertFalse(security.encrypt_ssh(network="dhcp", authorized_keys=str(self.keys))["ok"])
+                self.assertFalse(security.ssh_unlock_ready())
+
+    def test_dropbear_binary_alone_does_not_satisfy_package_check(self):
+        Path(security.DROPBEAR_HOOK).unlink()
+        run = self._setup()
+        self.assertFalse(security.encrypt_ssh(network="dhcp", authorized_keys=str(self.keys))["ok"])
+        self.assertEqual(run.call_args_list[0].args[0], ["apt-get", "install", "-y", "-q", "dropbear-initramfs", "cryptsetup-initramfs"])
+
+    def test_manual_reboot_reports_required_unlock(self):
+        with patch.object(security, "encrypt_status", return_value={"known": True, "needs_passphrase": True}), \
+                patch.object(system, "which", return_value="systemctl"), patch.object(system, "run", return_value={"ok": True}) as run:
+            result = system.power("reboot", "reboot")
+        self.assertTrue(result["ok"])
+        self.assertIn("passphrase", result["out"])
+        self.assertEqual(run.call_args.args[0], ["systemctl", "reboot"])
+
+    def test_apply_keeps_passphrase_reboot_queued_without_power_command(self):
+        queue = {"packages": [], "apps": [], "reboot": True}
+        with patch.object(updates, "queue", return_value=queue), patch.object(updates, "_in_service", return_value=None), \
+                patch.object(updates, "_needs_passphrase", return_value=True), patch.object(updates.os.path, "exists", return_value=True), \
+                patch.object(updates, "run") as run:
+            result = updates.apply(no_snapshot=True, log=lambda _: None)
+        self.assertTrue(result["ok"])
+        self.assertIn("restart waiting", result["summary"])
+        self.assertTrue(queue["reboot"])
+        run.assert_not_called()
 
 
 if __name__ == "__main__":

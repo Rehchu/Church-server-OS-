@@ -9,7 +9,7 @@
 # Run by the LaunchAgent com.arisechurch.homesync: once at login, then every
 # 15 minutes. If the person's home share on the server is reachable (on the
 # church network, or over Tailscale from anywhere) it copies the chosen
-# folders to smb://arise-server/homes/<user>. If the share is not reachable
+# folders to smb://arise-server/<user>. If the share is not reachable
 # it logs one line and waits for the next run. Nothing is ever lost on the
 # Mac; nothing is deleted on the server unless --mirror is given.
 #
@@ -120,14 +120,14 @@ if ! mount | grep -q " on $MOUNT "; then
   # 'open' asks Finder to mount it. A domain login has a Kerberos ticket, so no
   # prompt. A local account gets a prompt the FIRST time; tick "Remember this
   # password in my keychain" and it never asks again.
-  open "smb://${SERVER}/homes/${USER_NAME}" >/dev/null 2>&1
+  open "smb://${SERVER}/${USER_NAME}" >/dev/null 2>&1
   tries=0
   until mount | grep -q " on $MOUNT "; do
     tries=$((tries+1)); [ $tries -gt 9 ] && break; sleep 5
   done
 fi
 if ! mount | grep -q " on $MOUNT "; then
-  log "could not mount smb://$SERVER/homes/$USER_NAME (no saved password yet? open it once in Finder and tick Remember)"
+  log "could not mount smb://$SERVER/$USER_NAME (no saved password yet? open it once in Finder and tick Remember)"
   exit 0
 fi
 if ! touch "$MOUNT/.arise-sync-test" 2>/dev/null; then

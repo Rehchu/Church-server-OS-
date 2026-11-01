@@ -12,6 +12,8 @@
 # this box's real paths and names into .env (ARISE_HOMES, CLOUD_HOST, DC_FQDN...).
 services:
   db:
+    mem_limit: 512m
+    cpus: 0.75
     image: mariadb:10.11
     container_name: arise-app-nextcloud-db
     restart: unless-stopped
@@ -25,12 +27,16 @@ services:
       - /srv/arise/apps/nextcloud/db:/var/lib/mysql
 
   redis:
+    mem_limit: 128m
+    cpus: 0.25
     # File locking (two Macs never write one file at once) and the cache.
     image: redis:7-alpine
     container_name: arise-app-nextcloud-redis
     restart: unless-stopped
 
   nextcloud:
+    mem_limit: 1536m
+    cpus: 1.5
     image: nextcloud:29-apache
     container_name: arise-app-nextcloud
     restart: unless-stopped
@@ -71,6 +77,8 @@ services:
       - /var/lib/samba/private/tls/ca.pem:/etc/ssl/arise-samba-ca.pem:ro
 
   cron:
+    mem_limit: 512m
+    cpus: 0.5
     # Nextcloud's background jobs every five minutes (versions, trash, previews).
     image: nextcloud:29-apache
     container_name: arise-app-nextcloud-cron

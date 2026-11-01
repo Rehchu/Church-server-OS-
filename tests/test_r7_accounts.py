@@ -10,6 +10,7 @@ import sys
 import unittest
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "server"))
@@ -186,7 +187,8 @@ class Flows(unittest.TestCase):
         self.assertTrue(ok["ok"], ok)
         self.assertTrue(accounts.has_photo("office"))
 
-    def test_breakglass_is_bradlys_and_tells_the_pastors(self):
+    @mock.patch.object(accounts, "tell_person", return_value={"email": {"ok": True}})
+    def test_breakglass_is_bradlys_and_tells_the_pastors(self, notify):
         cfg = config.load()
         cfg.owner.user = "bradly"
         self.addCleanup(setattr, cfg.owner, "user", "")
@@ -200,14 +202,20 @@ class Flows(unittest.TestCase):
         r = accounts.breakglass_open(bradly, "Pastor Bryant is in hospital; the funeral notes are needed today", "pastors")
         self.assertTrue(r["ok"], r)
         self.assertEqual(sorted(r["told"]), sorted(cfg.storage.pastors))
+        self.assertEqual(sorted(call.args[0] for call in notify.call_args_list), sorted(cfg.storage.pastors))
+        self.assertEqual(r["notification_failures"], {})
         self.assertTrue(sharing.is_pastor(bradly))
         self.assertIn("pastors", [x["id"] for x in files.roots(bradly)])
         self.assertTrue(any("Pastors folder opened" in t for t in self.discord()))
         self.assertFalse(sharing.is_pastor(None))                                   # never the system itself (Claude, the CLI)
         accounts.breakglass_close("bradly", "bradly")
         self.assertFalse(sharing.is_pastor(bradly))
+        notify.return_value = {"email": {"ok": False, "err": "delivery unavailable"}}
         later = accounts.breakglass_open(bradly, "a second emergency today", "pastors", now=1.0)   # long ago: already over
         self.assertTrue(later["ok"]); self.assertFalse(accounts.breakglass_active("bradly"))
+        self.assertEqual(later["told"], [])
+        self.assertEqual(set(later["notification_failures"]), set(cfg.storage.pastors))
+        self.assertIn("incomplete", later["warning"])
 
     def test_links_are_admins_only(self):
         from arise_server import links

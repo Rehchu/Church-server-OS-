@@ -30,7 +30,7 @@ from . import finder
 from . import audit, offboard
 from . import sharing
 from . import repos as arise_repos
-from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth, staff_access
+from .auth import COOKIE, check_password_for, current_user, login, reauth_token, require_admin, require_recent_auth, require_recent_admin, staff_access
 from .config import load
 from .util import human_bytes
 from .util import run as system_run
@@ -64,6 +64,7 @@ _demo_hooks()
 
 auth = Depends(current_user)      # any signed-in person; members are limited to the portal routes by auth._check_path
 admin = Depends(require_admin)    # the administrator only
+recent_admin = Depends(require_recent_admin)  # administrator changes require a full password
 recent = Depends(require_recent_auth)  # typed the password again within five minutes (delete a user, empty a Trash, shut down)
 
 
@@ -162,12 +163,11 @@ def api_login(body: Login, response: Response, request: Request):
         # a new one and posts old + new to /api/auth/login/new-password; nothing is held on the server meanwhile.
         audit.record(who["user"], "auth.login", ok=False, ip=_ip(request), detail="temporary password: a new one is needed")
         return {"ok": True, "need_new_password": True, "user": who["user"], "rules": directory.password_rules().get("words", [])}
-    if not c.demo or who.get("via") != "demo":
-        from . import pins
-        pins.full_signin(who.get("user", ""))   # round 7, 160: the password switches a PIN back on (a temporary one doesn't)
     if tok and not c.demo and twofa.enrolled(who["user"]):
         # Two-step is on for this person: the session token waits behind a code (five minutes, three tries).
         return {"ok": True, "need_code": True, "pending": twofa.pending_token(tok, who["user"]), "user": who["user"]}
+    if not c.demo or who.get("via") != "demo":
+        pins.full_signin(who.get("user", ""))
     if tok:
         response.set_cookie(COOKIE, tok, httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
     audit.record(who["user"], "auth.login", ip=_ip(request), detail=f"{who.get('via', '')} · {profiles.device_of(request.headers.get('user-agent', ''))}")
@@ -194,7 +194,13 @@ def api_login_code(body: LoginCode, response: Response, request: Request):
         audit.record(r.get("user", "?"), "auth.login.code", ok=False, detail=r.get("err", "wrong code"))
         raise HTTPException(401, {"message": r.get("err", "wrong code"), "left": r.get("left", 0), "expired": r.get("expired", False)})
     response.set_cookie(COOKIE, r["token"], httponly=True, samesite="lax", secure=_https(request), max_age=int(c.web.session_hours) * 3600)
+    # Only a completed full-password sign-in re-enables a suspended PIN.
+    session = _auth._serializer().loads(r["token"], max_age=int(c.web.session_hours) * 3600)
+    if session.get("fp"):
+        pins.full_signin(r["user"])
+    audit.record(r["user"], "auth.login.code", ip=_ip(request))
     _new_device(r["user"], request)
+    files.ensure_home(r["user"])
     return {"ok": True, "user": r["user"]}
 
 
@@ -341,7 +347,7 @@ def api_directory_pins(_=admin):
 
 
 @app.delete("/api/directory/users/{name}/pin")
-def api_directory_pin_remove(name: str, who=admin):
+def api_directory_pin_remove(name: str, who=recent_admin):
     """An admin takes someone's PIN away (audited). An admin never sees or sets one."""
     return pins.remove(name, by=who["user"])
 
@@ -673,7 +679,7 @@ def api_services(_=admin):
 
 
 @app.post("/api/services/{unit}/{action}")
-def api_service_act(unit: str, action: str, _=admin):
+def api_service_act(unit: str, action: str, _=recent_admin):
     if unit.startswith("samba-ad-dc") and action != "status":
         svc = church.in_service_now()
         if svc:
@@ -714,24 +720,24 @@ def api_updates_status(_=admin):
 
 
 @app.post("/api/updates/refresh")
-def api_updates_refresh(_=admin):
+def api_updates_refresh(_=recent_admin):
     r = updates.refresh()
     r["status"] = updates.status()
     return r
 
 
 @app.post("/api/updates/check-apps")
-def api_updates_check_apps(_=admin):
+def api_updates_check_apps(_=recent_admin):
     return updates.check_apps()
 
 
 @app.post("/api/updates/queue")
-def api_updates_queue(body: QueueBody, who=admin):
+def api_updates_queue(body: QueueBody, who=recent_admin):
     return updates.set_queue(body.packages, body.apps, body.reboot, who.get("user", ""))
 
 
 @app.post("/api/updates/apply")
-def api_updates_apply(body: ApplyBody, _=admin):
+def api_updates_apply(body: ApplyBody, _=recent_admin):
     if body.confirm != "install":
         return {"ok": False, "err": "type install to confirm"}
     return updates.apply(no_snapshot=body.no_snapshot, log=lambda *_a: None)
@@ -748,7 +754,7 @@ class KillBody(BaseModel):
 
 
 @app.post("/api/activity/kill")
-def api_activity_kill(body: KillBody, _=admin):
+def api_activity_kill(body: KillBody, _=recent_admin):
     return activity.kill(body.pid, body.confirm)
 
 
@@ -762,7 +768,7 @@ class TimerBody(BaseModel):
 
 
 @app.post("/api/automations/{timer}/{action}")
-def api_automations_act(timer: str, action: str, body: TimerBody, _=admin):
+def api_automations_act(timer: str, action: str, body: TimerBody, _=recent_admin):
     if action not in ("pause", "resume"):
         return {"ok": False, "err": "action must be pause or resume"}
     return automations.pause(timer, action == "resume", body.confirm)
@@ -777,7 +783,7 @@ def api_storage(_=admin):
 
 
 @app.post("/api/storage/scan")
-def api_storage_scan(_=admin):
+def api_storage_scan(_=recent_admin):
     return storage.scan()
 
 
@@ -791,7 +797,7 @@ class MonitorBody(BaseModel):
 
 
 @app.post("/api/monitor/power")
-def api_monitor_power(body: MonitorBody, _=admin):
+def api_monitor_power(body: MonitorBody, _=recent_admin):
     return monitor.power(body.on)
 
 
@@ -836,7 +842,7 @@ def dir_users(_=admin):
 
 
 @app.post("/api/directory/users")
-def dir_user_add(body: NewUser, who=admin):
+def dir_user_add(body: NewUser, who=recent_admin):
     if body.title:
         _good, errs = profiles.clean({"title": body.title}, ("title",))
         if errs:
@@ -862,7 +868,7 @@ def dir_user_add(body: NewUser, who=admin):
 
 
 @app.post("/api/directory/users/{name}/reset-password")
-def dir_user_pw(name: str, body: Password, who=admin):
+def dir_user_pw(name: str, body: Password, who=recent_admin):
     return profiles.admin_reset(name, body.password, body.temporary, who["user"])
 
 
@@ -872,7 +878,7 @@ def dir_user_profile(name: str, who=admin):
 
 
 @app.put("/api/directory/users/{name}/profile")
-def dir_user_profile_edit(name: str, body: ProfileEdit, who=admin):
+def dir_user_profile_edit(name: str, body: ProfileEdit, who=recent_admin):
     return profiles.update(name, body.model_dump(exclude_none=True), who)
 
 
@@ -882,14 +888,14 @@ class PeopleImport(BaseModel):
 
 
 @app.post("/api/directory/import")
-def dir_import(body: PeopleImport, who=admin):
+def dir_import(body: PeopleImport, who=recent_admin):
     """The day-one people list (round 5, 8): checked first; with apply, the accounts are made with
     temporary passwords, which come back in this answer only (never logged, never kept)."""
     return profiles.import_people(body.csv, body.apply, who["user"])
 
 
 @app.post("/api/directory/users/{name}/enable")
-def dir_user_enable(name: str, who=admin):
+def dir_user_enable(name: str, who=recent_admin):
     r = directory.enable_user(name, True)
     if r.get("ok"):
         from . import accounts
@@ -898,7 +904,7 @@ def dir_user_enable(name: str, who=admin):
 
 
 @app.post("/api/directory/users/{name}/disable")
-def dir_user_disable(name: str, who=admin):
+def dir_user_disable(name: str, who=recent_admin):
     if name.lower() == str(who.get("user", "")).lower():
         return {"ok": False, "err": "You cannot disable the account you are signed in with"}
     r = directory.enable_user(name, False)
@@ -928,7 +934,7 @@ class Photo(BaseModel):
 
 
 @app.post("/api/directory/users/{name}/photo")
-def dir_user_photo(name: str, body: Photo, who=admin):
+def dir_user_photo(name: str, body: Photo, who=recent_admin):
     """Round 7, 20: the photo the person chose, added by an admin (staff don't use the dashboard)."""
     import base64 as _b64
     from . import accounts
@@ -972,7 +978,7 @@ def api_breakglass(body: BreakGlass, who=recent):
 
 
 @app.delete("/api/pastors/breakglass")
-def api_breakglass_close(who=admin):
+def api_breakglass_close(who=recent_admin):
     from . import accounts
     return accounts.breakglass_close(who["user"], who["user"])
 
@@ -999,17 +1005,17 @@ def dir_groups(_=admin):
 
 
 @app.post("/api/directory/groups")
-def dir_group_add(body: NewGroup, _=admin):
+def dir_group_add(body: NewGroup, _=recent_admin):
     return directory.add_group(body.name, body.description)
 
 
 @app.post("/api/directory/groups/{group}/members")
-def dir_group_member(group: str, body: Member, _=admin):
+def dir_group_member(group: str, body: Member, _=recent_admin):
     return directory.add_member(group, body.user)
 
 
 @app.delete("/api/directory/groups/{group}/members/{user}")
-def dir_group_member_del(group: str, user: str, _=admin):
+def dir_group_member_del(group: str, user: str, _=recent_admin):
     return directory.remove_member(group, user)
 
 
@@ -1036,12 +1042,12 @@ def api_shares(_=admin):
 
 
 @app.post("/api/shares")
-def api_share_add(body: NewShare, _=admin):
+def api_share_add(body: NewShare, _=recent_admin):
     return shares.add_share(body.name, body.path, body.comment, body.group, body.mac)
 
 
 @app.delete("/api/shares/{name}")
-def api_share_del(name: str, body: Confirm, _=admin):
+def api_share_del(name: str, body: Confirm, _=recent_admin):
     return shares.remove_share(name, body.confirm)
 
 
@@ -1124,7 +1130,7 @@ class DiscordTest(BaseModel):
 
 
 @app.post("/api/discord/test")
-def api_discord_test(body: DiscordTest, _=admin):
+def api_discord_test(body: DiscordTest, _=recent_admin):
     from . import discord
     return discord.test(body.channel)
 
@@ -1152,17 +1158,17 @@ def bk_repo(_=admin):
 
 
 @app.post("/api/backups/run/{job}")
-def bk_run(job: str, _=admin):
+def bk_run(job: str, _=recent_admin):
     return backups.run_job(job)
 
 
 @app.post("/api/backups/mirror")
-def bk_mirror(_=admin):
+def bk_mirror(_=recent_admin):
     return backups.mirror_github()
 
 
 @app.post("/api/backups/check")
-def bk_check(_=admin):
+def bk_check(_=recent_admin):
     return backups.check()
 
 
@@ -1244,12 +1250,12 @@ def auto_quota(_=admin):
 
 
 @app.post("/api/automator/run")
-def auto_run(_=admin):
+def auto_run(_=recent_admin):
     return automator.start("run")
 
 
 @app.post("/api/automator/preview")
-def auto_preview(_=admin):
+def auto_preview(_=recent_admin):
     return automator.start("preview")
 
 
@@ -1299,7 +1305,7 @@ def api_songs_inbox(_=admin):
 
 
 @app.post("/api/songs/inbox")
-def api_songs_inbox_run(who=admin):
+def api_songs_inbox_run(who=recent_admin):
     return songs.inbox_scan(by=who["user"])
 
 
@@ -1326,7 +1332,7 @@ class Lyrics(BaseModel):
 
 
 @app.put("/api/songs/{key}/lyrics")
-def api_song_lyrics(key: str, body: Lyrics, who=admin):
+def api_song_lyrics(key: str, body: Lyrics, who=recent_admin):
     return songs.save(key, body.text, who["user"], source=body.source)
 
 
@@ -1335,7 +1341,7 @@ class LyricsRemove(BaseModel):
 
 
 @app.delete("/api/songs/{key}/lyrics")
-def api_song_lyrics_remove(key: str, body: LyricsRemove, who=admin):
+def api_song_lyrics_remove(key: str, body: LyricsRemove, who=recent_admin):
     """Moved to .removed/, never deleted; the song's title typed to confirm."""
     return songs.remove(key, body.confirm, who["user"])
 
@@ -1350,7 +1356,7 @@ class LyricsImport(BaseModel):
 
 
 @app.post("/api/songs/import")
-def api_songs_import(body: LyricsImport, who=admin):
+def api_songs_import(body: LyricsImport, who=recent_admin):
     return songs.import_files([f.model_dump() for f in body.files], who["user"])
 
 
@@ -1405,7 +1411,7 @@ def api_app_open(name: str, _=auth):
 
 
 @app.post("/api/apps/deploy")
-def api_deploy(body: Deploy, _=admin):
+def api_deploy(body: Deploy, _=recent_admin):
     return apps.deploy(body.template, body.name, body.env)
 
 
@@ -1414,12 +1420,12 @@ class AutostartBody(BaseModel):
 
 
 @app.post("/api/apps/{name}/autostart")
-def api_app_autostart(name: str, body: AutostartBody, _=admin):
+def api_app_autostart(name: str, body: AutostartBody, _=recent_admin):
     return apps.set_autostart(name, body.on)
 
 
 @app.post("/api/apps/{name}/{action}")
-def api_app_act(name: str, action: str, body: Confirm | None = None, _=admin):
+def api_app_act(name: str, action: str, body: Confirm | None = None, _=recent_admin):
     return apps.act(name, action, (body.confirm if body else ""))
 
 
@@ -1438,12 +1444,12 @@ def api_nas(_=admin):
 
 
 @app.post("/api/nas/mount")
-def api_nas_mount(_=admin):
+def api_nas_mount(_=recent_admin):
     return nas.mount()
 
 
 @app.post("/api/nas/unmount")
-def api_nas_unmount(_=admin):
+def api_nas_unmount(_=recent_admin):
     return nas.unmount()
 
 
@@ -1474,7 +1480,7 @@ class PeerName(BaseModel):
 
 
 @app.post("/api/remote/wireguard/peers")
-def api_remote_peer(body: PeerName, _=admin):
+def api_remote_peer(body: PeerName, _=recent_admin):
     return remote.add_wireguard_peer(body.name)
 
 
@@ -1826,7 +1832,7 @@ def public_link(token: str):
     if got.get("demo"):
         return JSONResponse({"ok": True, "demo": True, "message": f"(sample) would download {got['name']}"})
     if got["dir"]:
-        z = links.zip_folder(got["path"])
+        z = links.zip_folder(got["path"], got.get("owner"))
         if not z:
             raise HTTPException(413, {"message": "That folder is too big to zip; ask for the files another way"})
         return FileResponse(z, filename=got["name"] + ".zip", media_type="application/zip")
@@ -1978,17 +1984,17 @@ def api_calendar_subscribe(request: Request, _=auth):
 
 
 @app.post("/api/calendar")
-def api_calendar_add(body: CalEvent, who=admin):
+def api_calendar_add(body: CalEvent, who=recent_admin):
     return churchcal.add(body.model_dump(), who["user"])
 
 
 @app.put("/api/calendar/{ev_id}")
-def api_calendar_update(ev_id: str, body: CalEvent, who=admin):
+def api_calendar_update(ev_id: str, body: CalEvent, who=recent_admin):
     return churchcal.update(ev_id, body.model_dump(), who["user"])
 
 
 @app.delete("/api/calendar/{ev_id}")
-def api_calendar_remove(ev_id: str, _=admin):
+def api_calendar_remove(ev_id: str, _=recent_admin):
     return churchcal.remove(ev_id)
 
 
@@ -2076,13 +2082,13 @@ def api_mail_contacts(_=admin):
 
 
 @app.post("/api/mail/import/preview")
-def api_mail_import_preview(body: MailImport, _=admin):
+def api_mail_import_preview(body: MailImport, _=recent_admin):
     r = mail.parse_contacts(body.csv)
     return {"count": len(r["contacts"]), "skipped": r["skipped"], "columns": r.get("columns"), "err": r.get("err"), "sample": r["contacts"][:5]}
 
 
 @app.post("/api/mail/import")
-def api_mail_import(body: MailImport, _=admin):
+def api_mail_import(body: MailImport, _=recent_admin):
     r = mail.parse_contacts(body.csv)
     if r.get("err"):
         return {"ok": False, "err": r["err"]}
@@ -2090,24 +2096,24 @@ def api_mail_import(body: MailImport, _=admin):
 
 
 @app.post("/api/mail/preview")
-def api_mail_preview(body: MailDraft, _=admin):
+def api_mail_preview(body: MailDraft, _=recent_admin):
     c = church.info()
     # the merge tags are Resend's; show the preview the way a reader named nobody sees it
     return {"html": mail.render(body.subject, body.body, c["name"], c["city"]).replace("{{{FIRST_NAME|there}}}", "there").replace("{{{RESEND_UNSUBSCRIBE_URL}}}", "#")}
 
 
 @app.post("/api/mail/test")
-def api_mail_test(body: MailTest, _=admin):
+def api_mail_test(body: MailTest, _=recent_admin):
     return mail.send_test(body.to, body.subject, body.body)
 
 
 @app.post("/api/mail/broadcasts")
-def api_mail_broadcast(body: MailDraft, _=admin):
+def api_mail_broadcast(body: MailDraft, _=recent_admin):
     return mail.create_broadcast(body.subject, body.body, body.name)
 
 
 @app.post("/api/mail/broadcasts/{bc_id}/send")
-def api_mail_broadcast_send(bc_id: str, body: MailSend, _=admin):
+def api_mail_broadcast_send(bc_id: str, body: MailSend, _=recent_admin):
     return mail.send_broadcast(bc_id, body.confirm)
 
 
@@ -2135,7 +2141,7 @@ def api_devices_behind(_=admin):
 
 
 @app.post("/api/devices/scan")
-def api_devices_scan(wide: int = 0, _=admin):
+def api_devices_scan(wide: int = 0, _=recent_admin):
     return devices.scan(wide=bool(wide))
 
 
@@ -2146,12 +2152,12 @@ def api_devices_cameras(_=admin):
 
 
 @app.post("/api/devices/{mac}")
-def api_devices_label(mac: str, body: DeviceLabel, _=admin):
+def api_devices_label(mac: str, body: DeviceLabel, _=recent_admin):
     return devices.label(mac, body.name, body.note, body.kind)
 
 
 @app.delete("/api/devices/{mac}")
-def api_devices_forget(mac: str, _=admin):
+def api_devices_forget(mac: str, _=recent_admin):
     return devices.forget(mac)
 
 
@@ -2167,7 +2173,7 @@ def api_security_scan(_=admin):
 
 
 @app.post("/api/security/scan/run")
-def api_security_scan_run(_=admin):
+def api_security_scan_run(_=recent_admin):
     """The weekly ClamAV scan, now. Refused during a service. Takes a while; runs in a thread."""
     import threading
     c = load()
@@ -2186,7 +2192,7 @@ class Named(BaseModel):
 
 
 @app.post("/api/security/scan/restore")
-def api_security_scan_restore(body: Named, _=admin):
+def api_security_scan_restore(body: Named, _=recent_admin):
     return security.scan_restore(body.name, body.confirm)
 
 
@@ -2211,7 +2217,7 @@ def api_updates(_=admin):
 
 
 @app.post("/api/system/update")
-def api_update(who=admin):
+def api_update(who=recent_admin):
     """Round 7, 135: any admin may install it; the ring (136) decides which version arrives."""
     r = system.update_arise()
     audit.record(who.get("user", "?"), "system.update_arise", system.ring(), ok=bool(r.get("ok")), detail=str(r.get("out") or r.get("err") or "")[:200])
@@ -2219,7 +2225,7 @@ def api_update(who=admin):
 
 
 @app.post("/api/system/apt-upgrade")
-def api_apt_upgrade(_=admin):
+def api_apt_upgrade(_=recent_admin):
     return system.apt_upgrade()
 
 
@@ -2237,7 +2243,7 @@ def api_power(body: Power, _=recent):
 
 
 @app.post("/api/notify/test")
-def api_notify_test(_=admin):
+def api_notify_test(_=recent_admin):
     c = load()
     if c.demo:
         return {"ok": True, "demo": True}
@@ -2354,7 +2360,7 @@ def api_repos(_=admin):
 
 
 @app.post("/api/repos/sync")
-def api_repos_sync(_=admin):
+def api_repos_sync(_=recent_admin):
     """Runs the unit (as arise-git, with the token as a systemd credential), never git as root here."""
     if load().demo:
         return {"ok": True, "demo": True, "started": True}
@@ -2380,12 +2386,12 @@ def api_leaving(_=admin):
 
 
 @app.post("/api/directory/users/{name}/leaving")
-def api_leaving_start(name: str, body: Leaving, who=admin):
+def api_leaving_start(name: str, body: Leaving, who=recent_admin):
     return offboard.start(name, body.move_to, who["user"], days=body.days)
 
 
 @app.delete("/api/directory/users/{name}/leaving")
-def api_leaving_cancel(name: str, who=admin):
+def api_leaving_cancel(name: str, who=recent_admin):
     return offboard.cancel(name, who["user"])
 
 
@@ -2423,7 +2429,7 @@ class NotifyAdd(BaseModel):
 
 
 @app.post("/api/notifications")
-def api_notifications_add(body: NotifyAdd, who=admin):
+def api_notifications_add(body: NotifyAdd, who=recent_admin):
     """For admins and the hooks (the internal mail server's delivery, arisectl notify add)."""
     return notify.add(body.user, body.kind, body.text, body.link)
 
@@ -2465,7 +2471,7 @@ class ChecklistTick(BaseModel):
 
 
 @app.post("/api/checklists/{dept}/tick")
-def api_checklist_tick(dept: str, body: ChecklistTick, who=admin):
+def api_checklist_tick(dept: str, body: ChecklistTick, who=recent_admin):
     return checklists.tick(dept, body.i, who)
 
 
@@ -2477,7 +2483,7 @@ class ChecklistEdit(BaseModel):
 
 
 @app.put("/api/checklists/{dept}")
-def api_checklist_edit(dept: str, body: ChecklistEdit, who=admin):
+def api_checklist_edit(dept: str, body: ChecklistEdit, who=recent_admin):
     return checklists.edit(dept, who, body.items, body.leader, body.nudge, body.services)
 
 
@@ -2491,17 +2497,17 @@ class SetupMark(BaseModel):
 
 
 @app.post("/api/setup/dismiss")
-def api_setup_dismiss(who=admin):
+def api_setup_dismiss(who=recent_admin):
     return setup_wizard.dismiss(who, True)
 
 
 @app.post("/api/setup/reopen")
-def api_setup_reopen(who=admin):
+def api_setup_reopen(who=recent_admin):
     return setup_wizard.dismiss(who, False)
 
 
 @app.post("/api/setup/{step}")
-def api_setup_mark(step: str, body: SetupMark, who=admin):
+def api_setup_mark(step: str, body: SetupMark, who=recent_admin):
     return setup_wizard.mark(step, body.status, who)
 
 
@@ -2527,7 +2533,7 @@ class KioskScale(BaseModel):
 
 
 @app.post("/api/kiosk/scale")
-def api_kiosk_scale_set(body: KioskScale, who=admin):
+def api_kiosk_scale_set(body: KioskScale, who=recent_admin):
     """Saves the size and restarts the monitor's browser (about five seconds), never during a service."""
     if body.scale not in KIOSK_SCALES:
         return {"ok": False, "err": "pick one of " + ", ".join(f"{int(s * 100)}%" for s in KIOSK_SCALES)}
@@ -2630,7 +2636,7 @@ def _directory_user(name: str) -> bool:
 
 
 @app.post("/api/directory/users/{name}/2fa/setup")
-def api_dir_user_2fa_setup(name: str, who=admin):
+def api_dir_user_2fa_setup(name: str, who=recent_admin):
     """Staff don't use the OS (round 6, 20): an admin starts two-step for them and shows them the code
     to scan in Microsoft Authenticator, then types the six digits the person reads off their phone."""
     if not _directory_user(name):
@@ -2642,7 +2648,7 @@ def api_dir_user_2fa_setup(name: str, who=admin):
 
 
 @app.post("/api/directory/users/{name}/2fa/enable")
-def api_dir_user_2fa_enable(name: str, body: Code, who=admin):
+def api_dir_user_2fa_enable(name: str, body: Code, who=recent_admin):
     if not _directory_user(name):
         return {"ok": False, "err": "no such user"}
     r = twofa.enable(name, body.code)
@@ -2676,7 +2682,7 @@ class MacToken(BaseModel):
 
 
 @app.post("/api/macs/enrol-token")
-def api_macs_token(body: MacToken, who=admin):
+def api_macs_token(body: MacToken, who=recent_admin):
     """The one Terminal line for a new church Mac (round 6, 37): good for an hour, once."""
     return church_macs.enrol_token(who["user"], body.name)
 
@@ -2694,7 +2700,7 @@ class MacLocal(BaseModel):
 
 
 @app.post("/api/macs/{mac_id}/local")
-def api_mac_local(mac_id: str, body: MacLocal, who=admin):
+def api_mac_local(mac_id: str, body: MacLocal, who=recent_admin):
     """An existing local account: convert it to the server user, link it, or leave it alone."""
     return church_macs.choose_local(mac_id, body.local, body.action, body.user, who["user"], body.display)
 
@@ -2705,7 +2711,7 @@ class MacTask(BaseModel):
 
 
 @app.post("/api/macs/{mac_id}/task")
-def api_mac_task(mac_id: str, body: MacTask, who=admin):
+def api_mac_task(mac_id: str, body: MacTask, who=recent_admin):
     return church_macs.run_task(mac_id, body.kind, who["user"], {"mode": body.mode} if body.mode else None)
 
 
@@ -2726,7 +2732,7 @@ class MacMedia(BaseModel):
 
 
 @app.post("/api/macs/{mac_id}/media")
-def api_mac_media(mac_id: str, body: MacMedia, who=admin):
+def api_mac_media(mac_id: str, body: MacMedia, who=recent_admin):
     """Round 7, 31 and 96: this is the media Mac, the one that gets Proclaim."""
     return church_macs.set_media(mac_id, body.on, who["user"])
 
@@ -2883,13 +2889,13 @@ def api_cloud_conflicts(limit: int = 100, _=admin):
 
 
 @app.post("/api/cloud/app-password")
-def api_cloud_app_password(body: CloudDevice, who=admin):
+def api_cloud_app_password(body: CloudDevice, who=recent_admin):
     """A device app password for a phone or a Mac set up by hand: shown once, never stored."""
     return cloud.app_password(body.user, body.device.strip(), by=who["user"])
 
 
 @app.post("/api/cloud/revoke")
-def api_cloud_revoke(body: CloudDevice, who=admin):
+def api_cloud_revoke(body: CloudDevice, who=recent_admin):
     """Cut off one device of a person, or (no device) every sign-in they have. Round 7, 74: the person is told."""
     r = cloud.revoke(body.user, body.device.strip() or None, by=who["user"])
     if r.get("ok") and body.user != who["user"]:
@@ -2902,7 +2908,7 @@ def api_cloud_revoke(body: CloudDevice, who=admin):
 
 
 @app.post("/api/cloud/sweep")
-def api_cloud_sweep(who=admin):
+def api_cloud_sweep(who=recent_admin):
     """Settle the conflict copies now (the hourly timer does the same). Never during a service."""
     svc = church.in_service_now()
     if svc:
@@ -3081,7 +3087,7 @@ class DemoForce(BaseModel):
 
 
 @app.post("/api/service/demo")
-def api_service_demo(body: DemoForce, _=admin):
+def api_service_demo(body: DemoForce, _=recent_admin):
     """The preview only: show service mode although no service is on."""
     return servicemode.demo_force(body.on)
 
@@ -3104,14 +3110,14 @@ class Channel(BaseModel):
 
 
 @app.post("/api/reports/discord/test")
-def api_reports_discord_test(body: Channel, who=admin):
+def api_reports_discord_test(body: Channel, who=recent_admin):
     r = reports.post(body.channel, f"ariseOS: a test line to #{body.channel} from {who['user']}.")
     audit.record(who["user"], "reports.discord.test", body.channel, ok=bool(r.get("ok")))
     return r
 
 
 @app.post("/api/reports/weekly")
-def api_reports_weekly(who=admin):
+def api_reports_weekly(who=recent_admin):
     r = reports.send_weekly()
     audit.record(who["user"], "reports.weekly", "now", ok=bool(r.get("ok")))
     return r
@@ -3129,12 +3135,12 @@ class PastorNote(BaseModel):
 
 
 @app.put("/api/reports/pastors")
-def api_reports_pastors_save(body: PastorNote, who=admin):
+def api_reports_pastors_save(body: PastorNote, who=recent_admin):
     return reports.pastors_save(body.month, body.text, who["user"])
 
 
 @app.post("/api/reports/pastors/send")
-def api_reports_pastors_send(body: PastorNote, who=admin):
+def api_reports_pastors_send(body: PastorNote, who=recent_admin):
     """Only on this click does the note go to the two pastors."""
     return reports.pastors_send(body.month, body.text, who["user"])
 
@@ -3151,22 +3157,22 @@ class NoteBody(BaseModel):
 
 
 @app.post("/api/notes-board")
-def api_notes_board_add(body: NoteBody, who=admin):
+def api_notes_board_add(body: NoteBody, who=recent_admin):
     return notes_board.add(body.text or "", who["user"], body.colour or "ink")
 
 
 @app.put("/api/notes-board/{note_id}")
-def api_notes_board_edit(note_id: str, body: NoteBody, who=admin):
+def api_notes_board_edit(note_id: str, body: NoteBody, who=recent_admin):
     return notes_board.edit(note_id, who["user"], body.text, body.pinned, body.colour)
 
 
 @app.post("/api/notes-board/{note_id}/away")
-def api_notes_board_away(note_id: str, who=admin):
+def api_notes_board_away(note_id: str, who=recent_admin):
     return notes_board.put_away(note_id, who["user"])
 
 
 @app.post("/api/notes-board/{note_id}/back")
-def api_notes_board_back(note_id: str, who=admin):
+def api_notes_board_back(note_id: str, who=recent_admin):
     return notes_board.bring_back(note_id, who["user"])
 
 
@@ -3177,7 +3183,7 @@ def api_speedtest(_=admin):
 
 
 @app.post("/api/speedtest")
-def api_speedtest_run(who=admin):
+def api_speedtest_run(who=recent_admin):
     r = speedtest.run()
     audit.record(who["user"], "speedtest.run", "now", ok=bool(r.get("ok")), detail=r.get("err", "")[:120])
     return r

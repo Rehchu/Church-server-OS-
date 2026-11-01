@@ -151,12 +151,15 @@ def resolve(token: str) -> dict | None:
     base = rs.get(l["root"])
     if base is None:
         return None
-    target = files._resolve(base["path"], l["path"])
+    target = files._resolve(base, l["path"], owner, "share link download")
     if not target or not os.path.exists(target):
+        return None
+    from . import sharing
+    if sharing._under(os.path.realpath(target), os.path.realpath(sharing.pastors_path())):
         return None
     l["downloads"] = int(l.get("downloads", 0)) + 1
     _save(d)
-    return {"path": target, "name": l["name"], "dir": os.path.isdir(target)}
+    return {"path": target, "name": l["name"], "dir": os.path.isdir(target), "owner": owner}
 
 
 def _owner_role(l: dict) -> str | None:
@@ -174,40 +177,33 @@ def _owner_role(l: dict) -> str | None:
     return "admin" if directory.is_admin(user) else "member"
 
 
-def zip_folder(path: str) -> str | None:
+def zip_folder(path: str, who=None) -> str | None:
     """Zip a folder into a temp file; None if it is over the configured limit."""
     cfg = load()
-    files_in = zip_members(path)
+    files_in = zip_members(path, who)
     if sum(n for _, _, n in files_in) > int(cfg.links.max_zip_bytes):
         return None
     import zipfile
     tmp = tempfile.mkdtemp(prefix="arise-link-")
     out = os.path.join(tmp, (os.path.basename(path) or "folder") + ".zip")
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        for full, arc, _ in files_in:
-            z.write(full, arc)
+    from .archive_safe import write_member
+    try:
+        with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+            for full, arc, _ in files_in:
+                write_member(z, os.path.realpath(path), arc, arc, who, public=True)
+    except (OSError, ValueError):
+        import shutil
+        shutil.rmtree(tmp)
+        return None
     return out
 
 
-def zip_members(path: str) -> list[tuple[str, str, int]]:
+def zip_members(path: str, who=None) -> list[tuple[str, str, int]]:
     """(file, name in the zip, size) for every regular file inside the folder. A link that
     points outside it (Shared with me holds links to other people's things) is left out:
     a share link hands over this folder, nothing it points at."""
-    base = os.path.realpath(path)
-    out = []
-    for dp, dirs, fs in os.walk(base):
-        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(dp, d))]
-        for f in fs:
-            full = os.path.join(dp, f)
-            real = os.path.realpath(full)
-            if not (real == base or real.startswith(base + os.sep)) or not os.path.isfile(real):
-                continue
-            try:
-                size = os.path.getsize(real)
-            except OSError:
-                continue
-            out.append((real, os.path.relpath(full, base), size))
-    return out
+    from .archive_safe import members
+    return members(path, who, public=True)
 
 
 def sweep() -> int:

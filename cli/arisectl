@@ -191,9 +191,9 @@ def cmd_doctor(a):
         m = _re.search(r"addresses:\s*\[([0-9.]+)/", pinned.read_text())
         cur = run(["sh", "-c", "ip -o route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i==\"src\") print $(i+1)}'"], timeout=5)["out"].strip()
         if m and cur:
-            (ok if m.group(1) == cur else bad)(f"pinned address {m.group(1)} " + ("is this box's address" if m.group(1) == cur else f"but the box answers as {cur}: another device may hold it; reboot, then re-run install.sh step 2b"))
+            (ok if m.group(1) == cur else bad)(f"pinned address {m.group(1)} " + ("is this box's address" if m.group(1) == cur else f"but the route uses {cur}: inspect the local interface configuration; this does not detect duplicate addresses"))
     else:
-        warn("address not pinned (no /etc/netplan/60-arise-pinned.yaml); if the router ever hands this box a new address the Macs lose the domain. Run install.sh again, or INSTALL.md § 5")
+        warn("DHCP addressing: verify the domain endpoint remains reachable after lease renewal. No duplicate-address test has been performed; never freeze a leased address without verifying allocation.")
     for mod in ("fastapi", "uvicorn", "psutil", "yaml", "bcrypt"):
         try:
             __import__(mod); ok(f"python module {mod}")
@@ -248,7 +248,7 @@ def cmd_doctor(a):
                 warn("disk encryption: LUKS, a TPM 2.0 is here but not bound: sudo arisectl encrypt tpm (or keep the passphrase at boot)")
             else:
                 ok("disk encryption: LUKS, the passphrase at boot (no TPM 2.0; Bradly, Oct 30, H3)")
-                (ok if est.get("ssh_unlock") else warn)("unlock over SSH at boot: " + ("on (ssh -p 2222 root@arise-server)" if est.get("ssh_unlock") else "off: sudo arisectl encrypt ssh (the closet keyboard works meanwhile)"))
+                ok("unlock over SSH at boot: " + ("configured; use the tested boot LAN address" if est.get("ssh_unlock") else "optional; the closet keyboard meets the boot policy (docs/SECURITY.md)"))
         else:
             warn("disk not encrypted (LUKS is picked in the Ubuntu installer; docs/SECURITY.md)")
         import pwd as _pwd
@@ -526,6 +526,18 @@ def cmd_ups(a):
 
 
 def cmd_backup(a):
+    from arise_server.maintenance import exclusive, MaintenanceBusy
+    if a.sub not in {"run", "offsite", "restore", "verify", "prune", "drill"}:
+        return _cmd_backup(a)
+    try:
+        with exclusive("backup"):
+            return _cmd_backup(a)
+    except MaintenanceBusy as exc:
+        bad(str(exc))
+        sys.exit(1)
+
+
+def _cmd_backup(a):
     from arise_server import backups
     cfg = load()
     if a.sub == "status":
@@ -565,6 +577,8 @@ def cmd_backup(a):
         if not a.job:
             print("  … forget/prune", flush=True)
             r = backups.forget_prune()
+            if not r.get("ok"):
+                failed += 1
             (ok if r.get("ok") else bad)("prune " + ("done" if r.get("ok") else (r.get("err") or "")[:200]))
             # Round 7, 53/54: Arise-Home is the off-site copy; raw recordings never go.
             print("  … off-site copy", flush=True)
@@ -616,7 +630,7 @@ def cmd_backup(a):
         sys.exit(0 if r.get("ok") else 1)
     elif a.sub == "verify":
         need_root()
-        r = backups._restic(["check", "--read-data-subset=10%"], 6 * 3600) if backups.available() else {"ok": True, "demo": True}
+        r = backups.check()
         if r.get("ok") and not r.get("demo"):
             from arise_server.util import read_json, write_json, now_iso
             sp = cfg.state_dir / "state.json"; st = read_json(sp, default={}); st["restic_last_check"] = now_iso(); st["restic_last_check_ok"] = True; write_json(sp, st)
@@ -776,7 +790,7 @@ def cmd_app(a):
             running = sum(int(x.get("limit_mb") or 0) for x in r["apps"] if x["status"] == "running")
             print(f"  caps of running apps: {running} MB of {r.get('ram_total_mb')} MB RAM ({apps.RESERVE_MB} MB kept for the domain and the dashboard)")
     elif a.sub == "templates":
-        table([{"template": t["id"], "name": t["name"], "autostart": "yes" if t.get("autostart") else "no", "ram": f"~{t.get('ram_mb')} MB", "cap": f"{t['limits']['mem_mb']} MB", "ports": ",".join(t.get("ports", [])), "what": t["description"][:60]} for t in apps.templates()["templates"]], ["template", "name", "autostart", "ram", "cap", "ports", "what"])
+        table([{"template": t["id"], "name": t["name"], "autostart": "yes" if t.get("autostart") else "no", "ram": f"~{t.get('ram_mb')} MB", "cap": f"{t.get('cap_mb', t['limits']['mem_mb'])} MB", "ports": ",".join(t.get("ports", [])), "what": t["description"][:60]} for t in apps.templates()["templates"]], ["template", "name", "autostart", "ram", "cap", "ports", "what"])
     elif a.sub == "catalog":
         c = apps.catalog()
         if c.get("error"): bad(c["error"]); sys.exit(1)
@@ -1314,7 +1328,7 @@ def cmd_encrypt(a):
         (ok if st.get("tpm") else warn)("TPM 2.0 " + ("present" if st.get("tpm") else "not found"))
         (ok if st.get("tpm_bound") else warn)("TPM binding (clevis) " + ("yes: boots alone" if st.get("tpm_bound") else "no"))
         if st.get("luks") and not st.get("tpm_bound"):
-            (ok if st.get("ssh_unlock") else warn)("passphrase over SSH at boot " + ("on: ssh -p 2222 root@arise-server" if st.get("ssh_unlock") else "off: sudo arisectl encrypt ssh"))
+            ok("passphrase over SSH at boot " + ("configured: use the tested boot LAN address" if st.get("ssh_unlock") else "optional: see docs/SECURITY.md; the closet keyboard works"))
         print(f"  {st.get('note', '')}")
         if st.get("demo"): warn("sample data")
     elif a.sub == "tpm":
@@ -1326,7 +1340,7 @@ def cmd_encrypt(a):
         show(security.encrypt_tpm(pw))
     elif a.sub == "ssh":
         need_root()
-        show(security.encrypt_ssh())
+        show(security.encrypt_ssh(network=a.network or "", authorized_keys=a.authorized_keys or ""))
 
 
 def cmd_snapshot(a):
@@ -1711,7 +1725,7 @@ def build():
     sp.add_parser("security").set_defaults(f=cmd_security)
     p = sp.add_parser("twofa"); p.add_argument("sub", choices=["list", "reset"]); p.add_argument("name", nargs="?"); p.set_defaults(f=cmd_twofa)
     p = sp.add_parser("rescue"); p.add_argument("sub", choices=["status", "rotate", "card"]); p.set_defaults(f=cmd_rescue)
-    p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm", "ssh"]); p.set_defaults(f=cmd_encrypt)
+    p = sp.add_parser("encrypt"); p.add_argument("sub", choices=["status", "tpm", "ssh"]); p.add_argument("--network", help="ssh: explicitly enable boot networking (dhcp, INTERFACE:dhcp, or a static kernel ip= value)"); p.add_argument("--authorized-keys", help="ssh: file of bare public keys (default: owner's authorized_keys)"); p.set_defaults(f=cmd_encrypt)
     p = sp.add_parser("snapshot"); p.add_argument("sub", choices=["create", "list", "restore", "prune"]); p.add_argument("name", nargs="?", help="a note for create, the snapshot name for restore"); p.set_defaults(f=cmd_snapshot)
     p = sp.add_parser("scan"); p.add_argument("sub", choices=["status", "run", "restore"]); p.add_argument("name", nargs="?", help="restore: the quarantined file's name"); p.set_defaults(f=cmd_scan)
     p = sp.add_parser("archive"); p.add_argument("sub", choices=["status", "build", "search", "setup"]); p.add_argument("words", nargs="*", help="search: the words (\"quoted phrase\" kept)"); p.add_argument("--full", action="store_true", help="build: the full rebuild (the Wednesday one)"); p.add_argument("--kind"); p.add_argument("--repo"); p.add_argument("--history", action="store_true", help="search: include past states"); p.add_argument("--limit", type=int, default=10); p.set_defaults(f=cmd_archive)
