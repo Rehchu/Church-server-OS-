@@ -91,7 +91,7 @@ for spec in "${REPOS[@]}"; do
   if [ -f "$key" ]; then say "deploy key for $name present"; else
     as_u ssh-keygen -q -t ed25519 -N '' -C "ariseOS archive read-only key: $name ($(hostname))" -f "$key"
   fi
-  sshcmd="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes"
+  sshcmd="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=20"
   if [ -d "$dir/.git" ]; then
     say "$name mirror present"
     as_u git -C "$dir" config core.sshCommand "$sshcmd"
@@ -105,7 +105,7 @@ for spec in "${REPOS[@]}"; do
   fi
   if [ "$DRY_RUN" = 1 ]; then
     say "[dry-run] (as $U) GIT_SSH_COMMAND='$sshcmd' clone --branch main $remote $dir   (needs ${need_gb} GB free)"
-  elif runuser -u "$U" -- env GIT_SSH_COMMAND="$sshcmd" git clone --quiet --branch main "$remote" "$dir" 2>/dev/null; then
+  elif runuser -u "$U" -- env GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND="$sshcmd" git clone --quiet --branch main "$remote" "$dir" 2>/dev/null; then
     runuser -u "$U" -- git -C "$dir" config core.sshCommand "$sshcmd"
     say "cloned $name at $(runuser -u "$U" -- git -C "$dir" rev-parse --short HEAD); $(du -sh "$dir" | cut -f1) on disk"
   else

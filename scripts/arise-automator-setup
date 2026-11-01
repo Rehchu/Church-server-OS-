@@ -92,7 +92,7 @@ run install -m 0644 "$SRC/config/automator/github_known_hosts" "$KH"
 if [ -f "$KEY" ]; then say "deploy key present"; else
   as_u ssh-keygen -q -t ed25519 -N '' -C "ariseOS read-only deploy key ($(hostname))" -f "$KEY"
 fi
-SSHCMD="ssh -i $KEY -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes"
+SSHCMD="ssh -i $KEY -o IdentitiesOnly=yes -o UserKnownHostsFile=$KH -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=20"
 
 # 4. the checkout
 if [ -d "$REPO_DIR/.git" ]; then
@@ -106,7 +106,7 @@ if [ -d "$REPO_DIR/.git" ]; then
 else
   if [ "$DRY_RUN" = 1 ]; then
     say "[dry-run] (as $U) GIT_SSH_COMMAND='$SSHCMD' git clone --branch main $REMOTE $REPO_DIR"
-  elif runuser -u "$U" -- env GIT_SSH_COMMAND="$SSHCMD" git clone --quiet --branch main "$REMOTE" "$REPO_DIR" 2>/dev/null; then
+  elif runuser -u "$U" -- env GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND="$SSHCMD" git clone --quiet --branch main "$REMOTE" "$REPO_DIR" 2>/dev/null; then
     runuser -u "$U" -- git -C "$REPO_DIR" config core.sshCommand "$SSHCMD"
     say "cloned $REMOTE (main) at $(runuser -u "$U" -- git -C "$REPO_DIR" rev-parse --short HEAD)"
   else

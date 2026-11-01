@@ -162,7 +162,11 @@ else
 fi
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-say()  { printf '\n\033[1;31m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
+say()  {
+  printf '\n\033[1;31m==>\033[0m \033[1m%s\033[0m  \033[2m(%s)\033[0m\n' "$*" "$(date '+%H:%M:%S')"
+  # The step it is on, for after a freeze or a power cut: cat /var/log/arise/install-step
+  printf '%s  %s\n' "$(date '+%F %T')" "$*" > /var/log/arise/install-step 2>/dev/null || true
+}
 note() { printf '    %s\n' "$*"; }
 warn() { printf '    \033[1;33m! %s\033[0m\n' "$*"; }
 die()  { printf '\n\033[1;31mFAILED:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -319,6 +323,9 @@ export DEBIAN_FRONTEND=noninteractive
 # services?" dialog (list only, never ask), and the apt lock held by Ubuntu's own first
 # automatic update (wait for it, up to 15 minutes, with apt's "Waiting for cache lock" on screen).
 export NEEDRESTART_MODE=l NEEDRESTART_SUSPEND=1
+# git never stops to ask for a GitHub username or password (a private repo with no key fails
+# at once instead of waiting forever on a prompt nobody sees).
+export GIT_TERMINAL_PROMPT=0
 if [ "$DRY_RUN" = 0 ]; then
   printf 'DPkg::Lock::Timeout "900";\n' > /etc/apt/apt.conf.d/52-arise-lock-wait
 fi
@@ -885,7 +892,7 @@ if [ -z "$OWNER" ] || [ "$OWNER" = root ]; then
 elif [ "$DRY_RUN" = 1 ]; then
   bash "$SRC/scripts/arise-owner-setup" --dry-run --owner "$OWNER" --src "$SRC" || warn "owner setup (dry run) reported a problem"
 else
-  bash "$SRC/scripts/arise-owner-setup" --owner "$OWNER" --src "$SRC" || warn "owner setup did not finish (above): sudo arisectl owner setup $OWNER"
+  timeout -k 30 1800 bash "$SRC/scripts/arise-owner-setup" --owner "$OWNER" --src "$SRC" </dev/null || warn "owner setup did not finish (above): sudo arisectl owner setup $OWNER"
 fi
 
 # The YouTube automator: ready, never the runner (SERVER_HANDOFF.md in the automator
@@ -895,28 +902,30 @@ fi
 if [ "$DRY_RUN" = 1 ]; then
   bash "$SRC/scripts/arise-automator-setup" --dry-run --src "$SRC" ${OWNER:+--owner "$OWNER"} || warn "automator setup (dry run) reported a problem"
 else
-  bash "$SRC/scripts/arise-automator-setup" --src "$SRC" ${OWNER:+--owner "$OWNER"} || warn "automator setup did not finish (above): sudo arisectl automator setup"
+  timeout -k 30 900 bash "$SRC/scripts/arise-automator-setup" --src "$SRC" ${OWNER:+--owner "$OWNER"} </dev/null || warn "automator setup did not finish (above): sudo arisectl automator setup"
 fi
 
 # The Arise repos, two-way with GitHub every 15 minutes (docs/REPOS.md).
 if [ "$DRY_RUN" = 1 ]; then
   bash "$SRC/scripts/arise-repos-setup" --dry-run --src "$SRC" || warn "repos setup (dry run) reported a problem"
 else
-  bash "$SRC/scripts/arise-repos-setup" --src "$SRC" || warn "repos setup did not finish (above): sudo arisectl repos setup"
+  timeout -k 30 900 bash "$SRC/scripts/arise-repos-setup" --src "$SRC" </dev/null || warn "repos setup did not finish (above): sudo arisectl repos setup"
 fi
 
 # The searchable archive of the automator repo and ProjectBackups, for Claude on the box (docs/ARCHIVE.md).
 if [ "$DRY_RUN" = 1 ]; then
   bash "$SRC/scripts/arise-archive-setup" --dry-run --src "$SRC" || warn "archive setup (dry run) reported a problem"
 else
-  bash "$SRC/scripts/arise-archive-setup" --src "$SRC" || warn "archive setup incomplete (docs/ARCHIVE.md)"
+  timeout -k 30 1800 bash "$SRC/scripts/arise-archive-setup" --src "$SRC" </dev/null || warn "archive setup incomplete (docs/ARCHIVE.md)"
 fi
 
 ENABLE_UNITS=(arise-web.service arise-nas-mount.service arise-automator.timer arise-backup.timer arise-mirror.timer arise-repos.timer arise-archive.timer arise-archive-rebuild.timer)
 for u in "${ENABLE_UNITS[@]}"; do
   if [ -f "/etc/systemd/system/$u" ] || [ -f "$UNIT_SRC/$u" ]; then
     if [ "$NO_START" = 0 ]; then
-      run systemctl enable --now "$u" || warn "$u failed to start — journalctl -u ${u%.*}"
+      # --no-block: a unit that is slow to start (the Synology mount, Persistent timers)
+      # never holds the install; the dashboard check below says whether it came up.
+      run systemctl enable --now --no-block "$u" || warn "$u failed to start — journalctl -u ${u%.*}"
     else
       run systemctl enable "$u"
     fi
@@ -926,8 +935,8 @@ for u in "${ENABLE_UNITS[@]}"; do
 done
 
 if [ "$NO_START" = 0 ] && [ "$DRY_RUN" = 0 ]; then
-  sleep 2
-  if curl -fsS "http://127.0.0.1:$WEB_PORT/api/overview" >/dev/null 2>&1 || curl -fsS "http://127.0.0.1:$WEB_PORT/" >/dev/null 2>&1; then
+  for _ in $(seq 1 15); do curl -fsS -m 5 "http://127.0.0.1:$WEB_PORT/api/health" >/dev/null 2>&1 && break; sleep 2; done
+  if curl -fsS -m 10 "http://127.0.0.1:$WEB_PORT/api/overview" >/dev/null 2>&1 || curl -fsS -m 10 "http://127.0.0.1:$WEB_PORT/" >/dev/null 2>&1; then
     note "dashboard answering on :$WEB_PORT"
   else
     warn "dashboard not answering on :$WEB_PORT yet — journalctl -u arise-web -n 50"

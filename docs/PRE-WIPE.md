@@ -66,6 +66,24 @@ It's free to wipe (H6), so this is a last look, not a backup job:
 6. From your PC, add your SSH key so the passphrase can be typed from a church computer
    (docs/SECURITY.md), then `sudo arisectl encrypt ssh`.
 
+## 6b. If the install seems frozen
+
+Every step now prints its time, long steps print "still working (N min)" every minute, and
+nothing waits forever: each slow step has a time limit, and git never stops to ask for a
+password. So if the screen hasn't changed for **20 minutes**:
+
+1. Press **Ctrl+Alt+F2** (in VirtualBox: Right Ctrl+F2) and log in. If that screen comes up,
+   the computer is fine and the install is busy or stuck on one thing. Run:
+   `cat /var/log/arise/install-step` (the step and when it started),
+   `sudo tail -n 30 /var/log/arise/install.log` (what it last did), and
+   `top` (what is using the CPU; q to quit). Send those to Claude.
+2. If **nothing** answers, not even Ctrl+Alt+F2 or Caps Lock, the whole computer froze:
+   that's the hardware or the VM, not the installer. Hold the power button, start it again, and
+   run `sudo bash /opt/arise-src/installer/install.sh --owner bradly --kiosk --no-tailscale`
+   (the install picks up where it was; finished steps are skipped). `cat /var/log/arise/install-step`
+   still says where it stopped.
+3. Ctrl+Alt+F1 goes back to the install screen.
+
 ## 7. What this PC's generation means
 
 | It has | Expect |
