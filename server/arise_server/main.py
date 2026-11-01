@@ -3170,6 +3170,43 @@ def api_notes_board_back(note_id: str, who=admin):
     return notes_board.bring_back(note_id, who["user"])
 
 
+# ---- a person's own church inbox (Bradly, Nov 1, H11) ----------------------------------
+# Every route works out the inbox from the signed-in account (inbox.py): nobody can open
+# someone else's mail by changing an ID in the browser.
+from . import inbox as _inbox  # noqa: E402
+
+
+class InboxReply(BaseModel):
+    text: str = ""
+    reply_all: bool = False
+
+
+class InboxNew(BaseModel):
+    to: str = ""
+    subject: str = ""
+    text: str = ""
+
+
+@app.get("/api/inbox")
+def api_inbox(folder: str = "inbox", who=auth):
+    return _inbox.overview(who["user"], folder)
+
+
+@app.get("/api/inbox/threads/{thread_id}")
+def api_inbox_thread(thread_id: str, who=auth):
+    return _inbox.thread(who["user"], thread_id)
+
+
+@app.post("/api/inbox/threads/{thread_id}/emails/{email_id}/reply")
+def api_inbox_reply(thread_id: str, email_id: str, body: InboxReply, who=auth):
+    return _inbox.reply(who["user"], thread_id, email_id, body.text, body.reply_all)
+
+
+@app.post("/api/inbox/send")
+def api_inbox_send(body: InboxNew, who=auth):
+    return _inbox.send(who["user"], body.to, body.subject, body.text)
+
+
 @app.get("/api/speedtest")
 def api_speedtest(_=admin):
     """The hourly internet speed test (121), for Activity Monitor → Network."""

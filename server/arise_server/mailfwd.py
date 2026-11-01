@@ -73,8 +73,9 @@ def aliases(users: list[dict], emails: dict[str, str]) -> dict[str, dict]:
     return out
 
 
-def route(msg_to: list[str], als: dict[str, dict], domain: str = DOMAIN) -> list[dict]:
-    """Pure: where one arrived message goes. [{alias, to}|{alias, why}] per address at our domain."""
+def route(msg_to: list[str], als: dict[str, dict], domain: str = DOMAIN, inboxes: tuple | list = ()) -> list[dict]:
+    """Pure: where one arrived message goes. [{alias, to}|{alias, why}] per address at our domain.
+    A person with a church inbox on the dashboard (inbox.py, H11) reads it there: not forwarded."""
     out, seen = [], set()
     for a in msg_to:
         local, _, dom = a.partition("@")
@@ -82,7 +83,9 @@ def route(msg_to: list[str], als: dict[str, dict], domain: str = DOMAIN) -> list
             continue
         seen.add(local)
         al = als.get(local)
-        if not al:
+        if local in inboxes:
+            out.append({"alias": local, "why": "reads it in their church inbox on the dashboard"})
+        elif not al:
             out.append({"alias": local, "why": "no such person"})
         elif not al["enabled"]:
             out.append({"alias": local, "why": "account switched off"})
@@ -220,7 +223,8 @@ def run_once(call=None) -> dict:
     als = aliases(users, emails)
     fwd = 0
     for it in new:
-        targets = route(addresses(it.get("to")) + addresses(it.get("cc")), als, c["domain"])
+        from . import inbox as _inbox
+        targets = route(addresses(it.get("to")) + addresses(it.get("cc")), als, c["domain"], _inbox.users())
         full = None
         for t in targets:
             row = {"t": datetime.now().isoformat(timespec="seconds"), "id": it["id"], "alias": t["alias"],

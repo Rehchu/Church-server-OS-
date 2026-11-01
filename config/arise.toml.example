@@ -342,3 +342,11 @@ it_portal_url = "https://itportal.myfaithtech.com"   # 118/119: AriseHub's IT po
 [mailfwd]
 enabled = false
 domain = "arisecenla.com"
+
+# A church inbox on the dashboard (Nov 1, H11): the person signs in with their own account and
+# sees only first.last@arisecenla.com; Bradly sees every inbox in Resend. The mail stays in
+# Resend, and the server's Resend key needs FULL access to read it. Make each one with
+#   sudo arisectl mail inbox create <first.last>
+# People listed here are left out of forwarding (their mail arrives once, in the inbox).
+[inbox]
+users = ["kristina.robinson"]

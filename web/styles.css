@@ -982,3 +982,18 @@ body.bone .nb__n{background:rgba(10,10,12,.05)}body.bone .nb__n p{color:#0A0A0C}
 .yt__steps li{line-height:1.5}
 .yt__steps .btn{margin-right:8px}
 .yt__steps input{width:100%;margin-top:6px;font-size:16px;font-family:var(--mono,ui-monospace,Menlo,monospace)}
+
+/* Inbox (H11): a person's own church email */
+.ibx-cols { display: grid; grid-template-columns: minmax(220px, 34%) 1fr; gap: 12px; min-height: 420px; }
+.ibx-list { border-right: 1px solid var(--line); overflow: auto; max-height: 560px; }
+.ibx-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; width: 100%; text-align: left; padding: 9px 10px; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; cursor: pointer; }
+.ibx-row:hover, .ibx-row.on { background: color-mix(in srgb, var(--red) 10%, transparent); }
+.ibx-row .ibx-subj { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ibx-row.unread .ibx-from, .ibx-row.unread .ibx-subj { font-weight: 700; color: inherit; }
+.ibx-when { font-size: 11.5px; }
+.ibx-view { overflow: auto; max-height: 560px; }
+.ibx-msg { margin-bottom: 8px; }
+.ibx-msg.out { border-left: 3px solid var(--red); }
+.ibx-text { white-space: pre-wrap; word-break: break-word; font: inherit; margin: 8px 0 0; }
+.ibx-html { width: 100%; height: 360px; border: 0; background: #fff; margin-top: 8px; border-radius: 6px; }
+@media (max-width: 720px) { .ibx-cols { grid-template-columns: 1fr; } .ibx-list { border-right: 0; max-height: 260px; } }

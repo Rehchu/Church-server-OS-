@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793459224
+"boot_time": 1793556266
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,22 +32,22 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-10-31T02:10:21",
+"last_run": "2026-11-01T02:24:29",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
-"next_run": "2026-11-01T02:05:00",
+"next_run": "2026-11-02T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 0.9,
+"token_days_left": 6.7,
 "holds": 8
 },
 "backup": {
 "last": {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-31T03:16:00",
-"finished": "2026-10-31T03:22:00",
+"started": "2026-11-01T03:16:00",
+"finished": "2026-11-01T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -67,10 +67,6 @@ window.ARISE_DEMO_DATA = {
 {
 "level": "warn",
 "text": "No config at /etc/arise/arise.toml: running on defaults with sample data. Run the installer or `arisectl doctor`."
-},
-{
-"level": "warn",
-"text": "The server's YouTube sign-in ends Sun Nov 1, 12:14 PM; renew it from the Media Mac: Automator → Sign-in."
 },
 {
 "level": "warn",
@@ -94,56 +90,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-17T12:10:21"
+"since": "2026-10-18T15:24:29"
 }
 ]
 },
@@ -173,7 +169,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T14:10:21",
+"last_logon": "2026-11-01T17:24:29",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -187,7 +183,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T15:10:21",
+"last_logon": "2026-10-31T18:24:29",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -201,7 +197,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T12:10:21",
+"last_logon": "2026-10-30T15:24:29",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -215,7 +211,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-25T15:10:21",
+"last_logon": "2026-10-26T18:24:29",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -243,7 +239,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-28T15:10:21",
+"last_logon": "2026-10-29T18:24:29",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -257,7 +253,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-22T15:10:21",
+"last_logon": "2026-10-23T18:24:29",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -274,7 +270,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T11:10:21",
+"last_logon": "2026-10-31T14:24:29",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -291,7 +287,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-29T15:10:21",
+"last_logon": "2026-10-30T18:24:29",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -307,7 +303,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T08:10:21",
+"last_logon": "2026-10-31T11:24:29",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -413,28 +409,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-10-31T14:10:21",
+"last_seen": "2026-11-01T17:24:29",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-10-30T15:10:21",
+"last_seen": "2026-10-31T18:24:29",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-29T15:10:21",
+"last_seen": "2026-10-30T18:24:29",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-10-31T15:06:21",
+"last_seen": "2026-11-01T18:20:29",
 "ip": "192.168.1.20"
 }
 ]
@@ -783,8 +779,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-31T03:16:00",
-"finished": "2026-10-31T03:22:00",
+"started": "2026-11-01T03:16:00",
+"finished": "2026-11-01T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -794,8 +790,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-31T03:12:00",
-"finished": "2026-10-31T03:17:00",
+"started": "2026-11-01T03:12:00",
+"finished": "2026-11-01T03:17:00",
 "ok": true,
 "snapshot_id": "e832b869",
 "bytes_added": 732332902,
@@ -805,8 +801,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-31T03:08:00",
-"finished": "2026-10-31T03:12:00",
+"started": "2026-11-01T03:08:00",
+"finished": "2026-11-01T03:12:00",
 "ok": true,
 "snapshot_id": "c969abbb",
 "bytes_added": 645615127,
@@ -816,8 +812,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-31T03:04:00",
-"finished": "2026-10-31T03:07:00",
+"started": "2026-11-01T03:04:00",
+"finished": "2026-11-01T03:07:00",
 "ok": true,
 "snapshot_id": "259256a9",
 "bytes_added": 473260162,
@@ -827,8 +823,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-31T03:00:00",
-"finished": "2026-10-31T03:02:00",
+"started": "2026-11-01T03:00:00",
+"finished": "2026-11-01T03:02:00",
 "ok": true,
 "snapshot_id": "846050e1",
 "bytes_added": 835870251,
@@ -838,8 +834,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-30T03:16:00",
-"finished": "2026-10-30T03:22:00",
+"started": "2026-10-31T03:16:00",
+"finished": "2026-10-31T03:22:00",
 "ok": true,
 "snapshot_id": "abb77450",
 "bytes_added": 294756223,
@@ -849,8 +845,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-30T03:12:00",
-"finished": "2026-10-30T03:17:00",
+"started": "2026-10-31T03:12:00",
+"finished": "2026-10-31T03:17:00",
 "ok": true,
 "snapshot_id": "aa98bfa9",
 "bytes_added": 240482372,
@@ -860,8 +856,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-30T03:08:00",
-"finished": "2026-10-30T03:12:00",
+"started": "2026-10-31T03:08:00",
+"finished": "2026-10-31T03:12:00",
 "ok": true,
 "snapshot_id": "8ed937c6",
 "bytes_added": 77416523,
@@ -871,8 +867,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-30T03:04:00",
-"finished": "2026-10-30T03:07:00",
+"started": "2026-10-31T03:04:00",
+"finished": "2026-10-31T03:07:00",
 "ok": true,
 "snapshot_id": "630e3bd0",
 "bytes_added": 192267031,
@@ -882,8 +878,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-30T03:00:00",
-"finished": "2026-10-30T03:02:00",
+"started": "2026-10-31T03:00:00",
+"finished": "2026-10-31T03:02:00",
 "ok": true,
 "snapshot_id": "5a5ad5ba",
 "bytes_added": 698669116,
@@ -893,8 +889,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-29T03:16:00",
-"finished": "2026-10-29T03:22:00",
+"started": "2026-10-30T03:16:00",
+"finished": "2026-10-30T03:22:00",
 "ok": true,
 "snapshot_id": "5cdfd95f",
 "bytes_added": 672507744,
@@ -904,8 +900,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-29T03:12:00",
-"finished": "2026-10-29T03:17:00",
+"started": "2026-10-30T03:12:00",
+"finished": "2026-10-30T03:17:00",
 "ok": true,
 "snapshot_id": "a6f310ba",
 "bytes_added": 452946068,
@@ -915,8 +911,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-29T03:08:00",
-"finished": "2026-10-29T03:12:00",
+"started": "2026-10-30T03:08:00",
+"finished": "2026-10-30T03:12:00",
 "ok": true,
 "snapshot_id": "4ce9bd68",
 "bytes_added": 816562910,
@@ -926,8 +922,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-29T03:04:00",
-"finished": "2026-10-29T03:07:00",
+"started": "2026-10-30T03:04:00",
+"finished": "2026-10-30T03:07:00",
 "ok": true,
 "snapshot_id": "a499cae4",
 "bytes_added": 187818933,
@@ -937,8 +933,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-29T03:00:00",
-"finished": "2026-10-29T03:02:00",
+"started": "2026-10-30T03:00:00",
+"finished": "2026-10-30T03:02:00",
 "ok": true,
 "snapshot_id": "4ee5384f",
 "bytes_added": 427558721,
@@ -948,8 +944,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-28T03:16:00",
-"finished": "2026-10-28T03:22:00",
+"started": "2026-10-29T03:16:00",
+"finished": "2026-10-29T03:22:00",
 "ok": true,
 "snapshot_id": "7df339f5",
 "bytes_added": 532481488,
@@ -959,8 +955,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-28T03:12:00",
-"finished": "2026-10-28T03:17:00",
+"started": "2026-10-29T03:12:00",
+"finished": "2026-10-29T03:17:00",
 "ok": true,
 "snapshot_id": "c975f84e",
 "bytes_added": 13182860,
@@ -970,8 +966,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-28T03:08:00",
-"finished": "2026-10-28T03:12:00",
+"started": "2026-10-29T03:08:00",
+"finished": "2026-10-29T03:12:00",
 "ok": true,
 "snapshot_id": "02909230",
 "bytes_added": 783198899,
@@ -981,8 +977,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-28T03:04:00",
-"finished": "2026-10-28T03:07:00",
+"started": "2026-10-29T03:04:00",
+"finished": "2026-10-29T03:07:00",
 "ok": false,
 "snapshot_id": null,
 "bytes_added": 0,
@@ -992,8 +988,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-28T03:00:00",
-"finished": "2026-10-28T03:02:00",
+"started": "2026-10-29T03:00:00",
+"finished": "2026-10-29T03:02:00",
 "ok": true,
 "snapshot_id": "cc3addef",
 "bytes_added": 601380732,
@@ -1003,8 +999,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-27T03:16:00",
-"finished": "2026-10-27T03:22:00",
+"started": "2026-10-28T03:16:00",
+"finished": "2026-10-28T03:22:00",
 "ok": true,
 "snapshot_id": "7e0b464c",
 "bytes_added": 40046327,
@@ -1014,8 +1010,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-27T03:12:00",
-"finished": "2026-10-27T03:17:00",
+"started": "2026-10-28T03:12:00",
+"finished": "2026-10-28T03:17:00",
 "ok": true,
 "snapshot_id": "3f2a32a2",
 "bytes_added": 876195599,
@@ -1025,8 +1021,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-27T03:08:00",
-"finished": "2026-10-27T03:12:00",
+"started": "2026-10-28T03:08:00",
+"finished": "2026-10-28T03:12:00",
 "ok": true,
 "snapshot_id": "d4290bd4",
 "bytes_added": 754687263,
@@ -1036,8 +1032,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-27T03:04:00",
-"finished": "2026-10-27T03:07:00",
+"started": "2026-10-28T03:04:00",
+"finished": "2026-10-28T03:07:00",
 "ok": true,
 "snapshot_id": "c5c5fa5d",
 "bytes_added": 48996687,
@@ -1047,8 +1043,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-27T03:00:00",
-"finished": "2026-10-27T03:02:00",
+"started": "2026-10-28T03:00:00",
+"finished": "2026-10-28T03:02:00",
 "ok": true,
 "snapshot_id": "fafad058",
 "bytes_added": 815794861,
@@ -1058,8 +1054,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-26T03:16:00",
-"finished": "2026-10-26T03:22:00",
+"started": "2026-10-27T03:16:00",
+"finished": "2026-10-27T03:22:00",
 "ok": true,
 "snapshot_id": "9c005919",
 "bytes_added": 639567995,
@@ -1069,8 +1065,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-26T03:12:00",
-"finished": "2026-10-26T03:17:00",
+"started": "2026-10-27T03:12:00",
+"finished": "2026-10-27T03:17:00",
 "ok": true,
 "snapshot_id": "4070e9eb",
 "bytes_added": 704605695,
@@ -1080,8 +1076,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-26T03:08:00",
-"finished": "2026-10-26T03:12:00",
+"started": "2026-10-27T03:08:00",
+"finished": "2026-10-27T03:12:00",
 "ok": true,
 "snapshot_id": "64050c6c",
 "bytes_added": 38233364,
@@ -1091,8 +1087,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-26T03:04:00",
-"finished": "2026-10-26T03:07:00",
+"started": "2026-10-27T03:04:00",
+"finished": "2026-10-27T03:07:00",
 "ok": true,
 "snapshot_id": "0b2c04a7",
 "bytes_added": 55465593,
@@ -1102,8 +1098,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-26T03:00:00",
-"finished": "2026-10-26T03:02:00",
+"started": "2026-10-27T03:00:00",
+"finished": "2026-10-27T03:02:00",
 "ok": true,
 "snapshot_id": "60b2ecc9",
 "bytes_added": 570044627,
@@ -1113,8 +1109,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-25T03:16:00",
-"finished": "2026-10-25T03:22:00",
+"started": "2026-10-26T03:16:00",
+"finished": "2026-10-26T03:22:00",
 "ok": true,
 "snapshot_id": "a12f4a66",
 "bytes_added": 781410437,
@@ -1124,8 +1120,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-25T03:12:00",
-"finished": "2026-10-25T03:17:00",
+"started": "2026-10-26T03:12:00",
+"finished": "2026-10-26T03:17:00",
 "ok": true,
 "snapshot_id": "bf8d7fc7",
 "bytes_added": 700137143,
@@ -1135,8 +1131,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-25T03:08:00",
-"finished": "2026-10-25T03:12:00",
+"started": "2026-10-26T03:08:00",
+"finished": "2026-10-26T03:12:00",
 "ok": true,
 "snapshot_id": "061ecf32",
 "bytes_added": 186301514,
@@ -1146,8 +1142,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-25T03:04:00",
-"finished": "2026-10-25T03:07:00",
+"started": "2026-10-26T03:04:00",
+"finished": "2026-10-26T03:07:00",
 "ok": true,
 "snapshot_id": "e3773c07",
 "bytes_added": 759328297,
@@ -1157,8 +1153,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-25T03:00:00",
-"finished": "2026-10-25T03:02:00",
+"started": "2026-10-26T03:00:00",
+"finished": "2026-10-26T03:02:00",
 "ok": true,
 "snapshot_id": "6cc02888",
 "bytes_added": 767912817,
@@ -1168,8 +1164,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-24T03:16:00",
-"finished": "2026-10-24T03:22:00",
+"started": "2026-10-25T03:16:00",
+"finished": "2026-10-25T03:22:00",
 "ok": true,
 "snapshot_id": "20612248",
 "bytes_added": 549206482,
@@ -1179,8 +1175,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-24T03:12:00",
-"finished": "2026-10-24T03:17:00",
+"started": "2026-10-25T03:12:00",
+"finished": "2026-10-25T03:17:00",
 "ok": true,
 "snapshot_id": "90a55165",
 "bytes_added": 109670720,
@@ -1190,8 +1186,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-24T03:08:00",
-"finished": "2026-10-24T03:12:00",
+"started": "2026-10-25T03:08:00",
+"finished": "2026-10-25T03:12:00",
 "ok": true,
 "snapshot_id": "a3f50b1f",
 "bytes_added": 554531196,
@@ -1201,8 +1197,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-24T03:04:00",
-"finished": "2026-10-24T03:07:00",
+"started": "2026-10-25T03:04:00",
+"finished": "2026-10-25T03:07:00",
 "ok": true,
 "snapshot_id": "27fd6a6c",
 "bytes_added": 48151243,
@@ -1212,8 +1208,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-24T03:00:00",
-"finished": "2026-10-24T03:02:00",
+"started": "2026-10-25T03:00:00",
+"finished": "2026-10-25T03:02:00",
 "ok": true,
 "snapshot_id": "fabca970",
 "bytes_added": 621893529,
@@ -1223,8 +1219,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-23T03:16:00",
-"finished": "2026-10-23T03:22:00",
+"started": "2026-10-24T03:16:00",
+"finished": "2026-10-24T03:22:00",
 "ok": true,
 "snapshot_id": "cc940bac",
 "bytes_added": 640055100,
@@ -1234,8 +1230,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-23T03:12:00",
-"finished": "2026-10-23T03:17:00",
+"started": "2026-10-24T03:12:00",
+"finished": "2026-10-24T03:17:00",
 "ok": true,
 "snapshot_id": "59a25568",
 "bytes_added": 4082891,
@@ -1245,8 +1241,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-23T03:08:00",
-"finished": "2026-10-23T03:12:00",
+"started": "2026-10-24T03:08:00",
+"finished": "2026-10-24T03:12:00",
 "ok": true,
 "snapshot_id": "35babc3e",
 "bytes_added": 743739814,
@@ -1256,8 +1252,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-23T03:04:00",
-"finished": "2026-10-23T03:07:00",
+"started": "2026-10-24T03:04:00",
+"finished": "2026-10-24T03:07:00",
 "ok": true,
 "snapshot_id": "36cbd4e0",
 "bytes_added": 20778927,
@@ -1267,8 +1263,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-23T03:00:00",
-"finished": "2026-10-23T03:02:00",
+"started": "2026-10-24T03:00:00",
+"finished": "2026-10-24T03:02:00",
 "ok": true,
 "snapshot_id": "395bb752",
 "bytes_added": 574232645,
@@ -1278,8 +1274,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-22T03:16:00",
-"finished": "2026-10-22T03:22:00",
+"started": "2026-10-23T03:16:00",
+"finished": "2026-10-23T03:22:00",
 "ok": true,
 "snapshot_id": "ad45ace2",
 "bytes_added": 708421267,
@@ -1289,8 +1285,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-22T03:12:00",
-"finished": "2026-10-22T03:17:00",
+"started": "2026-10-23T03:12:00",
+"finished": "2026-10-23T03:17:00",
 "ok": true,
 "snapshot_id": "54a66a66",
 "bytes_added": 375722925,
@@ -1300,8 +1296,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-22T03:08:00",
-"finished": "2026-10-22T03:12:00",
+"started": "2026-10-23T03:08:00",
+"finished": "2026-10-23T03:12:00",
 "ok": true,
 "snapshot_id": "7b1b19e3",
 "bytes_added": 595628494,
@@ -1311,8 +1307,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-22T03:04:00",
-"finished": "2026-10-22T03:07:00",
+"started": "2026-10-23T03:04:00",
+"finished": "2026-10-23T03:07:00",
 "ok": true,
 "snapshot_id": "eee6a312",
 "bytes_added": 369329751,
@@ -1322,8 +1318,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-22T03:00:00",
-"finished": "2026-10-22T03:02:00",
+"started": "2026-10-23T03:00:00",
+"finished": "2026-10-23T03:02:00",
 "ok": true,
 "snapshot_id": "4c7503e0",
 "bytes_added": 568788945,
@@ -1333,8 +1329,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-21T03:16:00",
-"finished": "2026-10-21T03:22:00",
+"started": "2026-10-22T03:16:00",
+"finished": "2026-10-22T03:22:00",
 "ok": true,
 "snapshot_id": "288fe0b4",
 "bytes_added": 652224545,
@@ -1344,8 +1340,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-21T03:12:00",
-"finished": "2026-10-21T03:17:00",
+"started": "2026-10-22T03:12:00",
+"finished": "2026-10-22T03:17:00",
 "ok": true,
 "snapshot_id": "2c32cdd1",
 "bytes_added": 232029092,
@@ -1355,8 +1351,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-21T03:08:00",
-"finished": "2026-10-21T03:12:00",
+"started": "2026-10-22T03:08:00",
+"finished": "2026-10-22T03:12:00",
 "ok": true,
 "snapshot_id": "171f5b24",
 "bytes_added": 492040617,
@@ -1366,8 +1362,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-21T03:04:00",
-"finished": "2026-10-21T03:07:00",
+"started": "2026-10-22T03:04:00",
+"finished": "2026-10-22T03:07:00",
 "ok": true,
 "snapshot_id": "0bb7a02a",
 "bytes_added": 103254805,
@@ -1377,8 +1373,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-21T03:00:00",
-"finished": "2026-10-21T03:02:00",
+"started": "2026-10-22T03:00:00",
+"finished": "2026-10-22T03:02:00",
 "ok": true,
 "snapshot_id": "fb7e3180",
 "bytes_added": 46457264,
@@ -1393,7 +1389,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": [
 {
 "id": "b56fb937",
-"time": "2026-10-31T03:16:00",
+"time": "2026-11-01T03:16:00",
 "tags": [
 "config"
 ],
@@ -1405,7 +1401,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e832b869",
-"time": "2026-10-31T03:12:00",
+"time": "2026-11-01T03:12:00",
 "tags": [
 "github"
 ],
@@ -1415,7 +1411,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c969abbb",
-"time": "2026-10-31T03:08:00",
+"time": "2026-11-01T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1425,7 +1421,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "259256a9",
-"time": "2026-10-31T03:04:00",
+"time": "2026-11-01T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1435,7 +1431,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "846050e1",
-"time": "2026-10-31T03:00:00",
+"time": "2026-11-01T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1445,7 +1441,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "abb77450",
-"time": "2026-10-30T03:16:00",
+"time": "2026-10-31T03:16:00",
 "tags": [
 "config"
 ],
@@ -1457,7 +1453,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "aa98bfa9",
-"time": "2026-10-30T03:12:00",
+"time": "2026-10-31T03:12:00",
 "tags": [
 "github"
 ],
@@ -1467,7 +1463,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "8ed937c6",
-"time": "2026-10-30T03:08:00",
+"time": "2026-10-31T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1477,7 +1473,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "630e3bd0",
-"time": "2026-10-30T03:04:00",
+"time": "2026-10-31T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1487,7 +1483,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5a5ad5ba",
-"time": "2026-10-30T03:00:00",
+"time": "2026-10-31T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1497,7 +1493,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5cdfd95f",
-"time": "2026-10-29T03:16:00",
+"time": "2026-10-30T03:16:00",
 "tags": [
 "config"
 ],
@@ -1509,7 +1505,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a6f310ba",
-"time": "2026-10-29T03:12:00",
+"time": "2026-10-30T03:12:00",
 "tags": [
 "github"
 ],
@@ -1519,7 +1515,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ce9bd68",
-"time": "2026-10-29T03:08:00",
+"time": "2026-10-30T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1529,7 +1525,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a499cae4",
-"time": "2026-10-29T03:04:00",
+"time": "2026-10-30T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1539,7 +1535,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ee5384f",
-"time": "2026-10-29T03:00:00",
+"time": "2026-10-30T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1549,7 +1545,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7df339f5",
-"time": "2026-10-28T03:16:00",
+"time": "2026-10-29T03:16:00",
 "tags": [
 "config"
 ],
@@ -1561,7 +1557,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c975f84e",
-"time": "2026-10-28T03:12:00",
+"time": "2026-10-29T03:12:00",
 "tags": [
 "github"
 ],
@@ -1571,7 +1567,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "02909230",
-"time": "2026-10-28T03:08:00",
+"time": "2026-10-29T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1581,7 +1577,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc3addef",
-"time": "2026-10-28T03:00:00",
+"time": "2026-10-29T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1591,7 +1587,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7e0b464c",
-"time": "2026-10-27T03:16:00",
+"time": "2026-10-28T03:16:00",
 "tags": [
 "config"
 ],
@@ -1603,7 +1599,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "3f2a32a2",
-"time": "2026-10-27T03:12:00",
+"time": "2026-10-28T03:12:00",
 "tags": [
 "github"
 ],
@@ -1613,7 +1609,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "d4290bd4",
-"time": "2026-10-27T03:08:00",
+"time": "2026-10-28T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1623,7 +1619,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c5c5fa5d",
-"time": "2026-10-27T03:04:00",
+"time": "2026-10-28T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1633,7 +1629,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fafad058",
-"time": "2026-10-27T03:00:00",
+"time": "2026-10-28T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1643,7 +1639,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "9c005919",
-"time": "2026-10-26T03:16:00",
+"time": "2026-10-27T03:16:00",
 "tags": [
 "config"
 ],
@@ -1655,7 +1651,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4070e9eb",
-"time": "2026-10-26T03:12:00",
+"time": "2026-10-27T03:12:00",
 "tags": [
 "github"
 ],
@@ -1665,7 +1661,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "64050c6c",
-"time": "2026-10-26T03:08:00",
+"time": "2026-10-27T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1675,7 +1671,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0b2c04a7",
-"time": "2026-10-26T03:04:00",
+"time": "2026-10-27T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1685,7 +1681,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "60b2ecc9",
-"time": "2026-10-26T03:00:00",
+"time": "2026-10-27T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1695,7 +1691,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a12f4a66",
-"time": "2026-10-25T03:16:00",
+"time": "2026-10-26T03:16:00",
 "tags": [
 "config"
 ],
@@ -1707,7 +1703,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "bf8d7fc7",
-"time": "2026-10-25T03:12:00",
+"time": "2026-10-26T03:12:00",
 "tags": [
 "github"
 ],
@@ -1717,7 +1713,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "061ecf32",
-"time": "2026-10-25T03:08:00",
+"time": "2026-10-26T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1727,7 +1723,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e3773c07",
-"time": "2026-10-25T03:04:00",
+"time": "2026-10-26T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1737,7 +1733,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "6cc02888",
-"time": "2026-10-25T03:00:00",
+"time": "2026-10-26T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1747,7 +1743,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "20612248",
-"time": "2026-10-24T03:16:00",
+"time": "2026-10-25T03:16:00",
 "tags": [
 "config"
 ],
@@ -1759,7 +1755,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "90a55165",
-"time": "2026-10-24T03:12:00",
+"time": "2026-10-25T03:12:00",
 "tags": [
 "github"
 ],
@@ -1769,7 +1765,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a3f50b1f",
-"time": "2026-10-24T03:08:00",
+"time": "2026-10-25T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1779,7 +1775,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "27fd6a6c",
-"time": "2026-10-24T03:04:00",
+"time": "2026-10-25T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1789,7 +1785,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fabca970",
-"time": "2026-10-24T03:00:00",
+"time": "2026-10-25T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1799,7 +1795,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc940bac",
-"time": "2026-10-23T03:16:00",
+"time": "2026-10-24T03:16:00",
 "tags": [
 "config"
 ],
@@ -1811,7 +1807,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "59a25568",
-"time": "2026-10-23T03:12:00",
+"time": "2026-10-24T03:12:00",
 "tags": [
 "github"
 ],
@@ -1821,7 +1817,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "35babc3e",
-"time": "2026-10-23T03:08:00",
+"time": "2026-10-24T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1831,7 +1827,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "36cbd4e0",
-"time": "2026-10-23T03:04:00",
+"time": "2026-10-24T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1841,7 +1837,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "395bb752",
-"time": "2026-10-23T03:00:00",
+"time": "2026-10-24T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1851,7 +1847,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "ad45ace2",
-"time": "2026-10-22T03:16:00",
+"time": "2026-10-23T03:16:00",
 "tags": [
 "config"
 ],
@@ -1863,7 +1859,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "54a66a66",
-"time": "2026-10-22T03:12:00",
+"time": "2026-10-23T03:12:00",
 "tags": [
 "github"
 ],
@@ -1873,7 +1869,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7b1b19e3",
-"time": "2026-10-22T03:08:00",
+"time": "2026-10-23T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1883,7 +1879,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "eee6a312",
-"time": "2026-10-22T03:04:00",
+"time": "2026-10-23T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1893,7 +1889,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4c7503e0",
-"time": "2026-10-22T03:00:00",
+"time": "2026-10-23T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1903,7 +1899,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "288fe0b4",
-"time": "2026-10-21T03:16:00",
+"time": "2026-10-22T03:16:00",
 "tags": [
 "config"
 ],
@@ -1915,7 +1911,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "2c32cdd1",
-"time": "2026-10-21T03:12:00",
+"time": "2026-10-22T03:12:00",
 "tags": [
 "github"
 ],
@@ -1925,7 +1921,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "171f5b24",
-"time": "2026-10-21T03:08:00",
+"time": "2026-10-22T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1935,7 +1931,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0bb7a02a",
-"time": "2026-10-21T03:04:00",
+"time": "2026-10-22T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1945,7 +1941,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fb7e3180",
-"time": "2026-10-21T03:00:00",
+"time": "2026-10-22T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1962,7 +1958,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-22T15:10:21",
+"last_check": "2026-10-23T18:24:29",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1994,10 +1990,10 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-10-31T02:10:21",
+"last_run": "2026-11-01T02:24:29",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
-"next_run": "2026-11-01T02:05:00",
+"next_run": "2026-11-02T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "quota_reset": "2:00 AM Central",
@@ -2006,8 +2002,8 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 0.9,
-"token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 1, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
+"token_days_left": 6.7,
+"token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 8, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
 "reports": [
@@ -2027,13 +2023,13 @@ window.ARISE_DEMO_DATA = {
 "signin": {
 "testing": true,
 "known": true,
-"issued": "2026-10-25T12:14",
-"expires": "2026-11-01T12:14",
-"expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 21.1,
-"days_left": 0.9,
+"issued": "2026-11-01T12:14",
+"expires": "2026-11-08T12:14",
+"expires_text": "Sun Nov 8, 12:14 PM",
+"hours_left": 161.8,
+"days_left": 6.7,
 "expired": false,
-"soon": true,
+"soon": false,
 "by": "bradly"
 },
 "demo": true,
@@ -2045,7 +2041,7 @@ window.ARISE_DEMO_DATA = {
 "machine": "ariseOS",
 "is_runner": false,
 "budget": 6000,
-"day": "sat",
+"day": "sun",
 "note": "pc runs the 02:05 job; this server writes a 'not the runner' report and changes nothing"
 }
 },
@@ -2128,17 +2124,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-10-31T10:10:21",
+"when": "2026-11-01T13:24:29",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-10-31T10:10:21",
+"when": "2026-11-01T13:24:29",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-10-31T10:10:21",
+"when": "2026-11-01T13:24:29",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2228,7 +2224,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2245,7 +2241,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2262,7 +2258,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2279,7 +2275,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2296,7 +2292,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-29T15:10:21",
+"updated": "2026-10-30T18:24:29",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2313,7 +2309,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2330,7 +2326,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2347,7 +2343,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-10-30T15:10:21",
+"updated": "2026-10-31T18:24:29",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2364,7 +2360,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2381,7 +2377,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-28T15:10:21",
+"updated": "2026-10-29T18:24:29",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3229,7 +3225,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-10-30T13:10:21",
+"last": "2026-10-31T16:24:29",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3493,7 +3489,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-10-31T15:10"
+"when": "2026-11-01T18:24"
 },
 {
 "user": "bradly",
@@ -3727,8 +3723,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-29T15:10",
-"expires": "2026-11-05T15:10",
+"created": "2026-10-30T18:24",
+"expires": "2026-11-06T18:24",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4071,17 +4067,17 @@ window.ARISE_DEMO_DATA = {
 "After service: stop the recording, end the YouTube stream, leave the automator to run at 02:05"
 ],
 "next": {
-"name": "Sunday Service",
-"site": "Alexandria",
-"day": "Sunday",
-"time": "10:00",
-"at": "2026-11-01T10:00",
-"in_minutes": 1129,
-"in_words": "18 h 49 min"
+"name": "Glory Night",
+"site": "Pineville",
+"day": "Monday",
+"time": "19:00",
+"at": "2026-11-02T19:00",
+"in_minutes": 1475,
+"in_words": "24 h 35 min"
 },
 "verse": {
-"ref": "Romans 8:28",
-"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+"ref": "Isaiah 40:31",
+"text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
 "translation": "King James Version",
 "demo": true
 },
@@ -4205,17 +4201,17 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "next": {
-"name": "Sunday Service",
-"site": "Alexandria",
-"day": "Sunday",
-"time": "10:00",
-"at": "2026-11-01T10:00",
-"in_minutes": 1129,
-"in_words": "18 h 49 min"
+"name": "Glory Night",
+"site": "Pineville",
+"day": "Monday",
+"time": "19:00",
+"at": "2026-11-02T19:00",
+"in_minutes": 1475,
+"in_words": "24 h 35 min"
 },
 "verse": {
-"ref": "Romans 8:28",
-"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+"ref": "Isaiah 40:31",
+"text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
 "translation": "King James Version",
 "demo": true
 },
@@ -4257,7 +4253,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-10-31T15:10"
+"now": "2026-11-01T18:24"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4361,7 +4357,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-10-31T15:10:23+00:00",
+"last_check": "2026-11-01T18:24:30+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4374,7 +4370,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-10-31T11:10:23",
+"t": "2026-11-01T14:24:30",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4382,7 +4378,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-30T10:10:23",
+"t": "2026-10-31T13:24:30",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4390,7 +4386,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-29T15:10:23",
+"t": "2026-10-30T18:24:30",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4398,7 +4394,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T13:10:23",
+"t": "2026-10-29T16:24:30",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4406,7 +4402,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T15:10:23",
+"t": "2026-10-27T18:24:30",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4414,7 +4410,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-26T14:10:23",
+"t": "2026-10-27T17:24:30",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4422,7 +4418,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T12:10:23",
+"t": "2026-10-26T15:24:30",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4430,7 +4426,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-25T12:10:23",
+"t": "2026-10-26T15:24:30",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4448,107 +4444,8 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /calendar": {
 "year": 2026,
-"month": 10,
+"month": 11,
 "items": [
-{
-"id": "svc-Sunday-10:00-2026-10-04",
-"title": "Sunday Service",
-"start": "2026-10-04T10:00",
-"end": "2026-10-04T12:00",
-"where": "Alexandria",
-"service": true
-},
-{
-"id": "svc-Sunday-10:30-2026-10-04",
-"title": "Sunday Service",
-"start": "2026-10-04T10:30",
-"end": "2026-10-04T12:30",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Monday-19:00-2026-10-05",
-"title": "Glory Night",
-"start": "2026-10-05T19:00",
-"end": "2026-10-05T21:00",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Sunday-10:00-2026-10-11",
-"title": "Sunday Service",
-"start": "2026-10-11T10:00",
-"end": "2026-10-11T12:00",
-"where": "Alexandria",
-"service": true
-},
-{
-"id": "svc-Sunday-10:30-2026-10-11",
-"title": "Sunday Service",
-"start": "2026-10-11T10:30",
-"end": "2026-10-11T12:30",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Monday-19:00-2026-10-12",
-"title": "Glory Night",
-"start": "2026-10-12T19:00",
-"end": "2026-10-12T21:00",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Sunday-10:00-2026-10-18",
-"title": "Sunday Service",
-"start": "2026-10-18T10:00",
-"end": "2026-10-18T12:00",
-"where": "Alexandria",
-"service": true
-},
-{
-"id": "svc-Sunday-10:30-2026-10-18",
-"title": "Sunday Service",
-"start": "2026-10-18T10:30",
-"end": "2026-10-18T12:30",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Monday-19:00-2026-10-19",
-"title": "Glory Night",
-"start": "2026-10-19T19:00",
-"end": "2026-10-19T21:00",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Sunday-10:00-2026-10-25",
-"title": "Sunday Service",
-"start": "2026-10-25T10:00",
-"end": "2026-10-25T12:00",
-"where": "Alexandria",
-"service": true
-},
-{
-"id": "svc-Sunday-10:30-2026-10-25",
-"title": "Sunday Service",
-"start": "2026-10-25T10:30",
-"end": "2026-10-25T12:30",
-"where": "Pineville",
-"service": true
-},
-{
-"id": "svc-Monday-19:00-2026-10-26",
-"title": "Glory Night",
-"start": "2026-10-26T19:00",
-"end": "2026-10-26T21:00",
-"where": "Pineville",
-"service": true
-}
-],
-"demo": true,
-"upcoming": [
 {
 "id": "svc-Sunday-10:00-2026-11-01",
 "title": "Sunday Service",
@@ -4622,13 +4519,169 @@ window.ARISE_DEMO_DATA = {
 {
 "id": "demo3",
 "title": "Volunteer lunch (sample)",
-"start": "2026-11-10T12:00",
-"end": "2026-11-10T13:30",
+"start": "2026-11-11T12:00",
+"end": "2026-11-11T13:30",
 "where": "The fellowship hall",
 "note": "",
 "who": "bradly",
 "added": "2026-10-22T08:45",
 "service": false
+},
+{
+"id": "svc-Sunday-10:00-2026-11-15",
+"title": "Sunday Service",
+"start": "2026-11-15T10:00",
+"end": "2026-11-15T12:00",
+"where": "Alexandria",
+"service": true
+},
+{
+"id": "svc-Sunday-10:30-2026-11-15",
+"title": "Sunday Service",
+"start": "2026-11-15T10:30",
+"end": "2026-11-15T12:30",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Monday-19:00-2026-11-16",
+"title": "Glory Night",
+"start": "2026-11-16T19:00",
+"end": "2026-11-16T21:00",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Sunday-10:00-2026-11-22",
+"title": "Sunday Service",
+"start": "2026-11-22T10:00",
+"end": "2026-11-22T12:00",
+"where": "Alexandria",
+"service": true
+},
+{
+"id": "svc-Sunday-10:30-2026-11-22",
+"title": "Sunday Service",
+"start": "2026-11-22T10:30",
+"end": "2026-11-22T12:30",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Monday-19:00-2026-11-23",
+"title": "Glory Night",
+"start": "2026-11-23T19:00",
+"end": "2026-11-23T21:00",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Sunday-10:00-2026-11-29",
+"title": "Sunday Service",
+"start": "2026-11-29T10:00",
+"end": "2026-11-29T12:00",
+"where": "Alexandria",
+"service": true
+},
+{
+"id": "svc-Sunday-10:30-2026-11-29",
+"title": "Sunday Service",
+"start": "2026-11-29T10:30",
+"end": "2026-11-29T12:30",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Monday-19:00-2026-11-30",
+"title": "Glory Night",
+"start": "2026-11-30T19:00",
+"end": "2026-11-30T21:00",
+"where": "Pineville",
+"service": true
+}
+],
+"demo": true,
+"upcoming": [
+{
+"id": "svc-Monday-19:00-2026-11-02",
+"title": "Glory Night",
+"start": "2026-11-02T19:00",
+"end": "2026-11-02T21:00",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "demo1",
+"title": "Media team meeting (sample)",
+"start": "2026-11-04T18:30",
+"end": "2026-11-04T19:30",
+"where": "Pineville, the booth",
+"note": "A sample event. Real ones come from the Calendar app.",
+"who": "bradly",
+"added": "2026-10-20T09:00",
+"service": false
+},
+{
+"id": "demo2",
+"title": "Building walk-through (sample)",
+"start": "2026-11-07T09:00",
+"end": "2026-11-07T10:00",
+"where": "Pineville",
+"note": "",
+"who": "office",
+"added": "2026-10-21T14:10",
+"service": false
+},
+{
+"id": "svc-Sunday-10:00-2026-11-08",
+"title": "Sunday Service",
+"start": "2026-11-08T10:00",
+"end": "2026-11-08T12:00",
+"where": "Alexandria",
+"service": true
+},
+{
+"id": "svc-Sunday-10:30-2026-11-08",
+"title": "Sunday Service",
+"start": "2026-11-08T10:30",
+"end": "2026-11-08T12:30",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "svc-Monday-19:00-2026-11-09",
+"title": "Glory Night",
+"start": "2026-11-09T19:00",
+"end": "2026-11-09T21:00",
+"where": "Pineville",
+"service": true
+},
+{
+"id": "demo3",
+"title": "Volunteer lunch (sample)",
+"start": "2026-11-11T12:00",
+"end": "2026-11-11T13:30",
+"where": "The fellowship hall",
+"note": "",
+"who": "bradly",
+"added": "2026-10-22T08:45",
+"service": false
+},
+{
+"id": "svc-Sunday-10:00-2026-11-15",
+"title": "Sunday Service",
+"start": "2026-11-15T10:00",
+"end": "2026-11-15T12:00",
+"where": "Alexandria",
+"service": true
+},
+{
+"id": "svc-Sunday-10:30-2026-11-15",
+"title": "Sunday Service",
+"start": "2026-11-15T10:30",
+"end": "2026-11-15T12:30",
+"where": "Pineville",
+"service": true
 }
 ],
 "services": [
@@ -4675,7 +4728,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-10-31",
+"date": "2026-11-01",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4684,7 +4737,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-01",
+"date": "2026-11-02",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4693,7 +4746,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4702,7 +4755,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4711,7 +4764,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4720,7 +4773,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4746,7 +4799,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-10-31",
+"date": "2026-11-01",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4755,7 +4808,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-01",
+"date": "2026-11-02",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4764,7 +4817,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4773,7 +4826,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4782,7 +4835,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4791,7 +4844,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4817,7 +4870,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-10-31",
+"date": "2026-11-01",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4826,7 +4879,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-01",
+"date": "2026-11-02",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4835,7 +4888,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4844,7 +4897,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4853,7 +4906,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4862,7 +4915,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -5208,8 +5261,8 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "WIX-DNS",
 "title": "Wix DNS for arisecenla.com, step by step (round 7, 131)",
-"size": 9345,
-"lines": 172,
+"size": 9893,
+"lines": 178,
 "blurb": "> As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10). The church's Resend account verified"
 }
 ],
@@ -5295,7 +5348,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-10-31T15:10:23+00:00",
+"checked_at": "2026-11-01T18:24:30+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5320,7 +5373,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-10-31T15:10:23+00:00",
+"queued_at": "2026-11-01T18:24:30+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5328,16 +5381,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-26T15:10",
+"when": "2026-10-27T18:24",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
 "in_service": null,
-"last_check": "2026-10-31T15:10:23+00:00"
+"last_check": "2026-11-01T18:24:30+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793459423.6115463,
+"t": 1793557470.386072,
 "processes": [
 {
 "pid": 470,
@@ -5347,7 +5400,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792249823.6114933,
+"since": 1792347870.3860412,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5364,7 +5417,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792249823.6114922,
+"since": 1792347870.38604,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5381,7 +5434,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792249823.6114066,
+"since": 1792347870.3860085,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5398,7 +5451,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792249823.6114173,
+"since": 1792347870.3860252,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5415,7 +5468,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792249823.611486,
+"since": 1792347870.386034,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5432,7 +5485,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792249823.611413,
+"since": 1792347870.386015,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5449,7 +5502,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792249823.6114159,
+"since": 1792347870.3860235,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5466,7 +5519,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792249823.6114223,
+"since": 1792347870.3860297,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5483,7 +5536,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792249823.6114945,
+"since": 1792347870.3860424,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5500,7 +5553,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792249823.6114247,
+"since": 1792347870.3860319,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5517,7 +5570,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792249823.6114979,
+"since": 1792347870.386056,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5534,7 +5587,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792249823.6114902,
+"since": 1792347870.3860383,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5551,7 +5604,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792249823.611496,
+"since": 1792347870.3860538,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5568,7 +5621,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792249823.6114886,
+"since": 1792347870.386036,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5643,8 +5696,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-automator.service",
 "name": "The nightly YouTube job",
 "what": "02:05: tidies descriptions, tags, chapters and playlists on the channel within the day's quota. Preview is the dry run; the real run is this timer's alone.",
-"next": "2026-11-01T02:05:00",
-"last": "2026-10-31T02:05:00",
+"next": "2026-11-02T02:05:00",
+"last": "2026-11-01T02:05:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5658,8 +5711,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-backup.service",
 "name": "Backups to the Synology",
 "what": "03:00: every restic job in backups.yaml, then prune to 30 daily, 12 weekly, 24 monthly.",
-"next": "2026-11-01T03:00:00",
-"last": "2026-10-31T03:00:00",
+"next": "2026-11-02T03:00:00",
+"last": "2026-11-01T03:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5673,8 +5726,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-mirror.service",
 "name": "GitHub mirror",
 "what": "04:00: refreshes the bare mirrors of the church's repositories under /srv/arise/backups/github-mirror.",
-"next": "2026-11-01T04:00:00",
-"last": "2026-10-31T04:00:00",
+"next": "2026-11-02T04:00:00",
+"last": "2026-11-01T04:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5688,8 +5741,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-10-31T16:00:00",
-"last": "2026-10-30T16:00:00",
+"next": "2026-11-01T19:00:00",
+"last": "2026-10-31T19:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5703,7 +5756,7 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-notify.service",
 "name": "The daily note",
 "what": "07:00: a Discord/Slack note of what needs you. Off until a webhook is set (Bradly: no daily note).",
-"next": "2026-11-01T07:00:00",
+"next": "2026-11-02T07:00:00",
 "last": null,
 "enabled": false,
 "state": "disabled",
@@ -5718,8 +5771,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-drill.service",
 "name": "The restore drill",
 "what": "Monthly: one random file restored from last night's backup to a scratch folder and compared.",
-"next": "2026-11-01T03:30:00",
-"last": "2026-10-31T03:30:00",
+"next": "2026-12-01T03:30:00",
+"last": "2026-11-01T03:30:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5734,7 +5787,7 @@ window.ARISE_DEMO_DATA = {
 "name": "Software updates",
 "what": "Saturday 03:30: installs what Bradly queued in Software Update, after a system snapshot; reboots only if the kernel asks and no service is on.",
 "next": "2026-11-07T03:30:00",
-"last": "2026-10-31T03:30:00",
+"last": "2026-11-01T03:30:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5748,8 +5801,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-off.service",
 "name": "Monitor off",
 "what": "23:00: the closet panel goes to sleep.",
-"next": "2026-10-31T23:00:00",
-"last": "2026-10-30T23:00:00",
+"next": "2026-11-01T23:00:00",
+"last": "2026-10-31T23:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5763,8 +5816,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-on.service",
 "name": "Monitor on",
 "what": "06:00: the closet panel wakes.",
-"next": "2026-11-01T06:00:00",
-"last": "2026-10-31T06:00:00",
+"next": "2026-11-02T06:00:00",
+"last": "2026-11-01T06:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5778,8 +5831,8 @@ window.ARISE_DEMO_DATA = {
 "service": "fstrim.service",
 "name": "SSD trim",
 "what": "Weekly: tells the SSD which blocks are free.",
-"next": "2026-11-01T00:00:00",
-"last": "2026-10-31T00:00:00",
+"next": "2026-11-02T00:00:00",
+"last": "2026-11-01T00:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5793,8 +5846,8 @@ window.ARISE_DEMO_DATA = {
 "service": "apt-daily-upgrade.service",
 "name": "Security patches",
 "what": "Daily: unattended-upgrades installs security updates only, never a reboot.",
-"next": "2026-11-01T06:20:00",
-"last": "2026-10-31T06:20:00",
+"next": "2026-11-02T06:20:00",
+"last": "2026-11-01T06:20:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5846,7 +5899,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-10-31T09:10",
+"as_of": "2026-11-01T12:24",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -5919,62 +5972,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-10-31T15:10"
+"mtime": "2026-11-01T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-24T15:10"
+"mtime": "2026-10-25T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-17T15:10"
+"mtime": "2026-10-18T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-10T15:10"
+"mtime": "2026-10-11T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-03T15:10"
+"mtime": "2026-10-04T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-26T15:10"
+"mtime": "2026-09-27T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-19T15:10"
+"mtime": "2026-09-20T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-12T15:10"
+"mtime": "2026-09-13T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-05T15:10"
+"mtime": "2026-09-06T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-29T15:10"
+"mtime": "2026-08-30T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-22T15:10"
+"mtime": "2026-08-23T18:24"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-15T15:10"
+"mtime": "2026-08-16T18:24"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -5991,17 +6044,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-18T15:10"
+"mtime": "2025-06-19T18:24"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-18T15:10"
+"mtime": "2025-06-19T18:24"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-18T15:10"
+"mtime": "2025-06-19T18:24"
 }
 ],
 "old_days": 365
@@ -7654,14 +7707,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [
 {
@@ -7733,14 +7786,14 @@ window.ARISE_DEMO_DATA = {
 "Sunday Service"
 ],
 "round": {
-"key": "2026-10-25 Sunday Service",
+"key": "2026-11-01 Sunday Service",
 "service": "Sunday Service",
-"at": "2026-10-25T10:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": null
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
+"previous": "2026-10-25 Sunday Service"
 },
-"opens": "2026-10-25T09:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [
 {
@@ -7782,14 +7835,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [],
 "done": 0,
@@ -7809,14 +7862,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [],
 "done": 0,
@@ -8097,7 +8150,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8112,7 +8165,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8127,7 +8180,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8142,7 +8195,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8157,7 +8210,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8172,7 +8225,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8187,7 +8240,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 },
 {
@@ -8202,11 +8255,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-10-31T15:10:24+00:00",
+"when": "2026-11-01T18:24:30+00:00",
 "sample": true
 }
 ],
-"last": "2026-10-31T15:10:24+00:00",
+"last": "2026-11-01T18:24:30+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8618,7 +8671,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-29T15:10",
+"when": "2026-10-30T18:24",
 "from": "portal"
 },
 {
@@ -8630,7 +8683,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-19T15:10",
+"when": "2026-10-20T18:24",
 "from": "mac"
 },
 {
@@ -8642,7 +8695,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-04T15:10",
+"when": "2026-10-05T18:24",
 "from": "mac"
 }
 ],
@@ -8657,8 +8710,8 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /about/week": {
 "verse": {
-"ref": "Romans 8:28",
-"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+"ref": "Isaiah 40:31",
+"text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
 "translation": "King James Version",
 "demo": true
 },
@@ -8877,13 +8930,13 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "testing": true,
 "known": true,
-"issued": "2026-10-25T12:14",
-"expires": "2026-11-01T12:14",
-"expires_text": "Sun Nov 1, 12:14 PM",
-"hours_left": 21.1,
-"days_left": 0.9,
+"issued": "2026-11-01T12:14",
+"expires": "2026-11-08T12:14",
+"expires_text": "Sun Nov 8, 12:14 PM",
+"hours_left": 161.8,
+"days_left": 6.7,
 "expired": false,
-"soon": true,
+"soon": false,
 "by": "bradly"
 },
 "GET /auth/pin/status": {
@@ -8934,35 +8987,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-10-31T11:10:23",
+"when": "2026-11-01T14:24:30",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-10-30T10:10:23",
+"when": "2026-10-31T13:24:30",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-29T15:10:23",
+"when": "2026-10-30T18:24:30",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-26T15:10:23",
+"when": "2026-10-27T18:24:30",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-25T12:10:23",
+"when": "2026-10-26T15:24:30",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9103,14 +9156,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [
 {
@@ -9164,14 +9217,14 @@ window.ARISE_DEMO_DATA = {
 "Sunday Service"
 ],
 "round": {
-"key": "2026-10-25 Sunday Service",
+"key": "2026-11-01 Sunday Service",
 "service": "Sunday Service",
-"at": "2026-10-25T10:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": null
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
+"previous": "2026-10-25 Sunday Service"
 },
-"opens": "2026-10-25T09:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [
 {
@@ -9213,14 +9266,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [],
 "done": 0,
@@ -9240,14 +9293,14 @@ window.ARISE_DEMO_DATA = {
 "Glory Night"
 ],
 "round": {
-"key": "2026-10-26 Glory Night",
-"service": "Glory Night",
-"at": "2026-10-26T19:00",
-"moves_on": "2026-10-31T20:00",
-"next": "2026-11-01 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"key": "2026-11-01 Sunday Service",
+"service": "Sunday Service",
+"at": "2026-11-01T10:00",
+"moves_on": "2026-11-01T20:00",
+"next": "2026-11-02 Glory Night",
+"previous": "2026-10-26 Glory Night"
 },
-"opens": "2026-10-26T18:00",
+"opens": "2026-11-01T09:00",
 "open": true,
 "items": [],
 "done": 0,
@@ -9261,15 +9314,15 @@ window.ARISE_DEMO_DATA = {
 "user": "demo",
 "name": "demo",
 "next": {
-"name": "Sunday Service",
-"site": "Alexandria",
-"day": "Sunday",
-"time": "10:00",
-"at": "2026-11-01T10:00",
-"in_minutes": 1129,
-"in_words": "18 h 49 min"
+"name": "Glory Night",
+"site": "Pineville",
+"day": "Monday",
+"time": "19:00",
+"at": "2026-11-02T19:00",
+"in_minutes": 1475,
+"in_words": "24 h 35 min"
 },
-"call_time": "09:00",
+"call_time": "18:00",
 "demo": true
 },
 "GET /checklist/people": {
@@ -9288,13 +9341,13 @@ window.ARISE_DEMO_DATA = {
 "GET /service/now": {
 "in_service": false,
 "next": {
-"name": "Sunday Service",
-"site": "Alexandria",
-"day": "Sunday",
-"time": "10:00",
-"at": "2026-11-01T10:00",
-"in_minutes": 1129,
-"in_words": "18 h 49 min"
+"name": "Glory Night",
+"site": "Pineville",
+"day": "Monday",
+"time": "19:00",
+"at": "2026-11-02T19:00",
+"in_minutes": 1475,
+"in_words": "24 h 35 min"
 },
 "demo": true
 },
@@ -9320,7 +9373,7 @@ window.ARISE_DEMO_DATA = {
 "file": "/etc/arise/secrets/discord.toml",
 "demo": true
 },
-"weekly": "📋 Arise Server, the week to 2026-10-31\nBackups: 35 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
+"weekly": "📋 Arise Server, the week to 2026-11-01\nBackups: 35 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
 "channel": {
 "ok": true,
 "demo": true,
@@ -9337,8 +9390,8 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /reports/pastors": {
 "ok": true,
-"month": "2026-09",
-"draft": "The church server in September 2026, in five lines:\n1. It stayed out of the way of 9 services: no updates or restarts while they ran.\n2. It backed up the church's files 31 times, every one complete.\n3. 2 new account(s) were made for staff.\n4. 3 church Mac(s) are looked after by it, with everyone's Desktop and Documents kept on the server.\n5. Nothing is reachable from the internet; it all stays inside the church and Tailscale.",
+"month": "2026-10",
+"draft": "The church server in October 2026, in five lines:\n1. It stayed out of the way of 9 services: no updates or restarts while they ran.\n2. It backed up the church's files 31 times, every one complete.\n3. 2 new account(s) were made for staff.\n4. 3 church Mac(s) are looked after by it, with everyone's Desktop and Documents kept on the server.\n5. Nothing is reachable from the internet; it all stays inside the church and Tailscale.",
 "edited": false,
 "sent": null,
 "sent_by": null,
@@ -9467,1176 +9520,1176 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-24T15:05",
+"at": "2026-10-25T18:05",
 "down": 929.1,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-24T16:05",
-"down": 934.9,
+"at": "2026-10-25T19:05",
+"down": 514.2,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-24T17:05",
-"down": 938.6,
+"at": "2026-10-25T20:05",
+"down": 516.3,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-24T18:05",
-"down": 940.0,
+"at": "2026-10-25T21:05",
+"down": 517.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-24T19:05",
-"down": 516.4,
+"at": "2026-10-25T22:05",
+"down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-24T20:05",
-"down": 514.6,
+"at": "2026-10-25T23:05",
+"down": 935.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-24T21:05",
-"down": 511.5,
+"at": "2026-10-26T00:05",
+"down": 930.0,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-24T22:05",
+"at": "2026-10-26T01:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-24T23:05",
+"at": "2026-10-26T02:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T00:05",
+"at": "2026-10-26T03:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-25T01:05",
+"at": "2026-10-26T04:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T02:05",
+"at": "2026-10-26T05:05",
 "down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T03:05",
+"at": "2026-10-26T06:05",
 "down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T04:05",
+"at": "2026-10-26T07:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T05:05",
+"at": "2026-10-26T08:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-25T06:05",
+"at": "2026-10-26T09:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-25T07:05",
+"at": "2026-10-26T10:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-25T08:05",
+"at": "2026-10-26T11:05",
 "down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-25T09:05",
+"at": "2026-10-26T12:05",
 "down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-25T10:05",
+"at": "2026-10-26T13:05",
 "down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-25T11:05",
+"at": "2026-10-26T14:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-25T12:05",
+"at": "2026-10-26T15:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-25T13:05",
+"at": "2026-10-26T16:05",
 "down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T14:05",
+"at": "2026-10-26T17:05",
 "down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-25T15:05",
+"at": "2026-10-26T18:05",
 "down": 849.9,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-25T16:05",
-"down": 860.8,
+"at": "2026-10-26T19:05",
+"down": 473.4,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-25T17:05",
-"down": 872.5,
+"at": "2026-10-26T20:05",
+"down": 479.9,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-25T18:05",
-"down": 884.5,
+"at": "2026-10-26T21:05",
+"down": 486.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-25T19:05",
-"down": 492.9,
+"at": "2026-10-26T22:05",
+"down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-25T20:05",
-"down": 499.1,
+"at": "2026-10-26T23:05",
+"down": 907.4,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-25T21:05",
-"down": 504.6,
+"at": "2026-10-27T00:05",
+"down": 917.5,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-25T22:05",
+"at": "2026-10-27T01:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-25T23:05",
+"at": "2026-10-27T02:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T00:05",
+"at": "2026-10-27T03:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-26T01:05",
+"at": "2026-10-27T04:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-26T02:05",
+"at": "2026-10-27T05:05",
 "down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-26T03:05",
+"at": "2026-10-27T06:05",
 "down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-26T04:05",
+"at": "2026-10-27T07:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-26T05:05",
+"at": "2026-10-27T08:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T06:05",
+"at": "2026-10-27T09:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T07:05",
+"at": "2026-10-27T10:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T08:05",
+"at": "2026-10-27T11:05",
 "down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T09:05",
+"at": "2026-10-27T12:05",
 "down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-26T10:05",
+"at": "2026-10-27T13:05",
 "down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T11:05",
+"at": "2026-10-27T14:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-26T12:05",
+"at": "2026-10-27T15:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-26T13:05",
+"at": "2026-10-27T16:05",
 "down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-26T14:05",
+"at": "2026-10-27T17:05",
 "down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-26T15:05",
+"at": "2026-10-27T18:05",
 "down": 825.7,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-26T16:05",
-"down": 821.7,
+"at": "2026-10-27T19:05",
+"down": 451.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T17:05",
-"down": 820.0,
+"at": "2026-10-27T20:05",
+"down": 451.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
-"down": 820.8,
+"at": "2026-10-27T21:05",
+"down": 451.4,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
-"down": 453.1,
+"at": "2026-10-27T22:05",
+"down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
-"down": 456.1,
+"at": "2026-10-27T23:05",
+"down": 829.2,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 460.1,
+"at": "2026-10-28T00:05",
+"down": 836.6,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-28T01:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-28T02:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-28T03:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-28T04:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-28T05:05",
 "down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-28T06:05",
 "down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-28T07:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-28T08:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-28T09:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-28T10:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-28T11:05",
 "down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-28T12:05",
 "down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-28T13:05",
 "down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-28T14:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-28T15:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-28T16:05",
 "down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
+"at": "2026-10-28T17:05",
 "down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
+"at": "2026-10-28T18:05",
 "down": 900.6,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
-"down": 889.0,
+"at": "2026-10-28T19:05",
+"down": 488.9,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
-"down": 877.0,
+"at": "2026-10-28T20:05",
+"down": 482.4,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
-"down": 865.2,
+"at": "2026-10-28T21:05",
+"down": 475.8,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
-"down": 469.7,
+"at": "2026-10-28T22:05",
+"down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
-"down": 464.0,
+"at": "2026-10-28T23:05",
+"down": 843.7,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 459.2,
+"at": "2026-10-29T00:05",
+"down": 834.9,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-29T01:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-29T02:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-29T03:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-29T04:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-29T05:05",
 "down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-29T06:05",
 "down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-29T07:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-29T08:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-29T09:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-29T10:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-29T11:05",
 "down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-29T12:05",
 "down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-29T13:05",
 "down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-29T14:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-29T15:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-29T16:05",
 "down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
+"at": "2026-10-29T17:05",
 "down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
+"at": "2026-10-29T18:05",
 "down": 937.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
-"down": 939.9,
+"at": "2026-10-29T19:05",
+"down": 516.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
-"down": 939.4,
+"at": "2026-10-29T20:05",
+"down": 516.7,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
-"down": 936.6,
+"at": "2026-10-29T21:05",
+"down": 515.1,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
-"down": 512.4,
+"at": "2026-10-29T22:05",
+"down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
-"down": 508.4,
+"at": "2026-10-29T23:05",
+"down": 924.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 503.5,
+"at": "2026-10-30T00:05",
+"down": 915.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-30T01:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-30T02:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-30T03:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-30T04:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-30T05:05",
 "down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-30T06:05",
 "down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-30T07:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-30T08:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-30T09:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
+"at": "2026-10-30T10:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
+"at": "2026-10-30T11:05",
 "down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-29T09:05",
+"at": "2026-10-30T12:05",
 "down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-29T10:05",
+"at": "2026-10-30T13:05",
 "down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T11:05",
+"at": "2026-10-30T14:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T12:05",
+"at": "2026-10-30T15:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T13:05",
+"at": "2026-10-30T16:05",
 "down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T14:05",
+"at": "2026-10-30T17:05",
 "down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-29T15:05",
+"at": "2026-10-30T18:05",
 "down": 869.5,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-29T16:05",
-"down": 881.5,
+"at": "2026-10-30T19:05",
+"down": 484.8,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-29T17:05",
-"down": 893.4,
+"at": "2026-10-30T20:05",
+"down": 491.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-29T18:05",
-"down": 904.7,
+"at": "2026-10-30T21:05",
+"down": 497.6,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-29T19:05",
-"down": 503.3,
+"at": "2026-10-30T22:05",
+"down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T20:05",
-"down": 508.2,
+"at": "2026-10-30T23:05",
+"down": 924.1,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T21:05",
-"down": 512.2,
+"at": "2026-10-31T00:05",
+"down": 931.3,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T22:05",
+"at": "2026-10-31T01:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T23:05",
+"at": "2026-10-31T02:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-30T00:05",
+"at": "2026-10-31T03:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-30T01:05",
+"at": "2026-10-31T04:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-30T02:05",
+"at": "2026-10-31T05:05",
 "down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-30T03:05",
+"at": "2026-10-31T06:05",
 "down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-30T04:05",
+"at": "2026-10-31T07:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-30T05:05",
+"at": "2026-10-31T08:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T06:05",
+"at": "2026-10-31T09:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T07:05",
+"at": "2026-10-31T10:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T08:05",
+"at": "2026-10-31T11:05",
 "down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-30T09:05",
+"at": "2026-10-31T12:05",
 "down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-30T10:05",
+"at": "2026-10-31T13:05",
 "down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-30T11:05",
+"at": "2026-10-31T14:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-30T12:05",
+"at": "2026-10-31T15:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-30T13:05",
+"at": "2026-10-31T16:05",
 "down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-30T14:05",
+"at": "2026-10-31T17:05",
 "down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T15:05",
+"at": "2026-10-31T18:05",
 "down": 820.2,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T16:05",
-"down": 820.4,
+"at": "2026-10-31T19:05",
+"down": 451.2,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T17:05",
-"down": 822.9,
+"at": "2026-10-31T20:05",
+"down": 452.6,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-30T18:05",
-"down": 827.7,
+"at": "2026-10-31T21:05",
+"down": 455.2,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-30T19:05",
-"down": 459.0,
+"at": "2026-10-31T22:05",
+"down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-30T20:05",
-"down": 463.8,
+"at": "2026-10-31T23:05",
+"down": 843.3,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T21:05",
-"down": 469.4,
+"at": "2026-11-01T00:05",
+"down": 853.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-30T22:05",
+"at": "2026-11-01T01:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-30T23:05",
+"at": "2026-11-01T02:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-31T00:05",
+"at": "2026-11-01T03:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T01:05",
+"at": "2026-11-01T04:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T02:05",
+"at": "2026-11-01T05:05",
 "down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-31T03:05",
+"at": "2026-11-01T06:05",
 "down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-31T04:05",
+"at": "2026-11-01T07:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-31T05:05",
+"at": "2026-11-01T08:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-31T06:05",
+"at": "2026-11-01T09:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-31T07:05",
+"at": "2026-11-01T10:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-31T08:05",
+"at": "2026-11-01T11:05",
 "down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-31T09:05",
+"at": "2026-11-01T12:05",
 "down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-31T10:05",
+"at": "2026-11-01T13:05",
 "down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T11:05",
+"at": "2026-11-01T14:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T12:05",
+"at": "2026-11-01T15:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T13:05",
+"at": "2026-11-01T16:05",
 "down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-31T14:05",
+"at": "2026-11-01T17:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -10644,14 +10697,14 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "last": {
-"at": "2026-10-31T14:05",
+"at": "2026-11-01T17:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 872.5,
+"down": 872.1,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
@@ -10659,6 +10712,136 @@ window.ARISE_DEMO_DATA = {
 },
 "plan": "Optimum Business (round 7, 127)",
 "demo": true
+},
+"GET /inbox": {
+"ok": true,
+"demo": true,
+"address": "demo@ad.arisecenla.com",
+"folder": "inbox",
+"threads": [
+{
+"id": "t-1",
+"subject": "Women's conference rooms",
+"from": "Hotel Bookings <events@example.org>",
+"read": false,
+"email_count": 2,
+"received_at": "2026-11-01T09:14:00Z",
+"has_attachment": true,
+"folder": "inbox"
+},
+{
+"id": "t-2",
+"subject": "Thank you for Sunday",
+"from": "A visitor <visitor@example.com>",
+"read": true,
+"email_count": 1,
+"received_at": "2026-10-31T18:02:00Z",
+"has_attachment": false,
+"folder": "inbox"
+}
+]
+},
+"GET /inbox?folder=inbox": {
+"ok": true,
+"demo": true,
+"address": "demo@ad.arisecenla.com",
+"folder": "inbox",
+"threads": [
+{
+"id": "t-1",
+"subject": "Women's conference rooms",
+"from": "Hotel Bookings <events@example.org>",
+"read": false,
+"email_count": 2,
+"received_at": "2026-11-01T09:14:00Z",
+"has_attachment": true,
+"folder": "inbox"
+},
+{
+"id": "t-2",
+"subject": "Thank you for Sunday",
+"from": "A visitor <visitor@example.com>",
+"read": true,
+"email_count": 1,
+"received_at": "2026-10-31T18:02:00Z",
+"has_attachment": false,
+"folder": "inbox"
+}
+]
+},
+"GET /inbox?folder=sent": {
+"ok": true,
+"demo": true,
+"address": "demo@ad.arisecenla.com",
+"folder": "sent",
+"threads": []
+},
+"GET /inbox?folder=archive": {
+"ok": true,
+"demo": true,
+"address": "demo@ad.arisecenla.com",
+"folder": "archive",
+"threads": []
+},
+"GET /inbox?folder=spam": {
+"ok": true,
+"demo": true,
+"address": "demo@ad.arisecenla.com",
+"folder": "spam",
+"threads": []
+},
+"GET /inbox/threads/t-1": {
+"ok": true,
+"demo": true,
+"emails": [
+{
+"id": "e-1",
+"direction": "inbound",
+"from": "Hotel Bookings <events@example.org>",
+"to": [
+"demo@ad.arisecenla.com"
+],
+"subject": "Women's conference rooms",
+"received_at": "2026-11-01T09:14:00Z",
+"text": "Hello Minister Robinson,\n\nWe are holding twelve rooms for the weekend. The contract is attached.\n\nThank you,\nEvents team",
+"attachments": [
+{
+"filename": "contract.pdf",
+"size": 182044
+}
+]
+},
+{
+"id": "e-2",
+"direction": "outbound",
+"from": "demo@ad.arisecenla.com",
+"to": [
+"events@example.org"
+],
+"subject": "Re: Women's conference rooms",
+"received_at": "2026-11-01T10:30:00Z",
+"text": "Thank you! I will send the signed copy Monday.",
+"attachments": []
+}
+]
+},
+"GET /inbox/threads/t-2": {
+"ok": true,
+"demo": true,
+"emails": [
+{
+"id": "e-3",
+"direction": "inbound",
+"from": "A visitor <visitor@example.com>",
+"to": [
+"demo@ad.arisecenla.com"
+],
+"subject": "Thank you for Sunday",
+"received_at": "2026-10-31T18:02:00Z",
+"text": "We visited for the first time and felt so welcome.",
+"attachments": []
+}
+]
 },
 "GET /bible?ref=John 3:16": {
 "ok": true,
@@ -10777,18 +10960,18 @@ window.ARISE_DEMO_DATA = {
 "service": {
 "name": "Glory Night",
 "site": "Pineville",
-"started": "2026-10-31T19:00",
+"started": "2026-11-01T19:00",
 "ends_at": "9:00 PM",
 "sample": true
 },
 "stream": {
 "live": true,
-"checked": "2026-10-31T15:10",
+"checked": "2026-11-01T18:24",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-10-31T14:05",
+"at": "2026-11-01T17:05",
 "down": 891.9,
 "up": 42.0,
 "ping": 12.0,
@@ -14486,14 +14669,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-22T15:10:23",
+"enrolled": "2026-10-23T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T09:10:23",
+"last_checkin": "2026-11-01T12:24:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-22T15:10:23",
+"ariseadmin_at": "2026-10-23T18:24:29",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14511,14 +14694,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-28T15:10:23",
+"enrolled": "2026-10-29T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T15:08:23",
+"last_checkin": "2026-11-01T18:22:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T15:10:23",
+"ariseadmin_at": "2026-10-29T18:24:29",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14536,14 +14719,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-30T15:10:23",
+"enrolled": "2026-10-31T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T15:06:23",
+"last_checkin": "2026-11-01T18:20:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T15:10:23",
+"ariseadmin_at": "2026-10-31T18:24:29",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14580,14 +14763,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-22T15:10:23",
+"enrolled": "2026-10-23T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T09:10:23",
+"last_checkin": "2026-11-01T12:24:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-22T15:10:23",
+"ariseadmin_at": "2026-10-23T18:24:29",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14606,7 +14789,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-27T15:10:23"
+"last_login": "2026-10-28T18:24:29"
 }
 ],
 "tasks": [
@@ -14617,9 +14800,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-10-30T19:10:23",
+"made": "2026-10-31T22:24:29",
 "by": "the overnight window",
-"finished": "2026-10-30T20:10:23",
+"finished": "2026-10-31T23:24:29",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14640,14 +14823,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-28T15:10:23",
+"enrolled": "2026-10-29T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T15:08:23",
+"last_checkin": "2026-11-01T18:22:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-28T15:10:23",
+"ariseadmin_at": "2026-10-29T18:24:29",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14666,7 +14849,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-10-30T15:10:23"
+"last_login": "2026-10-31T18:24:29"
 },
 {
 "user": "media",
@@ -14676,12 +14859,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-10-31T12:10:23",
+"last_login": "2026-11-01T15:24:29",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-29T15:10:23",
+"at": "2026-10-30T18:24:29",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14698,9 +14881,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-29T15:10:23",
+"made": "2026-10-30T18:24:29",
 "by": "bradly",
-"finished": "2026-10-29T15:10:23",
+"finished": "2026-10-30T18:24:29",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14710,9 +14893,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-28T15:10:23",
+"made": "2026-10-29T18:24:29",
 "by": "the directory",
-"finished": "2026-10-28T15:10:23",
+"finished": "2026-10-29T18:24:29",
 "detail": "mobile account made"
 }
 ],
@@ -14733,14 +14916,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-10-30T15:10:23",
+"enrolled": "2026-10-31T18:24:29",
 "enrolled_by": "bradly",
-"last_checkin": "2026-10-31T15:06:23",
+"last_checkin": "2026-11-01T18:20:29",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T15:10:23",
+"ariseadmin_at": "2026-10-31T18:24:29",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14759,7 +14942,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-29T15:10:23"
+"last_login": "2026-10-30T18:24:29"
 },
 {
 "user": "levi",
@@ -14769,7 +14952,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-26T15:10:23",
+"last_login": "2026-10-27T18:24:29",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -14796,7 +14979,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T13:10:23",
+"made": "2026-11-01T16:24:29",
 "by": "enrolment"
 },
 {
@@ -14804,7 +14987,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T13:10:23",
+"made": "2026-11-01T16:24:29",
 "by": "enrolment"
 },
 {
@@ -14812,7 +14995,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T13:10:23",
+"made": "2026-11-01T16:24:29",
 "by": "enrolment"
 },
 {
@@ -14820,7 +15003,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-10-31T13:10:23",
+"made": "2026-11-01T16:24:29",
 "by": "enrolment"
 },
 {
@@ -14828,9 +15011,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-10-30T15:10:23",
+"made": "2026-10-31T18:24:29",
 "by": "enrolment",
-"finished": "2026-10-30T15:10:23",
+"finished": "2026-10-31T18:24:29",
 "detail": "1 printer"
 },
 {
@@ -14840,9 +15023,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-10-30T15:10:23",
+"made": "2026-10-31T18:24:29",
 "by": "the directory",
-"finished": "2026-10-30T15:10:23",
+"finished": "2026-10-31T18:24:29",
 "detail": "mobile account made"
 }
 ],
@@ -16436,7 +16619,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "WIX-DNS",
 "title": "Wix DNS for arisecenla.com, step by step (round 7, 131)",
-"html": "<h1 id=\"wix-dns-for-arisecenlacom-step-by-step-round-7-131\">Wix DNS for arisecenla.com, step by step (round 7, 131)</h1>\n<blockquote>\n<p><strong>As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10).</strong> The church's Resend account verified\nthe main domain, <strong>arisecenla.com</strong>, not <code>mail.arisecenla.com</code>. What Wix holds now:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Host</th>\n<th>Value</th>\n<th>What for</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>TXT</td>\n<td><code>resend._domainkey</code></td>\n<td>the <code>p=…</code> key</td>\n<td>sending: Resend signs the church's mail</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>send</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>rsend</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>MX</td>\n<td><code>@</code></td>\n<td><code>receive.forge.rmta.net</code>, 10</td>\n<td><strong>receiving</strong>: all mail to <code>@arisecenla.com</code> arrives at Resend; the box forwards <code>first.last@arisecenla.com</code> (H10)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>links</code></td>\n<td><code>links2.resend-dns.com</code></td>\n<td>Resend's link tracking</td>\n</tr>\n</tbody>\n</table>\n<p>The MX at <code>@</code> was safe to add because arisecenla.com received no mail anywhere before it (no MX\nexisted). The server sends from <code>it@arisecenla.com</code> (\"Arise Church IT\"). The <code>mail.</code> records\n(<code>resend._domainkey.mail</code>, <code>send.mail</code>, <code>rsend.mail</code>, <code>_dmarc.mail</code>) from the first try are no\nlonger used; they harm nothing, and removing them is Bradly's click. <strong>One record to add:</strong>\nTXT <code>_dmarc</code> → <code>v=DMARC1; p=none;</code> (DMARC for the main domain; Gmail and Yahoo look for it).\nThe rest of this page is the original plan, kept for the record; where it says\n<code>mail.arisecenla.com</code> or <code>ad.arisecenla.com</code> for mail, read <code>arisecenla.com</code>.</p>\n</blockquote>\n<p>Bradly asked to be walked through it. This page is every DNS record ariseOS\nneeds at Wix, in the order to add them, with what each Wix screen shows. You\nonly change DNS at Wix for <strong>arisecenla.com</strong>; <code>arisecenla.church</code> is at\nGoDaddy, nobody has access to it, and nothing here needs it (round 7, 133).</p>\n<p>Nothing below points at the server. Rule 7 holds: the box is not reachable\nfrom the internet, and none of these records changes that.</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it is for</th>\n<th>Records</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Resend <strong>sends</strong> from <code>mail.arisecenla.com</code>: reset links, notices, newsletters (\"Arise Church IT\", round 7, 132)</td>\n<td>3, plus 1 optional</td>\n<td>now</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Staff addresses <code>first.last@ad.arisecenla.com</code> <strong>arrive</strong> at Resend so the box can forward them (round 7, 155)</td>\n<td>1 MX</td>\n<td>when you turn forwarding on</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Check them</td>\n<td>none</td>\n<td>after each part</td>\n</tr>\n</tbody>\n</table>\n<p>Values marked <strong>(from Resend)</strong> are only shown on Resend's own pages: copy\nthem from there, never from this page or a chat. Everything else is exact.</p>\n<p>The screen names below are what Wix and Resend called them when this was\nwritten. Both rename buttons now and then; the order of the steps does not\nchange.</p>\n<h2 id=\"before-you-start-open-the-two-tabs\">Before you start: open the two tabs</h2>\n<ol>\n<li><strong>Resend.</strong> Sign in at resend.com with the <strong>church's</strong> Resend account, not a\n   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where\n   values come from. Make the API key on install day, not before: sending access\n   only, for <code>mail.arisecenla.com</code>.</li>\n<li><strong>Wix.</strong> Sign in at wix.com → the church site → <strong>Settings</strong> (left menu,\n   near the bottom) → <strong>Domains</strong>. You see <code>arisecenla.com</code> with a <strong>⋯</strong> button\n   on its right (Domain Actions). Click <strong>⋯</strong> → <strong>Manage DNS Records</strong>.</li>\n</ol>\n<p>What you see: one box per record type, top to bottom: <strong>A (Host)</strong>,\n   <strong>CNAME (Aliases)</strong>, <strong>MX (Mail Exchange)</strong>, <strong>TXT (Text)</strong>, then SPF, NS\n   and the rest. Each box has the records already there and a <strong>+ Add Record</strong>\n   link under it. There is one <strong>Save</strong> button at the bottom of the page.</p>\n<p>If Wix says the DNS is not managed here (\"connected by pointing\"), stop:\n   the records go wherever <code>arisecenla.com</code>'s name servers are, and part 3's\n   <code>dig NS</code> line shows where. Tell Claude what it says.</p>\n<p><strong>Leave every record that is already there alone.</strong> The website's A and\nCNAME records and any mail the church already gets at <code>arisecenla.com</code> stay\nexactly as they are. Every record below sits on a subdomain (<code>mail</code>,\n<code>send.mail</code>, <code>ad</code>), so none of them can touch the website or the root\ndomain's mail.</p>\n<h2 id=\"part-1-sending-mailarisecenlacom\">Part 1: sending (mail.arisecenla.com)</h2>\n<p><strong>In Resend:</strong> left menu <strong>Domains</strong> → <strong>Add Domain</strong> → Name\n<code>mail.arisecenla.com</code> → Region: leave <strong>North Virginia (us-east-1)</strong> → <strong>Add</strong>.\nResend opens the domain's page with a <strong>DNS Records</strong> table. Keep it open.</p>\n<p><strong>In Wix</strong>, add each row. Where Resend's Name ends in <code>.arisecenla.com</code>, type\nonly the part before it: Wix adds the rest.</p>\n<p>Check the domain name at the top of Resend's page first: it must say\n<strong>mail.arisecenla.com</strong>. Resend's table then shows names like <code>resend._domainkey.mail</code>\nand <code>send.mail</code>. If its names have no <code>.mail</code> (<code>resend._domainkey</code>, <code>send</code>, <code>@</code>), the\ndomain added was <code>arisecenla.com</code> itself: remove it in Resend (it is unverified and\nnothing uses it) and add <code>mail.arisecenla.com</code> instead.</p>\n<p>What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to\n<code>forge.rmta.net</code> instead of an SPF TXT and an amazonses MX):</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Wix box</th>\n<th>Host name (type this)</th>\n<th>Value</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>the long key starting <code>p=</code> <strong>(from Resend)</strong>, pasted in one piece</td>\n<td></td>\n</tr>\n<tr>\n<td>2</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>rsend.mail</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>3</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>send.mail</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>4 (optional)</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>An older Resend domain shows an SPF TXT (<code>v=spf1 include:amazonses.com ~all</code>) and an\nMX (<code>feedback-smtp.us-east-1.amazonses.com</code>, 10) on <code>send.mail</code> instead of rows 2\nand 3. <strong>Resend's own table wins</strong> over this page.</p>\n<p><strong>Skip Resend's \"Enable receiving\" MX</strong> on this page. Receiving is part 2, on\n<code>ad.arisecenla.com</code>. An MX at <code>@</code> in Wix would take <strong>all</strong> of arisecenla.com's\nemail away from wherever it goes today.</p>\n<p>What Wix shows when you add an MX record: it may offer a list of mail\nproviders (Google Workspace, Microsoft 365, \"Other\"). Choose <strong>Other</strong> (or\n\"custom\"). It may warn that changing MX records affects your email: this one\nis only for <code>send.mail</code>, so the church's existing mail is not affected; go on.</p>\n<p>TTL: leave whatever Wix suggests (usually 1 hour). Then <strong>Save</strong> at the bottom.</p>\n<p><strong>Back in Resend:</strong> <strong>Verify DNS Records</strong>. Each row turns <strong>Verified</strong> within\nminutes to a few hours.</p>\n<p><strong>On the server</strong> (Claude can do this part): <code>[mail] from_email</code> in\n<code>/etc/arise/arise.toml</code> becomes an address at <code>mail.arisecenla.com</code>, and the\nResend API key goes in with <code>sudo arisectl mail key</code> (a hidden prompt; it writes\n<code>/etc/arise/secrets/resend-api-key</code>, root only, and never into a doc or a chat). <code>sudo arisectl mail status</code> then says configured.</p>\n<h2 id=\"part-2-receiving-for-staff-addresses-adarisecenlacom\">Part 2: receiving for staff addresses (ad.arisecenla.com)</h2>\n<p>Only when you are ready to turn forwarding on (round 7, 155).</p>\n<p><code>ad.arisecenla.com</code> is the church domain inside the building: the server\nanswers for it there, and that does not change. On the internet it has no\nrecords yet. This part adds <strong>one MX record</strong> so that mail sent to\n<code>first.last@ad.arisecenla.com</code> from anywhere lands at Resend, which keeps it\nuntil the box asks for it (every five minutes, an outgoing call).</p>\n<p><strong>In Resend:</strong> left menu <strong>Receiving</strong> (it may say <strong>Inbound</strong>; in 2026 it was\nstill a beta, so it may need switching on for the account) → <strong>Add domain</strong>\n(or \"Custom domain\") → <code>ad.arisecenla.com</code>. Resend shows <strong>one MX record</strong>:\na host name and a priority <strong>(from Resend)</strong>.</p>\n<p><strong>In Wix:</strong></p>\n<table>\n<thead>\n<tr>\n<th>Wix box</th>\n<th>Host name</th>\n<th>Points to</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>MX</strong> → + Add Record</td>\n<td><code>ad</code></td>\n<td>the MX host Resend showed <strong>(from Resend)</strong></td>\n<td>the priority Resend showed (it must be the lowest number for <code>ad</code>; there is no other MX for <code>ad</code>, so it is)</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Save.</strong> Back in Resend, <strong>Verify</strong>.</p>\n<p>Then on the server: <code>[mailfwd] enabled = true</code> in <code>/etc/arise/arise.toml</code>.\n<code>sudo arisectl mail forward</code> lists every person, whether they have a personal\nemail on their profile, and whether their mail will be forwarded. Send a test\nto your own church address from your phone; within five minutes it is in your\npersonal inbox, from \"&lt;sender&gt; via Arise Church IT\", and a reply goes straight\nto the sender.</p>\n<p>Inside the building nothing changes: a church Mac still asks the server about\n<code>ad.arisecenla.com</code> (its resolver file) and never sees this record.</p>\n<h2 id=\"part-3-check\">Part 3: check</h2>\n<p>DNS takes from minutes to a few hours. From the box or any Mac (Terminal):</p>\n<pre><code>dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net\ndig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key\ndig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.\ndig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.\ndig +short TXT _dmarc.mail.arisecenla.com                # &quot;v=DMARC1; p=none;&quot; (if added)\ndig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:\n                                                         # inside the church the server answers for &quot;ad&quot;)\n</code></pre>\n<p>An empty answer means the record is not there yet, or the host name has a\ntypo. docs/EMAIL-DNS.md has the \"if something is wrong\" list.</p>\n<h2 id=\"what-never-goes-into-wix\">What never goes into Wix</h2>\n<ul>\n<li>Anything pointing at the server's address. The box is not on the internet.</li>\n<li>Records for the website you didn't add. Leave them.</li>\n<li>A second <code>v=spf1</code> record on the same host name (only one is allowed).</li>\n<li>An MX record at <code>@</code> (the root). That moves all of arisecenla.com's email.</li>\n</ul>",
+"html": "<h1 id=\"wix-dns-for-arisecenlacom-step-by-step-round-7-131\">Wix DNS for arisecenla.com, step by step (round 7, 131)</h1>\n<blockquote>\n<p><strong>As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10).</strong> The church's Resend account verified\nthe main domain, <strong>arisecenla.com</strong>, not <code>mail.arisecenla.com</code>. What Wix holds now:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Host</th>\n<th>Value</th>\n<th>What for</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>TXT</td>\n<td><code>resend._domainkey</code></td>\n<td>the <code>p=…</code> key</td>\n<td>sending: Resend signs the church's mail</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>send</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>rsend</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td>sending (Resend's SPF / bounces)</td>\n</tr>\n<tr>\n<td>MX</td>\n<td><code>@</code></td>\n<td><code>receive.forge.rmta.net</code>, 10</td>\n<td><strong>receiving</strong>: all mail to <code>@arisecenla.com</code> arrives at Resend; the box forwards <code>first.last@arisecenla.com</code> (H10)</td>\n</tr>\n<tr>\n<td>CNAME</td>\n<td><code>links</code></td>\n<td><code>links2.resend-dns.com</code></td>\n<td>Resend's link tracking</td>\n</tr>\n</tbody>\n</table>\n<p>The MX at <code>@</code> was safe to add because arisecenla.com received no mail anywhere before it (no MX\nexisted). The server sends from <code>it@arisecenla.com</code> (\"Arise Church IT\"). The <code>mail.</code> records\n(<code>resend._domainkey.mail</code>, <code>send.mail</code>, <code>rsend.mail</code>, <code>_dmarc.mail</code>) from the first try are no\nlonger used; they harm nothing, and removing them is Bradly's click. <strong>One record to add:</strong>\nTXT <code>_dmarc</code> → <code>v=DMARC1; p=none;</code> (DMARC for the main domain; Gmail and Yahoo look for it).\n<strong>ad.arisecenla.com needs nothing in Wix</strong> (Bradly asked, Nov 1). It is the church's sign-in\ndomain, and the server itself answers for it: inside the building every church Mac asks the\nserver (its resolver file), and away from the building Tailscale's split DNS sends\n<code>ad.arisecenla.com</code> questions to the server (docs/REMOTE-ACCESS.md, step 5). A Wix record for\n<code>ad</code> would put the server's private address on the internet and reach nothing (rule 7). The\ntwo never overlap: email uses <code>arisecenla.com</code>, sign-in uses <code>ad.arisecenla.com</code>.\nThe rest of this page is the original plan, kept for the record; where it says\n<code>mail.arisecenla.com</code> or <code>ad.arisecenla.com</code> for mail, read <code>arisecenla.com</code>.</p>\n</blockquote>\n<p>Bradly asked to be walked through it. This page is every DNS record ariseOS\nneeds at Wix, in the order to add them, with what each Wix screen shows. You\nonly change DNS at Wix for <strong>arisecenla.com</strong>; <code>arisecenla.church</code> is at\nGoDaddy, nobody has access to it, and nothing here needs it (round 7, 133).</p>\n<p>Nothing below points at the server. Rule 7 holds: the box is not reachable\nfrom the internet, and none of these records changes that.</p>\n<table>\n<thead>\n<tr>\n<th>Part</th>\n<th>What it is for</th>\n<th>Records</th>\n<th>When</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Resend <strong>sends</strong> from <code>mail.arisecenla.com</code>: reset links, notices, newsletters (\"Arise Church IT\", round 7, 132)</td>\n<td>3, plus 1 optional</td>\n<td>now</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Staff addresses <code>first.last@ad.arisecenla.com</code> <strong>arrive</strong> at Resend so the box can forward them (round 7, 155)</td>\n<td>1 MX</td>\n<td>when you turn forwarding on</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Check them</td>\n<td>none</td>\n<td>after each part</td>\n</tr>\n</tbody>\n</table>\n<p>Values marked <strong>(from Resend)</strong> are only shown on Resend's own pages: copy\nthem from there, never from this page or a chat. Everything else is exact.</p>\n<p>The screen names below are what Wix and Resend called them when this was\nwritten. Both rename buttons now and then; the order of the steps does not\nchange.</p>\n<h2 id=\"before-you-start-open-the-two-tabs\">Before you start: open the two tabs</h2>\n<ol>\n<li><strong>Resend.</strong> Sign in at resend.com with the <strong>church's</strong> Resend account, not a\n   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where\n   values come from. Make the API key on install day, not before: sending access\n   only, for <code>mail.arisecenla.com</code>.</li>\n<li><strong>Wix.</strong> Sign in at wix.com → the church site → <strong>Settings</strong> (left menu,\n   near the bottom) → <strong>Domains</strong>. You see <code>arisecenla.com</code> with a <strong>⋯</strong> button\n   on its right (Domain Actions). Click <strong>⋯</strong> → <strong>Manage DNS Records</strong>.</li>\n</ol>\n<p>What you see: one box per record type, top to bottom: <strong>A (Host)</strong>,\n   <strong>CNAME (Aliases)</strong>, <strong>MX (Mail Exchange)</strong>, <strong>TXT (Text)</strong>, then SPF, NS\n   and the rest. Each box has the records already there and a <strong>+ Add Record</strong>\n   link under it. There is one <strong>Save</strong> button at the bottom of the page.</p>\n<p>If Wix says the DNS is not managed here (\"connected by pointing\"), stop:\n   the records go wherever <code>arisecenla.com</code>'s name servers are, and part 3's\n   <code>dig NS</code> line shows where. Tell Claude what it says.</p>\n<p><strong>Leave every record that is already there alone.</strong> The website's A and\nCNAME records and any mail the church already gets at <code>arisecenla.com</code> stay\nexactly as they are. Every record below sits on a subdomain (<code>mail</code>,\n<code>send.mail</code>, <code>ad</code>), so none of them can touch the website or the root\ndomain's mail.</p>\n<h2 id=\"part-1-sending-mailarisecenlacom\">Part 1: sending (mail.arisecenla.com)</h2>\n<p><strong>In Resend:</strong> left menu <strong>Domains</strong> → <strong>Add Domain</strong> → Name\n<code>mail.arisecenla.com</code> → Region: leave <strong>North Virginia (us-east-1)</strong> → <strong>Add</strong>.\nResend opens the domain's page with a <strong>DNS Records</strong> table. Keep it open.</p>\n<p><strong>In Wix</strong>, add each row. Where Resend's Name ends in <code>.arisecenla.com</code>, type\nonly the part before it: Wix adds the rest.</p>\n<p>Check the domain name at the top of Resend's page first: it must say\n<strong>mail.arisecenla.com</strong>. Resend's table then shows names like <code>resend._domainkey.mail</code>\nand <code>send.mail</code>. If its names have no <code>.mail</code> (<code>resend._domainkey</code>, <code>send</code>, <code>@</code>), the\ndomain added was <code>arisecenla.com</code> itself: remove it in Resend (it is unverified and\nnothing uses it) and add <code>mail.arisecenla.com</code> instead.</p>\n<p>What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to\n<code>forge.rmta.net</code> instead of an SPF TXT and an amazonses MX):</p>\n<table>\n<thead>\n<tr>\n<th>#</th>\n<th>Wix box</th>\n<th>Host name (type this)</th>\n<th>Value</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>resend._domainkey.mail</code></td>\n<td>the long key starting <code>p=</code> <strong>(from Resend)</strong>, pasted in one piece</td>\n<td></td>\n</tr>\n<tr>\n<td>2</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>rsend.mail</code></td>\n<td><code>rsend.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>3</td>\n<td><strong>CNAME</strong> → + Add Record</td>\n<td><code>send.mail</code></td>\n<td><code>send.forge.rmta.net</code></td>\n<td></td>\n</tr>\n<tr>\n<td>4 (optional)</td>\n<td><strong>TXT</strong> → + Add Record</td>\n<td><code>_dmarc.mail</code></td>\n<td><code>v=DMARC1; p=none;</code></td>\n<td></td>\n</tr>\n</tbody>\n</table>\n<p>An older Resend domain shows an SPF TXT (<code>v=spf1 include:amazonses.com ~all</code>) and an\nMX (<code>feedback-smtp.us-east-1.amazonses.com</code>, 10) on <code>send.mail</code> instead of rows 2\nand 3. <strong>Resend's own table wins</strong> over this page.</p>\n<p><strong>Skip Resend's \"Enable receiving\" MX</strong> on this page. Receiving is part 2, on\n<code>ad.arisecenla.com</code>. An MX at <code>@</code> in Wix would take <strong>all</strong> of arisecenla.com's\nemail away from wherever it goes today.</p>\n<p>What Wix shows when you add an MX record: it may offer a list of mail\nproviders (Google Workspace, Microsoft 365, \"Other\"). Choose <strong>Other</strong> (or\n\"custom\"). It may warn that changing MX records affects your email: this one\nis only for <code>send.mail</code>, so the church's existing mail is not affected; go on.</p>\n<p>TTL: leave whatever Wix suggests (usually 1 hour). Then <strong>Save</strong> at the bottom.</p>\n<p><strong>Back in Resend:</strong> <strong>Verify DNS Records</strong>. Each row turns <strong>Verified</strong> within\nminutes to a few hours.</p>\n<p><strong>On the server</strong> (Claude can do this part): <code>[mail] from_email</code> in\n<code>/etc/arise/arise.toml</code> becomes an address at <code>mail.arisecenla.com</code>, and the\nResend API key goes in with <code>sudo arisectl mail key</code> (a hidden prompt; it writes\n<code>/etc/arise/secrets/resend-api-key</code>, root only, and never into a doc or a chat). <code>sudo arisectl mail status</code> then says configured.</p>\n<h2 id=\"part-2-receiving-for-staff-addresses-adarisecenlacom\">Part 2: receiving for staff addresses (ad.arisecenla.com)</h2>\n<p>Only when you are ready to turn forwarding on (round 7, 155).</p>\n<p><code>ad.arisecenla.com</code> is the church domain inside the building: the server\nanswers for it there, and that does not change. On the internet it has no\nrecords yet. This part adds <strong>one MX record</strong> so that mail sent to\n<code>first.last@ad.arisecenla.com</code> from anywhere lands at Resend, which keeps it\nuntil the box asks for it (every five minutes, an outgoing call).</p>\n<p><strong>In Resend:</strong> left menu <strong>Receiving</strong> (it may say <strong>Inbound</strong>; in 2026 it was\nstill a beta, so it may need switching on for the account) → <strong>Add domain</strong>\n(or \"Custom domain\") → <code>ad.arisecenla.com</code>. Resend shows <strong>one MX record</strong>:\na host name and a priority <strong>(from Resend)</strong>.</p>\n<p><strong>In Wix:</strong></p>\n<table>\n<thead>\n<tr>\n<th>Wix box</th>\n<th>Host name</th>\n<th>Points to</th>\n<th>Priority</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>MX</strong> → + Add Record</td>\n<td><code>ad</code></td>\n<td>the MX host Resend showed <strong>(from Resend)</strong></td>\n<td>the priority Resend showed (it must be the lowest number for <code>ad</code>; there is no other MX for <code>ad</code>, so it is)</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Save.</strong> Back in Resend, <strong>Verify</strong>.</p>\n<p>Then on the server: <code>[mailfwd] enabled = true</code> in <code>/etc/arise/arise.toml</code>.\n<code>sudo arisectl mail forward</code> lists every person, whether they have a personal\nemail on their profile, and whether their mail will be forwarded. Send a test\nto your own church address from your phone; within five minutes it is in your\npersonal inbox, from \"&lt;sender&gt; via Arise Church IT\", and a reply goes straight\nto the sender.</p>\n<p>Inside the building nothing changes: a church Mac still asks the server about\n<code>ad.arisecenla.com</code> (its resolver file) and never sees this record.</p>\n<h2 id=\"part-3-check\">Part 3: check</h2>\n<p>DNS takes from minutes to a few hours. From the box or any Mac (Terminal):</p>\n<pre><code>dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net\ndig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key\ndig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.\ndig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.\ndig +short TXT _dmarc.mail.arisecenla.com                # &quot;v=DMARC1; p=none;&quot; (if added)\ndig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:\n                                                         # inside the church the server answers for &quot;ad&quot;)\n</code></pre>\n<p>An empty answer means the record is not there yet, or the host name has a\ntypo. docs/EMAIL-DNS.md has the \"if something is wrong\" list.</p>\n<h2 id=\"what-never-goes-into-wix\">What never goes into Wix</h2>\n<ul>\n<li>Anything pointing at the server's address. The box is not on the internet.</li>\n<li>Records for the website you didn't add. Leave them.</li>\n<li>A second <code>v=spf1</code> record on the same host name (only one is allowed).</li>\n<li>An MX record at <code>@</code> (the root). That moves all of arisecenla.com's email.</li>\n</ul>",
 "demo": true
 },
 "POST /me/2fa/setup": {

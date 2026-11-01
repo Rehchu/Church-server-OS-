@@ -1290,6 +1290,56 @@ V.sunday.after = root => {
   $$('[data-open]', root).forEach(b => b.onclick = () => openApp(b.dataset.open));
 };
 
+// Your own church inbox (H11). The server picks the inbox from who is signed in; this page
+// never names one. Email HTML is shown only inside a sandboxed frame (no scripts, no same-origin),
+// and every subject and address is escaped: mail from outside is untrusted.
+V.inbox = async () => {
+  const folder = S.inboxFolder || 'inbox';
+  const ov = await api('/inbox?folder=' + encodeURIComponent(folder)).catch(e => ({ ok: false, err: e.message, threads: [] }));
+  S.inbox = ov;
+  const list = (ov.threads || []).map(t => `<button class="ibx-row${t.read ? '' : ' unread'}${S.inboxThread === t.id ? ' on' : ''}" data-ibt="${esc(t.id)}">
+      <span class="ibx-from">${esc(fromName(t.from))}</span><span class="ibx-when dim">${esc(fmtT(t.received_at || ''))}</span>
+      <span class="ibx-subj">${esc(t.subject || '(no subject)')}${t.has_attachment ? ' 📎' : ''}${t.email_count > 1 ? ` <small class="dim">(${t.email_count})</small>` : ''}</span></button>`).join('');
+  let view = '<p class="muted" style="padding:20px">Pick a conversation, or write a new email.</p>';
+  if (S.inboxCompose) view = `<div class="ibx-compose"><h3 style="margin:0 0 8px">New email</h3><label class="lbl">To</label><input id="ibTo" style="width:100%" placeholder="someone@example.com, another@example.com">
+      <label class="lbl" style="margin-top:8px">Subject</label><input id="ibSubj" style="width:100%"><label class="lbl" style="margin-top:8px">Message</label><textarea id="ibBody" rows="12" style="width:100%;font:inherit"></textarea>
+      <div class="row" style="gap:8px;margin-top:10px"><button class="btn" id="ibSend">Send</button><button class="btn btn--ghost" id="ibCancel">Cancel</button><span class="note">From ${esc(ov.address || '')}. A sent email can't be taken back.</span></div></div>`;
+  else if (S.inboxThread) {
+    const th = await api('/inbox/threads/' + encodeURIComponent(S.inboxThread)).catch(e => ({ ok: false, err: e.message }));
+    if (th.ok === false) view = `<p class="note" style="color:var(--bad);padding:16px">${esc(th.err)}</p>`;
+    else {
+      const ms = th.emails || []; const last = [...ms].reverse().find(m => m.direction !== 'outbound') || ms[ms.length - 1];
+      view = `<div class="ibx-thread"><h3 style="margin:0 0 10px">${esc(th.subject || ms[0]?.subject || '')}</h3>${ms.map(m => `<div class="card ibx-msg${m.direction === 'outbound' ? ' out' : ''}">
+          <div class="row row--between"><b>${esc(fromName(m.from))}</b><span class="dim">${esc(fmtT(m.received_at || m.created_at || ''))}</span></div>
+          <div class="dim" style="font-size:12px">to ${esc([].concat(m.to || []).join(', '))}</div>
+          ${m.html && S.inboxHtml === m.id ? `<iframe class="ibx-html" sandbox="" referrerpolicy="no-referrer" data-ibhtml="${esc(m.id)}"></iframe>` : `<pre class="ibx-text">${esc(m.text || (m.html ? '(this message is formatted; Show formatted)' : ''))}</pre>`}
+          <div class="row" style="gap:8px;margin-top:6px;flex-wrap:wrap">${m.html ? `<button class="btn btn--ghost btn--xs" data-ibfmt="${esc(m.id)}">${S.inboxHtml === m.id ? 'Show text' : 'Show formatted'}</button>` : ''}${(m.attachments || []).map(a => `<span class="chip">📎 ${esc(a.filename || 'file')}</span>`).join('')}</div></div>`).join('')}
+        ${last ? `<div class="card" style="margin-top:10px"><label class="lbl">Reply to ${esc(fromName(last.from))}</label><textarea id="ibReply" rows="6" style="width:100%;font:inherit"></textarea>
+          <div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="ibReplyGo" data-email="${esc(last.id)}">Send reply</button><label class="row" style="gap:6px"><input type="checkbox" id="ibAll"> Reply to everyone</label><span class="note">A sent email can't be taken back.</span></div></div>` : ''}</div>`;
+      S.inboxMsgs = ms;
+    }
+  }
+  const note = ov.ok === false ? `<div class="card" style="border-left:3px solid var(--warn);margin-bottom:10px">${esc(ov.err || 'The inbox is not reachable')}</div>` : '';
+  return `<div class="fade ibx">${note}<div class="row row--between" style="margin-bottom:10px"><div><div class="kicker">Your church email${ov.demo ? ' · sample' : ''}</div><h2 style="margin:0">${esc(ov.address || '')}</h2></div>
+      <div class="row" style="gap:8px"><div class="tabs">${['inbox', 'sent', 'archive', 'spam'].map(f => `<button class="${folder === f ? 'on' : ''}" data-ibf="${f}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}</div><button class="btn btn--xs" id="ibNew">New email</button></div></div>
+    <div class="ibx-cols"><div class="ibx-list">${list || '<p class="muted" style="padding:14px">Nothing here.</p>'}</div><div class="ibx-view">${view}</div></div></div>`;
+};
+function fromName(f) { const s = Array.isArray(f) ? f[0] : (f && f.email) ? (f.name || f.email) : String(f || ''); const m = /^\s*"?([^"<]+?)"?\s*<([^>]+)>/.exec(s); return m ? m[1] : s; }
+V.inbox.after = root => {
+  $$('[data-ibf]', root).forEach(b => b.onclick = () => { S.inboxFolder = b.dataset.ibf; S.inboxThread = null; S.inboxCompose = false; rerender('inbox'); });
+  $$('[data-ibt]', root).forEach(b => b.onclick = () => { S.inboxThread = b.dataset.ibt; S.inboxCompose = false; S.inboxHtml = null; rerender('inbox'); });
+  const nw = $('#ibNew', root); if (nw) nw.onclick = () => { S.inboxCompose = true; S.inboxThread = null; rerender('inbox'); };
+  const cancel = $('#ibCancel', root); if (cancel) cancel.onclick = () => { S.inboxCompose = false; rerender('inbox'); };
+  $$('[data-ibfmt]', root).forEach(b => b.onclick = () => { S.inboxHtml = S.inboxHtml === b.dataset.ibfmt ? null : b.dataset.ibfmt; rerender('inbox'); });
+  $$('[data-ibhtml]', root).forEach(f => { const m = (S.inboxMsgs || []).find(x => x.id === f.dataset.ibhtml); if (m) f.srcdoc = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src data:; style-src \'unsafe-inline\'">' + (m.html || ''); });
+  const send = $('#ibSend', root); if (send) send.onclick = async () => {
+    const r = await api('/inbox/send', { method: 'POST', body: { to: $('#ibTo', root).value, subject: $('#ibSubj', root).value, text: $('#ibBody', root).value } }).catch(e => ({ ok: false, err: e.message }));
+    if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample: would send' : 'Sent'); S.inboxCompose = false; S.inboxFolder = 'sent'; rerender('inbox'); };
+  const go = $('#ibReplyGo', root); if (go) go.onclick = async () => {
+    const r = await api(`/inbox/threads/${encodeURIComponent(S.inboxThread)}/emails/${encodeURIComponent(go.dataset.email)}/reply`, { method: 'POST', body: { text: $('#ibReply', root).value, reply_all: $('#ibAll', root).checked } }).catch(e => ({ ok: false, err: e.message }));
+    if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample: would send the reply' : 'Reply sent'); rerender('inbox'); };
+};
+
 V.mail = async () => {
   const [st, bc] = await Promise.all([api('/mail'), api('/mail/broadcasts')]); S.mail = st;
   const tab = S.mailTab || 'compose';
@@ -1392,6 +1442,7 @@ const I = {
   logs: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v3H3zm0 5h18v3H3zm0 5h12v3H3z"/></svg>',
   assist: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2zM19 16l1 2.6 2.6 1-2.6 1L19 23l-1-2.4-2.6-1 2.6-1z"/></svg>',
   mail: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 5h20v14H2zm2 2v.5l8 5 8-5V7zm0 3v7h16v-7l-8 5z"/></svg>',
+  inbox: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18l1 9v7H2v-7zm2 2-.7 6H8l1.5 3h5L16 12h3.7L19 6z"/></svg>',
   security: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3.5V11c0 5.2-3.4 9.6-8 11-4.6-1.4-8-5.8-8-11V5.5zm0 2.2L6 6.8V11c0 4 2.5 7.6 6 8.9 3.5-1.3 6-4.9 6-8.9V6.8zm-1 4.8h2v2.3l1.6 1.6-1.4 1.4L11 12.1z"/></svg>',
   sunday: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v10h12V8zm2 3l2 2 4-4 1.4 1.4L10 15.8l-3.4-3.4z"/></svg>',
   devices: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v5H4zm10 0h6v5h-6zM9 15h6v5H9zM7 9v2h10V9h-1v1H8V9zm4 2h2v4h-2z"/></svg>',
@@ -1429,6 +1480,7 @@ const APPS = [
   { id: 'assist', n: '17', name: 'Assistants', what: 'Claude, ChatGPT, Grok, Studio', tone: 'bone', dock: true, w: 820, h: 480 },
   { id: 'sunday', n: '18', name: 'Sunday', what: 'The service checklist, what is next', tone: 'red', dock: true, w: 900, h: 600 },
   { id: 'mail', n: '19', name: 'Mail', what: 'The church family list, newsletters (Resend)', w: 980, h: 640 },
+  { id: 'inbox', n: '', name: 'Inbox', what: 'Your own church email (first.last@arisecenla.com)', tone: 'bone', w: 1040, h: 680 },
   { id: 'calendar', n: '20', name: 'Calendar', what: 'Services and events; every Mac and phone can subscribe', whatMember: 'The services and the church\'s events', tone: 'bone', dock: true, w: 980, h: 640 },
   { id: 'calc', n: '21', name: 'Calculator', what: 'Sums, also in Spotlight', tone: 'bone', w: 420, h: 560 },
   { id: 'clock', n: '22', name: 'Clock', what: 'World clock, timer, stopwatch, alarm', tone: 'bone', w: 760, h: 480 },
