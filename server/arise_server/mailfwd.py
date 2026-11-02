@@ -35,7 +35,9 @@ from .config import load
 from .util import read_json, write_json
 
 RECEIVED_LIST = "/emails/receiving?limit=100"     # list what arrived (newest first, 100 at most)
-RECEIVED_ONE = "/emails/receiving/{id}"           # one message in full: text, html, headers, attachments
+RECEIVED_ONE = "/emails/receiving/{id}"           # one message in full: text, html, headers
+RECEIVED_ATTACHMENTS = "/emails/receiving/{id}/attachments"   # its files: filename, size, download_url (scout I-021)
+ATTACH_CAP = 25 * 1024 * 1024                     # Resend sends at most 25 MB of files on one message
 DOMAIN = "arisecenla.com"            # Bradly, Oct 31 (H10): first.last@arisecenla.com
 SEEN_KEEP = 5000
 ADDR_RE = re.compile(r"<?([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+)>?")
@@ -115,13 +117,24 @@ def forward_body(msg: dict, dest: str, from_email: str, server_name: str = "Aris
         body["html"] = msg["html"] + f"<hr><p style=\"font-size:12px;color:#666\">{note}</p>"
     if not body.get("text") and not body.get("html"):
         body["text"] = f"(this message had no text)\n\n--\n{note}"
-    atts = []
+    atts, left, total = [], [], 0
     for a in msg.get("attachments") or []:
         url = a.get("download_url") or a.get("url")
-        if url and a.get("filename"):
-            atts.append({"filename": a["filename"], "path": url})
+        if not (url and a.get("filename")):
+            continue
+        size = int(a.get("size") or 0)
+        if total + size > ATTACH_CAP:
+            left.append(f"{a['filename']} ({size // (1024 * 1024)} MB)")
+            continue
+        total += size
+        atts.append({"filename": a["filename"], "path": url})
     if atts:
         body["attachments"] = atts
+    if left:
+        line = "Too large to forward (over 25 MB together), ask the sender for a link: " + ", ".join(left)
+        body["text"] = (body.get("text") or "") + "\n\n" + line
+        if body.get("html"):
+            body["html"] += f"<p style=\"font-size:12px;color:#666\">{line}</p>"
     return body
 
 
@@ -238,6 +251,10 @@ def run_once(call=None) -> dict:
                 if not full:
                     _log({**row, "ok": False, "why": "could not fetch the message: " + str(g.get("err"))[:120]})
                     continue
+                if not full.get("attachments"):
+                    a = call("GET", RECEIVED_ATTACHMENTS.format(id=it["id"]))
+                    rows_a = (a.get("data") or {}) if a.get("ok") else {}
+                    full["attachments"] = rows_a.get("data") if isinstance(rows_a, dict) else (rows_a or [])
             s = call("POST", "/emails", forward_body(full, t["to"], m["from_email"], m.get("server_from_name") or "Arise Church IT"))
             _log({**row, "ok": bool(s.get("ok")), **({} if s.get("ok") else {"why": str(s.get("err"))[:160]})})
             fwd += 1 if s.get("ok") else 0

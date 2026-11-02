@@ -41,6 +41,7 @@ put_away() {
   dl="$(homes_root)/$u/Downloads"
   if [ -d "$dl" ]; then
     setfacl -x "u:$KIOSK" "$dl" 2>/dev/null
+    setfacl -x "u:$KIOSK" "$(dirname "$dl")" 2>/dev/null
     # What the kiosk saved while it was their turn becomes theirs.
     find "$dl" -user "$KIOSK" -exec chown "$u" {} + 2>/dev/null
   fi
@@ -95,7 +96,11 @@ dl="$(homes_root)/$user/Downloads"
 } > "$p/user.js"
 if [ -d "$(dirname "$dl")" ]; then
   install -d "$dl" 2>/dev/null && chown "$user" "$dl" 2>/dev/null
+  # The home is 0700 (directory.py), so the kiosk needs traverse (x) on it to reach Downloads
+  # at all (scout I-027); rwx on Downloads only. put_away removes both.
+  setfacl -m "u:$KIOSK:x" "$(dirname "$dl")" 2>/dev/null
   setfacl -m "u:$KIOSK:rwx" "$dl" 2>/dev/null
+  if ! runuser -u "$KIOSK" -- test -w "$dl" 2>/dev/null; then echo "note: $KIOSK cannot write $dl (downloads will fail): check the home's ACL" >&2; fi
 fi
 want "$p" "$url"; echo "$user" > "$STATE/current"
 restart_browser

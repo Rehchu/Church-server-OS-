@@ -1231,13 +1231,17 @@ if [ "$SKIP_DOCKER" = 0 ] && [ "$NO_START" = 0 ] && wants_app nextcloud; then
         warn "sync: arisectl cloud setup had failures (see $LOG_FILE); run it again once Nextcloud is up"
       fi
     fi
-    if samba-tool dns query 127.0.0.1 "${REALM,,}" cloud ALL -P >/dev/null 2>&1; then
-      note "sync: cloud.${REALM,,} is already in the domain's DNS"
-    elif samba-tool dns add 127.0.0.1 "${REALM,,}" cloud CNAME "$HOSTNAME_WANTED.${REALM,,}" -P >>"$LOG_FILE" 2>&1; then
-      note "sync: cloud.${REALM,,} added to the domain's DNS (a CNAME to this box)"
-    else
-      warn "sync: could not add cloud.${REALM,,} to DNS: sudo samba-tool dns add 127.0.0.1 ${REALM,,} cloud CNAME $HOSTNAME_WANTED.${REALM,,} -U administrator"
-    fi
+    # cloud (Nextcloud), vault (Vaultwarden: the Bitwarden apps need the name, scout I-011) and
+    # remote (Guacamole) are CNAMEs to this box in the domain's DNS; Caddy serves all three.
+    for _name in cloud vault remote; do
+      if samba-tool dns query 127.0.0.1 "${REALM,,}" "$_name" ALL -P >/dev/null 2>&1; then
+        note "dns: $_name.${REALM,,} is already in the domain's DNS"
+      elif samba-tool dns add 127.0.0.1 "${REALM,,}" "$_name" CNAME "$HOSTNAME_WANTED.${REALM,,}" -P >>"$LOG_FILE" 2>&1; then
+        note "dns: $_name.${REALM,,} added to the domain's DNS (a CNAME to this box)"
+      else
+        warn "dns: could not add $_name.${REALM,,}: sudo samba-tool dns add 127.0.0.1 ${REALM,,} $_name CNAME $HOSTNAME_WANTED.${REALM,,} -U administrator"
+      fi
+    done
   fi
   for u in arise-cloud-watch.service arise-cloud-conflicts.timer; do
     [ -f "$UNIT_SRC/$u" ] && { run systemctl enable --now "$u" || warn "$u did not start"; }
@@ -1609,7 +1613,7 @@ if [ "$WITH_CADDY" = 1 ]; then
     run systemctl enable caddy || warn "caddy not enabled (not installed?)"
   fi
   note "HTTPS on https://$HOSTNAME_WANTED.ad.arisecenla.com with the church certificate. enroll-mac.sh / bind-mac.sh --dns trust it; by hand: http://$HOSTNAME_WANTED:4147/ca.crt (docs/SECURITY.md)"
-  note "DNS records still needed:  sudo samba-tool dns add 127.0.0.1 ad.arisecenla.com vault A ${PRIMARY_IP:-<lan-ip>}   (and remote)"
+  note "vault.${REALM,,} and remote.${REALM,,} are CNAMEs to this box (added with cloud in 6a-sync)"
 fi
 
 # ----------------------------------------------------------------------------

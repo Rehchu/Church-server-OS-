@@ -562,6 +562,34 @@ def trash_list(who=None) -> dict:
     return {"demo": False, "days": TRASH_DAYS, "items": rows[:2000], "admin": admin}
 
 
+def own_trash_dirs(base: str, user: str, dest_dir: str) -> None:
+    """Nov 2 (scout I-031): the dashboard runs as root (umask 022), so a bare makedirs left
+    .Trash/<user> and the folders under it root:root 0755. Samba's vfs_recycle runs as the person;
+    when it cannot create under .Trash/<user> it logs 'purging' and deletes outright, so one
+    dashboard Trash made every later Finder delete on that person's Mac unrecoverable. Every
+    folder from .Trash/<user> down to dest_dir is made (or re-made) theirs, 0770."""
+    try:
+        pw = pwd.getpwnam(user)
+    except KeyError:
+        return
+    top = os.path.join(base, ".Trash", user)
+    d = os.path.realpath(dest_dir)
+    chain = []
+    while d.startswith(os.path.realpath(top)):
+        chain.append(d)
+        if d == os.path.realpath(top):
+            break
+        d = os.path.dirname(d)
+    for folder in chain:
+        try:
+            st = os.stat(folder)
+            if st.st_uid != pw.pw_uid or (st.st_mode & 0o777) != 0o770:
+                os.chown(folder, pw.pw_uid, pw.pw_gid)
+                os.chmod(folder, 0o770)
+        except OSError:
+            pass
+
+
 def trash_put(root_id: str, rel: str, who=None, confirm: str = "") -> dict:
     """Move a file or folder into the Trash. The caller typed its name (confirm)."""
     cfg = load()
@@ -596,6 +624,7 @@ def trash_put(root_id: str, rel: str, who=None, confirm: str = "") -> dict:
         os.chmod(os.path.join(base, ".Trash"), 0o771)
     except OSError:
         pass
+    own_trash_dirs(base, user, dest_dir)
     final = versioned_name(name, lambda n: os.path.lexists(os.path.join(dest_dir, n)))
     dest = os.path.join(dest_dir, final)
     shutil.move(t, dest)

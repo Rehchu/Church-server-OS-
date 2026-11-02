@@ -6,7 +6,7 @@ ConditionPathExists=/var/lib/arise/backup-apps-stopped.json
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/arise
+WorkingDirectory=/opt/arise/server
 Environment=ARISE_CONFIG=/etc/arise/arise.toml
 ExecStart=/opt/arise/venv/bin/python -c "from arise_server.backups import resume_apps; import sys; r=resume_apps(); print(r); sys.exit(0 if r['ok'] else 1)"
 TimeoutStartSec=15min

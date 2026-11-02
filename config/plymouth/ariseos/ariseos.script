@@ -64,3 +64,40 @@ fun message_callback(text) {
   message.sprite.SetX(w / 2 - message.image.GetWidth() / 2);
 }
 Plymouth.SetMessageFunction(message_callback);
+
+# The disk passphrase (H3: no TPM 2.0, so cryptsetup asks at every boot). Without these three
+# callbacks Plymouth draws nothing for the prompt and the box looks hung (scout I-004, Nov 2).
+# The prompt and one bullet per typed character sit under the bar, in bone; the bar is hidden
+# while a question is open and comes back after.
+prompt.sprite = Sprite();
+prompt.sprite.SetX(0);
+prompt.sprite.SetY(h / 2 + 90);
+dots.sprite = Sprite();
+dots.sprite.SetY(h / 2 + 124);
+fun display_password_callback(text, bullets) {
+  if (text == "") text = "Type the disk passphrase";
+  prompt.image = Image.Text(text, 0.93, 0.92, 0.9, 1, "Sans 13");
+  prompt.sprite.SetImage(prompt.image);
+  prompt.sprite.SetX(w / 2 - prompt.image.GetWidth() / 2);
+  str = "";
+  for (i = 0; i < bullets; i++) str += "• ";
+  if (bullets == 0) str = " ";
+  dots.image = Image.Text(str, 0.84, 0.13, 0.18, 1, "Sans 16");
+  dots.sprite.SetImage(dots.image);
+  dots.sprite.SetX(w / 2 - dots.image.GetWidth() / 2);
+  bar.sprite.SetOpacity(0);
+}
+fun display_question_callback(text, entry) {
+  prompt.image = Image.Text(text + " " + entry, 0.93, 0.92, 0.9, 1, "Sans 13");
+  prompt.sprite.SetImage(prompt.image);
+  prompt.sprite.SetX(w / 2 - prompt.image.GetWidth() / 2);
+  bar.sprite.SetOpacity(0);
+}
+fun display_normal_callback() {
+  prompt.sprite.SetImage(Image.Text(" ", 0, 0, 0, 0, "Sans 9"));
+  dots.sprite.SetImage(Image.Text(" ", 0, 0, 0, 0, "Sans 9"));
+  bar.sprite.SetOpacity(1);
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayQuestionFunction(display_question_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);

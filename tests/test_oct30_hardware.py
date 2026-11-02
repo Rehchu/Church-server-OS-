@@ -262,3 +262,115 @@ class BootEncryption(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UnitsCanImportTheServer(unittest.TestCase):
+    """Nov 2 (scout I-003): a unit that runs `python -c "from arise_server..."` must run from
+    /opt/arise/server or carry PYTHONPATH, or it dies with ModuleNotFoundError and the backup's
+    app restart, the boot recovery and the monthly verify never run."""
+
+    def test_every_python_unit_finds_the_package(self):
+        for p in sorted((ROOT / "config" / "systemd").glob("*.service")):
+            s = p.read_text()
+            if "arise_server" not in s or "/venv/bin/python" not in s:
+                continue
+            ok = "WorkingDirectory=/opt/arise/server" in s or "PYTHONPATH=/opt/arise/server" in s
+            self.assertTrue(ok, f"{p.name}: python -c/-m arise_server without WorkingDirectory=/opt/arise/server or PYTHONPATH")
+
+
+class TrashBelongsToThePerson(unittest.TestCase):
+    """Nov 2 (scout I-031): folders the dashboard makes under .Trash/<user> become that person's,
+    0770, so Samba's recycle bin can keep writing there instead of purging their deletes."""
+
+    def test_own_trash_dirs_chowns_the_chain(self):
+        from arise_server import finder
+        calls = []
+        with tempfile.TemporaryDirectory() as base:
+            dest = os.path.join(base, ".Trash", "kristina.robinson", "Documents", "old")
+            os.makedirs(dest)
+            fake_pw = type("pw", (), {"pw_uid": 4242, "pw_gid": 4242})()
+            with patch.object(finder.pwd, "getpwnam", return_value=fake_pw), \
+                    patch.object(finder.os, "chown", side_effect=lambda p, u, g: calls.append(("chown", p, u))), \
+                    patch.object(finder.os, "chmod", side_effect=lambda p, m: calls.append(("chmod", p, m))):
+                finder.own_trash_dirs(base, "kristina.robinson", dest)
+        chowned = sorted(c[1] for c in calls if c[0] == "chown")
+        self.assertEqual(len(chowned), 3)                       # .Trash/<user>, Documents, old; never .Trash itself
+        self.assertTrue(all(p.endswith(("kristina.robinson", "Documents", "old")) for p in chowned))
+        self.assertTrue(all(c[2] == 4242 for c in calls if c[0] == "chown"))
+        self.assertTrue(all(c[2] == 0o770 for c in calls if c[0] == "chmod"))
+
+    def test_unknown_user_changes_nothing(self):
+        from arise_server import finder
+        with tempfile.TemporaryDirectory() as base, patch.object(finder.pwd, "getpwnam", side_effect=KeyError), \
+                patch.object(finder.os, "chown") as ch:
+            os.makedirs(os.path.join(base, ".Trash", "nobody"))
+            finder.own_trash_dirs(base, "nobody", os.path.join(base, ".Trash", "nobody"))
+            ch.assert_not_called()
+
+
+class FailedBackupTellsBradly(unittest.TestCase):
+    """Nov 2 (scout I-015): a failed job posts to Discord #alerts and the phone the same night,
+    once per job per night; a skipped optional source does not."""
+
+    def test_tell_failure_posts_once_with_a_night_key(self):
+        from arise_server import backups, discord, push
+        with patch.object(discord, "post", return_value={"ok": True}) as dp, patch.object(push, "send", return_value={"ok": True}) as ps:
+            backups._tell_failure({"id": "homes", "name": "Home folders"}, {"error": "restic: repository locked\nFatal: lock", "finished": "2026-11-02T03:05:00"})
+        dp.assert_called_once()
+        self.assertEqual(dp.call_args.args[0], "alerts")
+        self.assertIn("Home folders", dp.call_args.args[1]); self.assertIn("Fatal: lock", dp.call_args.args[1])
+        self.assertEqual(dp.call_args.kwargs["key"], "backup-failed:homes:2026-11-02")
+        ps.assert_called_once(); self.assertEqual(ps.call_args.kwargs["tag"], "backup-failed:homes:2026-11-02")
+
+    def test_a_discord_outage_never_breaks_the_backup(self):
+        from arise_server import backups, discord, push
+        with patch.object(discord, "post", side_effect=RuntimeError("down")), patch.object(push, "send", side_effect=RuntimeError("down")):
+            backups._tell_failure({"id": "x"}, {"error": "e"})   # no raise
+
+
+class SplashShowsThePassphrasePrompt(unittest.TestCase):
+    """Nov 2 (scout I-004): with no TPM 2.0 the disk asks its passphrase at every boot; the
+    splash must draw the prompt or the box looks hung."""
+
+    def test_the_three_callbacks_are_registered(self):
+        s = (ROOT / "config" / "plymouth" / "ariseos" / "ariseos.script").read_text()
+        for fn in ("SetDisplayPasswordFunction", "SetDisplayQuestionFunction", "SetDisplayNormalFunction"):
+            self.assertIn(f"Plymouth.{fn}(", s)
+        self.assertIn("Type the disk passphrase", s)
+
+
+class NamesTheAppsNeed(unittest.TestCase):
+    """Nov 2 (scout I-011): vault and remote are CNAMEs like cloud; no DNS record is left to type."""
+
+    def test_installer_adds_vault_and_remote(self):
+        s = (ROOT / "installer" / "install.sh").read_text()
+        self.assertIn("for _name in cloud vault remote; do", s)
+        self.assertNotIn("DNS records still needed", s)
+
+
+class KioskReachesDownloads(unittest.TestCase):
+    """Nov 2 (scout I-027): the home is 0700, so the kiosk needs traverse on it, granted and removed with the Downloads ACL."""
+
+    def test_traverse_acl_set_and_removed(self):
+        s = (ROOT / "scripts" / "arise-browser-profile").read_text()
+        self.assertIn('setfacl -m "u:$KIOSK:x" "$(dirname "$dl")"', s)
+        self.assertIn('setfacl -x "u:$KIOSK" "$(dirname "$dl")"', s)
+
+
+class ForwardsCarryAttachments(unittest.TestCase):
+    """Nov 2 (scout I-021): attachments ride along as URL attachments, up to Resend's 25 MB; the rest are named."""
+
+    def test_forward_body_attaches_by_url_and_names_the_oversize(self):
+        from arise_server import mailfwd
+        big = 30 * 1024 * 1024
+        b = mailfwd.forward_body({"from": "a@x.org", "subject": "s", "text": "hi",
+                                  "attachments": [{"filename": "notes.pdf", "size": 1000, "download_url": "https://r/1"},
+                                                  {"filename": "video.mov", "size": big, "download_url": "https://r/2"}]},
+                                 "k@example.com", "it@arisecenla.com")
+        self.assertEqual(b["attachments"], [{"filename": "notes.pdf", "path": "https://r/1"}])
+        self.assertIn("video.mov (30 MB)", b["text"])
+
+    def test_run_once_fetches_the_attachment_list(self):
+        from arise_server import mailfwd
+        self.assertEqual(mailfwd.RECEIVED_ATTACHMENTS, "/emails/receiving/{id}/attachments")
+        self.assertIn("RECEIVED_ATTACHMENTS.format(id=it[\"id\"])", (ROOT / "server" / "arise_server" / "mailfwd.py").read_text())

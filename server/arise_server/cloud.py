@@ -551,6 +551,7 @@ def _to_trash(path: str, user: str) -> str:
     relp = finder.trash_rel(base, path)
     dest_dir = os.path.join(udir, os.path.dirname(relp))
     os.makedirs(dest_dir, exist_ok=True)
+    finder.own_trash_dirs(base, user, dest_dir)
     name = os.path.basename(path)
     final = finder.versioned_name(name, lambda n: os.path.lexists(os.path.join(dest_dir, n)))
     dest = os.path.join(dest_dir, final)

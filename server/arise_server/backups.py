@@ -288,6 +288,23 @@ def _execute(job: dict) -> dict:
         return row
 
 
+def _tell_failure(job: dict, row: dict) -> None:
+    """Discord #alerts and the owner's phone, the same night; never raises."""
+    key = f"backup-failed:{job.get('id', '?')}:{(row.get('finished') or now_iso())[:10]}"
+    why = (row.get("error") or "unknown error").strip().splitlines()[-1][:160]
+    text = f"Backup failed: {job.get('name') or job.get('id')}: {why}"
+    try:
+        from . import discord
+        discord.post("alerts", text, key=key, fix="sudo arisectl backup status")
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        from . import push
+        push.send("Backup failed", f"{job.get('name') or job.get('id')}: {why}", "/?app=backups", tag=key, throttle_s=20 * 3600)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _execute_locked(job: dict) -> dict:
     started = now_iso()
     row = {"job": job["id"], "name": job.get("name", job["id"]), "started": started, "finished": None, "ok": False,
@@ -348,6 +365,9 @@ def _execute_locked(job: dict) -> dict:
     except Exception as e:
         row["error"] = str(e)
     row["finished"] = now_iso()
+    if not row["ok"] and not row.get("skipped") and not load().demo:
+        # Nov 2 (scout I-015; round 4, 47: a failed backup buzzes the phone). Once per job per night.
+        _tell_failure(job, row)
     if not load().demo:
         _append_history(row)
     else:
