@@ -850,7 +850,7 @@ function profEdit(user, fields, viewer) {
 }
 const WORDS = ['Anchor', 'Beacon', 'Candle', 'Cedar', 'Crown', 'Dove', 'Ember', 'Garden', 'Harbor', 'Lamp', 'Meadow', 'Olive', 'River', 'Shore', 'Sparrow', 'Stone', 'Vine', 'Willow'];
 const tempPw = () => { const r = n => crypto.getRandomValues(new Uint32Array(1))[0] % n; return `${WORDS[r(WORDS.length)]}-${WORDS[r(WORDS.length)]}-${10 + r(90)}${'!#%+=?'[r(6)]}`; };
-const userName = (f, l) => [f, l].map(x => String(x || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '')).filter(Boolean).join('.');
+const userName = (f, l) => [f, l].map(x => String(x || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '')).filter(Boolean).join('.');
 function csvRows(text) { const rows = []; let row = [], cell = '', q = false; text = String(text || '').replace(/^﻿/, ''); for (let i = 0; i < text.length; i++) { const c = text[i]; if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; } else if (c === '"') q = true; else if (c === ',') { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; } else cell += c; } if (cell || row.length) { row.push(cell); rows.push(row); } return rows.filter(r => r.some(x => x.trim())); }
 
 route('POST', /^\/auth\/login\/new-password$/, b => {

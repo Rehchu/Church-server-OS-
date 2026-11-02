@@ -310,7 +310,7 @@ V.directory.after = root => {
     <div class="field"><label>Groups</label><div class="checks" id="nuGroups">${(S.dirGroups || []).map(g => `<label><input type="checkbox" value="${esc(g)}"> ${esc(g)}</label>`).join('')}</div><span class="hint">The groups decide which shares they see. Domain Admins makes them an administrator.</span></div>
     <div class="acts"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn" id="nuGo">Create</button></div>`, m => {
     const disp = $('#nuDisp', m), nm = $('#nuName', m);
-    disp.oninput = () => { if (nm.dataset.typed) return; nm.value = disp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 .-]/g, '').trim().split(/\s+/).filter(Boolean).join('.'); };
+    disp.oninput = () => { if (nm.dataset.typed) return; nm.value = disp.value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 .-]/g, '').trim().split(/\s+/).filter(Boolean).join('.'); };
     nm.oninput = () => { nm.dataset.typed = '1'; };
     $('#nuGo', m).onclick = async e => { const r = await act(e.target, () => api('/directory/users', { method: 'POST', body: { name: nm.value.trim(), display: disp.value.trim(), title: $('#nuTitle', m).value.trim(), temporary: $('#nuTemp', m).checked, password: $('#nuPw', m).value, groups: $$('#nuGroups input:checked', m).map(c => c.value) } }), 'User created'); if (r && r.ok !== false) { m.close(); rerender('directory'); } };
     disp.focus();

@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "server"))
 os.environ["ARISE_DEMO"] = "1"
+os.environ.setdefault("ARISE_CONFIG", str(ROOT / "config" / "arise.toml.example"))   # the sample reads the shipped config (mail domain, inbox users)
 
 from fastapi.testclient import TestClient  # noqa: E402
 from arise_server.main import app  # noqa: E402

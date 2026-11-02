@@ -113,7 +113,8 @@ def _mine(user: str) -> dict:
 
 # ---- sample mail for the preview (demo mode) ----------------------------------------
 def _sample(user: str) -> dict:
-    addr = address_for(user or "kristina.robinson", _domain() or "arisecenla.com")
+    # The sample is Kristina's inbox whoever is signed in to the preview (the demo account has no inbox of its own).
+    addr = address_for("kristina.robinson" if (user or "demo") in ("demo", "") else user, _domain() or "arisecenla.com")
     return {
         "address": addr,
         "threads": [
