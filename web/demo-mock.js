@@ -1102,7 +1102,7 @@ function speedAll() { const sd = clone(get('GET /speedtest') || { runs: [] }); c
 function r7Get(p) {
   if (p === '/checklist/mine') return phoneLists();
   if (p === '/checklist/people') return leaderPeople();
-  if (p === '/service/now') return serviceNow();
+  if (p === '/service/now' || p === '/public/service') return serviceNow();
   if (p === '/notes-board') return isAdmin() ? boardView() : http(403, 'Administrator only');
   if (p === '/speedtest') return speedAll();
   if (p === '/reports/pastors') return Object.assign(clone(get('GET /reports/pastors') || {}), clone(X.pastor || {}));

@@ -374,3 +374,44 @@ class ForwardsCarryAttachments(unittest.TestCase):
         from arise_server import mailfwd
         self.assertEqual(mailfwd.RECEIVED_ATTACHMENTS, "/emails/receiving/{id}/attachments")
         self.assertIn("RECEIVED_ATTACHMENTS.format(id=it[\"id\"])", (ROOT / "server" / "arise_server" / "mailfwd.py").read_text())
+
+
+class SharedLinksResolveInTheContainer(unittest.TestCase):
+    """Nov 2 (scout I-009): 'Shared with me' links are relative, so they resolve on the host and
+    inside Nextcloud, where the roots are mounted as /homes, /shares, /shared, /pastors."""
+
+    def test_links_are_relative_and_old_absolute_ones_are_replaced(self):
+        from arise_server import sharing
+        with tempfile.TemporaryDirectory() as root:
+            homes = os.path.join(root, "homes", "bradly", "Documents"); os.makedirs(homes)
+            shared = os.path.join(root, "shared"); os.makedirs(shared)
+            g = {"users": ["kristina.robinson"], "link": "Documents (from bradly)", "abs": homes}
+            old = os.path.join(shared, "kristina.robinson"); os.makedirs(old)
+            os.symlink(homes, os.path.join(old, g["link"]))                      # an older absolute link
+            cfg = type("c", (), {"demo": False, "storage": type("s", (), {"shared_path": shared})()})()
+            with patch.object(sharing, "load", return_value=cfg):
+                sharing._place_links(g)
+            link = os.path.join(old, g["link"])
+            self.assertFalse(os.path.isabs(os.readlink(link)))
+            self.assertEqual(os.path.realpath(link), os.path.realpath(homes))
+            self.assertEqual(os.readlink(link), os.path.join("..", "..", "homes", "bradly", "Documents"))
+
+
+class ServiceModeSurvivesTheIdleLock(unittest.TestCase):
+    """Nov 2 (scout I-025, I-026): idle counts only while the desktop tab is in front and no Claude
+    Desktop is open; never locks during a service; the sign-in screen keeps watching for a service."""
+
+    def test_app_js_guards(self):
+        js = (ROOT / "web" / "app.js").read_text()
+        self.assertIn("if (document.hidden || !document.hasFocus() || S.claudeDesktop) { idle = 0; return; }", js)
+        self.assertIn("if (inService) return;", js)
+        self.assertIn("S.authed ? '/service/now' : '/public/service'", js)
+        self.assertIn("S.loginSvcT = setInterval", js)
+
+    def test_public_service_has_no_file_name(self):
+        from fastapi.testclient import TestClient
+        from arise_server.main import app
+        c = TestClient(app)
+        r = c.get("/api/public/service")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("name", r.json().get("run_sheet") or {})

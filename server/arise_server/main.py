@@ -1948,6 +1948,20 @@ def api_signage():
     return church.signage()
 
 
+@app.get("/api/public/service")
+def api_public_service():
+    """No login (scout I-026): the service board for the closet monitor while nobody is signed in.
+    The same view as /api/service/now minus anything personal: the checklists' item texts and
+    department names stay (they are the board, round 7, 87; never a person), the run sheet's
+    file name goes."""
+    v = servicemode.now_view()
+    out = {"in_service": bool(v.get("in_service")), "next": v.get("next"), "demo": v.get("demo")}
+    if v.get("in_service"):
+        out.update({"service": v.get("service"), "stream": v.get("stream"), "internet": v.get("internet"),
+                    "checklists": v.get("checklists"), "run_sheet": {k: x for k, x in (v.get("run_sheet") or {}).items() if k != "name"}})
+    return out
+
+
 @app.get("/signage")
 def signage_page():
     return FileResponse(str(cfg.web_dir / "signage.html"))

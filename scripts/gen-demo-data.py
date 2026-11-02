@@ -39,7 +39,7 @@ GETS = [
     "/backups/offsite", "/upkeep/changes?limit=12", "/upkeep/january", "/upkeep/health", "/help/contacts", "/discord", "/mail/forwarding",
     "/checklist/mine", "/checklist/people", "/service/now", "/service/hold", "/reports", "/reports/pastors",
     "/songs/inbox", "/songs/usage", "/notes-board", "/speedtest",
-    "/inbox", "/inbox?folder=inbox", "/inbox?folder=sent", "/inbox?folder=archive", "/inbox?folder=spam", "/inbox/threads/t-1", "/inbox/threads/t-2",
+    "/public/service", "/inbox", "/inbox?folder=inbox", "/inbox?folder=sent", "/inbox?folder=archive", "/inbox?folder=spam", "/inbox/threads/t-1", "/inbox/threads/t-2",
     "/bible?ref=John 3:16", "/bible?ref=Psalm 23", "/bible?ref=Romans 8:28", "/bible?ref=Isaiah 40:31", "/bible?ref=Philippians 4:6-7", "/bible?ref=Exodus 19:5-6",
 ]
 c = TestClient(app)

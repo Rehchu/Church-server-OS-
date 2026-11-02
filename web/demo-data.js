@@ -15,7 +15,7 @@ window.ARISE_DEMO_DATA = {
 "cpu_count": 4,
 "ram_total": 16872808448,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793637222
+"boot_time": 1793655090
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,14 +32,14 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-11-02T02:31:29",
+"last_run": "2026-11-02T02:37:34",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-03T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 5.8,
+"token_days_left": 5.6,
 "holds": 8
 },
 "backup": {
@@ -86,56 +86,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T14:31:29"
+"since": "2026-10-19T18:37:34"
 }
 ]
 },
@@ -165,7 +165,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-11-02T16:31:29",
+"last_logon": "2026-11-02T20:37:34",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -179,7 +179,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T17:31:29",
+"last_logon": "2026-11-01T21:37:34",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -193,7 +193,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T14:31:29",
+"last_logon": "2026-10-31T18:37:34",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T17:31:29",
+"last_logon": "2026-10-27T21:37:34",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -235,7 +235,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T17:31:29",
+"last_logon": "2026-10-30T21:37:34",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -249,7 +249,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-24T17:31:29",
+"last_logon": "2026-10-24T21:37:34",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -266,7 +266,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T13:31:29",
+"last_logon": "2026-11-01T17:37:34",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -283,7 +283,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T17:31:29",
+"last_logon": "2026-10-31T21:37:34",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -299,7 +299,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T10:31:29",
+"last_logon": "2026-11-01T14:37:34",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -405,28 +405,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-11-02T16:31:29",
+"last_seen": "2026-11-02T20:37:34",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-11-01T17:31:29",
+"last_seen": "2026-11-01T21:37:34",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-31T17:31:29",
+"last_seen": "2026-10-31T21:37:34",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-11-02T17:27:29",
+"last_seen": "2026-11-02T21:33:34",
 "ip": "192.168.1.20"
 }
 ]
@@ -1954,7 +1954,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-24T17:31:29",
+"last_check": "2026-10-24T21:37:34",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1986,7 +1986,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-11-02T02:31:29",
+"last_run": "2026-11-02T02:37:34",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-03T02:05:00",
@@ -1998,7 +1998,7 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 5.8,
+"token_days_left": 5.6,
 "token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 8, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
@@ -2022,8 +2022,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-11-01T12:14",
 "expires": "2026-11-08T12:14",
 "expires_text": "Sun Nov 8, 12:14 PM",
-"hours_left": 138.7,
-"days_left": 5.8,
+"hours_left": 134.6,
+"days_left": 5.6,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -2120,17 +2120,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-11-02T12:31:29",
+"when": "2026-11-02T16:37:34",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-11-02T12:31:29",
+"when": "2026-11-02T16:37:34",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-11-02T12:31:29",
+"when": "2026-11-02T16:37:34",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2220,7 +2220,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2237,7 +2237,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2254,7 +2254,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2271,7 +2271,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2288,7 +2288,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-31T17:31:29",
+"updated": "2026-10-31T21:37:34",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2305,7 +2305,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2322,7 +2322,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2339,7 +2339,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-11-01T17:31:29",
+"updated": "2026-11-01T21:37:34",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2356,7 +2356,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2373,7 +2373,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-30T17:31:29",
+"updated": "2026-10-30T21:37:34",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3247,7 +3247,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-11-01T15:31:29",
+"last": "2026-11-01T19:37:34",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3531,7 +3531,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-11-02T17:31"
+"when": "2026-11-02T21:37"
 },
 {
 "user": "bradly",
@@ -3765,8 +3765,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-31T17:31",
-"expires": "2026-11-07T17:31",
+"created": "2026-10-31T21:37",
+"expires": "2026-11-07T21:37",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4109,13 +4109,13 @@ window.ARISE_DEMO_DATA = {
 "After service: stop the recording, end the YouTube stream, leave the automator to run at 02:05"
 ],
 "next": {
-"name": "Glory Night",
-"site": "Pineville",
-"day": "Monday",
-"time": "19:00",
-"at": "2026-11-02T19:00",
-"in_minutes": 88,
-"in_words": "1 h 28 min"
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-08T10:00",
+"in_minutes": 7942,
+"in_words": "5 days"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4243,13 +4243,13 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "next": {
-"name": "Glory Night",
-"site": "Pineville",
-"day": "Monday",
-"time": "19:00",
-"at": "2026-11-02T19:00",
-"in_minutes": 88,
-"in_words": "1 h 28 min"
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-08T10:00",
+"in_minutes": 7942,
+"in_words": "5 days"
 },
 "verse": {
 "ref": "John 3:16",
@@ -4295,7 +4295,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-11-02T17:31"
+"now": "2026-11-02T21:37"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4399,7 +4399,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-11-02T17:31:29+00:00",
+"last_check": "2026-11-02T21:37:35+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4412,7 +4412,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-11-02T13:31:29",
+"t": "2026-11-02T17:37:35",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4420,7 +4420,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-11-01T12:31:29",
+"t": "2026-11-01T16:37:35",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4428,7 +4428,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-31T17:31:29",
+"t": "2026-10-31T21:37:35",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4436,7 +4436,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-30T15:31:29",
+"t": "2026-10-30T19:37:35",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4444,7 +4444,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T17:31:29",
+"t": "2026-10-28T21:37:35",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4452,7 +4452,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T16:31:29",
+"t": "2026-10-28T20:37:35",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4460,7 +4460,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T14:31:29",
+"t": "2026-10-27T18:37:35",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4468,7 +4468,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T14:31:29",
+"t": "2026-10-27T18:37:35",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4644,14 +4644,6 @@ window.ARISE_DEMO_DATA = {
 ],
 "demo": true,
 "upcoming": [
-{
-"id": "svc-Monday-19:00-2026-11-02",
-"title": "Glory Night",
-"start": "2026-11-02T19:00",
-"end": "2026-11-02T21:00",
-"where": "Pineville",
-"service": true
-},
 {
 "id": "demo1",
 "title": "Media team meeting (sample)",
@@ -5204,6 +5196,13 @@ window.ARISE_DEMO_DATA = {
 "blurb": "Bradly: \"keep working till you think it is perfect! If you have to, ask 150 questions\". 155 questions in 16 sections. The first option is th"
 },
 {
+"name": "QUESTIONS-ROUND-8",
+"title": "ariseOS: round 8 questions (Nov 2)",
+"size": 55905,
+"lines": 233,
+"blurb": "Bradly: \"FULL OVERHAUL AND MAKE IT LIKE IT NEEDS TO BE! Ask roughly 150 questions.\" 158 questions in 14 sections. The first option is the re"
+},
+{
 "name": "REINSTALL",
 "title": "Recovering ariseOS from backup",
 "size": 2936,
@@ -5405,7 +5404,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-11-02T17:31:29+00:00",
+"checked_at": "2026-11-02T21:37:35+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5430,7 +5429,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-11-02T17:31:29+00:00",
+"queued_at": "2026-11-02T21:37:35+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5438,16 +5437,22 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-28T17:31",
+"when": "2026-10-28T21:37",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
-"in_service": null,
-"last_check": "2026-11-02T17:31:29+00:00"
+"in_service": {
+"name": "Glory Night",
+"site": "Pineville",
+"day": "Monday",
+"time": "19:00",
+"starts": "2026-11-02T19:00"
+},
+"last_check": "2026-11-02T21:37:35+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793640689.980424,
+"t": 1793655455.7676954,
 "processes": [
 {
 "pid": 470,
@@ -5457,7 +5462,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792431089.980405,
+"since": 1792445855.7676752,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5474,7 +5479,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792431089.9804032,
+"since": 1792445855.767673,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5491,7 +5496,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792431089.9803689,
+"since": 1792445855.7676446,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5508,7 +5513,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792431089.9803789,
+"since": 1792445855.7676566,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5525,7 +5530,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792431089.9803872,
+"since": 1792445855.7676656,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5542,7 +5547,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792431089.9803743,
+"since": 1792445855.7676513,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5559,7 +5564,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792431089.9803767,
+"since": 1792445855.7676544,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5576,7 +5581,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792431089.9803834,
+"since": 1792445855.7676613,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5593,7 +5598,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792431089.9804065,
+"since": 1792445855.7676764,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5610,7 +5615,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792431089.9803853,
+"since": 1792445855.7676637,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5627,7 +5632,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792431089.9804091,
+"since": 1792445855.7676795,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5644,7 +5649,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792431089.980391,
+"since": 1792445855.7676687,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5661,7 +5666,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792431089.9804075,
+"since": 1792445855.767678,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5678,7 +5683,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792431089.9803889,
+"since": 1792445855.767667,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5798,8 +5803,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-11-02T18:00:00",
-"last": "2026-11-01T18:00:00",
+"next": "2026-11-02T22:00:00",
+"last": "2026-11-01T22:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5956,7 +5961,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-11-02T11:31",
+"as_of": "2026-11-02T15:37",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -6029,62 +6034,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-11-02T17:31"
+"mtime": "2026-11-02T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-26T17:31"
+"mtime": "2026-10-26T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-19T17:31"
+"mtime": "2026-10-19T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-12T17:31"
+"mtime": "2026-10-12T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-05T17:31"
+"mtime": "2026-10-05T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-28T17:31"
+"mtime": "2026-09-28T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-21T17:31"
+"mtime": "2026-09-21T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-14T17:31"
+"mtime": "2026-09-14T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-07T17:31"
+"mtime": "2026-09-07T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-31T17:31"
+"mtime": "2026-08-31T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-24T17:31"
+"mtime": "2026-08-24T21:37"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-17T17:31"
+"mtime": "2026-08-17T21:37"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -6101,17 +6106,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-20T17:31"
+"mtime": "2025-06-20T21:37"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-20T17:31"
+"mtime": "2025-06-20T21:37"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-20T17:31"
+"mtime": "2025-06-20T21:37"
 }
 ],
 "old_days": 365
@@ -7802,12 +7807,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [
 {
 "i": 0,
@@ -7930,12 +7935,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [],
 "done": 0,
 "history": [],
@@ -7957,12 +7962,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [],
 "done": 0,
 "history": [],
@@ -8242,7 +8247,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8257,7 +8262,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8272,7 +8277,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8287,7 +8292,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8302,7 +8307,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8317,7 +8322,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8332,7 +8337,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 },
 {
@@ -8347,11 +8352,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T17:31:30+00:00",
+"when": "2026-11-02T21:37:36+00:00",
 "sample": true
 }
 ],
-"last": "2026-11-02T17:31:30+00:00",
+"last": "2026-11-02T21:37:36+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8770,7 +8775,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-31T17:31",
+"when": "2026-10-31T21:37",
 "from": "portal"
 },
 {
@@ -8782,7 +8787,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-21T17:31",
+"when": "2026-10-21T21:37",
 "from": "mac"
 },
 {
@@ -8794,7 +8799,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-06T17:31",
+"when": "2026-10-06T21:37",
 "from": "mac"
 }
 ],
@@ -9032,8 +9037,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-11-01T12:14",
 "expires": "2026-11-08T12:14",
 "expires_text": "Sun Nov 8, 12:14 PM",
-"hours_left": 138.7,
-"days_left": 5.8,
+"hours_left": 134.6,
+"days_left": 5.6,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -9086,35 +9091,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-11-02T13:31:29",
+"when": "2026-11-02T17:37:35",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-11-01T12:31:29",
+"when": "2026-11-01T16:37:35",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-31T17:31:29",
+"when": "2026-10-31T21:37:35",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-28T17:31:29",
+"when": "2026-10-28T21:37:35",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-27T14:31:29",
+"when": "2026-10-27T18:37:35",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9258,12 +9263,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [
 {
 "i": 0,
@@ -9368,12 +9373,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [],
 "done": 0,
 "history": [],
@@ -9395,12 +9400,12 @@ window.ARISE_DEMO_DATA = {
 "key": "2026-11-02 Glory Night",
 "service": "Glory Night",
 "at": "2026-11-02T19:00",
-"moves_on": "2026-11-01T20:00",
-"next": "2026-11-02 Glory Night",
+"moves_on": "2026-11-07T20:00",
+"next": "2026-11-08 Sunday Service",
 "previous": "2026-11-01 Sunday Service"
 },
 "opens": "2026-11-02T18:00",
-"open": false,
+"open": true,
 "items": [],
 "done": 0,
 "history": [],
@@ -9413,15 +9418,15 @@ window.ARISE_DEMO_DATA = {
 "user": "demo",
 "name": "demo",
 "next": {
-"name": "Glory Night",
-"site": "Pineville",
-"day": "Monday",
-"time": "19:00",
-"at": "2026-11-02T19:00",
-"in_minutes": 88,
-"in_words": "1 h 28 min"
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-08T10:00",
+"in_minutes": 7942,
+"in_words": "5 days"
 },
-"call_time": "18:00",
+"call_time": "09:00",
 "demo": true
 },
 "GET /checklist/people": {
@@ -9440,13 +9445,13 @@ window.ARISE_DEMO_DATA = {
 "GET /service/now": {
 "in_service": false,
 "next": {
-"name": "Glory Night",
-"site": "Pineville",
-"day": "Monday",
-"time": "19:00",
-"at": "2026-11-02T19:00",
-"in_minutes": 88,
-"in_words": "1 h 28 min"
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-08T10:00",
+"in_minutes": 7942,
+"in_words": "5 days"
 },
 "demo": true
 },
@@ -9619,1197 +9624,1210 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-26T17:05",
-"down": 929.1,
+"at": "2026-10-26T21:05",
+"down": 511.0,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-26T18:05",
+"at": "2026-10-26T22:05",
 "down": 934.9,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T19:05",
-"down": 516.3,
+"at": "2026-10-26T23:05",
+"down": 938.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-26T20:05",
-"down": 517.0,
+"at": "2026-10-27T00:05",
+"down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-26T21:05",
-"down": 516.4,
+"at": "2026-10-27T01:05",
+"down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-27T02:05",
 "down": 935.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T03:05",
 "down": 930.0,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T04:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T05:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T06:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T07:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T08:05",
 "down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T09:05",
 "down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-27T10:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-27T11:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-27T12:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T13:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T14:05",
 "down": 823.7,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-27T15:05",
 "down": 820.7,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-27T16:05",
 "down": 820.1,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-27T17:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
+"at": "2026-10-27T18:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
-"down": 832.1,
+"at": "2026-10-27T19:05",
+"down": 457.6,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
-"down": 840.2,
+"at": "2026-10-27T20:05",
+"down": 462.1,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
-"down": 849.9,
+"at": "2026-10-27T21:05",
+"down": 467.4,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
+"at": "2026-10-27T22:05",
 "down": 860.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
-"down": 479.9,
+"at": "2026-10-27T23:05",
+"down": 872.5,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
-"down": 486.5,
+"at": "2026-10-28T00:05",
+"down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 492.9,
+"at": "2026-10-28T01:05",
+"down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-28T02:05",
 "down": 907.4,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T03:05",
 "down": 917.5,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T04:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T05:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T06:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T07:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T08:05",
 "down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T09:05",
 "down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-28T10:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-28T11:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-28T12:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T13:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T14:05",
 "down": 895.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-28T15:05",
 "down": 884.0,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-28T16:05",
 "down": 872.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-28T17:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
+"at": "2026-10-28T18:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
-"down": 839.9,
+"at": "2026-10-28T19:05",
+"down": 461.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
-"down": 831.8,
+"at": "2026-10-28T20:05",
+"down": 457.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
-"down": 825.7,
+"at": "2026-10-28T21:05",
+"down": 454.1,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
+"at": "2026-10-28T22:05",
 "down": 821.7,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
-"down": 451.0,
+"at": "2026-10-28T23:05",
+"down": 820.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
-"down": 451.4,
+"at": "2026-10-29T00:05",
+"down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 453.1,
+"at": "2026-10-29T01:05",
+"down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-29T02:05",
 "down": 829.2,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T03:05",
 "down": 836.6,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T04:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T05:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T06:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T07:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T08:05",
 "down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T09:05",
 "down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T10:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
+"at": "2026-10-29T11:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T12:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-29T09:05",
+"at": "2026-10-29T13:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T10:05",
+"at": "2026-10-29T14:05",
 "down": 939.0,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T11:05",
+"at": "2026-10-29T15:05",
 "down": 940.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T12:05",
+"at": "2026-10-29T16:05",
 "down": 938.5,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-29T13:05",
+"at": "2026-10-29T17:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T14:05",
+"at": "2026-10-29T18:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T15:05",
-"down": 920.9,
+"at": "2026-10-29T19:05",
+"down": 506.5,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T16:05",
-"down": 911.4,
+"at": "2026-10-29T20:05",
+"down": 501.3,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-29T17:05",
-"down": 900.6,
+"at": "2026-10-29T21:05",
+"down": 495.3,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-29T18:05",
+"at": "2026-10-29T22:05",
 "down": 889.0,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T19:05",
-"down": 482.4,
+"at": "2026-10-29T23:05",
+"down": 877.0,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-29T20:05",
-"down": 475.8,
+"at": "2026-10-30T00:05",
+"down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-29T21:05",
-"down": 469.7,
+"at": "2026-10-30T01:05",
+"down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-29T22:05",
+"at": "2026-10-30T02:05",
 "down": 843.7,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T23:05",
+"at": "2026-10-30T03:05",
 "down": 834.9,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T00:05",
+"at": "2026-10-30T04:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T01:05",
+"at": "2026-10-30T05:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-30T02:05",
+"at": "2026-10-30T06:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-30T03:05",
+"at": "2026-10-30T07:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-30T04:05",
+"at": "2026-10-30T08:05",
 "down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T05:05",
+"at": "2026-10-30T09:05",
 "down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-30T06:05",
+"at": "2026-10-30T10:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-30T07:05",
+"at": "2026-10-30T11:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-30T08:05",
+"at": "2026-10-30T12:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T09:05",
+"at": "2026-10-30T13:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T10:05",
+"at": "2026-10-30T14:05",
 "down": 874.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T11:05",
+"at": "2026-10-30T15:05",
 "down": 886.5,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-30T12:05",
+"at": "2026-10-30T16:05",
 "down": 898.2,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-30T13:05",
+"at": "2026-10-30T17:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-30T14:05",
+"at": "2026-10-30T18:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-30T15:05",
-"down": 927.3,
+"at": "2026-10-30T19:05",
+"down": 510.0,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-30T16:05",
-"down": 933.7,
+"at": "2026-10-30T20:05",
+"down": 513.5,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-30T17:05",
-"down": 937.9,
+"at": "2026-10-30T21:05",
+"down": 515.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T18:05",
+"at": "2026-10-30T22:05",
 "down": 939.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T19:05",
-"down": 516.7,
+"at": "2026-10-30T23:05",
+"down": 939.4,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T20:05",
-"down": 515.1,
+"at": "2026-10-31T00:05",
+"down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-30T21:05",
-"down": 512.4,
+"at": "2026-10-31T01:05",
+"down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-30T22:05",
+"at": "2026-10-31T02:05",
 "down": 924.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-30T23:05",
+"at": "2026-10-31T03:05",
 "down": 915.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-31T00:05",
+"at": "2026-10-31T04:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-31T01:05",
+"at": "2026-10-31T05:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-31T02:05",
+"at": "2026-10-31T06:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T03:05",
+"at": "2026-10-31T07:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T04:05",
+"at": "2026-10-31T08:05",
 "down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T05:05",
+"at": "2026-10-31T09:05",
 "down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-31T06:05",
+"at": "2026-10-31T10:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-31T07:05",
+"at": "2026-10-31T11:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-31T08:05",
+"at": "2026-10-31T12:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-31T09:05",
+"at": "2026-10-31T13:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-31T10:05",
+"at": "2026-10-31T14:05",
 "down": 820.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-31T11:05",
+"at": "2026-10-31T15:05",
 "down": 821.1,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-31T12:05",
+"at": "2026-10-31T16:05",
 "down": 824.6,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-31T13:05",
+"at": "2026-10-31T17:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T14:05",
+"at": "2026-10-31T18:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T15:05",
-"down": 847.4,
+"at": "2026-10-31T19:05",
+"down": 466.0,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T16:05",
-"down": 858.0,
+"at": "2026-10-31T20:05",
+"down": 471.9,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-31T17:05",
-"down": 869.5,
+"at": "2026-10-31T21:05",
+"down": 478.2,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-31T18:05",
+"at": "2026-10-31T22:05",
 "down": 881.5,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-31T19:05",
-"down": 491.4,
+"at": "2026-10-31T23:05",
+"down": 893.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-31T20:05",
-"down": 497.6,
+"at": "2026-11-01T00:05",
+"down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-31T21:05",
-"down": 503.3,
+"at": "2026-11-01T01:05",
+"down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-31T22:05",
+"at": "2026-11-01T02:05",
 "down": 924.1,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T23:05",
+"at": "2026-11-01T03:05",
 "down": 931.3,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T00:05",
+"at": "2026-11-01T04:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-01T01:05",
+"at": "2026-11-01T05:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-11-01T02:05",
+"at": "2026-11-01T06:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-11-01T03:05",
+"at": "2026-11-01T07:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-11-01T04:05",
+"at": "2026-11-01T08:05",
 "down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-11-01T05:05",
+"at": "2026-11-01T09:05",
 "down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-11-01T06:05",
+"at": "2026-11-01T10:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-11-01T07:05",
+"at": "2026-11-01T11:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-01T08:05",
+"at": "2026-11-01T12:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T09:05",
+"at": "2026-11-01T13:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-01T10:05",
+"at": "2026-11-01T14:05",
 "down": 875.0,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-11-01T11:05",
+"at": "2026-11-01T15:05",
 "down": 863.2,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-11-01T12:05",
+"at": "2026-11-01T16:05",
 "down": 852.1,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-11-01T13:05",
+"at": "2026-11-01T17:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-11-01T14:05",
+"at": "2026-11-01T18:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-11-01T15:05",
-"down": 827.0,
+"at": "2026-11-01T19:05",
+"down": 454.8,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-11-01T16:05",
-"down": 822.5,
+"at": "2026-11-01T20:05",
+"down": 452.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-01T17:05",
-"down": 820.2,
+"at": "2026-11-01T21:05",
+"down": 451.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T18:05",
+"at": "2026-11-01T22:05",
 "down": 820.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-01T19:05",
-"down": 452.6,
+"at": "2026-11-01T23:05",
+"down": 822.9,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-11-01T20:05",
-"down": 455.2,
+"at": "2026-11-02T00:05",
+"down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-11-01T21:05",
-"down": 459.0,
+"at": "2026-11-02T01:05",
+"down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-11-01T22:05",
+"at": "2026-11-02T02:05",
 "down": 843.3,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-11-01T23:05",
+"at": "2026-11-02T03:05",
 "down": 853.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-11-02T00:05",
+"at": "2026-11-02T04:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-11-02T01:05",
+"at": "2026-11-02T05:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-11-02T02:05",
+"at": "2026-11-02T06:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-02T03:05",
+"at": "2026-11-02T07:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-02T04:05",
+"at": "2026-11-02T08:05",
 "down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-02T05:05",
+"at": "2026-11-02T09:05",
 "down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-11-02T06:05",
+"at": "2026-11-02T10:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-11-02T07:05",
+"at": "2026-11-02T11:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-11-02T08:05",
+"at": "2026-11-02T12:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-11-02T09:05",
+"at": "2026-11-02T13:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-11-02T10:05",
+"at": "2026-11-02T14:05",
 "down": 939.1,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-11-02T11:05",
+"at": "2026-11-02T15:05",
 "down": 935.9,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-02T12:05",
+"at": "2026-11-02T16:05",
 "down": 930.5,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-02T13:05",
+"at": "2026-11-02T17:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-02T14:05",
+"at": "2026-11-02T18:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-11-02T15:05",
-"down": 903.4,
+"at": "2026-11-02T19:05",
+"down": 496.9,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-11-02T16:05",
-"down": 891.9,
+"at": "2026-11-02T20:05",
+"down": 490.6,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 }
 ],
 "last": {
-"at": "2026-11-02T16:05",
-"down": 891.9,
+"at": "2026-11-02T20:05",
+"down": 490.6,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 872.1,
+"down": 876.5,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
 "failed": 0
 },
 "plan": "Optimum Business (round 7, 127)",
+"demo": true
+},
+"GET /public/service": {
+"in_service": false,
+"next": {
+"name": "Sunday Service",
+"site": "Alexandria",
+"day": "Sunday",
+"time": "10:00",
+"at": "2026-11-08T10:00",
+"in_minutes": 7942,
+"in_words": "5 days"
+},
 "demo": true
 },
 "GET /inbox": {
@@ -11065,13 +11083,13 @@ window.ARISE_DEMO_DATA = {
 },
 "stream": {
 "live": true,
-"checked": "2026-11-02T17:31",
+"checked": "2026-11-02T21:37",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-11-02T16:05",
-"down": 891.9,
+"at": "2026-11-02T20:05",
+"down": 490.6,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
@@ -14768,14 +14786,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-24T17:31:29",
+"enrolled": "2026-10-24T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T11:31:29",
+"last_checkin": "2026-11-02T15:37:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-24T17:31:29",
+"ariseadmin_at": "2026-10-24T21:37:35",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14793,14 +14811,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-30T17:31:29",
+"enrolled": "2026-10-30T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T17:29:29",
+"last_checkin": "2026-11-02T21:35:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T17:31:29",
+"ariseadmin_at": "2026-10-30T21:37:35",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14818,14 +14836,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-11-01T17:31:29",
+"enrolled": "2026-11-01T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T17:27:29",
+"last_checkin": "2026-11-02T21:33:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-11-01T17:31:29",
+"ariseadmin_at": "2026-11-01T21:37:35",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14862,14 +14880,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-24T17:31:29",
+"enrolled": "2026-10-24T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T11:31:29",
+"last_checkin": "2026-11-02T15:37:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-24T17:31:29",
+"ariseadmin_at": "2026-10-24T21:37:35",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14888,7 +14906,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-29T17:31:29"
+"last_login": "2026-10-29T21:37:35"
 }
 ],
 "tasks": [
@@ -14899,9 +14917,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-11-01T21:31:29",
+"made": "2026-11-02T01:37:35",
 "by": "the overnight window",
-"finished": "2026-11-01T22:31:29",
+"finished": "2026-11-02T02:37:35",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14922,14 +14940,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-30T17:31:29",
+"enrolled": "2026-10-30T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T17:29:29",
+"last_checkin": "2026-11-02T21:35:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T17:31:29",
+"ariseadmin_at": "2026-10-30T21:37:35",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14948,7 +14966,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-11-01T17:31:29"
+"last_login": "2026-11-01T21:37:35"
 },
 {
 "user": "media",
@@ -14958,12 +14976,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-11-02T14:31:29",
+"last_login": "2026-11-02T18:37:35",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-31T17:31:29",
+"at": "2026-10-31T21:37:35",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14980,9 +14998,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-31T17:31:29",
+"made": "2026-10-31T21:37:35",
 "by": "bradly",
-"finished": "2026-10-31T17:31:29",
+"finished": "2026-10-31T21:37:35",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -14992,9 +15010,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-30T17:31:29",
+"made": "2026-10-30T21:37:35",
 "by": "the directory",
-"finished": "2026-10-30T17:31:29",
+"finished": "2026-10-30T21:37:35",
 "detail": "mobile account made"
 }
 ],
@@ -15015,14 +15033,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-11-01T17:31:29",
+"enrolled": "2026-11-01T21:37:35",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T17:27:29",
+"last_checkin": "2026-11-02T21:33:35",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-11-01T17:31:29",
+"ariseadmin_at": "2026-11-01T21:37:35",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -15041,7 +15059,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-31T17:31:29"
+"last_login": "2026-10-31T21:37:35"
 },
 {
 "user": "levi",
@@ -15051,7 +15069,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-28T17:31:29",
+"last_login": "2026-10-28T21:37:35",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -15078,7 +15096,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T15:31:29",
+"made": "2026-11-02T19:37:35",
 "by": "enrolment"
 },
 {
@@ -15086,7 +15104,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T15:31:29",
+"made": "2026-11-02T19:37:35",
 "by": "enrolment"
 },
 {
@@ -15094,7 +15112,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T15:31:29",
+"made": "2026-11-02T19:37:35",
 "by": "enrolment"
 },
 {
@@ -15102,7 +15120,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T15:31:29",
+"made": "2026-11-02T19:37:35",
 "by": "enrolment"
 },
 {
@@ -15110,9 +15128,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-11-01T17:31:29",
+"made": "2026-11-01T21:37:35",
 "by": "enrolment",
-"finished": "2026-11-01T17:31:29",
+"finished": "2026-11-01T21:37:35",
 "detail": "1 printer"
 },
 {
@@ -15122,9 +15140,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-11-01T17:31:29",
+"made": "2026-11-01T21:37:35",
 "by": "the directory",
-"finished": "2026-11-01T17:31:29",
+"finished": "2026-11-01T21:37:35",
 "detail": "mobile account made"
 }
 ],
@@ -16607,6 +16625,13 @@ window.ARISE_DEMO_DATA = {
 "name": "QUESTIONS-ROUND-7",
 "title": "ariseOS: round 7 questions (Oct 29)",
 "html": "<h1 id=\"ariseos-round-7-questions-oct-29\">ariseOS: round 7 questions (Oct 29)</h1>\n<p>Bradly: \"keep working till you think it is perfect! If you have to, ask 150 questions\". 155 questions in 16 sections. The first option is the recommendation. Answered on the Round 7 page (saved for Claude to read); recorded in ANSWERS.md as they come in.</p>\n<h2 id=\"install-day\">Install day</h2>\n<p>The day the server goes in and the church Macs join it.</p>\n<ol>\n<li><strong>Who is in the room on install day?</strong> Someone besides you should see it done once. (a) You and Kristina <em>(recommended)</em>; (b) Just you; (c) You and one of the pastors</li>\n<li><strong>Do staff get a heads-up before their Macs change?</strong> The server can draft a short email for you to send. (a) Yes: the server drafts it, you send it <em>(recommended)</em>; (b) Tell them in person; (c) Say it at a staff meeting; (d) No heads-up</li>\n<li><strong>What should staff see the first time they sign in with their church account?</strong> (a) A one-page welcome on the desktop: their login, where files are, who to ask <em>(recommended)</em>; (b) Nothing extra; (c) A short video you record</li>\n<li><strong>Should the Mac helper start in watch mode, where it reports what it would do and changes nothing?</strong> A safe first week: you read its plan, then switch it on. (a) Yes, until I switch it on <em>(recommended)</em>; (b) Yes, for one week, then by itself; (c) No, go live on day one</li>\n<li><strong>Which church Mac joins first?</strong> The first one is the test. (a) The office Mac <em>(recommended)</em>; (b) The media Mac; (c) The kids Mac; (d) Whichever is free that day</li>\n<li><strong>Before the helper touches a Mac, a full Time Machine backup of it first?</strong> Belt and braces for the first conversion. (a) Yes, required before enrolment <em>(recommended)</em>; (b) Only if the Synology is ready; (c) No</li>\n<li><strong>If something goes wrong on install day, how far back do we go?</strong> (a) Just that Mac, with Undo <em>(recommended)</em>; (b) Everything, back to how it was that morning; (c) Decide on the day</li>\n<li><strong>A printed one-page how-to for staff?</strong> (a) Emailed, and in the Help folder on every Mac <em>(recommended)</em>; (b) Taped beside each Mac; (c) No</li>\n</ol>\n<h2 id=\"people-and-accounts\">People and accounts</h2>\n<p>Who gets what, and what happens when people come and go.</p>\n<ol>\n<li><strong>Who can make accounts for new staff?</strong> (a) Any of the four admins <em>(recommended)</em>; (b) Only you; (c) Admins and department leaders</li>\n<li><strong>A new staff member's first day: what happens by itself once the account is made?</strong> (a) Their face on every church Mac, a welcome email to their personal address, their department folders <em>(recommended)</em>; (b) Only the account; I do the rest</li>\n<li><strong>Titles in names: \"Apostle Bryant Sanders\" or \"Bryant Sanders\"?</strong> Where the title shows. (a) Title in the profile and email signature; plain name on the login faces <em>(recommended)</em>; (b) Title everywhere; (c) No titles anywhere</li>\n<li><strong>Two people with the same first.last?</strong> It will happen one day. (a) Ask me each time <em>(recommended)</em>; (b) Add the middle initial: john.a.smith; (c) Add a number: john.smith2</li>\n<li><strong>Someone changes their last name.</strong> (a) Rename the account; files and Mac profile keep working; the old address still delivers <em>(recommended)</em>; (b) Make a new account and move the files</li>\n<li><strong>Someone leaves. When is the account switched off?</strong> Their files are held 30 days either way. (a) I choose each time; the default is their last day <em>(recommended)</em>; (b) The same day I'm told; (c) At the end of that week</li>\n<li><strong>Department account passwords: who knows them?</strong> Children's Department, Media, Inedge and the rest. (a) The department leader and the admins <em>(recommended)</em>; (b) Everyone in the department; (c) Admins only</li>\n<li><strong>When should a department password change?</strong> (a) Whenever someone leaves that department <em>(recommended)</em>; (b) Every 90 days; (c) Never</li>\n<li><strong>Tell you when someone hasn't signed in for a long time?</strong> Catches accounts nobody uses. (a) Yes, after 90 days <em>(recommended)</em>; (b) Yes, after 60 days; (c) No</li>\n<li><strong>Staff birthdays?</strong> They are in the profiles already. (a) On the admins' calendar <em>(recommended)</em>; (b) A line in Discord #daily; (c) Nowhere</li>\n<li><strong>Someone has no personal email for the reset link.</strong> (a) An admin resets it and tells them in person <em>(recommended)</em>; (b) Their department leader can reset it; (c) They must add one first</li>\n<li><strong>Profile photos on the login faces?</strong> (a) They choose their own; initials until they do <em>(recommended)</em>; (b) A church directory photo; (c) Initials only</li>\n<li><strong>Staff phone numbers in the directory: who sees them?</strong> (a) All staff <em>(recommended)</em>; (b) Admins only; (c) Nobody but the person</li>\n<li><strong>Should the pastors' closet desktop be simpler than yours?</strong> Fewer apps, bigger type. (a) Ask them on install week <em>(recommended)</em>; (b) The same as everyone's; (c) Simpler from the start</li>\n</ol>\n<h2 id=\"the-church-macs\">The church Macs</h2>\n<p>The four questions from round 6 that are still open, then the rest of how a church Mac behaves.</p>\n<ol>\n<li><strong>A church Mac already has local accounts. What happens to each one?</strong> Round 6, 41. (a) Ask me per account on the Macs page: Convert, Link or Leave alone <em>(recommended)</em>; (b) Convert them all; (c) Link them all</li>\n<li><strong>Convert = the local account becomes the matching server user (first.last), every file and setting kept. Link = it stays local with its own password, and its Desktop and Documents sync to a server user. Is that right?</strong> Round 6, 42. (a) Yes, that's what I mean <em>(recommended)</em>; (b) Change it (say how in the note)</li>\n<li><strong>Put every server account on every church Mac ahead of time, so their face is on the login window before they ever sign in?</strong> Round 6, 43. Like Active Directory pushing users to every machine. (a) Everyone on every church Mac <em>(recommended)</em>; (b) Only on Macs assigned to them; (c) Only when they first sign in</li>\n<li><strong>After a conversion, which password?</strong> Round 6, 44. (a) Their server password everywhere <em>(recommended)</em>; (b) Keep the old local one (that is what Link is for)</li>\n<li><strong>A line under the faces on the login window?</strong> (a) \"Arise Church: sign in with your church account. Help: Bradly\" <em>(recommended)</em>; (b) Nothing; (c) My own words (in the note)</li>\n<li><strong>Lock a church Mac's screen after how long idle?</strong> (a) 10 minutes <em>(recommended)</em>; (b) 5 minutes; (c) 15 minutes; (d) Never</li>\n<li><strong>Shared Macs (media booth, kids): sign out by themselves when idle?</strong> (a) Media Mac never; kids Mac after 30 minutes <em>(recommended)</em>; (b) Never, anywhere; (c) Every shared Mac after an hour</li>\n<li><strong>Can staff install apps themselves?</strong> They are standard users. (a) Mac App Store yes; anything else, an admin installs <em>(recommended)</em>; (b) Ask an admin for everything; (c) Anything they like</li>\n<li><strong>Apps every church Mac gets by itself?</strong> The helper can install a list. Nextcloud is already on it. (a) Nextcloud, Firefox, Chrome, Zoom; Proclaim on the media Mac <em>(recommended)</em>; (b) Only Nextcloud; (c) I'll list them in the note</li>\n<li><strong>Apple IDs on church Macs?</strong> (a) Each person signs in with their own, if they want <em>(recommended)</em>; (b) One church Apple ID on each Mac; (c) No Apple IDs</li>\n<li><strong>The built-in Guest User on church Macs?</strong> (a) Off <em>(recommended)</em>; (b) On for visitors, wiped at sign-out</li>\n<li><strong>USB drives and SD cards on church Macs?</strong> (a) Allowed <em>(recommended)</em>; (b) Read-only; (c) Blocked</li>\n<li><strong>Church Mac names?</strong> (a) The pattern OFFICE-MAC-01, MEDIA-MAC-01, KIDS-MAC <em>(recommended)</em>; (b) Keep the names they have</li>\n<li><strong>Staff bringing their own Mac or laptop?</strong> A personal Mac is never enrolled. (a) The Nextcloud app and the web only <em>(recommended)</em>; (b) Nothing at all; (c) The shares too, with their own login</li>\n<li><strong>Is any Windows PC still used by staff after Friday (not the server)?</strong> (a) No <em>(recommended)</em>; (b) Yes: join it to the domain; (c) Yes: leave it on its own</li>\n<li><strong>Church iPads or iPhones to manage?</strong> (a) None now; ask me later <em>(recommended)</em>; (b) Yes, a few (count in the note)</li>\n<li><strong>Who grants Full Disk Access on each Mac?</strong> The one manual step per Mac, in System Settings. (a) Me, while enrolling <em>(recommended)</em>; (b) Whoever enrols the Mac; (c) Kristina</li>\n<li><strong>When a church Mac's disk is nearly full?</strong> (a) Tell me at 90% <em>(recommended)</em>; (b) Tell me and the person at 90%; (c) Don't tell anyone</li>\n</ol>\n<h2 id=\"files-and-syncing\">Files and syncing</h2>\n<p>What lives where, and how much.</p>\n<ol>\n<li><strong>Raw service recordings on the media Mac?</strong> Big files; the stream already goes to YouTube. (a) They go to the recordings share only; never synced <em>(recommended)</em>; (b) Sync them like everything else</li>\n<li><strong>Downloads folders on church Macs?</strong> (a) Not synced <em>(recommended)</em>; (b) Synced</li>\n<li><strong>Pictures and Music folders?</strong> (a) Not synced <em>(recommended)</em>; (b) Pictures only; (c) Both</li>\n<li><strong>Warn people as they near 50 GB?</strong> (a) Yes, at 80% and 95% <em>(recommended)</em>; (b) Tell the admins only; (c) No warning</li>\n<li><strong>Someone reaches 50 GB.</strong> (a) New files stop syncing; they and you are told <em>(recommended)</em>; (b) Let them go over; tell you</li>\n<li><strong>Earlier versions of a file kept for?</strong> Previous Versions in Finder and Nextcloud. (a) 90 days <em>(recommended)</em>; (b) 30 days; (c) A year</li>\n<li><strong>Sending a file to someone outside the church (a guest speaker)?</strong> (a) Admins can make a link that ends after 7 days <em>(recommended)</em>; (b) Anyone on staff can make such a link; (c) Never; email it</li>\n<li><strong>The Church folder: who can delete things in it?</strong> Deleted files sit in the Trash 30 days. (a) Anyone (it goes to the Trash) <em>(recommended)</em>; (b) Only the person who added it, and admins; (c) Admins only</li>\n<li><strong>Event photos?</strong> (a) A Photos share on the Synology, staff drop them in <em>(recommended)</em>; (b) The Photos app on the server, later; (c) Keep using what we use now</li>\n<li><strong>Where does the Proclaim library live?</strong> (a) On the Proclaim Mac, backed up by Time Machine <em>(recommended)</em>; (b) A worship share synced to every Proclaim machine; (c) In Proclaim's own cloud</li>\n<li><strong>Department folders in Finder's sidebar: names?</strong> (a) Plain: Media, Worship, Children's Department <em>(recommended)</em>; (b) With a prefix: Arise · Media</li>\n<li><strong>Any file types never allowed on the shares?</strong> The weekly virus scan runs either way. (a) Allow everything <em>(recommended)</em>; (b) Block apps and installers (.exe, .dmg, .pkg)</li>\n</ol>\n<h2 id=\"backups-and-the-bad-day\">Backups and the bad day</h2>\n<p>A fire, a theft, a dead disk, or you away.</p>\n<ol>\n<li><strong>An off-site copy: Arise-Home (your house) is far enough from Pineville. Use it as the off-site copy?</strong> Round 4 said not now; Arise-Home changes that. (a) Yes, Arise-Home is the off-site copy <em>(recommended)</em>; (b) Also an encrypted cloud copy (Backblaze B2, about $6 per TB a month); (c) Still not now</li>\n<li><strong>What goes to Arise-Home?</strong> (a) Everything except raw recordings <em>(recommended)</em>; (b) Homes, shares and the server's settings only; (c) Everything</li>\n<li><strong>Restoring a file for staff?</strong> (a) They use Previous Versions themselves; admins for anything older <em>(recommended)</em>; (b) Admins only; (c) You only</li>\n<li><strong>The monthly restore drill's result?</strong> (a) A line in Discord #weekly <em>(recommended)</em>; (b) Only when it fails; (c) In the Monday report</li>\n<li><strong>Where does the recovery card (the closet card) live?</strong> It has the commands and who to call. (a) A sealed copy in the church safe and one with you <em>(recommended)</em>; (b) Only with you; (c) Taped inside the closet</li>\n<li><strong>Who else knows the disk passphrase and the backup password?</strong> If you are unreachable, someone must be able to restore. (a) Kristina <em>(recommended)</em>; (b) One of the pastors; (c) Nobody else</li>\n<li><strong>The server is down on a Sunday morning and you can't be reached.</strong> (a) Kristina follows the closet card <em>(recommended)</em>; (b) Call a named tech (in the note); (c) Service goes on without it</li>\n<li><strong>A leaver's files after the 30-day hold: kept in the backups for?</strong> The backups keep 24 monthly snapshots. (a) Two years (the backups' own limit) <em>(recommended)</em>; (b) One year; (c) Forever, on the Synology</li>\n<li><strong>Copy the Macs' Time Machine backups to Arise-Home too?</strong> They are big. (a) No <em>(recommended)</em>; (b) Yes</li>\n<li><strong>YouTube: keep a copy of every title, description and thumbnail on the server?</strong> The automator already backs up what it changes. (a) Yes, a nightly copy of the channel's text and thumbnails <em>(recommended)</em>; (b) No</li>\n<li><strong>Google accounts (soundmedia and others): a yearly reminder to export them?</strong> (a) Yes, every January <em>(recommended)</em>; (b) No</li>\n<li><strong>Backups can't reach the Synology. Tell you after?</strong> (a) One missed night <em>(recommended)</em>; (b) Three missed nights</li>\n</ol>\n<h2 id=\"security-and-privacy\">Security and privacy</h2>\n<p>Who can see what, and what gets logged.</p>\n<ol>\n<li><strong>Two-step sign-in: required for the four admins?</strong> It's optional for everyone now (round 4). (a) Required for admins; optional for staff <em>(recommended)</em>; (b) Optional for everyone, as now</li>\n<li><strong>Who reads the audit log?</strong> (a) You and Kristina <em>(recommended)</em>; (b) All four admins; (c) Only you</li>\n<li><strong>How long is the audit log kept?</strong> The other logs are kept a year. (a) Three years <em>(recommended)</em>; (b) One year; (c) Forever</li>\n<li><strong>An admin opens a file in someone's home folder.</strong> It's always in the audit log. (a) The audit log is enough <em>(recommended)</em>; (b) Also tell the person</li>\n<li><strong>Both pastors are unreachable and something in the Pastors folder is needed.</strong> Right now nobody else can open it. (a) Ask the pastors what they want <em>(recommended)</em>; (b) Never: it stays theirs; (c) You, with both pastors told afterwards</li>\n<li><strong>Someone signs in from a new device.</strong> (a) Email them, and tell you <em>(recommended)</em>; (b) Tell you only; (c) Nobody</li>\n<li><strong>A filter for adult and malware sites on the church Macs?</strong> Through the server's DNS; personal devices are never touched. (a) Malware and adult sites blocked on church Macs <em>(recommended)</em>; (b) Malware only, like Firefox; (c) Nothing</li>\n<li><strong>The kids Mac?</strong> (a) Stricter: kid-safe filter, only the apps it needs <em>(recommended)</em>; (b) The same as the other church Macs</li>\n<li><strong>Who gets the arise-rescue password?</strong> The break-glass admin at the console. (a) The closet card and Kristina <em>(recommended)</em>; (b) The closet card only</li>\n<li><strong>A phone with Nextcloud on it is lost.</strong> (a) Cut it off from the Sync panel; the person is told <em>(recommended)</em>; (b) Cut off and wipe the app's files on that phone</li>\n<li><strong>The network scan's list of devices: kept for?</strong> (a) 90 days <em>(recommended)</em>; (b) A year</li>\n<li><strong>May Claude read the audit log to explain what happened?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n</ol>\n<h2 id=\"alerts-and-reports\">Alerts and reports</h2>\n<p>What reaches your phone, Discord and the pastors.</p>\n<ol>\n<li><strong>Who else sees Discord #alerts?</strong> (a) You and Kristina <em>(recommended)</em>; (b) All four admins; (c) Only you</li>\n<li><strong>When is the Sunday \"all green\" post?</strong> (a) An hour before each service <em>(recommended)</em>; (b) 09:30; (c) 10:00</li>\n<li><strong>An all-green post before Glory Night too?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>The Monday report holds?</strong> (a) Backups, storage, Macs, sign-ins, updates, the channel's numbers <em>(recommended)</em>; (b) Only what went wrong</li>\n<li><strong>A short monthly note to the pastors: what the server did, in five plain lines?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>A church Mac hasn't checked in for?</strong> (a) Three days <em>(recommended)</em>; (b) One day; (c) A week</li>\n<li><strong>Stream watch on Glory Night as well as Sunday?</strong> (a) Yes <em>(recommended)</em>; (b) Sundays only</li>\n<li><strong>How do staff get notices (nearing the quota, a new device, a reset link)?</strong> They don't use the dashboard. (a) A Mac notification from the helper, and email <em>(recommended)</em>; (b) Email only</li>\n<li><strong>The channel's progress toward the Partner Program in the Monday report?</strong> 1,000 subscribers, 4,000 watch hours. (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>A Discord line when a new staff account is made or one is switched off?</strong> (a) Yes, #alerts <em>(recommended)</em>; (b) No</li>\n</ol>\n<h2 id=\"sunday-and-glory-night\">Sunday and Glory Night</h2>\n<p>The services the server must never get in the way of.</p>\n<ol>\n<li><strong>The closet monitor during a service?</strong> (a) Service mode: stream health, the checklists, the run sheet <em>(recommended)</em>; (b) The usual glance view</li>\n<li><strong>Who sees other departments' checklists?</strong> (a) Everyone <em>(recommended)</em>; (b) Department leaders and admins; (c) Each department only its own</li>\n<li><strong>How do departments tick their checklist, since staff don't use the dashboard?</strong> (a) On their phones, through a simple checklist page on Tailscale or church Wi-Fi <em>(recommended)</em>; (b) Printed sheets; (c) Department leaders tell the media team</li>\n<li><strong>Call times?</strong> When the checklists open. (a) Sunday 09:00, Glory Night 18:00 <em>(recommended)</em>; (b) Other (in the note)</li>\n<li><strong>During a service the server holds back:</strong> (a) Updates, restarts, Mac changes, and heavy syncing <em>(recommended)</em>; (b) Only updates and restarts</li>\n<li><strong>Slow Nextcloud syncing during a service so the stream keeps its bandwidth?</strong> The streaming Mac is on Wi-Fi. (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>Does Alexandria's 10:00 service count as a service for those holds?</strong> (a) Yes <em>(recommended)</em>; (b) No, Pineville only</li>\n<li><strong>Special services (Easter, The Outpour, conferences)?</strong> (a) Add them in Calendar and they count as services <em>(recommended)</em>; (b) I'll mark them by hand</li>\n<li><strong>After a service, remind the media team to copy the recording to the recordings share?</strong> (a) Yes, in Discord <em>(recommended)</em>; (b) No</li>\n<li><strong>Is the Proclaim machine one of the church Macs?</strong> (a) Yes, the media Mac <em>(recommended)</em>; (b) A separate Mac; (c) A Windows PC</li>\n</ol>\n<h2 id=\"the-automator-and-the-channel\">The automator and the channel</h2>\n<p>The 02:05 job and the Automator app. None of this changes the job's own rules.</p>\n<ol>\n<li><strong>When do you plan to switch the runner to the server?</strong> runner.json stays yours to flip on the PC. (a) After two weeks of clean previews on the server <em>(recommended)</em>; (b) On a date (in the note); (c) Not decided</li>\n<li><strong>Run a plan-only preview on the server each night before the switch?</strong> Its reads spend the shared quota. (a) No; only in the switch week <em>(recommended)</em>; (b) Yes, every night; (c) Once a week</li>\n<li><strong>Lyrics from Proclaim: how will they come over?</strong> (a) I export them; a Lyrics inbox folder in Nextcloud imports whatever lands there <em>(recommended)</em>; (b) I import them in the Songs tab myself; (c) SongSelect files only</li>\n<li><strong>Who may add lyrics?</strong> (a) You and the worship leader (through the inbox folder) <em>(recommended)</em>; (b) Only you; (c) All admins</li>\n<li><strong>Transcript search for the pastors (finding a past sermon)?</strong> (a) At the closet only, like now <em>(recommended)</em>; (b) A read-only search page they can open on their phones; (c) No</li>\n<li><strong>Spotify podcast uploads from the server?</strong> (a) Later <em>(recommended)</em>; (b) Now; (c) Never</li>\n<li><strong>Build service thumbnails on the server (the house layout)?</strong> (a) Later <em>(recommended)</em>; (b) Now</li>\n<li><strong>After the switch, the PC?</strong> (a) Kept ready as the backup runner <em>(recommended)</em>; (b) Retired</li>\n<li><strong>Videos on the hold list in transcript search?</strong> (a) Left out <em>(recommended)</em>; (b) Shown to admins, marked held</li>\n<li><strong>Song usage report for CCLI (what was sung, how often)?</strong> From the set lists and credits. (a) Yes, quarterly <em>(recommended)</em>; (b) Yes, yearly; (c) No</li>\n</ol>\n<h2 id=\"the-closet-desktop\">The closet desktop</h2>\n<p>How the OS on the monitor looks and behaves for the four admins.</p>\n<ol>\n<li><strong>After a restart, the monitor shows?</strong> (a) The lock screen; nobody signed in <em>(recommended)</em>; (b) Your desktop</li>\n<li><strong>The text console (Ctrl+Alt+F2) at the closet?</strong> (a) Available to admins <em>(recommended)</em>; (b) Disabled</li>\n<li><strong>Light mode?</strong> (a) Dark by default; each admin may pick light <em>(recommended)</em>; (b) Dark only</li>\n<li><strong>Announcements on the screensaver come from?</strong> (a) Typed in the dashboard <em>(recommended)</em>; (b) A shared Announcements file in Nextcloud; (c) The Calendar</li>\n<li><strong>Weather on the screensaver?</strong> (a) Pineville <em>(recommended)</em>; (b) Pineville and Alexandria</li>\n<li><strong>Is the closet monitor a touchscreen?</strong> (a) No <em>(recommended)</em>; (b) Yes</li>\n<li><strong>Show the live stream, muted, on the closet monitor during services?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>Can each admin choose their own widgets?</strong> (a) Yes <em>(recommended)</em>; (b) Everyone gets the same</li>\n<li><strong>Hide apps an admin never uses from their Launchpad?</strong> (a) Yes, per admin <em>(recommended)</em>; (b) Everyone sees all of them</li>\n<li><strong>A shared notes board on the desktop for the four admins?</strong> Sticky notes everyone at the closet sees. (a) Yes <em>(recommended)</em>; (b) No</li>\n</ol>\n<h2 id=\"apps-on-the-server\">Apps on the server</h2>\n<p>What runs beside the core.</p>\n<ol>\n<li><strong>Vaultwarden (the password manager)?</strong> (a) Admins, plus a vault for each department's shared passwords <em>(recommended)</em>; (b) Admins only; (c) Staff too; (d) Not at all</li>\n<li><strong>Staff asking for IT help?</strong> AriseHub already has the IT portal with tickets. (a) The IT portal on AriseHub; tickets reach you in Discord <em>(recommended)</em>; (b) Email you; (c) Text you</li>\n<li><strong>Church equipment list (cameras, mics, laptops)?</strong> (a) In the IT portal <em>(recommended)</em>; (b) A simple list on the server; (c) Not needed</li>\n<li><strong>Does the church use Google Calendar now?</strong> (a) Yes: show it in the server's Calendar <em>(recommended)</em>; (b) No; (c) Some departments do</li>\n<li><strong>Internet speed tested every hour and charted, to show the provider when it's slow?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>A sermon library inside the building (Jellyfin) for the lobby or the office?</strong> (a) No <em>(recommended)</em>; (b) Later; (c) Yes</li>\n<li><strong>Immich for event photos (like Google Photos, on the Synology)?</strong> (a) Later <em>(recommended)</em>; (b) Now; (c) No</li>\n<li><strong>Room or equipment booking?</strong> (a) No <em>(recommended)</em>; (b) Yes, in the Calendar</li>\n<li><strong>Uptime Kuma's status page for staff (is the internet, the printer, Nextcloud up)?</strong> (a) No, admins only <em>(recommended)</em>; (b) Yes</li>\n<li><strong>Anything the old PC does today that the server must keep doing?</strong> (typed answer)</li>\n</ol>\n<h2 id=\"the-network-and-the-domain\">The network and the domain</h2>\n<p>Nothing on the network changes; these are facts and plans.</p>\n<ol>\n<li><strong>The internet provider and plan speed at Pineville?</strong> (typed answer)</li>\n<li><strong>Which router network is the Synology on?</strong> Router A, router B, or not sure yet. (typed answer)</li>\n<li><strong>Who gets Tailscale?</strong> (a) Admins' phones and laptops, and staff laptops that go home <em>(recommended)</em>; (b) Admins only</li>\n<li><strong>Whose account owns Tailscale?</strong> (a) A church Google account <em>(recommended)</em>; (b) Yours</li>\n<li><strong>The Wix DNS records for arisecenla.com?</strong> Email records and the mail.arisecenla.com sending domain. (a) Walk me through it with screenshots <em>(recommended)</em>; (b) I'll do it this week from the list; (c) Later</li>\n<li><strong>The name on email the server sends?</strong> From mail.arisecenla.com. (a) Arise Church IT <em>(recommended)</em>; (b) Arise Server; (c) Your name</li>\n<li><strong>arisecenla.church (GoDaddy, no access): any plan?</strong> Nothing here depends on it. (a) Leave it; the server uses arisecenla.com <em>(recommended)</em>; (b) Try to recover access; (c) Move the website to arisecenla.com one day</li>\n<li><strong>Does Alexandria have any church Macs?</strong> (a) No <em>(recommended)</em>; (b) Yes (how many in the note)</li>\n</ol>\n<h2 id=\"updates-and-upkeep\">Updates and upkeep</h2>\n<ol>\n<li><strong>Who may press Install for ariseOS updates?</strong> (a) You and Kristina <em>(recommended)</em>; (b) Any admin; (c) Only you</li>\n<li><strong>Update Arise-Home first, then Pineville a week later?</strong> Your house is the test box. (a) Yes <em>(recommended)</em>; (b) Both together</li>\n<li><strong>Disk, fan and temperature warnings?</strong> (a) The defaults (SMART, 80°C) <em>(recommended)</em>; (b) My own numbers (in the note)</li>\n<li><strong>Replace the server's disk?</strong> (a) When its health check warns <em>(recommended)</em>; (b) Every five years regardless</li>\n<li><strong>A January clean-up report: unused accounts, the biggest files, empty shares?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>A record of every change made on the box (by you, Kristina or Claude) in About?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>Who do we call if you are away for a week?</strong> (typed answer)</li>\n<li><strong>A spare part on the shelf?</strong> (a) A spare SSD and a USB stick with the installer <em>(recommended)</em>; (b) Nothing</li>\n</ol>\n<h2 id=\"claude-on-the-box\">Claude on the box</h2>\n<p>Your Claude only; nobody else talks to it.</p>\n<ol>\n<li><strong>Claude and the ariseOS repo on the box?</strong> (a) As now: commit only when you say <em>(recommended)</em>; (b) Draft pull requests on its own, never merged</li>\n<li><strong>Claude writes the pastors' monthly note in plain words?</strong> (a) Yes, you approve it first <em>(recommended)</em>; (b) No</li>\n<li><strong>Claude reads the 02:05 report and explains any failure in the morning note?</strong> (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>Claude may run a plan-only automator preview by itself?</strong> Its reads spend quota. (a) No, ask me <em>(recommended)</em>; (b) Once a week</li>\n<li><strong>A help chat for staff (no server powers)?</strong> Today only you talk to Claude. (a) No, it stays yours <em>(recommended)</em>; (b) Yes, a help chat that can only answer</li>\n</ol>\n<h2 id=\"the-last-few\">The last few</h2>\n<ol>\n<li><strong>Walk the pastors through the closet desktop on install week?</strong> Thirty minutes. (a) Yes <em>(recommended)</em>; (b) Later</li>\n<li><strong>Kristina's training?</strong> (a) An hour at the closet and a written guide <em>(recommended)</em>; (b) The written guide; (c) She'll learn by doing</li>\n<li><strong>Staff training?</strong> (a) Ten minutes at a staff meeting and the one-page guide <em>(recommended)</em>; (b) The guide only</li>\n<li><strong>What would make you say this is the best server ever?</strong> Anything at all. (typed answer)</li>\n<li><strong>Anything I haven't asked?</strong> (typed answer)</li>\n</ol>\n<h2 id=\"found-while-checking\">Found while checking</h2>\n<p>Three places where the code and an earlier answer don't quite meet.</p>\n<ol>\n<li><strong>Cut off a lost Mac: remove it from Tailscale too?</strong> Today Cut off kills its key, its domain account and its Nextcloud sign-ins, then tells you to remove it in the Tailscale console. (a) Yes: keep a Tailscale API key on the server so Cut off removes it <em>(recommended)</em>; (b) No, I'll remove it in the console</li>\n<li><strong>Removed Mac profiles are kept as disk images in /Users/Deleted Users on that Mac. They pile up.</strong> Deleting is your click. (a) List them in the January clean-up report for you to delete <em>(recommended)</em>; (b) Keep them forever; (c) Copy each one to the Synology, then list it for you</li>\n<li><strong>Staff email addresses (first.last@ad.arisecenla.com) forwarding to their personal email: the mail server isn't built yet.</strong> Round 6, 28 and round 5, 38. (a) Build it next: forwarding only, plus exporting a leaver's mail <em>(recommended)</em>; (b) Not needed yet</li>\n</ol>",
+"demo": true
+},
+"GET /help/QUESTIONS-ROUND-8": {
+"ok": true,
+"name": "QUESTIONS-ROUND-8",
+"title": "ariseOS: round 8 questions (Nov 2)",
+"html": "<h1 id=\"ariseos-round-8-questions-nov-2\">ariseOS: round 8 questions (Nov 2)</h1>\n<p>Bradly: \"FULL OVERHAUL AND MAKE IT LIKE IT NEEDS TO BE! Ask roughly 150 questions.\" 158 questions in 14 sections. The first option is the recommendation. Answered on the Round 8 page; recorded in ANSWERS.md as they come in.</p>\n<h2 id=\"the-look-the-closet-screen-and-the-dashboard\">The look: the closet screen and the dashboard</h2>\n<p>You said the dashboard is separate from the OS and need not mirror it. So what is each one, and what should each look like.</p>\n<ol>\n<li><strong>Are the closet screen and the dashboard in a browser two different things now?</strong> Today one page does both jobs. You said they need not mirror. (a) Two faces of one code: the closet screen is the health board and the apps; the browser dashboard is the same apps in a simpler shell for your phone and laptop <em>(recommended)</em>; (b) One and the same, as now; (c) Two separate pages, built apart</li>\n<li><strong>The closet screen's job, in one line?</strong> What people see from the door. (a) What is wrong, in order, readable from the door; the apps behind it <em>(recommended)</em>; (b) The service board first, the apps behind it; (c) The full desktop, as now</li>\n<li><strong>What opens first on the closet monitor after sign-in?</strong> Today the Finder opens; the monitor's job is the box's health. (a) Overview on the monitor, Finder on a laptop <em>(recommended)</em>; (b) Finder everywhere; (c) Nothing; just the widgets</li>\n<li><strong>Which three widgets sit at the top of the column on the monitor?</strong> Seven fit 1080p only just; the order decides what is seen from the door. (a) Needs you, Next service with the countdown, Backups <em>(recommended)</em>; (b) Needs you, Live CPU, The box; (c) Needs you, Week, Verse</li>\n<li><strong>The window close, minimise and zoom dots: round 4, 71 picked Mac-style. For the overhaul, keep them or go to the house style?</strong> The dots are the one borrowed Mac piece that fights the square red look, and they are small to click from across the closet. (a) House style: square buttons, bigger, red on hover <em>(recommended)</em>; (b) Keep the Mac dots</li>\n<li><strong>The Dock on the closet monitor: always visible there, autohide only on laptops and phones?</strong> Round 4, 12 said autohide. On a 24-inch monitor nothing needs the 70 px and the hover edge is fiddly from across the closet. (a) Always visible on the monitor; autohide on laptops and phones <em>(recommended)</em>; (b) Autohide everywhere, as now</li>\n<li><strong>When the server is briefly out of reach, what should the desktop show?</strong> Today a dropped connection flips the live desktop to the sample church behind a small badge. Sample data on the real box is a hazard. (a) The last real numbers greyed, a red bar saying out of reach and retrying; never sample data on the box <em>(recommended)</em>; (b) A full-screen out-of-reach page until it is back</li>\n<li><strong>Failure toasts: stay until dismissed, with a Copy button?</strong> A backup error that fades in seven seconds is gone before you reach for the phone. (a) Errors stay until dismissed, with Copy; successes fade <em>(recommended)</em>; (b) All fade, as now</li>\n<li><strong>On a phone: one app at a time with a bottom bar of your pinned apps, or the desktop squeezed to fit?</strong> Round 4, 48 names what the phone home screen shows; the shell around it is unsettled. (a) One app at a time, a bottom bar: Needs you, Files, Sunday, Calendar, More <em>(recommended)</em>; (b) The desktop squeezed, as now</li>\n<li><strong>Anything on the current look you want gone before the overhaul? Colours, fonts, the flame, the grid wall, the dock, the dots.</strong> The keep and drop list should be yours, not mine. (typed answer)</li>\n</ol>\n<h2 id=\"signing-in-passwords-pins-two-step-phones\">Signing in: passwords, PINs, two-step, phones</h2>\n<p>Who gets in, from where, and how a session ends.</p>\n<ol>\n<li><strong>The Terminal is a root shell. Should it ask the password again, like a delete does?</strong> Round 7, 161 lists deletes, Trash, FileVault, Pastors and YouTube; the Terminal is not on the list and is the most powerful click on the box. (a) Yes, password again, remembered five minutes <em>(recommended)</em>; (b) No, the sign-in is enough; (c) Only away from the church network</li>\n<li><strong>A Sessions page: every signed-in device per person, with Sign out here and Sign out everywhere?</strong> A session lasts a year (round 3, 38). Today only a directory password change ends one on another device; the local admin password does not even do that. (a) Yes: a Sessions page, Sign out everywhere in the flame menu, and any password change signs out every browser <em>(recommended)</em>; (b) Only Sign out everywhere, in the flame menu; (c) No, changing the password is fine</li>\n<li><strong>When the monitor locks after ten minutes, should the server end the session too?</strong> The lock is drawn by the page; F5 at the monitor shows the desktop again. (a) Yes: lock means signed out until the password or PIN <em>(recommended)</em>; (b) No, the overlay is enough in the closet</li>\n<li><strong>How should a phone on Tailscale trust the dashboard's certificate?</strong> The church certificate is Caddy's own; an iPhone says not private until it trusts the root or the site is on a certificate it already trusts. (a) Both: serve it on the Tailscale name too, and a one-tap profile that installs the church root <em>(recommended)</em>; (b) The Tailscale name only (tailscale serve); (c) The one-tap profile only</li>\n<li><strong>Should staff add the checklist page itself to their home screen, its own icon?</strong> Today Add to Home Screen from /checklist opens the front page, which for staff says your files are on your Mac. (a) Yes, its own icon named Checklist <em>(recommended)</em>; (b) No, a bookmark</li>\n<li><strong>A staff PIN is bound to one browser. Should Safari and the home-screen app on the same phone both count as that phone?</strong> iOS keeps separate cookies for the two; a PIN set in Safari is refused in the home-screen app. (a) Yes, up to three browsers on one phone <em>(recommended)</em>; (b) No, exactly one</li>\n<li><strong>An admin with two-step on: a PIN still asks for the Authenticator code. Keep that?</strong> Safer, but it removes the point of the PIN at the lock screen. (a) PIN alone unlocks the lock screen; a fresh sign-in still asks the code <em>(recommended)</em>; (b) Keep it: PIN plus code; (c) PIN alone everywhere</li>\n<li><strong>Someone with two-step on loses their phone and no admin is around.</strong> Today only arisectl twofa reset at the box switches it off; there are no backup codes. (a) Ten printed backup codes at setup, each used once <em>(recommended)</em>; (b) An admin only, as now; (c) A reset link to their personal email switches it off</li>\n<li><strong>Ten wrong passwords from one address wait fifteen minutes. Round 3, 27 said no lockout. Keep the wait?</strong> The PIN rule tells you at ten; the password rule only writes the audit log. (a) Keep it, and tell me at ten like the PIN does <em>(recommended)</em>; (b) Keep it, log only; (c) Drop it: no lockout, as round 3, 27 said</li>\n<li><strong>The new-device email: add two links, Yes it was me, and No, sign it out?</strong> No would end that session and switch the PIN off, and tell you in #alerts. (a) Yes, both links <em>(recommended)</em>; (b) Keep it a plain notice</li>\n<li><strong>Who exactly sees the portal in a browser?</strong> Round 1, 34 gives the pastors' personal Macs the portal; round 5, 41 sets staff_access to none, which shows everyone your files are on your Mac. One switch cannot do both. (a) A per-person portal flag; default none <em>(recommended)</em>; (b) Portal for everyone with an account; (c) Keep none; nobody but admins uses the dashboard</li>\n</ol>\n<h2 id=\"the-closet-monitor-boot-the-panel-locking-services\">The closet monitor: boot, the panel, locking, services</h2>\n<p>What the screen in the closet does when nobody is touching it.</p>\n<ol>\n<li><strong>When the box asks for the disk passphrase at boot, what should the closet screen show?</strong> Today the splash draws nothing for the prompt. (a) The splash with a passphrase line under the flame and a dot per key typed, plus the LAN address for the SSH unlock in small type <em>(recommended)</em>; (b) The splash with the passphrase line only; (c) Plain text boot, no splash</li>\n<li><strong>Should the splash name the box and the version under the bar, and say what is starting?</strong> Four boxes may exist one day; a glance tells them apart. On the Saturday update the shutdown could say back at 03:35. (a) Yes: arise-server, ariseOS 0.8, and a one-line what is starting <em>(recommended)</em>; (b) Name and version only; (c) Just the flame and the bar</li>\n<li><strong>After the 23:00 off, round 3, 30 said any key wakes the panel. It was never built. Still want it, and should the panel also go dark in the daytime after a while idle?</strong> The closet is unattended most of the week; a panel on 17 hours a day for nobody. (a) Any key wakes it; dark after 30 idle minutes any time of day; asleep until 06:00 at night <em>(recommended)</em>; (b) Any key wakes it at night; on all day from 06:00 to 23:00; (c) No key: the hard off stays; the 06:00 timer or the dashboard wakes it</li>\n<li><strong>While you are in another tab (Claude, YouTube Studio) or in Claude Desktop, should the desktop still lock after ten minutes?</strong> Today it does, and the lock closes the browser you are using. (a) No: time in another tab or in Claude Desktop counts as using the monitor <em>(recommended)</em>; (b) Lock after 30 minutes when another tab is in front; (c) Yes, as today</li>\n<li><strong>What should the lock do to your browser tabs?</strong> Today a lock throws Firefox away and brings a fresh one; unlocking means opening everything again. (a) Keep my profile and tabs behind the lock; only Sign Out clears them <em>(recommended)</em>; (b) As today: a fresh browser with nothing in it</li>\n<li><strong>Should the monitor refuse to lock during a service, so service mode stays up?</strong> Today the ten-minute lock ends service mode at 10:40 on a Sunday. (a) Yes: no lock during a service; it locks ten minutes after the service ends <em>(recommended)</em>; (b) No: lock as usual</li>\n<li><strong>Nobody signed in on the monitor during a service: show service mode anyway?</strong> Most Sundays the monitor is locked from the night before. (a) Yes: a read-only board with the stream, each department's done-of-total and the clock; no names, no run sheet <em>(recommended)</em>; (b) Only when an admin is signed in</li>\n<li><strong>From the closet doorway, which part of service mode should be the big one?</strong> Today the three panels are equal thirds; one should read from across the room. (a) The stream: LIVE or NOT LIVE in huge type, the checklists and run sheet beside it <em>(recommended)</em>; (b) The checklists, since the stream has its own alert; (c) Equal thirds, as today</li>\n<li><strong>The idle glance view when nobody is signed in: round 5, 34 said clock, next service, verse, nothing about health; round 7, 102 said next service, backups, attention, stream. Which list?</strong> Round 7 wins by date; this is the check before it is built. (a) Clock, next service, last backup ok or not, how many things need you, stream live or not, the verse; nothing clickable, no names <em>(recommended)</em>; (b) Clock, next service and the verse only; (c) The screensaver as it is now</li>\n<li><strong>If the dashboard is not answering when the monitor starts, what should the screen say?</strong> Today it is black until it answers. (a) An ariseOS page: The desktop is starting, the fix command, retrying by itself <em>(recommended)</em>; (b) The text console (arisetui) until the dashboard is back; (c) Black until it is back</li>\n<li><strong>If the desktop (cage or Firefox) cannot start at all, fall back to the text console on the same screen?</strong> Right now the unit restarts forever and the screen stays black. (a) Yes: after three failed starts tty1 shows arisetui, with a Discord #alerts line <em>(recommended)</em>; (b) Leave it black and alert Discord</li>\n<li><strong>Screen Sharing from your phone: watch only, or control the monitor too?</strong> wayvnc can do either; today it is set up to control. (a) Control too, it is yours alone <em>(recommended)</em>; (b) View only</li>\n</ol>\n<h2 id=\"required-apps-and-the-store\">Required apps and the Store</h2>\n<p>You said keep it compact: only the required stuff pre-installed, everything optional from the Store.</p>\n<ol>\n<li><strong>Which apps are required and ship in the Launchpad? I propose Finder, Overview, Directory, Backups, Sunday, Calendar, Settings, Store, Help and Terminal; everything else (Notes, Photos, Monitor, Logs, Devices, Storage, Automations, Macs, Remote, Sites, Mail, Inbox) appears only after the Store installs or turns it on.</strong> The code cannot tell which of the 34 you count as required. (a) Those ten; the rest from the Store <em>(recommended)</em>; (b) Those ten plus Mail, Inbox and Logs; (c) Keep all 34, let each admin hide</li>\n<li><strong>The core five are Nextcloud, Vaultwarden, Uptime Kuma, Netdata and File Browser (H4). Is Portainer required too, or Store only?</strong> It was autostart before H4 and the closing summary still lists it; the Store's Logs button covers most of what it does. (a) Store only; the Store's Logs and Activity Monitor are enough <em>(recommended)</em>; (b) Required: install and start it with the box</li>\n<li><strong>File Browser is in the core five but its template says autostart off. Start it with the box?</strong> H4 names it core, the manifest leaves it stopped, the installer says up. One of the three has to change. (a) Yes, start it with the box (60 MB) <em>(recommended)</em>; (b) Leave it stopped until someone needs it; (c) Take it out of the core five: Nextcloud's web page does the job</li>\n<li><strong>Guacamole powers Screen Sharing of the closet panel and the Remote app. With H4 it is not installed. A sixth core app?</strong> Without it Screen Sharing has nothing to show in. (a) Yes, core: it is how you see the closet from home <em>(recommended)</em>; (b) No: from the Store the first time you need it</li>\n<li><strong>When a Store app does not fit in the memory budget (Ollama or Kdenlive beside Nextcloud on 16 GB), what should the card do?</strong> Today the catalogue lists them with no sign they cannot start here, and Install refuses. (a) Show it greyed with needs N GB more; Install puts it in stopped <em>(recommended)</em>; (b) Hide it until the box has the memory; (c) Show it as now; the budget error explains</li>\n<li><strong>Who may open the Store and install apps?</strong> Today admins only; the Media team might want GIMP without asking. (a) Admins only, as now <em>(recommended)</em>; (b) Admins and the Media group; (c) Admins and Kristina</li>\n<li><strong>Should every installed Store app get an icon in Launchpad and open in a window, like Notes and Photos do?</strong> Round 4, 72 says apps open in a window; today only two have icons, the rest are a link in a table. (a) Yes, every installed app gets an icon and a window, with Open in a tab as the pop-out <em>(recommended)</em>; (b) Only the ones I pin; (c) No, the Store is the one place</li>\n<li><strong>Updating a Store app's image: only through Software Update (Saturday 03:30 after a snapshot), or also an Update button on the app's card?</strong> The API already allows an immediate update; the Store hides it. Two doors or one. (a) Software Update only, one place, snapshot first <em>(recommended)</em>; (b) Both: the Store button for the small apps, Saturday for the rest</li>\n<li><strong>Should the server check for newer app images by itself once a week and show the count, or only when you press Check apps?</strong> A check by itself would run before the Saturday window, over the church's internet. (a) Weekly by itself, Saturday 02:30, a line in Discord #weekly <em>(recommended)</em>; (b) Only when I press Check apps</li>\n<li><strong>Removing a Store app keeps its data folder. Should the Store also offer Remove and delete its data, with the name typed twice?</strong> Rule 1 makes deleting your click; the question is whether the dashboard offers that click at all. (a) No: deleting stays by hand on the command line <em>(recommended)</em>; (b) Yes, with the name typed twice and a 30-day Trash</li>\n<li><strong>GIMP, Inkscape, Kdenlive and the rest save into the shares. Which identity should they write as?</strong> Today they run as uid 1000, which owns nothing in the shares, so saves fail or land as files nobody can edit. (a) The arise service user, like File Browser (anyone in the share can then edit the file) <em>(recommended)</em>; (b) The person signed in on the dashboard, when the server can tell; (c) One fixed media account</li>\n<li><strong>A Required badge on the core five, with Remove hidden and Stop behind a typed confirm?</strong> Stopping Nextcloud stops the Macs' sync. (a) Yes: badge, Remove hidden, Stop asks for the name and says what it breaks <em>(recommended)</em>; (b) Badge only; (c) No</li>\n</ol>\n<h2 id=\"install-day-on-the-hp\">Install day on the HP</h2>\n<p>The EliteDesk, the stick, the private disc, and the first half hour.</p>\n<ol>\n<li><strong>Your Oct 28 decision: keep the address Netgear A hands out and pin it on the box. ChatGPT's merge switched the installer to plain DHCP and the wizard can no longer pin. Which on install day?</strong> The Macs' resolver files and the certificate name all point at one address; the code and ANSWERS.md disagree today. No router is touched either way. (a) Pin it, as decided, after the installer checks nobody else answers at that address; upkeep tells #alerts if the address ever changes <em>(recommended)</em>; (b) Plain DHCP, and the server tells #alerts the moment its address changes; (c) Pin only after you have looked at Netgear A's lease table once (a look, not a change)</li>\n<li><strong>Where may the disk passphrase be written down?</strong> Round 7, 57 tapes the closet card inside the closet that holds the disk. Three documents say three things. (a) The safe card only, plus you and Kristina from memory <em>(recommended)</em>; (b) The closet card too; (c) Nowhere on paper</li>\n<li><strong>Should password SSH be off from the very first Ubuntu boot, before the wizard runs?</strong> Keys only was the decision (round 4, 33); today it is on for the hour between Ubuntu's reboot and the hardening step, longer if the install fails. (a) Off from the start; the closet monitor is the way in until a key is added <em>(recommended)</em>; (b) On until the wizard finishes, as now</li>\n<li><strong>The Discord webhooks and the Synology's address: ask them in the install wizard, or in the dashboard's guided first sign-in?</strong> Four 120-character addresses typed blind on a closet keyboard; the NAS is usually not on the network yet. The dashboard has a paste box and a Test button. (a) The dashboard; the wizard asks nothing about Discord or the NAS <em>(recommended)</em>; (b) Keep them in the wizard, checked as you type</li>\n<li><strong>While the install runs, what should the monitor show?</strong> Today it is the scrolling log for 15 to 30 minutes; the step name is in /var/log/arise/install-step already. (a) A progress screen: step name, minutes elapsed, apps downloaded; the log on Ctrl+Alt+F2; an install report saved and posted to #alerts <em>(recommended)</em>; (b) The scrolling log, as now</li>\n<li><strong>Should the private disc carry more than the Resend key?</strong> H9 made the disc so nothing is pasted on install day; the Discord webhooks and the restic password are still typed. (a) Add the four Discord webhooks; never the restic password <em>(recommended)</em>; (b) Resend key only, as now; (c) Everything, restic password included</li>\n<li><strong>After install day, where does the private disc live?</strong> It carries a key that can send mail as the church. H9 says your PC and USB stick, nothing about afterwards. (a) One copy in the safe beside the safe card; the PC copy deleted <em>(recommended)</em>; (b) Your PC only; (c) Wipe it; rebuild from Resend when needed</li>\n<li><strong>At the end of setup, show the Tailscale sign-in link so the box is reachable from home the same evening?</strong> The wizard installs Tailscale but nobody runs tailscale up; today that waits for the dashboard. (a) Yes, on the final screen, skippable <em>(recommended)</em>; (b) Later, from the dashboard</li>\n<li><strong>Your own Linux account on the HP: bradly, as INSTALL.md says, or bradly.dyer to match the domain?</strong> Usernames are first.last on the domain (round 1, 23); the wizard takes whatever Ubuntu's identity screen was given. (a) bradly on the box, bradly.dyer on the domain <em>(recommended)</em>; (b) bradly.dyer everywhere</li>\n<li><strong>The HP's firmware: install with Secure Boot on, and switch it to UEFI if it is in Legacy mode today?</strong> Ubuntu's shim is signed, but neither has been tried on this HP; a boot-mode change can break the old Windows boot if you need to go back. (a) UEFI, Secure Boot on; test the stick boots before wiping <em>(recommended)</em>; (b) UEFI, Secure Boot off; (c) Leave the firmware exactly as it is</li>\n<li><strong>Before the 30-minute run, should the wizard check the basics and stop on a plain line?</strong> Internet and archive.ubuntu.com reachable, the clock within a minute, disk free, RAM against the app set, a wired link, no old domain on the disk. (a) Yes, a pre-flight before Go; each failure one line with the fix <em>(recommended)</em>; (b) No, let it fail where it fails</li>\n<li><strong>The HP's exact CPU, RAM, disks, firmware and TPM, and the DS216's DSM version: have you got any of those yet?</strong> HARDWARE.md's 16 GB line and the passphrase plan both depend on them; the docs say expected everywhere until a number exists. (typed answer)</li>\n</ol>\n<h2 id=\"kristinas-inbox-and-staff-mail\">Kristina's Inbox and staff mail</h2>\n<p>Forwarding to personal email, the Inbox app, and the newsletter.</p>\n<ol>\n<li><strong>A forwarded email has an attachment. What happens?</strong> Resend passes a file up to 25 MB along with the forward; bigger can only be pointed at. (a) Forward the file with the email; over 25 MB, a line saying it is waiting in Resend <em>(recommended)</em>; (b) Never forward files: a line saying what was attached and where to get it</li>\n<li><strong>Mail that Resend marks as spam: forward it anyway?</strong> A spam flood would reach every personal inbox under the church's name. (a) Don't forward it; list it in the forwarding log so it can be found <em>(recommended)</em>; (b) Forward it with [spam?] in the subject; (c) Forward everything</li>\n<li><strong>Mail to an address nobody has (office@, info@, pastor@arisecenla.com): where does it go?</strong> Today it is logged as no such person and dropped. People will guess these. (a) To Kristina's inbox <em>(recommended)</em>; (b) To you; (c) Nowhere, just the log</li>\n<li><strong>Department addresses, like media@arisecenla.com going to everyone in Media?</strong> Departments are groups already (round 4, 104); the forwarder only knows people. (a) Yes, every department group gets one <em>(recommended)</em>; (b) No, people only</li>\n<li><strong>The day forwarding is turned on, what about mail already sitting at Resend since Oct 31?</strong> The first poll would forward up to 100 old messages at once. (a) Only mail from that moment on <em>(recommended)</em>; (b) Everything from Oct 31 on, once</li>\n<li><strong>Someone's personal address bounces (a typo on the profile). Who hears, and what happens to the message?</strong> Today the forward is logged red and dropped; nobody is told. (a) You in #alerts and the person on their Mac; the message waits in the Mail app's Staff tab with a Send again button <em>(recommended)</em>; (b) Only you; (c) Nobody; it shows in the Staff tab</li>\n<li><strong>Who gets a church inbox on the dashboard besides Kristina?</strong> [inbox] users decides who reads on the dashboard and who is forwarded; each inbox counts against Resend's plan. (a) Just Kristina for now <em>(recommended)</em>; (b) Kristina and both pastors; (c) Everyone on staff</li>\n<li><strong>What name goes on email Kristina sends from her inbox?</strong> Round 7, 11 put titles everywhere; the from-name is set once when the inbox is made. (a) Minister Kristina Robinson <em>(recommended)</em>; (b) Kristina Robinson; (c) Arise Church</li>\n<li><strong>Make the Inbox a real mail client: opening marks read, Archive, Spam and Trash buttons, a search box, attachments you can click?</strong> Today threads stay bold for good and there is no search. (a) Yes, all of it <em>(recommended)</em>; (b) Read on open and search only; (c) Leave it as it is</li>\n<li><strong>New mail in her inbox: a notification?</strong> She may not sit at the dashboard. (a) A Mac notification and the notification centre <em>(recommended)</em>; (b) Only the notification centre; (c) Nothing; she checks</li>\n<li><strong>When a person with an inbox leaves, what happens to it?</strong> Round 5, 38 covers forwarding only; an inbox at Resend keeps its mail. (a) Export it to the folder of whoever takes their files, then delete it in Resend <em>(recommended)</em>; (b) Keep it in Resend; only the dashboard access stops</li>\n<li><strong>Which address should the church newsletter come from?</strong> The server sends from it@arisecenla.com; a newsletter from the IT address reads oddly. (a) news@arisecenla.com, reply-to the church Gmail <em>(recommended)</em>; (b) it@arisecenla.com, same as everything; (c) Your own first.last@arisecenla.com</li>\n<li><strong>Resend's free plan is 100 emails a day and 3,000 a month, and forwards, notices and newsletters all count. Stay free with a warning, or pay?</strong> Six staff with a busy inbox plus one newsletter to 600 people can pass 3,000 in a month. (a) Free; warn in Discord at 80 a day and 2,400 a month <em>(recommended)</em>; (b) Pay for Resend Pro now</li>\n</ol>\n<h2 id=\"the-ds216-backups-and-the-bad-day\">The DS216, backups and the bad day</h2>\n<p>Two bays, restic, Arise-Home, and the night the box does not come back.</p>\n<ol>\n<li><strong>The backup starts at 03:00 and Software Update at 03:30 Saturday; when the backup runs long the update is skipped for a week. Which?</strong> A decision about your Saturday morning, not a code choice. (a) Update waits for the backup, then runs, and tells you if it ran out of night <em>(recommended)</em>; (b) Move Software Update to Saturday 05:30; (c) Keep 03:30 and skip when the backup is still running</li>\n<li><strong>The nightly backup stops every app, Nextcloud included, for the whole upload. Keep that, or stop them only long enough to copy to the SSD, then upload from the copy?</strong> Minutes of sync downtime instead of hours; some SSD space for the staging copy. (a) Stop, copy to the SSD, restart, then upload <em>(recommended)</em>; (b) Back Nextcloud up live (database dump, files as they are); stop the others; (c) Keep stopping them for the whole upload</li>\n<li><strong>Today one good job (even just the song lyrics) counts as the backup ran. Watch every job on its own, and list every folder no job covers?</strong> The homes job can fail for weeks while the night still reads green; /srv/arise/shared, .quarantine and root's keys are in no job today. (a) Yes: one row per job, red after 26 hours, and a not-backed-up list under it <em>(recommended)</em>; (b) One line per night, as now</li>\n<li><strong>A failed backup job: Discord #alerts and your phone the same night, once per job?</strong> Round 4, 47 says failures buzz the phone; backups do not yet. (a) Yes: #alerts and a push, once per job per night <em>(recommended)</em>; (b) #alerts only; (c) The missed-night line is enough</li>\n<li><strong>Rebuilding from Arise-Home needs root's SSH key, which dies with the server's disk. Where does a copy live?</strong> Without it the off-site copy cannot be opened until you authorise a new key at your house. (a) On the private install disc, next to the Resend key <em>(recommended)</em>; (b) In Kristina's envelope with the passwords; (c) Nowhere: a rebuild from Arise-Home means a trip to your house</li>\n<li><strong>Today the server can delete snapshots on the Synology and on Arise-Home. Make Arise-Home append-only, with the pruning done at home?</strong> Ransomware or a wrong retention edit would otherwise take both copies in one night. (a) Yes, append-only at home; prune from Arise-Home's own timer <em>(recommended)</em>; (b) Leave it as it is</li>\n<li><strong>The first full backup to Arise-Home over your home internet may take days. How do we get there?</strong> restic saves nothing from a run that is cut off, so a job that cannot finish in one night never finishes. (a) Several nights, one job at a time, smallest first, until it catches up <em>(recommended)</em>; (b) Seed it once with a USB drive carried to your house; (c) Wait for the Synology; skip Arise-Home as the first target</li>\n<li><strong>One Restore place: pick a share or home, pick a night, restore a file or the whole share beside the live one; and the install disc restores homes, shares and apps too, with the plan printed first?</strong> The step with the most to lose is the one done by hand at 2 a.m. from REINSTALL.md. (a) Yes, both: the Restore wizard and the disc restoring every job <em>(recommended)</em>; (b) The Restore wizard only; the disc stays system-only; (c) Keep restores a command-line morning</li>\n<li><strong>The media job (Proclaim graphics on the Synology) fails red every night until the DS216 has drives. Show it grey as waiting for the Synology until it has mounted once?</strong> A red row every night for weeks teaches everyone to ignore red. (a) Grey waiting for the Synology until it has mounted once <em>(recommended)</em>; (b) Red, as now</li>\n<li><strong>What should the hourly upkeep add for the Synology, the UPS and the apps?</strong> Today upkeep watches a missed backup, a silent Mac, a disk and the CPU heat. (a) Free space at 80 %, a degraded mirror, a failed Hyper Backup, a UPS on battery, a crash-looping app: each to #alerts once <em>(recommended)</em>; (b) Free space at 90 % only; (c) Nothing; I watch Storage</li>\n<li><strong>After the UPS shuts the box down it comes back waiting for the passphrase and cannot say so. Should Arise-Home tell you when Pineville has been silent for 30 minutes?</strong> The box at the prompt looks exactly like a box that is off. (a) Yes: Arise-Home posts to #alerts and pushes after 30 minutes of silence <em>(recommended)</em>; (b) No; I'll notice</li>\n<li><strong>With the passphrase at boot the Saturday update never restarts the box by itself. Where is a restart is waiting shown until someone does it?</strong> A kernel update can wait weeks with nobody at the keyboard. (a) Needs You and #alerts once, then again every Saturday until done <em>(recommended)</em>; (b) Needs You only; (c) A text to Kristina on Saturday morning</li>\n<li><strong>The Synology has no drives yet, so a leaver's forever-copy (round 7, 60) has nowhere to go. Until the drives come?</strong> Today the sweep holds the move and posts a Discord line every day. (a) Copy to the server's own disk (/srv/arise/leavers) and move on; it goes to the Synology when it exists <em>(recommended)</em>; (b) Hold the files where they are; one Discord line when it starts, not daily; (c) Skip the copy until the Synology exists</li>\n</ol>\n<h2 id=\"the-church-macs-and-sync\">The church Macs and sync</h2>\n<p>Nextcloud on every church Mac, the helper, and the phones.</p>\n<ol>\n<li><strong>The older Mac set-up (enroll-mac.sh, the Desktop linked into the SMB mount, the 15-minute copy) still ships next to the helper's Nextcloud task. Retire it?</strong> The two fight over the same Desktop folder on a Mac that met both. (a) Retire it; keep the copy script only for the pastors' personal Macs (round 1, 34) <em>(recommended)</em>; (b) Keep both for a month, then retire; (c) Keep it as the fallback</li>\n<li><strong>When Convert has to wait because the person is signed in, should the Mac start their sync by itself once the conversion goes through?</strong> Today the sync task fails and waits for an admin to re-run it. (a) Yes, by itself <em>(recommended)</em>; (b) Tell me and I re-run it</li>\n<li><strong>Hidden files (names starting with a dot) in Desktop, Documents and Downloads: sync them or leave them on the Mac?</strong> App caches and settings files end up on phones and the server. (a) Leave them on the Mac <em>(recommended)</em>; (b) Sync them</li>\n<li><strong>Downloads syncs installers and disk images too; a 12 GB macOS installer would go to the server and the phone. A size limit in Downloads only?</strong> Round 6, 18 set no size limit for the shares; Downloads is new since round 7, 42. (a) Skip anything over 2 GB in Downloads <em>(recommended)</em>; (b) Skip .dmg and .pkg in Downloads; (c) No limit anywhere</li>\n<li><strong>Tell you in #alerts when a Mac has not synced for 3 days, when Nextcloud is stopped, or when the watcher is down?</strong> Nothing watches the sync pieces today; the Sync panel is the only place it shows. (a) Yes, once each, like a missed backup, and a sync row in arisectl doctor <em>(recommended)</em>; (b) Only the weekly report; (c) No</li>\n<li><strong>After a Cut off, the Mac keeps the dead account in its Nextcloud client until someone removes it by hand. Should the helper clear it and set the Mac up again when the person is cleared?</strong> SYNC.md makes it a manual step on the Mac. (a) Yes, the helper does it <em>(recommended)</em>; (b) Manual, as now</li>\n<li><strong>Earlier versions are kept only for changes made through Nextcloud; a save over SMB or in the dashboard keeps no version. Enough, with the nightly backup?</strong> Round 7, 46 said a year of versions; the code can only keep what Nextcloud sees. (a) Enough: the backup covers the rest <em>(recommended)</em>; (b) Snapshot the homes nightly on the server too (more disk)</li>\n<li><strong>The older copy of a conflict in a shared folder is filed under a sync user in that folder's Trash. File it under the person who last changed the file instead?</strong> Today only an admin can Put Back a share's conflict copy. (a) Under the person who last changed it <em>(recommended)</em>; (b) Under sync, admins only</li>\n<li><strong>When you rename someone (round 7, 13), should the helper sign the Macs into Nextcloud again under the new name and rename the Mac home folder on its next check-in?</strong> Otherwise the person sees an error until you act on each Mac. (a) The helper does it on its next check-in <em>(recommended)</em>; (b) By hand, as now</li>\n<li><strong>Phones: one profile that trusts the church certificate and adds Contacts, from the Sync panel, with the Nextcloud device password as a QR code, and Contacts on a device password too so Cut off covers it?</strong> The phone steps in SYNC.md are five taps a staffer will not find alone; today Contacts signs in with the domain password, which a lost phone keeps. (a) Yes: one profile, a QR, and a device password for Contacts <em>(recommended)</em>; (b) The profile and QR; Contacts keeps the domain password; (c) Keep the written steps</li>\n<li><strong>Shared with me on a Mac: today there are two doors, the shared SMB share and Nextcloud's sidebar. Keep which, and should it also be a folder inside Documents?</strong> Two copies of the same list confuse people; a Documents folder would copy everything shared to the Mac. (a) Nextcloud's sidebar only; the SMB share stays for Finder's Open on my Mac <em>(recommended)</em>; (b) Nextcloud sidebar plus a Shared with me folder in Documents; (c) Both doors, as now</li>\n<li><strong>Should the helper report each Mac's sync state (up to date, 14 files pending, error: name too long) at every check-in?</strong> You would see a stuck Mac before the person calls. (a) Yes, on the Macs page and the Sync panel <em>(recommended)</em>; (b) No, the 3-day silence line is enough</li>\n</ol>\n<h2 id=\"people-files-and-sharing\">People, files and sharing</h2>\n<p>Accounts coming and going, and what a folder lets through.</p>\n<ol>\n<li><strong>You delete an account. What they shared, the links they made, their profile details?</strong> Delete only removes the domain account today; their birthday still shows on the calendar. (a) All of it goes with the account <em>(recommended)</em>; (b) What they shared stays until you stop it; the rest goes; (c) Ask me each time</li>\n<li><strong>Department accounts (media, inedge, childrens.department) are shared logins with no personal email. The 90-day unused line and the new-device email: skip them?</strong> A shared login signs in from many devices and may sit idle; rules written for people fit them badly. (a) Skip department accounts for both <em>(recommended)</em>; (b) The Discord line only, never an email; (c) Treat them like anyone</li>\n<li><strong>Staff hand in their photo for the login faces how? They don't use the dashboard.</strong> Round 7, 20 says they choose their own; the code only has an admin's upload button. (a) They email it to it@arisecenla.com; it shows in the Inbox app and you add it with one click <em>(recommended)</em>; (b) A Photo folder in their home the server picks up overnight; (c) You take one on install week</li>\n<li><strong>Any other profile fields worth keeping? Start date, emergency contact, shirt size, anniversary.</strong> Adding later means another round of edits to the sheet, the import CSV and the Contacts feed. (typed answer)</li>\n<li><strong>Someone joins a group after a folder was shared with that group. Do they get it too?</strong> Today a group share is frozen to the members on the day it was made. (a) Yes, by themselves; and someone who leaves the group loses it <em>(recommended)</em>; (b) Only the people in the group that day</li>\n<li><strong>Can staff share a file from a department folder (Media, Worship) with someone outside that department?</strong> Today anyone but an admin can share only from their own home folder. (a) Yes, from any department folder they can write to <em>(recommended)</em>; (b) Only from their own files, as now; (c) Admins only</li>\n<li><strong>A file deleted on a Mac goes into Nextcloud's own trash, not the share's .Trash that Finder's Put Back and the 30-day sweep know. One Trash or two?</strong> Today the Trash app cannot see a Mac delete. (a) One: Nextcloud's deletes land in the same .Trash/&lt;user&gt;, so Put Back covers both <em>(recommended)</em>; (b) Two, each with its own Put Back, labelled; (c) Nextcloud's trash off; a Mac delete is gone from the server at once (versions stay)</li>\n<li><strong>A share's Trash can swallow the disk (a 6 GB recording deleted twice). Besides the 30 days, sweep by size too?</strong> The sweep is by age only; Storage shows the size but nothing acts on it. (a) Also sweep when a share's Trash passes 50 GB, oldest first, with a Discord line <em>(recommended)</em>; (b) 30 days only; tell me at 50 GB; (c) Nothing</li>\n<li><strong>Earlier versions for a year (round 7, 46): the backup keeps every night for 30 days, one a week for 12 weeks, then one a month. Is that cadence the year, or every night for a year?</strong> Nightly for a year costs the Synology about 12 times the space for files that change. (a) Nightly for 30 days, weekly for 12 weeks, monthly after, as the backup keeps <em>(recommended)</em>; (b) Every night for a year</li>\n<li><strong>A new department today means editing arise.toml twice, a share, a Nextcloud mount, a group and a checklist, in that order. One verb and one card in Directory that does all of it from a name, plan shown first?</strong> (a) Yes: arisectl department add, and a card in Directory <em>(recommended)</em>; (b) Keep the steps; I'll follow the doc</li>\n<li><strong>A Storage tab with the 50 biggest files, exact duplicates across homes and shares, and a find-a-file box (name, date, which Mac it came from, whether it sits in a Trash)?</strong> The quota is a warning line (round 7, 45); this is how you answer what is eating it, and where did my bulletin go. (a) Yes, all three, with Move to Trash asking for the name <em>(recommended)</em>; (b) Biggest files and duplicates only; (c) No</li>\n</ol>\n<h2 id=\"songs-sermons-and-the-automator\">Songs, sermons and the automator</h2>\n<p>The Songs tab, the CCLI report, transcripts, and Sunday afternoon.</p>\n<ol>\n<li><strong>When you export a song's lyrics from Proclaim, what do you actually get?</strong> The inbox reads .txt, .usr and ChordPro today; AUTOMATOR.md says Proclaim cannot export at all. One sample file settles it. (a) Drop one exported file in the inbox and I'll match its shape <em>(recommended)</em>; (b) One .txt per song (works today); (c) A Proclaim backup .zip; (d) I copy and paste from Proclaim's editor; no export</li>\n<li><strong>Who is the worship leader for the Lyrics inbox? The username, first.last.</strong> [songs] inbox_users is empty, so only you see the Nextcloud folder until a name goes in. (typed answer)</li>\n<li><strong>The inbox gets a song that song_bank.json doesn't have. How should you hear about it?</strong> Today it is kept as an unlinked entry; the song then appears in the CCLI report without a number. (a) A line in the morning note and Discord #daily, beside the 02:05 report's summary line <em>(recommended)</em>; (b) A push to my phone the same hour; (c) Only in the Songs tab, as now</li>\n<li><strong>Which reporting window does the church's CCLI licence use?</strong> Quarterly files are written now; CCLI asks for a specific period at renewal. (a) Quarterly is fine; add a since-last-report button <em>(recommended)</em>; (b) Tell me the window (in the note) and build it to that; (c) Yearly, one file in January</li>\n<li><strong>Should the server keep its own set list per service (seeded from the live description's CCLI lines and the PC's setlist file, ticked by you, a reported flag per song) feeding the CCLI report?</strong> Round 4, 75 asked for songs confirmed by you per service; nothing on the server stores that yet. (a) Yes: a set list per service on the server, ticked, feeds the report; the PC's files seed it <em>(recommended)</em>; (b) No: the PC's setlist files are the record</li>\n<li><strong>Send me the six playlist links from YouTube Studio: Apostle Bryant, Pastor Vanessa, Glory Nights, Conferences, Guest Ministers, Praise Team.</strong> Five of the six ids in the Sermons page are placeholders that open a playlist does not exist page. (typed answer)</li>\n<li><strong>Who gets to search the sermon transcripts from their own account?</strong> Round 2, 15 and round 4, 99 gave transcripts to staff; round 7, 101 kept the pastors' search at the closet; the app is admin-only today. (a) Staff and Media, read-only under Sermons, printable, no sung words <em>(recommended)</em>; (b) Admins only, as it is today; (c) Everyone with a church account</li>\n<li><strong>With the EliteDesk's 4th-gen i5 as the server, should Whisper still run overnight for services with no StreamYard caption file?</strong> Round 4, 100 decided Whisper; nothing is built yet. On this CPU the small model takes about an hour per service, which fits after the 03:00 backup. (a) Yes: one service a night, only where no VTT exists, after the backup <em>(recommended)</em>; (b) No: StreamYard and YouTube captions only; (c) Later, when a lighter model fits</li>\n<li><strong>A Sunday pack: one button on a video's card gathers the clean description for StreamYard, the set list with numbers from the bank, the Shorts that link to it, the thumbnails made for that date and the chapters, Copy on each block?</strong> Everything is on the card in pieces; this is the order you work in on Sunday afternoon. (a) Yes, build it <em>(recommended)</em>; (b) No, the pieces are enough</li>\n</ol>\n<h2 id=\"calendar-discord-and-the-repos\">Calendar, Discord and the repos</h2>\n<p>Small decisions the timers and the feeds need.</p>\n<ol>\n<li><strong>How long do the two services really run, for the calendar and the feed?</strong> Every service is drawn as two hours; the no-updates-during-a-service hold uses it too. (a) Sunday 10:30 to 12:30, Glory Night 19:00 to 21:00 (as now) <em>(recommended)</em>; (b) Sunday runs longer (say how long in the note); (c) Glory Night runs longer (say how long)</li>\n<li><strong>Which address should the Subscribe button hand phones and Macs for the calendar feed?</strong> It uses whatever name the browser typed; the certificate is for arise-server.ad.arisecenla.com and the short name only works inside the building. (a) The full name with the church certificate, over https <em>(recommended)</em>; (b) The short name arise-server; (c) Both, with a note on which to use where</li>\n<li><strong>In runner.json on the PC, is this server's budget keyed exactly ariseOS?</strong> If the PC's file spells it differently the cap reads as none and the switch row shows the wrong budget. (a) Yes, ariseOS <em>(recommended)</em>; (b) Another spelling (type it in the note)</li>\n<li><strong>Claude's one weekly plan-only preview (round 7, 157): make it a timer, Wednesday 02:30, posted to #daily? And the Preview tonight tile in Control Center?</strong> A fixed night keeps it off Sundays and Mondays; the one-tap tile is the only place the quota rules are not enforced. (a) Timer on Wednesday 02:30 to #daily; the tile stays behind a confirm with the quota note, refused Sun/Mon <em>(recommended)</em>; (b) Timer on Wednesday; the tile goes, the preview lives in the Automator app only; (c) No timer: Claude asks me each time; the tile behind a confirm</li>\n<li><strong>The morning note to #daily: every day, or only when something needs you?</strong> The config default is only when something needs you; round 4, 101 approved #daily but not how often. (a) Every day at 7:00, one line when all is well <em>(recommended)</em>; (b) Only when something needs you</li>\n<li><strong>Should the Monday report include the mail numbers?</strong> It covers backups, storage, Macs, sign-ins, updates and the channel; nothing about mail. (a) Yes: forwards, failures, newsletters sent, Resend's monthly count <em>(recommended)</em>; (b) No</li>\n<li><strong>Should the server push Church-server-OS- only on branches, never main, the way the automator repo is held back?</strong> Its main is what Software Update installs on this box; today a commit on main here is pushed within 15 minutes. (a) Branches only; main is pushed by you <em>(recommended)</em>; (b) Keep two-way on main, as now; (c) Pull only from the server</li>\n<li><strong>A repo with commits both here and on GitHub: how often should the server nag?</strong> It stops that repo and pushes a phone notice every six hours until you settle it by hand. (a) Once, then a line in the Monday report <em>(recommended)</em>; (b) Every six hours, as now; (c) Only in the Monday report</li>\n</ol>\n<h2 id=\"new-things-to-build\">New things to build</h2>\n<p>You said add any features you want. These are the ones worth your yes or no.</p>\n<ol>\n<li><strong>A Why? on every red item: a drawer with the doctor's sentence, the last log lines, the matching audit entries, and the one allowed fix button (restart, re-run, clear)?</strong> The rule-10 fixes become one click with the evidence beside them. (a) Yes, build it <em>(recommended)</em>; (b) Ask Claude about this is enough (round 4, 46)</li>\n<li><strong>A Notification Center that keeps every toast with its time and a Copy button, and dock badges: Overview's icon with the needs-you count, Inbox with unread, Updates with pending?</strong> Messages vanish after seconds; the Dock becomes the status board without opening anything. (a) Yes, both <em>(recommended)</em>; (b) The Notification Center only; (c) Badges only; (d) Neither</li>\n<li><strong>A lobby board at /board for any TV: next service countdown, stream state, the week, the verse, one line of health, no login, refreshed every minute?</strong> Proclaim does the lobby signage today; this is the backup sign and the second campus's screen. (a) Yes, build it <em>(recommended)</em>; (b) No, Proclaim does the lobby</li>\n<li><strong>Spotlight actions: typing restart web, back up now, lock, empty trash lists the action with the confirm it needs?</strong> The admin never hunts for the tile. (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>An app shell that opens offline: the phone app paints in under a second over Tailscale and shows the last known Needs-you list greyed until the server answers?</strong> sw.js caches app.js, styles, fonts and icons, never data. (a) Yes <em>(recommended)</em>; (b) No, a plain page is fine</li>\n<li><strong>Should arisectl doctor grow the sign-in and monitor checks: the secret file, Caddy proxying 4147, the certificate's expiry, clock drift (two-step breaks at 90 seconds), the kiosk socket, which Firefox profile is in, kiosk restarts in the last hour?</strong> Each one has already been the cause of a silent failure in the sweep. (a) Yes, all of them <em>(recommended)</em>; (b) Sign-in only; (c) No</li>\n<li><strong>A Walk away button in the monitor's menu bar: lock, put the Firefox profile away, close Claude Desktop, darken the panel now, with an audit row?</strong> The thing you want when leaving the closet at 21:30 on a Monday. (a) Yes <em>(recommended)</em>; (b) No, the lock chord is enough</li>\n<li><strong>Send to the closet screen: from a phone or Mac, Show on the monitor on a sermon, a checklist, a run sheet or a site?</strong> Handy from the booth during a service. (a) Yes <em>(recommended)</em>; (b) No</li>\n</ol>\n<h2 id=\"the-pr-the-preview-and-the-tests\">The PR, the preview and the tests</h2>\n<p>What ships, what the published preview shows, and what must stay green.</p>\n<ol>\n<li><strong>The published preview: keep what you do between visits, or start fresh every time?</strong> Today it keeps your changes in the browser forever, even across republishes, which is how it ends up showing old sample data. (a) Start fresh on every republish, keep changes within one visit <em>(recommended)</em>; (b) Always start fresh; (c) Keep forever, with a Reset button only</li>\n<li><strong>Should the preview's dates move with the calendar, so last backup 03:00 is always last night, and the badge show the sample's age?</strong> The sample set is frozen at the day it was generated. (a) Yes: shift every date to today on load; the badge says sample from Nov 1 with a start over button <em>(recommended)</em>; (b) No, regenerate it when it matters</li>\n<li><strong>Members in the preview see exactly what members see on the box, even where that means for the administrator?</strong> The Claude Desktop tile is more open in the preview than on the server. (a) Yes, identical refusals <em>(recommended)</em>; (b) Let the preview be a little more generous so I can see every screen</li>\n<li><strong>Keep the 000000 spare two-step code in the preview?</strong> It lets anyone past the preview's two-step; the real server has no such code. (a) Keep it, labelled preview only on the lock screen <em>(recommended)</em>; (b) Drop it; use Microsoft Authenticator with the sample key; (c) Keep it, unlabelled</li>\n<li><strong>Who should the preview be signed in as when it opens, and which mail domain should it show?</strong> The sample shows first.last@ad.arisecenla.com; H10 is first.last@arisecenla.com. Kristina's Inbox only shows if the viewer is Kristina. (a) You (bradly), with a one-click switch to Kristina and a member; addresses at arisecenla.com <em>(recommended)</em>; (b) Kristina, so her Inbox shows first; (c) A neutral demo admin</li>\n<li><strong>How much of the docs should ride inside the preview?</strong> The Help app's sample carries every doc (ANSWERS alone is 113 KB), a third of the sample file. (a) Only the docs a member would read: Portal guide, Help, What's new <em>(recommended)</em>; (b) All of them; (c) None; Help says open on the server</li>\n<li><strong>Should the preview carry a few failures on purpose (a missed backup night, a Mac silent three days, disk at 92 %) so you can see the red states?</strong> The sample set is all green; the Needs attention panels never show in the artifact. (a) Yes, behind a show problems switch on the Preview badge <em>(recommended)</em>; (b) Yes, always; (c) No, all green</li>\n<li><strong>Serve the demo scripts only in demo mode?</strong> The kiosk and phones download 1.3 MB of demo-data.js and demo-mock.js they never read. (a) Yes: only with ARISE_DEMO=1 or on the artifact, and gzip the rest <em>(recommended)</em>; (b) Leave it</li>\n<li><strong>What should this PR carry?</strong> You said update the artifacts; the PR is where they are linked. (a) One PR: the overhaul, a before-and-after screenshot set, the preview link, the Round 8 page, and the answers folded into ANSWERS.md <em>(recommended)</em>; (b) Two PRs: the look first, the rest after; (c) Squash it all, screenshots in the PR body only</li>\n<li><strong>Which artifacts should be republished?</strong> Three exist: the preview, the questions page, the screenshot sheet. (a) All three at the same links, plus a one-page what changed for Kristina <em>(recommended)</em>; (b) The preview and the questions page; (c) The preview only</li>\n<li><strong>This overhaul ships as?</strong> README, the VERSION and CHANGELOG must say the same thing and the test checks them. (a) v0.8.1 Exodus, part two <em>(recommended)</em>; (b) v0.9.0 Leviticus; (c) Stay 0.8.0 until it has booted on the HP</li>\n<li><strong>Should the browser sweep run on the box itself after each Software Update, with the result in Discord #weekly and a rollback to the snapshot if the dashboard does not answer?</strong> It only runs when someone starts it by hand; an update that broke the desktop would not be noticed until Sunday. (a) Yes, Saturday after the update, result to #weekly, rollback if /api/health is dead <em>(recommended)</em>; (b) Only when I ask; (c) No</li>\n<li><strong>When the sweep finds a failure, who hears?</strong> Right now it writes a table to /tmp and exits 1; nobody reads that unless they ran it. (a) Discord #alerts, one line per failure with the screenshot <em>(recommended)</em>; (b) The Monday report only; (c) Just the log</li>\n<li><strong>Should python3 -m unittest refuse to pass when node is missing or app.js has a syntax error?</strong> The 645 tests never load the desktop's JavaScript; a typo in app.js ships green. (a) Yes: a syntax check of web/*.js is one of the tests <em>(recommended)</em>; (b) No, keep the browser side separate</li>\n<li><strong>A route added without a preview sample: fail the tests or just warn?</strong> Today it is a warning nobody sees; the preview then answers not in the preview for that button. (a) Fail until the sample is added <em>(recommended)</em>; (b) Warn, as now</li>\n<li><strong>A contract test between the mock and the server: every GET and the common POST flows on both, failing on a key one has and the other lacks?</strong> Today 48 routes differ only in demo and preview markers, but nothing would catch a real drift. (a) Yes <em>(recommended)</em>; (b) No</li>\n<li><strong>Should the API sweep run against the real box after install day, read-only, as part of arisectl doctor?</strong> The tests run against the sample server; nothing checks the live one answers every route as the dashboard calls it. (a) Yes, GETs only, as the administrator, once a day <em>(recommended)</em>; (b) Only when I run arisectl doctor --deep; (c) No</li>\n<li><strong>What should an error say when a form is missing a field?</strong> The server answers HTTP 422; the preview answers in words. (a) A sentence naming the field: channel is required <em>(recommended)</em>; (b) Keep the technical answer</li>\n</ol>\n<h2 id=\"docs-and-what-the-readers-flagged\">Docs and what the readers flagged</h2>\n<p>Places where a doc, the code and ANSWERS.md do not say the same thing.</p>\n<ol>\n<li><strong>ARCHITECTURE.md carries a full copy of arise.toml and a timer list, and both have drifted. One source of truth?</strong> Two copies of a config always drift; the test already pins CLAUDE.md's timer table. (a) Yes: ARCHITECTURE links to arise.toml.example and CLAUDE.md's timer table; a test fails if it ever lists a key or timer again <em>(recommended)</em>; (b) Keep the copy and add a test that diffs it against the example; (c) Leave it; I read the example file anyway</li>\n<li><strong>About, What's new shows the top of CHANGELOG.md, which still says TPM-unlocked disk and every template preinstalled. How do we correct it?</strong> Round 3, 34 made this the ten lines you read after an update; H3 and H4 changed both facts. (a) Add a new dated section on top: core five installed, passphrase at boot on the HP, the rest unchanged <em>(recommended)</em>; (b) Edit the v0.8.0 lines in place; (c) Leave the history as written</li>\n<li>*<em>The Help app renders every docs/<em>.md for admins, including the question rounds, IDEAS, PARITY, ROADMAP, the ChatGPT review and the automator letters. Move the planning files out of Help?</em></em> Help is where Kristina looks on a bad Sunday. (a) Move them to docs/history/ (kept in git, still searchable by Claude); Help shows only the living docs <em>(recommended)</em>; (b) Keep them in Help under a Planning heading at the bottom; (c) Leave Help as it is</li>\n<li><strong>docs/CLI.md misses a dozen verbs, templates/README.md's port table is missing Immich, and ARCHITECTURE's route list is by hand. Generate the three tables from the code, with a test that fails when they differ?</strong> The verbs you need on install day are the ones added last and documented least. (a) Yes, all three generated; the prose stays hand-written <em>(recommended)</em>; (b) Add the missing lines by hand and stop there; (c) Drop the tables; point at --help and the Store</li>\n<li><strong>NODES.md still plans the Dell OptiPlex as a full ariseOS node. H6 made it the spare. What is the OptiPlex now?</strong> The two-node work needs a second box; the docs cannot decide which one. (a) It becomes Arise-Home at your house: the replica, the off-site target, Claude Desktop <em>(recommended)</em>; (b) It stays in the closet as a cold spare with the install USB taped to it; (c) Something else; I'll say</li>\n<li><strong>SECURITY.md still carries the Postfix/Dovecot mail server design. The built thing is Resend forwarding plus the Inbox. Retire the design?</strong> The Postfix one opens a port on the LAN and keeps mail on the box, which H10 and H11 avoid. (a) Retire it: a paragraph says forwarding and Inbox are what exists and why; the Postfix text goes to docs/history <em>(recommended)</em>; (b) Keep it as the fallback if Resend's receiving goes away; (c) Keep it as written</li>\n<li><strong>Round 7, 47 made outside links admin-only and 7 days, but FINDER.md, DASHBOARD.md and the members' Portal guide still say never expires and right-click any file. Docs follow round 7, and what are members told?</strong> The members' Help page describes a button the server refuses them. (a) Yes; the Portal guide says ask Bradly or Kristina for an outside link; it ends after 7 days <em>(recommended)</em>; (b) Yes; and members may make 1-day links to the church family list only; (c) Reopen it: members may make 7-day links</li>\n<li><strong>INSTALL.md used to have a What is running table (address, port, first login) and three docs still point at it. Where should it live now?</strong> On install day you need every address and first login on one page; today none exists. (a) Generated from the templates: arisectl info --card prints it, and INSTALL.md's After the desktop appears carries the same <em>(recommended)</em>; (b) In SETUP-GUIDE.md day 1; (c) On the closet card only</li>\n<li><strong>tests/test_docs_truth.py pins verbs and timers. Add the cheap checks it is missing: template ports against the README table, config keys in docs against arise.toml.example, OptiPlex never in a sentence about arise-server, every route in ARCHITECTURE exists, and the phrases the H rows retired (TPM unlocks, four-bay, every template preinstalled, @ad.arisecenla.com) never in a living doc?</strong> Every issue above was findable by a 20-line test; without one the next round drifts again. (a) Yes, all of them <em>(recommended)</em>; (b) Ports and config keys only; (c) No more doc tests</li>\n</ol>",
 "demo": true
 },
 "GET /help/REINSTALL": {

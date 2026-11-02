@@ -668,8 +668,14 @@ def _place_links(g: dict) -> None:
             os.makedirs(d, exist_ok=True)
             os.chmod(d, 0o755)
             link = os.path.join(d, g["link"])
+            # Relative, so the link resolves on the host AND inside the Nextcloud container, where
+            # the roots are mounted as /homes, /shares, /shared, /pastors (scout I-009, Nov 2):
+            # /srv/arise/shared/<u>/<link> -> ../../homes/<owner>/... works from both sides.
+            target = os.path.relpath(g["abs"], d)
+            if os.path.islink(link) and os.readlink(link) == g["abs"]:
+                os.unlink(link)   # an older absolute link, re-placed as relative
             if not os.path.lexists(link):
-                os.symlink(g["abs"], link)
+                os.symlink(target, link)
         except OSError:
             pass
 

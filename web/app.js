@@ -2527,6 +2527,9 @@ function every(fn, ms) { const id = setInterval(fn, ms); (S.timers = S.timers ||
 function stopDesktop() { for (const id of S.timers || []) clearInterval(id); S.timers = []; ['demoTimer', 'actT', 'clockT', 'saverT', 'saverA'].forEach(k => { clearInterval(S[k]); S[k] = null; }); if (S.sse) { S.sse.close(); S.sse = null; } }
 function showLogin(err) {
   stopDesktop();
+  // The kiosk keeps watching for a service while signed out (scout I-026): the ON AIR board
+  // belongs on the closet monitor whoever is or isn't signed in. One nameless poll a minute.
+  if (S.kiosk && !S.loginSvcT) S.loginSvcT = setInterval(async () => { try { S.svcNow = await api('/public/service'); } catch {} }, 60000);
   const remembered = '';   // round 5, 31: nobody is preselected; nothing shows who used it last
   try { localStorage.removeItem('arise.user'); } catch {}
   const codeStep = !!(err && err.code);
@@ -2626,7 +2629,17 @@ function kioskSetup() {
   let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); if (!$('#saver').hidden) saver(false); };
   ['pointermove', 'keydown', 'pointerdown', 'wheel'].forEach(ev => document.addEventListener(ev, reset, { passive: true }));
   // 5 minutes idle: the screensaver (clock, next service, the verse, the channel's art); 10: the lock on top of it.
-  every(() => { idle += 5; if (idle >= 5) document.body.classList.add('idle'); if (idle >= 300 && $('#lock').hidden) saver(true); if (idle >= 600 && $('#lock').hidden) lockScreen(true); }, 5000);
+  // Idle counts only while this tab is the one in front: another tab (StreamYard, YouTube
+  // Studio) or Claude Desktop on top means the person is working, not away (scout I-025). During a
+  // service neither the screensaver nor the lock ever fires (scout I-026): the service board stays.
+  every(() => {
+    if (document.hidden || !document.hasFocus() || S.claudeDesktop) { idle = 0; return; }
+    const inService = !!(S.svcNow && S.svcNow.in_service);
+    idle += 5; if (idle >= 5) document.body.classList.add('idle');
+    if (inService) return;
+    if (idle >= 300 && $('#lock').hidden) saver(true);
+    if (idle >= 600 && $('#lock').hidden) lockScreen(true);
+  }, 5000);
 }
 async function boot() {
   if (window.ARISE_FORCE_DEMO) setDemoOnly();
@@ -3503,7 +3516,8 @@ APPS.push({ id: 'servicemode', n: '34', name: 'Service mode', what: 'During a se
 async function serviceWatch() {
   if (isMember() || S.svcWatch) return; S.svcWatch = true;
   const look = async () => {
-    let v; try { v = await api('/service/now'); } catch { return; }
+    // Signed out on the kiosk, the nameless public copy keeps the service board right (scout I-026).
+    let v; try { v = await api(S.authed ? '/service/now' : '/public/service'); } catch { return; }
     S.svcNow = v;
     const key = v.in_service ? `${v.service.name}|${v.service.started}` : '';
     if (v.in_service && S.kiosk && S.svcOpened !== key) { S.svcOpened = key; openApp('servicemode'); const w = S.wins.servicemode; if (w && typeof snapTo === 'function') try { snapTo('servicemode', 'max'); } catch {} }
