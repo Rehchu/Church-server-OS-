@@ -249,8 +249,15 @@ function paintLive(s) {
   const m = $('#lvCpuMeter i'); if (m) m.style.width = s.cpu + '%';
   const r = $('#lvRamMeter i'); if (r) r.style.width = s.ram.pct + '%';
   const cores = $('#lvCores'); if (cores && s.cores) { if (cores.children.length !== s.cores.length) cores.innerHTML = s.cores.map(() => '<i></i>').join(''); s.cores.forEach((c, i) => cores.children[i].style.height = Math.max(2, c) + '%'); }
-  spark('spCpu', S.hist.map(x => x.cpu), '#D6222D'); spark('spRam', S.hist.map(x => x.ram), '#E0A32E'); spark('spNet', S.hist.map(x => (x.net?.rx || 0) + (x.net?.tx || 0)), '#5CA8E0');
-  const dk = $('#lvDisks'); if (dk && s.disks && (!dk.dataset.t || Date.now() - +dk.dataset.t > 10000)) { dk.dataset.t = Date.now(); dk.innerHTML = s.disks.map(d => `<div class="stat" style="margin-bottom:12px"><div class="row row--between"><span class="mono" style="font-size:13px">${esc(d.mount)} <span style="color:var(--muted)">${esc(d.fs)}</span></span><span style="font-size:12.5px;color:var(--text2)">${fmtB(d.used)} of ${fmtB(d.total)}</span></div><div class="meter ${d.pct > 90 ? '' : d.pct > 75 ? 'meter--warn' : 'meter--ok'}"><i style="width:${d.pct}%"></i></div></div>`).join(''); }
+  spark('spCpu', S.hist.map(x => x.cpu), '#FF453A'); spark('spRam', S.hist.map(x => x.ram), '#FF9F0A'); spark('spNet', S.hist.map(x => (x.net?.rx || 0) + (x.net?.tx || 0)), '#0A84FF');
+  // Disks: a ring per mount, every 10 s (Leviticus); the id stays lvDisks.
+  const dk = $('#lvDisks'); if (dk && s.disks && (!dk.dataset.t || Date.now() - +dk.dataset.t > 10000)) {
+    dk.dataset.t = Date.now();
+    dk.innerHTML = s.disks.map(d => { const p = Math.max(0, Math.min(100, +d.pct || 0)), tone = p > 90 ? 'bad' : p > 75 ? 'warn' : 'ok', C = 2 * Math.PI * 22;
+      return `<div class="ovd ovd--${tone}"><svg class="ovd__ring" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="22" class="ovd__trk"/><circle cx="28" cy="28" r="22" class="ovd__val" stroke-dasharray="${(C * p / 100).toFixed(1)} ${C.toFixed(1)}"/></svg><b class="ovd__pct">${p.toFixed(0)}<small>%</small></b>
+        <div class="ovd__t"><span class="ovd__m mono">${esc(d.mount)}</span><span class="ovd__fs">${esc(d.fs)}</span><span class="ovd__u">${fmtB(d.used)} of ${fmtB(d.total)}</span><span class="ovd__f">${fmtB(d.free)} free</span></div></div>`; }).join('');
+    const led = $('#ovLed-disks'); if (led) { const st = ledStates(S.ovData || {}).find(x => x.id === 'disks'); if (st) { led.className = 'ovl ovl--' + st.state; const n = $('.ovl__n', led); if (n) n.textContent = st.note; } }
+  }
 }
 function paintWidgetLive(s) {
   const c = $('#wgCpu'); if (!c) return;
@@ -263,39 +270,186 @@ function paintWidgetLive(s) {
 const V = {};
 
 V.overview = async () => {
-  const o = await api('/overview');
+  // overview.css sits beside styles.css; index.html links it, and this covers a page that does not.
+  if (!document.querySelector('link[href*="overview.css"]')) { const st = document.querySelector('link[href*="styles.css"]'); if (st) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = st.getAttribute('href').replace('styles.css', 'overview.css'); st.after(l); } }
+  const [o, au] = await Promise.all([api('/overview'), api('/automations').catch(() => null)]);
   if (o.demo) { S.demo = true; $('#demoBadge').hidden = false; if (!S.demoOnly) $('#demoBadge').textContent = 'Sample data'; }
-  const a = o.automator || {}, b = o.backup || {}, n = o.nas || {}, c = o.counts || {};
-  const att = (o.attention || []);
-  return `
-  <div class="grid fade">
-    <div class="c12 panel ${att.some(x => x.level === 'bad') ? 'panel--bad' : att.length ? 'panel--warn' : 'panel--ok'}">
-      <div class="panel__hd"><h3>${att.length ? 'Needs you' : 'All clear'}</h3><span class="sub">${esc(o.hostname)} · ${esc(o.realm || 'no domain')} · profile ${esc(o.profile)}</span></div>
-      ${att.length ? `<div class="att">${att.map(x => `<div class="att__i ${x.level}">${esc(x.text)}</div>`).join('')}</div>` : `<div class="att"><div class="att__i ok">Every service is up, the last automator run was clean, the last backups succeeded and the Synology is mounted.</div></div>`}
+  const a = o.automator || {}, b = o.backup || {}, n = o.nas || {}, c = o.counts || {}, mc = o.machine || {};
+  const att = (o.attention || []); S.ovData = o; S.ovAtt = att;
+  const ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${V.overview.ICONS[k] || ''}</svg>`;
+  const worst = att.some(x => x.level === 'bad') ? 'bad' : att.length ? 'warn' : 'ok';
+  // Tonight: the 02:00-07:00 timers from /automations, coloured by their last result.
+  const hourOf = iso => { const d = new Date(iso); return isNaN(d) ? null : d.getHours() + d.getMinutes() / 60; };
+  const now = new Date(), nowH = now.getHours() + now.getMinutes() / 60;
+  const night = ((au && au.timers) || []).map(t => ({ t, h: hourOf(t.next || t.last) })).filter(({ t, h }) => {
+    if (h == null || h < 2 || h > 7) return false;
+    const w = String(t.what || '');
+    if (/^(hourly|every)/i.test(w)) return false;
+    if (/^(weekly|monthly|first|sun|mon|tue|wed|thu|fri|sat|\d+ jan)/i.test(w)) { const dt = new Date(t.next) - now; return dt > -3600e3 && dt < 30 * 3600e3; }
+    return true;
+  }).sort((x, y) => x.h - y.h).map(({ t, h }, i) => ({ t, h, i, st: t.running ? 'run' : !t.enabled ? 'off' : t.last_ok === true ? 'ok' : t.last_ok === false ? 'bad' : 'unk' }));
+  const hh = h => `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.round(h % 1 * 60)).padStart(2, '0')}`;
+  const stWord = { ok: 'ran clean', bad: 'failed', run: 'running now', off: 'turned off', unk: 'no result yet' };
+  const pos = h => ((h - 2) / 5 * 100).toFixed(2);
+  const fill = nowH >= 7 ? 100 : nowH < 2 ? 0 : +pos(nowH);
+  const rail = `<div class="ovt__rail" role="list" aria-label="Tonight's timers">
+      <div class="ovt__trk"><i style="width:${fill}%"></i></div>
+      ${[2, 3, 4, 5, 6, 7].map(h => `<span class="ovt__tick${h === 2 ? ' ovt__tick--l' : h === 7 ? ' ovt__tick--r' : ''}" style="left:${pos(h)}%"><b>${String(h).padStart(2, '0')}:00</b></span>`).join('')}
+      ${nowH >= 2 && nowH < 7 ? `<span class="ovt__now" style="left:${pos(nowH)}%" title="now"><b>now</b></span>` : ''}
+      ${night.map(x => `<span class="ovt__m ovt__m--${x.st} ovt__m--${x.i % 2 ? 'dn' : 'up'}${x.h < 2.6 ? ' ovt__m--l' : x.h > 6.4 ? ' ovt__m--r' : ''}" style="left:${pos(x.h)}%" role="listitem" title="${esc(x.t.name)} · ${hh(x.h)} · ${stWord[x.st]}"><i></i><span class="ovt__lbl"><b>${hh(x.h)}</b><span>${esc(x.t.name)}</span></span></span>`).join('')}
     </div>
+    <ol class="ovt__list">${night.map(x => `<li class="ovt__li ovt__li--${x.st}"><i></i><b>${hh(x.h)}</b><span>${esc(x.t.name)}</span><em>${stWord[x.st]}</em></li>`).join('')}</ol>`;
+  const lights = ledStates(o).map(l => `<button type="button" class="ovl ovl--${l.state}" id="ovLed-${l.id}" data-open="${l.open}" title="${esc(l.label)}: ${esc(l.note)}"><i class="ovl__d"></i><span class="ovl__l">${esc(l.label)}</span><span class="ovl__n">${esc(l.note)}</span></button>`).join('');
+  const tile = (k, tone) => `<span class="ovs__ic ovs__ic--${tone}">${ico(k)}</span>`;
+  return `
+  <div class="ov fade">
+    <section class="ov-leds" id="ovLeds" aria-label="Status lights">${lights}</section>
 
-    <div class="c3 panel"><div class="stat"><span class="stat__l">CPU</span><span class="stat__v"><span id="lvCpu">–</span><small>%</small></span></div><div class="cores" id="lvCores"></div><div class="meter" id="lvCpuMeter"><i></i></div><svg class="spark" id="spCpu"></svg><div class="stat__n">load <span id="lvLoad">—</span> · <span id="lvTemp">—</span></div></div>
-    <div class="c3 panel"><div class="stat"><span class="stat__l">Memory</span><span class="stat__v" id="lvRam">–</span><span class="stat__n"><span id="lvRamPct">—</span> of ${esc(S.machine?.ram_total_h || o.machine?.ram_total_h || '')}</span></div><div class="meter meter--warn" id="lvRamMeter"><i></i></div><svg class="spark" id="spRam"></svg></div>
-    <div class="c3 panel"><div class="stat"><span class="stat__l">Network</span><span class="stat__v" style="font-size:22px">↓ <span id="lvRx">–</span></span><span class="stat__n">↑ <span id="lvTx">–</span></span></div><svg class="spark" id="spNet"></svg><div class="stat__n">disk ↓ <span id="lvRd">—</span> · ↑ <span id="lvWr">—</span></div></div>
-    <div class="c3 panel"><div class="stat"><span class="stat__l">Uptime</span><span class="stat__v" id="lvUp">${fmtUp(S.stats?.uptime)}</span><span class="stat__n">${esc(o.machine?.cpu_model || '')}<br>${esc(o.machine?.os || '')} · ${o.machine?.cpu_count || '?'} cores</span></div></div>
+    <section class="ov-card ov-needs ov-needs--${worst}" aria-live="polite">
+      <header class="ov-hd"><span class="ov-needs__badge">${att.length ? att.length : ico('check')}</span><div class="ov-hd__t"><h3>${att.length ? 'Needs you' : 'All is well'}</h3><span class="sub">${esc(o.hostname)} · ${esc(o.realm || 'no domain')} · profile ${esc(o.profile)}</span></div></header>
+      ${att.length ? `<div class="ovn-list">${att.map((x, i) => `<div class="ovn ovn--${x.level === 'bad' ? 'bad' : 'warn'}"><i class="ovn__dot"></i><div class="ovn__t"><div class="ovn__x">${esc(x.text)}</div><div class="ovn__by">${esc(attByline(x))}</div></div><button type="button" class="ovn__why" data-why="${i}" aria-label="Why? ${esc(x.text)}">Why?</button></div>`).join('')}</div>`
+        : `<p class="ov-needs__ok">Every service is up, the last automator run was clean, the last backups succeeded and the Synology is mounted.</p>`}
+    </section>
 
-    <div class="c4 panel"><div class="panel__hd"><h3>Directory</h3><span class="pill ${o.directory_ok ? 'ok' : 'bad'}">${o.directory_ok ? 'online' : 'down'}</span></div>
-      <div class="kv"><dt>Realm</dt><dd>${esc(o.realm)}</dd><dt>Users</dt><dd>${c.users}</dd><dt>Groups</dt><dd>${c.groups}</dd><dt>Computers</dt><dd>${c.computers}</dd><dt>Shares</dt><dd>${c.shares}</dd></div>
-      <div class="row" style="margin-top:14px"><a class="btn btn--sm" data-open="directory">Manage</a></div></div>
-    <div class="c4 panel"><div class="panel__hd"><h3>Automator</h3><span class="pill ${a.last_ok === false ? 'bad' : a.last_ok ? 'ok' : ''}">${a.last_ok === false ? 'failures' : a.last_ok ? 'clean' : 'no run yet'}</span></div>
-      <div class="kv"><dt>Last run</dt><dd>${fmtT(a.last_run)} <span style="color:var(--muted)">(${ago(a.last_run)})</span></dd><dt>Next</dt><dd>${fmtT(a.next_run)}</dd><dt>Quota</dt><dd>${fmtN(a.quota_today)} of ${fmtN(a.quota_daily)} units</dd><dt>Token</dt><dd>${a.token_ok ? `ok${a.token_days_left != null ? ` · ~${a.token_days_left} d left` : ''}` : '<span style="color:var(--redL)">missing</span>'}</dd><dt>Holds</dt><dd>${a.holds ?? '—'} videos</dd></div>
-      <div class="meter ${pct(a.quota_today, a.quota_daily) > 75 ? 'meter--warn' : 'meter--ok'}"><i style="width:${pct(a.quota_today, a.quota_daily)}%"></i></div>
-      <div class="row" style="margin-top:14px"><a class="btn btn--sm" data-open="automator">Open</a></div></div>
-    <div class="c4 panel"><div class="panel__hd"><h3>Backups</h3><span class="pill ${b.failed_recent ? 'bad' : b.last ? 'ok' : ''}">${b.failed_recent ? `${b.failed_recent} failed` : b.last ? 'healthy' : 'none yet'}</span></div>
-      <div class="kv"><dt>Last</dt><dd>${b.last ? `${esc(b.last.name)} · ${fmtT(b.last.started)} · ${b.last.ok ? 'ok' : 'failed'}` : '—'}</dd><dt>Jobs</dt><dd>${c.backups}</dd><dt>Running</dt><dd>${(b.running || []).length ? b.running.map(r => esc(r.job)).join(', ') : 'none'}</dd><dt>Synology</dt><dd>${n.mounted ? `mounted · ${fmtB(n.free)} free` : '<span style="color:var(--warn)">not mounted</span>'}</dd><dt>Apps</dt><dd>${c.apps_running} of ${c.apps} running</dd></div>
-      <div class="row" style="margin-top:14px"><a class="btn btn--sm" data-open="backups">History</a></div></div>
+    <section class="ov-stats">
+      <div class="ovs ovs--cpu"><div class="ovs__hd">${tile('cpu', 'red')}<span class="ovs__l">CPU</span><span class="ovs__aux" id="lvTemp">—</span></div>
+        <div class="ovs__row"><div class="ovs__v"><span id="lvCpu">–</span><small>%</small></div><div class="cores ovs__cores" id="lvCores"></div></div>
+        <div class="meter ovs__meter" id="lvCpuMeter"><i></i></div><div class="ovs__n">load <span id="lvLoad" class="tnum">—</span></div><svg class="spark ovs__spark" id="spCpu"></svg></div>
+      <div class="ovs ovs--mem"><div class="ovs__hd">${tile('mem', 'amber')}<span class="ovs__l">Memory</span><span class="ovs__aux" id="lvRamPct">—</span></div>
+        <div class="ovs__v" id="lvRam">–</div>
+        <div class="meter meter--warn ovs__meter" id="lvRamMeter"><i></i></div><div class="ovs__n">of ${esc(S.machine?.ram_total_h || mc.ram_total_h || '')}</div><svg class="spark ovs__spark" id="spRam"></svg></div>
+      <div class="ovs ovs--net"><div class="ovs__hd">${tile('net', 'blue')}<span class="ovs__l">Network</span><span class="ovs__aux">↑ <span id="lvTx">–</span></span></div>
+        <div class="ovs__v ovs__v--rate"><span class="ovs__arw">↓</span><span id="lvRx">–</span></div>
+        <div class="ovs__n">disk read <span id="lvRd" class="tnum">—</span> · write <span id="lvWr" class="tnum">—</span></div><svg class="spark ovs__spark" id="spNet"></svg></div>
+      <div class="ovs ovs--up"><div class="ovs__hd">${tile('up', 'green')}<span class="ovs__l">Uptime</span><span class="ovs__aux">${mc.cpu_count || '?'} cores</span></div>
+        <div class="ovs__v" id="lvUp">${fmtUp(S.stats?.uptime)}</div>
+        <div class="ovs__n ovs__n--clip">${esc(mc.cpu_model || '')}</div><div class="ovs__n ovs__n--clip">${esc(mc.os || '')}</div>
+        <div class="ovs__foot"><span>ariseOS ${esc(String(o.version || '').replace(/\.0$/, ''))}${o.codename ? ' ' + esc(o.codename) : ''}</span>${mc.boot_time ? `<span>booted ${fmtT(new Date(mc.boot_time * 1000).toISOString())}</span>` : ''}</div></div>
+    </section>
 
-    <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Disks</h3><span class="sub">refreshes every 10 s</span></div><div id="lvDisks"></div></div>
-    <div class="c6 panel panel--flat"><div class="panel__hd"><h3>Tonight</h3><span class="sub">America/Chicago</span></div>
-      <div class="kv"><dt>02:00</dt><dd>YouTube quota resets (midnight Pacific)</dd><dt>02:05</dt><dd>arise-automator.timer runs arise_daily.py from the worklist</dd><dt>03:00</dt><dd>arise-backup.timer: restic snapshots to the Synology, then forget/prune</dd><dt>04:00</dt><dd>arise-mirror.timer refreshes the GitHub mirror</dd></div>
-      <p class="note" style="margin-top:14px">A missed night is skipped, not lost: every job is resumable. If the box was off, the backup and mirror timers catch up when it next boots; the 02:05 automator does not, on purpose.</p></div>
+    <section class="ov-card ov-tonight">
+      <header class="ov-hd">${tile('moon', 'violet')}<div class="ov-hd__t"><h3>Tonight</h3><span class="sub">02:00 – 07:00 · America/Chicago${nowH >= 7 ? ' · last night’s results' : ''}</span></div>
+        <span class="ovt__key"><span class="ovt__k ovt__k--ok">clean</span><span class="ovt__k ovt__k--bad">failed</span><span class="ovt__k ovt__k--run">running</span><span class="ovt__k ovt__k--off">off</span></span></header>
+      ${au ? (night.length ? rail : '<p class="note">No timer runs between 02:00 and 07:00 tonight.</p>') : '<p class="note">The timers did not answer; Automations has them.</p>'}
+      <p class="note ovt__foot">A missed night is skipped, not lost: the backup and mirror timers catch up when the box next boots; the 02:05 automator does not, on purpose.</p>
+    </section>
+
+    <section class="ov-trio">
+      <div class="ov-card ovc"><header class="ov-hd">${tile('dir', 'blue')}<div class="ov-hd__t"><h3>Directory</h3><span class="sub">${esc(o.realm || '')}</span></div><span class="pill ${o.directory_ok ? 'ok' : 'bad'}">${o.directory_ok ? 'online' : 'down'}</span></header>
+        <div class="ovc__nums"><div><b>${c.users ?? '—'}</b><span>users</span></div><div><b>${c.groups ?? '—'}</b><span>groups</span></div><div><b>${c.computers ?? '—'}</b><span>computers</span></div><div><b>${c.shares ?? '—'}</b><span>shares</span></div></div>
+        <div class="ovc__ft"><a class="btn btn--ghost btn--sm" data-open="directory">Manage</a></div></div>
+      <div class="ov-card ovc"><header class="ov-hd">${tile('auto', 'red')}<div class="ov-hd__t"><h3>Automator</h3><span class="sub">the nightly YouTube job</span></div><span class="pill ${a.last_ok === false ? 'bad' : a.last_ok ? 'ok' : ''}">${a.last_ok === false ? 'failures' : a.last_ok ? 'clean' : 'no run yet'}</span></header>
+        <dl class="kv ovc__kv"><dt>Last run</dt><dd>${fmtT(a.last_run)} <span class="dim">(${ago(a.last_run)})</span></dd><dt>Next</dt><dd>${fmtT(a.next_run)}</dd><dt>Token</dt><dd>${a.token_ok ? `ok${a.token_days_left != null ? ` · ~${a.token_days_left} d left` : ''}` : '<span style="color:var(--redL)">missing</span>'}</dd><dt>Holds</dt><dd>${a.holds ?? '—'} videos</dd></dl>
+        <div class="ovc__q"><span>Quota today</span><b class="tnum">${fmtN(a.quota_today)} <small>of ${fmtN(a.quota_daily)}</small></b></div>
+        <div class="meter ${pct(a.quota_today, a.quota_daily) > 75 ? 'meter--warn' : 'meter--ok'}"><i style="width:${pct(a.quota_today, a.quota_daily)}%"></i></div>
+        <div class="ovc__ft"><a class="btn btn--ghost btn--sm" data-open="automator">Open</a></div></div>
+      <div class="ov-card ovc"><header class="ov-hd">${tile('bk', 'green')}<div class="ov-hd__t"><h3>Backups</h3><span class="sub">restic to the Synology, 03:00</span></div><span class="pill ${b.failed_recent ? 'bad' : b.last ? 'ok' : ''}">${b.failed_recent ? `${b.failed_recent} failed` : b.last ? 'healthy' : 'none yet'}</span></header>
+        <dl class="kv ovc__kv"><dt>Last</dt><dd>${b.last ? `${esc(b.last.name)} · ${fmtT(b.last.started)} · ${b.last.ok ? 'ok' : 'failed'}` : '—'}</dd><dt>Jobs</dt><dd>${c.backups ?? '—'}</dd><dt>Running</dt><dd>${(b.running || []).length ? b.running.map(r => esc(r.job)).join(', ') : 'none'}</dd><dt>Synology</dt><dd>${n.mounted ? `mounted · ${fmtB(n.free)} free` : '<span style="color:var(--warn)">not mounted</span>'}</dd><dt>Apps</dt><dd>${c.apps_running ?? 0} of ${c.apps ?? 0} running</dd></dl>
+        <div class="ovc__ft"><a class="btn btn--ghost btn--sm" data-open="backups">History</a></div></div>
+    </section>
+
+    <section class="ov-card ov-disks"><header class="ov-hd">${tile('disk', 'amber')}<div class="ov-hd__t"><h3>Disks</h3><span class="sub">refreshes every 10 s</span></div><a class="btn btn--ghost btn--xs" data-open="storage">Storage</a></header><div class="ovd-grid" id="lvDisks"></div></section>
   </div>`;
 };
+V.overview.ICONS = {
+  cpu: '<rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>',
+  mem: '<rect x="3" y="7" width="18" height="10" rx="2.5"/><path d="M7 17v3M12 17v3M17 17v3M7.5 11v2M11 11v2M14.5 11v2"/>',
+  net: '<path d="M8 4v15M4.5 7.5 8 4l3.5 3.5M16 20V5M12.5 16.5 16 20l3.5-3.5"/>',
+  up: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  dir: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.7-3.1 2.9-4.8 5.5-4.8s4.8 1.7 5.5 4.8"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.2 14.3c2.2.1 3.8 1.5 4.4 3.9"/>',
+  auto: '<rect x="3" y="5.5" width="18" height="13" rx="4"/><path d="M10.2 9.4v5.2l4.4-2.6z" fill="currentColor" stroke="none"/>',
+  bk: '<rect x="3" y="4" width="18" height="5" rx="1.8"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>',
+  disk: '<rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M7 14.5h.01M11 14.5h6"/>',
+  moon: '<path d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1z"/>',
+  check: '<path d="m5.5 12.5 4 4 9-9"/>',
+};
+/* The ten status lights (round 8): from what the page already has. state: ok | warn | bad | info | off | unk */
+function ledStates(o) {
+  o = o || {}; const c = o.counts || {}, a = o.automator || {}, b = o.backup || {}, n = o.nas || {}, att = o.attention || [];
+  const L = (id, label, state, note, open) => ({ id, label, state, note, open });
+  const domainBad = (o.services_bad || []).some(u => /^samba-ad-dc/.test(u));
+  const rm = S.remoteCache, sp = S.speed, up = S.updatesCache, sv = S.svcNow, disks = S.stats?.disks || [];
+  const vpnOn = rm && (rm.tailscale?.up || rm.wireguard?.up);
+  const last = sp && (sp.last || (sp.runs || []).slice(-1)[0]);
+  const nUp = up ? (up.other || []).length + (up.security || []).length + (up.apps?.apps || []).filter(x => x.update).length : null;
+  const dmax = disks.length ? Math.max(...disks.map(d => +d.pct || 0)) : null;
+  const diskAtt = att.some(x => /^(\/\S*) is \d+% full|^Replace the disk/.test(x.text || ''));
+  return [
+    L('domain', 'Domain', o.directory_ok ? 'ok' : 'bad', o.directory_ok ? 'online' : 'down', 'directory'),
+    L('shares', 'Shares', domainBad || !o.directory_ok ? 'bad' : c.shares ? 'ok' : 'unk', domainBad || !o.directory_ok ? 'down' : c.shares != null ? `${c.shares} shared` : '—', 'directory'),
+    L('nas', 'Synology', n.mounted ? 'ok' : n.reachable === false ? 'bad' : 'warn', n.mounted ? (n.free != null ? `${fmtB(n.free)} free` : 'mounted') : 'not mounted', 'backups'),
+    L('backups', 'Backups', b.failed_recent ? 'bad' : b.last ? (b.last.ok ? 'ok' : 'bad') : 'unk', b.failed_recent ? `${b.failed_recent} failed` : b.last ? (b.last.ok ? ago(b.last.finished || b.last.started) : 'failed') : 'none yet', 'backups'),
+    L('automator', 'Automator', a.last_ok === false || a.token_ok === false ? 'bad' : a.last_ok ? 'ok' : 'unk', a.token_ok === false ? 'no token' : a.last_ok === false ? 'failures' : a.last_ok ? 'clean' : 'no run yet', 'automator'),
+    L('vpn', 'VPN', !rm ? 'unk' : vpnOn ? 'ok' : 'warn', !rm ? '—' : vpnOn ? (rm.tailscale?.up ? `${(rm.tailscale.peers || []).filter(p => p.online).length} online` : 'up') : 'off', 'remote'),
+    L('internet', 'Internet', !last ? 'unk' : last.down != null ? (last.down < 25 ? 'warn' : 'ok') : 'bad', !last ? '—' : last.down != null ? `${Math.round(last.down)} Mb/s` : 'offline', 'activity'),
+    L('stream', 'Stream', sv?.in_service ? (sv.stream?.live === true ? 'ok' : sv.stream?.live === false ? 'bad' : 'warn') : 'off', sv?.in_service ? (sv.stream?.live === true ? 'LIVE' : sv.stream?.live === false ? 'not live' : 'checking') : 'off air', 'servicemode'),
+    L('updates', 'Updates', nUp == null ? 'unk' : (up.security || []).length ? 'warn' : nUp ? 'info' : 'ok', nUp == null ? '—' : nUp ? `${nUp} waiting` : 'up to date', 'updates'),
+    L('disks', 'Disks', diskAtt || dmax > 90 ? 'bad' : dmax > 75 ? 'warn' : dmax == null ? 'unk' : 'ok', dmax == null ? '—' : `${dmax.toFixed(0)}% fullest`, 'storage'),
+  ];
+}
+/* A Needs-you line's byline: where it comes from, in two or three words. */
+function attByline(x) {
+  const t = String(x?.text || ''); let m;
+  if ((m = t.match(/^(\S+\.(?:service|timer)) is not running/))) return `Service · ${m[1]}`;
+  if ((m = t.match(/^Backup '(.+?)' failed/))) return `Backups · ${m[1]}`;
+  if (/^No backup ran|^Last night's backup/.test(t)) return 'Backups · arise-backup.timer';
+  if (/^Last automator run/.test(t)) return 'Automator · the 02:05 job';
+  if (/token\.json|YouTube sign-in/.test(t)) return 'Automator · YouTube sign-in';
+  if (/^Synology/.test(t)) return 'Synology · /mnt/synology';
+  if (/^Directory:/.test(t)) return 'Domain · samba-ad-dc';
+  if (/Mac helper/.test(t)) return 'Macs · the helper';
+  if ((m = t.match(/^(.+?)(?:'s disk is|: the helper| has(?:n't| not) checked in)/))) return `Macs · ${m[1]}`;
+  if ((m = t.match(/^(\/\S*) is \d+% full/))) return `Storage · ${m[1]}`;
+  if (/^Replace the disk/.test(t)) return 'Hardware · disk health';
+  if (/^The CPU is at/.test(t)) return 'Hardware · temperature';
+  if (/^STAGING/.test(t)) return 'This box · staging';
+  if (/admin password|^No config/.test(t)) return 'This box · setup';
+  if (/^Audit log/.test(t)) return 'Audit log';
+  return x?.level === 'bad' ? 'Needs you now' : 'When you have a minute';
+}
+/* Why? (Q124): a drawer inside the Overview window. The doctor's sentence, the unit's last journal
+   lines, the matching audit entries, and the one allowed fix through the endpoint it already uses. */
+async function whyDrawer(item, opener) {
+  const w = S.wins.overview; if (!w || !item) return;
+  // In the window on a desk; on a phone a sheet over everything (the bottom bar included).
+  const sheet = matchMedia('(max-width: 900px)').matches, host = sheet ? document.body : w.el;
+  let d = $('.ovwhy');
+  if (d && d.parentNode !== host) { d.remove(); d = null; }
+  if (!d) { d = document.createElement('aside'); d.className = 'ovwhy' + (sheet ? ' ovwhy--sheet' : ''); d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Why?'); host.appendChild(d); }
+  const close = () => { d.classList.remove('open'); setTimeout(() => { if (!d.classList.contains('open')) d.remove(); }, 260); if (opener && document.contains(opener)) opener.focus(); };
+  d.onkeydown = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+  const lvl = item.level === 'bad' ? 'bad' : 'warn';
+  const head = r => `<header class="ovwhy__hd"><span class="ovwhy__dot ovwhy__dot--${lvl}"></span><div class="ovwhy__ttl"><span class="ovwhy__kick">Why?</span><h3>${esc(r?.title || attByline(item))}</h3></div><button type="button" class="ovwhy__x" aria-label="Close">×</button></header>`;
+  d.innerHTML = head() + `<div class="ovwhy__body"><p class="ovwhy__item">${esc(item.text)}</p><div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:60%;margin-top:10px"></div></div>`;
+  $('.ovwhy__x', d).onclick = close;
+  requestAnimationFrame(() => d.classList.add('open'));
+  let r; try { r = await api('/why?key=' + encodeURIComponent(item.key || item.text)); } catch (e) { r = { ok: false, err: e.message }; }
+  if (!d.isConnected) return;
+  if (!r || r.ok === false) { d.innerHTML = head() + `<div class="ovwhy__body"><p class="ovwhy__item">${esc(item.text)}</p><p class="ovwhy__sent">${esc(r?.err || 'No answer')}</p></div>`; $('.ovwhy__x', d).onclick = close; return; }
+  const f = r.fix, app = r.open && appOf(r.open);
+  d.innerHTML = head(r) + `<div class="ovwhy__body">
+      <p class="ovwhy__item">${esc(r.text)}</p>
+      <section class="ovwhy__sec"><h4>What the doctor says</h4><p class="ovwhy__sent">${esc(r.sentence)}</p></section>
+      <div class="ovwhy__acts">${f ? `<button type="button" class="btn ovwhy__fix" id="ovWhyFix">${esc(f.label)}</button>` : '<span class="ovwhy__nofix">No fix from here: this one is yours.</span>'}${app ? `<button type="button" class="btn btn--ghost btn--sm" id="ovWhyOpen">Open ${esc(app.name)}</button>` : ''}</div>
+      <section class="ovwhy__sec"><h4>Last log lines${r.unit ? ` <span class="mono">${esc(r.unit)}</span>` : ''}</h4>${(r.log || []).length ? `<pre class="ovwhy__log">${(r.log || []).map(l => { const m = String(l).match(/^(?:\d{4}-(\d\d)-(\d\d)[T ](\d\d:\d\d:\d\d)\S*|([A-Z][a-z]{2} +\d+ \d\d:\d\d:\d\d))\s+(?:arise-server\s+)?(.*)$/); return m ? `<span><time>${m[3] ? m[3] : esc(m[4].replace(/^\S+ +\d+ /, ''))}</time> ${esc(m[5])}</span>` : `<span>${esc(l)}</span>`; }).join('')}</pre>` : `<p class="note">${esc(r.log_note || 'Nothing in the journal.')}</p>`}</section>
+      <section class="ovwhy__sec"><h4>In the audit log</h4>${(r.audit || []).length ? `<ul class="ovwhy__aud">${r.audit.map(e => `<li><time>${fmtT(e.t)}</time><b>${esc(e.who || '?')}</b><span class="mono">${esc(e.action || '')}</span>${e.target ? `<span class="ovwhy__tg">${esc(e.target)}</span>` : ''}<i class="ovwhy__ok ovwhy__ok--${e.ok === false ? 'bad' : 'ok'}">${e.ok === false ? 'refused' : 'ok'}</i></li>`).join('')}</ul>` : '<p class="note">Nothing in the audit log matches this one.</p>'}</section>
+      ${r.demo ? '<p class="note ovwhy__demo">Sample data: the journal lines and audit entries here are the preview’s.</p>' : ''}
+    </div>`;
+  $('.ovwhy__x', d).onclick = close;
+  const ob = $('#ovWhyOpen', d); if (ob) ob.onclick = () => { close(); openApp(r.open); };
+  const go = $('#ovWhyFix', d);
+  if (go && f) go.onclick = async () => {
+    const doIt = async () => {
+      const x = await api(String(f.path).replace(/^\/api/, ''), { method: f.method || 'POST', body: f.body || undefined });
+      if (x && x.ok === false) throw new Error(x.err || x.error?.message || 'failed');
+      toast(x?.demo ? `${f.label}: sample mode, nothing changed` : `${f.label}: done`, 'ok', 6000);
+      if (/arise-web\.service/.test(f.path) && !x?.demo) setTimeout(() => location.reload(), 4000);
+      close(); setTimeout(() => rerender('overview'), 1500); return x;
+    };
+    if (f.confirm) confirmType(f.label, f.confirm, esc(f.note || ''), doIt); else await act(go, doIt);
+  };
+  $('.ovwhy__x', d).focus();
+}
 
 V.directory = async () => {
   const [st, us, gs, cs, tf, sh] = await Promise.all([api('/directory/status'), api('/directory/users'), api('/directory/groups'), api('/directory/computers'), api('/directory/2fa').catch(() => ({ users: [] })), api('/shares').catch(() => ({ shares: [] }))]);
@@ -836,7 +990,7 @@ V.services = async () => {
 };
 V.services.after = () => { $$('[data-log]').forEach(a => a.onclick = e => { e.preventDefault(); S.logUnit = a.dataset.log; openApp('logs'); }); $$('[data-svc]').forEach(b => b.onclick = async () => { if (b.dataset.svc === 'arise-web.service' && b.dataset.do !== 'restart') { toast('Stopping the dashboard from the dashboard is a bad idea', 'warn'); return; } const r = await act(b, () => api(`/services/${encodeURIComponent(b.dataset.svc)}/${b.dataset.do}`, { method: 'POST' }), `${b.dataset.do} ${b.dataset.svc}`); if (r) setTimeout(() => rerender('services'), 1200); }); };
 
-V.overview.after = () => { $$('[data-open]').forEach(a => a.onclick = e => { e.preventDefault(); openApp(a.dataset.open); }); };
+V.overview.after = root => { $$('[data-open]', root).forEach(a => a.onclick = e => { e.preventDefault(); openApp(a.dataset.open); }); $$('[data-why]', root).forEach(b => b.onclick = () => whyDrawer((S.ovAtt || [])[+b.dataset.why], b)); const need = [!S.remoteCache && api('/remote').then(r => S.remoteCache = r), !S.speed && api('/speedtest').then(r => { S.speed = r; S.speedAt = Date.now(); }), !S.updatesCache && api('/updates').then(u => { S.updatesCache = u; S.updatesAt = Date.now(); })].filter(Boolean).map(p => p.catch(() => {})); if (need.length) Promise.all(need).then(() => { const box = $('#ovLeds', root); if (!box) return; ledStates(S.ovData).forEach(l => { const e = $('#ovLed-' + l.id, box); if (e) { e.className = 'ovl ovl--' + l.state; e.title = `${l.label}: ${l.note}`; $('.ovl__n', e).textContent = l.note; } }); }); };
 
 /* ---------------- v0.2 apps ---------------- */
 const ICO = {

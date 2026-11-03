@@ -1287,6 +1287,37 @@ function computedGet(p, q) {
     const h = get('GET /backups/history').rows || []; if (h[0]) o.backup = Object.assign({}, o.backup, { last: { name: h[0].name, started: h[0].started, ok: h[0].ok } });
     o.nas = Object.assign({}, o.nas, { mounted: !!get('GET /nas').mounted }); return o;
   }
+  if (p === '/why') {
+    // Leviticus Q124: the same shape as server/arise_server/why.py, from the preview's own Needs-you list.
+    if (!isAdmin()) return http(403, 'Administrator only');
+    const items = (get('GET /overview')?.attention || []).slice(), key = (q.get('key') || '').slice(0, 2000);
+    const stamp = (min) => new Date(Date.now() - min * 60000).toISOString().slice(0, 19);
+    const J = (unit, lines) => lines.map((l, i) => `${stamp(lines.length * 5 - i * 5).replace('T', ' ')} arise-server ${l}`);
+    const kindOf = t => {
+      let m;
+      // A restart only for the units the Services app manages (services.UNITS), as on the server.
+      const UN = { 'arise-web.service': 'Arise dashboard', 'samba-ad-dc.service': 'Active Directory', 'docker.service': 'Docker', 'arise-automator.timer': 'YouTube automator (02:05)', 'arise-backup.timer': 'Backups (03:00)', 'arise-mirror.timer': 'GitHub mirror (04:00)', 'arise-nas-mount.service': 'Synology mount', 'ssh.service': 'SSH' };
+      if ((m = t.match(/^(\S+\.(?:service|timer)) is not running/))) return { key: 'service:' + m[1], title: 'A service stopped', unit: m[1], q: m[1], open: 'services', sentence: `systemd says ${m[1]} is not active. The last lines of its journal usually say why; a restart is the first thing to try.`, fix: UN[m[1]] ? { kind: 'restart', label: 'Restart ' + UN[m[1]], method: 'POST', path: `/api/services/${m[1]}/restart`, body: null, ...(m[1] === 'samba-ad-dc.service' ? { confirm: 'domain' } : m[1] === 'arise-web.service' ? { confirm: 'dashboard' } : {}) } : null };
+      if ((m = t.match(/^Backup '(.+?)' failed/))) { const j = (get('GET /backups/jobs')?.jobs || []).find(x => x.name === m[1] || x.id === m[1]); return { key: 'backup:' + (j?.id || m[1]), title: 'A backup failed', unit: 'arise-backup.service', q: 'backups', open: 'backups', sentence: `The backup job '${m[1]}' ended with an error. Re-running the one job is safe: restic picks up where it stopped.`, fix: j ? { kind: 'rerun', label: 'Re-run ' + m[1], method: 'POST', path: '/api/backups/run/' + j.id, body: null } : null }; }
+      if (/^Synology not mounted/.test(t)) return { key: 'nas', title: 'The Synology', unit: 'arise-nas-mount.service', q: 'nas', open: 'backups', sentence: '/mnt/synology is not mounted, so tonight\'s backup has nowhere to go. Restarting the mount service tries the share again.', fix: { kind: 'restart', label: 'Restart the Synology mount', method: 'POST', path: '/api/services/arise-nas-mount.service/restart', body: null } };
+      if (/Mac helper is in watch mode/.test(t)) return { key: 'macs-watch', title: 'The Mac helper', unit: 'arise-web.service', q: 'macs', open: 'macs', sentence: 'The church Macs report in, but the helper only watches: the tasks queued for them wait until you read them in Macs and press Switch on (it asks the password again). Nothing runs on a Mac before that.' };
+      if ((m = t.match(/^(.+?)'s disk is (\d+)% full/))) return { key: 'mac-disk:' + m[1], title: 'A church Mac\'s disk', unit: 'arise-web.service', q: 'macs', open: 'macs', sentence: `${m[1]} told the helper its disk is ${m[2]}% full. The Mac starts to struggle past 90%: emptying its Trash and Downloads on the Mac itself is the fix. Nothing here deletes a file on a Mac.` };
+      if ((m = t.match(/^(.+?): the helper has no Full Disk Access/))) return { key: 'mac-fda:' + m[1], title: 'Full Disk Access', unit: 'arise-web.service', q: 'macs', open: 'macs', sentence: `The helper on ${m[1]} cannot read the profile folders until it has Full Disk Access: on that Mac, System Settings → Privacy & Security → Full Disk Access → turn on arise-helper.` };
+      if ((m = t.match(/^(.+?) (?:has not|hasn't) checked in/))) return { key: 'mac-silent:' + m[1], title: 'A silent Mac', unit: 'arise-web.service', q: 'macs', open: 'macs', sentence: `${m[1]} has not called in. It is off, asleep, away from the church network and Tailscale, or gone; if it is gone for good, Retire it in Macs.` };
+      return { key: 'item:' + t.length, title: 'Needs you', unit: null, q: '', open: null, sentence: 'This line comes from a part of the server without its own explanation yet. `sudo arisectl doctor` gives the same line with its context.' };
+    };
+    const logs = { macs: ['arise-web[812]: INFO macs: MEDIA-MAC checked in (helper 0.8.2, disk 54%, watch mode)', 'arise-web[812]: INFO macs: OFFICE-MAC checked in (helper 0.8.2, disk 61%, watch mode)', 'arise-web[812]: INFO macs: KIDS-MAC checked in (helper 0.8.2, disk 91%, watch mode)', 'arise-web[812]: WARNING macs: KIDS-MAC: no Full Disk Access; profile removal held', 'arise-web[812]: INFO macs: 4 task(s) queued, held by watch mode', 'arise-web[812]: INFO macs: MEDIA-MAC checked in (helper 0.8.2, disk 54%, watch mode)', 'arise-web[812]: INFO macs: KIDS-MAC checked in (helper 0.8.2, disk 91%, watch mode)'],
+      backup: ['systemd[1]: Starting arise-backup.service - Arise backups to the Synology...', 'arise-backup[20311]: job homes: snapshot 4be1c0a2 saved (1,204 new files)', 'arise-backup[20311]: job shares: Fatal: unable to open repository at /mnt/synology/restic', 'systemd[1]: arise-backup.service: Main process exited, code=exited, status=1/FAILURE'] };
+    const list = items.map(it => ({ it, k: kindOf(it.text || '') }));
+    if (!key) return { ok: true, demo: true, items: list.map(({ it, k }) => ({ key: k.key, level: it.level, text: it.text, title: k.title, unit: k.unit, has_fix: !!k.fix })) };
+    const hit = list.find(({ it, k }) => key === k.key || key === it.text);
+    if (!hit) return { ok: false, demo: true, key, err: 'That item is not on the Needs-you list any more: it may have cleared itself. Reopen Overview to see the list as it is now.' };
+    const { it, k } = hit, kind = k.key.split(':')[0];
+    const log = k.unit ? J(k.unit, logs[/^mac/.test(kind) ? 'macs' : kind === 'backup' ? 'backup' : ''] || (String(get('GET /logs/' + k.unit)?.text || '').split('\n').filter(Boolean).slice(-8).map(l => l.replace(/^\S+ \S+ \S+ arise-server /, '')))) : [];
+    const audit = k.q ? (getOr('GET /audit?limit=60', { events: [] }).events || []).filter(e => `${e.action} ${e.target}`.toLowerCase().includes(k.q)).slice(0, 6).map(e => ({ t: e.t, who: e.who, action: e.action, target: e.target, ok: e.ok !== false })) : [];
+    if (!audit.length && k.q === 'macs') audit.push({ t: stamp(60 * 26), who: 'bradly', action: 'macs.watch', target: 'the Mac helper', ok: true }, { t: stamp(60 * 74), who: 'bradly', action: 'macs.enrol_token', target: 'KIDS-MAC', ok: true });
+    return { ok: true, demo: true, key: k.key, level: it.level, text: it.text, title: k.title, kind, sentence: k.sentence, unit: k.unit, log, log_note: log.length ? '' : 'No single service is behind this one, so there is no journal to show.', audit, fix: k.fix || null, open: k.open };
+  }
   if (p === '/directory/status') { const st = clone(get('GET /directory/status')); return Object.assign(st, { users: users().length, groups: groups().length }); }
   if (p === '/help') {
     const all = clone(get('GET /help')); if (!isAdmin()) all.docs = (all.docs || []).filter(d => d.name === 'PORTAL-GUIDE');
