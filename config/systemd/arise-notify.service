@@ -1,0 +1,8 @@
+[Unit]
+Description=Arise Server daily note (what needs you, to the webhook in [notify])
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arisectl notify send

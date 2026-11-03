@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server internet speed test, hourly (round 7, 121)
+
+[Timer]
+# Every hour, a few minutes in; skipped during a service so the stream keeps the line.
+OnCalendar=hourly
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server internet speed test, hourly (round 7, 121)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Never during a service (Sundays 10:30, Mondays 19:00, Alexandria's 10:00, Calendar specials).
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/usr/local/bin/arisectl speedtest run --quiet

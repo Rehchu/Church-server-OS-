@@ -1,0 +1,17 @@
+# Portainer CE: a second pair of eyes on every container, with logs, a
+# console and a stack editor. The dashboard's Apps page covers the daily
+# cases (install, start, stop, logs); Portainer is for the day something
+# needs more than that. Read-write on the docker socket, so it is root in
+# all but name: keep it on the LAN and VPN only, like everything else.
+services:
+  portainer:
+    image: portainer/portainer-ce:2.21.4
+    container_name: arise-app-portainer
+    restart: unless-stopped
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/arise/apps/portainer/data:/data
+    environment:
+      - TZ=America/Chicago

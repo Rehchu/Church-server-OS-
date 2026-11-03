@@ -1,0 +1,72 @@
+#cloud-config
+# ariseOS install media: Ubuntu's on-screen storage/identity workflow, followed
+# by the ariseOS first-boot wizard. No unattended disk selection is allowed.
+# Ubuntu's interactive UI may highlight the largest eligible disk initially;
+# inspect its identity before confirming. Interactive sizing can override the
+# layout preset below; firstboot grows only a single ordinary ext4 root LV.
+# On Storage, select the intended disk, LVM and encryption, then review Ubuntu's
+# explicit destructive-action confirmation. Keep the disk passphrase offline.
+autoinstall:
+  version: 1
+  interactive-sections:
+    - storage
+    - identity
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  timezone: America/Chicago
+  ssh:
+    install-server: true
+    allow-pw: true
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: all
+  network:
+    version: 2
+    ethernets:
+      all-wired:
+        match:
+          name: "en*"
+        dhcp4: true
+  packages:
+    - git
+    - python3
+    - python3-venv
+    - curl
+    - ca-certificates
+    - whiptail
+  updates: security
+  late-commands:
+    # Fail closed if the payload is missing/damaged. No partial successful install.
+    - |
+      set -eu
+      M=""
+      [ ! -f /cdrom/arise/ariseos-src.tar.gz ] || M=/cdrom/arise
+      if [ -z "$M" ]; then
+        D="$(blkid -L CIDATA 2>/dev/null || true)"
+        if [ -n "$D" ]; then
+          mkdir -p /run/arise-media
+          mount -o ro "$D" /run/arise-media
+          [ ! -f /run/arise-media/arise/ariseos-src.tar.gz ] || M=/run/arise-media/arise
+        fi
+      fi
+      [ -n "$M" ] || { echo "ariseOS payload missing. Recreate the installation media." >&2; exit 1; }
+      (cd "$M" && sha256sum -c SHA256SUMS)
+      mkdir -p /target/opt/arise-src
+      tar -xzf "$M/ariseos-src.tar.gz" -C /target/opt/arise-src
+      cp "$M/SHA256SUMS" /target/opt/arise-src/.media-SHA256SUMS
+      cp "$M/VERSION" /target/opt/arise-src/.media-VERSION
+      # A private disc (make-install-media.sh --secrets, Bradly Oct 31, H9) carries keys: root only.
+      if [ -d "$M/secrets" ]; then
+        mkdir -p /target/etc/arise/secrets
+        chmod 0711 /target/etc/arise/secrets
+        for f in "$M"/secrets/*; do
+          if [ -f "$f" ]; then install -m 0600 -o root -g root "$f" "/target/etc/arise/secrets/$(basename "$f")"; fi
+        done
+      fi
+    # No arise installer inside curtin: network/services are configured only
+    # after the on-screen location choice, on a normally booted system.
+    - |
+      curtin in-target --target=/target -- bash -ec 'test -f /opt/arise-src/scripts/arise-firstboot; install -m 0644 /opt/arise-src/config/systemd/arise-firstboot.service /etc/systemd/system/arise-firstboot.service; systemctl enable arise-firstboot.service'
+  shutdown: reboot

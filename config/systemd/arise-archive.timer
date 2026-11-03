@@ -1,0 +1,14 @@
+# The archive's nightly refresh, 04:15 Central, every day but Wednesday (Wednesday
+# is the weekly full rebuild, arise-archive-rebuild.timer). Never near a service:
+# Sundays 10:30, Mondays 19:00; the unit's ExecCondition skips any firing inside one.
+[Unit]
+Description=Arise archive: nightly refresh (04:15 Central)
+
+[Timer]
+OnCalendar=Mon,Tue,Thu,Fri,Sat,Sun *-*-* 04:15:00 America/Chicago
+RandomizedDelaySec=5m
+Persistent=true
+Unit=arise-archive.service
+
+[Install]
+WantedBy=timers.target

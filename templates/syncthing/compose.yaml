@@ -1,0 +1,18 @@
+services:
+  syncthing:
+    image: syncthing/syncthing:1.28
+    container_name: arise-app-syncthing
+    restart: unless-stopped
+    hostname: arise-server
+    ports:
+      - "8384:8384"        # web UI
+      - "22000:22000/tcp"  # sync
+      - "22000:22000/udp"
+      - "21027:21027/udp"  # local discovery
+    volumes:
+      - /srv/arise/apps/syncthing:/var/syncthing/config
+      - /srv/arise/shares/media:/var/syncthing/media
+    environment:
+      - PUID=1500
+      - PGID=1500
+      - TZ=America/Chicago

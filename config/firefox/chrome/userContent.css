@@ -1,0 +1,25 @@
+/* ariseOS: Firefox's own pages (blank, error, the add-ons manager) in the house look.
+ * Websites keep their own design; dark mode is requested from them by the
+ * ui.systemUsesDarkTheme and layout.css.prefers-color-scheme.content-override
+ * prefs instead of being painted over. */
+
+@-moz-document url("about:blank"), url-prefix("about:neterror"), url-prefix("about:certerror"),
+               url-prefix("about:blocked"), url-prefix("about:tabcrashed"), url-prefix("about:sessionrestore") {
+  html, body { background: #0A0A0C !important; color: rgba(255, 255, 255, .88) !important; font-family: "Oswald", Arial, sans-serif !important; }
+  .title-text, h1 { font-family: "Anton", "Oswald", sans-serif !important; letter-spacing: .04em; color: #fff !important; }
+  button, .primary { border-radius: 0 !important; }
+  button.primary, .primary { background: #D6222D !important; color: #fff !important; border: 0 !important; }
+  a { color: #DB3F48 !important; }
+}
+
+/* the site filter's "this page is blocked" screen says it in plain words */
+@-moz-document url-prefix("about:neterror?e=blockedByPolicy") {
+  .title-text::after { content: "  ·  Not on the monitor's list. Ask Bradly to add it."; font-family: "Oswald", sans-serif; font-size: .5em; letter-spacing: 0; color: #8A8A90; }
+}
+
+@-moz-document url-prefix("about:addons"), url-prefix("about:preferences"), url-prefix("about:policies") {
+  :root { --in-content-page-background: #0A0A0C !important; --in-content-box-background: #111115 !important;
+          --in-content-text-color: rgba(255,255,255,.88) !important; --in-content-primary-button-background: #D6222D !important;
+          --in-content-primary-button-background-hover: #DB3F48 !important; --in-content-border-radius: 0 !important; --border-radius-small: 0 !important; --border-radius-medium: 0 !important; }
+  body { font-family: "Oswald", Arial, sans-serif !important; }
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=Arise Server sync conflicts (newest wins: the older copy goes to that place's Trash, nothing deleted)
+Documentation=file:///opt/arise/docs/SYNC.md
+After=local-fs.target
+
+[Service]
+Type=oneshot
+# Never during a service (Sundays 10:30, Mondays 19:00, from arise.toml [church]).
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/usr/local/bin/arisectl cloud sweep --quiet
+Nice=10
+IOSchedulingClass=idle

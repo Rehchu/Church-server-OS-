@@ -1,0 +1,20 @@
+# Frigate: open-source NVR for the security cameras. Records from any ONVIF /
+# RTSP camera, keeps clips on the Synology, shows live views in a browser, and
+# can detect people and cars on the CPU (slowly) or a Coral USB stick (well).
+# Pinned: 0.14.1 existed when this was written; check the project's releases
+# before moving it. shm_size matters: too small and the streams stutter.
+services:
+  frigate:
+    image: ghcr.io/blakeblackshear/frigate:0.14.1
+    container_name: arise-app-frigate
+    restart: unless-stopped
+    shm_size: "256mb"
+    ports:
+      - "8971:8971"     # the web UI (login on first visit)
+      - "8554:8554"     # RTSP restream
+    volumes:
+      - /srv/arise/apps/frigate/config:/config
+      - /mnt/synology/arise/cameras:/media/frigate
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=America/Chicago

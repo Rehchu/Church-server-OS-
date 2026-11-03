@@ -1,0 +1,23 @@
+name: churchcrm
+title: ChurchCRM
+description: Members, families, groups, attendance and a printable directory, self-hosted. Only worth it if the church does not already pay for Planning Center, Breeze or the like. Giving stays off this box by Bradly's rule.
+category: church
+icon: folder
+version: "7.8.2"
+ports:
+  - 8086:80
+volumes:
+  - /srv/arise/apps/churchcrm/data:/var/www/html/data
+  - /srv/arise/apps/churchcrm/db:/var/lib/mysql
+env:
+  DB_PASSWORD: CHANGE-ME
+autostart: false
+ram_mb: 300
+limits:
+  mem_mb: 768
+  cpus: 1.0
+notes: |
+  The setup wizard at http://arise-server:8086 asks for the database: host
+  db, name churchcrm, user churchcrm, the DB_PASSWORD you set. Verify the
+  image tag before the first deploy; the project moves between 5.x and 6.x.
+  Memory: around 300 MB for both (an estimate).

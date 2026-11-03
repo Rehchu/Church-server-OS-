@@ -1,0 +1,9 @@
+[Unit]
+Description=Arise closet monitor on at 06:00 (round 3, 30)
+
+[Timer]
+OnCalendar=*-*-* 06:00:00 America/Chicago
+Persistent=true
+
+[Install]
+WantedBy=timers.target

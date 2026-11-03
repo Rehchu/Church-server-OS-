@@ -1,0 +1,48 @@
+name: nextcloud
+title: Nextcloud (sync)
+description: The church's file sync. Every church Mac's Desktop and Documents, the shared folders in Finder's sidebar, and the phone app, over the server's own home folders and shares. Signed in with the domain accounts; each device has its own app password. Round 6, docs/SYNC.md.
+category: files
+icon: folder
+version: "29"
+# The container publishes on 127.0.0.1:8091 only (compose.yaml); Caddy serves it on the church certificate.
+ports:
+  - 8091:80
+homepage: https://cloud.ad.arisecenla.com
+volumes:
+  - /srv/arise/apps/nextcloud/html:/var/www/html
+  - /srv/arise/apps/nextcloud/data:/var/www/html/data
+  - /srv/arise/apps/nextcloud/db:/var/lib/mysql
+  - /srv/arise/homes:/homes
+  - /srv/arise/shares:/shares
+  - /srv/arise/shared:/shared
+  - /srv/arise/pastors:/pastors
+env:
+  DB_PASSWORD: CHANGE-ME
+  NEXTCLOUD_ADMIN_PASSWORD: CHANGE-ME
+  # The domain account Nextcloud reads the directory with (arise-nextcloud, read-only by default).
+  LDAP_BIND_PASSWORD: CHANGE-ME
+# Round 6, row 14: sync is how the Macs work, so it starts at install.
+autostart: true
+ram_mb: 1200
+limits:
+  mem_mb: 2048
+  cpus: 2.0
+notes: |
+  The church's sync service since round 6 (docs/SYNC.md). After a deploy:
+  `sudo arisectl cloud setup` signs it in to the domain (user_ldap, LDAPS,
+  first.last), mounts the Church, department, Pastors and Shared-with-me
+  folders with the same rules as the Samba shares, links each Nextcloud home
+  to the person's server home, and themes it. Reached at
+  https://cloud.ad.arisecenla.com on the church network and over Tailscale:
+  add its A record (docs/SYNC.md), never a port forward. Nextcloud's own
+  sharing is off: sharing is the server's Share with... Memory about 1 GB.
+# The house look: Nextcloud's theming app takes a name, colour and logo
+# through occ; `arisectl cloud setup` sets these (and the logo) too.
+theme:
+  accepts: [primary, logo, dark]
+  via: commands
+  commands:
+    - ["-u", "www-data", "nextcloud", "php", "occ", "theming:config", "name", "Arise"]
+    - ["-u", "www-data", "nextcloud", "php", "occ", "theming:config", "color", "{{red}}"]
+    - ["-u", "www-data", "nextcloud", "php", "occ", "theming:config", "slogan", "Arise Church · Pineville"]
+  note: "Name, colour, slogan and the flame logo set by `arisectl cloud setup`."

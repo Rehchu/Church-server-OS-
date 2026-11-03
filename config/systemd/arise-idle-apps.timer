@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise idle desktop apps sweep, every 15 minutes (GIMP and friends stop after an hour with nobody connected)
+
+[Timer]
+OnCalendar=*:0/15
+RandomizedDelaySec=1m
+Persistent=false
+
+[Install]
+WantedBy=timers.target

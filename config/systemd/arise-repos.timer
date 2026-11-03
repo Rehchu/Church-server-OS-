@@ -1,0 +1,13 @@
+# Every 15 minutes (round 4: "keep them synced with GitHub and the server").
+# Skipped during a service by the unit's ExecCondition.
+[Unit]
+Description=Sync the Arise repos with GitHub every 15 minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/15:00 America/Chicago
+RandomizedDelaySec=60
+Persistent=false
+Unit=arise-repos.service
+
+[Install]
+WantedBy=timers.target

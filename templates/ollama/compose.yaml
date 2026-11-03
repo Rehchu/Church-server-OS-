@@ -1,0 +1,18 @@
+# Ollama: a local model server. Private, no account, no internet after the
+# model is pulled. On an OptiPlex it runs on the CPU only: small models
+# (llama3.2:3b, qwen2.5:3b, about 2 GB each) answer at a few words a second
+# (an estimate); anything bigger is too slow to be useful here. Pull a model
+# once:  docker exec arise-app-ollama ollama pull llama3.2:3b
+services:
+  ollama:
+    image: ollama/ollama:0.3.14
+    container_name: arise-app-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - /srv/arise/apps/ollama/models:/root/.ollama
+    environment:
+      - TZ=America/Chicago
+      - OLLAMA_KEEP_ALIVE=10m
+      - OLLAMA_MAX_LOADED_MODELS=1

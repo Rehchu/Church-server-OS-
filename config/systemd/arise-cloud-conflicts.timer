@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server sync conflicts, hourly (row 15: newest wins)
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=5m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

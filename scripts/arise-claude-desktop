@@ -1,0 +1,39 @@
+#!/bin/sh
+# ariseOS: open Claude Desktop on the closet monitor, on top of the desktop. It runs as
+# Bradly's own account ([owner] user, Oct 28), so its Claude Code tab can change anything
+# he can, drawn on the kiosk's Wayland display (cage, user arise-kiosk), which this lends
+# it for as long as it is open. The dashboard runs this (Bradly only) and closes it again
+# when the screen locks. Its own dbus session holds a keyring that is never unlocked, so
+# the sign-in is not kept between opens (a shared screen).
+#   arise-claude-desktop open | close | status
+KIOSK_RUN=/run/user/1501
+OWNER=$(python3 -c 'import tomllib; print((tomllib.load(open("/etc/arise/arise.toml", "rb")).get("owner") or {}).get("user", ""))' 2>/dev/null)
+if [ -z "$OWNER" ] || [ "$OWNER" = root ] || ! id -u "$OWNER" >/dev/null 2>&1; then
+  echo "no owner account in /etc/arise/arise.toml: sudo arisectl owner setup" >&2; exit 1
+fi
+OUID=$(id -u "$OWNER")
+OHOME=$(getent passwd "$OWNER" | cut -d: -f6)
+WL=$(ls "$KIOSK_RUN" 2>/dev/null | grep -E '^wayland-[0-9]+$' | head -n1)
+case "${1:-open}" in
+  open)
+    [ -d "$KIOSK_RUN" ] && [ -n "$WL" ] || { echo "the monitor's session is not running (no Wayland display in $KIOSK_RUN)" >&2; exit 1; }
+    command -v claude-desktop >/dev/null 2>&1 || { echo "claude-desktop is not installed: sudo bash /opt/arise/scripts/arise-claude-desktop-setup" >&2; exit 1; }
+    if pgrep -u "$OWNER" -f '/claude-desktop|claude-desktop ' >/dev/null 2>&1; then echo "already open"; exit 0; fi
+    # Lend the kiosk's display to the owner: reach the folder, use the socket. Taken back on close.
+    setfacl -m "u:$OWNER:x" "$KIOSK_RUN" && setfacl -m "u:$OWNER:rw" "$KIOSK_RUN/$WL" || { echo "could not lend the display (is the acl package installed?)" >&2; exit 1; }
+    ORUN=/run/user/$OUID
+    if [ ! -d "$ORUN" ]; then ORUN=/run/arise-claude-$OUID; install -d -m 0700 -o "$OWNER" "$ORUN"; fi
+    exec sudo -u "$OWNER" env XDG_RUNTIME_DIR="$ORUN" WAYLAND_DISPLAY="$KIOSK_RUN/$WL" XDG_SESSION_TYPE=wayland \
+      ELECTRON_OZONE_PLATFORM_HINT=wayland HOME="$OHOME" \
+      setsid dbus-run-session -- sh -c 'gnome-keyring-daemon --start --components=secrets >/dev/null 2>&1; exec claude-desktop --ozone-platform=wayland' \
+      >/dev/null 2>&1 &
+    ;;
+  close)
+    pkill -u "$OWNER" -f 'claude-desktop' 2>/dev/null
+    [ -n "$WL" ] && setfacl -x "u:$OWNER" "$KIOSK_RUN/$WL" 2>/dev/null
+    [ -d "$KIOSK_RUN" ] && setfacl -x "u:$OWNER" "$KIOSK_RUN" 2>/dev/null
+    exit 0 ;;
+  status)
+    if pgrep -u "$OWNER" -f 'claude-desktop' >/dev/null 2>&1; then echo open; else echo closed; fi ;;
+  *) echo "arise-claude-desktop open|close|status" >&2; exit 2 ;;
+esac

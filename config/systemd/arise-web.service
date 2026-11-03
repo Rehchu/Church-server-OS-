@@ -1,0 +1,24 @@
+# Arise Server — the dashboard and JSON API on port 4147.
+# Installed by installer/install.sh. Logs: journalctl -u arise-web
+[Unit]
+Description=Arise Server dashboard (arise-web, port 4147)
+Documentation=file:///opt/arise/docs/ARCHITECTURE.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/arise/server
+ExecStart=/opt/arise/venv/bin/python -m arise_server --config /etc/arise/arise.toml
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONUTF8=1
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+Restart=always
+RestartSec=3
+# Runs as root: it calls samba-tool, systemctl, docker and restic on your behalf.
+User=root
+StandardOutput=append:/var/log/arise/web.log
+StandardError=append:/var/log/arise/web.log
+
+[Install]
+WantedBy=multi-user.target

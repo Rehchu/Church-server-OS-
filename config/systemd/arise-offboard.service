@@ -1,0 +1,9 @@
+[Unit]
+Description=Arise Server offboarding sweep (disable on the day, move the files on; never deletes an account)
+After=samba-ad-dc.service local-fs.target
+
+[Service]
+Type=oneshot
+# Never during a service: skipped, not failed (arisectl service-now).
+ExecCondition=/usr/local/bin/arisectl service-now --quiet
+ExecStart=/usr/local/bin/arisectl offboard sweep --quiet

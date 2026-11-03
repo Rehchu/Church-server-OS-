@@ -1,0 +1,26 @@
+# Arise Server — the Arise repos kept in step with GitHub both ways (docs/REPOS.md).
+# Every 15 minutes: fetch, fast-forward, push commits made here (per each repo's
+# policy). Never commits, merges, rebases or force-pushes; never runs a repo's hooks;
+# refuses a push that carries a credential or a file over 100 MB.
+[Unit]
+Description=Arise repos: sync /srv/arise/repos with GitHub
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=arise-git
+Group=arise-repos
+UMask=0002
+# The service-time check reads arise.toml (root-only), so it runs with full privileges (+).
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
+# The GitHub token reaches the job as a systemd credential; the file itself stays root-only.
+LoadCredential=github-token:/etc/arise/secrets/github-token
+ExecStart=/usr/local/bin/arisectl repos sync --quiet
+TimeoutStartSec=1h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/repos /var/lib/arise/repos
+InaccessiblePaths=/etc/arise/secrets

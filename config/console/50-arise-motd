@@ -1,0 +1,19 @@
+#!/bin/sh
+# /etc/update-motd.d/50-arise-motd — what greets a login on the box.
+# Installed by install.sh. Reads nothing that needs quota; arisectl info is cheap.
+printf '\033[31m'
+cat <<'B'
+      ▄▄
+     ▟██▙      ARISE SERVER
+    ▟████▙     Arise Church · Pineville, LA
+   ▟██▛▜██▙
+  ▟██▛  ▜██▙   arisetui        the console dashboard
+  ▜██▙▄▄▟██▛   arisectl doctor what needs fixing
+   ▜██████▛    arisectl info   what this box is
+     ▀▀▀▀
+B
+printf '\033[0m'
+if command -v arisectl >/dev/null 2>&1; then
+  ARISECTL_NO_REEXEC=0 arisectl info 2>/dev/null | sed -n '2,8p'
+fi
+echo

@@ -1,0 +1,12 @@
+[project]
+name = "arise-server"
+version = "0.1.0"
+description = "Arise Server - the church server for Arise Church, Pineville LA"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115", "uvicorn[standard]>=0.30", "psutil>=6.0", "pyyaml>=6.0",
+  "bcrypt>=4.0", "itsdangerous>=2.1", "python-multipart>=0.0.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]

@@ -1,0 +1,15 @@
+[Unit]
+Description=Restart Arise apps interrupted by a backup shutdown
+After=docker.service local-fs.target
+Wants=docker.service
+ConditionPathExists=/var/lib/arise/backup-apps-stopped.json
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/arise/server
+Environment=ARISE_CONFIG=/etc/arise/arise.toml
+ExecStart=/opt/arise/venv/bin/python -c "from arise_server.backups import resume_apps; import sys; r=resume_apps(); print(r); sys.exit(0 if r['ok'] else 1)"
+TimeoutStartSec=15min
+
+[Install]
+WantedBy=multi-user.target

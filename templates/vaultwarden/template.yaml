@@ -1,0 +1,30 @@
+name: vaultwarden
+title: Vaultwarden
+description: The church's own password manager. Bitwarden apps on phones, Macs and browsers talk to it. Replaces the shared spreadsheet.
+category: security
+icon: lock
+version: "1.32"
+ports:
+  - 8083:80
+volumes:
+  - /srv/arise/apps/vaultwarden:/data
+env:
+  SIGNUPS_ALLOWED: "false"
+  ADMIN_TOKEN: "CHANGE-ME-run-openssl-rand-base64-48"
+  DOMAIN: "https://vault.ad.arisecenla.com"
+autostart: true
+ram_mb: 100
+limits:
+  mem_mb: 384
+  cpus: 0.5
+notes: |
+  BACK UP /srv/arise/apps/vaultwarden. It holds every password the church keeps
+  here, encrypted with each user's master password. The 'apps' restic job covers
+  it nightly; also export the vault (Tools > Export) to the leadership share
+  quarterly. Lose the data dir and nothing can recover it.
+
+  Bitwarden apps refuse plain HTTP except on localhost. Until HTTPS is set up
+  on the server (not in this release), use it from the server's own browser or
+  through an SSH tunnel:  ssh -L 8083:127.0.0.1:8083 bradly@arise-server
+  Set ADMIN_TOKEN before deploying; SIGNUPS_ALLOWED stays false - invite people
+  from /admin.

@@ -1,0 +1,10 @@
+[Unit]
+Description=Arise Server staff mail forwarding, every five minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/5:00
+RandomizedDelaySec=30
+Persistent=false
+
+[Install]
+WantedBy=timers.target

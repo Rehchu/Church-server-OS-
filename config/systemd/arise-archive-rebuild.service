@@ -1,0 +1,26 @@
+# Arise Server - the archive's weekly full rebuild: a fresh index written beside
+# the old one and swapped in at the end, so a search meanwhile never sees half an index.
+[Unit]
+Description=Arise archive: weekly full rebuild of the search index
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/srv/arise/archive
+
+[Service]
+Type=oneshot
+User=arise-kb
+Group=arise-kb
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
+ExecStart=/opt/arise/venv/bin/python /opt/arise/archive/arise-archive build --full
+Environment=HOME=/var/lib/arise/archive
+Environment=TZ=America/Chicago
+Environment=PYTHONUTF8=1
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=3h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/archive /var/lib/arise/archive
+InaccessiblePaths=/etc/arise/secrets/youtube

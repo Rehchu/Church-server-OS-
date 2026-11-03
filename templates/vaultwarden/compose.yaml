@@ -1,0 +1,15 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.32.7
+    container_name: arise-app-vaultwarden
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    volumes:
+      - /srv/arise/apps/vaultwarden:/data     # BACK THIS UP - it is the whole vault
+    environment:
+      - TZ=America/Chicago
+      - SIGNUPS_ALLOWED=false
+      - ADMIN_TOKEN=${ADMIN_TOKEN:?set ADMIN_TOKEN in /srv/arise/apps/vaultwarden/.env}
+      - DOMAIN=${DOMAIN:-http://arise-server:8083}
+      - LOG_FILE=/data/vaultwarden.log

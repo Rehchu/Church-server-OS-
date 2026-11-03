@@ -1,0 +1,33 @@
+# Synapse (Matrix): encrypted messaging between ministry leads, with the
+# Element apps. Heavier and fussier than Mattermost; pick one of the two.
+# ONE-TIME before the first up (writes homeserver.yaml and the signing key):
+#   docker run --rm -v /srv/arise/apps/synapse/data:/data \
+#     -e SYNAPSE_SERVER_NAME=arise-server -e SYNAPSE_REPORT_STATS=no \
+#     matrixdotorg/synapse:v1.113.0 generate
+# Then edit /srv/arise/apps/synapse/data/homeserver.yaml: database -> postgres
+# (host db, user synapse, password from .env DB_PASSWORD), enable_registration: false.
+services:
+  db:
+    image: postgres:15
+    container_name: arise-app-synapse-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=synapse
+      - POSTGRES_USER=synapse
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-CHANGE-ME}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+    volumes:
+      - /srv/arise/apps/synapse/db:/var/lib/postgresql/data
+
+  synapse:
+    image: matrixdotorg/synapse:v1.113.0
+    container_name: arise-app-synapse
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8008:8008"
+    volumes:
+      - /srv/arise/apps/synapse/data:/data
+    environment:
+      - TZ=America/Chicago

@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""arise-archive: build and query the searchable archive (docs/ARCHIVE.md).
+
+    arise-archive build [--full] [--no-pull]     refresh the mirrors and update the index (as arise-kb)
+    arise-archive status                         indexed commits, counts, skipped files
+    arise-archive search <words> [--kind K] [--repo R] [--history] [--json]
+    arise-archive song <title or CCLI number>
+    arise-archive video <video id>
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from arise_archive import indexer, query  # noqa: E402
+from arise_archive.config import Config  # noqa: E402
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="arise-archive")
+    sp = ap.add_subparsers(dest="cmd", required=True)
+    b = sp.add_parser("build"); b.add_argument("--full", action="store_true"); b.add_argument("--no-pull", action="store_true")
+    sp.add_parser("status")
+    s = sp.add_parser("search"); s.add_argument("words", nargs="+"); s.add_argument("--kind"); s.add_argument("--repo")
+    s.add_argument("--history", action="store_true"); s.add_argument("--limit", type=int, default=10); s.add_argument("--json", action="store_true")
+    g = sp.add_parser("song"); g.add_argument("q", nargs="+")
+    v = sp.add_parser("video"); v.add_argument("video_id")
+    a = ap.parse_args(argv)
+    cfg = Config()
+    if a.cmd == "build":
+        r = indexer.build(cfg, full=a.full, pull_first=not a.no_pull)
+        print(json.dumps(r, indent=1, default=str)[:4000])
+        return 0 if r.get("ok") else 1
+    try:
+        if a.cmd == "status":
+            print(json.dumps(query.status(cfg), indent=1, ensure_ascii=False)); return 0
+        if a.cmd == "search":
+            r = query.search(cfg, " ".join(a.words), kind=a.kind, repo=a.repo, include_history=a.history, limit=a.limit)
+            if a.json:
+                print(json.dumps(r, indent=1, ensure_ascii=False)); return 0
+            for it in r["results"]:
+                pv = it["provenance"]
+                where = it.get("link") or (f"lines {pv['lines'][0]}-{pv['lines'][1]}" if pv.get("lines") else "")
+                print(f"[{it['kind']}] {it['title']}\n    {pv['repo']}/{pv['path']} @ {pv['commit'][:10]} {where}\n    {it['snippet']}")
+            if not r["results"]:
+                print("no results")
+            return 0
+        if a.cmd == "song":
+            print(json.dumps(query.song(cfg, " ".join(a.q)), indent=1, ensure_ascii=False)); return 0
+        if a.cmd == "video":
+            print(json.dumps(query.video(cfg, a.video_id), indent=1, ensure_ascii=False)); return 0
+    except FileNotFoundError as e:
+        print(str(e), file=sys.stderr); return 1
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

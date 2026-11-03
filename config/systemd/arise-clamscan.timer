@@ -1,0 +1,14 @@
+# Arise Server — the weekly virus scan of the shares (round 3, 28).
+# Sunday 23:30 America/Chicago: everything from the day is in, nobody is on
+# the Macs, the 02:05 automator and the 03:00 backup are hours away.
+# Never during a service: arisectl scan run refuses on its own as well.
+[Unit]
+Description=Arise weekly virus scan of the shares (ClamAV), Sunday 23:30
+
+[Timer]
+OnCalendar=Sun *-*-* 23:30:00 America/Chicago
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,28 @@
+[Unit]
+Description=Arise Screen Sharing of the closet monitor (wayvnc on cage's display; Bradly only, round 3, 17)
+# Listens only on the address Guacamole's containers can reach (the Docker
+# network gateway), with a password and TLS from /etc/arise/secrets. Set up
+# by `arisectl monitor share on`; nothing here is reachable from the internet.
+After=arise-kiosk.service
+Requires=arise-kiosk.service
+ConditionPathExists=/etc/arise/wayvnc.conf
+
+[Service]
+User=arise-kiosk
+# Round 7 security review: an unprivileged display session never needs more than this
+# (no setuid helpers, no kernel tunables or modules). Firefox's own sandbox still works.
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+Environment=XDG_RUNTIME_DIR=/run/user/1501
+Environment=WAYLAND_DISPLAY=wayland-0
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 30); do [ -S /run/user/1501/wayland-0 ] && exit 0; sleep 2; done; echo "no wayland socket"; exit 1'
+ExecStart=/usr/bin/wayvnc --config=/etc/arise/wayvnc.conf
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

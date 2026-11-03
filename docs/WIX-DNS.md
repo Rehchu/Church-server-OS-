@@ -1,0 +1,159 @@
+# Wix DNS for arisecenla.com, step by step (round 7, 131)
+
+> **As set up on Oct 31 2026 (Bradly; ANSWERS H8 and H10).** The church's Resend account verified
+> the main domain, **arisecenla.com**, not `mail.arisecenla.com`. What Wix holds now:
+>
+> | Type | Host | Value | What for |
+> |---|---|---|---|
+> | TXT | `resend._domainkey` | the `p=…` key | sending: Resend signs the church's mail |
+> | CNAME | `send` | `send.forge.rmta.net` | sending (Resend's SPF / bounces) |
+> | CNAME | `rsend` | `rsend.forge.rmta.net` | sending (Resend's SPF / bounces) |
+> | MX | `@` | `receive.forge.rmta.net`, 10 | **receiving**: all mail to `@arisecenla.com` arrives at Resend; the box forwards `first.last@arisecenla.com` (H10) |
+> | CNAME | `links` | `links2.resend-dns.com` | Resend's link tracking |
+>
+> The MX at `@` was safe to add because arisecenla.com received no mail anywhere before it (no MX
+> existed). The server sends from `it@arisecenla.com` ("Arise Church IT"). The `mail.` records
+> (`resend._domainkey.mail`, `send.mail`, `rsend.mail`, `_dmarc.mail`) from the first try are no
+> longer used; they harm nothing, and removing them is Bradly's click. **One record to add:**
+> TXT `_dmarc` → `v=DMARC1; p=none;` (DMARC for the main domain; Gmail and Yahoo look for it).
+> **ad.arisecenla.com needs nothing in Wix** (Bradly asked, Nov 1). It is the church's sign-in
+> domain, and the server itself answers for it: inside the building every church Mac asks the
+> server (its resolver file), and away from the building Tailscale's split DNS sends
+> `ad.arisecenla.com` questions to the server (docs/REMOTE-ACCESS.md, step 5). A Wix record for
+> `ad` would put the server's private address on the internet and reach nothing (rule 7). The
+> two never overlap: email uses `arisecenla.com`, sign-in uses `ad.arisecenla.com`.
+> The rest of this page is the original plan, kept for the record; where it says
+> `mail.arisecenla.com` or `ad.arisecenla.com` for mail, read `arisecenla.com`.
+
+Bradly asked to be walked through it. This page is every DNS record ariseOS
+needs at Wix, in the order to add them, with what each Wix screen shows. You
+only change DNS at Wix for **arisecenla.com**; `arisecenla.church` is at
+GoDaddy, nobody has access to it, and nothing here needs it (round 7, 133).
+
+Nothing below points at the server. Rule 7 holds: the box is not reachable
+from the internet, and none of these records changes that.
+
+| Part | What it is for | Records | When |
+|---|---|---|---|
+| 1 | Resend **sends** from `mail.arisecenla.com`: reset links, notices, newsletters ("Arise Church IT", round 7, 132) | 3, plus 1 optional | now |
+| 2 | Staff addresses `first.last@arisecenla.com` **arrive** at Resend so the box can forward them (round 7, 155; H10) | 1 MX at `@` | done Oct 31 |
+| 3 | Check them | none | after each part |
+
+Values marked **(from Resend)** are only shown on Resend's own pages: copy
+them from there, never from this page or a chat. Everything else is exact.
+
+The screen names below are what Wix and Resend called them when this was
+written. Both rename buttons now and then; the order of the steps does not
+change.
+
+## Before you start: open the two tabs
+
+1. **Resend.** Sign in at resend.com with the **church's** Resend account, not a
+   personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where
+   values come from. Make the API key on install day, not before: **full access**
+   (the Inbox reads Kristina's mail with it, H11; a sending-only key gets 401 there).
+2. **Wix.** Sign in at wix.com → the church site → **Settings** (left menu,
+   near the bottom) → **Domains**. You see `arisecenla.com` with a **⋯** button
+   on its right (Domain Actions). Click **⋯** → **Manage DNS Records**.
+
+   What you see: one box per record type, top to bottom: **A (Host)**,
+   **CNAME (Aliases)**, **MX (Mail Exchange)**, **TXT (Text)**, then SPF, NS
+   and the rest. Each box has the records already there and a **+ Add Record**
+   link under it. There is one **Save** button at the bottom of the page.
+
+   If Wix says the DNS is not managed here ("connected by pointing"), stop:
+   the records go wherever `arisecenla.com`'s name servers are, and part 3's
+   `dig NS` line shows where. Tell Claude what it says.
+
+**Leave every record that is already there alone.** The website's A and
+CNAME records and any mail the church already gets at `arisecenla.com` stay
+exactly as they are. Every record below sits on a subdomain (`mail`,
+`send.mail`, `ad`), so none of them can touch the website or the root
+domain's mail.
+
+## Part 1: sending (mail.arisecenla.com)
+
+**In Resend:** left menu **Domains** → **Add Domain** → Name
+`mail.arisecenla.com` → Region: leave **North Virginia (us-east-1)** → **Add**.
+Resend opens the domain's page with a **DNS Records** table. Keep it open.
+
+**In Wix**, add each row. Where Resend's Name ends in `.arisecenla.com`, type
+only the part before it: Wix adds the rest.
+
+Check the domain name at the top of Resend's page first: it must say
+**mail.arisecenla.com**. Resend's table then shows names like `resend._domainkey.mail`
+and `send.mail`. If its names have no `.mail` (`resend._domainkey`, `send`, `@`), the
+domain added was `arisecenla.com` itself: remove it in Resend (it is unverified and
+nothing uses it) and add `mail.arisecenla.com` instead.
+
+What Resend showed the church on Oct 31 2026 (its newer style: CNAMEs to
+`forge.rmta.net` instead of an SPF TXT and an amazonses MX):
+
+| # | Wix box | Host name (type this) | Value | Priority |
+|---|---|---|---|---|
+| 1 | **TXT** → + Add Record | `resend._domainkey.mail` | the long key starting `p=` **(from Resend)**, pasted in one piece | |
+| 2 | **CNAME** → + Add Record | `rsend.mail` | `rsend.forge.rmta.net` | |
+| 3 | **CNAME** → + Add Record | `send.mail` | `send.forge.rmta.net` | |
+| 4 (optional) | **TXT** → + Add Record | `_dmarc.mail` | `v=DMARC1; p=none;` | |
+
+An older Resend domain shows an SPF TXT (`v=spf1 include:amazonses.com ~all`) and an
+MX (`feedback-smtp.us-east-1.amazonses.com`, 10) on `send.mail` instead of rows 2
+and 3. **Resend's own table wins** over this page.
+
+**Resend's receiving MX at `@`** (`receive.forge.rmta.net`, 10) was added on Oct 31 (H10): it
+is what makes `first.last@arisecenla.com` arrive at Resend. It took nothing away: the domain had
+no mail anywhere before it. Never add a second MX at `@` for another provider.
+
+What Wix shows when you add an MX record: it may offer a list of mail
+providers (Google Workspace, Microsoft 365, "Other"). Choose **Other** (or
+"custom"). It may warn that changing MX records affects your email: this one
+is only for `send.mail`, so the church's existing mail is not affected; go on.
+
+TTL: leave whatever Wix suggests (usually 1 hour). Then **Save** at the bottom.
+
+**Back in Resend:** **Verify DNS Records**. Each row turns **Verified** within
+minutes to a few hours.
+
+**On the server** (Claude can do this part): `[mail] from_email` in
+`/etc/arise/arise.toml` becomes an address at `mail.arisecenla.com`, and the
+Resend API key goes in with `sudo arisectl mail key` (a hidden prompt; it writes
+`/etc/arise/secrets/resend-api-key`, root only, and never into a doc or a chat). `sudo arisectl mail status` then says configured.
+
+## Part 2: receiving for staff addresses (done Oct 31)
+
+Staff addresses are `first.last@arisecenla.com` (H10), and their record is already in Wix: the
+**MX at `@` → `receive.forge.rmta.net`** from the table at the top. Nothing more goes into Wix:
+no MX on `ad`, which stays the domain inside the building (the server answers for it there; a
+church Mac asks the server, through its resolver file, and never sees a public record).
+
+Resend keeps what arrives until the box asks for it (every five minutes, an outgoing call). To
+turn forwarding on: `[mailfwd] enabled = true` in `/etc/arise/arise.toml`.
+`sudo arisectl mail forward` lists every person, whether they have a personal email on their
+profile, and whether their mail will be forwarded. People with a church Inbox on the dashboard
+(`[inbox] users`, H11) read theirs there instead. Send a test to your own church address from your
+phone; within five minutes it is in your personal inbox, from "<sender> via Arise Church IT", and a
+reply goes straight to the sender. A forward that fails is tried again for about half an hour,
+then Discord #alerts says so.
+
+## Part 3: check
+
+DNS takes from minutes to a few hours. From the box or any Mac (Terminal):
+
+```
+dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net
+dig +short TXT resend._domainkey.arisecenla.com          # the p=... key
+dig +short CNAME send.arisecenla.com                     # send.forge.rmta.net.
+dig +short CNAME rsend.arisecenla.com                    # rsend.forge.rmta.net.
+dig +short MX  arisecenla.com @1.1.1.1                   # 10 receive.forge.rmta.net. (receiving, H10)
+dig +short TXT _dmarc.arisecenla.com                     # "v=DMARC1; p=none;" (once added)
+```
+
+An empty answer means the record is not there yet, or the host name has a
+typo. docs/EMAIL-DNS.md has the "if something is wrong" list.
+
+## What never goes into Wix
+
+- Anything pointing at the server's address. The box is not on the internet.
+- Records for the website you didn't add. Leave them.
+- A second `v=spf1` record on the same host name (only one is allowed).
+- An MX record at `@` (the root). That moves all of arisecenla.com's email.

@@ -1,0 +1,20 @@
+name: portainer
+title: Portainer CE
+description: Every container on the box with logs, a console and a stack editor, for the day the Apps page is not enough. Lightweight.
+category: admin
+icon: lock
+version: "2.21.4"
+ports:
+  - 9443:9443
+volumes:
+  - /srv/arise/apps/portainer/data:/data
+env: {}
+autostart: true
+ram_mb: 120
+limits:
+  mem_mb: 384
+  cpus: 0.5
+notes: |
+  https://arise-server:9443 (its own certificate; accept it once). Make the
+  admin account within five minutes of the first start or it locks itself
+  and needs a restart. Memory: under 100 MB (an estimate).

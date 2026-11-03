@@ -1,0 +1,15 @@
+# Trilium Notes: a personal, hierarchical notebook for sermon research and
+# study: a tree of notes, links between them, full search, a desktop app that
+# syncs with this server. One notebook per server; for one pastor, or one
+# shared research library.
+services:
+  trilium:
+    image: zadam/trilium:0.63.7
+    container_name: arise-app-trilium
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      - /srv/arise/apps/trilium/data:/home/node/trilium-data
+    environment:
+      - TZ=America/Chicago

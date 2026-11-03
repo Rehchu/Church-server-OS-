@@ -1,0 +1,32 @@
+# Arise Server - the searchable archive (docs/ARCHIVE.md; the automator's
+# SERVER_HANDOFF.md section 13): fast-forward both repo mirrors and update the
+# index from what changed. Read-only reference for Claude sessions on the box:
+# it never feeds the nightly job, never writes to YouTube, never pushes.
+# Fired by arise-archive.timer at 04:15 (after the 04:00 mirror and the 02:05 automator).
+[Unit]
+Description=Arise archive: refresh the two repo mirrors and update the search index
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/srv/arise/archive
+
+[Service]
+Type=oneshot
+User=arise-kb
+Group=arise-kb
+# Never during a service. The + runs only this check with full privileges, because
+# /etc/arise/arise.toml (the service times) is 0640 root; the job itself stays arise-kb.
+ExecCondition=+/usr/local/bin/arisectl service-now --quiet
+ExecStart=/opt/arise/venv/bin/python /opt/arise/archive/arise-archive build
+Environment=HOME=/var/lib/arise/archive
+Environment=TZ=America/Chicago
+Environment=PYTHONUTF8=1
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=2h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/arise/archive /var/lib/arise/archive
+# The archive never sees the automator's token or the server's other secrets.
+InaccessiblePaths=/etc/arise/secrets/youtube

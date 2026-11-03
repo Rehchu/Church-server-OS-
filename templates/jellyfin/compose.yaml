@@ -1,0 +1,23 @@
+# Jellyfin: the sermon archive as a Netflix-style library. Points at the
+# recordings share on the Synology (read-only) and streams to any browser,
+# phone or TV app. Transcoding is CPU work on an OptiPlex: play files as
+# they are (H.264 MP4 from the recordings) and it is light; transcode and
+# it uses a whole core per viewer. /dev/dri is the Intel iGPU for hardware
+# transcoding when the OptiPlex has one (most do).
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.9.11
+    container_name: arise-app-jellyfin
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+    volumes:
+      - /srv/arise/apps/jellyfin/config:/config
+      - /srv/arise/apps/jellyfin/cache:/cache
+      - /mnt/synology/arise/recordings:/media/recordings:ro
+      - /mnt/synology/arise/media:/media/library:ro
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - TZ=America/Chicago
+      - JELLYFIN_PublishedServerUrl=http://arise-server:8096

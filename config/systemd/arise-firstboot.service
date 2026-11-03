@@ -1,0 +1,27 @@
+[Unit]
+# ariseOS: the first-boot wizard on the monitor, once, after the hands-off Ubuntu install
+# (installer/autoinstall.yaml enables it; scripts/arise-firstboot disables it when done).
+# Run it again any time with: sudo arisectl setup
+Description=ariseOS first-boot setup (on the screen)
+After=systemd-user-sessions.service network-online.target
+Wants=network-online.target
+Before=getty@tty1.service arise-kiosk.service arise-console.service
+Conflicts=getty@tty1.service
+ConditionPathExists=!/var/lib/arise/firstboot.done
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/arise-src/scripts/arise-firstboot --from-boot
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+Environment=TERM=linux
+TimeoutStartSec=0
+# Cancellation and recoverable errors stay in the wizard; tty2 remains available for diagnostics.
+
+[Install]
+WantedBy=multi-user.target

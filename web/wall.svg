@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- ariseOS 0.9 "Leviticus": the desktop wallpaper. Three luminous bands sweep from the lower left to the
+       upper right (amber, Arise red, crimson) over a violet wash, with one crisp highlight on the main band.
+       Soft edges are stacked strokes, not a blur filter. Generated; static. -->
+  <defs>
+    <linearGradient id="main" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#FF8A3D"/><stop offset=".38" stop-color="#F0452E"/><stop offset=".66" stop-color="#D6222D"/><stop offset="1" stop-color="#7A0C14"/>
+    </linearGradient>
+    <linearGradient id="core" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#FFC48A"/><stop offset=".45" stop-color="#FF7A52"/><stop offset="1" stop-color="#E3303A" stop-opacity=".4"/>
+    </linearGradient>
+    <linearGradient id="back" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#7A0C14"/><stop offset=".55" stop-color="#8E1430"/><stop offset="1" stop-color="#4A1660"/>
+    </linearGradient>
+    <linearGradient id="low" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#FF9A4A"/><stop offset=".5" stop-color="#C2321E"/><stop offset="1" stop-color="#5A0910" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edge" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#FFE4D2" stop-opacity="0"/><stop offset=".25" stop-color="#FFE4D2" stop-opacity=".8"/><stop offset=".75" stop-color="#FFD2C2" stop-opacity=".65"/><stop offset="1" stop-color="#FFD2C2" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round">
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="460.0" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="434.0" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="407.9" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="381.6" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="355.1" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="328.3" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="301.3" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="274.1" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="246.5" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="218.6" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="190.3" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="161.5" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="132.1" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="102.0" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="70.8" stroke-opacity="0.07"/>
+    <path d="M-200 760C220 700 560 520 900 430S1440 180 1820 80" stroke="url(#back)" stroke-width="37.9" stroke-opacity="0.07"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="300.0" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="280.6" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="261.1" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="241.5" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="221.6" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="201.6" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="181.3" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="160.8" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="139.9" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="118.8" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="97.2" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="75.0" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="52.1" stroke-opacity="0.075"/>
+    <path d="M-220 1110C200 1040 560 930 900 840S1460 640 1820 560" stroke="url(#low)" stroke-width="27.9" stroke-opacity="0.075"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="230.0" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="219.1" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="208.1" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="197.0" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="185.8" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="174.4" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="162.9" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="151.3" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="139.6" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="127.6" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="115.4" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="103.1" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="90.4" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="77.4" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="64.0" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="50.2" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="35.5" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#main)" stroke-width="19.7" stroke-opacity="0.085"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="46.0" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="40.2" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="34.5" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="28.8" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="23.0" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="17.2" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="11.5" stroke-opacity="0.14"/>
+    <path d="M-200 930C200 860 540 700 880 600S1420 330 1820 220" stroke="url(#core)" stroke-width="5.8" stroke-opacity="0.14"/>
+    <path d="M-200 866C200 796 540 636 880 536S1420 266 1820 156" stroke="url(#edge)" stroke-width="1.6"/>
+  </g>
+</svg>

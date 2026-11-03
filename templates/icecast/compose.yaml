@@ -1,0 +1,19 @@
+# Icecast: audio to phones over the church Wi-Fi: live translation, the
+# nursery feed, an assisted-listening channel. A laptop or phone with BUTT
+# or Mixxx sends audio to the server; listeners open http://arise-server:8000/stream.
+# Passwords go in /srv/arise/apps/icecast/.env (ICECAST_SOURCE_PASSWORD,
+# ICECAST_ADMIN_PASSWORD). libretime/icecast: maintained, release-tagged (moul/icecast was
+# :latest only and last built in 2022). Same ICECAST_* variables; verify on the first deploy.
+services:
+  icecast:
+    image: libretime/icecast:2.4.4
+    container_name: arise-app-icecast
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=America/Chicago
+      - ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD:-CHANGE-ME}
+      - ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD:-CHANGE-ME}
+      - ICECAST_RELAY_PASSWORD=${ICECAST_SOURCE_PASSWORD:-CHANGE-ME}
+      - ICECAST_HOSTNAME=arise-server

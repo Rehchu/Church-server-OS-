@@ -1,0 +1,12 @@
+[Unit]
+Description=Arise Server nightly copy of the channel's text and thumbnails (round 7, 62)
+
+[Timer]
+# 04:45 America/Chicago: after the 02:05 job, the 03:00 backup, the 04:00 mirror and the 04:15 archive.
+# From the automator's own snapshots and i.ytimg.com: no YouTube quota.
+OnCalendar=*-*-* 04:45:00 America/Chicago
+RandomizedDelaySec=5m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,29 @@
+name: wg-easy
+title: WireGuard (wg-easy)
+description: Self-hosted VPN with a web page for devices and QR codes for phones. The no-third-party way for off-site Macs and PCs to reach the church network. Alternative to the installer's native WireGuard, and to Tailscale.
+category: remote
+icon: shield
+version: "14"
+ports:
+  - 51820:51820/udp
+  - 51821:51821
+volumes:
+  - /srv/arise/apps/wg-easy:/etc/wireguard
+env:
+  WG_HOST: "CHANGE-ME.duckdns.org"
+  PASSWORD_HASH: ""
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 192
+  cpus: 0.5
+notes: |
+  Set WG_HOST to the church's public DNS name (or static IP) and PASSWORD_HASH
+  to a bcrypt hash of the web UI password, made with:
+    docker run --rm ghcr.io/wg-easy/wg-easy:14 wgpw 'your-password'
+  (escape any $ in the hash as $$ in .env). Forward UDP 51820 on the Pineville
+  router to this server. NEVER forward 51821: the UI is for the LAN and the
+  tunnel only. Do not run this together with --with-wireguard: same port.
+  WG_DEFAULT_DNS must be the server's LAN address so domain names resolve
+  through the tunnel. Image tag :14 was current when written: verify before
+  first deploy.

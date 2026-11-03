@@ -1,0 +1,26 @@
+name: uptime-kuma
+title: Uptime Kuma
+description: Pings arisecenla.church, the Synology, this server and the YouTube live page every minute and tells you (email, Discord, SMS gateway) when one stops answering.
+category: monitoring
+icon: pulse
+version: "1.23"
+ports:
+  - 8082:3001
+volumes:
+  - /srv/arise/apps/uptime-kuma:/app/data
+env: {}
+autostart: true
+ram_mb: 150
+limits:
+  mem_mb: 384
+  cpus: 0.5
+notes: |
+  Suggested monitors after first login:
+    HTTPS  https://arisecenla.church
+    Ping   synology.ad.arisecenla.com
+    HTTP   http://127.0.0.1:4147/api/overview      (the dashboard)
+    HTTPS  https://www.youtube.com/@arisechurch4147/live   (keyword "LIVE" on Sundays 10:30 and Mondays 19:00 only)
+theme:
+  accepts: [dark, logo]
+  via: settings
+  note: "Settings → Appearance → Theme: Dark. Settings → General: the flame logo as the status-page icon. No custom CSS or colour field in this version."

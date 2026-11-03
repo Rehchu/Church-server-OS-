@@ -1,0 +1,16 @@
+# Owncast: the church's own live page, with chat, no YouTube in the way.
+# StreamYard (or OBS) sends a second RTMP output here: rtmp://arise-server:1935/live
+# with the stream key from Owncast's admin. Viewers: http://arise-server:8087
+# (over Tailscale from outside; a public page needs the public door, which is off).
+services:
+  owncast:
+    image: owncast/owncast:0.1.3
+    container_name: arise-app-owncast
+    restart: unless-stopped
+    ports:
+      - "8087:8080"
+      - "1935:1935"
+    volumes:
+      - /srv/arise/apps/owncast/data:/app/data
+    environment:
+      - TZ=America/Chicago

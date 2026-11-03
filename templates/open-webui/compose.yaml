@@ -1,0 +1,19 @@
+# Open WebUI: a ChatGPT-style page over Ollama, with its own logins, chat
+# history, document upload and a prompt library. Talks to the ollama
+# template on this box; nothing leaves the building.
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.3.35
+    container_name: arise-app-open-webui
+    restart: unless-stopped
+    ports:
+      - "8094:8080"
+    volumes:
+      - /srv/arise/apps/open-webui/data:/app/backend/data
+    environment:
+      - TZ=America/Chicago
+      - OLLAMA_BASE_URL=http://arise-server:11434
+      - WEBUI_AUTH=true
+      - ENABLE_SIGNUP=false
+    extra_hosts:
+      - "arise-server:host-gateway"

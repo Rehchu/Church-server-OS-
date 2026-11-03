@@ -1,0 +1,7 @@
+[Unit]
+Description=Arise closet monitor off (wlr-randr on cage's output)
+After=arise-kiosk.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arisectl monitor off

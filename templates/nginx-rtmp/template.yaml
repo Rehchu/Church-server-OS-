@@ -1,0 +1,22 @@
+name: nginx-rtmp
+title: nginx RTMP relay
+description: One stream in from OBS, pushed on to YouTube, Facebook and Owncast at once, from the server's wired connection instead of the booth's Wi-Fi. Only for an OBS setup; StreamYard already fans out.
+category: streaming
+icon: screen
+version: "2026-10-12"
+ports:
+  - 1936:1935
+  - 8088:80
+volumes:
+  - /srv/arise/apps/nginx-rtmp/nginx.conf:/etc/nginx/nginx.conf
+env: {}
+autostart: false
+ram_mb: 60
+limits:
+  mem_mb: 256
+  cpus: 1.0
+notes: |
+  Before the first deploy write nginx.conf with an rtmp { server { application live
+  { live on; push rtmp://a.rtmp.youtube.com/live2/KEY; push rtmp://...; } } } block.
+  OBS sends to rtmp://arise-server:1936/live. Listens on 1936 so it can live
+  beside Owncast. Verify the image before the first deploy.

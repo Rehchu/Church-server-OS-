@@ -1,0 +1,12 @@
+[Unit]
+Description=Arise Server software updates, Saturday 03:30 (what Bradly queued; round 3, 25)
+
+[Timer]
+# After the 03:00 backup, nothing booked, the Monday Glory Night long over.
+# The service refuses to run inside a service window anyway.
+OnCalendar=Sat *-*-* 03:30:00 America/Chicago
+RandomizedDelaySec=5m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

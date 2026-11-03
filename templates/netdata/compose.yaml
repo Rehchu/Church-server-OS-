@@ -1,0 +1,29 @@
+# Netdata: per-second graphs of everything on the box (CPU, RAM, disks, each
+# container, Samba, the network) with no setup. Reads the host through the
+# mounted /proc, /sys and the docker socket (read-only). The dashboard's own
+# live stats are a summary; this is the microscope.
+services:
+  netdata:
+    image: netdata/netdata:v1.47.5
+    container_name: arise-app-netdata
+    restart: unless-stopped
+    pid: host
+    network_mode: host          # the web UI is :19999 on the box
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /srv/arise/apps/netdata/config:/etc/netdata
+      - /srv/arise/apps/netdata/lib:/var/lib/netdata
+      - /srv/arise/apps/netdata/cache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=America/Chicago
+      - NETDATA_CLAIM_TOKEN=          # leave empty: no Netdata Cloud, local only
