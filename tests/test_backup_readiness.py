@@ -163,6 +163,7 @@ class BackupReadiness(unittest.TestCase):
         entry = {"name": "a.b", "move_to": "c.d", "disable_on": "2026-10-01", "done": None}
         offboard._write([entry])
         with patch.object(offboard.directory, "enable_user", return_value={"ok": True}), \
+             patch.object(offboard, "receiver_ok", return_value=None), \
              patch.object(offboard, "copy_to_archive", return_value={"ok": True}), \
              patch("arise_server.accounts.switched"), \
              patch("arise_server.profiles.mailbox_export", return_value={"ok": True}), \

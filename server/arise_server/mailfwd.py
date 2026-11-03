@@ -102,12 +102,20 @@ def forward_body(msg: dict, dest: str, from_email: str, server_name: str = "Aris
     """Pure: the Resend send for one forward. From the church's verified sending address (a
     forward cannot claim to be the original sender), Reply-To the original sender so a reply
     goes straight back to them, the subject unchanged."""
-    orig = (addresses(msg.get("from")) or [""])[0]
-    name = ""
-    if isinstance(msg.get("from"), str) and "<" in msg["from"]:
-        name = msg["from"].split("<")[0].strip().strip('"')
+    import email.utils
+    raw = msg.get("from")
+    if isinstance(raw, dict):
+        name, orig = str(raw.get("name") or ""), str(raw.get("email") or raw.get("address") or "")
+    else:
+        # The address part only, the one in the closing <...>; a name may hold commas, quotes or a lookalike address (scout I-086).
+        s_raw = str(raw or "").strip()
+        m = re.search(r"<\s*([^<>\s]+@[^<>\s]+)\s*>\s*$", s_raw)
+        name, orig = (s_raw[:m.start()].strip().strip('"'), m.group(1)) if m else email.utils.parseaddr(s_raw)
+    orig = orig.strip().lower() if re.fullmatch(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+", orig.strip()) else ""
+    name = " ".join(name.replace("\r", " ").replace("\n", " ").split())[:80]
     who = name or orig or "someone"
-    body = {"from": f"{who} via {server_name} <{from_email}>", "to": [dest], "subject": (msg.get("subject") or "(no subject)")[:250]}
+    body = {"from": email.utils.formataddr((f"{who} via {server_name}", from_email)), "to": [dest],
+            "subject": " ".join(str(msg.get("subject") or "(no subject)").split())[:250]}
     if orig:
         body["reply_to"] = orig
     note = f"Forwarded by the church server from {orig or 'an unknown sender'} to your church address."
@@ -210,7 +218,10 @@ def mask(email: str) -> str:
     return (local[:1] + "***@" + dom) if local else "***@" + dom
 
 
-def run_once(call=None) -> dict:
+MAX_TRIES = 6   # about half an hour of five-minute polls
+
+
+def run_once(call=None, post=None) -> dict:
     """One poll: what arrived since last time goes on. Never raises."""
     from . import mail
     c = cfg_fwd()
@@ -221,7 +232,7 @@ def run_once(call=None) -> dict:
     call = call or mail._call
     m = mail.cfg_mail()
     if not m.get("from_email"):
-        return {"ok": False, "err": "set [mail] from_email first (an address at mail.arisecenla.com)"}
+        return {"ok": False, "err": "set [mail] from_email first (an address at arisecenla.com)"}
     st = read_json(_state_path(), default={}) or {}
     seen = list(st.get("seen") or [])
     seen_set = set(seen)
@@ -234,35 +245,65 @@ def run_once(call=None) -> dict:
     new = [x for x in reversed(items) if x.get("id") and x["id"] not in seen_set]   # oldest first
     users, emails = _users_and_emails()
     als = aliases(users, emails)
-    fwd = 0
+    from . import inbox as _inbox
+    pending = dict(st.get("pending") or {})   # id -> {tries, done: [alias]}; a failed send waits for the next poll
+    fwd, gave_up = 0, []
     for it in new:
-        from . import inbox as _inbox
         targets = route(addresses(it.get("to")) + addresses(it.get("cc")), als, c["domain"], _inbox.users())
-        full = None
+        p = pending.get(it["id"]) or {"tries": 0, "done": []}
+        first = p["tries"] == 0
+        full, fetch_err, failed = None, None, []
         for t in targets:
+            if t["alias"] in p["done"]:
+                continue   # already went on an earlier poll: never twice
             row = {"t": datetime.now().isoformat(timespec="seconds"), "id": it["id"], "alias": t["alias"],
                    "from": (addresses(it.get("from")) or [""])[0], "subject": str(it.get("subject") or "")[:200]}
             if "to" not in t:
-                _log({**row, "ok": False, "why": t["why"]})
+                if first:
+                    _log({**row, "ok": False, "why": t["why"]})   # permanent (no such person, no personal email): once
                 continue
-            if full is None:
+            if full is None and fetch_err is None:
                 g = call("GET", RECEIVED_ONE.format(id=it["id"]))
                 full = (g.get("data") or {}) if g.get("ok") else {}
                 if not full:
-                    _log({**row, "ok": False, "why": "could not fetch the message: " + str(g.get("err"))[:120]})
-                    continue
-                if not full.get("attachments"):
+                    fetch_err = "could not fetch the message: " + str(g.get("err"))[:120]
+                elif not full.get("attachments"):
                     a = call("GET", RECEIVED_ATTACHMENTS.format(id=it["id"]))
                     rows_a = (a.get("data") or {}) if a.get("ok") else {}
                     full["attachments"] = rows_a.get("data") if isinstance(rows_a, dict) else (rows_a or [])
+            if fetch_err:
+                _log({**row, "ok": False, "why": fetch_err})
+                failed.append(t["alias"])
+                continue
             s = call("POST", "/emails", forward_body(full, t["to"], m["from_email"], m.get("server_from_name") or "Arise Church IT"))
             _log({**row, "ok": bool(s.get("ok")), **({} if s.get("ok") else {"why": str(s.get("err"))[:160]})})
-            fwd += 1 if s.get("ok") else 0
+            if s.get("ok"):
+                fwd += 1
+                p["done"].append(t["alias"])
+            else:
+                failed.append(t["alias"])
+        p["tries"] += 1
+        if failed and p["tries"] < MAX_TRIES:
+            pending[it["id"]] = p   # not seen yet: the next poll tries the ones that failed
+            continue
+        if failed:
+            gave_up.append({"id": it["id"], "aliases": failed, "subject": str(it.get("subject") or "")[:80]})
+        pending.pop(it["id"], None)
         seen.append(it["id"])
         seen_set.add(it["id"])
-    st.update(seen=seen[-SEEN_KEEP:], last_run=datetime.now().isoformat(timespec="seconds"), last_error=None)
+    if gave_up:
+        try:
+            from . import discord
+            for g in gave_up:
+                (post or discord.post)("alerts", f"Mail to {', '.join(a + '@' + c['domain'] for a in g['aliases'])} could not be forwarded after "
+                                       f"{MAX_TRIES} tries (\"{g['subject']}\"). It is still in Resend's Receiving.",
+                                       key=f"mailfwd-gaveup:{g['id']}", fix="sudo arisectl mail forward")
+        except Exception:  # noqa: BLE001 - an alert never stops the poll
+            pass
+    st.update(seen=seen[-SEEN_KEEP:], pending=dict(list(pending.items())[-200:]),
+              last_run=datetime.now().isoformat(timespec="seconds"), last_error=None)
     write_json(_state_path(), st)
-    return {"ok": True, "arrived": len(new), "forwarded": fwd}
+    return {"ok": True, "arrived": len(new), "forwarded": fwd, "waiting": len(pending), "gave_up": len(gave_up)}
 
 
 def export(user: str) -> dict:

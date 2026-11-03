@@ -104,3 +104,97 @@ class RebuildWorksOnADeadBox(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ForwardsAreRetried(unittest.TestCase):
+    """I-020: a failed forward is tried again, never twice to someone who got it; I-086: the From header holds."""
+    def _run(self, calls, st):
+        from unittest import mock
+        from arise_server import mailfwd, mail, inbox
+        store = {"st": st}
+        posted = []
+        with mock.patch.object(mailfwd, "cfg_fwd", return_value={"enabled": True, "domain": "arisecenla.com"}), \
+             mock.patch.object(mailfwd, "load", return_value=mock.Mock(demo=False, state_dir=Path("/nonexistent"))), \
+             mock.patch.object(mail, "cfg_mail", return_value={"from_email": "it@arisecenla.com"}), \
+             mock.patch.object(mailfwd, "read_json", side_effect=lambda *a, **k: store["st"]), \
+             mock.patch.object(mailfwd, "write_json", side_effect=lambda p, v: store.update(st=v)), \
+             mock.patch.object(mailfwd, "_users_and_emails", return_value=([{"name": "kim.lee", "enabled": True}, {"name": "ann.ray", "enabled": True}], {"kim.lee": "kim@example.com", "ann.ray": "ann@example.com"})), \
+             mock.patch.object(mailfwd, "_log"), mock.patch.object(inbox, "users", return_value=[]):
+            r = mailfwd.run_once(call=calls, post=lambda *a, **k: posted.append(a) or {"ok": True})
+        return r, store["st"], posted
+
+    def test_retry_then_give_up(self):
+        msg = {"id": "m1", "to": ["kim.lee@arisecenla.com", "ann.ray@arisecenla.com"], "from": "x@example.org", "subject": "Hi"}
+        sent = []
+        def calls(method, path, body=None):
+            if method == "GET" and path.endswith("/attachments"):
+                return {"ok": True, "data": {"data": []}}
+            if method == "GET" and "m1" in path:
+                return {"ok": True, "data": {"from": "x@example.org", "text": "hello"}}
+            if method == "GET":
+                return {"ok": True, "data": {"data": [msg]}}
+            sent.append(body["to"][0])
+            return {"ok": body["to"][0] == "kim@example.com", "err": "500"}
+        r, st, _ = self._run(calls, {})
+        self.assertEqual(r["forwarded"], 1)
+        self.assertNotIn("m1", st["seen"])
+        self.assertEqual(st["pending"]["m1"]["done"], ["kim.lee"])
+        for _ in range(10):
+            r, st, posted = self._run(calls, st)
+            if "m1" in st["seen"]:
+                break
+        self.assertEqual(sent.count("kim@example.com"), 1)        # never twice
+        self.assertIn("m1", st["seen"])
+        self.assertTrue(posted and "could not be forwarded" in posted[0][1])
+
+    def test_from_header(self):
+        from arise_server import mailfwd
+        b = mailfwd.forward_body({"from": 'Smith, John "JJ" <jj@example.org>', "text": "x"}, "kim@example.com", "it@arisecenla.com")
+        import email.utils
+        name, addr = email.utils.parseaddr(b["from"])
+        self.assertEqual(addr, "it@arisecenla.com")
+        self.assertIn("via Arise Church IT", name)
+        self.assertEqual(b["reply_to"], "jj@example.org")
+        b = mailfwd.forward_body({"from": '"boss@bank.example" <evil@example.net>', "text": "x"}, "kim@example.com", "it@arisecenla.com")
+        self.assertEqual(b["reply_to"], "evil@example.net")   # the address part, not a lookalike in the name
+
+
+class SmallMediums(unittest.TestCase):
+    """I-041, I-071, I-113, I-118, I-119."""
+    def test_set_password_signs_out(self):
+        src = (ROOT / "cli" / "arisectl").read_text()
+        body = src[src.index('if a.sub != "set-password":'):]
+        body = body[:body.index("arise-web restarted")]
+        self.assertIn("revoke_sessions(cfg.web.admin_user)", body)
+
+    def test_run_all_is_the_nightly_unit(self):
+        js = (ROOT / "web" / "app.js").read_text()
+        fn = js[js.index("async function runAllBackups()"):]
+        fn = fn[:fn.index("\n")]
+        self.assertIn("'/backups/run'", fn)
+        self.assertNotIn("for (const j of jobs)", fn)
+        self.assertNotIn("/backups/run/automator", js)
+        src = (ROOT / "server" / "arise_server" / "backups.py").read_text()
+        self.assertIn('"start", "--no-block", "arise-backup.service"', src)
+        self.assertTrue(backups.run_all()["ok"])   # the sample config is demo mode
+
+    def test_new_folder_belongs_to_its_maker(self):
+        src = (ROOT / "server" / "arise_server" / "files.py").read_text()
+        fn = src[src.index("def make_folder("):src.index("_search_cache")]
+        self.assertIn("os.chown(dest", fn)
+        self.assertNotIn("os.makedirs(dest)", fn)
+
+    def test_the_receiver_must_be_a_live_account(self):
+        from unittest import mock
+        from arise_server import offboard, directory
+        with mock.patch.object(directory, "list_users", return_value={"users": [{"name": "kim.lee", "enabled": True}, {"name": "old.one", "enabled": False}], "error": None}):
+            self.assertIsNone(offboard.receiver_ok("kim.lee"))
+            self.assertIn("no account", offboard.receiver_ok("nobody.here"))
+            self.assertIn("switched off", offboard.receiver_ok("old.one"))
+            self.assertFalse(offboard.start("ann.ray", "nobody.here", "bradly")["ok"])
+
+    def test_the_leaving_day_is_picked(self):
+        js = (ROOT / "web" / "app.js").read_text()
+        fn = js[js.index("function leavingModal("):js.index("const secView = V.security")]
+        self.assertIn('type="date"', fn)
+        self.assertIn("days: d", fn)

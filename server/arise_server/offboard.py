@@ -80,10 +80,26 @@ def status() -> dict:
     return {"entries": _read(), "grace_days": GRACE_DAYS, "demo": load().demo}
 
 
+def receiver_ok(move_to: str) -> str | None:
+    """Why this account cannot take the files (scout I-118), or None: it must exist and be switched on."""
+    lu = directory.list_users()
+    if lu.get("error"):
+        return "the directory is not answering: " + str(lu["error"])[:120]
+    u = next((x for x in lu.get("users") or [] if str(x.get("name", "")).lower() == (move_to or "").lower()), None)
+    if not u:
+        return f"there is no account called {move_to}"
+    if not u.get("enabled", True):
+        return f"{move_to}'s account is switched off"
+    return None
+
+
 def start(name: str, move_to: str, by: str, days: int = GRACE_DAYS) -> dict:
     p = plan(name, move_to, by, days=days)
     if not p["ok"]:
         return p
+    why = receiver_ok(move_to)
+    if why:
+        return {"ok": False, "err": why + "; pick who takes the files"}
     with _lock:
         entries = [e for e in _read() if e["name"] != name or e.get("done")]
         entries.append(p["entry"])
@@ -216,6 +232,18 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                 r["would"] = f"disable {e['name']}, move their files to {e['move_to']}"
                 results.append(r)
                 continue
+            why = receiver_ok(e["move_to"])
+            if why:
+                # The person taking the files went away since: nothing happens, Bradly hears (scout I-118).
+                r.update(held=True, err=f"held: {why}")
+                results.append(r)
+                audit.record(by, "directory.leaving.sweep", e["name"], ok=False, detail=r["err"])
+                try:
+                    from . import accounts
+                    accounts.alert(f"Leaving: {e['name']} is due, but {why}. Nothing was switched off or moved; pick someone else in Directory.")
+                except Exception:  # noqa: BLE001
+                    pass
+                continue
             d = directory.enable_user(e["name"], False)
             r["disabled"] = bool(d.get("ok"))
             if not d.get("ok"):
@@ -298,6 +326,6 @@ def sweep(now: datetime | None = None, dry_run: bool = False, by: str = "arise-o
                          detail=f"disabled; files to {e['move_to']}")
         if not dry_run:
             _write(entries)
-    return {"ok": all(r.get("disabled", True) and r.get("files", {}).get("ok", True)
+    return {"ok": all(not r.get("held") and r.get("disabled", True) and r.get("files", {}).get("ok", True)
                       and r.get("mailbox", {}).get("ok", True) and r.get("macs", {}).get("ok", True) for r in results),
             "results": results, "dry_run": dry_run, "demo": cfg.demo}

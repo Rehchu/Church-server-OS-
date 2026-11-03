@@ -669,7 +669,7 @@ route('POST', /^\/sunday\/(\d+)$/, (b, m) => { const s = get('GET /sunday'); con
 const auditAdd = (action, target, detail) => { const a = getOr('GET /audit?limit=60', { events: [] }); (a.events = a.events || []).unshift({ t: new Date().toISOString().slice(0, 19), who: me()?.user, action, target, ok: true, ...(detail ? { detail } : {}) }); touch('GET /audit?limit=60'); };
 route('POST', /^\/directory\/users\/([^/]+)\/leaving$/, (b, m) => {
   if (!isAdmin()) return http(403, 'Administrator only'); const name = decodeURIComponent(m[1]); const to = String(b.move_to || '');
-  if (!userOf(name)) return fail('no such user'); if (!to || !userOf(to)) return fail('pick who takes the files'); if (to.toLowerCase() === name.toLowerCase()) return fail('the files cannot move to the person who is leaving');
+  if (!userOf(name)) return fail('no such user'); if (!to || !userOf(to)) return fail('there is no account called ' + (to || '?') + '; pick who takes the files'); if (userOf(to).enabled === false) return fail(to + "'s account is switched off; pick who takes the files"); if (to.toLowerCase() === name.toLowerCase()) return fail('the files cannot move to the person who is leaving');
   const days = b.days === undefined ? 30 : +b.days; if (!(days >= 0 && days <= 365)) return fail('the grace period is 0 to 365 days');
   const L = getOr('GET /directory/leaving', { entries: [], grace_days: 30 }); const now = new Date(); const on = new Date(now.getTime() + days * 86400000);
   const entry = { name, move_to: to, by: me().user, since: now.toISOString().slice(0, 19), disable_on: on.toISOString().slice(0, 10), done: null };

@@ -464,7 +464,16 @@ def make_folder(root_id: str, rel: str, name: str, who: dict | None = None) -> d
     dest = os.path.join(folder, name)
     if os.path.exists(dest):
         return {"ok": False, "err": f"{name} already exists"}
-    os.makedirs(dest)
+    # The person owns the folder they make, with the mode and group of the folder it sits in, so their
+    # Mac can write into it (scout I-113); default ACLs, where the parent has them, carry over by themselves.
+    st = os.stat(folder)
+    os.mkdir(dest, st.st_mode & 0o7777)
+    os.chmod(dest, st.st_mode & 0o7777)
+    try:
+        import pwd
+        os.chown(dest, pwd.getpwnam((who or {}).get("user", "")).pw_uid, st.st_gid)
+    except (KeyError, OSError, ImportError):
+        pass
     return {"ok": True, "path": dest}
 
 

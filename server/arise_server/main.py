@@ -1157,6 +1157,11 @@ def bk_repo(_=admin):
     return backups.repo()
 
 
+@app.post("/api/backups/run")
+def bk_run_all(_=recent_admin):
+    return backups.run_all()
+
+
 @app.post("/api/backups/run/{job}")
 def bk_run(job: str, _=recent_admin):
     return backups.run_job(job)

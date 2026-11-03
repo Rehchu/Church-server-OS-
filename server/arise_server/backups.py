@@ -275,6 +275,22 @@ def run_job(job_id: str, blocking: bool = False) -> dict:
     return {"ok": True, "started": True, "job": job_id}
 
 
+def run_all() -> dict:
+    """'Run all jobs now' from the dashboard (scout I-071): the nightly unit itself, so the jobs run one
+    after another with the prune and the off-site copy, as at 03:00, never all at once."""
+    from . import church
+    if load().demo:
+        return {"ok": True, "demo": True, "out": "(sample) the nightly backup would start now, one job after another"}
+    if church.in_service_now():
+        return {"ok": False, "err": "a service is running; the backup waits for it (or the 03:00 run)"}
+    if not which("systemctl"):
+        return {"ok": False, "err": "systemctl is not here: run sudo arisectl backup run"}
+    r = run(["systemctl", "start", "--no-block", "arise-backup.service"], timeout=30)
+    if not r["ok"]:
+        return {"ok": False, "err": (r.get("err") or r.get("out") or "systemctl refused")[:300]}
+    return {"ok": True, "started": True, "out": "the backup is running: every job, one after another, then the prune and the off-site copy"}
+
+
 def _execute(job: dict) -> dict:
     try:
         with maintenance.exclusive("backup"):

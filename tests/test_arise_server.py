@@ -232,7 +232,8 @@ class AuditAndLeaving(unittest.TestCase):
             (homes / "c.d").mkdir()
             fake = mock.Mock(); fake.demo = False; fake.state_dir = Path(d); fake.directory.homes_path = str(homes)
             fake.people.leavers_archive = str(Path(d) / "leavers"); fake.nas.mount = str(Path(d) / "nas")   # round 7, 60
-            with mock.patch.object(offboard, "load", return_value=fake), mock.patch.object(audit, "load", return_value=fake):
+            with mock.patch.object(offboard, "load", return_value=fake), mock.patch.object(audit, "load", return_value=fake), \
+                 mock.patch.object(offboard, "receiver_ok", return_value=None):
                 offboard._write([{"name": "a.b", "move_to": "c.d", "by": "bradly", "since": "2026-09-01", "disable_on": "2026-10-01", "done": None}])
                 with mock.patch.object(offboard.directory, "enable_user", return_value={"ok": False, "err": "samba-tool: no such user"}):
                     r = offboard.sweep(now=datetime(2026, 10, 28))
@@ -255,7 +256,7 @@ class AuditAndLeaving(unittest.TestCase):
         for p in ("/api/audit", "/api/directory/leaving", "/api/directory/users/x.y/leaving"):
             self.assertFalse(member_ok(p, "member"), p)
         c = TestClient(app)
-        r = c.post("/api/directory/users/guest.speaker/leaving", json={"move_to": "bradly.dyer"}).json()
+        r = c.post("/api/directory/users/guest.speaker/leaving", json={"move_to": "bradly"}).json()   # a real account in the sample (scout I-118)
         self.assertTrue(r["ok"], r)
         self.assertIn("guest.speaker", [e["name"] for e in c.get("/api/directory/leaving").json()["entries"]])
         ev = c.get("/api/audit?q=leaving").json()["events"]

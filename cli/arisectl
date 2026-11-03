@@ -310,7 +310,10 @@ def cmd_admin(a):
         os.chmod(path, 0o640)
     except OSError:
         pass
-    ok(f"password hash written to {path} for user '{cfg.web.admin_user}'")
+    # The old password's sessions stop working on every device (scout I-041), as a directory change does.
+    from arise_server.auth import revoke_sessions
+    revoke_sessions(cfg.web.admin_user)
+    ok(f"password hash written to {path} for user '{cfg.web.admin_user}'; their old sessions are signed out on every device")
     if which("systemctl"):
         run(["systemctl", "restart", "arise-web.service"], timeout=30)
         ok("arise-web restarted")
@@ -884,7 +887,7 @@ def cmd_mail(a):
         if r.get("demo"): warn("sample data")
         return
     if a.sub == "forward":
-        # Round 7, 155: first.last@ad.arisecenla.com, forwarding only (arise-mailfwd.timer runs `forward run`).
+        # Round 7, 155 and H10: first.last@arisecenla.com, forwarding only (arise-mailfwd.timer runs `forward run`).
         from arise_server import mailfwd
         what = a.arg1 or "status"
         if what == "run":
@@ -893,7 +896,7 @@ def cmd_mail(a):
             if r.get("skipped"):
                 warn(r["skipped"])
             elif r.get("ok"):
-                ok(f"{r.get('arrived', 0)} arrived, {r.get('forwarded', 0)} forwarded")
+                ok(f"{r.get('arrived', 0)} arrived, {r.get('forwarded', 0)} forwarded" + (f", {r['waiting']} to try again" if r.get('waiting') else "") + (f", {r['gave_up']} given up (#alerts)" if r.get('gave_up') else ""))
             else:
                 bad(r.get("err")); sys.exit(1)
         elif what == "export":
