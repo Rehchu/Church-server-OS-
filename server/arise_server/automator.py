@@ -26,6 +26,15 @@ UNIT, PREVIEW_UNIT, TIMER = "arise-automator.service", "arise-automator-preview.
 STATE_FILES = ("_starfix_state.json", "_tx_run.json", "_retitle_report.txt", "_ss_fix_report.txt")  # handoff section 3
 
 
+def summary_ok(summary: str | None) -> bool | None:
+    """Pure: did the night's summary report no failures? "10 failed" is not "0 failed" (scout I-024).
+    None with no summary; False when the summary gives no count (as before: green only when it says 0)."""
+    if not summary:
+        return None
+    m = re.search(r"(\d[\d,]*)\s+failed", summary) or re.search(r"failed\s*[·:]\s*(\d[\d,]*)", summary)
+    return bool(m) and int(m.group(1).replace(",", "")) == 0
+
+
 def read_env(path: str = ENV_FILE) -> dict:
     """Pure-ish: KEY=VALUE lines of /etc/arise/arise.env (the automator units' environment)."""
     out = {}
@@ -194,7 +203,7 @@ def overview() -> dict:
         signed = m2.group(1)
     return {
         "demo": False, "path": p["root"], "schedule": cfg.automator.schedule,
-        "last_run": last_run, "last_ok": ("failed · 0" in summary) or ("0 failed" in summary) if summary else None,
+        "last_run": last_run, "last_ok": summary_ok(summary),
         "last_summary": summary, "next_run": _next_run(cfg.automator.schedule),
         "quota_today": spent_today if spent_today is not None else spent, "quota_daily": daily, "quota_reset": "2:00 AM Central",
         "holds": len(holds.get("videos", [])), "rules": len(holds.get("rules", [])),

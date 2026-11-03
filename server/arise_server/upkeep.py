@@ -400,7 +400,8 @@ def _card_facts() -> dict:
         repo = tg.get("repo") or cfg.backups.restic_repo
     except Exception:  # noqa: BLE001
         repo = cfg.backups.restic_repo
-    return {"host": host, "fqdn": f"{host}.{realm}", "ip": ip, "repo": str(repo), "home": str(cfg.backups.arise_home_repo or "")}
+    return {"host": host, "fqdn": f"{host}.{realm}", "ip": ip, "repo": str(repo), "home": str(cfg.backups.arise_home_repo or ""),
+            "pinned": os.path.exists("/etc/netplan/60-arise-pinned.yaml")}
 
 
 def closet_card(private: bool, rescue_password: str = "", facts: dict | None = None, call: list[dict] | None = None,
@@ -426,7 +427,7 @@ table{{border-collapse:collapse;margin:0 24px;width:calc(100% - 48px)}}td{{paddi
 code{{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;padding:1px 5px}}.ft{{margin:26px 24px 0;font-size:11px;color:#6A6A6E}}</style></head><body>
 <div class="hd"><h1>ariseOS: if the server dies</h1><p>{e(head)}</p></div>
 <h2>Bradly can't be reached?</h2><table><tr><td>Kristina follows this card</td><td>Round 7, 59. She knows the disk passphrase and the backup password (58). If neither of you answers, call the next name below.</td></tr></table>
-<h2>This box</h2><table><tr><td>Name</td><td>{e(f['host'])} &nbsp;(<code>{e(f['fqdn'])}</code>)</td></tr><tr><td>Address on the wire</td><td><code>{e(f['ip'] or 'see arisectl info')}</code> &nbsp;pinned on the box, not on the router</td></tr>
+<h2>This box</h2><table><tr><td>Name</td><td>{e(f['host'])} &nbsp;(<code>{e(f['fqdn'])}</code>)</td></tr><tr><td>Address on the wire</td><td><code>{e(f['ip'] or 'see arisectl info')}</code> &nbsp;{'pinned on the box, not on the router' if f.get('pinned') else 'from the router (DHCP, not pinned: it may change; arisectl info shows the current one)'}</td></tr>
 <tr><td>Dashboard</td><td><code>https://{e(f['fqdn'])}</code> &nbsp;and the desktop on this monitor</td></tr><tr><td>Over Tailscale</td><td>the same address from any signed-in admin laptop or phone</td></tr></table>
 <h2>Three commands (Alt+F2 for a text login)</h2><table><tr><td>What is wrong?</td><td><code>sudo arisectl doctor</code></td></tr><tr><td>Dashboard stuck</td><td><code>sudo systemctl restart arise-web</code> &nbsp;(logins and shares keep working meanwhile)</td></tr><tr><td>Everything stuck</td><td><code>sudo reboot</code> &nbsp;about a minute; Macs keep working on cached accounts</td></tr></table>
 <h2>Getting in when the domain is down</h2><table><tr><td>Break-glass login</td><td><code>arise-rescue</code> at this monitor only (Alt+F2), never SSH. Every use is logged and reaches Bradly.</td></tr><tr><td>Its password</td><td>{rescue}</td></tr></table>

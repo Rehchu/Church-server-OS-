@@ -34,9 +34,10 @@ W=""
 if command -v whiptail >/dev/null 2>&1 && [ -t 0 ] && [ "${ARISE_PLAIN:-}" != 1 ]; then W=whiptail; fi
 TITLE="ariseOS setup"
 say()   { if [ -n "$W" ]; then whiptail --title "$TITLE" --msgbox "$1" 20 74; else printf '\n%s\n\n' "$1"; [ -t 0 ] && read -r -p "  Press Enter to go on. " _; fi; }
-yesno() { # yesno "question" default(yes|no) -> 0 for yes
+yesno() { # yesno "question" default(yes|no) [height] -> 0 for yes
   if [ -n "$W" ]; then
-    if [ "$2" = no ]; then whiptail --title "$TITLE" --defaultno --yesno "$1" 16 74; else whiptail --title "$TITLE" --yesno "$1" 16 74; fi
+    local h="${3:-16}"
+    if [ "$2" = no ]; then whiptail --title "$TITLE" --scrolltext --defaultno --yesno "$1" "$h" 78; else whiptail --title "$TITLE" --scrolltext --yesno "$1" "$h" 78; fi
   else
     local a; read -r -p "  $1 [$( [ "$2" = no ] && echo y/N || echo Y/n )] " a
     a="${a:-$2}"; case "$a" in [Yy]*) return 0 ;; *) return 1 ;; esac
@@ -151,7 +152,7 @@ Keep the keyboard and passphrase ready. TPM 2.0 unlock is available only
 if this computer actually has a supported chip and binding succeeds.
 
 Go?"
-yesno "$SUMMARY" yes || { say "Setup was cancelled. The setup screen will return."; exit 1; }
+yesno "$SUMMARY" yes 28 || { say "Setup was cancelled. The setup screen will return."; exit 1; }
 
 # ----- doing it ---------------------------------------------------------------------------------
 clear 2>/dev/null || true

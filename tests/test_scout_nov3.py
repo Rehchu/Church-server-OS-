@@ -176,7 +176,9 @@ class SmallMediums(unittest.TestCase):
         self.assertNotIn("/backups/run/automator", js)
         src = (ROOT / "server" / "arise_server" / "backups.py").read_text()
         self.assertIn('"start", "--no-block", "arise-backup.service"', src)
-        self.assertTrue(backups.run_all()["ok"])   # the sample config is demo mode
+        from unittest import mock
+        with mock.patch.object(backups, "load", return_value=mock.Mock(demo=True)):
+            self.assertTrue(backups.run_all()["demo"])
 
     def test_new_folder_belongs_to_its_maker(self):
         src = (ROOT / "server" / "arise_server" / "files.py").read_text()
@@ -198,3 +200,69 @@ class SmallMediums(unittest.TestCase):
         fn = js[js.index("function leavingModal("):js.index("const secView = V.security")]
         self.assertIn('type="date"', fn)
         self.assertIn("days: d", fn)
+
+
+class SecondBatch(unittest.TestCase):
+    """I-024, I-033, I-054, I-055, I-108."""
+    def test_ten_failed_is_not_zero_failed(self):
+        from arise_server.automator import summary_ok
+        self.assertFalse(summary_ok("3 jobs done · 10 failed · 2 skipped"))
+        self.assertTrue(summary_ok("3 jobs done · 0 failed"))
+        self.assertTrue(summary_ok("failed · 0"))
+        self.assertFalse(summary_ok("aborted: quota"))
+        self.assertIsNone(summary_ok(""))
+
+    def test_widgets_survive_a_failed_refresh(self):
+        js = (ROOT / "web" / "app.js").read_text()
+        fn = js[js.index("async function buildWidgets()"):]
+        fn = fn[:fn.index("S.overview = o;")]
+        self.assertNotIn("w.innerHTML = ''", fn)
+        self.assertIn("The overview didn't answer", fn)
+
+    def test_pinned_only_when_pinned(self):
+        f = {"host": "arise-server", "fqdn": "arise-server.ad.arisecenla.com", "ip": "192.168.0.10", "repo": "/r", "home": ""}
+        self.assertIn("DHCP, not pinned", upkeep.closet_card(False, call=[], facts={**f, "pinned": False}))
+        self.assertIn("pinned on the box", upkeep.closet_card(False, call=[], facts={**f, "pinned": True}))
+        self.assertIn('[ "$PIN_IP" = 1 ] && [ -f /etc/netplan/60-arise-pinned.yaml ]', (ROOT / "installer" / "install.sh").read_text())
+
+    def test_the_go_summary_fits(self):
+        src = (ROOT / "scripts" / "arise-firstboot").read_text()
+        self.assertIn('yesno "$SUMMARY" yes 28', src)
+        self.assertIn("--scrolltext", src)
+
+    def test_ctrl_q_never_quits_the_monitor(self):
+        self.assertNotIn("warnOnQuitShortcut", (ROOT / "config" / "firefox" / "user.js").read_text())
+        self.assertIn('"browser.quitShortcut.disabled": pref(True)', (ROOT / "scripts" / "arise-browser-policies.py").read_text())
+
+
+class TimersWaitTheirTurn(unittest.TestCase):
+    """I-012/I-013: the Saturday update and the monthly check wait behind a long backup, and a deferral leaves a trace."""
+    def test_lock_wait_and_trace(self):
+        import tempfile, fcntl, time
+        from unittest import mock
+        from arise_server import maintenance
+        traces = []
+        @maintenance.guarded("test job", on_defer=traces.append)
+        def job():
+            return {"ok": True}
+        with tempfile.TemporaryDirectory() as d:
+            fake = mock.Mock(demo=False, state_dir=Path(d))
+            with mock.patch.object(maintenance, "load", return_value=fake):
+                with open(Path(d) / "maintenance.lock", "a+") as held:
+                    fcntl.flock(held, fcntl.LOCK_EX)
+                    import subprocess as sp
+                    # another process holds the lock: a no-wait call defers at once and leaves a trace
+                    child = sp.Popen([sys.executable, "-c", f"import fcntl,time; f=open({str(Path(d) / 'maintenance.lock')!r},'a+'); fcntl.flock(f, fcntl.LOCK_EX); time.sleep(1.2)"])
+                    fcntl.flock(held, fcntl.LOCK_UN)
+                    time.sleep(0.3)
+                    r = job()
+                    self.assertTrue(r["deferred"]); self.assertEqual(len(traces), 1)
+                    t0 = time.monotonic(); r = job(lock_wait=5)   # waits for the child to let go
+                    self.assertTrue(r["ok"]); self.assertGreater(time.monotonic() - t0, 0.3)
+                    child.wait()
+
+    def test_the_units(self):
+        for u in ("arise-update.service", "arise-backup-verify.service"):
+            self.assertIn("After=arise-backup.service", (ROOT / "config" / "systemd" / u).read_text(), u)
+        self.assertIn("check(lock_wait=7200)", (ROOT / "config" / "systemd" / "arise-backup-verify.service").read_text())
+        self.assertIn("lock_wait=3 * 3600 if a.quiet", (ROOT / "cli" / "arisectl").read_text())

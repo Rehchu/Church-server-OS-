@@ -1475,7 +1475,8 @@ def cmd_update(a):
         show(updates.set_queue(sorted(pk), sorted(ap), rb, "arisectl")); return
     if a.sub == "apply":
         need_root()
-        r = updates.apply(no_snapshot=a.no_snapshot, log=(lambda s: None) if a.quiet else note_)
+        # The Saturday timer (--quiet) waits up to three hours for a long backup night to finish (scout I-012).
+        r = updates.apply(no_snapshot=a.no_snapshot, log=(lambda s: None) if a.quiet else note_, lock_wait=3 * 3600 if a.quiet else 0)
         if not a.quiet:
             for s in r.get("steps", []):
                 (ok if s["ok"] else bad)(s["step"])

@@ -19,8 +19,9 @@ class MaintenanceBusy(RuntimeError):
 
 
 @contextmanager
-def exclusive(kind: str):
-    """Reentrant in the same thread; other processes/threads fail without waiting."""
+def exclusive(kind: str, wait_s: float = 0):
+    """Reentrant in the same thread; other processes/threads fail at once, or after waiting up to
+    wait_s seconds for the lock (a timer that lands behind a long backup night, scout I-012/I-013)."""
     cfg = load()
     if cfg.demo:
         yield
@@ -31,10 +32,17 @@ def exclusive(kind: str):
     import fcntl
     cfg.state_dir.mkdir(parents=True, exist_ok=True)
     with (cfg.state_dir / "maintenance.lock").open("a+") as f:
-        try:
-            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as e:
-            raise MaintenanceBusy(f"{kind} deferred: another backup, app change or update is running") from e
+        import time
+        deadline = time.monotonic() + max(0.0, float(wait_s or 0))
+        while True:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError as e:
+                if time.monotonic() >= deadline:
+                    waited = f" after waiting {int(wait_s // 60)} min" if wait_s else ""
+                    raise MaintenanceBusy(f"{kind} deferred{waited}: another backup, app change or update is running") from e
+                time.sleep(min(30.0, max(0.1, deadline - time.monotonic())))
         _local.owner = (os.getpid(), str(cfg.state_dir))
         try:
             yield
@@ -43,15 +51,23 @@ def exclusive(kind: str):
             fcntl.flock(f, fcntl.LOCK_UN)
 
 
-def guarded(kind: str):
+def guarded(kind: str, on_defer=None):
+    """lock_wait= (seconds) at the call lets a timer wait its turn; on_defer(message) leaves a trace,
+    so a deferral is never only a line in the journal (scout I-012/I-013)."""
     def decorate(fn):
         @wraps(fn)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, lock_wait: float = 0, **kwargs):
             try:
-                with exclusive(kind):
+                with exclusive(kind, wait_s=lock_wait):
                     return fn(*args, **kwargs)
             except MaintenanceBusy as e:
-                return {"ok": False, "err": str(e), "summary": str(e), "deferred": True}
+                out = {"ok": False, "err": str(e), "summary": str(e), "deferred": True}
+                if on_defer:
+                    try:
+                        on_defer(str(e))
+                    except Exception:  # noqa: BLE001 - the trace never hides the deferral
+                        pass
+                return out
         return wrapper
     return decorate
 

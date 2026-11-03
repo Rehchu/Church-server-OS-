@@ -253,7 +253,11 @@ def refresh() -> dict:
 
 
 # ----- apply ------------------------------------------------------------------
-@maintenance.guarded("software update")
+def _deferred(msg: str) -> None:
+    _finish(load(), {"when": now_iso(), "ok": False, "deferred": True, "steps": [], "summary": msg + "; tried again next Saturday, or Install now"})
+
+
+@maintenance.guarded("software update", on_defer=_deferred)
 def apply(no_snapshot: bool = False, force_service: bool = False, log=print) -> dict:
     """Install what is queued. Called by `arisectl update apply` (the Saturday timer)
     and by the dashboard's Install now. Every step is logged; nothing is silent."""

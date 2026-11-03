@@ -1005,3 +1005,8 @@ body.bone .nb__n{background:rgba(10,10,12,.05)}body.bone .nb__n p{color:#0A0A0C}
 .netbar span { opacity: .85; }
 .netbar .btn { color: #fff; border-color: rgba(255,255,255,.5); }
 body.net-down #desk, body.net-down .win { filter: grayscale(.8); opacity: .75; transition: filter .3s, opacity .3s; }
+
+/* The overview didn't answer (scout I-033): the widgets stay, this sits on top. */
+.widget--err { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid #8f1d1d; background: rgba(143,29,29,.18); border-radius: 12px; font-size: 13px; }
+.widget--err span { opacity: .8; }
+.widget--err .btn { align-self: flex-start; }

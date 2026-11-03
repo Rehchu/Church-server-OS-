@@ -113,6 +113,7 @@ def build(cfg: dict) -> dict:
             "browser.download.folderList": pref(2, "default"),
             "extensions.activeThemeID": pref("firefox-compact-dark@mozilla.org", "default"),
             "browser.uidensity": pref(1),
+            "browser.quitShortcut.disabled": pref(True),   # Ctrl+Q sits one key from the lock chord Ctrl+Alt+Q (scout I-108)
             "browser.theme.toolbar-theme": pref(0),
             "browser.theme.content-theme": pref(0),
             "ui.systemUsesDarkTheme": pref(1),

@@ -2,6 +2,8 @@
 Description=Arise Server software updates (installs the queue from Software Update after a system snapshot)
 After=network-online.target
 Wants=network-online.target
+# Ordered after the night's backup; the lock wait covers a run started by hand (scout I-012/I-013).
+After=arise-backup.service
 
 [Service]
 Type=oneshot

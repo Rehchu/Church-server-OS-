@@ -2480,9 +2480,17 @@ async function buildIcons() {
 async function buildWidgets() {
   if (isMember()) return buildMemberWidgets();
   await loadWeather();
-  let o; try { o = await api('/overview'); } catch (e) { if (e.status === 401) return showLogin(e); o = null; }
+  let o, oErr = ''; try { o = await api('/overview'); } catch (e) { if (e.status === 401) return showLogin(e); o = null; oErr = e.message || 'no answer'; }
+  const w = $('#widgets');
+  if (!o) {
+    // Keep what was there (scout I-033); one line says the overview didn't answer, with Retry.
+    let n = $('#wOverErr', w);
+    if (!n) { n = document.createElement('div'); n.id = 'wOverErr'; n.className = 'widget widget--err'; w.prepend(n); }
+    n.innerHTML = `<b>The overview didn't answer</b><span>${esc(oErr)}</span><button type="button" class="btn btn--ghost btn--sm">Retry</button>`;
+    n.querySelector('button').onclick = () => buildWidgets();
+    return;
+  }
   S.overview = o;
-  const w = $('#widgets'); if (!o) { w.innerHTML = ''; return; }
   if (o.demo) { S.demo = true; $('#demoBadge').hidden = false; if (!S.demoOnly) $('#demoBadge').textContent = 'Sample data'; }
   const att = o.attention || [], bad = att.some(x => x.level === 'bad');
   const badKey = att.filter(x => x.level === 'bad').map(x => x.text).join('|'); if (bad && S.badKey !== undefined && S.badKey !== badKey) tone('bad'); S.badKey = badKey;

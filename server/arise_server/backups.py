@@ -585,7 +585,12 @@ def forget_prune() -> dict:
                     "--keep-monthly", str(cfg.backups.keep_monthly)], timeout=maintenance.backup_budget(3600))
 
 
-@maintenance.guarded("backup verification")
+def _verify_deferred(msg: str) -> None:
+    _append_history({"job": "verify", "name": "Repository integrity check (10%)", "started": now_iso(), "finished": now_iso(),
+                     "ok": False, "deferred": True, "snapshot_id": None, "error": msg})
+
+
+@maintenance.guarded("backup verification", on_defer=_verify_deferred)
 def check() -> dict:
     if load().demo:
         return {"ok": True, "demo": True, "out": "(sample) no errors were found"}

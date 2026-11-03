@@ -2,13 +2,15 @@
 Description=Check Arise backup integrity, reading 10 percent of repository data
 After=network-online.target arise-nas-mount.service
 Wants=network-online.target arise-nas-mount.service
+# Ordered after the night's backup; the lock wait covers a run started by hand (scout I-012/I-013).
+After=arise-backup.service
 
 [Service]
 Type=oneshot
 WorkingDirectory=/opt/arise/server
 Environment=ARISE_CONFIG=/etc/arise/arise.toml
 ExecCondition=/usr/local/bin/arisectl service-now --quiet
-ExecStart=/opt/arise/venv/bin/python -c "from arise_server.backups import check; import sys; r=check(); print(r); sys.exit(0 if r['ok'] else 1)"
+ExecStart=/opt/arise/venv/bin/python -c "from arise_server.backups import check; import sys; r=check(lock_wait=7200); print(r); sys.exit(0 if r['ok'] else 1)"
 TimeoutStartSec=6h
 Nice=10
 IOSchedulingClass=idle
