@@ -860,7 +860,7 @@ def cmd_mail(a):
         # rule 6): never an argument (shell history), never echoed back.
         need_root()
         path = mail.cfg_mail()["api_key_file"]
-        key = getpass.getpass("The church's Resend API key (re_..., sending access, input hidden): ").strip()
+        key = getpass.getpass("The church's Resend API key (re_..., FULL access: the Inbox reads mail with it; input hidden): ").strip()
         if not re.match(r"^re_[A-Za-z0-9_]{16,}$", key):
             bad("that doesn't look like a Resend key (it starts with re_); nothing saved"); sys.exit(1)
         os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)

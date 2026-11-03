@@ -1347,11 +1347,15 @@ V.inbox = async () => {
     if (th.ok === false) view = `<p class="note" style="color:var(--bad);padding:16px">${esc(th.err)}</p>`;
     else {
       const ms = th.emails || []; const last = [...ms].reverse().find(m => m.direction !== 'outbound') || ms[ms.length - 1];
-      view = `<div class="ibx-thread"><h3 style="margin:0 0 10px">${esc(th.subject || ms[0]?.subject || '')}</h3>${ms.map(m => `<div class="card ibx-msg${m.direction === 'outbound' ? ' out' : ''}">
+      const cur = (ov.threads || []).find(t => t.id === S.inboxThread);
+      // Opening a conversation marks it read (Mark unread puts it back); the move buttons (scout I-088).
+      if (cur && !cur.read) { cur.read = true; api('/inbox/threads/' + encodeURIComponent(S.inboxThread), { method: 'PATCH', body: { read: true } }).catch(() => {}); }
+      const moves = (['trash', 'spam', 'archive'].includes(folder) ? [['inbox', 'Move to Inbox']] : []).concat(folder === 'sent' ? [] : [['archive', 'Archive'], ['spam', 'Spam'], ['trash', 'Trash']].filter(x => x[0] !== folder));
+      view = `<div class="ibx-thread"><div class="row" style="gap:6px;margin-bottom:8px;flex-wrap:wrap">${moves.map(([f, l]) => `<button class="btn btn--ghost btn--xs" data-ibmv="${f}">${l}</button>`).join('')}<button class="btn btn--ghost btn--xs" data-ibunread>Mark unread</button>${folder === 'trash' ? '<span class="note">Resend empties the Trash after 30 days.</span>' : ''}</div><h3 style="margin:0 0 10px">${esc(th.subject || ms[0]?.subject || '')}</h3>${ms.map(m => `<div class="card ibx-msg${m.direction === 'outbound' ? ' out' : ''}">
           <div class="row row--between"><b>${esc(fromName(m.from))}</b><span class="dim">${esc(fmtT(m.received_at || m.created_at || ''))}</span></div>
           <div class="dim" style="font-size:12px">to ${esc([].concat(m.to || []).join(', '))}</div>
           ${m.html && S.inboxHtml === m.id ? `<iframe class="ibx-html" sandbox="" referrerpolicy="no-referrer" data-ibhtml="${esc(m.id)}"></iframe>` : `<pre class="ibx-text">${esc(m.text || (m.html ? '(this message is formatted; Show formatted)' : ''))}</pre>`}
-          <div class="row" style="gap:8px;margin-top:6px;flex-wrap:wrap">${m.html ? `<button class="btn btn--ghost btn--xs" data-ibfmt="${esc(m.id)}">${S.inboxHtml === m.id ? 'Show text' : 'Show formatted'}</button>` : ''}${(m.attachments || []).map(a => `<span class="chip">📎 ${esc(a.filename || 'file')}</span>`).join('')}</div></div>`).join('')}
+          <div class="row" style="gap:8px;margin-top:6px;flex-wrap:wrap">${m.html ? `<button class="btn btn--ghost btn--xs" data-ibfmt="${esc(m.id)}">${S.inboxHtml === m.id ? 'Show text' : 'Show formatted'}</button>` : ''}${(m.attachments || []).map(a => a.id ? `<a class="chip" data-ibatt href="/api/inbox/threads/${encodeURIComponent(S.inboxThread)}/emails/${encodeURIComponent(m.id)}/attachments/${encodeURIComponent(a.id)}" target="_blank" rel="noopener noreferrer">📎 ${esc(a.filename || 'file')}</a>` : `<span class="chip">📎 ${esc(a.filename || 'file')}</span>`).join('')}</div></div>`).join('')}
         ${last ? `<div class="card" style="margin-top:10px"><label class="lbl">Reply to ${esc(fromName(last.from))}</label><textarea id="ibReply" rows="6" style="width:100%;font:inherit"></textarea>
           <div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="ibReplyGo" data-email="${esc(last.id)}">Send reply</button><label class="row" style="gap:6px"><input type="checkbox" id="ibAll"> Reply to everyone</label><span class="note">A sent email can't be taken back.</span></div></div>` : ''}</div>`;
       S.inboxMsgs = ms;
@@ -1359,7 +1363,7 @@ V.inbox = async () => {
   }
   const note = ov.ok === false ? `<div class="card" style="border-left:3px solid var(--warn);margin-bottom:10px">${esc(ov.err || 'The inbox is not reachable')}</div>` : '';
   return `<div class="fade ibx">${note}<div class="row row--between" style="margin-bottom:10px"><div><div class="kicker">Your church email${ov.demo ? ' · sample' : ''}</div><h2 style="margin:0">${esc(ov.address || '')}</h2></div>
-      <div class="row" style="gap:8px"><div class="tabs">${['inbox', 'sent', 'archive', 'spam'].map(f => `<button class="${folder === f ? 'on' : ''}" data-ibf="${f}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}</div><button class="btn btn--xs" id="ibNew">New email</button></div></div>
+      <div class="row" style="gap:8px"><div class="tabs">${['inbox', 'sent', 'archive', 'spam', 'trash'].map(f => `<button class="${folder === f ? 'on' : ''}" data-ibf="${f}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}</div><button class="btn btn--xs" id="ibNew">New email</button></div></div>
     <div class="ibx-cols"><div class="ibx-list">${list || '<p class="muted" style="padding:14px">Nothing here.</p>'}</div><div class="ibx-view">${view}</div></div></div>`;
 };
 function fromName(f) { const s = Array.isArray(f) ? f[0] : (f && f.email) ? (f.name || f.email) : String(f || ''); const m = /^\s*"?([^"<]+?)"?\s*<([^>]+)>/.exec(s); return m ? m[1] : s; }
@@ -1368,6 +1372,13 @@ V.inbox.after = root => {
   $$('[data-ibt]', root).forEach(b => b.onclick = () => { S.inboxThread = b.dataset.ibt; S.inboxCompose = false; S.inboxHtml = null; rerender('inbox'); });
   const nw = $('#ibNew', root); if (nw) nw.onclick = () => { S.inboxCompose = true; S.inboxThread = null; rerender('inbox'); };
   const cancel = $('#ibCancel', root); if (cancel) cancel.onclick = () => { S.inboxCompose = false; rerender('inbox'); };
+  $$('[data-ibmv]', root).forEach(b => b.onclick = async () => {
+    const r = await api('/inbox/threads/' + encodeURIComponent(S.inboxThread), { method: 'PATCH', body: { folder: b.dataset.ibmv } }).catch(e => ({ ok: false, err: e.message }));
+    if (r.ok === false) return toast(r.err, 'bad'); toast(r.demo ? 'Sample: would move it' : `Moved to ${b.dataset.ibmv === 'inbox' ? 'the Inbox' : b.textContent}`); S.inboxThread = null; rerender('inbox'); });
+  const unr = $('[data-ibunread]', root); if (unr) unr.onclick = async () => {
+    const r = await api('/inbox/threads/' + encodeURIComponent(S.inboxThread), { method: 'PATCH', body: { read: false } }).catch(e => ({ ok: false, err: e.message }));
+    if (r.ok === false) return toast(r.err, 'bad'); S.inboxThread = null; rerender('inbox'); };
+  $$('[data-ibatt]', root).forEach(a => a.onclick = e => { if (S.demoOnly) { e.preventDefault(); toast('Preview: on the server this opens the file'); } });
   $$('[data-ibfmt]', root).forEach(b => b.onclick = () => { S.inboxHtml = S.inboxHtml === b.dataset.ibfmt ? null : b.dataset.ibfmt; rerender('inbox'); });
   $$('[data-ibhtml]', root).forEach(f => { const m = (S.inboxMsgs || []).find(x => x.id === f.dataset.ibhtml); if (m) f.srcdoc = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src data:; style-src \'unsafe-inline\'">' + (m.html || ''); });
   const send = $('#ibSend', root); if (send) send.onclick = async () => {

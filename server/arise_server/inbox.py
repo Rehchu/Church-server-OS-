@@ -16,7 +16,9 @@ mail arrives once, here.
 
 The Resend Inboxes API was new when this was written (Oct 2026) and resend.com's docs could not
 be read from the build machine, so every path is in PATHS, one place: a renamed endpoint is a
-one-line fix. `sudo arisectl mail inbox check` tries them on install day.
+one-line fix. What is known from Resend's own tools (Nov 3): a new message is a draft that is then
+sent; a thread is marked read or moved (inbox, archive, spam, trash; trash empties itself after
+30 days) by updating it. `sudo arisectl mail inbox check` tries the read-only paths on install day.
 """
 from __future__ import annotations
 
@@ -32,9 +34,13 @@ PATHS = {
     "thread": "/inboxes/{inbox}/threads/{thread}",
     "email": "/inboxes/{inbox}/threads/{thread}/emails/{email}",
     "reply": "/inboxes/{inbox}/threads/{thread}/emails/{email}/reply",
-    "send": "/inboxes/{inbox}/emails",
+    "drafts": "/inboxes/{inbox}/drafts",                        # a new message starts as a draft (scout I-087)
+    "draft_send": "/inboxes/{inbox}/drafts/{draft}/send",
+    "thread_update": "/inboxes/{inbox}/threads/{thread}",        # PATCH {read, folder} (scout I-088)
+    "attachment": "/emails/receiving/{email}/attachments/{att}",  # a time-limited download_url (scout I-089)
 }
 FOLDERS = ("inbox", "archive", "sent", "spam", "trash")
+MOVE_TO = ("inbox", "archive", "spam", "trash")   # "sent" is not a place a thread can be moved to
 ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
 ADDR_RE = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
@@ -126,7 +132,7 @@ def _sample(user: str) -> dict:
         "thread": {"t-1": [{"id": "e-1", "direction": "inbound", "from": "Hotel Bookings <events@example.org>", "to": [addr],
                             "subject": "Women's conference rooms", "received_at": "2026-11-01T09:14:00Z",
                             "text": "Hello Minister Robinson,\n\nWe are holding twelve rooms for the weekend. The contract is attached.\n\nThank you,\nEvents team",
-                            "attachments": [{"filename": "contract.pdf", "size": 182044}]},
+                            "attachments": [{"id": "a-1", "filename": "contract.pdf", "size": 182044}]},
                            {"id": "e-2", "direction": "outbound", "from": addr, "to": ["events@example.org"],
                             "subject": "Re: Women's conference rooms", "received_at": "2026-11-01T10:30:00Z",
                             "text": "Thank you! I will send the signed copy Monday.", "attachments": []}],
@@ -211,8 +217,61 @@ def send(user: str, to: list[str] | str, subject: str, text: str) -> dict:
     m = _mine(user)
     if not m["ok"]:
         return m
-    r = _call("POST", path("send", inbox=m["inbox"]["id"]), {"to": to, "subject": subject, "text": text})
-    return {"ok": True, "id": (r.get("data") or {}).get("id")} if r.get("ok") else {"ok": False, "err": r.get("err")}
+    box = m["inbox"]["id"]
+    d = _call("POST", path("drafts", inbox=box), {"to": to, "subject": subject, "text": text})
+    draft = (d.get("data") or {}).get("id") if d.get("ok") else None
+    if not draft or not ID_RE.match(str(draft)):
+        return {"ok": False, "err": d.get("err") or "Resend did not make the draft"}
+    r = _call("POST", path("draft_send", inbox=box, draft=draft), {})
+    if not r.get("ok"):
+        return {"ok": False, "err": f"{r.get('err')} (it is kept as a draft in Resend, nothing was sent)"}
+    return {"ok": True, "id": (r.get("data") or {}).get("id")}
+
+
+def update_thread(user: str, thread_id: str, read: bool | None = None, folder: str | None = None) -> dict:
+    """Mark a conversation read or unread, or move it: Archive, Spam, Trash (Resend empties its
+    trash after 30 days; until then Move to Inbox brings it back)."""
+    if not ID_RE.match(thread_id or ""):
+        return {"ok": False, "err": "bad thread"}
+    if folder is not None and folder not in MOVE_TO:
+        return {"ok": False, "err": "a conversation moves to the inbox, archive, spam or trash"}
+    if read is None and folder is None:
+        return {"ok": False, "err": "nothing to change"}
+    body = {k: v for k, v in (("read", read), ("folder", folder)) if v is not None}
+    if load().demo:
+        return {"ok": True, "demo": True, **body}
+    m = _mine(user)
+    if not m["ok"]:
+        return m
+    r = _call("PATCH", path("thread_update", inbox=m["inbox"]["id"], thread=thread_id), body)
+    return {"ok": True, **body} if r.get("ok") else {"ok": False, "err": r.get("err")}
+
+
+def attachment(user: str, thread_id: str, email_id: str, att_id: str) -> dict:
+    """{ok, url, filename}: Resend's time-limited link for one attachment, only for a message in
+    this person's own inbox (the thread is read through their inbox first)."""
+    if not (ID_RE.match(thread_id or "") and ID_RE.match(email_id or "") and ID_RE.match(att_id or "")):
+        return {"ok": False, "err": "bad attachment"}
+    if load().demo:
+        return {"ok": False, "demo": True, "err": "the sample has no real files"}
+    m = _mine(user)
+    if not m["ok"]:
+        return m
+    e = _call("GET", path("email", inbox=m["inbox"]["id"], thread=thread_id, email=email_id))
+    if not e.get("ok"):
+        return {"ok": False, "err": e.get("err")}
+    att = next((a for a in ((e.get("data") or {}).get("attachments") or []) if str(a.get("id")) == att_id), None)
+    if not att:
+        return {"ok": False, "err": "that file is not on this message"}
+    url = att.get("download_url") or att.get("url")
+    if not url:
+        a = _call("GET", path("attachment", email=email_id, att=att_id))
+        url = (a.get("data") or {}).get("download_url") if a.get("ok") else None
+        if not url:
+            return {"ok": False, "err": a.get("err") or "Resend gave no link for that file"}
+    if not str(url).startswith("https://"):
+        return {"ok": False, "err": "Resend's link for that file is not https"}
+    return {"ok": True, "url": url, "filename": att.get("filename") or "file"}
 
 
 # ---- arisectl -------------------------------------------------------------------------
@@ -242,5 +301,14 @@ def check() -> dict:
     if not r.get("ok"):
         return {"ok": False, "err": r.get("err"), "rows": []}
     boxes = _rows(r.get("data"))
-    rows = [{"user": u, "address": address_for(u, _domain()), "inbox": bool(pick(boxes, address_for(u, _domain())))} for u in users()]
-    return {"ok": all(x["inbox"] for x in rows), "rows": rows}
+    rows = []
+    for u in users():
+        b = pick(boxes, address_for(u, _domain()))
+        row = {"user": u, "address": address_for(u, _domain()), "inbox": bool(b)}
+        if b:
+            t = _call("GET", path("threads", inbox=b["id"], limit=1, folder="inbox"))   # read-only: can the threads be listed?
+            row["threads"] = bool(t.get("ok"))
+            if not t.get("ok"):
+                row["err"] = str(t.get("err"))[:160]
+        rows.append(row)
+    return {"ok": all(x["inbox"] and x.get("threads", False) for x in rows), "rows": rows}

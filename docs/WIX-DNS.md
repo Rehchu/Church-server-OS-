@@ -50,8 +50,8 @@ change.
 
 1. **Resend.** Sign in at resend.com with the **church's** Resend account, not a
    personal one (Bradly, Oct 31, ANSWERS H8). Leave this tab open; it is where
-   values come from. Make the API key on install day, not before: sending access
-   only, for `mail.arisecenla.com`.
+   values come from. Make the API key on install day, not before: **full access**
+   (the Inbox reads Kristina's mail with it, H11; a sending-only key gets 401 there).
 2. **Wix.** Sign in at wix.com → the church site → **Settings** (left menu,
    near the bottom) → **Domains**. You see `arisecenla.com` with a **⋯** button
    on its right (Domain Actions). Click **⋯** → **Manage DNS Records**.

@@ -266,3 +266,48 @@ class TimersWaitTheirTurn(unittest.TestCase):
             self.assertIn("After=arise-backup.service", (ROOT / "config" / "systemd" / u).read_text(), u)
         self.assertIn("check(lock_wait=7200)", (ROOT / "config" / "systemd" / "arise-backup-verify.service").read_text())
         self.assertIn("lock_wait=3 * 3600 if a.quiet", (ROOT / "cli" / "arisectl").read_text())
+
+
+class InboxDoesItsJob(unittest.TestCase):
+    """I-087 (send = draft then send), I-088 (read, archive, trash), I-089 (attachments open), I-091 (the key)."""
+    def _with(self, calls):
+        from unittest import mock
+        from arise_server import inbox
+        return mock.patch.multiple(inbox, load=mock.Mock(return_value=mock.Mock(demo=False)), _call=calls,
+                                   _mine=mock.Mock(return_value={"ok": True, "inbox": {"id": "ib1"}, "address": "kim.lee@arisecenla.com"}))
+
+    def test_send_is_a_draft_then_a_send(self):
+        from arise_server import inbox
+        seen = []
+        def calls(method, p, body=None):
+            seen.append((method, p))
+            return {"ok": True, "data": {"id": "d1" if p.endswith("/drafts") else "e9"}}
+        with self._with(calls):
+            r = inbox.send("kim.lee", "a@example.org", "Hello", "Hi")
+        self.assertTrue(r["ok"])
+        self.assertEqual(seen, [("POST", "/inboxes/ib1/drafts"), ("POST", "/inboxes/ib1/drafts/d1/send")])
+
+    def test_thread_update(self):
+        from arise_server import inbox
+        seen = []
+        with self._with(lambda m, p, b=None: seen.append((m, p, b)) or {"ok": True}):
+            self.assertTrue(inbox.update_thread("kim.lee", "t1", folder="archive")["ok"])
+            self.assertFalse(inbox.update_thread("kim.lee", "t1", folder="sent")["ok"])
+            self.assertFalse(inbox.update_thread("kim.lee", "../x", read=True)["ok"])
+        self.assertEqual(seen, [("PATCH", "/inboxes/ib1/threads/t1", {"folder": "archive"})])
+
+    def test_attachment_is_only_from_her_own_message(self):
+        from arise_server import inbox
+        def calls(m, p, b=None):
+            if "/threads/t1/emails/e1" in p:
+                return {"ok": True, "data": {"attachments": [{"id": "a1", "filename": "c.pdf", "download_url": "https://cdn.resend.example/x"}]}}
+            return {"ok": False, "err": "404"}
+        with self._with(calls):
+            self.assertEqual(inbox.attachment("kim.lee", "t1", "e1", "a1")["url"], "https://cdn.resend.example/x")
+            self.assertFalse(inbox.attachment("kim.lee", "t1", "e1", "a2")["ok"])
+            self.assertFalse(inbox.attachment("kim.lee", "t2", "e1", "a1")["ok"])
+
+    def test_the_page_and_the_key(self):
+        js = (ROOT / "web" / "app.js").read_text()
+        self.assertIn("data-ibmv", js); self.assertIn("data-ibatt", js); self.assertIn("'trash'].map(f =>", js)
+        self.assertIn("FULL access", (ROOT / "cli" / "arisectl").read_text())

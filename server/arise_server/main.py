@@ -15,7 +15,7 @@ import os
 import re
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -3230,6 +3230,25 @@ def api_inbox_reply(thread_id: str, email_id: str, body: InboxReply, who=auth):
 @app.post("/api/inbox/send")
 def api_inbox_send(body: InboxNew, who=auth):
     return _inbox.send(who["user"], body.to, body.subject, body.text)
+
+
+class InboxThreadUpdate(BaseModel):
+    read: bool | None = None
+    folder: str | None = None
+
+
+@app.patch("/api/inbox/threads/{thread_id}")
+def api_inbox_thread_update(thread_id: str, body: InboxThreadUpdate, who=auth):
+    return _inbox.update_thread(who["user"], thread_id, body.read, body.folder)
+
+
+@app.get("/api/inbox/threads/{thread_id}/emails/{email_id}/attachments/{att_id}")
+def api_inbox_attachment(thread_id: str, email_id: str, att_id: str, who=auth):
+    """Opens the file: a redirect to Resend's short-lived link, after checking it is this person's mail."""
+    r = _inbox.attachment(who["user"], thread_id, email_id, att_id)
+    if r.get("ok"):
+        return RedirectResponse(r["url"], status_code=302)
+    return JSONResponse({"ok": False, "err": r.get("err")}, status_code=404 if not r.get("demo") else 200)
 
 
 @app.get("/api/speedtest")
