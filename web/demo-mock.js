@@ -509,6 +509,18 @@ route('POST', /^\/apps\/deploy$/, b => {
 route('POST', /^\/apps\/([^/]+)\/(start|stop|restart)$/, (b, m) => { const a = appsList().find(x => x.name === m[1]); if (!a) return fail('no such app'); a.status = m[2] === 'stop' ? 'stopped' : 'running'; a.cpu = a.status === 'running' ? 0.8 : null; a.mem = a.status === 'running' ? Math.round((a.ram_mb || 200) * 0.6e6) : 0; a.updated = isoSec(); touch('GET /apps'); return ok({ out: `docker compose ${m[2]} ${a.name}` }); });
 route('POST', /^\/apps\/([^/]+)\/remove$/, (b, m) => { if (b.confirm !== m[1]) return fail('type the app name to confirm'); const n = appsList().length; G['GET /apps'].apps = appsList().filter(x => x.name !== m[1]); if (appsList().length === n) return fail('no such app'); touch('GET /apps'); return ok({ out: `removed ${m[1]}; /srv/arise/apps/${m[1]} kept` }); });
 route('POST', /^\/apps\/([^/]+)\/autostart$/, (b, m) => { const a = appsList().find(x => x.name === m[1]); if (!a) return fail('no such app'); a.autostart = !!b.on; touch('GET /apps'); return ok({ out: `autostart ${b.on ? 'on' : 'off'} for ${a.name}` }); });
+// ariseOS apps (round 8, 34 and 40), as server/arise_server/main.py answers: ten Required, the rest
+// turned on in the Store. The sample starts with every one on; X.builtinOn keeps the preview's clicks.
+const BUILTIN_REQUIRED = ['files', 'overview', 'directory', 'backups', 'sunday', 'calendar', 'settings', 'apps', 'help', 'terminal'];
+const BUILTIN_STORE = ['automator', 'sermons', 'bible', 'remote', 'sites', 'nas', 'services', 'logs', 'devices', 'assist', 'mail', 'inbox', 'calc', 'clock', 'activity', 'automations', 'storage', 'updates', 'notes', 'photos', 'monitor', 'security', 'macs', 'sync', 'servicemode'];
+MEMBER_OK.push('/apps/builtin');
+const builtinState = () => { const s = me() || {}; const on = Array.isArray(X.builtinOn) ? X.builtinOn : BUILTIN_STORE.slice(); return { ok: true, preview: true, demo: true, required: BUILTIN_REQUIRED.slice(), store: BUILTIN_STORE.slice(), turned_on: BUILTIN_STORE.filter(a => on.includes(a)), inbox: s.user === 'kristina.robinson', can_change: s.role === 'admin' }; };
+route('POST', /^\/apps\/builtin\/([^/]+)$/, (b, m) => {
+  if (BUILTIN_REQUIRED.includes(m[1])) return fail('that one is Required: it always shows');
+  if (!BUILTIN_STORE.includes(m[1])) return fail('no ariseOS app by that name');
+  const on = builtinState().turned_on.filter(a => a !== m[1]); if (b.on !== false) on.push(m[1]);
+  X.builtinOn = BUILTIN_STORE.filter(a => on.includes(a)); save(); return builtinState();
+});
 route('POST', /^\/updates\/refresh$/, () => { const u = get('GET /updates'); u.last_check = isoSec(); touch('GET /updates'); return ok({ status: u }); });
 route('POST', /^\/updates\/check-apps$/, () => { const u = get('GET /updates'); u.apps = u.apps || { apps: [] }; u.apps.checked_at = isoSec(); touch('GET /updates'); return ok({ checked_at: u.apps.checked_at, apps: u.apps.apps }); });
 route('POST', /^\/updates\/queue$/, b => { const u = get('GET /updates'); u.queue = { packages: b.packages || [], apps: b.apps || [], reboot: !!b.reboot, queued_at: isoSec(), by: me()?.user }; touch('GET /updates'); return ok({ queue: u.queue }); });
@@ -1313,6 +1325,7 @@ function computedGet(p, q) {
   if ((m = p.match(/^\/apps\/open\/([^/]+)$/))) { const a = appsList().find(x => x.template === m[1] || x.name === m[1]); return { ok: true, installed: !!a, running: a?.status === 'running', url: a?.url || '', name: m[1] }; }
   if ((m = p.match(/^\/apps\/theme\/([^/]+)$/))) { const seeded = get('GET /apps/theme/' + m[1]); if (seeded) return seeded; const e = catalogEntry(m[1]); if (!e) return fail('no such app'); const t = e.theme || { via: 'none' }; return { ok: true, name: m[1], via: t.via, accepts: t.accepts || [], note: t.note || '', env: t.env || {}, files: t.files || [], commands: t.commands || [], house: { red: '#D6222D', ink: '#0A0A0C', fonts: 'Anton and Oswald' } }; }
   if ((m = p.match(/^\/apps\/([^/]+)\/logs$/))) return get(`GET /apps/${m[1]}/logs`) || { name: m[1], text: `(no sample log for ${m[1]} in the preview)` };
+  if (p === '/apps/builtin') return builtinState();
   if ((m = p.match(/^\/logs\/file\/([^/]+)$/))) return get('GET /logs/file/' + m[1]) || { name: m[1], text: `(no sample of ${m[1]} in the preview)`, lines: 0 };
   if ((m = p.match(/^\/logs\/([^/]+)$/)) && m[1] !== 'sources') return get('GET /logs/' + m[1]) || { unit: m[1], text: `(no sample journal for ${m[1]} in the preview)`, lines: 0 };
   if (p === '/bible') { const ref = q.get('ref') || ''; const hit = Object.keys(SEED).find(k => k.toLowerCase() === ('GET /bible?ref=' + ref).toLowerCase()); if (hit) return clone(SEED[hit]); const refs = Object.keys(SEED).filter(k => k.startsWith('GET /bible?ref=')).map(k => k.slice(15)); return { ok: false, error: `The preview carries ${refs.length} passages (${refs.join(', ')}). On the server any reference is read from bible-api.com.` }; }

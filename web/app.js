@@ -135,10 +135,26 @@ function previewMenu() {
 }
 
 /* ---------------- toasts / modal ---------------- */
+/* v0.9 Leviticus (round 8; Q8, Q125): toasts are macOS notification banners, top right. Errors stay
+   until closed and carry Copy; the rest fade. Every one is kept, with its time, for the Notification
+   Center (this browser only, the last 60). */
+function ncLog() { if (!S.ncLog) { try { const v = JSON.parse(localStorage.getItem('arise.nclog.' + (S.user || 'x')) || '[]'); S.ncLog = Array.isArray(v) ? v : []; } catch { S.ncLog = []; } } return S.ncLog; }
+function ncLogSave() { try { localStorage.setItem('arise.nclog.' + (S.user || 'x'), JSON.stringify(ncLog().slice(0, 60))); } catch {} }
 function toast(msg, kind = 'ok', ms = 4200) {
   if (kind === 'bad' && msg === 'cancelled') return;   // closing the password prompt is a choice, not an error
-  const t = document.createElement('div'); t.className = 'toast ' + kind; t.innerHTML = esc(msg);
-  $('#toasts').appendChild(t); setTimeout(() => t.remove(), ms);
+  msg = String(msg ?? ''); const box = $('#toasts');
+  let a = null; try { a = S.focused ? appOf(S.focused) || null : null; } catch { a = null; }   // the window in front, for context; a toast can come before the app list exists
+  ncLog().unshift({ at: new Date().toISOString(), text: msg, level: kind, app: a ? a.name : '' }); S.ncLog.length = Math.min(S.ncLog.length, 60); ncLogSave();
+  ncLogPaint();
+  if (!box) return;
+  const t = document.createElement('div'); t.className = 'toast banner ' + kind; t.setAttribute('role', kind === 'bad' ? 'alert' : 'status');
+  const ic = '<span class="banner__flame"><svg viewBox="0 0 32 32" width="20" height="20"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg></span>';
+  t.innerHTML = `<span class="banner__ic">${ic}<i class="banner__lvl"></i></span><div class="banner__body"><div class="banner__hd"><b>${kind === 'bad' ? 'That didn\'t work' : kind === 'warn' ? 'Heads up' : 'ariseOS'}</b><time>${a ? esc(a.name) + ' · ' : ''}now</time></div><p>${esc(msg)}</p>${kind === 'bad' ? '<div class="banner__acts"><button type="button" class="banner__btn" data-bcopy>Copy</button><span class="banner__keep">Stays until you close it</span></div>' : ''}</div><button type="button" class="banner__x" aria-label="Close"><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>`;
+  const gone = () => { t.classList.add('out'); setTimeout(() => t.remove(), 260); };
+  t.querySelector('.banner__x').onclick = gone;
+  const cp = t.querySelector('[data-bcopy]'); if (cp) cp.onclick = () => copyText(msg, cp);
+  box.prepend(t); while (box.children.length > 5) box.lastElementChild.remove();
+  if (kind !== 'bad') { let tm = setTimeout(gone, ms); t.onmouseenter = () => clearTimeout(tm); t.onmouseleave = () => { tm = setTimeout(gone, 1800); }; }
 }
 function modal(html, onOpen) {
   const m = $('#modal'); $('#modalBody').innerHTML = html; m.showModal(); onOpen && onOpen(m);
@@ -1554,6 +1570,19 @@ const appOf = id => APPS.find(a => a.id === id);
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
 const kbd = h => !h || IS_MAC ? h : h.replace('⌃⌘', 'Ctrl+Alt+').replace('⇧⌘', 'Ctrl+Shift+').replace('⌘', 'Ctrl+').replace('⌃', 'Ctrl+');
 const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span>`;
+/* v0.9 Leviticus (round 8, 34 and 40): ten Required apps; every other one shows once the Store turns
+   it on (GET /api/apps/builtin). Until the server answers, the last answer this browser saw is used;
+   an app the server does not list is on. People in [inbox] users always see Inbox. */
+const REQUIRED_APPS = ['files', 'overview', 'directory', 'backups', 'sunday', 'calendar', 'settings', 'apps', 'help', 'terminal'];
+{ const st = document.querySelector('link[href*="styles.css"]'); if (st && !document.querySelector('link[href*="shell.css"]')) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = st.getAttribute('href').replace('styles.css', 'shell.css'); st.after(l); } }
+function builtinNow() { if (S.builtin) return S.builtin; try { return JSON.parse(localStorage.getItem('arise.apps.on') || 'null'); } catch { return null; } }
+function appOn(a) {
+  if (!a || a.hidden || REQUIRED_APPS.includes(a.id)) return true;
+  const b = builtinNow(); if (!b || !Array.isArray(b.store) || !b.store.includes(a.id)) return true;
+  return (b.turned_on || []).includes(a.id) || (a.id === 'inbox' && !!b.inbox);
+}
+function builtinTake(r) { if (!r || r.ok === false || !Array.isArray(r.store)) return false; S.builtin = r; try { localStorage.setItem('arise.apps.on', JSON.stringify({ store: r.store, turned_on: r.turned_on, inbox: r.inbox })); } catch {} return true; }
+function loadBuiltin(force) { if ((S.builtinAsk && !force) || !S.authed) return Promise.resolve(); S.builtinAsk = true; return api('/apps/builtin').then(r => { if (builtinTake(r)) buildDock(); }).catch(() => {}); }
 
 V.about = async () => {
   // Members cannot read /overview (the administrator's); their About is built from what they may read.
@@ -1564,7 +1593,7 @@ V.about = async () => {
   const changes = ch && (ch.changes || []).length ? `<div class="about__new"><div class="widget__kicker">Changes on this box</div><ul class="about__changes">${ch.changes.map(c => `<li><b>${esc(c.who)}</b> · ${esc(String(c.what || '').replace(/^arisectl\./, 'arisectl '))}${c.target ? ' <span class="dim">' + esc(String(c.target).slice(0, 40)) + '</span>' : ''} <span class="dim">${esc(ago(c.when))}</span></li>`).join('')}</ul></div>` : '';
   const whatsnew = nw && nw.lines?.length ? `<div class="about__new"><div class="widget__kicker">What's new in v${esc(nw.version)} “${esc(nw.codename)}”</div><ul>${nw.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul></div>` : '';
   const week = wk ? `<div class="about__week">This week: <b>${esc(wk.verse?.ref || '')}</b>${wk.verse?.text ? ' · “' + esc(wk.verse.text.slice(0, 90)) + (wk.verse.text.length > 90 ? '…' : '') + '”' : ''}<br>${wk.services} services on the calendar · ${wk.published_this_week} video${wk.published_this_week === 1 ? '' : 's'} published this week${wk.minutes_this_week ? ' · ' + Math.round(wk.minutes_this_week / 60 * 10) / 10 + ' hours of them' : ''}${wk.latest ? `<br>Latest on the channel: <b>${esc(wk.latest)}</b>` : ''}</div>` : '';
-  return `<div class="about"><div class="flame">${I.about.replace('<svg', '<svg width="72" height="72"')}</div><div><div class="kicker">ariseOS · Arise Server</div><h2>v${esc(o.version)} “${esc(o.codename)}”</h2>
+  return `<div class="about"><div class="flame">${I.about.replace('<svg', '<svg width="72" height="72"')}</div><div><div class="kicker">Arise Server · v${esc(o.version)}</div><h2>ariseOS ${esc(String(o.version || '').replace(/^(\d+\.\d+)\.0$/, '$1'))} ${esc(o.codename)}</h2>
     <dl class="kv"><dt>Host</dt><dd>${esc(o.hostname)}</dd><dt>Domain</dt><dd>${esc(o.realm || '—')}</dd><dt>System</dt><dd>${esc(m.os || '')}</dd><dt>Processor</dt><dd>${esc(m.cpu_model || '')} · ${m.cpu_count || '?'} cores</dd><dt>Memory</dt><dd>${esc(m.ram_total_h || '')}</dd><dt>Uptime</dt><dd>${fmtUp(S.stats?.uptime)}</dd><dt>Profile</dt><dd>${esc(o.profile)}</dd></dl>
     ${week}<div class="row" style="margin-top:14px"><button class="btn btn--ghost btn--xs" data-open="settings">System Settings</button><a class="btn btn--ghost btn--xs" href="https://github.com/Rehchu/Church-server-OS-" target="_blank" rel="noopener">Source</a></div></div>${whatsnew}${changes}</div>`;
 };
@@ -1993,7 +2022,14 @@ V.updates.after = root => {
 const CAT_NAMES = { desktop: 'Desktop programs', experiment: 'Experiments', office: 'Office', media: 'Media', monitoring: 'Monitoring', admin: 'Admin', code: 'Code', automation: 'Automation', network: 'Network', knowledge: 'Knowledge', files: 'Files', security: 'Security', remote: 'Remote', streaming: 'Streaming', communication: 'Communication', church: 'Church', learning: 'Learning', ai: 'AI', cameras: 'Cameras', collaboration: 'Collaboration' };
 V.apps = async () => {
   S.storeTab = S.storeTab || 'installed'; S.storeQ = S.storeQ || ''; S.storeCat = S.storeCat || '';
-  const [a, t, c] = await Promise.all([api('/apps'), api('/apps/templates'), api('/apps/catalog').catch(() => ({ apps: [] }))]);
+  const [a, t, c, bi] = await Promise.all([api('/apps'), api('/apps/templates'), api('/apps/catalog').catch(() => ({ apps: [] })), api('/apps/builtin').catch(() => null)]);
+  builtinTake(bi);
+  // ariseOS apps (round 8, 34 and 40): the ten that ship with the box, and the rest with Turn on / Turn off.
+  const biOn = id => appOn(appOf(id)), biApps = (bi?.store || []).map(appOf).filter(Boolean), biOnN = biApps.filter(x => biOn(x.id)).length;
+  const biCard = x => `<div class="bi${biOn(x.id) ? ' bi--on' : ''}">${iconHtml(x)}<div class="bi__t"><b>${esc(x.name)}</b><span>${esc(x.what)}</span>${x.id === 'inbox' && bi?.inbox ? '<em>Yours: always on for you</em>' : ''}</div>${bi?.can_change === false ? '' : `<button class="btn btn--xs ${biOn(x.id) ? 'btn--ghost' : ''}" data-bi="${esc(x.id)}" data-on="${biOn(x.id) ? '0' : '1'}">${biOn(x.id) ? 'Turn off' : 'Turn on'}</button>`}</div>`;
+  const biPane = bi ? `<p class="note" style="margin-bottom:14px">Ten apps come with every box and always show. The rest appear in Launchpad, the Dock and Spotlight once you turn them on here; turning one off hides it for everyone and keeps everything it holds.${bi.demo ? ' Sample: every app starts on.' : ''}</p>
+    <div class="bi__h">Required · always on</div><div class="bi__grid">${REQUIRED_APPS.map(appOf).filter(Boolean).map(x => `<div class="bi bi--on bi--req">${iconHtml(x)}<div class="bi__t"><b>${esc(x.name)}</b><span>${esc(x.what)}</span></div><span class="pill ok">Required</span></div>`).join('')}</div>
+    <div class="bi__h">From the Store · ${biOnN} of ${biApps.length} on</div><div class="bi__grid">${biApps.map(biCard).join('')}</div>` : '<div class="empty">The server did not say which ariseOS apps are on. Try again in a moment.</div>';
   const installed = new Map((a.apps || []).map(x => [x.name, x]));
   const all = [...(t.templates || []).map(x => ({ ...x, source: 'template' })), ...(c.apps || []).map(x => ({ ...x, source: 'catalog' }))];
   const running = (a.apps || []).filter(x => x.status === 'running');
@@ -2015,7 +2051,8 @@ V.apps = async () => {
     <td class="acts">${x.status === 'running' ? `<button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="restart">Restart</button><button class="btn btn--ghost btn--xs" data-app="${esc(x.name)}" data-do="stop">Stop</button>` : `<button class="btn btn--xs" data-app="${esc(x.name)}" data-do="start">Start</button>`}<button class="btn btn--ghost btn--xs" data-logs="${esc(x.name)}">Logs</button><button class="btn btn--ghost btn--xs" data-rmapp="${esc(x.name)}">Remove</button></td></tr>`).join('');
   return `<div class="fade">
     ${a.docker === false && !a.demo ? '<p class="note" style="margin-bottom:14px">Docker is not running on this server, so apps cannot be deployed. <code>sudo systemctl start docker</code> or run the installer again without --skip-docker.</p>' : ''}
-    <div class="tabs" id="storeTabs"><button class="${S.storeTab === 'installed' ? 'active' : ''}" data-t="installed">Installed · ${(a.apps || []).length}</button><button class="${S.storeTab === 'catalog' ? 'active' : ''}" data-t="catalog">Catalogue · ${all.length}</button></div>
+    <div class="tabs" id="storeTabs"><button class="${S.storeTab === 'builtin' ? 'active' : ''}" data-t="builtin">ariseOS apps · ${biOnN} on</button><button class="${S.storeTab === 'installed' ? 'active' : ''}" data-t="installed">Installed · ${(a.apps || []).length}</button><button class="${S.storeTab === 'catalog' ? 'active' : ''}" data-t="catalog">Catalogue · ${all.length}</button></div>
+    <div data-tab="builtin" ${S.storeTab === 'builtin' ? '' : 'hidden'}>${biPane}</div>
     <div data-tab="installed" ${S.storeTab === 'installed' ? '' : 'hidden'}>${gauge}
       ${(a.apps || []).length ? `<div class="panel panel--flat tbl-wrap"><table class="tbl"><thead><tr><th>App</th><th>State</th><th>Address</th><th class="num">CPU</th><th class="num">Memory</th><th></th><th></th></tr></thead><tbody>${instRows}</tbody></table></div>` : '<div class="empty">Nothing installed yet. The Catalogue has everything.</div>'}
       <p class="note" style="margin-top:12px">The installer deploys the selected apps and starts those that fit within the memory budget. Add more from the Catalogue when needed. <b>Remove</b> takes the containers down and keeps the data folder under /srv/arise/apps. Deleting a data folder is your click, by hand.</p>
@@ -2027,6 +2064,9 @@ V.apps = async () => {
 };
 V.apps.after = root => {
   $$('#storeTabs button', root).forEach(b => b.onclick = () => { S.storeTab = b.dataset.t; rerender('apps'); });
+  $$('[data-bi]', root).forEach(b => b.onclick = async () => { const id = b.dataset.bi, on = b.dataset.on === '1', n = appOf(id)?.name || id; b.classList.add('busy');
+    try { const r = await api(`/apps/builtin/${encodeURIComponent(id)}`, { method: 'POST', body: { on } }); if (r.ok === false) throw new Error(r.err); builtinTake(r); buildDock(); toast(on ? `${n} is on: in Launchpad, Spotlight and the Dock` : `${n} is off; nothing it holds was touched`); if (!on && S.wins[id]) closeApp(id); rerender('apps'); }
+    catch (e) { b.classList.remove('busy'); toast(e.message, 'bad'); } });
   const q = $('#storeQ', root); if (q) { q.oninput = () => { S.storeQ = q.value; clearTimeout(S.storeT); S.storeT = setTimeout(() => rerender('apps'), 350); }; }
   const sc = $('#storeCat', root); if (sc) sc.onchange = () => { S.storeCat = sc.value; rerender('apps'); };
   $$('[data-deploy]', root).forEach(b => b.onclick = async () => { const r = await act(b, () => api('/apps/deploy', { method: 'POST', body: { template: b.dataset.deploy } }), `Installing ${b.dataset.deploy}; the first start pulls the image`); if (r) setTimeout(() => rerender('apps'), 2000); });
@@ -2307,7 +2347,9 @@ function switcher(step) {
 }
 
 /* Spotlight */
-const ACTIONS_ALL = [['Run backups now', () => runAllBackups(), 'backups'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about'], ['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about'], ['Check for updates', () => openApp('updates'), 'updates'], ['Rescan storage', () => { openApp('storage'); setTimeout(() => $('#stScan')?.click(), 1500); }, 'storage'], ['Turn the monitor off', () => api('/monitor/power', { method: 'POST', body: { on: false } }).then(r => toast(r.ok === false ? r.err : 'Panel off', r.ok === false ? 'bad' : 'ok')), 'monitor']];
+// Round 8, 127: an action's fourth field is the other words that find it (restart web, back up now,
+// lock, empty trash); choosing it runs the same function, with the same confirm, as its menu does.
+const ACTIONS_ALL = [['Back up now', () => runAllBackups(), 'backups', 'run backups backup every job'], ['Restart the dashboard (arise-web)', () => restartUnit('arise-web.service', 'the dashboard', 'dashboard'), 'settings', 'restart web arise-web reload'], ['Empty the Trash…', () => emptyTrash(), 'files', 'empty trash bin deleted'], ['Preview tonight\'s automator', () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), 'automator'], ['Lock screen', () => lockScreen(), 'about', 'lock'],['Restart the server', () => powerAsk('reboot'), 'settings'], ['Shut down the server', () => powerAsk('poweroff'), 'settings'], ['Mission Control', () => missionControl(true), 'overview'], ['About This Server', () => openApp('about'), 'about'], ['Check for updates', () => openApp('updates'), 'updates'], ['Rescan storage', () => { openApp('storage'); setTimeout(() => $('#stScan')?.click(), 1500); }, 'storage'], ['Turn the monitor off', () => api('/monitor/power', { method: 'POST', body: { on: false } }).then(r => toast(r.ok === false ? r.err : 'Panel off', r.ok === false ? 'bad' : 'ok')), 'monitor']];
 const ACTIONS_ANY = [['Help', () => openApp('help'), 'help'], ['Keyboard shortcuts', () => shortcutsSheet(), 'help'], ['Subscribe to the calendar', () => subscribeModal(), 'calendar'], ['Set a timer', () => { S.clock = S.clock || { tab: 'timer', timer: { total: 300, left: 300, on: false, at: 0 }, sw: { el: 0, on: false, t0: 0, laps: [] }, alarm: null }; S.clock.tab = 'timer'; openApp('clock'); }, 'clock']];
 const actions = () => (isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL).concat(ACTIONS_ANY);
 function spotResults(q, remote) {
@@ -2315,9 +2357,11 @@ function spotResults(q, remote) {
   if (q && looksLikeSum(q)) out += `<div class="h">Calculator</div>` + row(I.calc, `= ${fmtCalc(calcEval(q))}`, q, { calc: q });
   const bible = q.match(/^([1-3]?\s?[a-z]{2,20})\s?(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/i);
   if (bible) out += `<div class="h">Bible</div>` + row(I.bible, `Read ${q}`, 'Bible', { bible: q });
-  const apps = visibleApps().filter(a => !a.hidden && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
+  const apps = visibleApps().filter(a => !a.hidden && appOn(a) && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
   if (apps.length) out += `<div class="h">Apps</div>` + apps.slice(0, ql ? 6 : 8).map(a => row(I[a.id], a.name, a.what, { app: a.id })).join('');
-  const acts = actions().filter(a => ql && a[0].toLowerCase().includes(ql)); if (acts.length) out += `<div class="h">Actions</div>` + acts.map((a, i) => row(I[a[2]], a[0], 'Action', { act: actions().indexOf(a) })).join('');
+  const words = ql.split(/\s+/).filter(Boolean), all = actions();
+  const acts = all.filter(a => words.length && appOn(appOf(a[2])) && words.every(w => (a[0] + ' ' + (a[3] || '')).toLowerCase().includes(w)));
+  if (acts.length) out += `<div class="h">Actions</div>` + acts.map(a => row(I[a[2]], a[0], /…$/.test(a[0]) || /^(Restart|Shut|Empty)/.test(a[0]) ? 'Action · asks first' : 'Action', { act: all.indexOf(a) })).join('');
   if (remote) {
     if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
     if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
@@ -2358,9 +2402,19 @@ async function buildMemberWidgets() {
   $$('[data-root]', w).forEach(b => b.onclick = () => { S.fs = Object.assign(S.fs || { view: 'icon', hist: [], fwd: [], q: '' }, { root: b.dataset.root, path: '/', sel: null }); openApp('files'); if (S.wins.files) rerender('files'); });
   $$('[data-act="links"]', w).forEach(b => b.onclick = () => linksModal());
 }
+// Every banner this screen showed (Q8, Q125), newest first, each with Copy; Clear empties the list.
+function ncLogPaint() {
+  const box = document.getElementById('ncLog'); if (!box) return; const log = ncLog();
+  const when = s => { const d = new Date(s); return isNaN(d) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + (Date.now() - d > 86400000 ? ' · ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''); };
+  box.innerHTML = `<div class="nclog__hd"><div class="widget__kicker">On this screen${log.length ? ' · ' + log.length : ''}</div>${log.length ? '<span class="nclog__acts"><button type="button" class="btn btn--ghost btn--xs" data-ncall>Copy all</button><button type="button" class="btn btn--ghost btn--xs" data-ncclear>Clear</button></span>' : ''}</div>
+    ${log.length ? `<div class="nclog__list">${log.map((n, i) => `<div class="nclog__i ${esc(n.level || 'ok')}"><i></i><div class="nclog__t"><p>${esc(n.text)}</p><time>${esc((n.app ? n.app + ' · ' : '') + when(n.at))}</time></div><button type="button" class="nclog__cp" data-nccp="${i}" aria-label="Copy">Copy</button></div>`).join('')}</div>` : '<div class="widget__sub">Nothing yet. Messages that slide in at the top right are kept here, errors included.</div>'}`;
+  $$('[data-nccp]', box).forEach(b => b.onclick = () => copyText(log[+b.dataset.nccp]?.text || '', b));
+  const all = $('[data-ncall]', box); if (all) all.onclick = () => copyText(log.map(n => `${n.at} ${String(n.level || 'ok').toUpperCase()} ${n.text}`).join('\n'), all);
+  const cl = $('[data-ncclear]', box); if (cl) cl.onclick = () => { S.ncLog = []; ncLogSave(); ncLogPaint(); };
+}
 async function buildNC() {
-  const body = $('#ncBody'); body.innerHTML = $('#widgets').innerHTML + '<div class="widget" id="ncCal"></div><div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
-  $$('[data-open]', body).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); });
+  const body = $('#ncBody'); body.innerHTML = '<div class="widget nclog" id="ncLog"></div>' + $('#widgets').innerHTML + '<div class="widget" id="ncCal"></div><div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
+  ncLogPaint(); $$('[data-open]', body).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); });
   const d = new Date(), y = d.getFullYear(), m = d.getMonth(); const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
   let cal = `<div class="widget__kicker">${d.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div><div class="cal">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<b>${x}</b>`).join('')}`;
   for (let i = 0; i < first; i++) cal += '<span class="dim"></span>';
@@ -2454,31 +2508,111 @@ async function runAllBackups() { try { const r = await api('/backups/run', { met
 function powerAsk(action) { confirmType(action === 'reboot' ? 'Restart the server' : 'Shut the server down', action, action === 'reboot' ? 'Services stop while the server restarts. If the disk needs a passphrase, someone must unlock it at the closet keyboard or through previously configured SSH unlock before the desktop and services return. Have that person ready before continuing.' : '<b>Someone has to walk to the closet to turn it back on.</b> No domain logins, no 02:05 automator, no backups until then.', async () => { const r = await withReauth(() => api('/system/power', { method: 'POST', body: { action, confirm: action } })); if (r.ok === false) throw new Error(r.err); toast(r.demo ? (r.out || 'Sample mode: nothing restarted') : action === 'reboot' ? 'Restarting…' : 'Shutting down.', 'warn', 8000); }); }
 
 /* ---------------- dock + launchpad + desktop icons ---------------- */
-const DOCK_DEFAULT = { admin: ['files', 'overview', 'sunday', 'sermons', 'calendar', 'mail', 'apps', 'settings', 'terminal'], member: ['files', 'sermons', 'bible', 'sunday', 'calendar', 'assist', 'help'] };
+const DOCK_DEFAULT = { admin: ['files', 'overview', 'sunday', 'calendar', 'sermons', 'mail', 'inbox', 'updates', 'apps', 'settings', 'terminal'], member: ['files', 'sermons', 'bible', 'sunday', 'calendar', 'assist', 'help'] };
 function dockPins() { const k = 'dock.' + (isMember() ? 'member' : 'admin'); try { const v = JSON.parse(PREF.get(k, 'null')); if (Array.isArray(v)) return v.filter(id => appOf(id) && (!isMember() || MEMBER_APPS.includes(id))); } catch {} return DOCK_DEFAULT[isMember() ? 'member' : 'admin']; }
 function pinApp(id, on) { const pins = dockPins().filter(x => x !== id); if (on) pins.push(id); PREF.set('dock.' + (isMember() ? 'member' : 'admin'), JSON.stringify(pins)); buildDock(); tone('click'); toast(on ? `${appOf(id).name} kept in the Dock` : `${appOf(id).name} removed from the Dock (it still shows while open)`); }
-const dockApps = () => { const pins = dockPins(); const vis = visibleApps().filter(a => !a.hidden); return vis.filter(a => pins.includes(a.id)).sort((a, b) => pins.indexOf(a.id) - pins.indexOf(b.id)).concat(vis.filter(a => !pins.includes(a.id) && S.wins[a.id])); };
-function applyDockHide() { const on = PREF.get('dock.hide', '1') === '1' && !isPhone(); document.body.classList.toggle('dockhide', on); let edge = $('#dockEdge'); if (!edge) { edge = document.createElement('div'); edge.id = 'dockEdge'; edge.setAttribute('aria-hidden', 'true'); $('#desk').appendChild(edge); edge.onmouseenter = () => dockShow(true); $('#dock').onmouseleave = () => dockShow(false, 400); $('#dock').onmouseenter = () => dockShow(true); } }
+// A Store app that is not turned on stays out of the Dock (round 8, 40), unless its window is open.
+const dockApps = () => { const pins = dockPins(); const vis = visibleApps().filter(a => !a.hidden); return vis.filter(a => pins.includes(a.id) && appOn(a)).sort((a, b) => pins.indexOf(a.id) - pins.indexOf(b.id)).concat(vis.filter(a => !(pins.includes(a.id) && appOn(a)) && S.wins[a.id])); };
+// Q6: always on the closet monitor; it hides only on laptops (a phone has the tab bar instead).
+function applyDockHide() { const on = PREF.get('dock.hide', '1') === '1' && !isPhone() && !S.kiosk; document.body.classList.toggle('dockhide', on); let edge = $('#dockEdge'); if (!edge) { edge = document.createElement('div'); edge.id = 'dockEdge'; edge.setAttribute('aria-hidden', 'true'); $('#desk').appendChild(edge); edge.onmouseenter = () => dockShow(true); $('#dock').onmouseleave = () => dockShow(false, 400); $('#dock').onmouseenter = () => dockShow(true); } }
 function dockShow(on, after) { clearTimeout(S.dockT); if (on) { $('#dock')?.classList.add('show'); return; } S.dockT = setTimeout(() => $('#dock')?.classList.remove('show'), after || 0); }   // the sign-in page may have replaced the desktop by then
+// Q125: Overview carries the needs-you count, Inbox its unread, Software Update what is waiting.
+function dockBadge(id) {
+  if (id === 'overview' || id === 'needs') return isMember() ? 0 : (S.overview?.attention || []).length;
+  if (id === 'inbox') return +S.inboxUnread || 0;
+  if (id === 'updates') { const u = S.updatesCache; return u ? (u.other || []).length + (u.apps?.apps || []).filter(x => x.update).length : 0; }
+  return 0;
+}
+const badgeHtml = n => `<span class="dock__badge" ${n ? '' : 'hidden'}>${n > 99 ? '99+' : n || ''}</span>`;
+function paintBadges() {
+  $$('#dock [data-app], #tabbar [data-tab]').forEach(b => { const id = b.dataset.app || b.dataset.tab, n = dockBadge(id); let el = b.querySelector('.dock__badge'); if (!el) { b.insertAdjacentHTML('beforeend', badgeHtml(0)); el = b.querySelector('.dock__badge'); }
+    const txt = n > 99 ? '99+' : n ? String(n) : ''; if (el.textContent !== txt) { el.textContent = txt; el.hidden = !n; b.setAttribute('aria-label', (b.dataset.name || '') + (n ? `, ${n} ${id === 'inbox' ? 'unread' : id === 'updates' ? 'waiting' : 'need you'}` : '')); } });
+}
 function buildDock() {
   const d = $('#dock');
-  d.innerHTML = dockApps().map(a => `<button class="dock__i" data-app="${a.id}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${a.n} · ${esc(a.name)}</span></button>`).join('') +
-    `<span class="dock__sep"></span><button class="dock__i" id="dockLp" aria-label="Launchpad"><span class="dock__icon">${I.apps}</span><span class="lbl">Launchpad</span></button>`;
+  d.innerHTML = dockApps().map(a => `<button class="dock__i" data-app="${a.id}" data-name="${esc(a.name)}" aria-label="${esc(a.name)}">${iconHtml(a)}<span class="lbl">${esc(a.name)}</span>${badgeHtml(dockBadge(a.id))}</button>`).join('') +
+    `<span class="dock__sep"></span><button class="dock__i" id="dockLp" aria-label="Launchpad"><span class="dock__icon dock__icon--lp">${I.apps}</span><span class="lbl">Launchpad</span></button>`;
   $$('[data-app]', d).forEach(b => { b.onclick = () => { tone('click'); const id = b.dataset.app; const w = S.wins[id]; if (w && !w.min && w.el.classList.contains('focus') && !isPhone()) minApp(id); else openApp(id, true); };
     b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.app, pinned = dockPins().includes(id), w = S.wins[id]; ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], null, [w ? 'Close' : 'Open', () => w ? closeApp(id) : openApp(id)]]); }; });
   $('#dockLp').onclick = () => toggleLaunchpad();
   if (d.dataset.bound) { updateDock(); } else { d.dataset.bound = '1';
-  // magnification
-  d.addEventListener('mousemove', e => { if (isPhone() || reducedMotion()) return; const items = $$('.dock__i', d); items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
+  // magnification (not on the closet monitor: its old graphics chip paints every frame in software)
+  d.addEventListener('mousemove', e => { if (isPhone() || reducedMotion() || S.kiosk) return; const items = $$('.dock__i', d); items.forEach(it => { const r = it.getBoundingClientRect(); const dist = Math.abs(e.clientX - (r.left + r.width / 2)); const s = Math.max(1, 1.55 - dist / 120); it.style.transform = `scale(${s.toFixed(3)}) translateY(${(-(s - 1) * 10).toFixed(1)}px)`; }); });
   d.addEventListener('mouseleave', () => $$('.dock__i', d).forEach(it => it.style.transform = '')); }
-  const lp = $('#lpGrid'); lp.innerHTML = visibleApps().filter(a => !a.hidden && !lpHidden().includes(a.id)).map(a => `<button class="lp" data-lp="${a.id}">${iconHtml(a)}<b>${esc(a.name)}</b><i>${a.n}</i><span>${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></button>`).join('');
-  $$('[data-lp]', lp).forEach(b => { b.onclick = () => { toggleLaunchpad(false); openApp(b.dataset.lp); }; b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.lp, pinned = dockPins().includes(id); ctxMenu(e.clientX, e.clientY, [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], ['Hide from my Launchpad', () => lpHide(id, true)], null, ['Open', () => { toggleLaunchpad(false); openApp(id); }]]); }; });
-  $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); };
-  $('#launchpad').onclick = e => { if (e.target.id === 'launchpad') toggleLaunchpad(false); };
+  buildLaunchpad(); buildTabbar(); shellStart();
+}
+// Launchpad (Q34, Q40): Required, then From the Store. A Store app not turned on is dimmed and opens
+// the Store's ariseOS apps section; a member never sees one (only an administrator can turn it on).
+function buildLaunchpad() {
+  const lp = $('#lpGrid'); if (!lp) return;
+  const apps = visibleApps().filter(a => !a.hidden && !lpHidden().includes(a.id)), req = apps.filter(a => REQUIRED_APPS.includes(a.id)), rest = apps.filter(a => !REQUIRED_APPS.includes(a.id) && (appOn(a) || !isMember()));
+  const tile = a => { const on = appOn(a); return `<button class="lp${on ? '' : ' lp--off'}" data-lp="${a.id}" ${on ? '' : 'data-off="1" title="Turn on in the Store"'}>${iconHtml(a)}<b>${esc(a.name)}</b><span>${on ? esc(isMember() && a.whatMember ? a.whatMember : a.what) : '<em class="lp__turn">Turn on in the Store</em>'}</span></button>`; };
+  const sec = (h, list, n) => list.length ? `<div class="lp__rubric" data-rub="${n}"><span>${h}</span><i>${list.length}</i></div>` + list.map(tile).join('') : '';
+  lp.innerHTML = sec('Required', req, 'req') + sec('From the Store', rest.sort((a, b) => appOn(b) - appOn(a)), 'store');
+  const offOpen = id => { toggleLaunchpad(false); S.storeTab = 'builtin'; if (S.wins.apps) rerender('apps'); openApp('apps'); toast(`${appOf(id)?.name || id} is not turned on yet: Store → ariseOS apps`, 'warn', 6000); };
+  $$('[data-lp]', lp).forEach(b => { b.onclick = () => { if (b.dataset.off) return offOpen(b.dataset.lp); toggleLaunchpad(false); openApp(b.dataset.lp); }; b.oncontextmenu = e => { e.preventDefault(); const id = b.dataset.lp, pinned = dockPins().includes(id); ctxMenu(e.clientX, e.clientY, b.dataset.off ? [['Turn on in the Store…', () => offOpen(id)], ['Hide from my Launchpad', () => lpHide(id, true)]] : [[pinned ? 'Remove from Dock' : 'Keep in Dock', () => pinApp(id, !pinned)], ['Hide from my Launchpad', () => lpHide(id, true)], null, ['Open', () => { toggleLaunchpad(false); openApp(id); }]]); }; });
+  $('#lpQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.lp', lp).forEach(b => b.hidden = q && !b.textContent.toLowerCase().includes(q)); $$('.lp__rubric', lp).forEach(h => { let n = h.nextElementSibling, any = false; while (n && !n.classList.contains('lp__rubric')) { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }); };
+  $('#launchpad').onclick = e => { if (e.target.id === 'launchpad' || e.target.classList.contains('launchpad__in')) toggleLaunchpad(false); };
 }
 function updateDock() {
   const shown = $$('#dock [data-app]').map(b => b.dataset.app), want = dockApps().map(a => a.id); if (shown.join() !== want.join()) { buildDock(); return; }
-  $$('#dock [data-app]').forEach(b => { const w = S.wins[b.dataset.app]; b.classList.toggle('run', !!w); b.classList.toggle('active', !!w && w.el.classList.contains('focus') && !w.min); }); }
+  $$('#dock [data-app]').forEach(b => { const w = S.wins[b.dataset.app]; b.classList.toggle('run', !!w); b.classList.toggle('active', !!w && w.el.classList.contains('focus') && !w.min); });
+  paintTabbar(); paintBadges(); }
+// The phone (Q9): one app at a time and a bottom tab bar: Needs you (the widget column), Files,
+// Sunday, Calendar, More (Launchpad). The Dock is not shown at phone width.
+const TABS = [['needs', 'Needs you', '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7v4l2 3v1H3v-1l2-3V9a7 7 0 0 1 7-7zm-2.5 17h5a2.5 2.5 0 0 1-5 0z"/></svg>'], ['files', 'Files'], ['sunday'], ['calendar'], ['more', 'More', '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>']];
+function buildTabbar() {
+  const desk = $('#desk'), dock = $('#dock'); if (!desk || !dock) return; let tb = $('#tabbar');
+  if (!tb) { tb = document.createElement('nav'); tb.id = 'tabbar'; tb.className = 'tabbar'; tb.setAttribute('aria-label', 'Apps'); dock.after(tb); }
+  tb.innerHTML = TABS.map(([id, name, svg]) => { const label = id === 'needs' && isMember() ? 'Home' : name || appOf(id)?.name || id; return `<button type="button" class="tabbar__b" data-tab="${id}" data-name="${esc(label)}" aria-label="${esc(label)}"><span class="tabbar__ic">${svg || I[id] || ''}</span><span class="tabbar__l">${esc(label)}</span>${badgeHtml(dockBadge(id))}</button>`; }).join('');
+  $$('[data-tab]', tb).forEach(b => b.onclick = () => { tone('click'); const id = b.dataset.tab; closeOverlays();
+    if (id === 'more') { toggleLaunchpad(true); paintTabbar(); return; }
+    if (id === 'needs') { Object.keys(S.wins).forEach(k => { if (!S.wins[k].min) minApp(k); }); const w = $('#widgets'); if (w) w.scrollTop = 0; paintTabbar(); return; }
+    openApp(id, true); paintTabbar(); });
+  paintTabbar();
+}
+function paintTabbar() {
+  const tb = $('#tabbar'); if (!tb) return; const lp = !!$('#launchpad') && !$('#launchpad').hidden; const open = Object.keys(S.wins || {}).filter(k => !S.wins[k].min); const cur = open.includes(S.focused) ? S.focused : open[open.length - 1];
+  $$('[data-tab]', tb).forEach(b => { const id = b.dataset.tab; const on = lp ? id === 'more' : id === 'needs' ? !cur : id === cur; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+}
+// The menu-bar tally (round 8): the next service counting down; ON AIR counting up during one.
+function nextSvc(now = Date.now()) {
+  const c = S.church, n = c?.next; const at = n?.at ? Date.parse(n.at) : NaN; if (n && at > now - 60000) return { name: n.name, site: n.site, at };
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; let best = null;
+  for (const s of c?.services || [{ name: 'Sunday Service', day: 'Sunday', time: '10:30' }, { name: 'Glory Night', day: 'Monday', time: '19:00' }]) {
+    const di = days.indexOf(s.day), [h, m] = String(s.time || '').split(':').map(Number); if (di < 0 || isNaN(h)) continue;
+    const d = new Date(now); d.setHours(h, m || 0, 0, 0); d.setDate(d.getDate() + ((di - d.getDay() + 7) % 7)); if (+d <= now) d.setDate(d.getDate() + 7);
+    if (!best || +d < best.at) best = { name: s.name, site: s.site, at: +d };
+  }
+  return best;
+}
+const hms = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+function tallyTick() {
+  const menus = $('#menus'); if (!menus) return; let t = $('#tally');
+  if (!t) { const sp = () => { const s = document.createElement('span'); s.className = 'tally__sp'; s.setAttribute('aria-hidden', 'true'); return s; }; t = document.createElement('button'); t.type = 'button'; t.id = 'tally'; t.className = 'tally'; menus.after(sp(), t, sp());
+    t.onclick = () => openApp(S.svcNow?.in_service && appOf('servicemode') && !isMember() ? 'servicemode' : 'sunday'); }
+  const v = S.svcNow, now = Date.now(); let html, air = false, title;
+  if (v && v.in_service && v.service) { air = true; const st = Date.parse(v.service.started); html = `<i class="tally__dot"></i><b>ON AIR</b><span class="tally__s">${esc(v.service.name)}</span><span class="tally__n">${isNaN(st) ? '' : hms(now - st)}</span>`; title = `${v.service.name} is on${v.service.ends_at ? ', until about ' + v.service.ends_at : ''}`; }
+  else { const n = nextSvc(now); if (!n) { t.hidden = true; return; } const ms = n.at - now, home = String(S.church?.city || 'Pineville').split(',')[0];
+    html = `<span class="tally__s">${esc(n.name + (n.site && n.site !== home ? ' · ' + n.site : ''))}</span><span class="tally__n">${ms <= 86400000 ? 'in ' + hms(ms) : esc(new Date(n.at).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }).replace(',', ''))}</span>`;
+    title = `Next: ${n.name}${n.site ? ' in ' + n.site : ''}, ${new Date(n.at).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' })}`; }
+  t.hidden = false; if (t.dataset.h !== html) { t.innerHTML = html; t.dataset.h = html; t.title = title; t.setAttribute('aria-label', title); }
+  t.classList.toggle('tally--air', air); document.body.classList.toggle('onair', air);
+  // The app's menus come first: on a crowded bar the tally steps aside, and comes back once it fits.
+  const bar = $('#bar'), clipped = menus.scrollWidth > menus.clientWidth + 1 || bar.scrollWidth > bar.clientWidth + 1;
+  if (!t.classList.contains('tally--sq')) { if (clipped && t.offsetWidth) { t.dataset.need = String(t.offsetWidth + 24); t.classList.add('tally--sq'); } }
+  else if (!clipped && $$('#bar .tally__sp').reduce((s, x) => s + x.getBoundingClientRect().width, 0) > +(t.dataset.need || 0)) t.classList.remove('tally--sq');
+}
+// One quiet tick a second for the shell: the tally, the badges, what is turned on, Inbox's unread (every 2 min).
+function shellStart() { if (S.shellT) return; S.shellT = setInterval(shellTick, 1000); shellTick(); }
+function shellTick() {
+  if (!$('#bar')) return;
+  try { tallyTick(); } catch {}
+  if (S.authed && !S.builtinAsk) loadBuiltin();
+  const ib = appOf('inbox'); if (S.authed && !isMember() && ib && appOn(ib) && Date.now() - (S.inboxAt || 0) > 120000) { S.inboxAt = Date.now(); api('/inbox').then(r => { S.inboxUnread = r && r.ok !== false ? (r.unread ?? (r.threads || []).filter(x => !x.read).length) : 0; }).catch(() => {}); }
+  if (S.inbox && S.inbox.threads && S.wins.inbox) S.inboxUnread = S.inbox.unread ?? S.inbox.threads.filter(x => !x.read).length;
+  paintBadges(); paintTabbar();
+}
 async function buildIcons() {
   let roots = []; try { roots = (await api('/files/roots')).roots || []; } catch {}
   $('#icons').innerHTML = roots.map(r => `<button class="ico" data-root="${esc(r.id)}"><span class="dock__icon" style="background:${r.id === 'nas' ? ICONURL.nas : ICONURL.server} center/80% no-repeat #000"></span><span>${esc(r.name)}</span></button>`).join('');
@@ -2515,7 +2649,7 @@ async function buildWidgets() {
   w.innerHTML = `
     <div data-wg="needs" class="widget ${att.length ? (bad ? 'widget--bad' : 'widget--warn') : 'widget--clear'}"><div class="widget__kicker">${att.length ? 'Needs you' : 'All clear'}</div>
       ${att.length ? `<div class="att">${att.slice(0, 4).map(x => `<div class="att__i ${x.level}">${esc(x.text)}</div>`).join('')}${att.length > 4 ? `<button class="btn btn--ghost btn--xs" data-open="overview">${att.length - 4} more</button>` : ''}</div>` : '<div class="widget__sub">Services up, last automator run clean, backups ok, Synology mounted.</div>'}</div>
-    <div data-wg="live" class="widget"><div class="widget__kicker">Live</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:#fff">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
+    <div data-wg="live" class="widget"><div class="widget__kicker">Live CPU</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:#fff">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
     <div data-wg="box" class="widget"><div class="widget__kicker">The box</div>
       <div class="widget__row"><span>Directory</span><b>${o.directory_ok ? 'online' : '<span style="color:var(--redL)">down</span>'} · ${o.counts?.users} users</b></div>
       <div class="widget__row"><span>Automator</span><b>${a.last_run ? ago(a.last_run) : 'never'} · ${a.last_ok === false ? '<span style="color:var(--redL)">failures</span>' : a.last_ok ? 'clean' : '—'}</b></div>
@@ -3535,7 +3669,7 @@ function staffTwofaOn(name) {
 // from the Calendar (110), the owner's desktop after a restart (107), Reports in Settings
 // (Discord, the Monday report, the pastors' note: 78-81, 85, 144), the speed test (121), and
 // the Songs tab's Lyrics inbox and CCLI usage (99, 100, 106).
-const WIDGETS = [['needs', 'Needs you'], ['live', 'Live'], ['box', 'The box'], ['week', 'This week'], ['weather', 'Weather'], ['verse', 'Verse of the day'], ['notes', 'Notes board']];
+const WIDGETS = [['needs', 'Needs you'], ['live', 'Live CPU'], ['box', 'The box'], ['week', 'This week'], ['weather', 'Weather'], ['verse', 'Verse of the day'], ['notes', 'Notes board']];
 function jsonPref(k) { try { const v = JSON.parse(PREF.get(k, '[]')); return Array.isArray(v) ? v : []; } catch { return []; } }
 function widgetsOff() { return jsonPref('widgets.off'); }
 function lpHidden() { return jsonPref('lp.hidden'); }

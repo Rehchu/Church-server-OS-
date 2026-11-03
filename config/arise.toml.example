@@ -204,6 +204,14 @@ client_team_id = "NKUJUXUJ3B"   # Nextcloud GmbH's Apple team; a package signed 
 # Docker Compose templates from templates/. Off in Windows mode.
 docker = true
 root = "/srv/arise/apps"
+# The ariseOS apps from the Store (round 8, 34 and 40). Finder, Overview, Directory, Backups,
+# Sunday, Calendar, System Settings, Store, Help and Terminal always show; every other app is
+# dimmed in Launchpad, and left out of the Dock and Spotlight, until it is listed here, e.g.
+#   turned_on = ["mail", "automator", "logs", "updates"]
+# The Store's "ariseOS apps" section turns them on and off (an admin's click, in the audit log);
+# that choice is kept in /var/lib/arise/apps-turned-on.json and wins over this list once made.
+# People in [inbox] users always see Inbox. The sample server shows every app turned on.
+turned_on = []
 
 [github]
 # Bare mirrors of every Arise repo, refreshed at 04:00 and included in the backups.

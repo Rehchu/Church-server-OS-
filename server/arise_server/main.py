@@ -1389,6 +1389,58 @@ def api_apps(_=admin):
     return r
 
 
+# ----- ariseOS apps: ten Required, the rest turned on in the Store (round 8, 34 and 40) --------
+# These sit before /api/apps/{name}/{action}, which would otherwise take "builtin" for an app.
+BUILTIN_REQUIRED = ("files", "overview", "directory", "backups", "sunday", "calendar", "settings", "apps", "help", "terminal")
+BUILTIN_STORE = ("automator", "sermons", "bible", "remote", "sites", "nas", "services", "logs", "devices", "assist", "mail", "inbox",
+                 "calc", "clock", "activity", "automations", "storage", "updates", "notes", "photos", "monitor", "security", "macs", "sync", "servicemode")
+_auth.MEMBER_OK = tuple(_auth.MEMBER_OK) + ("/api/apps/builtin",)   # everyone's Launchpad needs to know what is on
+
+
+def builtin_turned_on() -> list:
+    """The Store apps this box shows: the Store's saved choice, else [apps] turned_on; every one in demo mode."""
+    c = load()
+    if c.demo:
+        return list(demo_state.get("apps.turned_on", list(BUILTIN_STORE)))
+    from .util import read_json
+    saved = read_json(c.state_dir / "apps-turned-on.json", None)
+    src = saved.get("turned_on") if isinstance(saved, dict) else c.apps.get("turned_on", [])
+    return [a for a in BUILTIN_STORE if a in (src or [])]
+
+
+def builtin_state(who: dict) -> dict:
+    from . import inbox as _ib
+    return {"ok": True, "required": list(BUILTIN_REQUIRED), "store": list(BUILTIN_STORE), "turned_on": builtin_turned_on(),
+            "inbox": _ib.has_inbox(who.get("user", "")), "can_change": who.get("role") == "admin", "demo": load().demo}
+
+
+class BuiltinOn(BaseModel):
+    on: bool = True
+
+
+@app.get("/api/apps/builtin")
+def api_apps_builtin(who=auth):
+    return builtin_state(who)
+
+
+@app.post("/api/apps/builtin/{app_id}")
+def api_apps_builtin_set(app_id: str, body: BuiltinOn, who=recent_admin):
+    if app_id in BUILTIN_REQUIRED:
+        return {"ok": False, "err": "that one is Required: it always shows"}
+    if app_id not in BUILTIN_STORE:
+        return {"ok": False, "err": "no ariseOS app by that name"}
+    now = [a for a in builtin_turned_on() if a != app_id] + ([app_id] if body.on else [])
+    now = [a for a in BUILTIN_STORE if a in now]
+    c = load()
+    if c.demo:
+        demo_state.put("apps.turned_on", now)
+    else:
+        from .util import write_json
+        write_json(c.state_dir / "apps-turned-on.json", {"turned_on": now, "by": who["user"], "at": time.strftime("%Y-%m-%dT%H:%M:%S")})
+    audit.record(who["user"], "apps.builtin." + ("on" if body.on else "off"), app_id)   # demo mode keeps it in memory
+    return builtin_state(who)
+
+
 @app.get("/api/apps/templates")
 def api_templates(_=admin):
     return apps.templates()

@@ -1,6 +1,6 @@
 # ariseOS / Arise Server
 
-**v0.8.0 "Exodus"** — installation-readiness review build.
+**v0.9.0 "Leviticus"** — the new look: rounded, glass, the newest macOS feel.
 
 Arise Church's Ubuntu Server 24.04 operating layer: Samba Active Directory,
 church file shares, an administration desktop, Docker applications, Mac
