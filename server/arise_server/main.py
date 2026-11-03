@@ -603,6 +603,19 @@ def overview(_=admin):
     }
 
 
+# Leviticus (round 8, Q124): Why? on a Needs-you item. Read-only; the fix it names is an existing endpoint.
+@app.get("/api/why")
+def api_why(key: str = "", _=admin):
+    """No key: the Needs-you list with each item's key. With a key (or the item's text): the doctor's
+    sentence, the unit's last journal lines (root only), the matching audit entries, the one fix."""
+    from . import why
+    try:
+        jobs = backups.jobs()["jobs"]
+    except Exception:  # noqa: BLE001 - a bad backups.yaml is reported by Backups itself
+        jobs = []
+    return why.explain(key[:2000], _attention_now(), jobs=jobs, run=system_run, demo=load().demo)
+
+
 def _attention_now() -> list[dict]:
     """The Needs You list, computed without a request (for the push watcher)."""
     c = load()
