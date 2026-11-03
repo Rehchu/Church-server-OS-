@@ -7,33 +7,38 @@
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Oswald:wght@500;600&display=swap">
 <style>
   /* ariseOS new tab: Firefox opens this for every new tab on the closet monitor
-     (config/firefox/ariseos.cfg). The house fonts come from the box
-     (/usr/local/share/fonts/arise), so it looks right with the internet down. */
-  :root{--red:#D6222D;--redL:#DB3F48;--ink:#0A0A0C;--panel:#111115;--panel2:#16161B;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.07);
-        --text:rgba(255,255,255,.88);--text2:rgba(255,255,255,.64);--muted:#8A8A90}
+     (config/firefox/ariseos.cfg). Inter comes from the box when it is installed there,
+     so it looks right with the internet down. 0.9 Leviticus: rounded glass tiles, no blur
+     (the closet HP composites in software). */
+  :root{--red:#D6222D;--redL:#FF5C63;--ink:#0B0B0E;--panel:#17171B;--panel2:#1E1E23;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.07);
+        --text:rgba(255,255,255,.92);--text2:rgba(235,235,245,.64);--muted:#8E8E93;
+        --ui:'Inter','InterVariable','Inter Variable',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{background:var(--ink);color:var(--text);font-family:'Oswald',Helvetica,Arial,sans-serif;font-weight:300;display:flex;flex-direction:column;overflow:hidden}
-  .stage{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 55% at 50% 118%,rgba(214,34,45,.42),transparent 70%),radial-gradient(ellipse 40% 30% at 50% 108%,rgba(255,120,90,.18),transparent 70%)}
-  .grid{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,transparent,#000 40%,transparent)}
-  main{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:28px;text-align:center}
-  .kicker{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--redL)}
-  .time{font-family:'Anton',sans-serif;font-size:clamp(72px,13vw,168px);line-height:.92;color:#fff;letter-spacing:.01em}
-  .date{font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2)}
-  .next{font-size:16px;color:var(--text);border-top:3px solid var(--red);background:rgba(17,17,21,.82);padding:10px 18px;min-height:44px}
-  .next b{color:#fff;font-weight:500}
-  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,150px));gap:12px;width:min(660px,100%)}
-  .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:108px;background:rgba(17,17,21,.86);border:1px solid var(--line2);border-top:3px solid transparent;
-        color:var(--text);text-decoration:none;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transition:border-color .15s,background .15s,transform .15s}
-  .tile:hover,.tile:focus-visible{border-top-color:var(--red);background:var(--panel2);color:#fff;transform:translateY(-2px);outline:none}
+  body{background:linear-gradient(180deg,#130A12 0%,#0B070C 55%,#0A0709 100%);color:var(--text);font-family:var(--ui);font-weight:400;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .stage{position:fixed;inset:0;pointer-events:none;background:
+    radial-gradient(70% 60% at 12% 6%,rgba(122,12,20,.8),transparent 70%),radial-gradient(55% 55% at 90% 18%,rgba(58,18,80,.65),transparent 70%),
+    radial-gradient(70% 55% at 50% 118%,rgba(214,34,45,.5),transparent 70%),radial-gradient(45% 40% at 98% 102%,rgba(255,138,61,.45),transparent 70%)}
+  .grid{display:none}
+  main{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:26px;text-align:center}
+  .kicker{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--redL)}
+  .time{font-weight:200;font-size:clamp(76px,13vw,168px);line-height:.95;color:#fff;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+  .date{font-size:19px;font-weight:500;color:var(--text2);margin-top:6px}
+  .next{font-size:15px;color:var(--text);background:rgba(36,34,40,.9);border:1px solid var(--line);border-radius:999px;padding:9px 20px;min-height:40px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  .next b{color:#fff;font-weight:600}
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,150px));gap:14px;width:min(660px,100%)}
+  .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:112px;background:rgba(32,30,36,.9);border:1px solid var(--line2);border-radius:22px;
+        color:var(--text);text-decoration:none;font-size:13.5px;font-weight:500;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.3);transition:border-color .15s,background .15s,transform .2s cubic-bezier(.2,.8,.2,1)}
+  .tile:hover,.tile:focus-visible{border-color:rgba(255,255,255,.2);background:rgba(44,41,48,.95);color:#fff;transform:translateY(-3px);outline:none}
+  .tile:focus-visible{box-shadow:0 0 0 3px rgba(214,34,45,.55)}
   .tile svg{width:30px;height:30px;fill:currentColor}
-  .tile.home{border-top-color:var(--red)} .tile.home svg{fill:var(--red)}
-  blockquote{max-width:640px;font-size:17px;line-height:1.5;color:var(--text2);font-style:italic}
-  blockquote cite{display:block;margin-top:8px;font-style:normal;font-family:'Anton',sans-serif;letter-spacing:.2em;font-size:12px;color:var(--redL)}
-  footer{position:relative;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center}
+  .tile.home{background:linear-gradient(165deg,rgba(255,106,90,.28),rgba(214,34,45,.2) 50%,rgba(122,12,20,.3));border-color:rgba(255,92,99,.35)} .tile.home svg{fill:#fff}
+  blockquote{max-width:640px;font-size:17px;line-height:1.5;color:var(--text2)}
+  blockquote cite{display:block;margin-top:8px;font-style:normal;font-weight:600;font-size:13px;color:var(--redL)}
+  footer{position:relative;padding:14px;font-size:12px;font-weight:500;color:var(--muted);text-align:center}
   @media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media (prefers-reduced-motion:reduce){.tile{transition:none}}
 </style>
