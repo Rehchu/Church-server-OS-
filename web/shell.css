@@ -17,9 +17,12 @@
   cursor:pointer;transition:background .2s var(--t,ease),border-color .2s var(--t,ease),transform .2s var(--t,ease)}
 .tally:hover{background:rgba(255,255,255,.15)}
 .tally:active{transform:scale(.97)}
-.tally__s{color:var(--text2,rgba(255,255,255,.66));overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.tally__s{color:var(--text2,rgba(255,255,255,.66));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;min-width:0;flex:0 1 auto}
+/* Leviticus review: on a narrow bar the service name gives way first (cut with an ellipsis); the separators and the time stay */
+@media(min-width:901px){#bar:has(.tally:not(.tally--sq)) .menus{flex-shrink:0}}
+#bar .tally{flex:0 60 auto;min-width:190px;max-width:420px} .tally__n,.tally__sep,.tally b,.tally__dot{flex:0 0 auto}
 .tally__n{color:#fff;font-weight:600;min-width:7.2ch}
-.tally b+.tally__s::before,.tally__s+.tally__n::before{content:"·";margin-right:8px;opacity:.55;font-weight:400}
+.tally__sep{opacity:.55;font-weight:400;margin:0 -2px;white-space:pre}
 .tally--air{background:linear-gradient(180deg,#E4323C,#B5161F);border-color:rgba(255,255,255,.28);color:#fff;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 0 0 3px rgba(214,34,45,.22),0 4px 14px rgba(214,34,45,.45)}
 .tally--air:hover{background:linear-gradient(180deg,#EA3B45,#BE1C25)}
@@ -114,7 +117,7 @@
   #dock{display:none!important}
   .tabbar{position:absolute;left:0;right:0;bottom:0;z-index:36;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
     min-height:calc(60px + env(safe-area-inset-bottom,0px));padding:5px 8px calc(5px + env(safe-area-inset-bottom,0px));
-    background:var(--glass,rgba(30,30,34,.62));-webkit-backdrop-filter:var(--blur,blur(28px) saturate(170%));backdrop-filter:var(--blur,blur(28px) saturate(170%));
+    background:rgba(20,20,24,.92);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
     border-top:1px solid var(--glass-line,rgba(255,255,255,.14));box-shadow:var(--glass-hi,inset 0 1px 0 rgba(255,255,255,.12)),0 -10px 30px rgba(0,0,0,.35)}
   .tabbar__b{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:50px;border-radius:var(--r-md,16px);
     color:var(--text2,rgba(255,255,255,.66));font:500 10.5px/1.1 var(--ui,-apple-system,system-ui,sans-serif);letter-spacing:0;text-transform:none;

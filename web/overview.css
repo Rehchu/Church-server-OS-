@@ -29,7 +29,7 @@
 .ovs__ic--violet{background:linear-gradient(180deg,#B48CFF,#6B3BD1)}
 
 /* ---------- the ten status lights ---------- */
-.ov-leds{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}
+.ov-leds{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}   /* five by two: every label and value whole (Leviticus review) */
 .ovl{display:grid;grid-template-columns:8px minmax(0,1fr);grid-template-areas:"d l" "n n";column-gap:6px;row-gap:1px;align-items:center;text-align:left;
   min-width:0;padding:9px 7px 9px 10px;border-radius:14px;background:rgb(var(--ov-fg) / .045);border:1px solid rgb(var(--ov-fg) / .07);
   box-shadow:inset 0 1px 0 rgb(var(--ov-fg) / .05);transition:background .15s,border-color .15s,transform .12s var(--t,ease)}

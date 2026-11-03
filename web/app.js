@@ -1069,7 +1069,9 @@ V.files = async () => {
   return `<div class="finder">${side}${tb}${main}${path}</div>`;
 };
 const ICONURL = {
-  folder: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M4 14h20l6 6h30v32H4z' fill='%23D6222D'/%3E%3Cpath d='M4 26h56v26H4z' fill='%23DB3F48'/%3E%3C/svg%3E\")",
+  // A Tahoe folder in Arise red: a rounded back sheet with a soft tab, a front sheet with a top-to-bottom
+  // gradient, a lighter top edge and a little shade at the foot.
+  folder: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FF6A70'/%3E%3Cstop offset='.55' stop-color='%23E5303A'/%3E%3Cstop offset='1' stop-color='%23C81E29'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='.6' stop-color='%23000' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23000' stop-opacity='.16'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M5 15.5A4.5 4.5 0 0 1 9.5 11h12.3a4 4 0 0 1 2.9 1.2l3 3.1a4 4 0 0 0 2.9 1.2h23.9a4.5 4.5 0 0 1 4.5 4.5V48a4.5 4.5 0 0 1-4.5 4.5h-45A4.5 4.5 0 0 1 5 48z' fill='%23A8141D'/%3E%3Crect x='5' y='21' width='54' height='32' rx='4.5' fill='url(%23g)'/%3E%3Crect x='5' y='21' width='54' height='32' rx='4.5' fill='url(%23s)'/%3E%3Cpath d='M9.5 21.8h45' stroke='%23FFC2C5' stroke-opacity='.75' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E\")",
   file: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3C/svg%3E\")",
   image: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3Cpath d='M20 50l10-14 8 9 5-6 7 11z' fill='%23D6222D'/%3E%3Ccircle cx='24' cy='30' r='4' fill='%23D6222D'/%3E%3C/svg%3E\")",
   text: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 4h24l14 14v42H14z' fill='%23F4F2F0'/%3E%3Cpath d='M38 4v14h14z' fill='%23c9c5c0'/%3E%3Cpath d='M20 30h24v3H20zm0 8h24v3H20zm0 8h16v3H20z' fill='%236A6A6E'/%3E%3C/svg%3E\")",
@@ -1485,7 +1487,7 @@ V.assist.after = root => {
 V.sunday = async () => {
   const [c, s] = await Promise.all([api('/church'), api('/sunday')]); S.church = c;
   const n = c.next; const items = s.items || []; const done = items.filter(i => i.done).length;
-  return `<div class="fade sun"><div><div class="kicker">Sunday ${esc(s.sunday)}</div><h2 style="margin:0 0 10px">Checklist · ${done} of ${items.length}</h2>
+  return `<div class="fade sun"><div><div class="kicker">${esc(/^\d{4}-\d\d-\d\d$/.test(s.sunday || '') ? new Date(s.sunday + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Sunday ' + (s.sunday || ''))}</div><h2 style="margin:0 0 10px">Checklist · ${done} of ${items.length}</h2>
       ${items.map(i => `<label class="sun__item ${i.done ? 'done' : ''}"><input type="checkbox" data-i="${i.i}" ${i.done ? 'checked' : ''}><div><span>${esc(i.text)}</span>${i.done ? `<small>${esc(i.by)} · ${esc(i.at.replace('T', ' '))}</small>` : ''}</div></label>`).join('')}
       <p class="note" style="margin-top:12px">Ticks reset every week. The list is <code>[church] sunday_checklist</code> in arise.toml.${s.demo ? ' Sample.' : ''}</p></div>
     <div><div class="card"><div class="kicker">Next</div>${n ? `<div class="sun__big">${esc(n.in_words)}</div><div style="margin-top:6px">${esc(n.name)} · ${esc(n.site)}<br><small class="muted">${esc(n.day)} ${esc(n.time)}</small></div>` : '<div class="muted">no services configured</div>'}</div>
@@ -1680,8 +1682,8 @@ const I = {
   about: '<svg viewBox="0 0 32 32"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/><path d="M16 12c1 3 4 4 4 7.5A4 4 0 0 1 12 19c0-2 .7-3 1.6-4 .2 1.6.9 2.5 1.8 3 0-2.5.3-4.5.6-6z" fill="#fff"/></svg>',
 };
 const APPS = [
-  { id: 'files', n: '01', name: 'Finder', what: 'The server, the Synology, the shares', whatMember: 'Your files, your shares, your links', tone: 'bone', dock: true, w: 900, h: 560 },
-  { id: 'overview', n: '02', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true },
+  { id: 'files', n: '01', name: 'Finder', what: 'The server, the Synology, the shares', whatMember: 'Your files, your shares, your links', tone: 'bone', dock: true, w: 1040, h: 640 },
+  { id: 'overview', n: '02', name: 'Overview', what: 'Needs you, live stats, tonight', tone: 'red', dock: true, w: 980, h: 760 },
   { id: 'directory', n: '03', name: 'Directory', what: 'Users, groups, joined computers', dock: true },
   { id: 'backups', n: '04', name: 'Backups', what: 'restic jobs, history, snapshots', dock: true },
   { id: 'automator', n: '05', name: 'Automator', what: 'The channel, the transcripts, the 02:05 job', dock: true, w: 1180, h: 760 },
@@ -1723,7 +1725,7 @@ const appOf = id => APPS.find(a => a.id === id);
 // Shortcut labels: a Windows keyboard on the closet monitor has no ⌘. Ctrl does the same job in every handler.
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
 const kbd = h => !h || IS_MAC ? h : h.replace('⌃⌘', 'Ctrl+Alt+').replace('⇧⌘', 'Ctrl+Shift+').replace('⌘', 'Ctrl+').replace('⌃', 'Ctrl+');
-const iconHtml = a => `<span class="dock__icon ${a.tone || ''}">${I[a.id]}</span>`;
+const iconHtml = a => `<span class="dock__icon ${a.tone || ''}" data-ic="${a.id}">${I[a.id]}</span>`;
 /* v0.9 Leviticus (round 8, 34 and 40): ten Required apps; every other one shows once the Store turns
    it on (GET /api/apps/builtin). Until the server answers, the last answer this browser saw is used;
    an app the server does not list is on. People in [inbox] users always see Inbox. */
@@ -2058,7 +2060,7 @@ function snapKey(id, key) { if (key === 'ArrowLeft') snapTo(id, 'left'); else if
 const A11Y = [['text', 'Larger text', 'bigger type everywhere'], ['motion', 'Reduce motion', 'no animations, no dock zoom'], ['contrast', 'High contrast', 'brighter text, firmer lines']];
 function applyA11y() { const b = document.body; b.classList.toggle('a11y-text', PREF.get('a11y.text', '0') === '1'); b.classList.toggle('a11y-motion', PREF.get('a11y.motion', '0') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches); b.classList.toggle('a11y-contrast', PREF.get('a11y.contrast', '0') === '1'); }
 const reducedMotion = () => document.body.classList.contains('a11y-motion');
-function ccA11y() { return A11Y.map(([k, n, w]) => { const on = PREF.get('a11y.' + k, '0') === '1'; return `<button class="${on ? 'ok' : ''}" data-act="a11y-${k}" aria-pressed="${on}"><b>${n}</b><span>${on ? 'on · ' : ''}${w}</span></button>`; }).join(''); }
+function ccA11y() { const ic = { text: 'text', motion: 'motion', contrast: 'contrast' }; return A11Y.map(([k, n, w]) => { const on = PREF.get('a11y.' + k, '0') === '1'; return `<button type="button" class="cc__t cc__t--sm${on ? ' on' : ''}" data-act="a11y-${k}" aria-pressed="${on}" title="${esc(n + ': ' + w)}"><i class="cc__tog">${ccSvg(ic[k] || 'walk')}</i><span><b>${esc(n)}</b></span></button>`; }).join(''); }
 document.addEventListener('keydown', e => {
   if (!menuOpen) return; const bs = $$('#menuDrop button'); if (!bs.length) return; let i = bs.indexOf(document.activeElement);
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); i = (i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length; bs[i].focus(); }
@@ -2367,13 +2369,27 @@ function openApp(id, focusOnly) {
   let w = S.wins[id];
   if (w) { w.min = false; w.el.classList.remove('min'); focusWin(id); if (!focusOnly) rerender(id); return; }
   const el = document.createElement('section'); el.className = 'win' + (a.flush ? ' win--term' : ''); el.dataset.app = id;
-  el.innerHTML = `<div class="win__bar"><div class="win__dots"><button class="x" title="Close ${kbd('⌘W')}" aria-label="Close"></button><button class="m" title="Minimise ${kbd('⌘M')}" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
+  el.innerHTML = `<div class="win__bar"><button type="button" class="win__back" aria-label="Back">‹ Back</button><div class="win__dots"><button class="x" title="Close ${kbd('⌘W')}" aria-label="Close"></button><button class="m" title="Minimise ${kbd('⌘M')}" aria-label="Minimise"></button><button class="z" title="Zoom" aria-label="Zoom"></button></div><span class="win__folio">${a.n}</span><span class="win__title">${esc(a.name)}</span><span class="win__sub" id="ws-${id}">${esc(isMember() && a.whatMember ? a.whatMember : a.what)}</span></div><div class="win__body${a.flush ? ' win__body--flush' : ''}" id="wb-${id}"></div>`;
   const stage = $('#stage');
-  if (!isPhone()) { const n = cascade++ % 6; const W = Math.min(a.w || 980, stage.clientWidth - 36), H = Math.min(a.h || 680, stage.clientHeight - 110); el.style.width = W + 'px'; el.style.height = H + 'px'; el.style.left = Math.max(20, Math.min(stage.clientWidth - W - 20, 330 + n * 28)) + 'px'; el.style.top = (20 + n * 24) + 'px'; }
+  if (!isPhone()) {
+    // A new window opens in the band between the desktop icons (left) and the widgets (right), so it
+    // covers neither; on a screen too narrow for that band it uses the whole stage as before.
+    const n = cascade++ % 6, sw = stage.clientWidth, sr = stage.getBoundingClientRect();
+    const wg = $('#widgets'), wgR = wg && wg.offsetWidth && getComputedStyle(wg).display !== 'none' ? wg.getBoundingClientRect() : null;
+    let left = 0; $$('#icons .ico, #deskIcons .deskico').forEach(e => { const r = e.getBoundingClientRect(); if (r.width && r.left - sr.left < sw / 2) left = Math.max(left, r.right - sr.left); });
+    const right = wgR && wgR.left - sr.left > sw / 2 ? wgR.left - sr.left : sw;
+    let x0 = left ? left + 16 : 20, x1 = right < sw ? right - 16 : sw - 20; if (x1 - x0 < 640) { x0 = 20; x1 = sw - 20; }
+    const W = Math.min(a.w || 980, x1 - x0), H = Math.min(a.h || 680, stage.clientHeight - 110);
+    el.style.width = W + 'px'; el.style.height = H + 'px';
+    el.style.left = Math.round(Math.max(x0, Math.min(x1 - W, x0 + (x1 - x0 - W) / 2 + n * 28))) + 'px'; el.style.top = (20 + n * 24) + 'px';
+  }
   stage.appendChild(el);
   w = S.wins[id] = { el, min: false, max: false };
   $('.x', el).onclick = () => closeApp(id); $('.m', el).onclick = () => minApp(id); $('.z', el).onclick = () => { w.max = !w.max; el.classList.toggle('max', w.max); };
+  $('.win__back', el).onclick = () => closeApp(id);   // the phone's iOS-style back (the window is full screen there)
   $('.win__bar', el).ondblclick = () => $('.z', el).click();
+  // Finder on Tahoe: one unified toolbar. The window drags by its toolbar too, not only by the dots' corner.
+  if (id === 'files') { const body = $('.win__body', el); drag(el, body, e => !!e.target.closest('.finder__tb') && !e.target.closest('input,select,textarea,a,button,label')); body.addEventListener('dblclick', e => { if (e.target.closest('.finder__tb') && !e.target.closest('input,button')) $('.z', el).click(); }); }
   el.addEventListener('pointerdown', () => { if (!$('#stage').classList.contains('mc')) focusWin(id); }, true);
   el.addEventListener('click', () => { if ($('#stage').classList.contains('mc')) { missionControl(false); focusWin(id); } }, true);
   drag(el, $('.win__bar', el));
@@ -2391,9 +2407,9 @@ function closeApp(id) {
 function minApp(id) { const w = S.wins[id]; if (!w) return; w.min = true; w.el.classList.add('min'); updateDock(); const rest = Object.keys(S.wins).filter(k => !S.wins[k].min); if (rest.length) focusWin(rest[rest.length - 1]); else setAppMenus(null); }
 function focusWin(id) { const w = S.wins[id]; if (!w) return; $$('.win').forEach(e => e.classList.remove('focus')); w.el.classList.add('focus'); w.el.style.zIndex = ++S.z; S.focused = id; setAppMenus(id); updateDock(); }
 function focusedApp() { return S.focused && S.wins[S.focused] && !S.wins[S.focused].min ? S.focused : null; }
-function drag(el, handle) {
+function drag(el, handle, okAt = () => true) {
   let sx, sy, ox, oy, on = false;
-  handle.addEventListener('pointerdown', e => { if (isPhone() || e.target.closest('button') || el.classList.contains('max') || $('#stage').classList.contains('mc')) return; const sw = S.wins[el.dataset.app]; if (sw && sw.pre && sw.snap) { el.style.width = sw.pre.width; el.style.height = sw.pre.height; sw.pre = null; sw.snap = null; } on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
+  handle.addEventListener('pointerdown', e => { if (!okAt(e) || isPhone() || e.target.closest('button') || el.classList.contains('max') || $('#stage').classList.contains('mc')) return; const sw = S.wins[el.dataset.app]; if (sw && sw.pre && sw.snap) { el.style.width = sw.pre.width; el.style.height = sw.pre.height; sw.pre = null; sw.snap = null; } on = true; sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop; handle.setPointerCapture(e.pointerId); });
   handle.addEventListener('pointermove', e => { if (!on) return; snapGhost(snapZone(e.clientX, e.clientY)); const st = $('#stage'); el.style.left = Math.max(-el.offsetWidth + 80, Math.min(st.clientWidth - 80, ox + e.clientX - sx)) + 'px'; el.style.top = Math.max(0, Math.min(st.clientHeight - 40, oy + e.clientY - sy)) + 'px'; });
   handle.addEventListener('pointerup', e => { if (!on) return; on = false; const z = snapZone(e.clientX, e.clientY); snapGhost(null); if (z) snapTo(el.dataset.app, z); }); handle.addEventListener('pointercancel', () => { on = false; snapGhost(null); });
 }
@@ -2473,12 +2489,12 @@ function openMenu(btn, items) {
   const r = btn.getBoundingClientRect(); d.style.left = Math.min(r.left, innerWidth - 240) + 'px'; d.style.top = r.bottom + 'px'; d.hidden = false;
 }
 function closeMenu() { if (menuOpen) menuOpen.classList.remove('open'); menuOpen = null; $('#menuDrop').hidden = true; $('#barLogo').classList.remove('open'); }
-document.addEventListener('pointerdown', e => { if (!$('#stage')) return; if (menuOpen && !e.target.closest('#menuDrop') && !e.target.closest('#menus') && !e.target.closest('#barLogo')) closeMenu(); if (!$('#cc').hidden && !e.target.closest('#cc') && !e.target.closest('#ccBtn')) toggleCC(false); }, true);
+document.addEventListener('pointerdown', e => { if (!$('#stage')) return; if (menuOpen && !e.target.closest('#menuDrop') && !e.target.closest('#menus') && !e.target.closest('#barLogo')) closeMenu(); if (!$('#cc').hidden && !e.target.closest('#cc') && !e.target.closest('#ccBtn, #barSt')) toggleCC(false); }, true);
 
 /* ---------------- overlays: launchpad, spotlight, mission control, NC, CC, switcher ---------------- */
 function closeOverlays() { toggleLaunchpad(false); toggleSpot(false); toggleCC(false); closeMenu(); $('#ctx').hidden = true; }
 function toggleLaunchpad(force) { const lp = $('#launchpad'); const open = force !== undefined ? force : lp.hidden; lp.hidden = !open; if (open) { toggleSpot(false); toggleNC(false); $('#lpQ').value = ''; $$('.lp').forEach(b => b.hidden = false); $('#lpQ').focus(); } }
-function toggleNC(force) { const nc = $('#nc'); const open = force !== undefined ? force : nc.hidden; nc.hidden = !open; $('#barClock').classList.toggle('open', open); if (open) { toggleCC(false); buildNC(); } }
+function toggleNC(force) { const nc = $('#nc'); const open = force !== undefined ? force : nc.hidden; nc.hidden = !open; $('#barClock').classList.toggle('open', open); document.body.classList.toggle('nc-open', open); if (open) { toggleCC(false); buildNC(); } }
 function toggleCC(force) { const cc = $('#cc'); const open = force !== undefined ? force : cc.hidden; cc.hidden = !open; $('#ccBtn').classList.toggle('open', open); if (open) buildCC(); }
 function toggleSpot(force) { const sp = $('#spot'); const open = force !== undefined ? force : sp.hidden; sp.hidden = !open; if (open) { toggleLaunchpad(false); $('#spotQ').value = ''; $('#spotRes').innerHTML = spotResults(''); $('#spotQ').focus(); } }
 function missionControl(force) {
@@ -2507,20 +2523,20 @@ const ACTIONS_ALL = [['Back up now', () => runAllBackups(), 'backups', 'run back
 const ACTIONS_ANY = [['Help', () => openApp('help'), 'help'], ['Keyboard shortcuts', () => shortcutsSheet(), 'help'], ['Subscribe to the calendar', () => subscribeModal(), 'calendar'], ['Set a timer', () => { S.clock = S.clock || { tab: 'timer', timer: { total: 300, left: 300, on: false, at: 0 }, sw: { el: 0, on: false, t0: 0, laps: [] }, alarm: null }; S.clock.tab = 'timer'; openApp('clock'); }, 'clock']];
 const actions = () => (isMember() ? [['Change password…', () => changePassword(), 'about'], ['Shared links…', () => linksModal(), 'files']] : ACTIONS_ALL).concat(ACTIONS_ANY);
 function spotResults(q, remote) {
-  q = q.trim(); const ql = q.toLowerCase(); let out = ''; const row = (icon, label, small, data) => `<button data-s='${esc(JSON.stringify(data))}'><span class="dock__icon">${icon}</span>${esc(label)}${small ? `<small>${esc(small)}</small>` : ''}</button>`;
-  if (q && looksLikeSum(q)) out += `<div class="h">Calculator</div>` + row(I.calc, `= ${fmtCalc(calcEval(q))}`, q, { calc: q });
+  q = q.trim(); const ql = q.toLowerCase(); let out = ''; const row = (id, label, small, data) => `<button data-s='${esc(JSON.stringify(data))}'><span class="dock__icon ${(appOf(id) || {}).tone || ''}" data-ic="${id}">${I[id] || ''}</span>${esc(label)}${small ? `<small>${esc(small)}</small>` : ''}</button>`;
+  if (q && looksLikeSum(q)) out += `<div class="h">Calculator</div>` + row('calc', `= ${fmtCalc(calcEval(q))}`, q, { calc: q });
   const bible = q.match(/^([1-3]?\s?[a-z]{2,20})\s?(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/i);
-  if (bible) out += `<div class="h">Bible</div>` + row(I.bible, `Read ${q}`, 'Bible', { bible: q });
+  if (bible) out += `<div class="h">Bible</div>` + row('bible', `Read ${q}`, 'Bible', { bible: q });
   const apps = visibleApps().filter(a => !a.hidden && appOn(a) && (!ql || a.name.toLowerCase().includes(ql) || a.what.toLowerCase().includes(ql)));
-  if (apps.length) out += `<div class="h">Apps</div>` + apps.slice(0, ql ? 6 : 8).map(a => row(I[a.id], a.name, a.what, { app: a.id })).join('');
+  if (apps.length) out += `<div class="h">Apps</div>` + apps.slice(0, ql ? 6 : 8).map(a => row(a.id, a.name, a.what, { app: a.id })).join('');
   const words = ql.split(/\s+/).filter(Boolean), all = actions();
   const acts = all.filter(a => words.length && appOn(appOf(a[2])) && words.every(w => (a[0] + ' ' + (a[3] || '')).toLowerCase().includes(w)));
-  if (acts.length) out += `<div class="h">Actions</div>` + acts.map(a => row(I[a[2]], a[0], /…$/.test(a[0]) || /^(Restart|Shut|Empty)/.test(a[0]) ? 'Action · asks first' : 'Action', { act: all.indexOf(a) })).join('');
+  if (acts.length) out += `<div class="h">Actions</div>` + acts.map(a => row(a[2], a[0], /…$/.test(a[0]) || /^(Restart|Shut|Empty)/.test(a[0]) ? 'Action · asks first' : 'Action', { act: all.indexOf(a) })).join('');
   if (remote) {
-    if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row(I.directory, u.display || u.name, u.name, { app: 'directory' })).join('');
-    if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row(I.sites, c.name, c.os || c.kind, { app: 'sites' })).join('');
-    if (remote.transcripts?.length) out += `<div class="h">Sermons · transcripts</div>` + remote.transcripts.map(t => row(I.sermons, t.title, t.snippet, S.role === 'admin' ? { chsearch: q } : { app: 'sermons' })).join('');
-    if (remote.hits?.length) out += `<div class="h">Files</div>` + remote.hits.slice(0, 10).map(h => row(I.files, h.name, h.path, { file: h })).join('');
+    if (remote.users?.length) out += `<div class="h">People</div>` + remote.users.map(u => row('directory', u.display || u.name, u.name, { app: 'directory' })).join('');
+    if (remote.computers?.length) out += `<div class="h">Computers</div>` + remote.computers.map(c => row('sites', c.name, c.os || c.kind, { app: 'sites' })).join('');
+    if (remote.transcripts?.length) out += `<div class="h">Sermons · transcripts</div>` + remote.transcripts.map(t => row('sermons', t.title, t.snippet, S.role === 'admin' ? { chsearch: q } : { app: 'sermons' })).join('');
+    if (remote.hits?.length) out += `<div class="h">Files</div>` + remote.hits.slice(0, 10).map(h => row('files', h.name, h.path, { file: h })).join('');
   }
   if (!out) out = `<div class="h">Nothing for “${esc(q)}”</div>`;
   return out;
@@ -2567,7 +2583,9 @@ function ncLogPaint() {
   const cl = $('[data-ncclear]', box); if (cl) cl.onclick = () => { S.ncLog = []; ncLogSave(); ncLogPaint(); };
 }
 async function buildNC() {
-  const body = $('#ncBody'); body.innerHTML = '<div class="widget nclog" id="ncLog"></div>' + $('#widgets').innerHTML + '<div class="widget" id="ncCal"></div><div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
+  // Leviticus review: the desktop's widgets stay on the desktop. Notification Center holds the
+  // notifications, what is up next, the weather and the verse, so nothing shows twice.
+  const body = $('#ncBody'); body.innerHTML = '<div class="widget nclog" id="ncLog"></div><div class="widget" id="ncCal"></div>' + weatherWidget() + verseWidget() + '<div class="widget" id="ncSermon"><div class="widget__kicker">Latest on the channel</div><div class="skeleton"></div></div>';
   ncLogPaint(); $$('[data-open]', body).forEach(x => x.onclick = () => { toggleNC(false); openApp(x.dataset.open); });
   const d = new Date(), y = d.getFullYear(), m = d.getMonth(); const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
   let cal = `<div class="widget__kicker">${d.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div><div class="cal">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<b>${x}</b>`).join('')}`;
@@ -2624,38 +2642,73 @@ function walkthrough(force) {
   const done = () => { PREF.set(key, 'done'); box.remove(); tone('done'); };
   paint();
 }
+// Control Center (Leviticus review): grouped modules of round glyph toggles, like macOS 26. The sentences
+// that used to sit on every tile are each tile's title; the data-act / data-open hooks are as before.
+const CCI = {
+  vpn: '<path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>',
+  backup: '<path d="M12 4a8 8 0 1 1-7.4 5H2l3.5-4L9 9H6.7A6 6 0 1 0 12 6zm-1 3h2v5l3.5 2-1 1.7L11 13z"/>',
+  sound: '<path d="M4 9h4l5-4v14l-5-4H4zm12.5-1.5a6 6 0 0 1 0 9l-1.4-1.4a4 4 0 0 0 0-6.2zm2.8-2.8a10 10 0 0 1 0 14.6l-1.4-1.4a8 8 0 0 0 0-11.8z"/>',
+  dock: '<path d="M3 15h18v5H3zm2 1.5v2h3v-2zm5.5 0v2h3v-2zm5.5 0v2h3v-2zM11 4h2v6l2.3-2.3 1.4 1.4L12 13.8 7.3 9.1l1.4-1.4L11 10z"/>',
+  run: '<path d="M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm-2 5v8l6-4z"/>',
+  mc: '<path d="M3 4h8v7H3zm10 0h8v7h-8zM3 13h8v7H3zm10 0h8v7h-8z"/>',
+  lock: '<path d="M7 10V8a5 5 0 0 1 10 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V8a3 3 0 0 0-6 0z"/>',
+  push: '<path d="M12 2a7 7 0 0 1 7 7v4l2 3v1H3v-1l2-3V9a7 7 0 0 1 7-7zm-2.5 17h5a2.5 2.5 0 0 1-5 0z"/>',
+  walk: '<path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-1 8v7h2v-7zm0-4v2h2V6z"/>',
+  text: '<path d="M4 18 8.5 6h2L15 18h-2.2l-1-3H7.2l-1 3zm3.9-5h3.2L9.5 8.4zM15.5 18l3-8h1.6l3 8h-1.8l-.6-1.8h-2.8l-.6 1.8zm2.9-3.3h1.8l-.9-2.7z"/>',
+  motion: '<path d="M3 12h4l2-5 4 10 2-5h6v2h-4.6L13 20 9 10l-.6 2H3z"/>',
+  contrast: '<path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2v16a8 8 0 0 0 0-16z"/>',
+  files: '<path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h4l2 2h7A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>',
+  link: '<path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a3 3 0 1 1 4.2 4.2l-2 2-1.4-1.4 2-2a1 1 0 1 0-1.4-1.4L12 13.4a1 1 0 0 1-1.4 0zM13.4 10.6a1 1 0 0 1 0 1.4l-3.5 3.5a3 3 0 1 1-4.2-4.2l2-2 1.4 1.4-2 2a1 1 0 1 0 1.4 1.4L12 10.6a1 1 0 0 1 1.4 0z"/>',
+  key: '<path d="M14 3a7 7 0 1 1-5.8 10.9L3 19v2h4v-2h2v-2h2l.9-1A7 7 0 0 1 14 3zm2 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>',
+  gear: '<path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 5-2 .4a7 7 0 0 1-.8 2l1.2 1.7-1.4 1.4-1.7-1.2a7 7 0 0 1-2 .8L14 21h-4l-.4-2a7 7 0 0 1-2-.8l-1.7 1.2-1.4-1.4 1.2-1.7a7 7 0 0 1-.8-2L3 14v-4l2-.4a7 7 0 0 1 .8-2L4.6 5.9 6 4.5l1.7 1.2a7 7 0 0 1 2-.8L10 3h4l.4 2a7 7 0 0 1 2 .8l1.7-1.2 1.4 1.4-1.2 1.7a7 7 0 0 1 .8 2l2 .4z"/>',
+};
+const ccSvg = k => `<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">${CCI[k] || ''}</svg>`;
+// One round toggle with its label: on (red), bad (a red ring), or plain.
+const ccTile = (k, b, small, attrs, st = '', title = '') => `<button type="button" class="cc__t${st ? ' ' + st : ''}" ${attrs}${title ? ` title="${esc(title)}"` : ''}><i class="cc__tog">${ccSvg(k)}</i><span><b>${b}</b>${small ? `<small>${small}</small>` : ''}</span></button>`;
+const ccPill = (k, b, attrs, title = '') => `<button type="button" class="cc__pill" ${attrs}${title ? ` title="${esc(title)}"` : ''}><i class="cc__tog">${ccSvg(k)}</i><b>${b}</b></button>`;
+function ccWire() {
+  $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
+  $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { const a = b.dataset.act; if (a in CC_FEEL) return CC_FEEL[a](); toggleCC(false); ({ links: linksModal, pw: changePassword, backup: runAllBackups, preview: () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), mc: () => missionControl(true), lock: lockScreen })[a](); });
+}
 function buildCC() {
   const o = S.overview || {}; const r = S.remoteCache || {};
   if (isMember()) {
-    $('#cc').innerHTML = `<button class="wide" data-open="files"><b>My files</b><span>${(S.me?.roots || []).map(x => esc(x.name)).join(' · ')}</span></button>
-    <button data-act="links"><b>Shared links</b><span>what you have shared</span></button><button data-act="pw"><b>Change password</b><span>your directory password</span></button>
-    <button data-act="mc"><b>Mission Control</b><span>all windows</span></button><button data-act="lock"><b>Lock screen</b><span>${kbd('⌃⌘Q')}</span></button>
+    $('#cc').innerHTML = `<button type="button" class="cc__pill cc__pill--wide" data-open="files" title="${esc((S.me?.roots || []).map(x => x.name).join(' · '))}"><i class="cc__tog on">${ccSvg('files')}</i><b>My files</b><small>${(S.me?.roots || []).length} places</small></button>
+    <div class="cc__mod cc__grid">${ccTile('link', 'Shared links', '', 'data-act="links"', '', 'What you have shared')}${ccTile('key', 'Password', '', 'data-act="pw"', '', 'Change your directory password')}${ccTile('mc', 'Windows', '', 'data-act="mc"', '', 'Mission Control: every window')}${ccTile('lock', 'Lock', '', 'data-act="lock"', '', 'Lock the screen ' + kbd('⌃⌘Q'))}</div>
     ${ccFeel()}`;
-    $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
-    $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { const a = b.dataset.act; if (a in CC_FEEL) return CC_FEEL[a](); toggleCC(false); ({ links: linksModal, pw: changePassword, mc: () => missionControl(true), lock: lockScreen })[a](); });
-    return;
+    return ccWire();
   }
-  const vpnOn = r.tailscale?.up || r.wireguard?.up;
-  $('#cc').innerHTML = `<button class="${vpnOn ? 'ok' : 'bad'}" data-open="remote"><b>VPN</b><span>${vpnOn ? (r.tailscale?.up ? 'Tailscale connected' : 'WireGuard up') : 'not connected'}</span></button>
-    <button class="${o.backup?.failed_recent ? 'bad' : 'ok'}" data-open="backups"><b>Backups</b><span>${o.backup?.last ? (o.backup.last.ok ? 'last ok · ' : 'FAILED · ') + ago(o.backup.last.started) : 'none yet'}</span></button>
-    <button data-act="backup"><b>Back up now</b><span>every job, then prune</span></button>
-    <button data-act="preview"><b>Preview tonight</b><span>automator dry run</span></button>
-    <button data-act="mc"><b>Mission Control</b><span>all windows</span></button>
-    <button data-act="lock"><b>Lock screen</b><span>${kbd('⌃⌘Q')}</span></button>
-    ${ccFeel()}
-    <button class="wide" data-open="settings"><b>System Settings</b><span>updates · power · note</span></button>`;
-  $$('[data-open]', $('#cc')).forEach(b => b.onclick = () => { toggleCC(false); openApp(b.dataset.open); });
-  $$('[data-act]', $('#cc')).forEach(b => b.onclick = () => { const a = b.dataset.act; if (a in CC_FEEL) return CC_FEEL[a](); toggleCC(false); ({ backup: runAllBackups, preview: () => api('/automator/preview', { method: 'POST' }).then(() => toast('Preview started')), mc: () => missionControl(true), lock: lockScreen })[a](); });
+  const vpnOn = r.tailscale?.up || r.wireguard?.up, bk = o.backup || {};
+  const bkSub = bk.last ? (bk.last.ok ? 'ok · ' : 'failed · ') + ago(bk.last.started) : 'none yet';
+  $('#cc').innerHTML = `<div class="cc__mod cc__grid">
+      ${ccTile('vpn', 'VPN', vpnOn ? (r.tailscale?.up ? 'Tailscale' : 'WireGuard') : 'off', 'data-open="remote"', vpnOn ? 'on' : 'bad', vpnOn ? (r.tailscale?.up ? 'Tailscale connected' : 'WireGuard up') : 'Not connected')}
+      ${ccTile('backup', 'Backups', esc(bkSub), 'data-open="backups"', bk.failed_recent ? 'bad' : bk.last ? 'on' : '', 'Backups: ' + bkSub)}
+      ${ccFeelTiles()}
+    </div>
+    <div class="cc__mod cc__stack">${ccPill('run', 'Back up now', 'data-act="backup"', 'Every job, then the prune')}${ccPill('backup', 'Preview tonight', 'data-act="preview"', 'The automator, a dry run: nothing written')}</div>
+    ${ccDisplay()}
+    <div class="cc__mod cc__grid">${ccTile('mc', 'Windows', '', 'data-act="mc"', '', 'Mission Control: every window')}${ccTile('lock', 'Lock', '', 'data-act="lock"', '', 'Lock the screen ' + kbd('⌃⌘Q'))}${ccPushTile()}${ccTile('walk', 'Tour', '', 'data-act="walk"', '', 'Show me around: the five-step tour')}</div>
+    <button type="button" class="cc__pill cc__pill--wide cc__set" data-open="settings" title="Updates, power, the note"><i class="cc__tog">${ccSvg('gear')}</i><b>System Settings…</b></button>`;
+  ccWire();
 }
 const CC_FEEL = { dockhide: () => { PREF.set('dock.hide', PREF.get('dock.hide', '1') === '1' ? '0' : '1'); applyDockHide(); buildCC(); }, 'a11y-text': () => { PREF.set('a11y.text', PREF.get('a11y.text', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, 'a11y-motion': () => { PREF.set('a11y.motion', PREF.get('a11y.motion', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, 'a11y-contrast': () => { PREF.set('a11y.contrast', PREF.get('a11y.contrast', '0') === '1' ? '0' : '1'); applyA11y(); buildCC(); }, theme: toggleTheme, sounds: () => { PREF.set('sounds', PREF.get('sounds', '1') === '1' ? '0' : '1'); tone('click'); buildCC(); }, push: () => { toggleCC(false); enablePush(); }, walk: () => { toggleCC(false); walkthrough(true); } };
+// Sounds and the Dock: the two round toggles beside VPN and Backups.
+function ccFeelTiles() {
+  const snd = PREF.get('sounds', '1') === '1', hide = PREF.get('dock.hide', '1') === '1';
+  return ccTile('sound', 'Sounds', snd ? 'on' : 'off', 'data-act="sounds"', snd ? 'on' : '', 'Quiet clicks and chimes')
+    + (isPhone() ? '' : ccTile('dock', 'Dock', hide ? 'hides' : 'stays', 'data-act="dockhide"', hide ? 'on' : '', hide ? 'Slides away; the mouse at the bottom edge brings it back' : 'Always on screen'));
+}
+function ccPushTile() { const pushOn = PREF.get('push', '') === '1'; return S.me && S.me.user && !S.kiosk ? ccTile('push', 'Push', pushOn ? 'on' : 'off', 'data-act="push"', pushOn ? 'on' : '', pushOn ? 'This device gets alerts' : 'Alerts to this phone') : ''; }
+// Display: Dark / Light as one segmented switch (one button, so a click always flips it), then the accessibility toggles.
+function ccDisplay() {
+  const bone = PREF.get('theme', 'dark') === 'bone';
+  return `<div class="cc__mod cc__disp"><div class="cc__h">Display</div>
+    <button type="button" class="cc__seg" data-act="theme" aria-pressed="${bone}" ${S.kiosk ? 'disabled title="The monitor stays dark"' : `title="${bone ? 'Bone: light paper · tap for dark' : 'House Lights Down: dark stage · tap for light'}"`}><span class="${bone ? '' : 'on'}">Dark</span><span class="${bone ? 'on' : ''}">Light</span></button>
+    <div class="cc__a11y">${ccA11y()}</div></div>`;
+}
+// The member's Control Center keeps the same modules.
 function ccFeel() {
-  const bone = PREF.get('theme', 'dark') === 'bone', snd = PREF.get('sounds', '1') === '1', pushOn = PREF.get('push', '') === '1';
-  return `<button class="${bone ? 'ok' : ''}" data-act="theme" ${S.kiosk ? 'disabled title="the monitor stays dark"' : ''}><b>${bone ? 'Bone' : 'House Lights Down'}</b><span>${S.kiosk ? 'the monitor stays dark' : bone ? 'light paper · tap for dark' : 'dark stage · tap for light'}</span></button>
-    <button class="${snd ? 'ok' : ''}" data-act="sounds"><b>Sounds ${snd ? 'on' : 'off'}</b><span>quiet clicks and chimes</span></button>
-    ${S.me && S.me.user && !S.kiosk ? `<button class="${pushOn ? 'ok' : ''}" data-act="push"><b>Push ${pushOn ? 'on' : 'off'}</b><span>${pushOn ? 'this device gets alerts' : 'alerts to this phone'}</span></button>` : ''}
-    <button data-act="walk"><b>Show me around</b><span>the five-step tour</span></button>
-    ${isPhone() ? '' : `<button class="${PREF.get('dock.hide', '1') === '1' ? 'ok' : ''}" data-act="dockhide"><b>Dock ${PREF.get('dock.hide', '1') === '1' ? 'hides' : 'stays'}</b><span>${PREF.get('dock.hide', '1') === '1' ? 'slides away; mouse at the bottom edge brings it back' : 'always on screen'}</span></button>`}
-    ${ccA11y()}`;
+  return `<div class="cc__mod cc__grid">${ccFeelTiles()}${ccPushTile()}${ccTile('walk', 'Tour', '', 'data-act="walk"', '', 'Show me around: the five-step tour')}</div>${ccDisplay()}`;
 }
 // One run of the nightly backup (scout I-071): every job in turn, then the prune and the off-site copy.
 async function runAllBackups() { try { const r = await api('/backups/run', { method: 'POST' }); if (r.ok === false) throw new Error(r.err); toast(r.demo ? (r.out || 'Sample mode: nothing ran') : 'The backup is running, one job after another; rows appear in Backups as each finishes', 'ok', 7000); return r; } catch (e) { toast(e.message, 'bad', 7000); } }
@@ -2700,7 +2753,7 @@ function buildDock() {
 function buildLaunchpad() {
   const lp = $('#lpGrid'); if (!lp) return;
   const apps = visibleApps().filter(a => !a.hidden && !lpHidden().includes(a.id)), req = apps.filter(a => REQUIRED_APPS.includes(a.id)), rest = apps.filter(a => !REQUIRED_APPS.includes(a.id) && (appOn(a) || !isMember()));
-  const tile = a => { const on = appOn(a); return `<button class="lp${on ? '' : ' lp--off'}" data-lp="${a.id}" ${on ? '' : 'data-off="1" title="Turn on in the Store"'}>${iconHtml(a)}<b>${esc(a.name)}</b><span>${on ? esc(isMember() && a.whatMember ? a.whatMember : a.what) : '<em class="lp__turn">Turn on in the Store</em>'}</span></button>`; };
+  const tile = a => { const on = appOn(a); return `<button class="lp${on ? '' : ' lp--off'}" data-lp="${a.id}" ${on ? `title="${esc(isMember() && a.whatMember ? a.whatMember : a.what)}"` : 'data-off="1" title="Turn on in the Store"'}>${iconHtml(a)}<b>${esc(a.name)}</b><span>${on ? esc(isMember() && a.whatMember ? a.whatMember : a.what) : '<em class="lp__turn">Turn on in the Store</em>'}</span></button>`; };
   const sec = (h, list, n) => list.length ? `<div class="lp__rubric" data-rub="${n}"><span>${h}</span><i>${list.length}</i></div>` + list.map(tile).join('') : '';
   lp.innerHTML = sec('Required', req, 'req') + sec('From the Store', rest.sort((a, b) => appOn(b) - appOn(a)), 'store');
   const offOpen = id => { toggleLaunchpad(false); S.storeTab = 'builtin'; if (S.wins.apps) rerender('apps'); openApp('apps'); toast(`${appOf(id)?.name || id} is not turned on yet: Store → ariseOS apps`, 'warn', 6000); };
@@ -2746,16 +2799,17 @@ function tallyTick() {
   if (!t) { const sp = () => { const s = document.createElement('span'); s.className = 'tally__sp'; s.setAttribute('aria-hidden', 'true'); return s; }; t = document.createElement('button'); t.type = 'button'; t.id = 'tally'; t.className = 'tally'; menus.after(sp(), t, sp());
     t.onclick = () => openApp(S.svcNow?.in_service && appOf('servicemode') && !isMember() ? 'servicemode' : 'sunday'); }
   const v = S.svcNow, now = Date.now(); let html, air = false, title;
-  if (v && v.in_service && v.service) { air = true; const st = Date.parse(v.service.started); html = `<i class="tally__dot"></i><b>ON AIR</b><span class="tally__s">${esc(v.service.name)}</span><span class="tally__n">${isNaN(st) ? '' : hms(now - st)}</span>`; title = `${v.service.name} is on${v.service.ends_at ? ', until about ' + v.service.ends_at : ''}`; }
+  if (v && v.in_service && v.service) { air = true; const st = Date.parse(v.service.started); html = `<i class="tally__dot"></i><b>ON AIR</b><span class="tally__sep" aria-hidden="true"> · </span><span class="tally__s">${esc(v.service.name)}</span><span class="tally__sep" aria-hidden="true"> · </span><span class="tally__n">${isNaN(st) ? '' : hms(now - st)}</span>`; title = `${v.service.name} is on${v.service.ends_at ? ', until about ' + v.service.ends_at : ''}`; }
   else { const n = nextSvc(now); if (!n) { t.hidden = true; return; } const ms = n.at - now, home = String(S.church?.city || 'Pineville').split(',')[0];
-    html = `<span class="tally__s">${esc(n.name + (n.site && n.site !== home ? ' · ' + n.site : ''))}</span><span class="tally__n">${ms <= 86400000 ? 'in ' + hms(ms) : esc(new Date(n.at).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }).replace(',', ''))}</span>`;
+    // The separator is a text node of its own (not CSS ::before), so it stays when the name is cut short.
+    html = `<span class="tally__s">${esc(n.name + (n.site && n.site !== home ? ' · ' + n.site : ''))}</span><span class="tally__sep" aria-hidden="true"> · </span><span class="tally__n">${ms <= 86400000 ? 'in ' + hms(ms) : esc(new Date(n.at).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }).replace(',', ''))}</span>`;
     title = `Next: ${n.name}${n.site ? ' in ' + n.site : ''}, ${new Date(n.at).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' })}`; }
   t.hidden = false; if (t.dataset.h !== html) { t.innerHTML = html; t.dataset.h = html; t.title = title; t.setAttribute('aria-label', title); }
   t.classList.toggle('tally--air', air); document.body.classList.toggle('onair', air);
   // The app's menus come first: on a crowded bar the tally steps aside, and comes back once it fits.
   const bar = $('#bar'), clipped = menus.scrollWidth > menus.clientWidth + 1 || bar.scrollWidth > bar.clientWidth + 1;
-  if (!t.classList.contains('tally--sq')) { if (clipped && t.offsetWidth) { t.dataset.need = String(t.offsetWidth + 24); t.classList.add('tally--sq'); } }
-  else if (!clipped && $$('#bar .tally__sp').reduce((s, x) => s + x.getBoundingClientRect().width, 0) > +(t.dataset.need || 0)) t.classList.remove('tally--sq');
+  if (!t.classList.contains('tally--sq')) { if (clipped && t.offsetWidth) { t.dataset.need = String(214); t.classList.add('tally--sq'); } }
+  else if (!clipped && $$('#bar .tally__sp, #bar .bar__spacer').reduce((s, x) => s + x.getBoundingClientRect().width, 0) > +(t.dataset.need || 0)) t.classList.remove('tally--sq');
 }
 // One quiet tick a second for the shell: the tally, the badges, what is turned on, Inbox's unread (every 2 min).
 function shellStart() { if (S.shellT) return; S.shellT = setInterval(shellTick, 1000); shellTick(); }
@@ -2801,9 +2855,10 @@ async function buildWidgets() {
   const nowH = new Date().getHours();
   const next = nowH < 2 ? '02:05 automator' : nowH < 3 ? '03:00 backups' : nowH < 4 ? '04:00 GitHub mirror' : nowH < 7 ? '07:00 daily note' : '02:05 automator (tonight)';
   w.innerHTML = `
-    <div data-wg="needs" class="widget ${att.length ? (bad ? 'widget--bad' : 'widget--warn') : 'widget--clear'}"><div class="widget__kicker">${att.length ? 'Needs you' : 'All clear'}</div>
-      ${att.length ? `<div class="att">${att.slice(0, 4).map(x => `<div class="att__i ${x.level}">${esc(x.text)}</div>`).join('')}${att.length > 4 ? `<button class="btn btn--ghost btn--xs" data-open="overview">${att.length - 4} more</button>` : ''}</div>` : '<div class="widget__sub">Services up, last automator run clean, backups ok, Synology mounted.</div>'}</div>
-    <div data-wg="live" class="widget"><div class="widget__kicker">Live CPU</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:#fff">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
+    <div data-wg="needs" class="widget widget--needs ${att.length ? (bad ? 'widget--bad' : 'widget--warn') : 'widget--clear'}"><div class="widget__kicker">${att.length ? 'Needs you' : 'All clear'}</div>
+      <div class="att__hero"><span class="att__n">${att.length || '✓'}</span><span class="att__w">${att.length ? (att.length === 1 ? 'thing to look at' : 'things to look at') : 'nothing waiting'}${att.length ? `<br><button class="att__go" data-open="overview">Open Overview ›</button>` : ''}</span></div>
+      ${att.length ? `<div class="att">${att.slice(0, 3).map(x => `<div class="att__i ${x.level}">${esc(x.text)}</div>`).join('')}${att.length > 3 ? `<button class="btn btn--ghost btn--xs" data-open="overview">${att.length - 3} more</button>` : ''}</div>` : '<div class="widget__sub">Services up, last automator run clean, backups ok, Synology mounted.</div>'}</div>
+    <div data-wg="live" class="widget"><div class="widget__kicker">Live CPU</div><div class="row row--between"><span class="widget__big" id="wgCpu">–</span><span class="widget__sub" style="text-align:right">CPU<br><span id="wgNet" class="mono" style="font-size:11px">–</span></span></div><div class="meter"><i id="wgCpuM"></i></div><svg class="spark" id="wgSpark" style="height:34px"></svg><div class="row row--between" style="margin-top:6px"><span class="widget__sub">Memory <b id="wgRam" style="color:var(--hi)">–</b></span></div><div class="meter meter--warn"><i id="wgRamM"></i></div></div>
     <div data-wg="box" class="widget"><div class="widget__kicker">The box</div>
       <div class="widget__row"><span>Directory</span><b>${o.directory_ok ? 'online' : '<span style="color:var(--redL)">down</span>'} · ${o.counts?.users} users</b></div>
       <div class="widget__row"><span>Automator</span><b>${a.last_run ? ago(a.last_run) : 'never'} · ${a.last_ok === false ? '<span style="color:var(--redL)">failures</span>' : a.last_ok ? 'clean' : '—'}</b></div>
@@ -2977,6 +3032,8 @@ $('#spot').onclick = e => { if (e.target.id === 'spot') toggleSpot(false); };
 $('#qlClose').onclick = () => $('#ql').hidden = true;
 $('#spotBtn').onclick = () => toggleSpot();
 $('#ccBtn').onclick = e => { e.stopPropagation(); toggleCC(); };
+// The status cluster (Leviticus review): VPN, backups and the live numbers fold into one item; it opens Control Center.
+{ const st = document.getElementById('barSt'); if (st) st.onclick = e => { e.stopPropagation(); toggleCC(); }; }
 $('#barClock').onclick = () => toggleNC();
 $('#barAtt').onclick = () => openApp('overview');
 $('#barLogo').onclick = e => { e.stopPropagation(); const b = $('#barLogo'); if (menuOpen === b) { closeMenu(); return; } openMenu(b, FLAME_MENU()); };
@@ -3424,7 +3481,7 @@ async function loginFaces() {
 
 // ---- the Desktop folder on the wallpaper (round 5, 24) ----
 const DESK = { loc: null, pos: {}, entries: [] };
-const DESK_W = 96, DESK_H = 92;
+const DESK_W = 104, DESK_H = 112;
 async function buildDeskIcons() {
   let box = $('#deskIcons');
   if (!box) { box = document.createElement('div'); box.id = 'deskIcons'; box.className = 'deskicons'; box.setAttribute('aria-label', 'Your Desktop folder'); $('#stage').prepend(box); deskDropTarget(); }
@@ -3436,12 +3493,13 @@ async function buildDeskIcons() {
   paintDesk();
 }
 function deskAuto(i) {
-  // Mac-like: from the top right, in columns, under the drive icons.
+  // Leviticus: the icons live on the left (the widgets took the right edge, as on macOS 26), in columns
+  // under the drive icons, with room between them for a two-line name.
   const st = $('#stage'); const W = st.clientWidth, H = Math.max(300, st.clientHeight - 120);
-  const top = 14 + ($$('#icons .ico').length * 102);
+  const ic = $('#icons'), top = Math.max(16 + $$('#icons .ico').length * 109, ic && ic.offsetHeight ? ic.offsetTop + ic.offsetHeight + 22 : 0);
   const perCol = Math.max(1, Math.floor((H - top) / DESK_H));
   const col = Math.floor(i / perCol), row = i % perCol;
-  return [Math.max(0, W - 22 - DESK_W - col * DESK_W), top + row * DESK_H];
+  return [Math.min(Math.max(0, W - DESK_W), 12 + col * DESK_W), top + row * DESK_H];
 }
 // On a phone the stage is the scrolling column of widgets, so the Desktop's files sit in a row
 // at its top instead of at their large-screen positions (where they landed on the widgets).
@@ -3450,13 +3508,13 @@ window.addEventListener('resize', () => { clearTimeout(deskRz); deskRz = setTime
 function paintDesk() {
   const box = $('#deskIcons'); if (!box) return;
   const host = isPhone() ? $('#widgets') : $('#stage');
-  if (host && box.parentElement !== host) host.prepend(box);
+  if (host && box.parentElement !== host) { if (isPhone()) host.append(box); else host.prepend(box); }   // the phone: under Needs you
   const p = DESK.loc ? DESK.loc.path : '';
   let auto = 0;
   box.innerHTML = DESK.entries.map(e => {
     const pos = DESK.pos[e.name] || deskAuto(auto++);
     const ico = e.dir ? ICONURL.folder : fileIcon(e.name);
-    return `<button class="ico deskico" draggable="true" data-dn="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" style="left:${pos[0]}px;top:${pos[1]}px" title="${esc(e.name)}"><span class="dock__icon" style="background:${ico} center/70% no-repeat #000"></span><span>${esc(e.name)}</span></button>`;
+    return `<button class="ico deskico" draggable="true" data-dn="${esc(e.name)}" data-dir="${e.dir ? 1 : 0}" style="left:${pos[0]}px;top:${pos[1]}px" title="${esc(e.name)}"><span class="dock__icon" style="background:${ico} center/${e.dir ? '100%' : '86%'} no-repeat transparent"></span><span>${esc(e.name)}</span></button>`;
   }).join('');
   $$('.deskico', box).forEach(b => {
     const name = b.dataset.dn, dir = b.dataset.dir === '1', path = (p === '/' ? '' : p) + '/' + name;

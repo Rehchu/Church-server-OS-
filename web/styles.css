@@ -41,7 +41,8 @@
     radial-gradient(55% 55% at 90% 18%,rgba(58,18,80,.72),transparent 70%),
     radial-gradient(60% 50% at 70% 72%,rgba(214,34,45,.36),transparent 70%),
     radial-gradient(45% 40% at 98% 102%,rgba(255,138,61,.55),transparent 70%);
-  --wall-ribbon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FF7A52'/%3E%3Cstop offset='.18' stop-color='%23E3303A'/%3E%3Cstop offset='.55' stop-color='%238E0F19'/%3E%3Cstop offset='1' stop-color='%233A0610' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='o' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFC27A'/%3E%3Cstop offset='.25' stop-color='%23FF8A3D'/%3E%3Cstop offset='.7' stop-color='%23C2321E' stop-opacity='.6'/%3E%3Cstop offset='1' stop-color='%235A0910' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='v' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23C0285A' stop-opacity='.9'/%3E%3Cstop offset='.4' stop-color='%235B1A6E' stop-opacity='.8'/%3E%3Cstop offset='1' stop-color='%231E0A2A' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='h' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='.15'/%3E%3Cstop offset='.45' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='.9'/%3E%3C/linearGradient%3E%3ClinearGradient id='e' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0'/%3E%3Cstop offset='.5' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect x='-200' y='-200' width='2000' height='1400' fill='url(%23h)'/%3E%3C/mask%3E%3Cmask id='n'%3E%3Crect x='-200' y='-200' width='2000' height='1400' fill='url(%23e)'/%3E%3C/mask%3E%3Cfilter id='s' x='-20%25' y='-40%25' width='140%25' height='180%25'%3E%3CfeGaussianBlur stdDeviation='14'/%3E%3C/filter%3E%3Cfilter id='b' x='-20%25' y='-60%25' width='140%25' height='220%25'%3E%3CfeGaussianBlur stdDeviation='40'/%3E%3C/filter%3E%3Cfilter id='l' x='-10%25' y='-100%25' width='120%25' height='300%25'%3E%3CfeGaussianBlur stdDeviation='2.5'/%3E%3C/filter%3E%3C/defs%3E%3Cg mask='url(%23m)'%3E%3Cpath filter='url(%23b)' fill='url(%23v)' opacity='.7' d='M-200 330C200 150 560 430 960 330S1520 60 1800 140L1800 520C1480 430 1290 640 940 640S300 470-200 640Z'/%3E%3Cpath filter='url(%23s)' fill='url(%23o)' opacity='.85' d='M-200 1060C320 930 700 860 1020 760S1520 330 1800 170L1800 640C1500 860 1200 960 940 990S260 1120-200 1250Z'/%3E%3Cpath filter='url(%23s)' fill='url(%23r)' d='M-200 880C220 730 540 600 900 650S1420 500 1800 300L1800 760C1440 920 1130 960 880 940S250 990-200 1160Z'/%3E%3C/g%3E%3Cg mask='url(%23n)' opacity='.55'%3E%3Cpath filter='url(%23l)' fill='none' stroke='%23FFE4D2' stroke-width='3' d='M-200 884C220 734 540 604 900 654S1420 504 1800 304'/%3E%3C/g%3E%3C/svg%3E");
+  /* three luminous bands, lower left to upper right (web/wall.svg; painted once, static on the kiosk) */
+  --wall-ribbon:url("wall.svg");
   --wallpaper:var(--wall-ribbon) center/cover no-repeat,var(--wall-glow),var(--wall-base);
   --hi:#fff; --fg-rgb:255 255 255;
   color-scheme:dark;
@@ -215,24 +216,24 @@ body.onair .wall__ribbon,body.onair .wall__grid{filter:saturate(1.25) brightness
 .dock__icon.red{background:linear-gradient(165deg,#FF5A5F 0%,#D6222D 52%,#8E1019 100%)}
 .dock__icon.bone{background:linear-gradient(165deg,#FFFFFF 0%,#F4F2F0 45%,#DCD6CF 100%)} .dock__icon.bone svg{color:#1B1A1F;filter:none}
 /* a colour per app, in the house palette */
-.dock__i[data-app="overview"] .dock__icon,.lp[data-lp="overview"] .dock__icon{background:linear-gradient(165deg,#FF6A5A 0%,#D6222D 50%,#7A0C14 100%)}
-.dock__i[data-app="sunday"] .dock__icon,.lp[data-lp="sunday"] .dock__icon{background:linear-gradient(165deg,#FFB35C 0%,#FF6A3D 45%,#C7202B 100%)}
-.dock__i[data-app="directory"] .dock__icon,.lp[data-lp="directory"] .dock__icon{background:linear-gradient(165deg,#9A6BFF 0%,#5B33C9 55%,#2E1670 100%)}
-.dock__i[data-app="backups"] .dock__icon,.lp[data-lp="backups"] .dock__icon{background:linear-gradient(165deg,#5A5560 0%,#2C2930 55%,#151418 100%)}
-.dock__i[data-app="backups"] .dock__icon svg,.lp[data-lp="backups"] .dock__icon svg{color:#FFB35C}
-.dock__i[data-app="automator"] .dock__icon,.lp[data-lp="automator"] .dock__icon{background:linear-gradient(165deg,#FF5E8A 0%,#C2185B 50%,#5E0B3A 100%)}
-.dock__i[data-app="bible"] .dock__icon,.lp[data-lp="bible"] .dock__icon{background:linear-gradient(165deg,#E3A35A 0%,#B06A26 50%,#6A3A10 100%)} .dock__i[data-app="bible"] .dock__icon svg,.lp[data-lp="bible"] .dock__icon svg{color:#FFF4E6}
-.dock__i[data-app="apps"] .dock__icon,.lp[data-lp="apps"] .dock__icon{background:linear-gradient(165deg,#5AB8FF 0%,#0A84FF 50%,#0040A8 100%)}
-.dock__i[data-app="remote"] .dock__icon,.lp[data-lp="remote"] .dock__icon,.lp[data-lp="devices"] .dock__icon{background:linear-gradient(165deg,#4FD1C5 0%,#13867E 55%,#0B4A46 100%)}
-.dock__i[data-app="terminal"] .dock__icon,.lp[data-lp="terminal"] .dock__icon{background:linear-gradient(165deg,#3A3A40 0%,#141417 60%,#050506 100%)}
-.dock__i[data-app="terminal"] .dock__icon svg,.lp[data-lp="terminal"] .dock__icon svg{color:#E8E8EA}
-.dock__i[data-app="assist"] .dock__icon,.lp[data-lp="assist"] .dock__icon{background:linear-gradient(165deg,#FFC9A8 0%,#E2708A 45%,#7A3AC9 100%)} .dock__i[data-app="assist"] .dock__icon svg,.lp[data-lp="assist"] .dock__icon svg{color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
-.dock__i[data-app="calendar"] .dock__icon svg,.lp[data-lp="calendar"] .dock__icon svg,.dock__i[data-app="sermons"] .dock__icon svg,.lp[data-lp="sermons"] .dock__icon svg,.dock__i[data-app="files"] .dock__icon svg,.lp[data-lp="files"] .dock__icon svg{color:var(--red)}
-.lp[data-lp="security"] .dock__icon,.dock__i[data-app="security"] .dock__icon{background:linear-gradient(165deg,#7EE29A 0%,#2FA24F 55%,#14532A 100%)}
-.lp[data-lp="updates"] .dock__icon,.dock__i[data-app="updates"] .dock__icon{background:linear-gradient(165deg,#8FA7FF 0%,#4C5FD6 55%,#232C78 100%)}
-.lp[data-lp="mail"] .dock__icon,.dock__i[data-app="mail"] .dock__icon{background:linear-gradient(165deg,#7CC4FF 0%,#2F7BEA 55%,#163E8C 100%)}
-.lp[data-lp="photos"] .dock__icon,.dock__i[data-app="photos"] .dock__icon{background:linear-gradient(165deg,#FFE08A 0%,#FF9F0A 50%,#D6222D 100%)} .lp[data-lp="photos"] .dock__icon svg,.dock__i[data-app="photos"] .dock__icon svg{color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
-.lp[data-lp="notes"] .dock__icon,.dock__i[data-app="notes"] .dock__icon{background:linear-gradient(165deg,#FFF3B0 0%,#FFD95A 50%,#E0A82E 100%)} .lp[data-lp="notes"] .dock__icon svg,.dock__i[data-app="notes"] .dock__icon svg{color:#5A3B00}
+.dock__i[data-app="overview"] .dock__icon,.lp[data-lp="overview"] .dock__icon,.dock__icon[data-ic="overview"]{background:linear-gradient(165deg,#FF6A5A 0%,#D6222D 50%,#7A0C14 100%)}
+.dock__i[data-app="sunday"] .dock__icon,.lp[data-lp="sunday"] .dock__icon,.dock__icon[data-ic="sunday"]{background:linear-gradient(165deg,#FFB35C 0%,#FF6A3D 45%,#C7202B 100%)}
+.dock__i[data-app="directory"] .dock__icon,.lp[data-lp="directory"] .dock__icon,.dock__icon[data-ic="directory"]{background:linear-gradient(165deg,#9A6BFF 0%,#5B33C9 55%,#2E1670 100%)}
+.dock__i[data-app="backups"] .dock__icon,.lp[data-lp="backups"] .dock__icon,.dock__icon[data-ic="backups"]{background:linear-gradient(165deg,#5A5560 0%,#2C2930 55%,#151418 100%)}
+.dock__i[data-app="backups"] .dock__icon svg,.lp[data-lp="backups"] .dock__icon svg,.dock__icon[data-ic="backups"] svg{color:#FFB35C}
+.dock__i[data-app="automator"] .dock__icon,.lp[data-lp="automator"] .dock__icon,.dock__icon[data-ic="automator"]{background:linear-gradient(165deg,#FF5E8A 0%,#C2185B 50%,#5E0B3A 100%)}
+.dock__i[data-app="bible"] .dock__icon,.lp[data-lp="bible"] .dock__icon,.dock__icon[data-ic="bible"]{background:linear-gradient(165deg,#E3A35A 0%,#B06A26 50%,#6A3A10 100%)} .dock__i[data-app="bible"] .dock__icon svg,.lp[data-lp="bible"] .dock__icon svg,.dock__icon[data-ic="bible"] svg{color:#FFF4E6}
+.dock__i[data-app="apps"] .dock__icon,.lp[data-lp="apps"] .dock__icon,.dock__icon[data-ic="apps"]{background:linear-gradient(165deg,#5AB8FF 0%,#0A84FF 50%,#0040A8 100%)}
+.dock__i[data-app="remote"] .dock__icon,.lp[data-lp="remote"] .dock__icon,.dock__icon[data-ic="remote"],.lp[data-lp="devices"] .dock__icon,.dock__icon[data-ic="devices"]{background:linear-gradient(165deg,#4FD1C5 0%,#13867E 55%,#0B4A46 100%)}
+.dock__i[data-app="terminal"] .dock__icon,.lp[data-lp="terminal"] .dock__icon,.dock__icon[data-ic="terminal"]{background:linear-gradient(165deg,#3A3A40 0%,#141417 60%,#050506 100%)}
+.dock__i[data-app="terminal"] .dock__icon svg,.lp[data-lp="terminal"] .dock__icon svg,.dock__icon[data-ic="terminal"] svg{color:#E8E8EA}
+.dock__i[data-app="assist"] .dock__icon,.lp[data-lp="assist"] .dock__icon,.dock__icon[data-ic="assist"]{background:linear-gradient(165deg,#FFC9A8 0%,#E2708A 45%,#7A3AC9 100%)} .dock__i[data-app="assist"] .dock__icon svg,.lp[data-lp="assist"] .dock__icon svg,.dock__icon[data-ic="assist"] svg{color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.dock__i[data-app="calendar"] .dock__icon svg,.lp[data-lp="calendar"] .dock__icon svg,.dock__icon[data-ic="calendar"] svg,.dock__i[data-app="sermons"] .dock__icon svg,.lp[data-lp="sermons"] .dock__icon svg,.dock__icon[data-ic="sermons"] svg,.dock__i[data-app="files"] .dock__icon svg,.lp[data-lp="files"] .dock__icon svg,.dock__icon[data-ic="files"] svg{color:var(--red)}
+.lp[data-lp="security"] .dock__icon,.dock__icon[data-ic="security"],.dock__i[data-app="security"] .dock__icon{background:linear-gradient(165deg,#7EE29A 0%,#2FA24F 55%,#14532A 100%)}
+.lp[data-lp="updates"] .dock__icon,.dock__icon[data-ic="updates"],.dock__i[data-app="updates"] .dock__icon{background:linear-gradient(165deg,#8FA7FF 0%,#4C5FD6 55%,#232C78 100%)}
+.lp[data-lp="mail"] .dock__icon,.dock__icon[data-ic="mail"],.dock__i[data-app="mail"] .dock__icon{background:linear-gradient(165deg,#7CC4FF 0%,#2F7BEA 55%,#163E8C 100%)}
+.lp[data-lp="photos"] .dock__icon,.dock__icon[data-ic="photos"],.dock__i[data-app="photos"] .dock__icon{background:linear-gradient(165deg,#FFE08A 0%,#FF9F0A 50%,#D6222D 100%)} .lp[data-lp="photos"] .dock__icon svg,.dock__icon[data-ic="photos"] svg,.dock__i[data-app="photos"] .dock__icon svg{color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.lp[data-lp="notes"] .dock__icon,.dock__icon[data-ic="notes"],.dock__i[data-app="notes"] .dock__icon{background:linear-gradient(165deg,#FFF3B0 0%,#FFD95A 50%,#E0A82E 100%)} .lp[data-lp="notes"] .dock__icon svg,.dock__icon[data-ic="notes"] svg,.dock__i[data-app="notes"] .dock__icon svg{color:#5A3B00}
 @media(max-width:900px){
   .dock{left:8px;right:8px;bottom:calc(6px + env(safe-area-inset-bottom,0px));transform:none;border-radius:24px;padding:6px 8px;overflow-x:auto;justify-content:flex-start;gap:2px;scrollbar-width:none}
   .dock::-webkit-scrollbar{display:none}
@@ -300,7 +301,7 @@ body.onair .wall__ribbon,body.onair .wall__grid{filter:saturate(1.25) brightness
 .ic{width:16px;height:16px;flex:0 0 auto;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;opacity:.9}
 .ic-grid{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z'/%3E%3C/svg%3E")}
 .ic-users{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5zm8-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 2c-.7 0-1.4.1-2 .3 1.8 1.1 3 2.8 3 4.7v2h4v-2c0-2.6-2.4-5-5-5z'/%3E%3C/svg%3E")}
-.ic-folder{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 5h8l2 2h10v13H2z'/%3E%3C/svg%3E")}
+.ic-folder{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 6.5A2.5 2.5 0 0 1 5.5 4h3.6a2 2 0 0 1 1.4.6L12 6h6.5A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z'/%3E%3C/svg%3E")}
 .ic-shield{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z'/%3E%3C/svg%3E")}
 .ic-play{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3l15 9-15 9z'/%3E%3C/svg%3E")}
 .ic-apps{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 10h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5zM3 17h5v5H3zm7 0h5v5h-5zm7 0h5v5h-5z'/%3E%3C/svg%3E")}
@@ -572,19 +573,40 @@ pre.log{background:#0D0D10;border:1px solid var(--line2);border-radius:var(--r);
 .cal span.today{background:var(--red);color:#fff;font-weight:600}
 .cal span.dim{opacity:.3}
 
-/* Control Center: glass, round tiles */
-.cc{position:absolute;right:10px;top:calc(var(--bar-h) + 6px);z-index:60;width:330px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;
+/* Control Center (Leviticus review): macOS 26 modules. Round glyph toggles in 2×2 groups, pill rows for
+   the actions, a Display module with a segmented Dark / Light switch; the explanations are tooltips. */
+.cc{position:absolute;right:10px;top:calc(var(--bar-h) + 6px);z-index:60;width:332px;max-height:calc(100% - var(--bar-h) - 16px);overflow:auto;scrollbar-width:none;padding:10px;display:flex;flex-direction:column;gap:8px;
   background:rgba(28,26,32,.5);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-line);border-radius:var(--r-xl,28px);
   box-shadow:var(--glass-hi),var(--shadow-pop);animation:popin .16s var(--t);transform-origin:top right}
-.cc button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 14px;background:rgb(var(--fg-rgb) / .09);border:1px solid rgb(var(--fg-rgb) / .08);border-radius:var(--r-lg,22px);
-  text-align:left;min-height:68px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:background .15s,transform .1s}
-.cc button:hover{background:rgb(var(--fg-rgb) / .15)}
-.cc button:active{transform:scale(.98)}
-.cc button b{font-weight:600;font-size:13px;letter-spacing:-.005em;text-transform:none;color:var(--hi)}
-.cc button span{font-size:12px;color:var(--text2)}
-.cc button.wide{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;min-height:0;border-radius:var(--r-pill);padding:10px 16px}
-.cc button.ok{background:rgba(52,199,89,.14);border-color:rgba(52,199,89,.22)} .cc button.bad{background:rgba(255,69,58,.14);border-color:rgba(255,69,58,.25)}
-.cc button.ok b{color:#8EEBA8} .cc button.bad b{color:#FF8A82}
+.cc::-webkit-scrollbar{display:none}
+.cc__mod{background:rgb(var(--fg-rgb) / .08);border:1px solid rgb(var(--fg-rgb) / .07);border-radius:20px;padding:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.cc__grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.cc__stack{display:flex;flex-direction:column;gap:4px}
+.cc__h{font-size:11.5px;font-weight:600;color:var(--text2);padding:2px 6px 6px}
+.cc__t{display:flex;align-items:center;gap:9px;min-width:0;padding:5px 6px;border-radius:14px;text-align:left;transition:background .15s}
+.cc__t:hover,.cc__pill:hover{background:rgb(var(--fg-rgb) / .07)}
+.cc__t>span{min-width:0;display:flex;flex-direction:column}
+.cc__t b,.cc__pill b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:var(--hi);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc__t small,.cc__pill small{font-size:11px;color:var(--text2);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc__tog{flex:0 0 34px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-style:normal;color:var(--hi);
+  background:rgb(var(--fg-rgb) / .13);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:background .15s,color .15s}
+.cc__t.on .cc__tog,.cc__tog.on{background:linear-gradient(180deg,#E5343F,var(--red));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 8px rgba(214,34,45,.35)}
+.cc__t.bad .cc__tog{background:rgba(255,69,58,.16);color:#FF8A82;box-shadow:inset 0 0 0 1.5px rgba(255,69,58,.55)}
+.cc__t.bad small{color:#FF8A82}
+.cc__t:active .cc__tog,.cc__pill:active .cc__tog{transform:scale(.94)}
+.cc__t--sm{flex-direction:column;align-items:center;gap:5px;padding:6px 2px;text-align:center}
+.cc__t--sm .cc__tog{flex-basis:30px;width:30px;height:30px}
+.cc__t--sm b{font-size:11px;font-weight:500;color:var(--text2);white-space:normal;text-align:center}
+.cc__t--sm.on b{color:var(--hi)}
+.cc__pill{display:flex;align-items:center;gap:10px;width:100%;padding:4px 12px 4px 4px;border-radius:var(--r-pill);text-align:left;transition:background .15s}
+.cc__pill .cc__tog{flex-basis:30px;width:30px;height:30px}
+.cc__pill small{margin-left:auto}
+.cc__pill--wide{background:rgb(var(--fg-rgb) / .08);border:1px solid rgb(var(--fg-rgb) / .07);box-shadow:inset 0 1px 0 rgba(255,255,255,.07);padding:6px 14px 6px 6px}
+.cc__seg{display:flex;width:100%;padding:3px;border-radius:var(--r-pill);background:rgb(var(--fg-rgb) / .1)}
+.cc__seg span{flex:1 1 0;text-align:center;padding:5px 0;border-radius:var(--r-pill);font-size:12.5px;font-weight:500;color:var(--text2);transition:background .2s,color .2s}
+.cc__seg span.on{background:rgb(var(--fg-rgb) / .2);color:var(--hi);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 1px 3px rgba(0,0,0,.3)}
+.cc__seg[disabled]{opacity:.55;cursor:not-allowed}
+.cc__a11y{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:8px}
 
 /* Quick Look */
 .ql{position:absolute;inset:6%;z-index:75;background:rgba(24,23,28,.86);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-line);border-radius:var(--r-lg,22px);
@@ -1184,7 +1206,7 @@ body.bone:not(.kiosk) .lp b{text-shadow:none}
 body.bone:not(.kiosk) .ico span{color:#0A0A0C;text-shadow:0 0 6px rgba(255,255,255,.8)} body.bone:not(.kiosk) .ico.sel span,body.bone:not(.kiosk) .fi.sel span{color:#fff}
 body.bone:not(.kiosk) .menu__drop,body.bone:not(.kiosk) .ctx,body.bone:not(.kiosk) .spot__box,body.bone:not(.kiosk) .switcher div,body.bone:not(.kiosk) .toast{background:rgba(250,248,246,.84)}
 body.bone:not(.kiosk) .cc{background:rgba(250,248,246,.56)} body.bone:not(.kiosk) .nc{background:rgba(250,248,246,.34);border-color:rgba(255,255,255,.6)}
-body.bone:not(.kiosk) .cc button{background:rgba(255,255,255,.6);border-color:rgba(255,255,255,.8)} body.bone:not(.kiosk) .cc button:hover{background:rgba(255,255,255,.85)}
+body.bone:not(.kiosk) .cc__mod,body.bone:not(.kiosk) .cc__pill--wide{background:rgba(255,255,255,.6);border-color:rgba(255,255,255,.8)} body.bone:not(.kiosk) .cc__t:not(.on):not(.bad) .cc__tog,body.bone:not(.kiosk) .cc__pill .cc__tog:not(.on){background:rgba(10,10,12,.08);color:#1a1a1e} body.bone:not(.kiosk) .cc__seg span.on{background:#fff;color:#0A0A0C}
 body.bone:not(.kiosk) .modal,body.bone:not(.kiosk) .walk__box,body.bone:not(.kiosk) .ql{background:rgba(250,248,246,.9)}
 body.bone:not(.kiosk) .modal::backdrop{background:rgba(60,40,44,.25)}
 body.bone:not(.kiosk) .widget{box-shadow:var(--glass-hi),0 10px 30px rgba(60,20,24,.1)}
@@ -1194,7 +1216,7 @@ body.bone:not(.kiosk) .btn--danger{color:#C41C26}
 body.bone:not(.kiosk) .tabs button.active,body.bone:not(.kiosk) .seg button.active,body.bone:not(.kiosk) .edit__tabs button.active,body.bone:not(.kiosk) .finder__tb .views button.on{background:#fff;color:#0A0A0C;box-shadow:0 1px 3px rgba(10,10,12,.15)}
 body.bone:not(.kiosk) .pill.ok{color:#1D7A35;background:rgba(52,199,89,.16)} body.bone:not(.kiosk) .pill.bad{color:#B3121E;background:rgba(255,69,58,.13)} body.bone:not(.kiosk) .pill.warn{color:#9A5400;background:rgba(255,159,10,.16)} body.bone:not(.kiosk) .pill.info{color:#0050A8;background:rgba(10,132,255,.12)}
 body.bone:not(.kiosk) .widget--clear .widget__kicker{color:#1D7A35} body.bone:not(.kiosk) .widget--bad .widget__kicker{color:#B3121E} body.bone:not(.kiosk) .widget--warn .widget__kicker{color:#9A5400}
-body.bone:not(.kiosk) .cc button.ok b{color:#1D7A35} body.bone:not(.kiosk) .cc button.bad b{color:#B3121E}
+body.bone:not(.kiosk) .cc__t.bad small{color:#B3121E}
 body.bone:not(.kiosk) .demo-badge{color:#9A5400;background:rgba(255,159,10,.14)}
 body.bone:not(.kiosk) .tag--warn{color:#9A5400} body.bone:not(.kiosk) .macs-st--ok{color:#1D7A35} body.bone:not(.kiosk) .macs-st--wait{color:#9A5400} body.bone:not(.kiosk) .macs-st--bad{color:#B3121E}
 body.bone:not(.kiosk) .calm__ev{color:#0050A8} body.bone:not(.kiosk) .calm__ev.svc{color:#9E1019} body.bone:not(.kiosk) .calm__ev:hover{color:#fff}
@@ -1241,3 +1263,159 @@ body.kiosk .win{animation-duration:.14s}
 body.kiosk .vcard:hover,body.kiosk .assist__t:hover{transform:none;box-shadow:none}
 body.kiosk .dock__icon,body.kiosk .lp .dock__icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 0 0 .5px rgba(0,0,0,.45)}
 body.kiosk .fi .fico{filter:none}
+
+/* =============================================================================
+   Leviticus polish (the design review of Nov 3: "it looks the same").
+   A new silhouette, not only softer corners: the widgets on the right edge and
+   the icons on the left, a richer wallpaper, a quiet menu bar where the tally
+   fits, windows the wallpaper tints, a Tahoe Finder with one toolbar, Control
+   Center as modules, and a phone that reads as iOS.
+   ============================================================================= */
+
+/* ---------- the wallpaper: three luminous bands (wall.svg); no flame watermark on the desktop ---------- */
+.wall__flame{display:none}
+.wall__glow{background:
+  radial-gradient(70% 60% at 10% 4%,rgba(122,12,20,.9),transparent 70%),
+  radial-gradient(55% 55% at 92% 14%,rgba(74,22,96,.78),transparent 70%),
+  radial-gradient(60% 50% at 66% 70%,rgba(214,34,45,.42),transparent 70%),
+  radial-gradient(48% 42% at 2% 100%,rgba(255,138,61,.5),transparent 72%)}
+.wall__ribbon,.wall__grid{transition:filter 2s var(--t),opacity 2s var(--t)}
+/* a service is running: the bands warm toward red over two seconds */
+body.onair .wall__ribbon,body.onair .wall__grid{filter:hue-rotate(-14deg) saturate(1.35) brightness(1.1)}
+
+/* ---------- the Dock: firmer glass, a specular edge on every tile ---------- */
+.dock{background:rgba(40,36,42,.45);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.2),0 20px 50px rgba(0,0,0,.45)}
+.dock__icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.25),0 0 0 .5px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.35)}
+
+/* ---------- the desktop: widgets on the right edge, icons down the left ---------- */
+@media(min-width:901px){
+  .widgets{left:auto;right:18px}
+  .icons{right:auto;left:14px;gap:22px}
+}
+.ico span{max-width:96px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;border-radius:6px}
+.ico:not(.sel):hover span{background:rgba(0,0,0,.35)}
+/* a file or folder on the Desktop is its own icon (no black tile behind it), as on macOS */
+.deskicons .deskico{width:100px}
+.deskico .dock__icon{border-radius:0;overflow:visible;box-shadow:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.deskico .dock__icon::before{display:none}
+/* with a window in front the widgets go quiet the macOS way (monochrome), not faded to mud: text keeps 4.5:1 */
+.widgets.dim{opacity:1}
+.widgets.dim .widget{background:rgba(24,24,28,.5);filter:saturate(.2)}
+.widgets.dim .widget__kicker,.widgets.dim .widget__row span,.widgets.dim .widget__sub{color:var(--text2)}
+/* Needs you is the hero: a big count, then the first three things */
+.widget--needs{padding:16px 18px 16px;background:linear-gradient(160deg,rgba(214,34,45,.26),rgba(255,138,61,.07) 60%,transparent),var(--glass)}
+.widget--needs.widget--clear{background:linear-gradient(160deg,rgba(52,199,89,.16),transparent 60%),var(--glass)}
+.att__hero{display:flex;align-items:flex-end;gap:12px;margin:2px 0 12px}
+.att__n{font:600 44px/1 var(--ui);letter-spacing:-.04em;color:var(--hi);font-variant-numeric:tabular-nums}
+.widget--warn .att__n{color:#FFC163} .widget--bad .att__n{color:#FF8A82} .widget--clear .att__n{color:#7EE29A}
+.att__w{font-size:13px;color:var(--text2);line-height:1.4;padding-bottom:2px}
+.att__go{font-size:12.5px;font-weight:600;color:var(--redL);padding:0}
+.att__go:hover{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:900px){.att__go{display:none}}
+
+/* ---------- the menu bar: one status cluster, the Sample badge a dot on the flame, room for the tally ---------- */
+.bar__cluster{display:inline-flex;align-items:center;gap:12px;height:24px;padding:0 8px;border-radius:var(--r-xs);color:var(--text2);font-size:12px;font-weight:500}
+.bar__cluster:hover,.bar__cluster.open{background:rgb(var(--fg-rgb) / .14)}
+.bar__cluster>*{flex:0 0 auto;white-space:nowrap}
+@media(min-width:901px) and (max-width:1599px){
+  .bar__cluster{gap:7px;padding:0 7px}
+  .bar__cluster .bar__item b,.bar__cluster .bar__stat,#sideLiveText{display:none}
+  .bar__cluster .bar__live{display:flex}
+}
+@media(max-width:900px){#barSt{display:none}}
+body.member #barSt{display:none!important}
+#demoBadge{position:absolute;left:30px;top:3px;z-index:3;width:9px;height:9px;min-height:0!important;padding:0!important;font-size:0!important;line-height:0;border-radius:50%;
+  background:#FF9F0A;border:1.5px solid rgba(18,16,20,.92);box-shadow:0 0 6px rgba(255,159,10,.7);cursor:pointer;overflow:hidden}
+#demoBadge::after{content:none!important}
+body.bone:not(.kiosk) #demoBadge{background:#FF9F0A;border-color:#F4F2F0}
+/* the unread count is its own small pill beside the time, never on the "AM" */
+#barClock.has-unread{display:inline-flex;align-items:center;gap:6px;padding-right:8px}
+#barClock.has-unread::after{position:static;order:-1;min-width:18px;height:18px;line-height:18px;border-radius:9px;font-size:10.5px}
+
+/* ---------- windows: the wallpaper tints the chrome; the folio and the subtitle are gone ---------- */
+.win{background:linear-gradient(180deg,rgba(32,30,36,.80),rgba(23,23,27,.90));backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.win__bar{background:rgba(255,255,255,.025);backdrop-filter:none;-webkit-backdrop-filter:none}
+.win.focus .win__bar{background:rgba(255,255,255,.05)}
+.win__folio,.win__sub{display:none}
+.win__back{display:none}
+body.bone:not(.kiosk) .win{background:linear-gradient(180deg,rgba(250,248,246,.8),rgba(244,241,238,.9))}
+body.kiosk .win{background:#1C1A20}
+/* Finder on Tahoe: the dots sit on a floating sidebar the wallpaper shows through, and the toolbar is the title bar */
+@media(min-width:901px){
+  .win[data-app="files"] .win__bar{position:absolute;left:0;top:0;width:210px;height:52px;padding:0 0 0 22px;background:transparent!important;border:0}
+  .win[data-app="files"] .win__title{display:none}
+  .win[data-app="files"] .win__body,.win[data-app="files"] .finder{background:transparent}
+  .win[data-app="files"] .finder{grid-template-rows:52px 1fr 30px}
+  .win[data-app="files"] .finder__side{padding-top:40px;border-radius:14px;background:rgba(52,46,56,.42);border-color:rgb(var(--fg-rgb) / .1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+  .win[data-app="files"] .finder__tb,.win[data-app="files"] .finder__main,.win[data-app="files"] .finder__path{background:var(--panel)}
+  .win[data-app="files"] .finder__tb{cursor:grab;padding:0 14px}
+  .win[data-app="files"] .finder__tb:active{cursor:grabbing}
+  .win[data-app="settings"] .win__body,.win[data-app="settings"] .settings{background:transparent}
+  .win[data-app="settings"] .settings__body{background:var(--panel)}
+  .win[data-app="settings"] .settings__nav{border-radius:14px;background:rgba(52,46,56,.42);border-color:rgb(var(--fg-rgb) / .1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+  body.bone:not(.kiosk) .win[data-app="files"] .finder__side,body.bone:not(.kiosk) .win[data-app="settings"] .settings__nav{background:rgba(255,255,255,.45);border-color:rgba(255,255,255,.7)}
+  body.kiosk .win[data-app="files"] .finder__side,body.kiosk .win[data-app="settings"] .settings__nav{background:#262329}
+}
+.fi .fico{width:64px;height:64px}
+
+/* ---------- the phone: windows are iOS screens (a back button, a centred title, an opaque bar) ---------- */
+@media(max-width:900px){
+  .win{background:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .win__dots{display:none!important}
+  .win__bar{height:52px;padding:0 6px;gap:0;background:rgba(18,18,22,.96)!important;border-bottom:1px solid rgb(var(--fg-rgb) / .08)}
+  .win__bar::after{content:"";flex:0 0 84px}
+  .win__back{display:inline-flex;align-items:center;flex:0 0 84px;height:44px;padding:0 8px;font:500 16px/1 var(--ui);color:var(--redL);border-radius:12px;white-space:nowrap}
+  .win__back:active{background:rgb(var(--fg-rgb) / .08)}
+  .win__title{font:600 17px/1.2 var(--ui);padding:0 4px;color:var(--hi)!important}
+  body.bone:not(.kiosk) .win__bar{background:rgba(248,246,243,.97)!important}
+  /* Launchpad is the iOS home grid: four across, 60 px icons, names only */
+  .launchpad{background:rgba(12,10,14,.92)}
+  body.bone:not(.kiosk) .launchpad{background:rgba(248,244,240,.94)}
+  .launchpad__in{padding-top:calc(var(--bar-h) + env(safe-area-inset-top,0px) + 14px)}
+  .launchpad__grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 6px}
+  .lp{gap:6px;padding:4px 0;min-width:0}
+  .lp .dock__icon{width:60px;height:60px} .lp .dock__icon svg{width:30px;height:30px}
+  .lp > span:not(.dock__icon){display:none}
+  .lp b{display:block;max-width:100%;font-size:11px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lp__rubric{margin:10px 2px 0;font-size:13px}
+  /* Needs you first; the Desktop's files come after the widgets */
+  .deskicons{order:9}
+}
+/* the phone's menu bar: the app's own name (no "Menu", no unlabeled circles), clear of the notch */
+@media(max-width:520px){
+  #barAtt,#barUp{display:none!important}
+  .menus button.app{font-size:15px;font-weight:600;padding:0 8px}
+  .menus button.app::after{content:none}
+  .bar{height:calc(var(--bar-h) + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
+}
+
+/* ---------- Launchpad on a desktop: names only (the description is the tooltip); everything on one page ---------- */
+.launchpad .lp > span:not(.dock__icon){display:none}
+.launchpad .lp.lp--off > span:not(.dock__icon){display:block}
+@media(max-width:900px){.launchpad .lp.lp--off > span:not(.dock__icon){display:none}}
+@media(min-width:901px){
+  .launchpad__in{padding-top:36px}
+  .launchpad__grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:18px 12px}
+}
+
+/* ---------- Notification Center: banners fold into it while it is open, and it stops above the Dock ---------- */
+body.nc-open #toasts{display:none}
+.nc{bottom:96px}
+@media(max-width:900px){.nc{bottom:calc(72px + env(safe-area-inset-bottom,0px))}}
+/* the lock and the screensaver show no banner: an error and an address are not for the hallway */
+body:has(#lock:not([hidden])) #toasts,body:has(#saver:not([hidden])) #toasts{display:none}
+
+/* ---------- the house style for small things: sentence-case kickers, round checks, no bar on the note ---------- */
+.kicker{font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text2)}
+.note{box-shadow:none}
+.sun__item input{appearance:none;-webkit-appearance:none;flex:0 0 22px;width:22px;height:22px;margin-top:0;border-radius:50%;border:1.5px solid rgb(var(--fg-rgb) / .35);background:transparent;
+  display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s}
+.sun__item input:hover{border-color:rgb(var(--fg-rgb) / .6)}
+.sun__item input:checked{border-color:var(--red);background:var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.6l4.6-5' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.sun__item input:focus-visible{outline:2px solid var(--redL);outline-offset:2px}
+@media(pointer:coarse){.sun__item input{width:22px;height:22px;margin-top:0}}
+body.kiosk .widgets.dim .widget{filter:none;background:rgba(32,30,36,.9)}
+body.bone:not(.kiosk) .widgets.dim .widget{background:rgba(250,248,246,.5)}
+body.bone:not(.kiosk) .ico:not(.sel):hover span{background:rgba(255,255,255,.6)}
+body.kiosk .deskico .dock__icon{box-shadow:none}
+body.bone:not(.kiosk) .widget--warn .att__n{color:#9A5400} body.bone:not(.kiosk) .widget--bad .att__n{color:#B3121E} body.bone:not(.kiosk) .widget--clear .att__n{color:#1D7A35}
