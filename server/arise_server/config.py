@@ -115,7 +115,9 @@ DEFAULTS = {
         "dsm_url": "",
         "dsm_credentials_file": _root("/etc/arise/secrets/dsm.json", r"C:\Arise\config\secrets\dsm.json"),
     },
-    "apps": {"docker": not WINDOWS, "root": _root("/srv/arise/apps", r"C:\Arise\data\apps")},
+    # turned_on: the ariseOS apps from the Store this box shows (round 8, 34 and 40). The ten
+    # Required ones always show. Empty on a new box; the Store's ariseOS apps section turns them on.
+    "apps": {"docker": not WINDOWS, "root": _root("/srv/arise/apps", r"C:\Arise\data\apps"), "turned_on": []},
     "github": {
         "mirror": True,
         "mirror_path": _root("/srv/arise/backups/github-mirror", r"C:\Arise\data\backups\github-mirror"),

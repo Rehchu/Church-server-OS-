@@ -4,6 +4,18 @@ The top section is what the About window and the morning report show after an
 update: ten lines at most, in plain words. Older sections stay for the record.
 Releases are named after books of the Bible from v0.7 on (round 2, 20).
 
+## v0.9.0 "Leviticus" (Nov 3 2026): the new look
+
+- A new look in the spirit of the newest macOS: rounded corners everywhere, glass panels, a warm Arise wallpaper; the Mac window dots stay
+- Ten apps ship with the box (Finder, Overview, Directory, Backups, Sunday, Calendar, Settings, Store, Help, Terminal); turn the rest on in Store → ariseOS apps
+- The Dock stays on the closet monitor and hides on laptops and phones; badges show what needs you, unread mail and waiting updates
+- A pill in the menu bar counts down to the next service and says ON AIR while one runs
+- Messages slide in at the top right; errors stay until you close them, with Copy, and every one is kept in the Notification Center
+- Spotlight runs things too: type restart web, back up now, lock or empty trash
+- On a phone, one app at a time and a bar at the bottom: Needs you, Files, Sunday, Calendar, More
+- The core five apps (Nextcloud, Vaultwarden, Uptime Kuma, Netdata, File Browser) come installed; the rest of the Store installs on your click
+- The HP asks for the disk passphrase at boot (not the TPM, as the last notes said); everything else from v0.8 is unchanged
+
 ## v0.8.0 "Exodus" (Oct 28 2026): the everyday OS and the safety basics
 
 - Twelve new apps: Calendar with a feed every Mac and phone subscribes to, Calculator, Clock, Help, Activity Monitor, Automations, Storage, Software Update, Notes, Photos, Monitor, Security

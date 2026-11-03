@@ -1,0 +1,178 @@
+/* ===========================================================================
+   ariseOS v0.9 "Leviticus": the shell's new pieces (track C)
+   The menu-bar tally, Dock badges, Launchpad's two rubrics, notification
+   banners and their history, the phone's tab bar, the Store's ariseOS apps.
+   Every token has a fallback, so this file reads right on its own; the shared
+   tokens (--glass, --blur, --r-*, --ui ...) live at the top of styles.css.
+   On the closet monitor (body.kiosk) nothing here blurs or moves except the
+   ON AIR dot's one-second pulse: its graphics chip paints in software.
+   =========================================================================== */
+
+/* ---------- the menu-bar tally: next service, or ON AIR ---------- */
+#bar .tally__sp{flex:1 1 0;min-width:8px}
+.tally{display:inline-flex;align-items:center;gap:8px;height:24px;padding:0 13px;border-radius:var(--r-pill,999px);
+  font:500 12.5px/1 var(--ui,-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif);letter-spacing:0;text-transform:none;
+  color:var(--text,rgba(255,255,255,.88));background:rgba(255,255,255,.09);border:1px solid var(--glass-line,rgba(255,255,255,.14));
+  box-shadow:var(--glass-hi,inset 0 1px 0 rgba(255,255,255,.12));font-variant-numeric:tabular-nums;font-feature-settings:'tnum';
+  cursor:pointer;transition:background .2s var(--t,ease),border-color .2s var(--t,ease),transform .2s var(--t,ease)}
+.tally:hover{background:rgba(255,255,255,.15)}
+.tally:active{transform:scale(.97)}
+.tally__s{color:var(--text2,rgba(255,255,255,.66));overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.tally__n{color:#fff;font-weight:600;min-width:7.2ch}
+.tally b+.tally__s::before,.tally__s+.tally__n::before{content:"·";margin-right:8px;opacity:.55;font-weight:400}
+.tally--air{background:linear-gradient(180deg,#E4323C,#B5161F);border-color:rgba(255,255,255,.28);color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 0 0 3px rgba(214,34,45,.22),0 4px 14px rgba(214,34,45,.45)}
+.tally--air:hover{background:linear-gradient(180deg,#EA3B45,#BE1C25)}
+.tally--air b{font-weight:700;letter-spacing:.06em;font-size:11.5px}
+.tally--air .tally__s{color:rgba(255,255,255,.9)}
+.tally__dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:tallyPulse 1s ease-in-out infinite}
+@keyframes tallyPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+.tally.tally--sq{display:none}
+@media(max-width:900px){.tally,#bar .tally__sp{display:none!important}}
+@media(max-width:1180px){.tally__s{max-width:120px}}
+
+/* ---------- Dock badges (Q125): a red pill on the icon's corner ---------- */
+.dock__badge{position:absolute;top:-3px;right:-3px;z-index:2;min-width:20px;height:20px;padding:0 6px;border-radius:var(--r-pill,999px);
+  background:linear-gradient(180deg,#FF4B42,#E0262E);color:#fff;font:600 11.5px/20px var(--ui,-apple-system,system-ui,sans-serif);
+  text-align:center;font-variant-numeric:tabular-nums;letter-spacing:0;pointer-events:none;
+  box-shadow:0 0 0 1.5px rgba(18,18,22,.92),0 2px 6px rgba(0,0,0,.45);animation:badgeIn .28s var(--t,cubic-bezier(.2,.8,.2,1))}
+@keyframes badgeIn{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.dock__icon--lp{background:linear-gradient(160deg,#3A3A42,#1B1B20)}
+
+/* ---------- Launchpad: Required, then From the Store ---------- */
+.lp__rubric{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:14px 4px 0;
+  font:600 15px/1.2 var(--ui,-apple-system,system-ui,sans-serif);letter-spacing:-.01em;text-transform:none;color:rgba(255,255,255,.86)}
+.lp__rubric:first-child{margin-top:0}
+.lp__rubric::after{content:"";flex:1 1 auto;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.16),transparent)}
+.lp__rubric i{font-style:normal;font-weight:500;font-size:11.5px;color:rgba(255,255,255,.6);padding:2px 8px;border-radius:var(--r-pill,999px);background:rgba(255,255,255,.08)}
+.lp--off .dock__icon{filter:grayscale(1) brightness(.72);opacity:.5}
+.lp--off b{color:rgba(255,255,255,.55)}
+.lp__turn{font-style:normal;font-weight:500;color:#FF8A8F}
+.lp--off:hover .lp__turn{text-decoration:underline;text-underline-offset:2px}
+
+/* ---------- notification banners (Q8): top right, glass, errors stay ---------- */
+#toasts{position:fixed;top:44px;right:14px;left:auto;bottom:auto;z-index:120;display:flex;flex-direction:column;gap:10px;
+  width:min(372px,calc(100vw - 28px));max-width:none;pointer-events:none}
+#toasts .toast.banner{pointer-events:auto;position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:12px;align-items:start;
+  padding:12px 36px 12px 12px;border-radius:var(--r-md,16px);border:1px solid var(--glass-line,rgba(255,255,255,.14));
+  background:var(--glass,rgba(30,30,34,.58));-webkit-backdrop-filter:var(--blur,blur(28px) saturate(170%));backdrop-filter:var(--blur,blur(28px) saturate(170%));
+  box-shadow:var(--glass-hi,inset 0 1px 0 rgba(255,255,255,.12)),var(--shadow-pop,0 18px 48px rgba(0,0,0,.5));
+  color:var(--text,rgba(255,255,255,.9));font:400 13px/1.4 var(--ui,-apple-system,BlinkMacSystemFont,system-ui,sans-serif);letter-spacing:0;text-transform:none;
+  animation:bannerIn .34s var(--t,cubic-bezier(.2,.8,.2,1))}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#toasts .toast.banner{background:var(--glass-strong,rgba(24,24,28,.94))}}
+#toasts .toast.banner.out{animation:bannerOut .26s var(--t,ease) forwards}
+@keyframes bannerIn{from{opacity:0;transform:translateX(24px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes bannerOut{to{opacity:0;transform:translateX(30px) scale(.98)}}
+#toasts .toast.bad{border-color:rgba(255,69,58,.5);background:linear-gradient(180deg,rgba(255,69,58,.14),rgba(255,69,58,.04)),var(--glass,rgba(30,30,34,.62))}
+#toasts .toast.warn{border-color:rgba(255,159,10,.4)}
+.banner__ic{position:relative;width:38px;height:38px}
+.banner__ic .dock__icon,.banner__flame{width:38px;height:38px;border-radius:9px;display:grid;place-items:center}
+.banner__ic .dock__icon svg{width:21px;height:21px}
+.banner__flame{background:linear-gradient(160deg,#25252B,#0E0E12);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.banner__lvl{position:absolute;right:-3px;bottom:-3px;width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 2px rgba(22,22,26,.95);display:none}
+.toast.ok .banner__lvl{display:block;background:var(--ok,#34C759)}
+.toast.warn .banner__lvl{display:block;background:var(--warn,#FF9F0A)}
+.toast.bad .banner__lvl{display:block;background:var(--bad,#FF453A)}
+.toast.bad .banner__lvl::after{content:"!";display:block;text-align:center;font:800 10px/14px var(--ui,system-ui,sans-serif);color:#fff}
+.banner__body{min-width:0}
+.banner__hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.banner__hd b{font-weight:600;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner__hd time{font-size:11.5px;color:var(--muted,#9a9aa2);flex:0 0 auto}
+.banner__body p{margin-top:2px;color:var(--text,rgba(255,255,255,.88));overflow-wrap:anywhere}
+.banner__acts{display:flex;align-items:center;gap:10px;margin-top:9px}
+.banner__btn{height:26px;padding:0 12px;border-radius:var(--r-pill,999px);background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);
+  color:#fff;font:500 12px var(--ui,system-ui,sans-serif)}
+.banner__btn:hover{background:rgba(255,255,255,.22)}
+.banner__keep{font-size:11.5px;color:var(--muted,#9a9aa2)}
+.banner__x{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  font:400 17px/1 var(--ui,system-ui,sans-serif);color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);opacity:.55;transition:opacity .15s,background .15s}
+.toast.banner:hover .banner__x,.banner__x:focus-visible,.toast.bad .banner__x{opacity:1}
+.banner__x:hover{background:rgba(255,255,255,.2);color:#fff}
+@media(max-width:900px){#toasts{top:calc(40px + env(safe-area-inset-top,0px));left:10px;right:10px;width:auto}
+  #toasts .toast.banner{padding-right:44px}.banner__x{width:36px;height:36px;top:6px;right:6px;opacity:1}.banner__btn{height:36px;padding:0 16px}}
+
+/* ---------- the Notification Center's history (Q125) ---------- */
+.nclog__hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.nclog__hd .widget__kicker{margin-bottom:0}
+.nclog__acts{display:flex;gap:6px}
+.nclog__list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;scrollbar-width:thin;margin:0 -4px;padding:0 4px}
+.nclog__i{display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 10px;border-radius:var(--r,12px);
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06)}
+.nclog__i>i{width:8px;height:8px;border-radius:50%;margin-top:5px;background:var(--ok,#34C759)}
+.nclog__i.warn>i{background:var(--warn,#FF9F0A)} .nclog__i.bad>i{background:var(--bad,#FF453A)} .nclog__i.info>i{background:var(--info,#0A84FF)}
+.nclog__i.bad{background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.22)}
+.nclog__t p{font-size:12.5px;line-height:1.4;color:var(--text,rgba(255,255,255,.88));overflow-wrap:anywhere}
+.nclog__t time{display:block;margin-top:2px;font-size:11px;color:var(--muted,#9a9aa2)}
+.nclog__cp{height:24px;padding:0 10px;border-radius:var(--r-pill,999px);font:500 11.5px var(--ui,system-ui,sans-serif);
+  color:var(--text2,rgba(255,255,255,.7));background:rgba(255,255,255,.08);opacity:.7}
+.nclog__i:hover .nclog__cp,.nclog__cp:focus-visible{opacity:1}
+.nclog__cp:hover{background:rgba(255,255,255,.16);color:#fff}
+
+/* ---------- the phone (Q9): one app at a time and a bottom tab bar ---------- */
+.tabbar{display:none}
+@media(max-width:900px){
+  #dock{display:none!important}
+  .tabbar{position:absolute;left:0;right:0;bottom:0;z-index:36;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+    min-height:calc(60px + env(safe-area-inset-bottom,0px));padding:5px 8px calc(5px + env(safe-area-inset-bottom,0px));
+    background:var(--glass,rgba(30,30,34,.62));-webkit-backdrop-filter:var(--blur,blur(28px) saturate(170%));backdrop-filter:var(--blur,blur(28px) saturate(170%));
+    border-top:1px solid var(--glass-line,rgba(255,255,255,.14));box-shadow:var(--glass-hi,inset 0 1px 0 rgba(255,255,255,.12)),0 -10px 30px rgba(0,0,0,.35)}
+  .tabbar__b{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:50px;border-radius:var(--r-md,16px);
+    color:var(--text2,rgba(255,255,255,.66));font:500 10.5px/1.1 var(--ui,-apple-system,system-ui,sans-serif);letter-spacing:0;text-transform:none;
+    transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent}
+  .tabbar__ic{display:grid;place-items:center;width:28px;height:28px}
+  .tabbar__ic svg{width:23px;height:23px}
+  .tabbar__b.on{color:#FF6B72;background:rgba(214,34,45,.14)}
+  .tabbar__b:active{transform:scale(.95)}
+  .tabbar .dock__badge{top:2px;right:auto;left:calc(50% + 4px);min-width:18px;height:18px;line-height:18px;font-size:10.5px;padding:0 5px}
+  .launchpad__in{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+}
+
+/* ---------- the Store: ariseOS apps (Q34, Q40) ---------- */
+.bi__h{display:flex;align-items:center;gap:10px;margin:18px 2px 10px;font:600 13px var(--ui,-apple-system,system-ui,sans-serif);letter-spacing:-.005em;
+  text-transform:none;color:var(--text,rgba(255,255,255,.88))}
+.bi__h:first-of-type{margin-top:4px}
+.bi__h::after{content:"";flex:1 1 auto;height:1px;background:var(--line2,rgba(255,255,255,.08))}
+.bi__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.bi{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 12px;border-radius:var(--r-md,16px);
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);transition:background .2s,border-color .2s}
+.bi:hover{background:rgba(255,255,255,.06)}
+.bi .dock__icon{flex:0 0 auto;width:44px;height:44px;border-radius:22.5%}
+.bi .dock__icon svg{width:23px;height:23px}
+.bi:not(.bi--on) .dock__icon{filter:grayscale(1) brightness(.75);opacity:.55}
+.bi__t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bi__t b{font:600 13.5px/1.25 var(--ui,system-ui,sans-serif);color:#fff}
+.bi__t span{font-size:12px;line-height:1.35;color:var(--text2,rgba(255,255,255,.64));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bi__t em{font-style:normal;font-size:11.5px;color:var(--ok,#34C759)}
+.bi .btn{flex:0 0 auto;border-radius:var(--r-pill,999px);min-width:78px}
+.bi--req .pill{flex:0 0 auto}
+
+/* ---------- the closet monitor: solid, still ---------- */
+body.kiosk #toasts .toast.banner,body.kiosk .tabbar{-webkit-backdrop-filter:none;backdrop-filter:none;background:#1D1D22;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+body.kiosk #toasts .toast.bad{background:#2A1A1C}
+body.kiosk #toasts .toast.banner,body.kiosk #toasts .toast.banner.out,body.kiosk .dock__badge{animation:none}
+body.kiosk .tally{transition:none}
+body.a11y-motion #toasts .toast.banner,body.a11y-motion #toasts .toast.banner.out,body.a11y-motion .dock__badge,body.a11y-motion .tally__dot{animation:none}
+@media(prefers-reduced-motion:reduce){.tally__dot{animation:none}}
+
+/* ---------- Bone, the light theme ---------- */
+body.bone .tally{background:rgba(255,255,255,.55);border-color:rgba(10,10,12,.12);color:#1a1a1e}
+body.bone .tally__s{color:rgba(10,10,12,.6)} body.bone .tally__n{color:#0A0A0C}
+body.bone .tally--air,body.bone .tally--air .tally__s,body.bone .tally--air .tally__n{color:#fff}
+body.bone .tally--air{background:linear-gradient(180deg,#E4323C,#B5161F)}
+body.bone #toasts .toast.banner{background:rgba(250,248,246,.78);border-color:rgba(10,10,12,.1);color:#1a1a1e;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 18px 44px rgba(40,20,20,.22)}
+body.bone #toasts .toast.bad{background:linear-gradient(180deg,rgba(255,69,58,.12),rgba(255,69,58,.03)),rgba(250,248,246,.82);border-color:rgba(214,34,45,.35)}
+body.bone .banner__hd b,body.bone .banner__body p{color:#141418}
+body.bone .banner__hd time,body.bone .banner__keep{color:#6a6a70}
+body.bone .banner__btn{background:rgba(10,10,12,.07);border-color:rgba(10,10,12,.12);color:#141418}
+body.bone .banner__x{background:rgba(10,10,12,.06);color:#3a3a40}
+body.bone .banner__lvl{box-shadow:0 0 0 2px #F6F4F2}
+body.bone .nclog__i{background:rgba(10,10,12,.04);border-color:rgba(10,10,12,.06)}
+body.bone .nclog__t p{color:#1a1a1e} body.bone .nclog__cp{background:rgba(10,10,12,.06);color:#3a3a40}
+body.bone .bi{background:rgba(255,255,255,.6);border-color:rgba(10,10,12,.08)}
+body.bone .bi__t b{color:#141418} body.bone .bi__t span{color:#55555b} body.bone .bi__h{color:#1a1a1e}
+body.bone .lp__rubric{color:rgba(10,10,12,.8)} body.bone .lp__rubric i{background:rgba(10,10,12,.07);color:rgba(10,10,12,.6)}
+body.bone .lp--off b{color:rgba(10,10,12,.45)} body.bone .lp__turn{color:#B5161F}
+@media(max-width:900px){
+  body.bone .tabbar{background:rgba(250,248,246,.78);border-top-color:rgba(10,10,12,.1)}
+  body.bone .tabbar__b{color:#55555b} body.bone .tabbar__b.on{color:#B5161F;background:rgba(214,34,45,.1)}
+}
