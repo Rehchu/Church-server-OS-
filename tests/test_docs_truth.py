@@ -14,8 +14,7 @@ DOCS = ([ROOT / "README.md", ROOT / "INSTALL.md", ROOT / "CLAUDE.md"]
         + sorted((ROOT / "docs").glob("*.md")) + sorted((ROOT / "installer").glob("*.md")))
 
 # Named in docs as decided but not built yet (each doc says so): not a broken reference.
-NOT_BUILT = {("node", None),            # docs/NODES.md: the two-node work, v0.8.1
-             ("mail", "forwards")}      # docs/SECURITY.md: the internal mail server, decided, not built
+NOT_BUILT = {("node", None)}            # docs/NODES.md: the two-node work, v0.8.1
 
 
 def cli_verbs() -> dict:

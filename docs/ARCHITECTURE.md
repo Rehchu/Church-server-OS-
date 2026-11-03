@@ -112,8 +112,9 @@ admin_password_hash = ""
 session_hours = 8760               # a year: signed in until they sign out (round 3, 38)
 
 [links]
-days = 0                            # a share link lives until removed (Oct 28); 0 = never
-max_days = 365                      # the longest life a link may be given
+days = 7                            # round 7, 47: an outside link ends after 7 days
+max_days = 7                        # the longest life a link may be given
+admins_only = true                  # only admins make outside links
 
 [directory]
 enabled = true

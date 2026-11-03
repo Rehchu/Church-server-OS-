@@ -45,7 +45,7 @@ and the arrow keys move inside menus.
 
 | # | App | What it shows | What it can do |
 |---|---|---|---|
-| 01 | **Finder** | the server's data root and the Synology, folder by folder, with Quick Look and Get Info; the SMB shares under Shares; **Recents** (this week) and **Trash** in the sidebar; for an administrator the **Everyone** views (All Documents, All Photos, All Videos, All Music, All Downloads: every person's folder of that name side by side, owner labelled; a member never sees another person's folder) | upload (to 10 GB, resumable), new folder, download, **Compress** (a folder as a zip, to 2 GB), **Get Info** (size, owner, dates, the SMB path, who can open it), **Previous Versions…** (last night's and older copies from the backup, restored beside the original as `name (restored date)`), edit a `.txt`/`.md`/`.csv`/`.json`/`.yaml`/`.toml`/`.log` in place (⌘S; Markdown preview), **Move to Trash** (30 days; Put Back; Empty is the administrator's with the share's name typed), **Open on my Mac**, share links that live until removed. No move |
+| 01 | **Finder** | the server's data root and the Synology, folder by folder, with Quick Look and Get Info; the SMB shares under Shares; **Recents** (this week) and **Trash** in the sidebar; for an administrator the **Everyone** views (All Documents, All Photos, All Videos, All Music, All Downloads: every person's folder of that name side by side, owner labelled; a member never sees another person's folder) | upload (to 10 GB, resumable), new folder, download, **Compress** (a folder as a zip, to 2 GB), **Get Info** (size, owner, dates, the SMB path, who can open it), **Previous Versions…** (last night's and older copies from the backup, restored beside the original as `name (restored date)`), edit a `.txt`/`.md`/`.csv`/`.json`/`.yaml`/`.toml`/`.log` in place (⌘S; Markdown preview), **Move to Trash** (30 days; Put Back; Empty is the administrator's with the share's name typed), **Open on my Mac**, share links (admins only, seven days: round 7, 47). No move |
 | 02 | **Overview** | the "Needs you" list, live stats, directory / automator / backup cards, disks, tonight's timetable | links into the others |
 | 03 | **Directory** | domain health (LDAP, Kerberos, DNS), users, groups, joined computers, the SMB shares | add a user, reset a password, enable/disable, delete (type the name), new group, add a member, new share, remove a share (files stay) |
 | 04 | **Backups** | repository size, last run per job, full history with the reason for every failure, snapshots, restore instructions | run a job now, `restic check`, refresh the GitHub mirror |
@@ -91,7 +91,7 @@ for the map against Windows 11 and macOS.
   (`MEMBER_APPS` and `groups` in `web/app.js`).
 - **Finder** gained Trash, Previous Versions, Get Info, Recents, the text
   editor, Compress, Open on my Mac, the Everyone views, resumable uploads to
-  10 GB, and links that never expire unless removed (docs/FINDER.md).
+  10 GB, and share links (admins only, seven days: round 7, 47; docs/FINDER.md).
 - **Weather** widget for Pineville on the desktop and in the panel, from
   Open-Meteo with no key; offline it says *No weather* rather than invent.
 - **Snap windows**, **accessibility** switches, the **Dock that hides**, the

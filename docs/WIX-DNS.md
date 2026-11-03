@@ -36,7 +36,7 @@ from the internet, and none of these records changes that.
 | Part | What it is for | Records | When |
 |---|---|---|---|
 | 1 | Resend **sends** from `mail.arisecenla.com`: reset links, notices, newsletters ("Arise Church IT", round 7, 132) | 3, plus 1 optional | now |
-| 2 | Staff addresses `first.last@ad.arisecenla.com` **arrive** at Resend so the box can forward them (round 7, 155) | 1 MX | when you turn forwarding on |
+| 2 | Staff addresses `first.last@arisecenla.com` **arrive** at Resend so the box can forward them (round 7, 155; H10) | 1 MX at `@` | done Oct 31 |
 | 3 | Check them | none | after each part |
 
 Values marked **(from Resend)** are only shown on Resend's own pages: copy
@@ -100,9 +100,9 @@ An older Resend domain shows an SPF TXT (`v=spf1 include:amazonses.com ~all`) an
 MX (`feedback-smtp.us-east-1.amazonses.com`, 10) on `send.mail` instead of rows 2
 and 3. **Resend's own table wins** over this page.
 
-**Skip Resend's "Enable receiving" MX** on this page. Receiving is part 2, on
-`ad.arisecenla.com`. An MX at `@` in Wix would take **all** of arisecenla.com's
-email away from wherever it goes today.
+**Resend's receiving MX at `@`** (`receive.forge.rmta.net`, 10) was added on Oct 31 (H10): it
+is what makes `first.last@arisecenla.com` arrive at Resend. It took nothing away: the domain had
+no mail anywhere before it. Never add a second MX at `@` for another provider.
 
 What Wix shows when you add an MX record: it may offer a list of mail
 providers (Google Workspace, Microsoft 365, "Other"). Choose **Other** (or
@@ -119,38 +119,21 @@ minutes to a few hours.
 Resend API key goes in with `sudo arisectl mail key` (a hidden prompt; it writes
 `/etc/arise/secrets/resend-api-key`, root only, and never into a doc or a chat). `sudo arisectl mail status` then says configured.
 
-## Part 2: receiving for staff addresses (ad.arisecenla.com)
+## Part 2: receiving for staff addresses (done Oct 31)
 
-Only when you are ready to turn forwarding on (round 7, 155).
+Staff addresses are `first.last@arisecenla.com` (H10), and their record is already in Wix: the
+**MX at `@` → `receive.forge.rmta.net`** from the table at the top. Nothing more goes into Wix:
+no MX on `ad`, which stays the domain inside the building (the server answers for it there; a
+church Mac asks the server, through its resolver file, and never sees a public record).
 
-`ad.arisecenla.com` is the church domain inside the building: the server
-answers for it there, and that does not change. On the internet it has no
-records yet. This part adds **one MX record** so that mail sent to
-`first.last@ad.arisecenla.com` from anywhere lands at Resend, which keeps it
-until the box asks for it (every five minutes, an outgoing call).
-
-**In Resend:** left menu **Receiving** (it may say **Inbound**; in 2026 it was
-still a beta, so it may need switching on for the account) → **Add domain**
-(or "Custom domain") → `ad.arisecenla.com`. Resend shows **one MX record**:
-a host name and a priority **(from Resend)**.
-
-**In Wix:**
-
-| Wix box | Host name | Points to | Priority |
-|---|---|---|---|
-| **MX** → + Add Record | `ad` | the MX host Resend showed **(from Resend)** | the priority Resend showed (it must be the lowest number for `ad`; there is no other MX for `ad`, so it is) |
-
-**Save.** Back in Resend, **Verify**.
-
-Then on the server: `[mailfwd] enabled = true` in `/etc/arise/arise.toml`.
-`sudo arisectl mail forward` lists every person, whether they have a personal
-email on their profile, and whether their mail will be forwarded. Send a test
-to your own church address from your phone; within five minutes it is in your
-personal inbox, from "<sender> via Arise Church IT", and a reply goes straight
-to the sender.
-
-Inside the building nothing changes: a church Mac still asks the server about
-`ad.arisecenla.com` (its resolver file) and never sees this record.
+Resend keeps what arrives until the box asks for it (every five minutes, an outgoing call). To
+turn forwarding on: `[mailfwd] enabled = true` in `/etc/arise/arise.toml`.
+`sudo arisectl mail forward` lists every person, whether they have a personal email on their
+profile, and whether their mail will be forwarded. People with a church Inbox on the dashboard
+(`[inbox] users`, H11) read theirs there instead. Send a test to your own church address from your
+phone; within five minutes it is in your personal inbox, from "<sender> via Arise Church IT", and a
+reply goes straight to the sender. A forward that fails is tried again for about half an hour,
+then Discord #alerts says so.
 
 ## Part 3: check
 
@@ -158,12 +141,11 @@ DNS takes from minutes to a few hours. From the box or any Mac (Terminal):
 
 ```
 dig +short NS  arisecenla.com                            # Wix's servers: *.wixdns.net
-dig +short TXT resend._domainkey.mail.arisecenla.com     # the p=... key
-dig +short CNAME send.mail.arisecenla.com                # send.forge.rmta.net.
-dig +short CNAME rsend.mail.arisecenla.com               # rsend.forge.rmta.net.
-dig +short TXT _dmarc.mail.arisecenla.com                # "v=DMARC1; p=none;" (if added)
-dig +short MX  ad.arisecenla.com @1.1.1.1                # part 2: Resend's MX host (ask a public resolver:
-                                                         # inside the church the server answers for "ad")
+dig +short TXT resend._domainkey.arisecenla.com          # the p=... key
+dig +short CNAME send.arisecenla.com                     # send.forge.rmta.net.
+dig +short CNAME rsend.arisecenla.com                    # rsend.forge.rmta.net.
+dig +short MX  arisecenla.com @1.1.1.1                   # 10 receive.forge.rmta.net. (receiving, H10)
+dig +short TXT _dmarc.arisecenla.com                     # "v=DMARC1; p=none;" (once added)
 ```
 
 An empty answer means the record is not there yet, or the host name has a

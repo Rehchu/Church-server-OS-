@@ -11,12 +11,13 @@ What does **not** change:
 - The domain stays `AD.ARISECENLA.COM` (NetBIOS `ARISE`), and the server is its
   DNS inside the building (round 6, 25).
 - Staff addresses are `first.last@arisecenla.com` (Oct 31, H10; round 6, 28 had `@ad.`), forwarded
-  to each person's own email (round 7, 155). That needs **one** more record, an
-  MX for `ad` pointing at Resend's receiving, added only when forwarding is
-  turned on: docs/WIX-DNS.md, part 2. It points at Resend, never at the box.
+  to each person's own email (round 7, 155). Their record is the MX at `@`
+  pointing at Resend's receiving (`receive.forge.rmta.net`), added Oct 31
+  (docs/WIX-DNS.md, part 2). It points at Resend, never at the box; `ad` gets no
+  public record.
 
 **docs/WIX-DNS.md is the screen-by-screen walkthrough** of everything below
-plus that MX record (round 7, 131). This page stays as the reference.
+as set up on Oct 31 (round 7, 131; H8, H10). This page stays as the reference.
 - The website's records (both addresses show the site, round 6, 26) and any
   mail the church already receives at `arisecenla.com` are left alone. Every
   record below sits on the `mail` subdomain, so none of them can disturb the

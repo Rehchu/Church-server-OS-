@@ -138,14 +138,15 @@ Trash. The route (`GET /api/files/all?folder=`) is administrator-only; a
 member's roots never include another person's home, so a member never sees
 one (pinned in the tests).
 
-## Share links live until removed (Bradly, Oct 28)
+## Share links: admins only, seven days (round 7, 47)
 
-A share link no longer expires unless a life is picked for it: the Share
-dialog's default is "never (until removed)", with 1 day to a year as choices,
-and `[links] days = 0` in `arise.toml` is that default (`max_days = 365` caps a
-chosen life). The Shared Links list shows "never" for such a link; Remove
-still stops it at once. `arisectl link sweep` only drops links that were given
-a date.
+Oct 28 had links that lived until removed; round 7, 47 replaced that. Only an
+admin makes an outside link, and each one ends after **7 days** (`[links] days
+= 7`, `max_days = 7`, `admins_only = true` in `arise.toml`). A member who needs
+to send a file outside asks an admin. The Shared Links list shows each link's
+end date; Remove stops one at once, and `arisectl link sweep` drops the ones
+past their date. Inside the church, Share with… (a person or a group) is the
+way, and it never makes a public link.
 
 ## Uploads to 10 GB, resumable (Bradly, Oct 28)
 

@@ -262,35 +262,25 @@ By hand on a Mac:
     curl -o root.crt http://arise-server:4147/ca.crt
     sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt
 
-## An internal mail server: decided, not built yet
+## Staff email: forwarding and the Inbox (built)
 
-Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the
-department accounts, `first.last@arisecenla.com` (Oct 31, H10), with every message
-forwarded out through Resend's SMTP relay to the person's personal address
-(stored on their Directory account), Reply-To set to the original sender.
-Nothing of it is built in v0.8. What it needs when it is:
+The Postfix and Dovecot plan of Oct 28 was replaced by what is built: **no mail server on the
+box, and no inbound port** (rule 7). Mail to `first.last@arisecenla.com` (H10) arrives at
+Resend through the domain's MX at `@`. Every five minutes `arise-mailfwd.timer` asks Resend,
+over an outgoing call, for what arrived, and `mailfwd.py` sends each message on through Resend
+to the personal email on the person's profile: From the church's verified address
+("<sender> via Arise Church IT"), Reply-To the original sender. No message is stored here; the
+forwarding log keeps who, from whom, the subject and when, never the body, root only. A forward
+that fails is retried for about half an hour, then Discord #alerts says so. `sudo arisectl mail
+forward` lists every person and where their mail goes; `forward export <first.last>` is a
+leaver's record.
 
-- **A Resend SMTP relay credential** in `/etc/arise/secrets/resend-smtp`
-  (root only, like the API key): `smtp.resend.com:465`, user `resend`, the
-  key as the password. Postfix's `relayhost` and `sasl_password_maps` point
-  at it; the From must be at the domain verified in Resend (the same rule the
-  Mail app already enforces: never a gmail.com address).
-- **No inbound port.** Nothing on this box is reachable from the internet
-  (rule 7). Mail *to* `first.last@arisecenla.com` from inside is internal only
-  (Macs and phones on the LAN or Tailscale); the outside world reaches people
-  at their personal address, which is where the forward lands.
-- **Dovecot IMAP on the LAN and Tailscale only** (ufw: 993 from the LAN
-  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating
-  against the domain through PAM/winbind so the password is the one they
-  already have.
-- **A personal address per person** in the Directory (an attribute on the
-  user, e.g. `otherMailbox`), which the forward map is generated from
-  (`arisectl mail forwards`), and a Directory field to edit it.
-- **The forward itself** as a Postfix `virtual_alias_maps` entry per person
-  plus a header rewrite that keeps the original sender in Reply-To, so a
-  reply from the personal mailbox goes to the right place.
-- **Backups**: `/var/mail` (or Dovecot's maildirs under `/srv/arise/mail`)
-  added to the config job; **the scan**: ClamAV already covers `/srv/arise`.
+People in `[inbox] users` (Kristina, H11) are left out of forwarding and read their mail in the
+**Inbox** app (`inbox.py`) instead: they sign in with their own church account and the server
+picks the inbox from who is signed in, never from the browser. Mail stays in Resend; email HTML
+is shown in a sandboxed frame with no scripts. The Inbox needs the server's Resend key to have
+full access (`sudo arisectl mail key`; on the private install disc, H9), and `sudo arisectl mail
+inbox check` proves it on install day.
 
 ## Decided, nothing built
 

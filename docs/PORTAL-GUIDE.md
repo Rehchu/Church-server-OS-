@@ -43,9 +43,10 @@ file and pick **Previous Versions** to get last night's copy back.
 
 ## Share links
 
-Right-click any file or folder and pick **Share Link…**. Anyone with the link
-can download it for seven days, no sign-in needed. **Shared Links…** in the
-flame menu lists yours; remove one there when it has done its job.
+To give a file to someone **in the church**, right-click it and pick **Share
+with…**, then a person or a group. To send one **outside** the church, ask
+Bradly or another admin: only admins make outside links, and each one works
+for seven days (round 7, 47).
 
 ## The Sunday list
 

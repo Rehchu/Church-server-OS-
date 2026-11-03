@@ -269,7 +269,7 @@ means below.
 | 20 | Folder layout? | "Each user has a folder, admin access them all! Users can't access other users folders. So documents would all merge into one document folder for admins, photos, etc." | a personal folder each; admins get merged views (All Documents, All Photos, …) with the owner labelled; members never see another person's folder |
 | 21 | Home quota? | "Depends on the synology storage. I still need to get drives for it." | no quota until the Synology's drives are known (see 30) |
 | 22 | Biggest upload? | 10 GB, resumable | chunked uploads that continue after a drop |
-| 23 | Share link expiry? | Never, until removed | changeable per link |
+| 23 | Share link expiry? | Never, until removed | changeable per link. **Replaced by round 7, 47:** admins only, 7 days |
 | 24 | Starting folders in a home? | Documents, Photos, Videos, Music, Downloads | created at first sign-in; these are what the admin's merged views merge |
 | 25 | A shared space? | Yes: one Church folder for all, plus a folder per department | |
 | 26 | Windows PCs? | "Yes add windows pc capabilities just in case we get them at a location" | Windows joins the domain the same way; the shares as network drives; a join script and doc |
