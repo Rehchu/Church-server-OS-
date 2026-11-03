@@ -2,25 +2,27 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reset your password · Arise Church</title><meta name="color-scheme" content="dark"><meta name="referrer" content="no-referrer">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Oswald:wght@500;600&display=swap">
 <link rel="stylesheet" href="/assets/styles.css">
 <style>
 /* A page of its own (round 5, 6; Oct 28: staff and volunteers use their Macs, not the desktop):
    ask for a link, or choose a new password from one. Nothing else of the dashboard loads here. */
-html,body{min-height:100%;margin:0;background:var(--ink)}
+html,body{min-height:100%;height:auto;margin:0;background:var(--wallpaper);overflow:auto}
 .rs{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box}
-.rs__box{width:min(420px,100%);background:var(--panel);border-top:3px solid var(--red);padding:30px 26px 26px;box-sizing:border-box}
-.rs h1{font-family:Anton,Oswald,sans-serif;font-weight:400;letter-spacing:.04em;font-size:30px;margin:10px 0 6px;text-transform:uppercase}
+.rs__box{width:min(420px,100%);background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r-xl,28px);padding:32px 28px 26px;box-sizing:border-box;
+  box-shadow:var(--glass-hi),var(--shadow-win);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.rs h1{font-weight:700;letter-spacing:-.025em;font-size:28px;margin:12px 0 6px}
 .rs p{color:var(--text2);font-size:15px;line-height:1.5;margin:8px 0}
-.rs label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
-.rs input{width:100%;box-sizing:border-box;background:var(--scrim);border:1px solid var(--line);color:var(--text);padding:12px;font:300 16px Oswald,sans-serif}
-.rs input:focus{border-color:var(--red);outline:none}
-.rs button{margin-top:18px;width:100%;background:var(--red);color:#fff;border:0;padding:13px;font:500 13px Oswald,sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
-.rs button[disabled]{opacity:.6;cursor:default}
-.rs .msg{margin-top:16px;padding:12px;border-left:3px solid var(--ok);background:var(--panel2);font-size:14px;line-height:1.5}
-.rs .msg.bad{border-color:var(--bad)} .rs .sample{border-color:var(--warn)}
+.rs label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin:16px 0 6px}
+.rs input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:12px 14px;font:400 16px var(--ui)}
+.rs input:focus{border-color:rgba(255,92,99,.7);outline:none;box-shadow:0 0 0 3px rgba(214,34,45,.28)}
+.rs button{margin-top:20px;width:100%;background:linear-gradient(180deg,#E5343F,var(--red));color:#fff;border:0;border-radius:var(--r-pill);padding:13px;font:600 15px var(--ui);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 14px rgba(214,34,45,.35)}
+.rs button:hover{filter:brightness(1.08)}
+.rs button[disabled]{opacity:.6;cursor:default;filter:none}
+.rs .msg{margin-top:16px;padding:12px 14px;background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.3);border-radius:var(--r,12px);font-size:14px;line-height:1.5}
+.rs .msg.bad{background:rgba(255,69,58,.1);border-color:rgba(255,69,58,.35)} .rs .sample{background:rgba(255,159,10,.1);border-color:rgba(255,159,10,.35)}
 .rs ul{margin:8px 0 0 18px;padding:0;color:var(--text2);font-size:13px} .rs a{color:var(--redL)}
-.rs__foot{margin-top:22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rs__foot{margin-top:22px;font-size:12px;font-weight:500;color:var(--muted)}
 </style></head>
 <body><main class="rs"><div class="rs__box" id="box">
   <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><path d="M16 2c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 1.4-5 3-7 0 3 1 5 3 6 0-5 1-10 2-14z" fill="#D6222D"/></svg>
