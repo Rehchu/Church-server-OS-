@@ -8,14 +8,14 @@ window.ARISE_DEMO_DATA = {
 "hostname": "arise-server",
 "machine": {
 "hostname": "vm",
-"os": "Linux 6.18.44-fc-v185",
+"os": "Linux 6.18.44-fc-v230",
 "arch": "x86_64",
 "python": "3.13.17",
 "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
 "cpu_count": 4,
-"ram_total": 16872808448,
+"ram_total": 16872804352,
 "ram_total_h": "15.7 GB",
-"boot_time": 1793655090
+"boot_time": 1793670500
 },
 "web_uptime": 0,
 "realm": "AD.ARISECENLA.COM",
@@ -32,22 +32,22 @@ window.ARISE_DEMO_DATA = {
 },
 "services_bad": [],
 "automator": {
-"last_run": "2026-11-02T02:37:34",
+"last_run": "2026-11-03T02:04:04",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-03T02:05:00",
 "quota_today": 1962,
 "quota_daily": 10000,
 "token_ok": true,
-"token_days_left": 5.6,
+"token_days_left": 5.4,
 "holds": 8
 },
 "backup": {
 "last": {
 "job": "config",
 "name": "Server config",
-"started": "2026-11-02T03:16:00",
-"finished": "2026-11-02T03:22:00",
+"started": "2026-11-03T03:16:00",
+"finished": "2026-11-03T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -86,56 +86,56 @@ window.ARISE_DEMO_DATA = {
 "name": "Arise dashboard",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "samba-ad-dc.service",
 "name": "Active Directory",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "docker.service",
 "name": "Docker",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "arise-automator.timer",
 "name": "YouTube automator (02:05)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "arise-backup.timer",
 "name": "Backups (03:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "arise-mirror.timer",
 "name": "GitHub mirror (04:00)",
 "active": "active",
 "sub": "waiting",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "arise-nas-mount.service",
 "name": "Synology mount",
 "active": "active",
 "sub": "exited",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 },
 {
 "unit": "ssh.service",
 "name": "SSH",
 "active": "active",
 "sub": "running",
-"since": "2026-10-19T18:37:34"
+"since": "2026-10-19T23:04:04"
 }
 ]
 },
@@ -165,7 +165,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-11-02T20:37:34",
+"last_logon": "2026-11-03T01:04:04",
 "home": "\\\\arise-server\\homes\\bradly",
 "must_change": false,
 "title": "",
@@ -179,7 +179,7 @@ window.ARISE_DEMO_DATA = {
 "Media"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T21:37:34",
+"last_logon": "2026-11-02T02:04:04",
 "home": "\\\\arise-server\\homes\\media-mac",
 "must_change": false,
 "title": "",
@@ -193,7 +193,7 @@ window.ARISE_DEMO_DATA = {
 "Staff"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T18:37:34",
+"last_logon": "2026-10-31T23:04:04",
 "home": "\\\\arise-server\\homes\\office",
 "must_change": false,
 "title": "",
@@ -207,7 +207,7 @@ window.ARISE_DEMO_DATA = {
 "Kids-Check-in"
 ],
 "enabled": true,
-"last_logon": "2026-10-27T21:37:34",
+"last_logon": "2026-10-28T02:04:04",
 "home": "\\\\arise-server\\homes\\kids-checkin",
 "must_change": false,
 "title": "",
@@ -235,7 +235,7 @@ window.ARISE_DEMO_DATA = {
 "Childrens-Department"
 ],
 "enabled": true,
-"last_logon": "2026-10-30T21:37:34",
+"last_logon": "2026-10-31T02:04:04",
 "home": "\\\\arise-server\\homes\\childrens.department",
 "must_change": false,
 "title": "",
@@ -249,7 +249,7 @@ window.ARISE_DEMO_DATA = {
 "Inedge"
 ],
 "enabled": true,
-"last_logon": "2026-10-24T21:37:34",
+"last_logon": "2026-10-25T02:04:04",
 "home": "\\\\arise-server\\homes\\inedge",
 "must_change": false,
 "title": "",
@@ -266,7 +266,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T17:37:34",
+"last_logon": "2026-11-01T22:04:04",
 "home": "\\\\arise-server\\homes\\bryant.sanders",
 "must_change": false,
 "title": "",
@@ -283,7 +283,7 @@ window.ARISE_DEMO_DATA = {
 "Pastors"
 ],
 "enabled": true,
-"last_logon": "2026-10-31T21:37:34",
+"last_logon": "2026-11-01T02:04:04",
 "home": "\\\\arise-server\\homes\\vanessa.sanders",
 "must_change": false,
 "title": "",
@@ -299,7 +299,7 @@ window.ARISE_DEMO_DATA = {
 "Worship"
 ],
 "enabled": true,
-"last_logon": "2026-11-01T14:37:34",
+"last_logon": "2026-11-01T19:04:04",
 "home": "\\\\arise-server\\homes\\kristina.robinson",
 "must_change": false,
 "title": "",
@@ -405,28 +405,28 @@ window.ARISE_DEMO_DATA = {
 "name": "MEDIA-MAC",
 "os": "macOS 15.1",
 "kind": "mac",
-"last_seen": "2026-11-02T20:37:34",
+"last_seen": "2026-11-03T01:04:04",
 "ip": "192.168.1.41"
 },
 {
 "name": "OFFICE-IMAC",
 "os": "macOS 14.6",
 "kind": "mac",
-"last_seen": "2026-11-01T21:37:34",
+"last_seen": "2026-11-02T02:04:04",
 "ip": "192.168.1.42"
 },
 {
 "name": "LOBBY-PC",
 "os": "Windows 11 Pro",
 "kind": "windows",
-"last_seen": "2026-10-31T21:37:34",
+"last_seen": "2026-11-01T02:04:04",
 "ip": "192.168.1.50"
 },
 {
 "name": "SYNOLOGY",
 "os": "DSM 7.2",
 "kind": "nas",
-"last_seen": "2026-11-02T21:33:34",
+"last_seen": "2026-11-03T02:00:04",
 "ip": "192.168.1.20"
 }
 ]
@@ -775,8 +775,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-11-02T03:16:00",
-"finished": "2026-11-02T03:22:00",
+"started": "2026-11-03T03:16:00",
+"finished": "2026-11-03T03:22:00",
 "ok": true,
 "snapshot_id": "b56fb937",
 "bytes_added": 775423215,
@@ -786,8 +786,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-11-02T03:12:00",
-"finished": "2026-11-02T03:17:00",
+"started": "2026-11-03T03:12:00",
+"finished": "2026-11-03T03:17:00",
 "ok": true,
 "snapshot_id": "e832b869",
 "bytes_added": 732332902,
@@ -797,8 +797,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-11-02T03:08:00",
-"finished": "2026-11-02T03:12:00",
+"started": "2026-11-03T03:08:00",
+"finished": "2026-11-03T03:12:00",
 "ok": true,
 "snapshot_id": "c969abbb",
 "bytes_added": 645615127,
@@ -808,8 +808,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-11-02T03:04:00",
-"finished": "2026-11-02T03:07:00",
+"started": "2026-11-03T03:04:00",
+"finished": "2026-11-03T03:07:00",
 "ok": true,
 "snapshot_id": "259256a9",
 "bytes_added": 473260162,
@@ -819,8 +819,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-11-02T03:00:00",
-"finished": "2026-11-02T03:02:00",
+"started": "2026-11-03T03:00:00",
+"finished": "2026-11-03T03:02:00",
 "ok": true,
 "snapshot_id": "846050e1",
 "bytes_added": 835870251,
@@ -830,8 +830,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-11-01T03:16:00",
-"finished": "2026-11-01T03:22:00",
+"started": "2026-11-02T03:16:00",
+"finished": "2026-11-02T03:22:00",
 "ok": true,
 "snapshot_id": "abb77450",
 "bytes_added": 294756223,
@@ -841,8 +841,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-11-01T03:12:00",
-"finished": "2026-11-01T03:17:00",
+"started": "2026-11-02T03:12:00",
+"finished": "2026-11-02T03:17:00",
 "ok": true,
 "snapshot_id": "aa98bfa9",
 "bytes_added": 240482372,
@@ -852,8 +852,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-11-01T03:08:00",
-"finished": "2026-11-01T03:12:00",
+"started": "2026-11-02T03:08:00",
+"finished": "2026-11-02T03:12:00",
 "ok": true,
 "snapshot_id": "8ed937c6",
 "bytes_added": 77416523,
@@ -863,8 +863,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-11-01T03:04:00",
-"finished": "2026-11-01T03:07:00",
+"started": "2026-11-02T03:04:00",
+"finished": "2026-11-02T03:07:00",
 "ok": true,
 "snapshot_id": "630e3bd0",
 "bytes_added": 192267031,
@@ -874,8 +874,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-11-01T03:00:00",
-"finished": "2026-11-01T03:02:00",
+"started": "2026-11-02T03:00:00",
+"finished": "2026-11-02T03:02:00",
 "ok": true,
 "snapshot_id": "5a5ad5ba",
 "bytes_added": 698669116,
@@ -885,8 +885,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-31T03:16:00",
-"finished": "2026-10-31T03:22:00",
+"started": "2026-11-01T03:16:00",
+"finished": "2026-11-01T03:22:00",
 "ok": true,
 "snapshot_id": "5cdfd95f",
 "bytes_added": 672507744,
@@ -896,8 +896,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-31T03:12:00",
-"finished": "2026-10-31T03:17:00",
+"started": "2026-11-01T03:12:00",
+"finished": "2026-11-01T03:17:00",
 "ok": true,
 "snapshot_id": "a6f310ba",
 "bytes_added": 452946068,
@@ -907,8 +907,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-31T03:08:00",
-"finished": "2026-10-31T03:12:00",
+"started": "2026-11-01T03:08:00",
+"finished": "2026-11-01T03:12:00",
 "ok": true,
 "snapshot_id": "4ce9bd68",
 "bytes_added": 816562910,
@@ -918,8 +918,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-31T03:04:00",
-"finished": "2026-10-31T03:07:00",
+"started": "2026-11-01T03:04:00",
+"finished": "2026-11-01T03:07:00",
 "ok": true,
 "snapshot_id": "a499cae4",
 "bytes_added": 187818933,
@@ -929,8 +929,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-31T03:00:00",
-"finished": "2026-10-31T03:02:00",
+"started": "2026-11-01T03:00:00",
+"finished": "2026-11-01T03:02:00",
 "ok": true,
 "snapshot_id": "4ee5384f",
 "bytes_added": 427558721,
@@ -940,8 +940,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-30T03:16:00",
-"finished": "2026-10-30T03:22:00",
+"started": "2026-10-31T03:16:00",
+"finished": "2026-10-31T03:22:00",
 "ok": true,
 "snapshot_id": "7df339f5",
 "bytes_added": 532481488,
@@ -951,8 +951,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-30T03:12:00",
-"finished": "2026-10-30T03:17:00",
+"started": "2026-10-31T03:12:00",
+"finished": "2026-10-31T03:17:00",
 "ok": true,
 "snapshot_id": "c975f84e",
 "bytes_added": 13182860,
@@ -962,8 +962,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-30T03:08:00",
-"finished": "2026-10-30T03:12:00",
+"started": "2026-10-31T03:08:00",
+"finished": "2026-10-31T03:12:00",
 "ok": true,
 "snapshot_id": "02909230",
 "bytes_added": 783198899,
@@ -973,8 +973,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-30T03:04:00",
-"finished": "2026-10-30T03:07:00",
+"started": "2026-10-31T03:04:00",
+"finished": "2026-10-31T03:07:00",
 "ok": false,
 "snapshot_id": null,
 "bytes_added": 0,
@@ -984,8 +984,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-30T03:00:00",
-"finished": "2026-10-30T03:02:00",
+"started": "2026-10-31T03:00:00",
+"finished": "2026-10-31T03:02:00",
 "ok": true,
 "snapshot_id": "cc3addef",
 "bytes_added": 601380732,
@@ -995,8 +995,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-29T03:16:00",
-"finished": "2026-10-29T03:22:00",
+"started": "2026-10-30T03:16:00",
+"finished": "2026-10-30T03:22:00",
 "ok": true,
 "snapshot_id": "7e0b464c",
 "bytes_added": 40046327,
@@ -1006,8 +1006,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-29T03:12:00",
-"finished": "2026-10-29T03:17:00",
+"started": "2026-10-30T03:12:00",
+"finished": "2026-10-30T03:17:00",
 "ok": true,
 "snapshot_id": "3f2a32a2",
 "bytes_added": 876195599,
@@ -1017,8 +1017,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-29T03:08:00",
-"finished": "2026-10-29T03:12:00",
+"started": "2026-10-30T03:08:00",
+"finished": "2026-10-30T03:12:00",
 "ok": true,
 "snapshot_id": "d4290bd4",
 "bytes_added": 754687263,
@@ -1028,8 +1028,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-29T03:04:00",
-"finished": "2026-10-29T03:07:00",
+"started": "2026-10-30T03:04:00",
+"finished": "2026-10-30T03:07:00",
 "ok": true,
 "snapshot_id": "c5c5fa5d",
 "bytes_added": 48996687,
@@ -1039,8 +1039,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-29T03:00:00",
-"finished": "2026-10-29T03:02:00",
+"started": "2026-10-30T03:00:00",
+"finished": "2026-10-30T03:02:00",
 "ok": true,
 "snapshot_id": "fafad058",
 "bytes_added": 815794861,
@@ -1050,8 +1050,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-28T03:16:00",
-"finished": "2026-10-28T03:22:00",
+"started": "2026-10-29T03:16:00",
+"finished": "2026-10-29T03:22:00",
 "ok": true,
 "snapshot_id": "9c005919",
 "bytes_added": 639567995,
@@ -1061,8 +1061,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-28T03:12:00",
-"finished": "2026-10-28T03:17:00",
+"started": "2026-10-29T03:12:00",
+"finished": "2026-10-29T03:17:00",
 "ok": true,
 "snapshot_id": "4070e9eb",
 "bytes_added": 704605695,
@@ -1072,8 +1072,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-28T03:08:00",
-"finished": "2026-10-28T03:12:00",
+"started": "2026-10-29T03:08:00",
+"finished": "2026-10-29T03:12:00",
 "ok": true,
 "snapshot_id": "64050c6c",
 "bytes_added": 38233364,
@@ -1083,8 +1083,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-28T03:04:00",
-"finished": "2026-10-28T03:07:00",
+"started": "2026-10-29T03:04:00",
+"finished": "2026-10-29T03:07:00",
 "ok": true,
 "snapshot_id": "0b2c04a7",
 "bytes_added": 55465593,
@@ -1094,8 +1094,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-28T03:00:00",
-"finished": "2026-10-28T03:02:00",
+"started": "2026-10-29T03:00:00",
+"finished": "2026-10-29T03:02:00",
 "ok": true,
 "snapshot_id": "60b2ecc9",
 "bytes_added": 570044627,
@@ -1105,8 +1105,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-27T03:16:00",
-"finished": "2026-10-27T03:22:00",
+"started": "2026-10-28T03:16:00",
+"finished": "2026-10-28T03:22:00",
 "ok": true,
 "snapshot_id": "a12f4a66",
 "bytes_added": 781410437,
@@ -1116,8 +1116,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-27T03:12:00",
-"finished": "2026-10-27T03:17:00",
+"started": "2026-10-28T03:12:00",
+"finished": "2026-10-28T03:17:00",
 "ok": true,
 "snapshot_id": "bf8d7fc7",
 "bytes_added": 700137143,
@@ -1127,8 +1127,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-27T03:08:00",
-"finished": "2026-10-27T03:12:00",
+"started": "2026-10-28T03:08:00",
+"finished": "2026-10-28T03:12:00",
 "ok": true,
 "snapshot_id": "061ecf32",
 "bytes_added": 186301514,
@@ -1138,8 +1138,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-27T03:04:00",
-"finished": "2026-10-27T03:07:00",
+"started": "2026-10-28T03:04:00",
+"finished": "2026-10-28T03:07:00",
 "ok": true,
 "snapshot_id": "e3773c07",
 "bytes_added": 759328297,
@@ -1149,8 +1149,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-27T03:00:00",
-"finished": "2026-10-27T03:02:00",
+"started": "2026-10-28T03:00:00",
+"finished": "2026-10-28T03:02:00",
 "ok": true,
 "snapshot_id": "6cc02888",
 "bytes_added": 767912817,
@@ -1160,8 +1160,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-26T03:16:00",
-"finished": "2026-10-26T03:22:00",
+"started": "2026-10-27T03:16:00",
+"finished": "2026-10-27T03:22:00",
 "ok": true,
 "snapshot_id": "20612248",
 "bytes_added": 549206482,
@@ -1171,8 +1171,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-26T03:12:00",
-"finished": "2026-10-26T03:17:00",
+"started": "2026-10-27T03:12:00",
+"finished": "2026-10-27T03:17:00",
 "ok": true,
 "snapshot_id": "90a55165",
 "bytes_added": 109670720,
@@ -1182,8 +1182,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-26T03:08:00",
-"finished": "2026-10-26T03:12:00",
+"started": "2026-10-27T03:08:00",
+"finished": "2026-10-27T03:12:00",
 "ok": true,
 "snapshot_id": "a3f50b1f",
 "bytes_added": 554531196,
@@ -1193,8 +1193,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-26T03:04:00",
-"finished": "2026-10-26T03:07:00",
+"started": "2026-10-27T03:04:00",
+"finished": "2026-10-27T03:07:00",
 "ok": true,
 "snapshot_id": "27fd6a6c",
 "bytes_added": 48151243,
@@ -1204,8 +1204,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-26T03:00:00",
-"finished": "2026-10-26T03:02:00",
+"started": "2026-10-27T03:00:00",
+"finished": "2026-10-27T03:02:00",
 "ok": true,
 "snapshot_id": "fabca970",
 "bytes_added": 621893529,
@@ -1215,8 +1215,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-25T03:16:00",
-"finished": "2026-10-25T03:22:00",
+"started": "2026-10-26T03:16:00",
+"finished": "2026-10-26T03:22:00",
 "ok": true,
 "snapshot_id": "cc940bac",
 "bytes_added": 640055100,
@@ -1226,8 +1226,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-25T03:12:00",
-"finished": "2026-10-25T03:17:00",
+"started": "2026-10-26T03:12:00",
+"finished": "2026-10-26T03:17:00",
 "ok": true,
 "snapshot_id": "59a25568",
 "bytes_added": 4082891,
@@ -1237,8 +1237,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-25T03:08:00",
-"finished": "2026-10-25T03:12:00",
+"started": "2026-10-26T03:08:00",
+"finished": "2026-10-26T03:12:00",
 "ok": true,
 "snapshot_id": "35babc3e",
 "bytes_added": 743739814,
@@ -1248,8 +1248,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-25T03:04:00",
-"finished": "2026-10-25T03:07:00",
+"started": "2026-10-26T03:04:00",
+"finished": "2026-10-26T03:07:00",
 "ok": true,
 "snapshot_id": "36cbd4e0",
 "bytes_added": 20778927,
@@ -1259,8 +1259,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-25T03:00:00",
-"finished": "2026-10-25T03:02:00",
+"started": "2026-10-26T03:00:00",
+"finished": "2026-10-26T03:02:00",
 "ok": true,
 "snapshot_id": "395bb752",
 "bytes_added": 574232645,
@@ -1270,8 +1270,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-24T03:16:00",
-"finished": "2026-10-24T03:22:00",
+"started": "2026-10-25T03:16:00",
+"finished": "2026-10-25T03:22:00",
 "ok": true,
 "snapshot_id": "ad45ace2",
 "bytes_added": 708421267,
@@ -1281,8 +1281,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-24T03:12:00",
-"finished": "2026-10-24T03:17:00",
+"started": "2026-10-25T03:12:00",
+"finished": "2026-10-25T03:17:00",
 "ok": true,
 "snapshot_id": "54a66a66",
 "bytes_added": 375722925,
@@ -1292,8 +1292,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-24T03:08:00",
-"finished": "2026-10-24T03:12:00",
+"started": "2026-10-25T03:08:00",
+"finished": "2026-10-25T03:12:00",
 "ok": true,
 "snapshot_id": "7b1b19e3",
 "bytes_added": 595628494,
@@ -1303,8 +1303,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-24T03:04:00",
-"finished": "2026-10-24T03:07:00",
+"started": "2026-10-25T03:04:00",
+"finished": "2026-10-25T03:07:00",
 "ok": true,
 "snapshot_id": "eee6a312",
 "bytes_added": 369329751,
@@ -1314,8 +1314,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-24T03:00:00",
-"finished": "2026-10-24T03:02:00",
+"started": "2026-10-25T03:00:00",
+"finished": "2026-10-25T03:02:00",
 "ok": true,
 "snapshot_id": "4c7503e0",
 "bytes_added": 568788945,
@@ -1325,8 +1325,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "config",
 "name": "Server config",
-"started": "2026-10-23T03:16:00",
-"finished": "2026-10-23T03:22:00",
+"started": "2026-10-24T03:16:00",
+"finished": "2026-10-24T03:22:00",
 "ok": true,
 "snapshot_id": "288fe0b4",
 "bytes_added": 652224545,
@@ -1336,8 +1336,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "github",
 "name": "GitHub mirror",
-"started": "2026-10-23T03:12:00",
-"finished": "2026-10-23T03:17:00",
+"started": "2026-10-24T03:12:00",
+"finished": "2026-10-24T03:17:00",
 "ok": true,
 "snapshot_id": "2c32cdd1",
 "bytes_added": 232029092,
@@ -1347,8 +1347,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "shares",
 "name": "Shared folders",
-"started": "2026-10-23T03:08:00",
-"finished": "2026-10-23T03:12:00",
+"started": "2026-10-24T03:08:00",
+"finished": "2026-10-24T03:12:00",
 "ok": true,
 "snapshot_id": "171f5b24",
 "bytes_added": 492040617,
@@ -1358,8 +1358,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "homes",
 "name": "Home folders",
-"started": "2026-10-23T03:04:00",
-"finished": "2026-10-23T03:07:00",
+"started": "2026-10-24T03:04:00",
+"finished": "2026-10-24T03:07:00",
 "ok": true,
 "snapshot_id": "0bb7a02a",
 "bytes_added": 103254805,
@@ -1369,8 +1369,8 @@ window.ARISE_DEMO_DATA = {
 {
 "job": "automator",
 "name": "YouTube automator",
-"started": "2026-10-23T03:00:00",
-"finished": "2026-10-23T03:02:00",
+"started": "2026-10-24T03:00:00",
+"finished": "2026-10-24T03:02:00",
 "ok": true,
 "snapshot_id": "fb7e3180",
 "bytes_added": 46457264,
@@ -1385,7 +1385,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": [
 {
 "id": "b56fb937",
-"time": "2026-11-02T03:16:00",
+"time": "2026-11-03T03:16:00",
 "tags": [
 "config"
 ],
@@ -1397,7 +1397,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e832b869",
-"time": "2026-11-02T03:12:00",
+"time": "2026-11-03T03:12:00",
 "tags": [
 "github"
 ],
@@ -1407,7 +1407,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c969abbb",
-"time": "2026-11-02T03:08:00",
+"time": "2026-11-03T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1417,7 +1417,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "259256a9",
-"time": "2026-11-02T03:04:00",
+"time": "2026-11-03T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1427,7 +1427,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "846050e1",
-"time": "2026-11-02T03:00:00",
+"time": "2026-11-03T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1437,7 +1437,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "abb77450",
-"time": "2026-11-01T03:16:00",
+"time": "2026-11-02T03:16:00",
 "tags": [
 "config"
 ],
@@ -1449,7 +1449,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "aa98bfa9",
-"time": "2026-11-01T03:12:00",
+"time": "2026-11-02T03:12:00",
 "tags": [
 "github"
 ],
@@ -1459,7 +1459,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "8ed937c6",
-"time": "2026-11-01T03:08:00",
+"time": "2026-11-02T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1469,7 +1469,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "630e3bd0",
-"time": "2026-11-01T03:04:00",
+"time": "2026-11-02T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1479,7 +1479,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5a5ad5ba",
-"time": "2026-11-01T03:00:00",
+"time": "2026-11-02T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1489,7 +1489,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "5cdfd95f",
-"time": "2026-10-31T03:16:00",
+"time": "2026-11-01T03:16:00",
 "tags": [
 "config"
 ],
@@ -1501,7 +1501,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a6f310ba",
-"time": "2026-10-31T03:12:00",
+"time": "2026-11-01T03:12:00",
 "tags": [
 "github"
 ],
@@ -1511,7 +1511,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ce9bd68",
-"time": "2026-10-31T03:08:00",
+"time": "2026-11-01T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1521,7 +1521,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a499cae4",
-"time": "2026-10-31T03:04:00",
+"time": "2026-11-01T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1531,7 +1531,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4ee5384f",
-"time": "2026-10-31T03:00:00",
+"time": "2026-11-01T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1541,7 +1541,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7df339f5",
-"time": "2026-10-30T03:16:00",
+"time": "2026-10-31T03:16:00",
 "tags": [
 "config"
 ],
@@ -1553,7 +1553,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c975f84e",
-"time": "2026-10-30T03:12:00",
+"time": "2026-10-31T03:12:00",
 "tags": [
 "github"
 ],
@@ -1563,7 +1563,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "02909230",
-"time": "2026-10-30T03:08:00",
+"time": "2026-10-31T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1573,7 +1573,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc3addef",
-"time": "2026-10-30T03:00:00",
+"time": "2026-10-31T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1583,7 +1583,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7e0b464c",
-"time": "2026-10-29T03:16:00",
+"time": "2026-10-30T03:16:00",
 "tags": [
 "config"
 ],
@@ -1595,7 +1595,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "3f2a32a2",
-"time": "2026-10-29T03:12:00",
+"time": "2026-10-30T03:12:00",
 "tags": [
 "github"
 ],
@@ -1605,7 +1605,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "d4290bd4",
-"time": "2026-10-29T03:08:00",
+"time": "2026-10-30T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1615,7 +1615,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "c5c5fa5d",
-"time": "2026-10-29T03:04:00",
+"time": "2026-10-30T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1625,7 +1625,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fafad058",
-"time": "2026-10-29T03:00:00",
+"time": "2026-10-30T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1635,7 +1635,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "9c005919",
-"time": "2026-10-28T03:16:00",
+"time": "2026-10-29T03:16:00",
 "tags": [
 "config"
 ],
@@ -1647,7 +1647,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4070e9eb",
-"time": "2026-10-28T03:12:00",
+"time": "2026-10-29T03:12:00",
 "tags": [
 "github"
 ],
@@ -1657,7 +1657,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "64050c6c",
-"time": "2026-10-28T03:08:00",
+"time": "2026-10-29T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1667,7 +1667,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0b2c04a7",
-"time": "2026-10-28T03:04:00",
+"time": "2026-10-29T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1677,7 +1677,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "60b2ecc9",
-"time": "2026-10-28T03:00:00",
+"time": "2026-10-29T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1687,7 +1687,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a12f4a66",
-"time": "2026-10-27T03:16:00",
+"time": "2026-10-28T03:16:00",
 "tags": [
 "config"
 ],
@@ -1699,7 +1699,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "bf8d7fc7",
-"time": "2026-10-27T03:12:00",
+"time": "2026-10-28T03:12:00",
 "tags": [
 "github"
 ],
@@ -1709,7 +1709,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "061ecf32",
-"time": "2026-10-27T03:08:00",
+"time": "2026-10-28T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1719,7 +1719,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "e3773c07",
-"time": "2026-10-27T03:04:00",
+"time": "2026-10-28T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1729,7 +1729,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "6cc02888",
-"time": "2026-10-27T03:00:00",
+"time": "2026-10-28T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1739,7 +1739,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "20612248",
-"time": "2026-10-26T03:16:00",
+"time": "2026-10-27T03:16:00",
 "tags": [
 "config"
 ],
@@ -1751,7 +1751,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "90a55165",
-"time": "2026-10-26T03:12:00",
+"time": "2026-10-27T03:12:00",
 "tags": [
 "github"
 ],
@@ -1761,7 +1761,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "a3f50b1f",
-"time": "2026-10-26T03:08:00",
+"time": "2026-10-27T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1771,7 +1771,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "27fd6a6c",
-"time": "2026-10-26T03:04:00",
+"time": "2026-10-27T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1781,7 +1781,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fabca970",
-"time": "2026-10-26T03:00:00",
+"time": "2026-10-27T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1791,7 +1791,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "cc940bac",
-"time": "2026-10-25T03:16:00",
+"time": "2026-10-26T03:16:00",
 "tags": [
 "config"
 ],
@@ -1803,7 +1803,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "59a25568",
-"time": "2026-10-25T03:12:00",
+"time": "2026-10-26T03:12:00",
 "tags": [
 "github"
 ],
@@ -1813,7 +1813,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "35babc3e",
-"time": "2026-10-25T03:08:00",
+"time": "2026-10-26T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1823,7 +1823,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "36cbd4e0",
-"time": "2026-10-25T03:04:00",
+"time": "2026-10-26T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1833,7 +1833,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "395bb752",
-"time": "2026-10-25T03:00:00",
+"time": "2026-10-26T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1843,7 +1843,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "ad45ace2",
-"time": "2026-10-24T03:16:00",
+"time": "2026-10-25T03:16:00",
 "tags": [
 "config"
 ],
@@ -1855,7 +1855,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "54a66a66",
-"time": "2026-10-24T03:12:00",
+"time": "2026-10-25T03:12:00",
 "tags": [
 "github"
 ],
@@ -1865,7 +1865,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "7b1b19e3",
-"time": "2026-10-24T03:08:00",
+"time": "2026-10-25T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1875,7 +1875,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "eee6a312",
-"time": "2026-10-24T03:04:00",
+"time": "2026-10-25T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1885,7 +1885,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "4c7503e0",
-"time": "2026-10-24T03:00:00",
+"time": "2026-10-25T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1895,7 +1895,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "288fe0b4",
-"time": "2026-10-23T03:16:00",
+"time": "2026-10-24T03:16:00",
 "tags": [
 "config"
 ],
@@ -1907,7 +1907,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "2c32cdd1",
-"time": "2026-10-23T03:12:00",
+"time": "2026-10-24T03:12:00",
 "tags": [
 "github"
 ],
@@ -1917,7 +1917,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "171f5b24",
-"time": "2026-10-23T03:08:00",
+"time": "2026-10-24T03:08:00",
 "tags": [
 "shares"
 ],
@@ -1927,7 +1927,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "0bb7a02a",
-"time": "2026-10-23T03:04:00",
+"time": "2026-10-24T03:04:00",
 "tags": [
 "homes"
 ],
@@ -1937,7 +1937,7 @@ window.ARISE_DEMO_DATA = {
 },
 {
 "id": "fb7e3180",
-"time": "2026-10-23T03:00:00",
+"time": "2026-10-24T03:00:00",
 "tags": [
 "automator"
 ],
@@ -1954,7 +1954,7 @@ window.ARISE_DEMO_DATA = {
 "snapshots": 53,
 "total_size": 318000000000,
 "raw_size": 1950000000000,
-"last_check": "2026-10-24T21:37:34",
+"last_check": "2026-10-25T02:04:04",
 "keep": {
 "daily": 30,
 "weekly": 12,
@@ -1986,7 +1986,7 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /automator": {
 "path": "/srv/arise/automator/ARISE_YouTube_Updater",
-"last_run": "2026-11-02T02:37:34",
+"last_run": "2026-11-03T02:04:04",
 "last_ok": true,
 "last_summary": "3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used",
 "next_run": "2026-11-03T02:05:00",
@@ -1998,7 +1998,7 @@ window.ARISE_DEMO_DATA = {
 "worklist_enabled": 4,
 "worklist_total": 6,
 "token_ok": true,
-"token_days_left": 5.6,
+"token_days_left": 5.4,
 "token_note": "Testing mode, on purpose: the sign-in ends Sun Nov 8, 12:14 PM; renew it each week in Automator → Sign-in (sample).",
 "signed_in_as": "Arise Church (@arisechurch4147)",
 "latest_report": "# Arise YouTube — automated run\nSunday 26 October 2026, 02:05 AM Central\n\n3 jobs done · 0 failed · 1 skipped · 1,962 of 10,000 units used\n\n## Preflight\n- signed in as **Arise Church**\n- quota: 9,999 of 10,000 units left today (resets 2 AM Central)\n- 8 videos on hold, 3 standing rules loaded\n\n## Job: star-cleanup (priority 1)\n- dry run: 19 descriptions carry `**` from the Grok era\n- applied 19 · read back 19 · backed up first to desc_backups/\n- cost 1,900 units (50 per write)\n\n## Job: shorts-tags (priority 2)\n- **skipped** — disabled in worklist.json until Bradly sets the priority\n\n## Job: chapters-check (priority 3)\n- 0 descriptions with a last chapter under 10:00 on a video over an hour\n- cost 61 units\n\n## Job: report (priority 9)\n- wrote reports/2026-10-26_0205.md\n",
@@ -2022,8 +2022,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-11-01T12:14",
 "expires": "2026-11-08T12:14",
 "expires_text": "Sun Nov 8, 12:14 PM",
-"hours_left": 134.6,
-"days_left": 5.6,
+"hours_left": 130.2,
+"days_left": 5.4,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -2120,17 +2120,17 @@ window.ARISE_DEMO_DATA = {
 "spent": 1962,
 "entries": [
 {
-"when": "2026-11-02T16:37:34",
+"when": "2026-11-02T21:04:04",
 "units": 1,
 "what": "preflight channel check"
 },
 {
-"when": "2026-11-02T16:37:34",
+"when": "2026-11-02T21:04:04",
 "units": 1900,
 "what": "star-cleanup: 38 videos.update"
 },
 {
-"when": "2026-11-02T16:37:34",
+"when": "2026-11-02T21:04:04",
 "units": 61,
 "what": "chapters-check: list reads"
 }
@@ -2220,7 +2220,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 210000000,
 "url": "http://arise-server:19999",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 250,
 "limit_mb": 512,
 "autostart": true,
@@ -2237,7 +2237,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 1.1,
 "mem": 142000000,
 "url": "http://arise-server:8082",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 150,
 "limit_mb": 384,
 "autostart": true,
@@ -2254,7 +2254,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 2.6,
 "mem": 778000000,
 "url": "http://arise-server:8084",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 900,
 "limit_mb": 1536,
 "autostart": true,
@@ -2271,7 +2271,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.2,
 "mem": 160000000,
 "url": "http://arise-server:8090",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 200,
 "limit_mb": 512,
 "autostart": true,
@@ -2288,7 +2288,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 3.4,
 "mem": 2100000000,
 "url": "http://arise-server:2283",
-"updated": "2026-10-31T21:37:34",
+"updated": "2026-11-01T02:04:04",
 "ram_mb": 2500,
 "limit_mb": 4096,
 "autostart": true,
@@ -2305,7 +2305,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.8,
 "mem": 480000000,
 "url": "http://arise-server:8096",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 600,
 "limit_mb": 2048,
 "autostart": true,
@@ -2322,7 +2322,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.1,
 "mem": 60000000,
 "url": "http://arise-server:8083",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 100,
 "limit_mb": 384,
 "autostart": true,
@@ -2339,7 +2339,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8384",
-"updated": "2026-11-01T21:37:34",
+"updated": "2026-11-02T02:04:04",
 "ram_mb": 150,
 "limit_mb": 512,
 "autostart": false,
@@ -2356,7 +2356,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:8091",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 1200,
 "limit_mb": 2048,
 "autostart": false,
@@ -2373,7 +2373,7 @@ window.ARISE_DEMO_DATA = {
 "cpu": 0.0,
 "mem": 0,
 "url": "http://arise-server:11434",
-"updated": "2026-10-30T21:37:34",
+"updated": "2026-10-31T02:04:04",
 "ram_mb": 2500,
 "limit_mb": 6144,
 "autostart": false,
@@ -3247,7 +3247,7 @@ window.ARISE_DEMO_DATA = {
 "domain_joined": true,
 "hyper_backup": {
 "task": "USB off-site",
-"last": "2026-11-01T19:37:34",
+"last": "2026-11-02T00:04:04",
 "ok": true
 },
 "total_h": "14.6 TB",
@@ -3531,7 +3531,7 @@ window.ARISE_DEMO_DATA = {
 {
 "user": "bradly",
 "from": "100.101.102.5 (tailscale)",
-"when": "2026-11-02T21:37"
+"when": "2026-11-03T02:04"
 },
 {
 "user": "bradly",
@@ -3765,8 +3765,8 @@ window.ARISE_DEMO_DATA = {
 "path": "/Documents/Sunday setlist 2026-10-26.pdf",
 "name": "Sunday setlist 2026-10-26.pdf",
 "user": "bradly",
-"created": "2026-10-31T21:37",
-"expires": "2026-11-07T21:37",
+"created": "2026-11-01T02:04",
+"expires": "2026-11-08T02:04",
 "note": "for the worship team",
 "downloads": 3,
 "dir": false,
@@ -4114,12 +4114,12 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-08T10:00",
-"in_minutes": 7942,
+"in_minutes": 7675,
 "in_words": "5 days"
 },
 "verse": {
-"ref": "John 3:16",
-"text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+"ref": "Romans 8:28",
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
 "translation": "King James Version",
 "demo": true
 },
@@ -4248,12 +4248,12 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-08T10:00",
-"in_minutes": 7942,
+"in_minutes": 7675,
 "in_words": "5 days"
 },
 "verse": {
-"ref": "John 3:16",
-"text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+"ref": "Romans 8:28",
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
 "translation": "King James Version",
 "demo": true
 },
@@ -4295,7 +4295,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "Glory Night"
 }
 ],
-"now": "2026-11-02T21:37"
+"now": "2026-11-03T02:04"
 },
 "GET /mail": {
 "provider": "Resend",
@@ -4399,7 +4399,7 @@ window.ARISE_DEMO_DATA = {
 "arise_behind": 0,
 "arise_waiting": 0,
 "ring": "pineville",
-"last_check": "2026-11-02T21:37:35+00:00",
+"last_check": "2026-11-03T02:04:04+00:00",
 "security": 1
 },
 "GET /notify": {
@@ -4412,7 +4412,7 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "events": [
 {
-"t": "2026-11-02T17:37:35",
+"t": "2026-11-02T22:04:04",
 "who": "bradly",
 "action": "backups.run",
 "target": "homes",
@@ -4420,7 +4420,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-11-01T16:37:35",
+"t": "2026-11-01T21:04:04",
 "who": "media-mac",
 "action": "sunday",
 "target": "3",
@@ -4428,7 +4428,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-31T21:37:35",
+"t": "2026-11-01T02:04:04",
 "who": "bradly",
 "action": "directory.users.disable",
 "target": "guest-speaker",
@@ -4436,7 +4436,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-30T19:37:35",
+"t": "2026-10-31T00:04:04",
 "who": "unknown",
 "action": "auth.login",
 "target": "",
@@ -4444,7 +4444,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T21:37:35",
+"t": "2026-10-29T02:04:04",
 "who": "office",
 "action": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
@@ -4452,7 +4452,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-28T20:37:35",
+"t": "2026-10-29T01:04:04",
 "who": "office",
 "action": "auth.login",
 "target": "",
@@ -4460,7 +4460,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T18:37:35",
+"t": "2026-10-27T23:04:04",
 "who": "bradly",
 "action": "directory.users",
 "target": "office.staff",
@@ -4468,7 +4468,7 @@ window.ARISE_DEMO_DATA = {
 "sample": true
 },
 {
-"t": "2026-10-27T18:37:35",
+"t": "2026-10-27T23:04:04",
 "who": "bradly",
 "action": "auth.login",
 "target": "",
@@ -4561,8 +4561,8 @@ window.ARISE_DEMO_DATA = {
 {
 "id": "demo3",
 "title": "Volunteer lunch (sample)",
-"start": "2026-11-12T12:00",
-"end": "2026-11-12T13:30",
+"start": "2026-11-13T12:00",
+"end": "2026-11-13T13:30",
 "where": "The fellowship hall",
 "note": "",
 "who": "bradly",
@@ -4693,8 +4693,8 @@ window.ARISE_DEMO_DATA = {
 {
 "id": "demo3",
 "title": "Volunteer lunch (sample)",
-"start": "2026-11-12T12:00",
-"end": "2026-11-12T13:30",
+"start": "2026-11-13T12:00",
+"end": "2026-11-13T13:30",
 "where": "The fellowship hall",
 "note": "",
 "who": "bradly",
@@ -4770,7 +4770,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4779,7 +4779,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4788,7 +4788,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4797,7 +4797,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4806,7 +4806,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-06",
+"date": "2026-11-07",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4815,7 +4815,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-07",
+"date": "2026-11-08",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4841,7 +4841,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4850,7 +4850,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4859,7 +4859,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4868,7 +4868,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4877,7 +4877,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-06",
+"date": "2026-11-07",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4886,7 +4886,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-07",
+"date": "2026-11-08",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4912,7 +4912,7 @@ window.ARISE_DEMO_DATA = {
 },
 "days": [
 {
-"date": "2026-11-02",
+"date": "2026-11-03",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -4921,7 +4921,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 0
 },
 {
-"date": "2026-11-03",
+"date": "2026-11-04",
 "code": 2,
 "words": "Partly cloudy",
 "icon": "cloud-sun",
@@ -4930,7 +4930,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 10
 },
 {
-"date": "2026-11-04",
+"date": "2026-11-05",
 "code": 61,
 "words": "Rain",
 "icon": "rain",
@@ -4939,7 +4939,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 80
 },
 {
-"date": "2026-11-05",
+"date": "2026-11-06",
 "code": 3,
 "words": "Overcast",
 "icon": "cloud",
@@ -4948,7 +4948,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 30
 },
 {
-"date": "2026-11-06",
+"date": "2026-11-07",
 "code": 1,
 "words": "Mostly clear",
 "icon": "sun",
@@ -4957,7 +4957,7 @@ window.ARISE_DEMO_DATA = {
 "rain": 5
 },
 {
-"date": "2026-11-07",
+"date": "2026-11-08",
 "code": 0,
 "words": "Clear",
 "icon": "sun",
@@ -5240,7 +5240,7 @@ window.ARISE_DEMO_DATA = {
 {
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"size": 18937,
+"size": 19038,
 "lines": 327,
 "blurb": "What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,"
 },
@@ -5404,7 +5404,7 @@ window.ARISE_DEMO_DATA = {
 "linux-image-6.8.0-47-generic"
 ],
 "apps": {
-"checked_at": "2026-11-02T21:37:35+00:00",
+"checked_at": "2026-11-03T02:04:04+00:00",
 "apps": [
 {
 "name": "uptime-kuma",
@@ -5429,7 +5429,7 @@ window.ARISE_DEMO_DATA = {
 "uptime-kuma"
 ],
 "reboot": true,
-"queued_at": "2026-11-02T21:37:35+00:00",
+"queued_at": "2026-11-03T02:04:04+00:00",
 "by": "bradly"
 },
 "arise": {
@@ -5437,22 +5437,16 @@ window.ARISE_DEMO_DATA = {
 "version": "0.8.0"
 },
 "last_apply": {
-"when": "2026-10-28T21:37",
+"when": "2026-10-29T02:04",
 "ok": true,
 "summary": "2 packages, 1 app, no reboot needed"
 },
-"in_service": {
-"name": "Glory Night",
-"site": "Pineville",
-"day": "Monday",
-"time": "19:00",
-"starts": "2026-11-02T19:00"
-},
-"last_check": "2026-11-02T21:37:35+00:00"
+"in_service": null,
+"last_check": "2026-11-03T02:04:04+00:00"
 },
 "GET /activity": {
 "demo": true,
-"t": 1793655455.7676954,
+"t": 1793671444.9951062,
 "processes": [
 {
 "pid": 470,
@@ -5462,7 +5456,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 540000000,
 "status": "sleeping",
 "threads": 14,
-"since": 1792445855.7676752,
+"since": 1792461844.9950924,
 "io": {
 "read": 110000000,
 "write": 20000000
@@ -5479,7 +5473,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 120000000,
 "status": "sleeping",
 "threads": 13,
-"since": 1792445855.767673,
+"since": 1792461844.9950898,
 "io": {
 "read": 100000000,
 "write": 18000000
@@ -5496,7 +5490,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 412000000,
 "status": "sleeping",
 "threads": 4,
-"since": 1792445855.7676446,
+"since": 1792461844.995064,
 "io": {
 "read": 10000000,
 "write": 0
@@ -5513,7 +5507,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 210000000,
 "status": "sleeping",
 "threads": 7,
-"since": 1792445855.7676566,
+"since": 1792461844.9950714,
 "io": {
 "read": 40000000,
 "write": 6000000
@@ -5530,7 +5524,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 690000000,
 "status": "sleeping",
 "threads": 10,
-"since": 1792445855.7676656,
+"since": 1792461844.9950795,
 "io": {
 "read": 70000000,
 "write": 12000000
@@ -5547,7 +5541,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 96000000,
 "status": "sleeping",
 "threads": 5,
-"since": 1792445855.7676513,
+"since": 1792461844.9950683,
 "io": {
 "read": 20000000,
 "write": 2000000
@@ -5564,7 +5558,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 148000000,
 "status": "sleeping",
 "threads": 6,
-"since": 1792445855.7676544,
+"since": 1792461844.9950705,
 "io": {
 "read": 30000000,
 "write": 4000000
@@ -5581,7 +5575,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 142000000,
 "status": "sleeping",
 "threads": 8,
-"since": 1792445855.7676613,
+"since": 1792461844.995076,
 "io": {
 "read": 50000000,
 "write": 8000000
@@ -5598,7 +5592,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 64000000,
 "status": "sleeping",
 "threads": 15,
-"since": 1792445855.7676764,
+"since": 1792461844.9950936,
 "io": {
 "read": 120000000,
 "write": 22000000
@@ -5615,7 +5609,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 88000000,
 "status": "sleeping",
 "threads": 9,
-"since": 1792445855.7676637,
+"since": 1792461844.995078,
 "io": {
 "read": 60000000,
 "write": 10000000
@@ -5632,7 +5626,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 5000000,
 "status": "sleeping",
 "threads": 17,
-"since": 1792445855.7676795,
+"since": 1792461844.9950955,
 "io": {
 "read": 140000000,
 "write": 26000000
@@ -5649,7 +5643,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 9000000,
 "status": "sleeping",
 "threads": 12,
-"since": 1792445855.7676687,
+"since": 1792461844.9950883,
 "io": {
 "read": 90000000,
 "write": 16000000
@@ -5666,7 +5660,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 3000000,
 "status": "sleeping",
 "threads": 16,
-"since": 1792445855.767678,
+"since": 1792461844.995094,
 "io": {
 "read": 130000000,
 "write": 24000000
@@ -5683,7 +5677,7 @@ window.ARISE_DEMO_DATA = {
 "mem": 0,
 "status": "sleeping",
 "threads": 11,
-"since": 1792445855.767667,
+"since": 1792461844.9950805,
 "io": {
 "read": 80000000,
 "write": 14000000
@@ -5803,8 +5797,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-devices.service",
 "name": "The network scan",
 "what": "Hourly: who is on the switch; new devices show in the Network app. Does not run in staging.",
-"next": "2026-11-02T22:00:00",
-"last": "2026-11-01T22:00:00",
+"next": "2026-11-03T03:00:00",
+"last": "2026-11-02T03:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5863,8 +5857,8 @@ window.ARISE_DEMO_DATA = {
 "service": "arise-monitor-off.service",
 "name": "Monitor off",
 "what": "23:00: the closet panel goes to sleep.",
-"next": "2026-11-02T23:00:00",
-"last": "2026-11-01T23:00:00",
+"next": "2026-11-03T23:00:00",
+"last": "2026-11-02T23:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5893,8 +5887,8 @@ window.ARISE_DEMO_DATA = {
 "service": "fstrim.service",
 "name": "SSD trim",
 "what": "Weekly: tells the SSD which blocks are free.",
-"next": "2026-11-03T00:00:00",
-"last": "2026-11-02T00:00:00",
+"next": "2026-11-04T00:00:00",
+"last": "2026-11-03T00:00:00",
 "enabled": true,
 "state": "enabled",
 "active": "active",
@@ -5961,7 +5955,7 @@ window.ARISE_DEMO_DATA = {
 }
 ],
 "scan": {
-"as_of": "2026-11-02T15:37",
+"as_of": "2026-11-02T20:04",
 "seconds": 41.2,
 "truncated": false,
 "roots": [
@@ -6034,62 +6028,62 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/mnt/synology/media/sermons/2026-10-26 Sunday Service.mp4",
 "bytes": 6420000000,
-"mtime": "2026-11-02T21:37"
+"mtime": "2026-11-03T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-25 Sunday Service.mp4",
 "bytes": 6110000000,
-"mtime": "2026-10-26T21:37"
+"mtime": "2026-10-27T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-24 Sunday Service.mp4",
 "bytes": 5800000000,
-"mtime": "2026-10-19T21:37"
+"mtime": "2026-10-20T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-23 Sunday Service.mp4",
 "bytes": 5490000000,
-"mtime": "2026-10-12T21:37"
+"mtime": "2026-10-13T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-22 Sunday Service.mp4",
 "bytes": 5180000000,
-"mtime": "2026-10-05T21:37"
+"mtime": "2026-10-06T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-21 Sunday Service.mp4",
 "bytes": 4870000000,
-"mtime": "2026-09-28T21:37"
+"mtime": "2026-09-29T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-20 Sunday Service.mp4",
 "bytes": 4560000000,
-"mtime": "2026-09-21T21:37"
+"mtime": "2026-09-22T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-19 Sunday Service.mp4",
 "bytes": 4250000000,
-"mtime": "2026-09-14T21:37"
+"mtime": "2026-09-15T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-18 Sunday Service.mp4",
 "bytes": 3940000000,
-"mtime": "2026-09-07T21:37"
+"mtime": "2026-09-08T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-17 Sunday Service.mp4",
 "bytes": 3630000000,
-"mtime": "2026-08-31T21:37"
+"mtime": "2026-09-01T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-16 Sunday Service.mp4",
 "bytes": 3320000000,
-"mtime": "2026-08-24T21:37"
+"mtime": "2026-08-25T02:04"
 },
 {
 "path": "/mnt/synology/media/sermons/2026-10-15 Sunday Service.mp4",
 "bytes": 3010000000,
-"mtime": "2026-08-17T21:37"
+"mtime": "2026-08-18T02:04"
 },
 {
 "path": "/srv/arise/shares/graphics/loops/stage-flame-4k.mov",
@@ -6106,17 +6100,17 @@ window.ARISE_DEMO_DATA = {
 {
 "path": "/srv/arise/shares/graphics/backgrounds/easter-2025-set.psd",
 "bytes": 640000000,
-"mtime": "2025-06-20T21:37"
+"mtime": "2025-06-21T02:04"
 },
 {
 "path": "/srv/arise/homes/office/Old bulletins 2024.zip",
 "bytes": 210000000,
-"mtime": "2025-06-20T21:37"
+"mtime": "2025-06-21T02:04"
 },
 {
 "path": "/srv/arise/shares/worship/tracks/christmas-2024-stems.zip",
 "bytes": 1100000000,
-"mtime": "2025-06-20T21:37"
+"mtime": "2025-06-21T02:04"
 }
 ],
 "old_days": 365
@@ -7888,7 +7882,7 @@ window.ARISE_DEMO_DATA = {
 "at": "2026-11-01T10:00",
 "moves_on": "2026-11-07T20:00",
 "next": "2026-11-08 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"previous": null
 },
 "opens": "2026-11-01T09:00",
 "open": true,
@@ -8247,7 +8241,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8262,7 +8256,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8277,7 +8271,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8292,7 +8286,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8307,7 +8301,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8322,7 +8316,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8337,7 +8331,7 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 },
 {
@@ -8352,11 +8346,11 @@ window.ARISE_DEMO_DATA = {
 "do": "none",
 "ok": true,
 "why": "up to date",
-"when": "2026-11-02T21:37:36+00:00",
+"when": "2026-11-03T02:04:05+00:00",
 "sample": true
 }
 ],
-"last": "2026-11-02T21:37:36+00:00",
+"last": "2026-11-03T02:04:05+00:00",
 "token": true,
 "root": "/srv/arise/repos"
 },
@@ -8775,7 +8769,7 @@ window.ARISE_DEMO_DATA = {
 "original": "loops/old intro loop.mov",
 "dir": false,
 "size": 412000000,
-"when": "2026-10-31T21:37",
+"when": "2026-11-01T02:04",
 "from": "portal"
 },
 {
@@ -8787,7 +8781,7 @@ window.ARISE_DEMO_DATA = {
 "original": "Forms/Visitor card 2025.docx",
 "dir": false,
 "size": 38000,
-"when": "2026-10-21T21:37",
+"when": "2026-10-22T02:04",
 "from": "mac"
 },
 {
@@ -8799,7 +8793,7 @@ window.ARISE_DEMO_DATA = {
 "original": "lower-thirds/draft",
 "dir": true,
 "size": null,
-"when": "2026-10-06T21:37",
+"when": "2026-10-07T02:04",
 "from": "mac"
 }
 ],
@@ -8814,14 +8808,14 @@ window.ARISE_DEMO_DATA = {
 },
 "GET /about/week": {
 "verse": {
-"ref": "John 3:16",
-"text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+"ref": "Romans 8:28",
+"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
 "translation": "King James Version",
 "demo": true
 },
 "services": 3,
-"published_this_week": 1,
-"minutes_this_week": 108,
+"published_this_week": 0,
+"minutes_this_week": 0,
 "latest": "WHOSE HAND IS IT IN? | Minister Herbert Perry",
 "latest_date": "2026-10-26",
 "name": "ariseOS",
@@ -9037,8 +9031,8 @@ window.ARISE_DEMO_DATA = {
 "issued": "2026-11-01T12:14",
 "expires": "2026-11-08T12:14",
 "expires_text": "Sun Nov 8, 12:14 PM",
-"hours_left": 134.6,
-"days_left": 5.6,
+"hours_left": 130.2,
+"days_left": 5.4,
 "expired": false,
 "soon": false,
 "by": "bradly"
@@ -9091,35 +9085,35 @@ window.ARISE_DEMO_DATA = {
 "demo": true,
 "changes": [
 {
-"when": "2026-11-02T17:37:35",
+"when": "2026-11-02T22:04:04",
 "who": "Bradly",
 "what": "backups.run",
 "target": "homes",
 "detail": ""
 },
 {
-"when": "2026-11-01T16:37:35",
+"when": "2026-11-01T21:04:04",
 "who": "media-mac",
 "what": "sunday",
 "target": "3",
 "detail": ""
 },
 {
-"when": "2026-10-31T21:37:35",
+"when": "2026-11-01T02:04:04",
 "who": "Bradly",
 "what": "directory.users.disable",
 "target": "guest-speaker",
 "detail": ""
 },
 {
-"when": "2026-10-28T21:37:35",
+"when": "2026-10-29T02:04:04",
 "who": "office",
 "what": "links",
 "target": "Documents/Bulletin 2026-11-01.docx",
 "detail": ""
 },
 {
-"when": "2026-10-27T18:37:35",
+"when": "2026-10-27T23:04:04",
 "who": "Bradly",
 "what": "directory.users",
 "target": "office.staff",
@@ -9326,7 +9320,7 @@ window.ARISE_DEMO_DATA = {
 "at": "2026-11-01T10:00",
 "moves_on": "2026-11-07T20:00",
 "next": "2026-11-08 Sunday Service",
-"previous": "2026-10-25 Sunday Service"
+"previous": null
 },
 "opens": "2026-11-01T09:00",
 "open": true,
@@ -9423,7 +9417,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-08T10:00",
-"in_minutes": 7942,
+"in_minutes": 7675,
 "in_words": "5 days"
 },
 "call_time": "09:00",
@@ -9450,7 +9444,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-08T10:00",
-"in_minutes": 7942,
+"in_minutes": 7675,
 "in_words": "5 days"
 },
 "demo": true
@@ -9477,7 +9471,7 @@ window.ARISE_DEMO_DATA = {
 "file": "/etc/arise/secrets/discord.toml",
 "demo": true
 },
-"weekly": "📋 Arise Server, the week to 2026-11-02\nBackups: 35 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
+"weekly": "📋 Arise Server, the week to 2026-11-03\nBackups: 40 runs, failed: Home folders\nStorage: / 30%, /srv/arise 27%, /mnt/synology 31%\nMacs: 3 church Macs; not seen lately: KIDS-MAC; 1 task(s) failed\nSign-ins: 0 by 0 people\nUpdates waiting for a click: 4\nChannel: 742 subscribers (258 to go); 2,913 public watch hours (1,087 to go), as of 2026-10-28. Partner Program: 1,000 and 4,000.",
 "channel": {
 "ok": true,
 "demo": true,
@@ -9624,1191 +9618,1191 @@ window.ARISE_DEMO_DATA = {
 "GET /speedtest": {
 "runs": [
 {
-"at": "2026-10-26T21:05",
-"down": 511.0,
+"at": "2026-10-27T02:05",
+"down": 929.1,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-26T22:05",
+"at": "2026-10-27T03:05",
 "down": 934.9,
 "up": 39.2,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-26T23:05",
+"at": "2026-10-27T04:05",
 "down": 938.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T00:05",
+"at": "2026-10-27T05:05",
 "down": 940.0,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T01:05",
+"at": "2026-10-27T06:05",
 "down": 939.0,
 "up": 37.5,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T02:05",
+"at": "2026-10-27T07:05",
 "down": 935.6,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T03:05",
+"at": "2026-10-27T08:05",
 "down": 930.0,
 "up": 36.4,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T04:05",
+"at": "2026-10-27T09:05",
 "down": 922.4,
 "up": 35.9,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T05:05",
+"at": "2026-10-27T10:05",
 "down": 913.1,
 "up": 35.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T06:05",
+"at": "2026-10-27T11:05",
 "down": 902.5,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T07:05",
+"at": "2026-10-27T12:05",
 "down": 891.0,
 "up": 34.7,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T08:05",
+"at": "2026-10-27T13:05",
 "down": 879.0,
 "up": 34.4,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T09:05",
+"at": "2026-10-27T14:05",
 "down": 867.1,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T10:05",
+"at": "2026-10-27T15:05",
 "down": 855.8,
 "up": 34.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T11:05",
+"at": "2026-10-27T16:05",
 "down": 845.3,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-27T12:05",
+"at": "2026-10-27T17:05",
 "down": 836.3,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-27T13:05",
+"at": "2026-10-27T18:05",
 "down": 829.0,
 "up": 34.2,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-27T14:05",
-"down": 823.7,
+"at": "2026-10-27T19:05",
+"down": 453.1,
 "up": 34.3,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-27T15:05",
-"down": 820.7,
+"at": "2026-10-27T20:05",
+"down": 451.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-27T16:05",
-"down": 820.1,
+"at": "2026-10-27T21:05",
+"down": 451.0,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-27T17:05",
+"at": "2026-10-27T22:05",
 "down": 821.8,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-27T18:05",
+"at": "2026-10-27T23:05",
 "down": 825.8,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-27T19:05",
-"down": 457.6,
+"at": "2026-10-28T00:05",
+"down": 832.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-27T20:05",
-"down": 462.1,
+"at": "2026-10-28T01:05",
+"down": 840.2,
 "up": 36.8,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-27T21:05",
-"down": 467.4,
+"at": "2026-10-28T02:05",
+"down": 849.9,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-27T22:05",
+"at": "2026-10-28T03:05",
 "down": 860.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-27T23:05",
+"at": "2026-10-28T04:05",
 "down": 872.5,
 "up": 38.5,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-28T00:05",
+"at": "2026-10-28T05:05",
 "down": 884.5,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-28T01:05",
+"at": "2026-10-28T06:05",
 "down": 896.3,
 "up": 39.6,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-28T02:05",
+"at": "2026-10-28T07:05",
 "down": 907.4,
 "up": 40.1,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-28T03:05",
+"at": "2026-10-28T08:05",
 "down": 917.5,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T04:05",
+"at": "2026-10-28T09:05",
 "down": 926.0,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T05:05",
+"at": "2026-10-28T10:05",
 "down": 932.8,
 "up": 41.3,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T06:05",
+"at": "2026-10-28T11:05",
 "down": 937.4,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-28T07:05",
+"at": "2026-10-28T12:05",
 "down": 939.7,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-28T08:05",
+"at": "2026-10-28T13:05",
 "down": 939.7,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-28T09:05",
+"at": "2026-10-28T14:05",
 "down": 937.3,
 "up": 42.0,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-28T10:05",
+"at": "2026-10-28T15:05",
 "down": 932.6,
 "up": 42.0,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-28T11:05",
+"at": "2026-10-28T16:05",
 "down": 925.8,
 "up": 41.8,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-28T12:05",
+"at": "2026-10-28T17:05",
 "down": 917.1,
 "up": 41.7,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-28T13:05",
+"at": "2026-10-28T18:05",
 "down": 907.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-28T14:05",
-"down": 895.8,
+"at": "2026-10-28T19:05",
+"down": 492.7,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-28T15:05",
-"down": 884.0,
+"at": "2026-10-28T20:05",
+"down": 486.2,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-28T16:05",
-"down": 872.1,
+"at": "2026-10-28T21:05",
+"down": 479.6,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T17:05",
+"at": "2026-10-28T22:05",
 "down": 860.4,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-28T18:05",
+"at": "2026-10-28T23:05",
 "down": 849.5,
 "up": 39.2,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T19:05",
-"down": 461.9,
+"at": "2026-10-29T00:05",
+"down": 839.9,
 "up": 38.6,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-28T20:05",
-"down": 457.5,
+"at": "2026-10-29T01:05",
+"down": 831.8,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-28T21:05",
-"down": 454.1,
+"at": "2026-10-29T02:05",
+"down": 825.7,
 "up": 37.5,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-28T22:05",
+"at": "2026-10-29T03:05",
 "down": 821.7,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-28T23:05",
+"at": "2026-10-29T04:05",
 "down": 820.0,
 "up": 36.4,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T00:05",
+"at": "2026-10-29T05:05",
 "down": 820.8,
 "up": 35.9,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T01:05",
+"at": "2026-10-29T06:05",
 "down": 823.9,
 "up": 35.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-29T02:05",
+"at": "2026-10-29T07:05",
 "down": 829.2,
 "up": 35.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-29T03:05",
+"at": "2026-10-29T08:05",
 "down": 836.6,
 "up": 34.6,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-29T04:05",
+"at": "2026-10-29T09:05",
 "down": 845.7,
 "up": 34.4,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-29T05:05",
+"at": "2026-10-29T10:05",
 "down": 856.1,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-29T06:05",
+"at": "2026-10-29T11:05",
 "down": 867.6,
 "up": 34.0,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-29T07:05",
+"at": "2026-10-29T12:05",
 "down": 879.5,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-29T08:05",
+"at": "2026-10-29T13:05",
 "down": 891.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-29T09:05",
+"at": "2026-10-29T14:05",
 "down": 902.9,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T10:05",
+"at": "2026-10-29T15:05",
 "down": 913.4,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-29T11:05",
+"at": "2026-10-29T16:05",
 "down": 922.7,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-10-29T12:05",
+"at": "2026-10-29T17:05",
 "down": 930.2,
 "up": 35.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-29T13:05",
+"at": "2026-10-29T18:05",
 "down": 935.7,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-10-29T14:05",
-"down": 939.0,
+"at": "2026-10-29T19:05",
+"down": 516.5,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T15:05",
-"down": 940.0,
+"at": "2026-10-29T20:05",
+"down": 517.0,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-10-29T16:05",
-"down": 938.5,
+"at": "2026-10-29T21:05",
+"down": 516.2,
 "up": 36.9,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-29T17:05",
+"at": "2026-10-29T22:05",
 "down": 934.8,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T18:05",
+"at": "2026-10-29T23:05",
 "down": 928.8,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-29T19:05",
-"down": 506.5,
+"at": "2026-10-30T00:05",
+"down": 920.9,
 "up": 38.5,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-29T20:05",
-"down": 501.3,
+"at": "2026-10-30T01:05",
+"down": 911.4,
 "up": 39.1,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-29T21:05",
-"down": 495.3,
+"at": "2026-10-30T02:05",
+"down": 900.6,
 "up": 39.6,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-29T22:05",
+"at": "2026-10-30T03:05",
 "down": 889.0,
 "up": 40.1,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-10-29T23:05",
+"at": "2026-10-30T04:05",
 "down": 877.0,
 "up": 40.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T00:05",
+"at": "2026-10-30T05:05",
 "down": 865.2,
 "up": 41.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-10-30T01:05",
+"at": "2026-10-30T06:05",
 "down": 853.9,
 "up": 41.4,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-30T02:05",
+"at": "2026-10-30T07:05",
 "down": 843.7,
 "up": 41.6,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-30T03:05",
+"at": "2026-10-30T08:05",
 "down": 834.9,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T04:05",
+"at": "2026-10-30T09:05",
 "down": 828.0,
 "up": 42.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T05:05",
+"at": "2026-10-30T10:05",
 "down": 823.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-10-30T06:05",
+"at": "2026-10-30T11:05",
 "down": 820.4,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-10-30T07:05",
+"at": "2026-10-30T12:05",
 "down": 820.2,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-10-30T08:05",
+"at": "2026-10-30T13:05",
 "down": 822.3,
 "up": 41.6,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-10-30T09:05",
+"at": "2026-10-30T14:05",
 "down": 826.7,
 "up": 41.4,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-10-30T10:05",
+"at": "2026-10-30T15:05",
 "down": 833.3,
 "up": 41.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-10-30T11:05",
+"at": "2026-10-30T16:05",
 "down": 841.7,
 "up": 40.6,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-10-30T12:05",
+"at": "2026-10-30T17:05",
 "down": 851.7,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-30T13:05",
+"at": "2026-10-30T18:05",
 "down": 862.7,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T14:05",
-"down": 874.5,
+"at": "2026-10-30T19:05",
+"down": 481.0,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-30T15:05",
-"down": 886.5,
+"at": "2026-10-30T20:05",
+"down": 487.6,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-30T16:05",
-"down": 898.2,
+"at": "2026-10-30T21:05",
+"down": 494.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-30T17:05",
+"at": "2026-10-30T22:05",
 "down": 909.2,
 "up": 37.4,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-10-30T18:05",
+"at": "2026-10-30T23:05",
 "down": 919.0,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-30T19:05",
-"down": 510.0,
+"at": "2026-10-31T00:05",
+"down": 927.3,
 "up": 36.4,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-10-30T20:05",
-"down": 513.5,
+"at": "2026-10-31T01:05",
+"down": 933.7,
 "up": 35.9,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-30T21:05",
-"down": 515.9,
+"at": "2026-10-31T02:05",
+"down": 937.9,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-30T22:05",
+"at": "2026-10-31T03:05",
 "down": 939.9,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-30T23:05",
+"at": "2026-10-31T04:05",
 "down": 939.4,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T00:05",
+"at": "2026-10-31T05:05",
 "down": 936.6,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T01:05",
+"at": "2026-10-31T06:05",
 "down": 931.5,
 "up": 34.2,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-10-31T02:05",
+"at": "2026-10-31T07:05",
 "down": 924.4,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-31T03:05",
+"at": "2026-10-31T08:05",
 "down": 915.5,
 "up": 34.0,
 "ping": 11.0,
 "sample": true
 },
 {
-"at": "2026-10-31T04:05",
+"at": "2026-10-31T09:05",
 "down": 905.2,
 "up": 34.0,
 "ping": 12.0,
 "sample": true
 },
 {
-"at": "2026-10-31T05:05",
+"at": "2026-10-31T10:05",
 "down": 893.9,
 "up": 34.2,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-31T06:05",
+"at": "2026-10-31T11:05",
 "down": 882.0,
 "up": 34.4,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T07:05",
+"at": "2026-10-31T12:05",
 "down": 870.1,
 "up": 34.6,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T08:05",
+"at": "2026-10-31T13:05",
 "down": 858.5,
 "up": 35.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T09:05",
+"at": "2026-10-31T14:05",
 "down": 847.8,
 "up": 35.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-10-31T10:05",
+"at": "2026-10-31T15:05",
 "down": 838.4,
 "up": 35.8,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-10-31T11:05",
+"at": "2026-10-31T16:05",
 "down": 830.6,
 "up": 36.3,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-10-31T12:05",
+"at": "2026-10-31T17:05",
 "down": 824.8,
 "up": 36.9,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-10-31T13:05",
+"at": "2026-10-31T18:05",
 "down": 821.2,
 "up": 37.4,
 "ping": 11.5,
 "sample": true
 },
 {
-"at": "2026-10-31T14:05",
-"down": 820.0,
+"at": "2026-10-31T19:05",
+"down": 451.0,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-10-31T15:05",
-"down": 821.1,
+"at": "2026-10-31T20:05",
+"down": 451.6,
 "up": 38.6,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-10-31T16:05",
-"down": 824.6,
+"at": "2026-10-31T21:05",
+"down": 453.5,
 "up": 39.1,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-10-31T17:05",
+"at": "2026-10-31T22:05",
 "down": 830.3,
 "up": 39.7,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-10-31T18:05",
+"at": "2026-10-31T23:05",
 "down": 838.0,
 "up": 40.2,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-10-31T19:05",
-"down": 466.0,
+"at": "2026-11-01T00:05",
+"down": 847.4,
 "up": 40.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-10-31T20:05",
-"down": 471.9,
+"at": "2026-11-01T01:05",
+"down": 858.0,
 "up": 41.0,
 "ping": 12.8,
 "sample": true
 },
 {
-"at": "2026-10-31T21:05",
-"down": 478.2,
+"at": "2026-11-01T02:05",
+"down": 869.5,
 "up": 41.4,
 "ping": 11.9,
 "sample": true
 },
 {
-"at": "2026-10-31T22:05",
+"at": "2026-11-01T03:05",
 "down": 881.5,
 "up": 41.6,
 "ping": 11.1,
 "sample": true
 },
 {
-"at": "2026-10-31T23:05",
+"at": "2026-11-01T04:05",
 "down": 893.4,
 "up": 41.8,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-11-01T00:05",
+"at": "2026-11-01T05:05",
 "down": 904.7,
 "up": 42.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-11-01T01:05",
+"at": "2026-11-01T06:05",
 "down": 915.1,
 "up": 42.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-11-01T02:05",
+"at": "2026-11-01T07:05",
 "down": 924.1,
 "up": 42.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-01T03:05",
+"at": "2026-11-01T08:05",
 "down": 931.3,
 "up": 41.8,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T04:05",
+"at": "2026-11-01T09:05",
 "down": 936.4,
 "up": 41.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-01T05:05",
+"at": "2026-11-01T10:05",
 "down": 939.4,
 "up": 41.4,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-11-01T06:05",
+"at": "2026-11-01T11:05",
 "down": 939.9,
 "up": 41.0,
 "ping": 12.3,
 "sample": true
 },
 {
-"at": "2026-11-01T07:05",
+"at": "2026-11-01T12:05",
 "down": 938.1,
 "up": 40.6,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-11-01T08:05",
+"at": "2026-11-01T13:05",
 "down": 933.9,
 "up": 40.2,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-11-01T09:05",
+"at": "2026-11-01T14:05",
 "down": 927.6,
 "up": 39.7,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-11-01T10:05",
+"at": "2026-11-01T15:05",
 "down": 919.4,
 "up": 39.1,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-11-01T11:05",
+"at": "2026-11-01T16:05",
 "down": 909.6,
 "up": 38.6,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-01T12:05",
+"at": "2026-11-01T17:05",
 "down": 898.7,
 "up": 38.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T13:05",
+"at": "2026-11-01T18:05",
 "down": 887.0,
 "up": 37.4,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-01T14:05",
-"down": 875.0,
+"at": "2026-11-01T19:05",
+"down": 481.3,
 "up": 36.9,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-11-01T15:05",
-"down": 863.2,
+"at": "2026-11-01T20:05",
+"down": 474.8,
 "up": 36.3,
 "ping": 12.6,
 "sample": true
 },
 {
-"at": "2026-11-01T16:05",
-"down": 852.1,
+"at": "2026-11-01T21:05",
+"down": 468.7,
 "up": 35.8,
 "ping": 11.7,
 "sample": true
 },
 {
-"at": "2026-11-01T17:05",
+"at": "2026-11-01T22:05",
 "down": 842.1,
 "up": 35.4,
 "ping": 11.3,
 "sample": true
 },
 {
-"at": "2026-11-01T18:05",
+"at": "2026-11-01T23:05",
 "down": 833.6,
 "up": 35.0,
 "ping": 12.2,
 "sample": true
 },
 {
-"at": "2026-11-01T19:05",
-"down": 454.8,
+"at": "2026-11-02T00:05",
+"down": 827.0,
 "up": 34.6,
 "ping": 13.1,
 "sample": true
 },
 {
-"at": "2026-11-01T20:05",
-"down": 452.4,
+"at": "2026-11-02T01:05",
+"down": 822.5,
 "up": 34.4,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-01T21:05",
-"down": 451.1,
+"at": "2026-11-02T02:05",
+"down": 820.2,
 "up": 34.2,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-01T22:05",
+"at": "2026-11-02T03:05",
 "down": 820.4,
 "up": 34.0,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-01T23:05",
+"at": "2026-11-02T04:05",
 "down": 822.9,
 "up": 34.0,
 "ping": 13.6,
 "sample": true
 },
 {
-"at": "2026-11-02T00:05",
+"at": "2026-11-02T05:05",
 "down": 827.7,
 "up": 34.0,
 "ping": 13.0,
 "sample": true
 },
 {
-"at": "2026-11-02T01:05",
+"at": "2026-11-02T06:05",
 "down": 834.6,
 "up": 34.2,
 "ping": 12.1,
 "sample": true
 },
 {
-"at": "2026-11-02T02:05",
+"at": "2026-11-02T07:05",
 "down": 843.3,
 "up": 34.4,
 "ping": 11.2,
 "sample": true
 },
 {
-"at": "2026-11-02T03:05",
+"at": "2026-11-02T08:05",
 "down": 853.4,
 "up": 34.6,
 "ping": 11.8,
 "sample": true
 },
 {
-"at": "2026-11-02T04:05",
+"at": "2026-11-02T09:05",
 "down": 864.7,
 "up": 35.0,
 "ping": 12.7,
 "sample": true
 },
 {
-"at": "2026-11-02T05:05",
+"at": "2026-11-02T10:05",
 "down": 876.5,
 "up": 35.4,
 "ping": 13.4,
 "sample": true
 },
 {
-"at": "2026-11-02T06:05",
+"at": "2026-11-02T11:05",
 "down": 888.5,
 "up": 35.8,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-02T07:05",
+"at": "2026-11-02T12:05",
 "down": 900.1,
 "up": 36.3,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-02T08:05",
+"at": "2026-11-02T13:05",
 "down": 910.9,
 "up": 36.9,
 "ping": 13.8,
 "sample": true
 },
 {
-"at": "2026-11-02T09:05",
+"at": "2026-11-02T14:05",
 "down": 920.5,
 "up": 37.4,
 "ping": 13.3,
 "sample": true
 },
 {
-"at": "2026-11-02T10:05",
+"at": "2026-11-02T15:05",
 "down": 928.5,
 "up": 38.0,
 "ping": 12.5,
 "sample": true
 },
 {
-"at": "2026-11-02T11:05",
+"at": "2026-11-02T16:05",
 "down": 934.6,
 "up": 38.6,
 "ping": 11.6,
 "sample": true
 },
 {
-"at": "2026-11-02T12:05",
+"at": "2026-11-02T17:05",
 "down": 938.4,
 "up": 39.1,
 "ping": 11.4,
 "sample": true
 },
 {
-"at": "2026-11-02T13:05",
+"at": "2026-11-02T18:05",
 "down": 940.0,
 "up": 39.7,
 "ping": 12.4,
 "sample": true
 },
 {
-"at": "2026-11-02T14:05",
-"down": 939.1,
+"at": "2026-11-02T19:05",
+"down": 516.5,
 "up": 40.2,
 "ping": 13.2,
 "sample": true
 },
 {
-"at": "2026-11-02T15:05",
-"down": 935.9,
+"at": "2026-11-02T20:05",
+"down": 514.8,
 "up": 40.6,
 "ping": 13.7,
 "sample": true
 },
 {
-"at": "2026-11-02T16:05",
-"down": 930.5,
+"at": "2026-11-02T21:05",
+"down": 511.8,
 "up": 41.0,
 "ping": 14.0,
 "sample": true
 },
 {
-"at": "2026-11-02T17:05",
+"at": "2026-11-02T22:05",
 "down": 923.0,
 "up": 41.4,
 "ping": 13.9,
 "sample": true
 },
 {
-"at": "2026-11-02T18:05",
+"at": "2026-11-02T23:05",
 "down": 913.9,
 "up": 41.6,
 "ping": 13.5,
 "sample": true
 },
 {
-"at": "2026-11-02T19:05",
-"down": 496.9,
+"at": "2026-11-03T00:05",
+"down": 903.4,
 "up": 41.8,
 "ping": 12.9,
 "sample": true
 },
 {
-"at": "2026-11-02T20:05",
-"down": 490.6,
+"at": "2026-11-03T01:05",
+"down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 }
 ],
 "last": {
-"at": "2026-11-02T20:05",
-"down": 490.6,
+"at": "2026-11-03T01:05",
+"down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
 },
 "week": {
-"down": 876.5,
+"down": 872.5,
 "up": 38.0,
 "ping": 13.2,
 "tests": 168,
@@ -10825,7 +10819,7 @@ window.ARISE_DEMO_DATA = {
 "day": "Sunday",
 "time": "10:00",
 "at": "2026-11-08T10:00",
-"in_minutes": 7942,
+"in_minutes": 7675,
 "in_words": "5 days"
 },
 "demo": true
@@ -11077,19 +11071,19 @@ window.ARISE_DEMO_DATA = {
 "service": {
 "name": "Glory Night",
 "site": "Pineville",
-"started": "2026-11-02T19:00",
+"started": "2026-11-03T19:00",
 "ends_at": "9:00 PM",
 "sample": true
 },
 "stream": {
 "live": true,
-"checked": "2026-11-02T21:37",
+"checked": "2026-11-03T02:04",
 "demo": true,
 "url": "https://www.youtube.com/channel/UCGS9j7B_prcJkbTNgzlGrKg/live"
 },
 "internet": {
-"at": "2026-11-02T20:05",
-"down": 490.6,
+"at": "2026-11-03T01:05",
+"down": 891.9,
 "up": 42.0,
 "ping": 12.0,
 "sample": true
@@ -14786,14 +14780,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-24T21:37:35",
+"enrolled": "2026-10-25T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T15:37:35",
+"last_checkin": "2026-11-02T20:04:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-24T21:37:35",
+"ariseadmin_at": "2026-10-25T02:04:04",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14811,14 +14805,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-30T21:37:35",
+"enrolled": "2026-10-31T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T21:35:35",
+"last_checkin": "2026-11-03T02:02:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T21:37:35",
+"ariseadmin_at": "2026-10-31T02:04:04",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14836,14 +14830,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-11-01T21:37:35",
+"enrolled": "2026-11-02T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T21:33:35",
+"last_checkin": "2026-11-03T02:00:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-11-01T21:37:35",
+"ariseadmin_at": "2026-11-02T02:04:04",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -14880,14 +14874,14 @@ window.ARISE_DEMO_DATA = {
 "model": "Mac mini (M1)",
 "macos": "macOS 15.2",
 "status": "active",
-"enrolled": "2026-10-24T21:37:35",
+"enrolled": "2026-10-25T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T15:37:35",
+"last_checkin": "2026-11-02T20:04:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "down",
 "full_disk_access": "no",
-"ariseadmin_at": "2026-10-24T21:37:35",
+"ariseadmin_at": "2026-10-25T02:04:04",
 "church_owned": true,
 "disk_used": 91,
 "media": false,
@@ -14906,7 +14900,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/childrens.department",
 "signed_in": false,
 "realname": "Children's Department",
-"last_login": "2026-10-29T21:37:35"
+"last_login": "2026-10-30T02:04:04"
 }
 ],
 "tasks": [
@@ -14917,9 +14911,9 @@ window.ARISE_DEMO_DATA = {
 "only": "security"
 },
 "state": "failed",
-"made": "2026-11-02T01:37:35",
+"made": "2026-11-02T06:04:04",
 "by": "the overnight window",
-"finished": "2026-11-02T02:37:35",
+"finished": "2026-11-02T07:04:04",
 "detail": "softwareupdate: no network"
 }
 ],
@@ -14940,14 +14934,14 @@ window.ARISE_DEMO_DATA = {
 "model": "iMac (24-inch, M3)",
 "macos": "macOS 15.3",
 "status": "active",
-"enrolled": "2026-10-30T21:37:35",
+"enrolled": "2026-10-31T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T21:35:35",
+"last_checkin": "2026-11-03T02:02:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-10-30T21:37:35",
+"ariseadmin_at": "2026-10-31T02:04:04",
 "church_owned": true,
 "disk_used": 64,
 "media": true,
@@ -14966,7 +14960,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/bradly",
 "signed_in": false,
 "realname": "Bradly Dyer",
-"last_login": "2026-11-01T21:37:35"
+"last_login": "2026-11-02T02:04:04"
 },
 {
 "user": "media",
@@ -14976,12 +14970,12 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/media",
 "signed_in": true,
 "realname": "Media Team",
-"last_login": "2026-11-02T18:37:35",
+"last_login": "2026-11-02T23:04:04",
 "choice": {
 "action": "link",
 "user": "media-mac",
 "by": "bradly",
-"at": "2026-10-31T21:37:35",
+"at": "2026-11-01T02:04:04",
 "state": "done"
 },
 "suggest": "media.team",
@@ -14998,9 +14992,9 @@ window.ARISE_DEMO_DATA = {
 "user": "media-mac"
 },
 "state": "done",
-"made": "2026-10-31T21:37:35",
+"made": "2026-11-01T02:04:04",
 "by": "bradly",
-"finished": "2026-10-31T21:37:35",
+"finished": "2026-11-01T02:04:04",
 "detail": "linked; Nextcloud signs in as media-mac"
 },
 {
@@ -15010,9 +15004,9 @@ window.ARISE_DEMO_DATA = {
 "user": "bradly"
 },
 "state": "done",
-"made": "2026-10-30T21:37:35",
+"made": "2026-10-31T02:04:04",
 "by": "the directory",
-"finished": "2026-10-30T21:37:35",
+"finished": "2026-10-31T02:04:04",
 "detail": "mobile account made"
 }
 ],
@@ -15033,14 +15027,14 @@ window.ARISE_DEMO_DATA = {
 "model": "MacBook Air (M2)",
 "macos": "macOS 14.7",
 "status": "active",
-"enrolled": "2026-11-01T21:37:35",
+"enrolled": "2026-11-02T02:04:04",
 "enrolled_by": "bradly",
-"last_checkin": "2026-11-02T21:33:35",
+"last_checkin": "2026-11-03T02:00:04",
 "helper": "1.0.0",
 "filevault": "on, key escrowed",
 "tailscale": "up",
 "full_disk_access": "yes",
-"ariseadmin_at": "2026-11-01T21:37:35",
+"ariseadmin_at": "2026-11-02T02:04:04",
 "church_owned": true,
 "disk_used": 58,
 "media": false,
@@ -15059,7 +15053,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/office",
 "signed_in": false,
 "realname": "Church Office",
-"last_login": "2026-10-31T21:37:35"
+"last_login": "2026-11-01T02:04:04"
 },
 {
 "user": "levi",
@@ -15069,7 +15063,7 @@ window.ARISE_DEMO_DATA = {
 "home": "/Users/levi",
 "signed_in": false,
 "realname": "Levi Mercer",
-"last_login": "2026-10-28T21:37:35",
+"last_login": "2026-10-29T02:04:04",
 "choice": null,
 "suggest": "levi.mercer",
 "suggest_exists": false,
@@ -15096,7 +15090,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "dnsfilter",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T19:37:35",
+"made": "2026-11-03T00:04:04",
 "by": "enrolment"
 },
 {
@@ -15104,7 +15098,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "apps",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T19:37:35",
+"made": "2026-11-03T00:04:04",
 "by": "enrolment"
 },
 {
@@ -15112,7 +15106,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "mac_settings",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T19:37:35",
+"made": "2026-11-03T00:04:04",
 "by": "enrolment"
 },
 {
@@ -15120,7 +15114,7 @@ window.ARISE_DEMO_DATA = {
 "kind": "welcome",
 "args": {},
 "state": "queued",
-"made": "2026-11-02T19:37:35",
+"made": "2026-11-03T00:04:04",
 "by": "enrolment"
 },
 {
@@ -15128,9 +15122,9 @@ window.ARISE_DEMO_DATA = {
 "kind": "printers",
 "args": {},
 "state": "done",
-"made": "2026-11-01T21:37:35",
+"made": "2026-11-02T02:04:04",
 "by": "enrolment",
-"finished": "2026-11-01T21:37:35",
+"finished": "2026-11-02T02:04:04",
 "detail": "1 printer"
 },
 {
@@ -15140,9 +15134,9 @@ window.ARISE_DEMO_DATA = {
 "user": "office"
 },
 "state": "done",
-"made": "2026-11-01T21:37:35",
+"made": "2026-11-02T02:04:04",
 "by": "the directory",
-"finished": "2026-11-01T21:37:35",
+"finished": "2026-11-02T02:04:04",
 "detail": "mobile account made"
 }
 ],
@@ -16673,7 +16667,7 @@ window.ARISE_DEMO_DATA = {
 "ok": true,
 "name": "SECURITY",
 "title": "Security: the safety basics",
-"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS; passphrase at boot on the expected TPM 1.2 hardware (H3/H6)</td>\n<td>chosen in the Ubuntu installer; optional LAN SSH unlock; TPM 2.0 only if verified usable</td>\n<td><code>sudo arisectl encrypt status</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td><code>sudo arisectl reinstall &amp;lt;repo&gt;</code></td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (bcrypt cost 10; verify performance on the actual hardware). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Full password for administration:</strong> the root Terminal requires a recent full\npassword after PIN sign-in. Administrator mutation routes use\n<code>require_recent_admin</code>, which checks both the role and the password recheck.\nThe dashboard handles the reauthentication prompt and retries once.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-luks-and-the-boot-passphrase\">Encryption: LUKS and the boot passphrase</h2>\n<p>H3 replaces round 3's automatic TPM-unlock assumption. The primary HP\nEliteDesk 800 G1 SFF is expected to have TPM 1.2, which clevis cannot use for\nTPM 2.0 unlock. Plan for <strong>a passphrase at every boot</strong>. H6 permits TPM binding\nif the actual hardware has a usable TPM 2.0; verify its version and a successful\nrestart before relying on unattended unlock.</p>\n<ol>\n<li>In the Ubuntu Server storage screen, identify the intended disk, choose\n   an LVM layout and <strong>Encrypt the LVM group with LUKS</strong>. Review the final\n   plan before confirming disk erasure. Encryption is chosen at installation;\n   the later ariseOS wizard does not encrypt an existing plain root filesystem.</li>\n<li>Write the passphrase on the closet card by hand, as the owner chose.\n   Bradly and Kristina know it (round 7, 58). Keep it available for recovery\n   even if TPM 2.0 binding is later possible.</li>\n<li>Boot with the install USB removed and test the passphrase at the keyboard.\n   Check <code>sudo arisectl encrypt status</code>. A successful VM test does not verify\n   the HP's firmware, disk encryption, TPM or physical recovery path.</li>\n</ol>\n<p>On passphrase boot, power-on-after-AC-loss stops at unlock. Scheduled updates\nmust not restart the server automatically when unattended unlock is unknown\nor unavailable. Plan a supervised restart outside services, with someone able\nto unlock it. The full OS, Samba DNS, dashboard and Tailscale start only after\nthat step.</p>\n<h3 id=\"optional-ssh-unlock-on-the-church-lan\">Optional SSH unlock on the church LAN</h3>\n<p>Set this up only after the keyboard recovery path works:</p>\n<pre><code class=\"language-sh\">sudo arisectl encrypt ssh --network dhcp --authorized-keys /path/to/owner-public-keys\n</code></pre>\n<p>The file contains <strong>bare RSA (at least 2048-bit), ECDSA or Ed25519 public\nkeys</strong>, not private keys, FIDO keys, certificates or lines with\n<code>authorized_keys</code> options. The command requires an explicit boot-network\nchoice and creates a restricted initramfs SSH service on port 2222, forced\nto <code>cryptroot-unlock</code> without forwarding or a general shell. Review the\ncommand's result and test a supervised reboot before relying on it.</p>\n<p>From a permitted church LAN computer, use <code>ssh -p 2222 root@&amp;lt;boot-lan-ip&gt;</code>.\nRecord and verify the early-boot SSH host-key fingerprint locally. DHCP may\nassign an address different from the running server's address. Do not assume\n<code>arise-server</code> resolves while its own DNS is locked, or that its Tailscale\naddress works before boot. The normal OS firewall is also unavailable at\nthis stage; use the trusted church LAN and verify actual reachability. No\nrouter, DHCP or port-forward change is part of this setup. Retain the local\nkeyboard if the preboot network is unavailable.</p>\n<p>TPM 2.0 binding, when applicable under H6, uses <code>sudo arisectl encrypt tpm</code>.\nIt does not remove the recovery passphrase. Firmware or Secure Boot changes\ncan affect measured boot and require the passphrase; verify recovery before\nsuch maintenance. Physical LUKS, TPM and early-boot SSH remain installation\nrehearsal checks, not claims established by mocked or VM-only tests.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped to reduce scan load, as are Trash and\ncaches. Those exclusions are coverage gaps, not proof the files are harmless. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@arisecenla.com</code> (Oct 31, H10), with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@arisecenla.com</code> from inside is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>\n<h2 id=\"independent-review-corrections\">Independent-review corrections</h2>\n<p>TOTP challenges contain only a random reference; the waiting session remains in\nserver memory and is released once after a valid code. Challenges expire after\nfive minutes, three failures, or a server restart. Signed JSON is not encryption.</p>\n<p>With Caddy enabled the application binds loopback; remote browsers use HTTPS.\nThe port-80 endpoint serves only the public CA certificate. Enrollment verifies\nits installer-supplied SHA256 fingerprint before trusting it.</p>\n<p>Folder compression checks each descendant and refuses filesystem links during\nreading. Public archive links never include the Pastors folder, including when\na parent directory was selected. Emergency-access responses report actual\nnotification delivery failures; contact the pastors directly if email fails.</p>\n<p>The audit file is append-only by application convention, not immutable against\nroot. Write failures are exposed in upkeep; state and audit history are included\nin backups. Independently protected or offline copies remain necessary against\na compromised source server.</p>",
+"html": "<h1 id=\"security-the-safety-basics\">Security: the safety basics</h1>\n<p>What keeps the box safe, what Bradly decided about each (docs/ANSWERS.md,\nround 3), and the one command that fixes each when the Security app shows\namber. Built in v0.8 \"Exodus\". The Security app (31) and <code>arisectl security</code>\nread the same facts.</p>\n<table>\n<thead>\n<tr>\n<th>What</th>\n<th>Decision</th>\n<th>Where it lives</th>\n<th>Fix when amber</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Two-step sign-in</td>\n<td>optional, per person; Microsoft Authenticator when they opt in (round 2, 11; Oct 28)</td>\n<td><code>/etc/arise/secrets/totp/&amp;lt;user&gt;.json</code>, root only</td>\n<td><code>sudo arisectl twofa reset &amp;lt;user&gt;</code> for a lost phone</td>\n</tr>\n<tr>\n<td>Browsers never sign out</td>\n<td>until they choose to (r3 38)</td>\n<td><code>[web] session_hours = 8760</code></td>\n<td>nothing; the closet monitor still locks at ten minutes</td>\n</tr>\n<tr>\n<td>Break-glass admin</td>\n<td>yes (r3 21); at the closet monitor only (Oct 28)</td>\n<td>the local user <code>arise-rescue</code>; password in <code>/etc/arise/secrets/rescue-password</code>, on the closet card taped inside the closet, and with Kristina (round 7, 57 and 73)</td>\n<td><code>sudo arisectl rescue rotate</code></td>\n</tr>\n<tr>\n<td>SSH</td>\n<td>keys only, password login off (Oct 28)</td>\n<td><code>/etc/ssh/sshd_config.d/arise.conf</code>; the admin's key enrolled by <code>install.sh --ssh-key</code></td>\n<td>re-run the installer with <code>--ssh-key</code></td>\n</tr>\n<tr>\n<td>Asking twice</td>\n<td>delete a user, empty a Trash, shut down re-ask the password; a yes lasts five minutes (Oct 28)</td>\n<td><code>POST /api/auth/reauth</code>, <code>require_recent_auth</code>, <code>withReauth()</code> in the dashboard</td>\n<td>nothing</td>\n</tr>\n<tr>\n<td>The restic password</td>\n<td>on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58)</td>\n<td><code>/etc/arise/secrets/restic-password</code> on the box</td>\n<td><code>sudo arisectl rescue card</code> rewrites the card; the restic line stays blank for the pen</td>\n</tr>\n<tr>\n<td>Encryption</td>\n<td>LUKS; passphrase at boot on the expected TPM 1.2 hardware (H3/H6)</td>\n<td>chosen in the Ubuntu installer; optional LAN SSH unlock; TPM 2.0 only if verified usable</td>\n<td><code>sudo arisectl encrypt status</code></td>\n</tr>\n<tr>\n<td>System snapshots</td>\n<td>before every update, five kept (r3 23)</td>\n<td>Timeshift, rsync mode, <code>/timeshift</code> on the root disk</td>\n<td><code>sudo arisectl snapshot create \"note\"</code></td>\n</tr>\n<tr>\n<td>Reinstall</td>\n<td>from the Synology's backup (r3 24)</td>\n<td>docs/REINSTALL.md</td>\n<td>a dead box: the install USB, then <code>sudo bash /opt/arise-src/installer/install.sh --restore &amp;lt;repo&gt;</code> (<code>arisectl</code> is gone with the disk)</td>\n</tr>\n<tr>\n<td>Lockout</td>\n<td>none (r3 27)</td>\n<td>no fail2ban; domain lockout threshold 0</td>\n<td>nothing: his decision</td>\n</tr>\n<tr>\n<td>Virus scan</td>\n<td>weekly, quarantine, a report (r3 28)</td>\n<td>ClamAV, <code>arise-clamscan.timer</code> Sunday 23:30</td>\n<td><code>sudo arisectl scan status</code></td>\n</tr>\n<tr>\n<td>The church certificate</td>\n<td>padlock on every Mac (r3 29)</td>\n<td>Caddy's internal CA; <code>/ca.crt</code></td>\n<td><code>sudo systemctl start caddy</code></td>\n</tr>\n<tr>\n<td>Logs</td>\n<td>a year (r3 26)</td>\n<td>journald 1 year / 4 GB; logrotate 52 weeks</td>\n<td>nothing</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"two-step-sign-in\">Two-step sign-in</h2>\n<p>Optional. Anyone turns it on from the flame menu: <strong>Two-step sign-in…</strong> shows\na QR code once; Microsoft Authenticator (<strong>+</strong> → <strong>Other account</strong>) scans it;\nthey type the six digits it shows; done. From then on the sign-in page asks\nfor the code after the password. The code is plain TOTP: no Microsoft\naccount, no internet needed on the server, the phone's clock and the box's\nclock only (<code>arisectl doctor</code> checks the clock).</p>\n<p>What is stored: one root-only file per person under\n<code>/etc/arise/secrets/totp/</code>. The secret is shown exactly once, at setup. It is\nnever sent to the browser again, never in a log, never in git.</p>\n<p>Turning it off: the person's own password plus a current code, in the same\nmenu. A lost phone: Bradly on the box, <code>sudo arisectl twofa reset first.last</code>\n(it asks for the name typed again). Admins see a small <strong>two-step</strong> badge on\neach user in Directory; <code>arisectl twofa list</code> prints the names.</p>\n<p>The pending login: after a correct password the server answers\n<code>{need_code: true, pending: &amp;lt;signed token&gt;}</code>. The token lives five minutes\nand dies after three wrong codes; the session cookie is set only when the\ncode matches. Pure rules in <code>server/arise_server/twofa.py</code>, pinned in\n<code>tests/test_arise_server.py</code> (class Safety).</p>\n<h2 id=\"ssh-keys-only\">SSH: keys only</h2>\n<p>Bradly (Oct 28): password login over SSH is off, always. The installer writes\n<code>PasswordAuthentication no</code> and enrols the admin's public key from\n<code>--ssh-key 'ssh-ed25519 AAAA…'</code> (or <code>--ssh-key-file</code>). No key yet means SSH is\nclosed until one is added; the closet monitor still signs in, and Cockpit on\n9090 is the second door. <code>DenyUsers arise-rescue</code> keeps the break-glass\naccount off SSH entirely.</p>\n<h2 id=\"asking-twice\">Asking twice</h2>\n<p>Three clicks re-ask the signed-in person's password: delete a user, empty a\nTrash, shut the box down (restart too). <code>POST /api/auth/reauth</code> checks it the\nsame way sign-in does and stamps the session cookie (<code>ra</code>); for five minutes\nafter that the stamp satisfies <code>require_recent_auth</code>, the dependency those\nroutes use (<code>recent = Depends(require_recent_auth)</code> in <code>main.py</code>; other\ndangerous routes can take the same one). Without the stamp the route answers\n403 <code>{reauth: true}</code>, and the dashboard's <code>withReauth(fn)</code> turns that into a\npassword box and runs <code>fn</code> again. Sample mode never asks.</p>\n<h2 id=\"sign-in-pins-round-7-160-to-162\">Sign-in PINs (round 7, 160 to 162)</h2>\n<p>Each person may set a PIN of 4 to 8 digits for themselves, in <strong>My Profile →\nSign-in PIN</strong>, after typing their full password. Typing it at sign-in counts\nfor ten minutes; after that, or in a PIN session, the sheet asks for it again.</p>\n<ul>\n<li><strong>Admins (160):</strong> the PIN works on the sign-in page and the lock screen,\n  anywhere the dashboard answers (church Wi-Fi, Tailscale).</li>\n<li><strong>Staff (162):</strong> the PIN opens the phone checklist (<code>/checklist</code>), on the\n  phone it was set on, and nothing else. A random mark in a cookie\n  (<code>arise_pin_device</code>, 400 days, httponly) ties it to that phone; the server\n  keeps only the mark's sha256. A PIN session that asks for anything but\n  <code>/api/auth/</code>, <code>/api/public/</code>, <code>/api/health</code> or <code>/api/checklist/</code> gets 403,\n  even with <code>[web] staff_access = \"portal\"</code>.</li>\n<li><strong>Never by PIN (161):</strong> a PIN session has no \"typed the password recently\"\n  stamp (<code>fp</code>) and no reauth stamp (<code>ra</code>). <code>POST /api/auth/reauth</code> checks the\n  password and never a PIN. So deletes, emptying a Trash, the FileVault and\n  ariseadmin reveals, the Pastors emergency look and the YouTube renewal ask\n  for the full password. A leader's password reset on the checklist asks for\n  the leader's own password every time.</li>\n</ul>\n<p><strong>Refused PINs:</strong> one digit again and again (<code>1111</code>), a repeated chunk\n(<code>1212</code>, <code>123123</code>), runs up or down (<code>1234</code>, <code>4321</code>), the keypad column\n<code>2580</code> and its reverse, the PINs people choose most often, the birthday on\nfile as MMDD or DDMM, and the end of the mobile number on file.</p>\n<p><strong>Stored:</strong> <code>/var/lib/arise/pins.json</code>, mode 0600, one bcrypt hash per\nperson (bcrypt cost 10; verify performance on the actual hardware). A name with no\nPIN costs the same time against a dummy hash. The PIN is never stored, never\nlogged and never sent back in an answer, and admins never see one.</p>\n<p><strong>Guessing:</strong> the device that guesses waits, the same throttle as passwords,\nby address and never by account (round 4, 27). Separately, ten wrong PINs\nfor one account, from any devices, switch that account's PIN off. Bradly\ngets Discord #alerts and a push, and the audit log gets <code>auth.pin.off</code>. The\npassword always works, and the next full-password sign-in switches the PIN\nback on. A password change, an admin or leader reset, or disabling the\naccount also switches the PIN off, because they all go through\n<code>revoke_sessions</code>. Deleting or renaming the account removes it.</p>\n<p><strong>Admins:</strong> Directory → <strong>Sign-in PINs</strong> lists who has one, what it opens,\nand whether it is switched off. <strong>Remove</strong> deletes it, and the audit log\nrecords <code>auth.pin.remove</code> with the admin's name. Nobody can see or set\nsomeone else's PIN.</p>\n<p><strong>The domain never sees a PIN.</strong> It is checked against the hash on this\nbox. Kerberos and Samba still check passwords only. A password sign-in runs\n<code>kinit</code> into a memory-only cache (<code>MEMORY:arise-login</code>) that is thrown away\nstraight after, so no Kerberos ticket outlives the sign-in either way. What\ndiffers for a PIN session:</p>\n<ul>\n<li>No <code>fp</code> stamp, so setting or changing a PIN asks for the password.</li>\n<li>No reauth stamp until the password is typed.</li>\n<li>A staff PIN session reaches the checklist only.</li>\n<li>The audit log says <code>auth.pin</code> instead of <code>auth.login</code>.</li>\n</ul>\n<p>The rest is the same: the session cookie, two-step (the six digits are still\nasked after a PIN), the new-device email, and the home folder. A Mac sign-in,\na share mount and the Nextcloud app's device passwords never take a PIN.</p>\n<p><strong>Full password for administration:</strong> the root Terminal requires a recent full\npassword after PIN sign-in. Administrator mutation routes use\n<code>require_recent_admin</code>, which checks both the role and the password recheck.\nThe dashboard handles the reauthentication prompt and retries once.</p>\n<p>Rules: <code>server/arise_server/pins.py</code>. Tests: <code>tests/test_pins.py</code>, plus the\nPIN steps in <code>tests/ui/sweep.js</code>.</p>\n<h2 id=\"the-break-glass-admin-arise-rescue\">The break-glass admin: arise-rescue</h2>\n<p>For the day the domain is down and nobody can sign in. A <strong>local</strong> Ubuntu\naccount, in <code>sudo</code>, that works <strong>at the closet monitor only</strong> (Alt+F2 for a\ntext login). Not over SSH: keys only there, and <code>DenyUsers arise-rescue</code>\ncloses it regardless (Bradly, Oct 28).</p>\n<p>It never works in the dashboard: the dashboard signs people in against the\ndomain (Kerberos) or the one local admin hash, nothing else.</p>\n<p>Its 24-character password is made by the installer (step 6j), written to\n<code>/etc/arise/secrets/rescue-password</code> (root only), and printed on the <strong>closet\ncard</strong>, which is taped <strong>inside the closet</strong>, never on the door (round 7, 57\nand 73). Kristina has a copy. <code>sudo arisectl rescue card</code> writes the card to\n<code>/etc/arise/CLOSET-CARD.html</code> (root only) for printing at the closet monitor,\nand a copy with the password left out to the staff share; it never prints the\npassword to the screen. <code>rescue rotate</code> rewrites both: print it again and\nreplace the card inside the closet and Kristina's copy.</p>\n<p>If Bradly can't be reached, <strong>Kristina follows the closet card</strong> (round 7,\n59); after her, Ronnie (141). The card names them; the phone numbers are\nwritten on it by hand.</p>\n<p>Every sign-in of arise-rescue is caught from the journal within a minute\n(<code>security.rescue_watch</code>, started with the dashboard), appended to\n<code>/var/log/arise/rescue.log</code>, and pushed to Bradly's phone with \"if that was\nnot you: <code>sudo arisectl rescue rotate</code>\". <code>arisectl rescue status</code> prints the\nlast uses.</p>\n<h2 id=\"the-restic-password-the-closet-card-only\">The restic password: the closet card only</h2>\n<p>Bradly (Oct 28): the restic password's paper copy is the <strong>closet card</strong>,\nwritten on it by hand (the card prints a blank line for it). Kristina knows it\ntoo (round 7, 58). On the box it is <code>/etc/arise/secrets/restic-password</code>, root\nonly. Lose all three and the backups cannot be read by anyone, Arise-Home's\ncopy included.</p>\n<h2 id=\"encryption-luks-and-the-boot-passphrase\">Encryption: LUKS and the boot passphrase</h2>\n<p>H3 replaces round 3's automatic TPM-unlock assumption. The primary HP\nEliteDesk 800 G1 SFF is expected to have TPM 1.2, which clevis cannot use for\nTPM 2.0 unlock. Plan for <strong>a passphrase at every boot</strong>. H6 permits TPM binding\nif the actual hardware has a usable TPM 2.0; verify its version and a successful\nrestart before relying on unattended unlock.</p>\n<ol>\n<li>In the Ubuntu Server storage screen, identify the intended disk, choose\n   an LVM layout and <strong>Encrypt the LVM group with LUKS</strong>. Review the final\n   plan before confirming disk erasure. Encryption is chosen at installation;\n   the later ariseOS wizard does not encrypt an existing plain root filesystem.</li>\n<li>Write the passphrase on the closet card by hand, as the owner chose.\n   Bradly and Kristina know it (round 7, 58). Keep it available for recovery\n   even if TPM 2.0 binding is later possible.</li>\n<li>Boot with the install USB removed and test the passphrase at the keyboard.\n   Check <code>sudo arisectl encrypt status</code>. A successful VM test does not verify\n   the HP's firmware, disk encryption, TPM or physical recovery path.</li>\n</ol>\n<p>On passphrase boot, power-on-after-AC-loss stops at unlock. Scheduled updates\nmust not restart the server automatically when unattended unlock is unknown\nor unavailable. Plan a supervised restart outside services, with someone able\nto unlock it. The full OS, Samba DNS, dashboard and Tailscale start only after\nthat step.</p>\n<h3 id=\"optional-ssh-unlock-on-the-church-lan\">Optional SSH unlock on the church LAN</h3>\n<p>Set this up only after the keyboard recovery path works:</p>\n<pre><code class=\"language-sh\">sudo arisectl encrypt ssh --network dhcp --authorized-keys /path/to/owner-public-keys\n</code></pre>\n<p>The file contains <strong>bare RSA (at least 2048-bit), ECDSA or Ed25519 public\nkeys</strong>, not private keys, FIDO keys, certificates or lines with\n<code>authorized_keys</code> options. The command requires an explicit boot-network\nchoice and creates a restricted initramfs SSH service on port 2222, forced\nto <code>cryptroot-unlock</code> without forwarding or a general shell. Review the\ncommand's result and test a supervised reboot before relying on it.</p>\n<p>From a permitted church LAN computer, use <code>ssh -p 2222 root@&amp;lt;boot-lan-ip&gt;</code>.\nRecord and verify the early-boot SSH host-key fingerprint locally. DHCP may\nassign an address different from the running server's address. Do not assume\n<code>arise-server</code> resolves while its own DNS is locked, or that its Tailscale\naddress works before boot. The normal OS firewall is also unavailable at\nthis stage; use the trusted church LAN and verify actual reachability. No\nrouter, DHCP or port-forward change is part of this setup. Retain the local\nkeyboard if the preboot network is unavailable.</p>\n<p>TPM 2.0 binding, when applicable under H6, uses <code>sudo arisectl encrypt tpm</code>.\nIt does not remove the recovery passphrase. Firmware or Secure Boot changes\ncan affect measured boot and require the passphrase; verify recovery before\nsuch maintenance. Physical LUKS, TPM and early-boot SSH remain installation\nrehearsal checks, not claims established by mocked or VM-only tests.</p>\n<h2 id=\"system-snapshots-before-updates\">System snapshots before updates</h2>\n<p>Timeshift in rsync mode, on the root disk, with <code>/srv/arise</code>, <code>/mnt</code>,\n<code>/var/lib/docker</code>, <code>/var/lib/arise</code> and <code>/var/log</code> excluded: the church's\nfiles are in the restic backup, the snapshot is the operating system. The\ninstaller takes the first one; <code>arisectl snapshot create \"before update\"</code>\ntakes another (Software Update calls it before anything installs); the last\nfive are kept; <code>arisectl snapshot restore &amp;lt;name&gt;</code> rolls the system back\n(the name typed to confirm; refused during a service).</p>\n<h2 id=\"the-virus-scan\">The virus scan</h2>\n<p>ClamAV, Sunday 23:30, over <code>/srv/arise/homes</code> and <code>/srv/arise/shares</code>.\nVideo and audio files are skipped to reduce scan load, as are Trash and\ncaches. Those exclusions are coverage gaps, not proof the files are harmless. A found file is <strong>moved</strong> to <code>/srv/arise/.quarantine/&amp;lt;date&gt;/</code>\nwith a manifest, never deleted; the report goes to\n<code>/var/log/arise/clamscan-&amp;lt;date&gt;.json</code>; Bradly gets a push. The Security app\nlists quarantined files with a <strong>Put back…</strong> button that asks for the name\ntyped. Refused during a service. <code>arisectl scan run</code> by hand.</p>\n<h2 id=\"the-church-certificate\">The church certificate</h2>\n<p>Caddy sits in front of the dashboard on 443 with <code>tls internal</code>: it makes a\ncertificate authority on the box and signs the dashboard's certificate with\nit. That root is the church certificate. The dashboard serves it read-only at\n<code>http://arise-server:4147/ca.crt</code> (a root certificate is public by nature);\n<code>enroll-mac.sh</code> and <code>bind-mac.sh --dns</code> fetch it and put it in the Mac's\nSystem keychain as trusted, so every enrolled Mac shows the padlock on\n<code>https://arise-server.ad.arisecenla.com</code>. Phones over Tailscale use\nTailscale's own certificate. Staging: Caddy binds 127.0.0.1 like the domain.\n<code>--no-caddy</code> turns it off.</p>\n<p>By hand on a Mac:</p>\n<pre><code>curl -o root.crt http://arise-server:4147/ca.crt\nsudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain root.crt\n</code></pre>\n<h2 id=\"an-internal-mail-server-decided-not-built-yet\">An internal mail server: decided, not built yet</h2>\n<p>Bradly decided (Oct 28) on Postfix + Dovecot on the box for staff and the\ndepartment accounts, <code>first.last@arisecenla.com</code> (Oct 31, H10), with every message\nforwarded out through Resend's SMTP relay to the person's personal address\n(stored on their Directory account), Reply-To set to the original sender.\nNothing of it is built in v0.8. What it needs when it is:</p>\n<ul>\n<li><strong>A Resend SMTP relay credential</strong> in <code>/etc/arise/secrets/resend-smtp</code>\n  (root only, like the API key): <code>smtp.resend.com:465</code>, user <code>resend</code>, the\n  key as the password. Postfix's <code>relayhost</code> and <code>sasl_password_maps</code> point\n  at it; the From must be at the domain verified in Resend (the same rule the\n  Mail app already enforces: never a gmail.com address).</li>\n<li><strong>No inbound port.</strong> Nothing on this box is reachable from the internet\n  (rule 7). Mail <em>to</em> <code>first.last@arisecenla.com</code> from inside is internal only\n  (Macs and phones on the LAN or Tailscale); the outside world reaches people\n  at their personal address, which is where the forward lands.</li>\n<li><strong>Dovecot IMAP on the LAN and Tailscale only</strong> (ufw: 993 from the LAN\n  subnet, the VPN subnets and 100.64.0.0/10; nothing else), authenticating\n  against the domain through PAM/winbind so the password is the one they\n  already have.</li>\n<li><strong>A personal address per person</strong> in the Directory (an attribute on the\n  user, e.g. <code>otherMailbox</code>), which the forward map is generated from\n  (<code>arisectl mail forwards</code>), and a Directory field to edit it.</li>\n<li><strong>The forward itself</strong> as a Postfix <code>virtual_alias_maps</code> entry per person\n  plus a header rewrite that keeps the original sender in Reply-To, so a\n  reply from the personal mailbox goes to the right place.</li>\n<li><strong>Backups</strong>: <code>/var/mail</code> (or Dovecot's maildirs under <code>/srv/arise/mail</code>)\n  added to the config job; <strong>the scan</strong>: ClamAV already covers <code>/srv/arise</code>.</li>\n</ul>\n<h2 id=\"decided-nothing-built\">Decided, nothing built</h2>\n<ul>\n<li><strong>No lockout</strong> (round 3, 27): no fail2ban (the installer removes it if an\n  earlier run put it there), domain lockout threshold 0. Everything is behind\n  Tailscale or inside the building; a locked-out pastor on a Sunday is the\n  worse outcome.</li>\n<li><strong>Logs a year</strong> (26): journald <code>MaxRetentionSec=1year</code>, <code>SystemMaxUse=4G</code>;\n  <code>/var/log/arise/*.log</code> weekly, 52 kept.</li>\n<li><strong>Browsers never sign out</strong> (38): the cookie lasts a year. The monitor's\n  ten-minute lock is unchanged.</li>\n<li><strong>MIT</strong> (37): <code>LICENSE</code> at the root.</li>\n</ul>\n<h2 id=\"independent-review-corrections\">Independent-review corrections</h2>\n<p>TOTP challenges contain only a random reference; the waiting session remains in\nserver memory and is released once after a valid code. Challenges expire after\nfive minutes, three failures, or a server restart. Signed JSON is not encryption.</p>\n<p>With Caddy enabled the application binds loopback; remote browsers use HTTPS.\nThe port-80 endpoint serves only the public CA certificate. Enrollment verifies\nits installer-supplied SHA256 fingerprint before trusting it.</p>\n<p>Folder compression checks each descendant and refuses filesystem links during\nreading. Public archive links never include the Pastors folder, including when\na parent directory was selected. Emergency-access responses report actual\nnotification delivery failures; contact the pastors directly if email fails.</p>\n<p>The audit file is append-only by application convention, not immutable against\nroot. Write failures are exposed in upkeep; state and audit history are included\nin backups. Independently protected or offline copies remain necessary against\na compromised source server.</p>",
 "demo": true
 },
 "GET /help/SETUP-GUIDE": {
