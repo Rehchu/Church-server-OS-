@@ -366,3 +366,27 @@ class Batch5(unittest.TestCase):
     def test_host_network_app_has_an_address(self):
         src = (ROOT / "server" / "arise_server" / "apps.py").read_text()
         self.assertIn('_template_meta(meta.get("template", name)).get("ports")', src)
+
+
+class KioskAndSongs(unittest.TestCase):
+    """I-109: the closet screen never waits forever; I-093: set lists are read once."""
+    def test_kiosk_starts_without_the_dashboard(self):
+        unit = (ROOT / "config" / "systemd" / "arise-kiosk.service").read_text()
+        pre = [l for l in unit.splitlines() if l.startswith("ExecStartPre=") and "api/health" in l][0]
+        self.assertIn("-ge 22", pre); self.assertIn("exit 0", pre)
+        self.assertIn('kill "$fp"', (ROOT / "scripts" / "arise-browser").read_text())
+
+    def test_setlists_cached(self):
+        import tempfile, json as _j
+        from unittest import mock
+        from arise_server import songs
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "setlist_2026-11-01.json").write_text(_j.dumps({"date": "2026-11-01", "songs": ["Praise"]}))
+            fake = mock.Mock(demo=False); fake.automator.path = d
+            with mock.patch.object(songs, "load", return_value=fake), mock.patch.dict(os.environ, {"ARISE_ARCHIVE_ROOT": d}):
+                songs._setlist_cache.update(key=None, rows=[])
+                self.assertEqual(len(songs._setlists()), 1)
+                with mock.patch.object(songs.json, "loads", side_effect=AssertionError("read again")):
+                    self.assertEqual(len(songs._setlists()), 1)
+                (Path(d) / "setlist_2026-11-02.json").write_text(_j.dumps({"date": "2026-11-02", "songs": ["Make Room"]}))
+                self.assertEqual(len(songs._setlists()), 2)

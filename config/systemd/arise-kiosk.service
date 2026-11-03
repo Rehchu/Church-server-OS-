@@ -29,7 +29,10 @@ Environment=XDG_SESSION_TYPE=wayland
 Environment=GDK_BACKEND=wayland
 Environment=WEBKIT_DISABLE_DMABUF_RENDERER=1
 Environment=MOZ_ENABLE_WAYLAND=1
-ExecStartPre=/bin/sh -c 'until curl -fsS http://127.0.0.1:4147/api/health >/dev/null; do sleep 2; done'
+# Wait up to 45 s for the dashboard, then start anyway (scout I-109): an endless wait failed the
+# unit at its start timeout and looped, leaving a black screen. arise-browser reloads onto the
+# desktop the moment the dashboard answers.
+ExecStartPre=/bin/sh -c 'i=0; until curl -fsS -m 3 http://127.0.0.1:4147/api/health >/dev/null 2>&1 || [ $i -ge 22 ]; do sleep 2; i=$((i+1)); done; exit 0'
 # arise-browser runs Firefox with the kiosk profile (scripts/arise-browser), or Epiphany if Firefox is missing.
 ExecStart=/usr/bin/cage -s -- /usr/local/bin/arise-browser http://127.0.0.1:4147/?kiosk=1
 Restart=always

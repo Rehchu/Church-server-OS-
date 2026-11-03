@@ -43,7 +43,21 @@ while :; do
   # a crashed session must not leave a lock that stops the next start
   rm -f "$P/lock" "$P/.parentlock" 2>/dev/null
   started=$(date +%s)
-  /usr/bin/firefox --profile "$P" --new-instance "$U"
+  if curl -fsS -m 3 http://127.0.0.1:4147/api/health >/dev/null 2>&1; then
+    /usr/bin/firefox --profile "$P" --new-instance "$U"
+  else
+    # The dashboard isn't answering yet (scout I-109): Firefox shows its "can't connect" page
+    # meanwhile, and is restarted onto the desktop as soon as the dashboard answers.
+    echo "arise-browser: the dashboard is not answering yet; if this stays: sudo systemctl status arise-web" >&2
+    /usr/bin/firefox --profile "$P" --new-instance "$U" &
+    fp=$!
+    while kill -0 "$fp" 2>/dev/null; do
+      sleep 5
+      if curl -fsS -m 3 http://127.0.0.1:4147/api/health >/dev/null 2>&1; then sleep 2; kill "$fp" 2>/dev/null; break; fi
+    done
+    wait "$fp" 2>/dev/null
+    started=0
+  fi
   [ "$P" = "$NEUTRAL" ] && rm -rf "$NEUTRAL"
   # a Firefox that dies at once is not restarted in a tight loop
   [ $(( $(date +%s) - started )) -lt 5 ] && sleep 3

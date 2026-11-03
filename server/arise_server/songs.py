@@ -97,25 +97,42 @@ def bank() -> tuple[list[dict], str | None]:
 
 
 # ----- where a song was sung: set lists, and descriptions that credit its number --
+_setlist_cache: dict = {"key": None, "rows": []}
+
+
 def _setlists() -> list[dict]:
+    """Every set list the automator keeps. Read again only when a file is added, removed or
+    changed: the Songs tab asks for each song on every keystroke (scout I-093)."""
     if load().demo:
         return DEMO_SETLISTS
-    out, seen = [], set()
+    files_ = []
     for base in [Path(load().automator.path), Path(os.environ.get("ARISE_ARCHIVE_ROOT", "/srv/arise/archive")) / "arise-youtube-automation"]:
-        for p in sorted(list(base.glob("setlist_*.json")) + list(base.glob("cloud_workspace/setlist_*.json"))):
-            try:
-                d = json.loads(p.read_text(encoding="utf-8-sig"))
-            except (OSError, ValueError):
-                continue
-            if not isinstance(d, dict) or not isinstance(d.get("songs"), list):
-                continue
-            date = d.get("date_ct") or d.get("date") or (re.search(r"\d{4}-\d{2}-\d{2}", p.name) or [None])[0]
-            k = (date, d.get("service"))
-            if k in seen:
-                continue
-            seen.add(k)
-            out.append({"date": date, "service": d.get("service"), "video_id": d.get("video_id"), "path": p.name,
-                        "songs": [s if isinstance(s, dict) else {"title": str(s)} for s in d["songs"]]})
+        files_ += sorted(list(base.glob("setlist_*.json")) + list(base.glob("cloud_workspace/setlist_*.json")))
+    key = []
+    for p in files_:
+        try:
+            key.append((str(p), p.stat().st_mtime_ns))
+        except OSError:
+            continue
+    key = tuple(key)
+    if _setlist_cache["key"] == key:
+        return _setlist_cache["rows"]
+    out, seen = [], set()
+    for p in [Path(k[0]) for k in key]:
+        try:
+            d = json.loads(p.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(d, dict) or not isinstance(d.get("songs"), list):
+            continue
+        date = d.get("date_ct") or d.get("date") or (re.search(r"\d{4}-\d{2}-\d{2}", p.name) or [None])[0]
+        k = (date, d.get("service"))
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append({"date": date, "service": d.get("service"), "video_id": d.get("video_id"), "path": p.name,
+                    "songs": [s if isinstance(s, dict) else {"title": str(s)} for s in d["songs"]]})
+    _setlist_cache.update(key=key, rows=out)
     return out
 
 
