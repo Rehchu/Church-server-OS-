@@ -715,18 +715,10 @@ def notify(users: list[str], title: str, body: str) -> dict:
 
 def personal_email(user: str) -> str | None:
     """The profile's personal email (round 5, rows 6 and 9; the accounts worker adds the field)."""
-    from . import directory
-    for fn in ("personal_email", "profile_of", "profile"):
-        f = getattr(directory, fn, None)
-        if f:
-            try:
-                v = f(user)
-                v = v.get("personal_email") if isinstance(v, dict) else v
-                if v:
-                    return str(v)
-            except Exception:  # noqa: BLE001
-                pass
-    return None
+    # The one reader notify.py uses: the old lookups here asked directory for functions it never had,
+    # so every share notice was push-only (scout I-030).
+    from . import notify
+    return notify.personal_email(user)
 
 
 def share_with(root_id: str, rel: str, to: list[str], perm: str, who: dict) -> dict:

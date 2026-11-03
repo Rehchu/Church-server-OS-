@@ -461,6 +461,9 @@ def list_apps() -> dict:
         st = stats.get(name, {})
         ports = _ports(name)
         meta = _app_meta(name)
+        if not ports:
+            # network_mode: host publishes nothing (Netdata, NetAlertX): the template's ports say where it is (scout I-062)
+            ports = [str(p) for p in (_template_meta(meta.get("template", name)).get("ports") or [])]
         apps.append({"name": name, "template": meta.get("template", name), "source": meta.get("source", "template"), "status": "running" if "running" in s.get("Status", "") else "exited",
                      "ports": ports, "cpu": st.get("cpu", 0.0), "mem": st.get("mem", 0), "url": _app_url(meta, ports), "updated": meta.get("deployed"),
                      "autostart": meta.get("autostart", True), "ram_mb": meta.get("ram_mb"), "limit_mb": meta.get("cap_mb") or (meta.get("limits") or {}).get("mem_mb")})

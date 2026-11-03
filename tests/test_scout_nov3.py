@@ -344,3 +344,25 @@ class EditorAndMorningNote(unittest.TestCase):
              mock.patch.object(system, "write_json"), mock.patch.object(system, "read_json", return_value={}):
             r = system.daily_report([], {})
         self.assertEqual(posted, ["daily"]); self.assertTrue(r["sent"]); self.assertEqual(r["channel"], "discord #daily")
+
+
+class Batch5(unittest.TestCase):
+    """I-030 share notices email; I-120 old addresses deliver; I-062 host-network apps show an address."""
+    def test_share_notice_finds_the_email(self):
+        from unittest import mock
+        from arise_server import sharing, profiles
+        with mock.patch.object(profiles, "_read", return_value={"kim.lee": {"personal_email": "kim@example.com"}}):
+            self.assertEqual(sharing.personal_email("kim.lee"), "kim@example.com")
+
+    def test_old_address_after_a_rename(self):
+        from arise_server import mailfwd
+        als = mailfwd.aliases([{"name": "kim.lee", "enabled": True}, {"name": "kim.old", "enabled": True}], {"kim.lee": "kim@example.com"},
+                              {"kim.lee": ["kim.smith@arisecenla.com", "kim.old@arisecenla.com"]})
+        self.assertEqual(als["kim.smith"]["to"], "kim@example.com")
+        self.assertNotIn("for", als["kim.old"])                     # a live account keeps its own address
+        r = mailfwd.route(["kim.smith@arisecenla.com", "kim.lee@arisecenla.com"], als, "arisecenla.com")
+        self.assertEqual([x.get("to") for x in r], ["kim@example.com"])   # one copy
+
+    def test_host_network_app_has_an_address(self):
+        src = (ROOT / "server" / "arise_server" / "apps.py").read_text()
+        self.assertIn('_template_meta(meta.get("template", name)).get("ports")', src)

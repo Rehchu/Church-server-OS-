@@ -63,16 +63,35 @@ def addresses(field) -> list[str]:
     return out
 
 
-def aliases(users: list[dict], emails: dict[str, str]) -> dict[str, dict]:
+def aliases(users: list[dict], emails: dict[str, str], old_names: dict[str, list[str]] | None = None) -> dict[str, dict]:
     """Pure: alias -> {to, enabled}. Every account with a personal email has one; a switched-off
-    account keeps its alias row (for the export) but nothing is forwarded to it."""
+    account keeps its alias row (for the export) but nothing is forwarded to it. A renamed account's
+    old address (its profile's mail_aliases) goes to the same person (scout I-120), never over a
+    live account of that name."""
     out = {}
     for u in users:
         name = str(u.get("name") or "").lower()
         if not name:
             continue
         out[name] = {"to": (emails.get(name) or "").strip(), "enabled": bool(u.get("enabled", True))}
+    for name, olds in (old_names or {}).items():
+        row = out.get(name)
+        if not row:
+            continue
+        for a in olds:
+            local = str(a).split("@")[0].strip().lower()
+            if local and local not in out:
+                out[local] = {**row, "for": name}
     return out
+
+
+def old_names() -> dict[str, list[str]]:
+    """Each profile's mail_aliases (the old addresses a rename leaves, accounts._rename_records)."""
+    try:
+        from . import profiles
+        return {u: list(r.get("mail_aliases") or []) for u, r in (profiles._read() or {}).items() if isinstance(r, dict) and r.get("mail_aliases")}
+    except Exception:  # noqa: BLE001
+        return {}
 
 
 def route(msg_to: list[str], als: dict[str, dict], domain: str = DOMAIN, inboxes: tuple | list = ()) -> list[dict]:
@@ -85,7 +104,11 @@ def route(msg_to: list[str], als: dict[str, dict], domain: str = DOMAIN, inboxes
             continue
         seen.add(local)
         al = als.get(local)
-        if local in inboxes:
+        if al and al.get("for"):
+            if al["for"] in seen:
+                continue   # the old and the new address on one message: one copy (scout I-120)
+            seen.add(al["for"])
+        if local in inboxes or (al and al.get("for") in inboxes):
             out.append({"alias": local, "why": "reads it in their church inbox on the dashboard"})
         elif not al:
             out.append({"alias": local, "why": "no such person"})
@@ -204,7 +227,7 @@ def status() -> dict:
             {"alias": "office", "to": "", "enabled": True, "why": "no personal email on their profile"}],
             "last_run": None, "how": "off until the Wix record and Resend's receiving are set up (docs/WIX-DNS.md, part 2)"}
     users, emails = _users_and_emails()
-    als = aliases(users, emails)
+    als = aliases(users, emails, old_names())
     st = read_json(_state_path(), default={}) or {}
     return {"demo": False, "enabled": bool(c["enabled"]), "domain": c["domain"], "last_run": st.get("last_run"), "last_error": st.get("last_error"),
             "aliases": [{"alias": k, "to": mask(v["to"]), "enabled": v["enabled"], **({} if v["to"] else {"why": "no personal email on their profile"})} for k, v in sorted(als.items())]}
@@ -244,7 +267,7 @@ def run_once(call=None, post=None) -> dict:
     items = (r.get("data") or {}).get("data") or []
     new = [x for x in reversed(items) if x.get("id") and x["id"] not in seen_set]   # oldest first
     users, emails = _users_and_emails()
-    als = aliases(users, emails)
+    als = aliases(users, emails, old_names())
     from . import inbox as _inbox
     pending = dict(st.get("pending") or {})   # id -> {tries, done: [alias]}; a failed send waits for the next poll
     fwd, gave_up = 0, []
