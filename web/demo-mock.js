@@ -1107,6 +1107,20 @@ function r7Get(p) {
   if (p === '/checklist/mine') return phoneLists();
   if (p === '/checklist/people') return leaderPeople();
   if (p === '/service/now' || p === '/public/service') return serviceNow();
+  // Round 8 (Q28-Q30, Q126): the house board, no login, as server/arise_server/board.py: counts and yes/no, never a name.
+  if (p === '/public/board') return publicBoard();
+  function publicBoard() {
+    const v = serviceNow(), c = get('GET /church') || {}, seed = get('GET /public/board') || {}, last = ((get('GET /backups/history') || {}).rows || [])[0];
+    const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    let next = null;
+    if (v.in_service) next = { name: v.service.name, site: v.service.site || '', at: String(v.service.started || '').slice(0, 16), in_service: true };
+    else { const now = new Date(); for (const s of services()) { const [h, mi] = String(s.time).split(':').map(Number); const d = new Date(now); d.setHours(h, mi || 0, 0, 0); d.setDate(d.getDate() + ((DAYS.indexOf(s.day) - now.getDay() + 7) % 7)); if (d < now) d.setDate(d.getDate() + 7); if (!next || d < next.d) next = { d, name: s.name, site: s.site || '' }; }
+      if (next) next = { name: next.name, site: next.site, at: iso(next.d), in_service: false }; }
+    return { church: { name: c.name || 'Arise Church', city: c.city || '' }, next, backup: last ? { ok: !!last.ok, when: String(last.finished || last.started || '').slice(0, 16) } : { ok: null, when: null },
+      needs_you: ((get('GET /overview') || {}).attention || []).length, stream: { live: v.in_service ? (v.stream || {}).live ?? null : false },
+      verse: { text: (c.verse || seed.verse || {}).text || '', ref: (c.verse || seed.verse || {}).ref || '' },
+      checklists: v.in_service ? (v.checklists || []).map(x => ({ dept: x.dept, done: x.done, total: x.total })) : [], demo: true };
+  }
   if (p === '/notes-board') return isAdmin() ? boardView() : http(403, 'Administrator only');
   if (p === '/speedtest') return speedAll();
   if (p === '/reports/pastors') return Object.assign(clone(get('GET /reports/pastors') || {}), clone(X.pastor || {}));

@@ -1967,6 +1967,20 @@ def api_public_service():
     return out
 
 
+# ----- the house board (round 8, Q28-Q30, Q126): the closet monitor at rest and /board on any TV -----
+@app.get("/api/public/board")
+def api_public_board():
+    """No login: the house board's facts (server/arise_server/board.py). Counts and yes/no only:
+    never a person's name, a path, an address or a secret; the Needs-you list leaves as its length."""
+    from . import board
+    return board.view(_attention_now)
+
+
+@app.get("/board")
+def board_page():
+    return FileResponse(str(cfg.web_dir / "board.html"))
+
+
 @app.get("/signage")
 def signage_page():
     return FileResponse(str(cfg.web_dir / "signage.html"))

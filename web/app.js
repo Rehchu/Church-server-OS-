@@ -2533,7 +2533,12 @@ async function buildWidgets() {
 function lockScreen(idle) {
   saver(false);
   lockReset(); if (S.kiosk) api('/kiosk/claude-desktop', { method: 'POST', body: { action: 'close' } }).catch(() => {}); S.claudeDesktop = false; kioskNeutral(); const l = $('#lock'); l.hidden = false; l.classList.toggle('idle', !!idle); $('#lockName').textContent = S.user || 'bradly'; closeOverlays(); tickLock();
-  if (idle) { const wake = () => { l.classList.remove('idle'); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); } else $('#lockPw').focus();
+  // Idle on the kiosk (round 8, Q30): the house board over the wallpaper until a key or a touch; then the password.
+  // A minute after it wakes with nothing typed, the board comes back (the closet at rest).
+  if (idle) { const bd = $('#lockBoard'); hbStart(bd);
+    const rest = () => { clearTimeout(S.lockRestT); S.lockRestT = setTimeout(() => { if (l.hidden) return; if ($('#lockPw').value) return rest(); l.classList.add('idle'); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); hbStart(bd); arm(); }, 60000); };
+    const arm = () => { const wake = () => { l.classList.remove('idle'); hbStop(bd); $('#lockPw').focus(); document.removeEventListener('keydown', wake); l.removeEventListener('pointerdown', wake); rest(); }; document.addEventListener('keydown', wake); l.addEventListener('pointerdown', wake); };
+    arm(); } else { clearTimeout(S.lockRestT); $('#lockPw').focus(); }
   lockPinOffer();
 }
 // Round 7, 160: an admin with a PIN unlocks with it (the password always works too).
@@ -2552,7 +2557,10 @@ function lockMode(byPin) {
 // The next service names its campus when it is not the home one (Alexandria's 10:00 is not Pineville's 10:30).
 function nextLine(n, city) { if (!n) return ''; const home = (city || 'Pineville').split(',')[0]; return ` · next: ${n.name}${n.site && n.site !== home ? ' in ' + n.site : ''}, ${n.day} ${fmtSvc(n.time)}`; }
 function churchLine() { const c = S.church; return `${c?.name || 'Arise Church'} · ${(c?.city || 'Pineville').split(',')[0]}${nextLine(c?.next, c?.city)}`; }
-function tickLock() { const d = new Date(); $('#lockTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); const h = $('#lock .lock__hint'); if (h) h.textContent = churchLine() + ($('#lock').classList.contains('idle') ? ' · press a key' : ''); }
+function tickLock() { const d = new Date(); $('#lockTime').textContent = hbHM(d); $('#lockDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const h = $('#lock .lock__hint'); if (h) h.textContent = `${S.church?.name || 'Arise Church'} · ${(S.church?.city || 'Pineville').split(',')[0]}`;
+  // The next service in a small glass pill under the password, as macOS puts its status there (round 8).
+  const p = $('#lockNext'), n = S.church?.next; if (p) { p.hidden = !n; if (n) p.textContent = `${n.name}${n.site && n.site !== (S.church?.city || 'Pineville').split(',')[0] ? ' · ' + n.site : ''} · ${n.day} ${fmtSvc(n.time)} · ${n.at ? hbIn(n.at, true) : 'in ' + n.in_words}`; } }
 $('#lockForm').onsubmit = async e => { e.preventDefault(); const pw = $('#lockPw').value; $('#lockPw').value = '';
   if (S.demo && !(S.demoOnly && window.AriseMock)) { $('#lock').hidden = true; return; }
   const pwBox = $('#lockPw');
@@ -2583,20 +2591,28 @@ function showLogin(err) {
   stopDesktop();
   // The kiosk keeps watching for a service while signed out (scout I-026): the ON AIR board
   // belongs on the closet monitor whoever is or isn't signed in. One nameless poll a minute.
-  if (S.kiosk && !S.loginSvcT) S.loginSvcT = setInterval(async () => { try { S.svcNow = await api('/public/service'); } catch {} }, 60000);
+  if (S.kiosk && !S.loginSvcT) S.loginSvcT = setInterval(async () => { try { S.svcNow = await api('/public/service'); document.body.classList.toggle('onair', !!S.svcNow.in_service); } catch {} }, 60000);
   const remembered = '';   // round 5, 31: nobody is preselected; nothing shows who used it last
   try { localStorage.removeItem('arise.user'); } catch {}
   const codeStep = !!(err && err.code);
   if (err && (err.newpw || err.forgot || err.reset)) return loginStep(err);   // round 5: profiles block below
-  document.body.innerHTML = `<div class="login"><div class="login__box">
-    <div class="lock__avatar">${I.about.replace('<svg', '<svg width="44" height="44"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
+  // Round 8: the macOS lock family. The date and a big thin clock at the top, the glass fields below.
+  // The closet monitor signed out shows the house board (Q30; during a service Q28) until a key or a touch.
+  const board = S.kiosk && !codeStep && !err?.setup;
+  document.body.innerHTML = `<div class="login login--mac${board ? ' login--board' : ''}"><div class="hb__wall" aria-hidden="true"></div>
+    ${board ? '<div class="hb hb--login" id="loginBoard"></div>' : ''}
+    <div class="login__top"><div class="lock__date" data-hb-date></div><div class="lock__time" data-hb-time></div></div>
+    <div class="login__box">
+    <div class="lock__avatar">${I.about.replace('<svg', '<svg width="40" height="40"').replace('#D6222D', '#fff')}</div><h1>ariseOS</h1>
     ${err?.setup ? `<p>No admin password has been set yet. On the server run:</p><pre class="log pre">sudo arisectl admin set-password</pre><p style="margin-top:12px">then reload this page.</p>`
     : codeStep ? `<p>Two-step sign-in is on for <b>${esc(err.user || remembered)}</b>. Open <b>Microsoft Authenticator</b> and type the six digits it shows for ariseOS.</p>
-    <form id="lf" class="lock__form"><input id="lc" inputmode="numeric" pattern="[0-9 ]*" placeholder="6 digits" autocomplete="one-time-code" maxlength="7" style="width:160px;text-align:center;letter-spacing:.3em"><button type="submit" aria-label="Continue">→</button></form><button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`
+    <form id="lf" class="lock__form"><input id="lc" inputmode="numeric" pattern="[0-9 ]*" placeholder="6 digits" autocomplete="one-time-code" maxlength="7" aria-label="Six digits"><button type="submit" aria-label="Continue">→</button></form><button class="btn btn--ghost btn--xs" id="lback" style="margin-top:10px">Start over</button>`
     : `<p>${esc(err?.message && err.message !== 'Sign in' ? err.message : 'Arise Church · Pineville, LA')}</p>
-    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" style="width:110px"><input id="lp" type="password" placeholder="Password" autocomplete="current-password"><button type="submit" aria-label="Sign in">→</button></form><div><button class="btn btn--ghost btn--xs" id="lpin" type="button" style="margin-top:12px">Use my PIN</button> <button class="btn btn--ghost btn--xs" id="lforgot" style="margin-top:12px">Forgot your password?</button></div>`}
+    <form id="lf" class="lock__form"><input id="lu" value="${esc(remembered)}" placeholder="Name" autocomplete="username" autocapitalize="none" spellcheck="false" aria-label="Name"><input id="lp" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="submit" aria-label="Sign in">→</button></form><div><button class="btn btn--ghost btn--xs" id="lpin" type="button" style="margin-top:12px">Use my PIN</button> <button class="btn btn--ghost btn--xs" id="lforgot" style="margin-top:12px">Forgot your password?</button></div>`}
     ${S.demoOnly && window.AriseMock ? `<p class="login__preview">Preview: sign in as ${window.AriseMock.sampleNames().slice(0, 4).map(u => `<b>${esc(u.name)}</b> (${u.role})`).join(', ')} with any password, or as someone you added, with theirs.</p>` : ''}
-    <div class="lock__hint" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" style="margin-top:8px" id="loginRealm">arise-server</div></div></div>`;
+    </div><div class="login__foot"><div class="lock__pill" id="loginNext">Arise Church · Pineville</div><div class="lock__hint" id="loginRealm">arise-server</div></div></div>`;
+  hbStart($('.login'));
+  if (board) loginBoard(!!(err?.message && err.message !== 'Sign in'));
   api('/public/sign-in').then(si => { const el = $('#loginRealm'); if (el && si.realm) el.textContent = `${si.host || 'arise-server'} · ${si.realm}`; }).catch(() => {});
   const lfg = $('#lforgot'); if (lfg) lfg.onclick = () => showLogin({ forgot: true, user: ($('#lu')?.value || remembered).trim() });
   api('/public/signage').then(sg => { const n = sg.next; const el = $('#loginNext'); if (el) el.textContent = `${sg.name || 'Arise Church'} · ${(sg.city || 'Pineville').split(',')[0]}${nextLine(n, sg.city)}`; }).catch(() => {});
@@ -2610,7 +2626,7 @@ function showLogin(err) {
       finally { b.classList.remove('busy'); } };
     return;
   }
-  $('#lu').focus(); loginFaces();
+  if (!board) $('#lu').focus(); loginFaces();
   // Round 7, 160: an admin's PIN instead of the password, anywhere. The password always works.
   let byPin = false; const lpin = $('#lpin');
   if (lpin) lpin.onclick = () => { byPin = !byPin; const p = $('#lp'); p.value = ''; p.placeholder = byPin ? 'PIN' : 'Password'; p.inputMode = byPin ? 'numeric' : ''; p.maxLength = byPin ? 8 : 524288; p.autocomplete = byPin ? 'off' : 'current-password'; lpin.textContent = byPin ? 'Use my password' : 'Use my PIN'; ($('#lu').value ? p : $('#lu')).focus(); };
@@ -2625,6 +2641,21 @@ function showLogin(err) {
       afterSignIn(); }
     catch (er) { fail(er.message); }
     finally { b.classList.remove('busy'); } };
+}
+// The closet monitor signed out (round 8, Q30): the board until someone comes up to it; a key or a touch
+// brings the sign-in forward, and a minute untouched with nothing typed puts the board back.
+function loginBoard(awake) {
+  const root = $('.login--board'); if (!root) return; hbStart($('#loginBoard'));
+  const wake = e => {
+    const r = $('.login--board'); if (!r) { document.removeEventListener('keydown', S.loginWake); document.removeEventListener('pointerdown', S.loginWake); S.loginWake = null; return; }
+    const was = r.classList.contains('awake'); r.classList.add('awake'); hbStop($('#loginBoard'));
+    if (!was && e !== true) { const u = $('#lu'); if (u && !(e && e.target && e.target.closest && e.target.closest('.login__box'))) (u.value ? $('#lp') : u)?.focus(); }
+    clearTimeout(S.loginIdleT); S.loginIdleT = setTimeout(() => { const r2 = $('.login--board'); if (!r2) return; if (($('#lu')?.value || '') || ($('#lp')?.value || '')) return wake(true);
+      r2.classList.remove('awake'); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); hbStart($('#loginBoard')); }, 60000);
+  };
+  if (S.loginWake) { document.removeEventListener('keydown', S.loginWake); document.removeEventListener('pointerdown', S.loginWake); }
+  S.loginWake = wake; document.addEventListener('keydown', wake); document.addEventListener('pointerdown', wake);
+  if (awake) wake();
 }
 function clock() { const d = new Date(); $('#barClock').textContent = d.toLocaleString('en-US', matchMedia('(max-width: 520px)').matches ? { hour: 'numeric', minute: '2-digit' } : { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); if (!$('#lock').hidden) tickLock(); }
 
@@ -2661,16 +2692,17 @@ $('#ccBtn').onclick = e => { e.stopPropagation(); toggleCC(); };
 $('#barClock').onclick = () => toggleNC();
 $('#barAtt').onclick = () => openApp('overview');
 $('#barLogo').onclick = e => { e.stopPropagation(); const b = $('#barLogo'); if (menuOpen === b) { closeMenu(); return; } openMenu(b, FLAME_MENU()); };
+// Five idle minutes on the monitor (round 8, Q30): the house board over the wallpaper, in glass
+// cards (hbStart, beside saverExtras). Nothing on it is clickable; any key or touch takes it away.
 function saver(on) {
   const sv = $('#saver'); if (!sv) return;
-  if (!on) { sv.hidden = true; clearInterval(S.saverT); return; }
+  if (!on) { sv.hidden = true; clearInterval(S.saverT); clearInterval(S.saverA); clearInterval(S.saverN); hbStop($('#saverBoard')); return; }
   if (!sv.hidden) return;
   sv.hidden = false;
-  const paint = () => { const d = new Date(); $('#saverTime').textContent = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); const c = S.church; const n = c?.next;
-    $('#saverNext').textContent = n ? `${n.name} · ${n.site} · ${n.day} ${fmtSvc(n.time)} · in ${n.in_words}` : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    $('#saverVerse').innerHTML = c?.verse?.text ? `${esc(c.verse.text)}<cite>${esc(c.verse.ref)}</cite>` : ''; $('#saverName').textContent = (c?.name || 'Arise Church') + ' · ' + (c?.city || ''); };
-  paint(); S.saverT = setInterval(paint, 30000); saverExtras();
-  // a slow slideshow of the channel's thumbnails behind the clock
+  const paint = () => { const c = S.church; $('#saverName').textContent = (c?.name || 'Arise Church') + (c?.city ? ' · ' + c.city : ''); };
+  paint(); clearInterval(S.saverT); S.saverT = setInterval(paint, 30000); hbStart($('#saverBoard')); saverExtras();
+  // a slow slideshow of the channel's thumbnails, faint behind the glass
+  clearInterval(S.saverA);
   api('/sermons?limit=12').then(r => { const th = (r.videos || []).map(v => v.thumbnail).filter(Boolean); if (!th.length) return; let i = 0; const art = $('#saverArt'); const step = () => { if (sv.hidden) return; art.style.backgroundImage = `url(${th[i % th.length]})`; i++; }; step(); S.saverA = setInterval(step, 20000); }).catch(() => {});
 }
 function kioskSetup() {
@@ -2680,7 +2712,7 @@ function kioskSetup() {
   document.body.classList.add('kiosk'); S.kiosk = true;
   // Firefox's ariseOS new tab (web/newtab.html) asks the desktop tab to open an app: {open: id}; null = just come back.
   try { const bc = new BroadcastChannel('arise-kiosk'); bc.onmessage = ev => { const id = ev.data && ev.data.open; if (id && appOf(id)) openApp(id); }; S.kioskBC = bc; } catch {}
-  let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); if (!$('#saver').hidden) saver(false); };
+  let idle = 0; const reset = () => { idle = 0; document.body.classList.remove('idle'); const sv = $('#saver'); if (sv && !sv.hidden) saver(false); };   // signed out there is no #saver (the sign-in page replaced the desktop)
   ['pointermove', 'keydown', 'pointerdown', 'wheel'].forEach(ev => document.addEventListener(ev, reset, { passive: true }));
   // 5 minutes idle: the screensaver (clock, next service, the verse, the channel's art); 10: the lock on top of it.
   // Idle counts only while this tab is the one in front: another tab (StreamYard, YouTube
@@ -3549,7 +3581,7 @@ function noteModal(n, done) {
 /* the screensaver: announcements from the Calendar (110), both campuses' weather (111) */
 async function saverExtras() {
   const sv = $('#saver'); if (!sv) return;
-  let box = $('#saverAnn'); if (!box) { box = document.createElement('div'); box.id = 'saverAnn'; box.className = 'saver__ann'; ($('#saverVerse') || sv).after(box); }
+  let box = $('#saverAnn'); if (!box) { box = document.createElement('div'); box.id = 'saverAnn'; box.className = 'saver__ann'; ($('#saverBoard') || sv).after(box); }
   const lines = [];
   try {
     const n = new Date(); const cal = await api(`/calendar?year=${n.getFullYear()}&month=${n.getMonth() + 1}`);
@@ -3561,6 +3593,86 @@ async function saverExtras() {
   let i = 0; const step = () => { if (sv.hidden) return clearInterval(S.saverN); box.textContent = lines[i % lines.length]; i++; };
   clearInterval(S.saverN); step(); S.saverN = setInterval(step, 12000);
 }
+
+/* ---- the house board (round 8, Q28, Q29, Q30, Q126) ----------------------------------------
+   The closet monitor at rest: the screensaver, the idle lock and the signed-out sign-in page all
+   show it; web/board.html is the same board for any TV. Signed out it reads GET /public/board
+   (counts and yes/no, never a name); signed in, what the desktop already has wins. During a
+   service: LIVE / NOT LIVE huge, each department's checklist done of total, the clock (Q28, Q29).
+   Styles: web/board.css. One 1 s tick for the clock and the countdown, one refresh a minute. */
+const HB = { roots: new Set(), t: null, r: null, last: null };
+(function boardCss() {
+  if (document.getElementById('boardCss')) return; const st = document.querySelector('link[href*="styles.css"]');
+  const l = document.createElement('link'); l.id = 'boardCss'; l.rel = 'stylesheet'; l.href = st ? st.getAttribute('href').replace(/styles\.css.*$/, 'board.css') : '/assets/board.css'; document.head.appendChild(l);
+})();
+const hb2 = n => String(n).padStart(2, '0');
+const hbHM = d => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M$/i, '');
+function hbIn(at, coarse) {
+  const s = Math.floor((new Date(at) - Date.now()) / 1000); if (!(s > 0)) return 'starting now';
+  if (s < 86400 && !coarse) return `in ${Math.floor(s / 3600)}:${hb2(Math.floor(s % 3600 / 60))}:${hb2(s % 60)}`;
+  if (s < 3600) return `in ${Math.ceil(s / 60)} min`;
+  if (s < 86400) return `in ${Math.floor(s / 3600)} h ${Math.floor(s % 3600 / 60)} min`;
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600); return `in ${d} day${d > 1 ? 's' : ''}${h ? ` ${h} h` : ''}`;
+}
+const hbUp = at => { const s = Math.max(0, Math.floor((Date.now() - new Date(at)) / 1000)); return `${Math.floor(s / 3600)}:${hb2(Math.floor(s % 3600 / 60))}:${hb2(s % 60)}`; };
+function hbWhen(at) {
+  const d = new Date(at); if (isNaN(d)) return ''; const t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(); const ago = Math.round((day(new Date()) - day(d)) / 86400000);
+  return ago === 0 ? `today ${t}` : ago === 1 ? (d.getHours() >= 18 ? `last night ${t}` : `yesterday ${t}`) : `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${t}`;
+}
+async function hbData() {
+  let d = null; try { d = await api('/public/board'); } catch {}
+  d = Object.assign({}, HB.last || {}, d && !d.error ? d : {});
+  if (S.authed) {   // signed in: the desktop's own numbers, the same the menu bar shows
+    const o = S.overview, c = S.church, v = S.svcNow;
+    if (o) { d.needs_you = (o.attention || []).length; const l = o.backup?.last; if (l) d.backup = { ok: l.ok, when: String(l.finished || l.started || '').slice(0, 16) }; }
+    if (c?.verse?.text) d.verse = { text: c.verse.text, ref: c.verse.ref };
+    if (v?.in_service && v.service) { d.next = { name: v.service.name, site: v.service.site || '', at: v.service.started, in_service: true }; d.stream = { live: v.stream ? v.stream.live ?? null : null }; d.checklists = (v.checklists || []).map(x => ({ dept: x.dept, done: x.done, total: x.total })); }
+  }
+  HB.last = d; return d;
+}
+function hbHTML(d) {
+  d = d || {}; const n = d.next, live = d.stream ? d.stream.live : null, home = (d.church?.city || 'Pineville').split(',')[0];
+  const liveCls = live === true ? 'on' : live === false ? 'off' : 'unk', liveTxt = live === true ? 'LIVE' : live === false ? 'NOT LIVE' : 'CAN’T TELL';
+  if (n && n.in_service) {
+    const cl = d.checklists || [];
+    return `<div class="hb__air"><span class="hb__onair"><i></i>ON AIR</span><span class="hb__svcname">${esc(n.name)}${n.site && n.site !== home ? ' · ' + esc(n.site) : ''}</span><span class="hb__up" data-hb-up="${esc(n.at)}"></span><span class="hb__sp"></span><span class="hb__now" data-hb-time></span></div>
+      <div class="hb__svc"><div class="hb__card hb__stream hb__stream--${liveCls}"><span class="hb__k">The stream</span><b class="hb__live">${liveTxt}</b><span class="hb__s">${live === null ? 'the channel’s live page did not answer' : 'YouTube, checked every minute'}</span></div>
+      <div class="hb__depts">${cl.length ? cl.map(c => { const pct = c.total ? Math.round(100 * c.done / c.total) : 0, full = c.total > 0 && c.done === c.total;
+        return `<div class="hb__card hb__dept${full ? ' is-done' : ''}"><span class="hb__k">${esc(deptName(c.dept))}</span>${c.total > 0 ? `<b class="hb__v"><span class="hb__num">${+c.done || 0}</span><small> of ${+c.total}</small></b><span class="hb__bar"><i style="width:${pct}%"></i></span>` : '<b class="hb__v hb__v--sm">No list for this service</b>'}</div>`; }).join('')
+        : '<div class="hb__card hb__dept"><span class="hb__k">Checklists</span><b class="hb__v hb__v--sm">None for this service</b></div>'}</div></div>`;
+  }
+  const b = d.backup || {}, ny = d.needs_you, v = d.verse || {};
+  const at = n ? new Date(n.at) : null, when = at && !isNaN(at) ? `${at.toLocaleDateString('en-US', { weekday: 'short' })} ${at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : '';
+  return `<div class="hb__clock"><div class="hb__date" data-hb-date></div><div class="hb__time" data-hb-time></div></div>
+    <div class="hb__cards">
+      <div class="hb__card hb__card--next"><span class="hb__k">Next service</span><b class="hb__v">${n ? esc(n.name) : 'None set'}</b><span class="hb__s">${esc(when)}${n && n.site && n.site !== home ? ' · ' + esc(n.site) : ''}</span>${n ? `<span class="hb__count" data-hb-in="${esc(n.at)}"></span>` : ''}</div>
+      <div class="hb__card hb__card--${b.ok === true ? 'ok' : b.ok === false ? 'bad' : 'unk'}"><span class="hb__k">Backups</span><b class="hb__v"><i class="hb__dot"></i>${b.ok === true ? 'All good' : b.ok === false ? 'Failed' : 'None yet'}</b><span class="hb__s">${b.when ? 'last ran ' + esc(hbWhen(b.when)) : 'no run recorded'}</span></div>
+      <div class="hb__card hb__card--${ny ? 'warn' : ny === 0 ? 'ok' : 'unk'}"><span class="hb__k">Needs you</span><b class="hb__v"><span class="hb__num">${ny == null ? '–' : +ny}</span></b><span class="hb__s">${ny == null ? 'could not tell' : ny === 0 ? 'all is well' : ny === 1 ? 'thing to look at' : 'things to look at'}</span></div>
+      <div class="hb__card hb__card--stream hb__stream--${liveCls}"><span class="hb__k">Stream</span><b class="hb__v"><i class="hb__dot"></i>${live === true ? 'Live' : live === false ? 'Not live' : 'Can’t tell'}</b><span class="hb__s">YouTube</span></div>
+    </div>
+    ${v.text ? `<blockquote class="hb__card hb__verse"><p>${esc(v.text)}</p><cite>${esc(v.ref)}</cite></blockquote>` : ''}`;
+}
+function hbTick() {
+  for (const r of [...HB.roots]) if (!r.isConnected || r.closest('[hidden]')) HB.roots.delete(r);
+  if (!HB.roots.size) { clearInterval(HB.t); clearInterval(HB.r); HB.t = HB.r = null; return; }
+  const now = new Date(), hm = hbHM(now), dt = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const put = (e, t) => { if (e.textContent !== t) e.textContent = t; };
+  for (const r of HB.roots) {
+    r.querySelectorAll('[data-hb-time]').forEach(e => put(e, hm)); r.querySelectorAll('[data-hb-date]').forEach(e => put(e, dt));
+    r.querySelectorAll('[data-hb-in]').forEach(e => put(e, hbIn(e.dataset.hbIn))); r.querySelectorAll('[data-hb-up]').forEach(e => put(e, hbUp(e.dataset.hbUp)));
+  }
+}
+function hbPaint() { for (const b of HB.roots) if (b.matches('.hb')) { b.innerHTML = hbHTML(HB.last); b.classList.toggle('hb--air', !!HB.last?.next?.in_service); } hbTick(); }
+async function hbRefresh() { if (![...HB.roots].some(r => r.matches('.hb'))) return hbTick(); await hbData(); hbPaint(); }
+function hbStart(el) {
+  if (!el) return; HB.roots.add(el); if (el.matches('.hb')) el.setAttribute('aria-hidden', 'true');   // the board is a picture: the clock and the counts, nothing to press
+  if (HB.last) hbPaint(); else hbTick();
+  hbRefresh();
+  if (!HB.t) HB.t = setInterval(hbTick, 1000);
+  if (!HB.r) HB.r = setInterval(hbRefresh, 60000);
+}
+function hbStop(el) { if (el) HB.roots.delete(el); if (!HB.roots.size) { clearInterval(HB.t); clearInterval(HB.r); HB.t = HB.r = null; } }
 
 /* after a restart, the owner's desktop on the monitor (107) */
 async function kioskAutologin() {
@@ -3580,7 +3692,7 @@ async function serviceWatch() {
   const look = async () => {
     // Signed out on the kiosk, the nameless public copy keeps the service board right (scout I-026).
     let v; try { v = await api(S.authed ? '/service/now' : '/public/service'); } catch { return; }
-    S.svcNow = v;
+    S.svcNow = v; document.body.classList.toggle('onair', !!v.in_service);   // round 8: the wallpaper warms during a service
     const key = v.in_service ? `${v.service.name}|${v.service.started}` : '';
     if (v.in_service && S.kiosk && S.svcOpened !== key) { S.svcOpened = key; openApp('servicemode'); const w = S.wins.servicemode; if (w && typeof snapTo === 'function') try { snapTo('servicemode', 'max'); } catch {} }
     if (S.wins.servicemode) rerender('servicemode');

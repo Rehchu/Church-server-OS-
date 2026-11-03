@@ -51,6 +51,10 @@ for p in GETS:
 c.post("/api/service/demo", json={"on": True})
 data["GET /service/now#on"] = c.get("/api/service/now").json()
 c.post("/api/service/demo", json={"on": False})
+# The house board (round 8, Q30, Q126): the public feed at rest (the mock recomputes it live).
+from arise_server import board as _board  # noqa: E402
+_board.reset()
+data["GET /public/board"] = c.get("/api/public/board").json()
 for u in ["arise-web.service", "arise-automator.service", "arise-backup.service", "arise-mirror.service", "samba-ad-dc.service", "docker.service", "arise-nas-mount.service"]:
     data[f"GET /logs/{u}"] = c.get(f"/api/logs/{u}").json()
 # The Automator's channel: every sample video, its card and its transcript. The
