@@ -286,10 +286,17 @@ class RealMode(unittest.TestCase):
             got = tasks_of(macs.checkin(m, {}, now=datetime(2026, 11, 3, 2, 30)))
             self.assertIn("updates", [k for k, _ in got])
             self.assertEqual([k for k, _ in got].count("ariseadmin"), 1)                       # the enrolment's, not a second
-            later = tasks_of(macs.checkin(m, {}, now=datetime(2026, 11, 3, 12, 0)))
+            first = [ln.split(" ")[1] for ln in macs.checkin(m, {}, now=datetime(2026, 11, 3, 2, 31)) if " ariseadmin" in ln]
+            self.assertEqual(first, [])                                                          # sent a minute ago: not sent again
+            later = tasks_of(macs.checkin(m, {}, now=datetime(2026, 11, 3, 3, 0)))
             self.assertNotIn("ariseadmin", [k for k, _ in later])                               # still open: not queued again
             again = tasks_of(macs.checkin(m, {}, now=datetime(2026, 11, 3, 3, 30)))
             self.assertNotIn("updates", [k for k, _ in again])                                  # once a night
+            # unanswered for over an hour (on the check-in's clock, not the wall clock): the SAME task is sent again
+            resent = [ln.split(" ")[1] for ln in macs.checkin(m, {}, now=datetime(2026, 11, 3, 12, 0)) if ln.startswith("TASK ") and ln.split(" ")[2] == "ariseadmin"]
+            ids = {t["id"] for t in macs._read()["tasks"][r["mac_id"]] if t["kind"] == "ariseadmin"}
+            self.assertEqual(len(ids), 1)                                                       # one ariseadmin task, never a second
+            self.assertEqual(set(resent), ids)
 
     def test_check_uses_the_servers_bases_and_needs_a_removal(self):
         with real_mode(self.tmp):
@@ -450,8 +457,12 @@ class RealMode(unittest.TestCase):
                 self.assertEqual(next(a for k, a in got if k == "notice")["user"], "")             # whoever is signed in
                 alert.assert_called_once()
                 self.assertIn("91% full", alert.call_args[0][0])
-                self.assertFalse(tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 4, 12, 0))))
-                self.assertTrue(tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 11, 12, 0))))
+                queued = {t["id"] for t in macs._read()["tasks"][r["mac_id"]]}
+                tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 4, 12, 0)))
+                self.assertEqual(sum(1 for t in macs._read()["tasks"][r["mac_id"]] if t["kind"] == "notice"), 1)   # a day later: no second notice
+                self.assertEqual({t["id"] for t in macs._read()["tasks"][r["mac_id"]]}, queued)     # nothing new queued (unanswered tasks are only re-sent)
+                alert.assert_called_once()
+                self.assertIn("notice", [k for k, _ in tasks_of(macs.checkin(m, {"disk_used": "92"}, now=datetime(2026, 11, 11, 12, 0)))])   # a week on: again
             self.assertEqual(macs._read()["macs"][r["mac_id"]]["disk_used"], 92)
             # a notice reaches every Mac where the person has an account: mobile, or a linked local one
             self.assertEqual(macs.queue_notice("jane.doe", "Hello", "Body"), ["OFFICE-MAC-02"])

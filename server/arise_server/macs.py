@@ -734,7 +734,7 @@ def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
                     continue
                 if hold:
                     continue
-                if t["state"] == "queued" or (t["state"] == "sent" and _age(t.get("sent")) > 3600):
+                if t["state"] == "queued" or (t["state"] == "sent" and _age(t.get("sent"), now) > 3600):
                     t["state"] = "sent"
                     t["sent"] = now.isoformat(timespec="seconds")
                     lines.append(task_line(t))
@@ -748,11 +748,12 @@ def checkin(m: dict, facts: dict, now: datetime | None = None) -> list[str]:
     return lines
 
 
-def _age(iso: str | None) -> float:
+def _age(iso: str | None, now: datetime | None = None) -> float:
+    """Seconds since iso, on the caller's clock (a check-in's `now`) when it has one."""
     if not iso:
         return 1e9
     try:
-        return (datetime.now() - datetime.fromisoformat(iso)).total_seconds()
+        return ((now or datetime.now()) - datetime.fromisoformat(iso)).total_seconds()
     except ValueError:
         return 1e9
 

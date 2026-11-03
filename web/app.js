@@ -3890,7 +3890,7 @@ async function saverExtras() {
    Styles: web/board.css. One 1 s tick for the clock and the countdown, one refresh a minute. */
 const HB = { roots: new Set(), t: null, r: null, last: null };
 (function boardCss() {
-  if (document.getElementById('boardCss')) return; const st = document.querySelector('link[href*="styles.css"]');
+  if (document.getElementById('boardCss') || document.querySelector('link[href*="board.css"]')) return; const st = document.querySelector('link[href*="styles.css"]');
   const l = document.createElement('link'); l.id = 'boardCss'; l.rel = 'stylesheet'; l.href = st ? st.getAttribute('href').replace(/styles\.css.*$/, 'board.css') : '/assets/board.css'; document.head.appendChild(l);
 })();
 const hb2 = n => String(n).padStart(2, '0');

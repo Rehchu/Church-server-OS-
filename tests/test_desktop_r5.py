@@ -264,7 +264,7 @@ class Pins(unittest.TestCase):
         js = (ROOT / "web" / "app.js").read_text()
         saver = js[js.index("function saver(on)"):js.index("function kioskSetup()")]
         for word in ("attention", "backup", "stream", "Needs"):
-            self.assertNotIn(word, saver)                                 # the glance view: clock, next service, verse
+            self.assertNotIn(word, saver)                                 # saver() itself stays clock-only; since round 8 (Q30) the house board (hbHTML, tests/test_board.py) carries backups, needs-you and stream
         self.assertIn("const remembered = '';", js)                       # row 31: nobody preselected
 
     def test_samba_makes_the_desktop_and_the_note(self):

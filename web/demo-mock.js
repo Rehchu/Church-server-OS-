@@ -447,14 +447,23 @@ route('DELETE', /^\/shares\/([^/]+)$/, (b, m) => {
 });
 
 // ----- Backups, the automator, the Synology, services -----
+// 'Run all jobs now' (the server's backups.run_all): every job once, one after another, as at 03:00.
+route('POST', /^\/backups\/run$/, () => {
+  const jobs = (get('GET /backups/jobs').jobs || []).filter(j => j.enabled !== false);
+  jobs.forEach(j => runJobNow(j));
+  return ok({ demo: true, started: true, jobs: jobs.map(j => j.id), out: `(sample) the nightly backup ran now, one job after another: ${jobs.length} row${jobs.length === 1 ? '' : 's'} in Backups` });
+});
 route('POST', /^\/backups\/run\/([^/]+)$/, (b, m) => {
   const job = (get('GET /backups/jobs').jobs || []).find(j => j.id === m[1]); if (!job) return fail('no such job');
+  runJobNow(job); return ok({ started: true, job: job.id });
+});
+function runJobNow(job) {
   const t = new Date(); const sid = hex(8); const added = Math.round(2e6 + Math.random() * 6e8);
   get('GET /backups/history').rows.unshift({ job: job.id, name: job.name, started: isoSec(t), finished: isoSec(new Date(t.getTime() + 90000)), ok: true, snapshot_id: sid, bytes_added: added, files_new: Math.round(Math.random() * 300), error: null });
   const sn = get('GET /backups/snapshots'); (sn.snapshots = sn.snapshots || []).unshift({ id: sid, time: isoSec(t), tags: job.tags || [job.id], paths: job.paths || [] });
   const repo = get('GET /backups/repo'); repo.snapshots = (repo.snapshots || 0) + 1; repo.total_size = (repo.total_size || 0) + added;
-  touch('GET /backups/history', 'GET /backups/snapshots', 'GET /backups/repo'); return ok({ started: true, job: job.id });
-});
+  touch('GET /backups/history', 'GET /backups/snapshots', 'GET /backups/repo');
+}
 route('POST', /^\/backups\/check$/, () => { get('GET /backups/repo').last_check = isoSec(); touch('GET /backups/repo'); return ok({ out: 'restic check: no errors were found' }); });
 route('POST', /^\/backups\/mirror$/, () => ok({ demo: true, repos: [], out: 'Preview: the GitHub mirror refreshes on the server at 04:00' }));
 // The weekly YouTube sign-in (ytauth.py): a sample link, any localhost:8765 address with the right state.

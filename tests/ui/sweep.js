@@ -58,7 +58,7 @@ async function unlock(p) { await p.fill('#lockPw', 'whatever'); await p.keyboard
   const asked = await p.evaluate(() => !document.getElementById('lock').hidden && /digits/i.test(document.getElementById('lockPw').placeholder));
   if (asked) { await p.fill('#lockPw', '000000'); await p.keyboard.press('Enter'); await settle(p, 600); }
   return asked; }
-async function step(area, control, fn) { const pg = step.page; if (pg) await pg.evaluate(() => { const m = document.getElementById('modal'); if (m && m.open) m.close(); const c = document.getElementById('ctx'); if (c) c.hidden = true; }).catch(() => {}); try { const had = pg ? await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true) : true; const r = await fn(); if (pg && had && !/Sign out|Sign-in|Member/.test(area + control) && !(await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true))) return rec(area, control, false, 'the desktop went away (the sign-in screen came up) during this step'); if (r === 'skip') return rec(area, control, 'skip'); rec(area, control, r === undefined ? true : r === true ? true : false, r === false ? 'the expected change did not show' : (typeof r === 'string' ? r : '')); } catch (e) { step.n = (step.n || 0) + 1; if (pg) await pg.screenshot({ path: path.join(OUT, `fail-${step.n}.png`) }).catch(() => {}); const why = e.message.split('\n').filter(l => /intercepts pointer|not visible|not enabled|not stable|outside of the viewport/.test(l)).slice(-1)[0] || ''; rec(area, control, false, e.message.split('\n')[0] + (why ? ' · ' + why.trim() : '')); } }
+async function step(area, control, fn) { const pg = step.page; if (pg) await pg.evaluate(() => { const m = document.getElementById('modal'); if (m && m.open) m.close(); const c = document.getElementById('ctx'); if (c) c.hidden = true; document.querySelectorAll('#toasts .toast').forEach(t => t.remove()); /* errors stay until closed (Leviticus): close what an earlier step left, as a person would */ }).catch(() => {}); try { const had = pg ? await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true) : true; const r = await fn(); if (pg && had && !/Sign out|Sign-in|Member/.test(area + control) && !(await pg.evaluate(() => !!document.getElementById('barClock')).catch(() => true))) return rec(area, control, false, 'the desktop went away (the sign-in screen came up) during this step'); if (r === 'skip') return rec(area, control, 'skip'); rec(area, control, r === undefined ? true : r === true ? true : false, r === false ? 'the expected change did not show' : (typeof r === 'string' ? r : '')); } catch (e) { step.n = (step.n || 0) + 1; if (pg) await pg.screenshot({ path: path.join(OUT, `fail-${step.n}.png`) }).catch(() => {}); const why = e.message.split('\n').filter(l => /intercepts pointer|not visible|not enabled|not stable|outside of the viewport/.test(l)).slice(-1)[0] || ''; rec(area, control, false, e.message.split('\n')[0] + (why ? ' · ' + why.trim() : '')); } }
 const bad = (ts, re) => ts.some(t => /\bbad\b/.test(t.cls) && (!re || re.test(t.text)));
 
 /* ---------------- the flows ---------------- */
@@ -375,7 +375,7 @@ async function flows(browser, url) {
 /* ---------------- click everything once ---------------- */
 // Every visible control in every window, once: on the window as it opens and then
 // on each of its tabs. A control "answered" if anything happened: a modal, a menu,
-// a toast, a window, Quick Look, a new tab, or any window's content changed.
+// a toast, a window, Quick Look, the Overview's Why? drawer, a new tab, or any window's content changed.
 // Clicking the tab that is already open, Refresh, Read and Today on what is already
 // shown are allowed to change nothing.
 const SKIP_IN_GENERIC = new Set(['terminal']);
@@ -407,10 +407,10 @@ async function sweepWindow(p, id) {
       await p.evaluate(() => { const el = document.querySelector('[data-sweep-target]'); el.removeAttribute('data-sweep-target'); el.click(); }).catch(() => {});
       await sleep(380);
       const what = await p.evaluate(() => { const s = window.__sig; if (!s) return 'reloaded'; const h = x => { let v = 0; for (let k = 0; k < x.length; k++) v = (v * 31 + x.charCodeAt(k)) | 0; return v; }; const all = [...document.querySelectorAll('.win__body')].map(b => h(b.innerHTML) + ':' + [...b.querySelectorAll('input')].map(x => x.checked ? 1 : 0).join('')).join('|');
-        return document.getElementById('modal').open ? 'modal' : !document.getElementById('ctx').hidden ? 'menu' : window.__toasts.length > s.toasts ? 'toast' : Object.keys(window.arise.S.wins).length !== s.wins ? 'window' : !document.getElementById('ql').hidden ? 'quicklook' : document.querySelector('.walk') ? 'walk' : all !== s.all ? 'changed' : ''; });
+        return document.getElementById('modal').open ? 'modal' : !document.getElementById('ctx').hidden ? 'menu' : window.__toasts.length > s.toasts ? 'toast' : Object.keys(window.arise.S.wins).length !== s.wins ? 'window' : !document.getElementById('ql').hidden ? 'quicklook' : document.querySelector('.walk') ? 'walk' : document.querySelector('.ovwhy.open') ? 'drawer' : all !== s.all ? 'changed' : ''; });
       let popped = (p.popups || 0) > pops; if (!what && !popped) { await sleep(600); popped = (p.popups || 0) > pops; }
       if (what || popped) answered++; else if (pick.active || IDEMPOTENT.test(pick.label.replace(/ \[.*$/, ''))) quiet++; else none.push(pick.label);
-      await p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); document.getElementById('ctx').hidden = true; document.getElementById('ql').hidden = true; document.querySelector('.walk')?.remove(); });
+      await p.evaluate(() => { const m = document.getElementById('modal'); if (m.open) m.close(); document.getElementById('ctx').hidden = true; document.getElementById('ql').hidden = true; document.querySelector('.walk')?.remove(); document.querySelector('.ovwhy')?.remove(); });
       await p.evaluate(i => { Object.keys(window.arise.S.wins).filter(k => k !== i).forEach(k => window.arise.closeApp(k)); if (!window.arise.S.wins[i]) window.arise.openApp(i); }, id); await sleep(['apps', 'services', 'backups', 'automator', 'notes', 'photos'].includes(id) && !pick.tab ? 1700 : 120);   // these windows refresh themselves a moment after an action
       if (!pick.tab) await goTab(st);
     }
@@ -529,9 +529,9 @@ async function phone(browser, url) {
   const bar = await p.evaluate(() => ['#spotBtn', '#ccBtn', '#barClock'].filter(s => { const r = document.querySelector(s)?.getBoundingClientRect(); return !r || r.right > innerWidth + 1 || r.width < 1; })
     .concat([...document.querySelectorAll('#menus button.app')].filter(b => b.scrollWidth > b.clientWidth + 1 || b.parentElement.scrollWidth > b.parentElement.clientWidth + 1).map(() => 'the Menu label (cut off)')));
   rec('phone · menu bar', 'Spotlight, Control Center and the clock are on the screen', !bar.length, bar.join(', ') + ' off the screen');
-  // A toast sits above the dock, not on it.
+  // A toast sits above the bottom bar, not on it: the Dock, or on a phone since Leviticus the tab bar that replaces it.
   await p.evaluate(() => window.arise.toast('sweep toast', 'warn', 3000)); await settle(p, 300);
-  const tst = await p.evaluate(() => { const t = [...document.querySelectorAll('.toast')].pop()?.getBoundingClientRect(), d = document.querySelector('.dock').getBoundingClientRect(); return t ? Math.round(t.bottom - d.top) : null; });
+  const tst = await p.evaluate(() => { const t = [...document.querySelectorAll('.toast')].pop()?.getBoundingClientRect(); const d = ['#tabbar', '.dock'].map(s => document.querySelector(s)).find(e => e && e.getBoundingClientRect().height > 0)?.getBoundingClientRect(); return t && d ? Math.round(t.bottom - d.top) : null; });
   rec('phone · toasts', 'a toast sits above the dock', tst !== null && tst <= 0, `${tst}px into the dock`);
   rec('phone · desktop', 'the desktop has no layout faults', ...(f => [!f.length, f.join(' · ')])(await p.evaluate(LAYOUT, '#stage')));
   // The Desktop's files sit in a row above the widgets, never on top of them.
