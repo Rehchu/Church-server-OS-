@@ -390,3 +390,25 @@ class KioskAndSongs(unittest.TestCase):
                     self.assertEqual(len(songs._setlists()), 1)
                 (Path(d) / "setlist_2026-11-02.json").write_text(_j.dumps({"date": "2026-11-02", "songs": ["Make Room"]}))
                 self.assertEqual(len(songs._setlists()), 2)
+
+
+class ContactsAndPreview(unittest.TestCase):
+    """I-023: every page of the contact list; I-102: the saved preview follows the sample."""
+    def test_contacts_are_paged(self):
+        from unittest import mock
+        from arise_server import mail
+        pages = {None: {"data": [{"id": f"c{i}"} for i in range(100)], "has_more": True},
+                 "c99": {"data": [{"id": "c100"}, {"id": "c101"}], "has_more": False}}
+        def calls(m, p, b=None):
+            after = p.split("after=")[1] if "after=" in p else None
+            return {"ok": True, "data": pages[after]}
+        with mock.patch.object(mail, "load", return_value=mock.Mock(demo=False)), \
+             mock.patch.object(mail, "ensure_audience", return_value={"ok": True, "id": "aud"}), \
+             mock.patch.object(mail, "_call", side_effect=calls):
+            r = mail.contacts()
+        self.assertEqual(r["count"], 102); self.assertNotIn("err", r)
+
+    def test_preview_version_follows_the_seed(self):
+        js = (ROOT / "web" / "demo-mock.js").read_text()
+        self.assertNotIn("const VERSION = 1;", js)
+        self.assertIn("JSON.stringify(SEED)", js[js.index("const VERSION"):js.index("const VERSION") + 300])

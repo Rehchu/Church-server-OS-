@@ -20,6 +20,7 @@ import re
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime
 
@@ -204,11 +205,27 @@ def contacts(limit: int = 2000) -> dict:
     a = ensure_audience()
     if not a["ok"]:
         return {"contacts": [], "count": 0, "err": a["err"]}
-    r = _call("GET", f"/audiences/{a['id']}/contacts")
-    if not r["ok"]:
-        return {"contacts": [], "count": 0, "err": r["err"]}
-    rows = r["data"].get("data", [])[:limit]
-    return {"demo": False, "audience": a["id"], "contacts": rows, "count": len(rows)}
+    # Resend pages the list (scout I-023): walk it 100 at a time, to 5,000 at most.
+    rows, after, more = [], None, False
+    for _ in range(50):
+        q = f"/audiences/{a['id']}/contacts?limit=100" + (f"&after={urllib.parse.quote(str(after), safe='')}" if after else "")
+        r = _call("GET", q)
+        if not r["ok"]:
+            if not rows:
+                return {"contacts": [], "count": 0, "err": r["err"]}
+            break
+        page = (r.get("data") or {}).get("data", []) or []
+        rows += page
+        more = bool((r.get("data") or {}).get("has_more")) and bool(page)
+        if not more:
+            break
+        after = page[-1].get("id")
+        if not after:
+            break
+    out = {"demo": False, "audience": a["id"], "contacts": rows[:limit], "count": len(rows)}
+    if more:
+        out["err"] = f"showing the first {len(rows)}; the list is longer"
+    return out
 
 
 # ---- the newsletter ------------------------------------------------------------

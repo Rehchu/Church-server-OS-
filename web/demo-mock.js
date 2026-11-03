@@ -18,7 +18,10 @@
 const SEED = window.ARISE_DEMO_DATA;
 if (!SEED) return;
 const KEY = 'arise.preview.v1';
-const VERSION = 1;
+// The saved preview is thrown away whenever the sample data or this mock changes (scout I-102):
+// a short hash of the seed, plus MOCK_REV bumped by hand when the mock's own shapes change.
+const MOCK_REV = 2;
+const VERSION = (() => { const t = JSON.stringify(SEED); let h = 5381; for (let i = 0; i < t.length; i += 7) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return MOCK_REV + ':' + t.length + ':' + h.toString(36); })();
 
 /* ---------- small helpers ---------- */
 const clone = x => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
