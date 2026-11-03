@@ -677,6 +677,171 @@ binding/unlock have been verified. Early-boot SSH is opt-in: use the configured
 LAN boot address, which may differ from `arise-server`; the server's Tailscale
 and AD DNS are not running at the unlock prompt. See docs/SECURITY.md.
 
+## Round 8 (Nov 2): 158 questions on the Round 8 page
+
+Asked on the Round 8 page (docs/QUESTIONS-ROUND-8.md) after the scout of Nov 2; Bradly answered every one the same day. 136 took the recommendation; the 22 that did not, or that carry his own words, say what they change. Where an answer changes an earlier row, this row wins.
+
+| # | Question | Answer | What it changes |
+|---|---|---|---|
+| 1 | Are the closet screen and the dashboard in a browser two different things now? | Two faces of one code: the closet screen is the health board and the apps; the browser dashboard is the same apps in a simpler shell for your phone and laptop |  |
+| 2 | The closet screen's job, in one line? | The full desktop, as now | the closet monitor stays the full desktop; the house board is only its resting screen |
+| 3 | What opens first on the closet monitor after sign-in? | Finder everywhere | Finder opens first on the monitor too |
+| 4 | Which three widgets sit at the top of the column on the monitor? | Needs you, Live CPU, The box | the monitor's widget column starts Needs you, Live CPU, The box |
+| 5 | The window close, minimise and zoom dots: round 4, 71 picked Mac-style. For the overhaul, keep them or go to the house style? | Keep the Mac dots | the window dots stay Mac-style (red, yellow, green) |
+| 6 | The Dock on the closet monitor: always visible there, autohide only on laptops and phones? | Always visible on the monitor; autohide on laptops and phones |  |
+| 7 | When the server is briefly out of reach, what should the desktop show? | The last real numbers greyed, a red bar saying out of reach and retrying; never sample data on the box |  |
+| 8 | Failure toasts: stay until dismissed, with a Copy button? | Errors stay until dismissed, with Copy; successes fade |  |
+| 9 | On a phone: one app at a time with a bottom bar of your pinned apps, or the desktop squeezed to fit? | One app at a time, a bottom bar: Needs you, Files, Sunday, Calendar, More |  |
+| 10 | Anything on the current look you want gone before the overhaul? Colours, fonts, the flame, the grid wall, the dock, the dots. | "less blocky looking, and more smooth Rounded corners. More like the newest MACOS feel." | **the v0.9 look**: rounded, smooth, glass, like the newest macOS; replaces the square 'Master Control' panel spec |
+| 11 | The Terminal is a root shell. Should it ask the password again, like a delete does? | Yes, password again, remembered five minutes |  |
+| 12 | A Sessions page: every signed-in device per person, with Sign out here and Sign out everywhere? | Yes: a Sessions page, Sign out everywhere in the flame menu, and any password change signs out every browser |  |
+| 13 | When the monitor locks after ten minutes, should the server end the session too? | Yes: lock means signed out until the password or PIN |  |
+| 14 | How should a phone on Tailscale trust the dashboard's certificate? | Both: serve it on the Tailscale name too, and a one-tap profile that installs the church root |  |
+| 15 | Should staff add the checklist page itself to their home screen, its own icon? | Yes, its own icon named Checklist |  |
+| 16 | A staff PIN is bound to one browser. Should Safari and the home-screen app on the same phone both count as that phone? | Yes, up to three browsers on one phone |  |
+| 17 | An admin with two-step on: a PIN still asks for the Authenticator code. Keep that? | PIN alone unlocks the lock screen; a fresh sign-in still asks the code |  |
+| 18 | Someone with two-step on loses their phone and no admin is around. | A reset link to their personal email switches it off | a lost phone: a reset link to the person's personal email switches two-step off (replaces printed backup codes) |
+| 19 | Ten wrong passwords from one address wait fifteen minutes. Round 3, 27 said no lockout. Keep the wait? | Keep it, and tell me at ten like the PIN does |  |
+| 20 | The new-device email: add two links, Yes it was me, and No, sign it out? | Yes, both links |  |
+| 21 | Who exactly sees the portal in a browser? | Keep none; nobody but admins uses the dashboard | nobody but admins uses the browser dashboard; the per-person portal flag is not built |
+| 22 | When the box asks for the disk passphrase at boot, what should the closet screen show? | The splash with a passphrase line under the flame and a dot per key typed, plus the LAN address for the SSH unlock in small type |  |
+| 23 | Should the splash name the box and the version under the bar, and say what is starting? | Yes: arise-server, ariseOS 0.8, and a one-line what is starting |  |
+| 24 | After the 23:00 off, round 3, 30 said any key wakes the panel. It was never built. Still want it, and should the panel also go dark in the daytime after a while idle? | Any key wakes it; dark after 30 idle minutes any time of day; asleep until 06:00 at night |  |
+| 25 | While you are in another tab (Claude, YouTube Studio) or in Claude Desktop, should the desktop still lock after ten minutes? | No: time in another tab or in Claude Desktop counts as using the monitor |  |
+| 26 | What should the lock do to your browser tabs? | Keep my profile and tabs behind the lock; only Sign Out clears them |  |
+| 27 | Should the monitor refuse to lock during a service, so service mode stays up? | Yes: no lock during a service; it locks ten minutes after the service ends |  |
+| 28 | Nobody signed in on the monitor during a service: show service mode anyway? | Yes: a read-only board with the stream, each department's done-of-total and the clock; no names, no run sheet |  |
+| 29 | From the closet doorway, which part of service mode should be the big one? | The stream: LIVE or NOT LIVE in huge type, the checklists and run sheet beside it |  |
+| 30 | The idle glance view when nobody is signed in: round 5, 34 said clock, next service, verse, nothing about health; round 7, 102 said next service, backups, attention, stream. Which list? | Clock, next service, last backup ok or not, how many things need you, stream live or not, the verse; nothing clickable, no names |  |
+| 31 | If the dashboard is not answering when the monitor starts, what should the screen say? | An ariseOS page: The desktop is starting, the fix command, retrying by itself |  |
+| 32 | If the desktop (cage or Firefox) cannot start at all, fall back to the text console on the same screen? | Yes: after three failed starts tty1 shows arisetui, with a Discord #alerts line |  |
+| 33 | Screen Sharing from your phone: watch only, or control the monitor too? | Control too, it is yours alone |  |
+| 34 | Which apps are required and ship in the Launchpad? I propose Finder, Overview, Directory, Backups, Sunday, Calendar, Settings, Store, Help and Terminal; everything else (Notes, Photos, Monitor, Logs, Devices, Storage, Automations, Macs, Remote, Sites, Mail, Inbox) appears only after the Store installs or turns it on. | Those ten; the rest from the Store |  |
+| 35 | The core five are Nextcloud, Vaultwarden, Uptime Kuma, Netdata and File Browser (H4). Is Portainer required too, or Store only? | Required: install and start it with the box | Portainer joins the required apps, installed and started with the box |
+| 36 | File Browser is in the core five but its template says autostart off. Start it with the box? | Yes, start it with the box (60 MB) |  |
+| 37 | Guacamole powers Screen Sharing of the closet panel and the Remote app. With H4 it is not installed. A sixth core app? | No: from the Store the first time you need it | Guacamole stays in the Store; installed the first time Screen Sharing is used |
+| 38 | When a Store app does not fit in the memory budget (Ollama or Kdenlive beside Nextcloud on 16 GB), what should the card do? | Show it greyed with needs N GB more; Install puts it in stopped |  |
+| 39 | Who may open the Store and install apps? | Admins only, as now |  |
+| 40 | Should every installed Store app get an icon in Launchpad and open in a window, like Notes and Photos do? | Yes, every installed app gets an icon and a window, with Open in a tab as the pop-out |  |
+| 41 | Updating a Store app's image: only through Software Update (Saturday 03:30 after a snapshot), or also an Update button on the app's card? | Both: the Store button for the small apps, Saturday for the rest | app images update from the Store's button (small apps) and on Saturday (the rest) |
+| 42 | Should the server check for newer app images by itself once a week and show the count, or only when you press Check apps? | Weekly by itself, Saturday 02:30, a line in Discord #weekly |  |
+| 43 | Removing a Store app keeps its data folder. Should the Store also offer Remove and delete its data, with the name typed twice? | No: deleting stays by hand on the command line |  |
+| 44 | GIMP, Inkscape, Kdenlive and the rest save into the shares. Which identity should they write as? | The arise service user, like File Browser (anyone in the share can then edit the file) |  |
+| 45 | A Required badge on the core five, with Remove hidden and Stop behind a typed confirm? | Yes: badge, Remove hidden, Stop asks for the name and says what it breaks |  |
+| 46 | Your Oct 28 decision: keep the address Netgear A hands out and pin it on the box. ChatGPT's merge switched the installer to plain DHCP and the wizard can no longer pin. Which on install day? | Pin it, as decided, after the installer checks nobody else answers at that address; upkeep tells #alerts if the address ever changes |  |
+| 47 | Where may the disk passphrase be written down? | The safe card only, plus you and Kristina from memory |  |
+| 48 | Should password SSH be off from the very first Ubuntu boot, before the wizard runs? | Off from the start; the closet monitor is the way in until a key is added |  |
+| 49 | The Discord webhooks and the Synology's address: ask them in the install wizard, or in the dashboard's guided first sign-in? | The dashboard; the wizard asks nothing about Discord or the NAS |  |
+| 50 | While the install runs, what should the monitor show? | A progress screen: step name, minutes elapsed, apps downloaded; the log on Ctrl+Alt+F2; an install report saved and posted to #alerts |  |
+| 51 | Should the private disc carry more than the Resend key? | Add the four Discord webhooks; never the restic password |  |
+| 52 | After install day, where does the private disc live? | One copy in the safe beside the safe card; the PC copy deleted |  |
+| 53 | At the end of setup, show the Tailscale sign-in link so the box is reachable from home the same evening? | Yes, on the final screen, skippable |  |
+| 54 | Your own Linux account on the HP: bradly, as INSTALL.md says, or bradly.dyer to match the domain? | bradly on the box, bradly.dyer on the domain |  |
+| 55 | The HP's firmware: install with Secure Boot on, and switch it to UEFI if it is in Legacy mode today? | UEFI, Secure Boot on; test the stick boots before wiping |  |
+| 56 | Before the 30-minute run, should the wizard check the basics and stop on a plain line? | Yes, a pre-flight before Go; each failure one line with the fix |  |
+| 57 | The HP's exact CPU, RAM, disks, firmware and TPM, and the DS216's DSM version: have you got any of those yet? | "whatever the base factory versions of them are. and i have no idea what DSM version the Synology uses." |  |
+| 58 | A forwarded email has an attachment. What happens? | Never forward files: a line saying what was attached and where to get it | forwarded mail never carries files: a line names each attachment and where it waits (replaces forwarding attachments) |
+| 59 | Mail that Resend marks as spam: forward it anyway? | Don't forward it; list it in the forwarding log so it can be found |  |
+| 60 | Mail to an address nobody has (office@, info@, pastor@arisecenla.com): where does it go? | Nowhere, just the log | mail to an address nobody has goes nowhere; the forwarding log keeps it |
+| 61 | Department addresses, like media@arisecenla.com going to everyone in Media? | Yes, every department group gets one |  |
+| 62 | The day forwarding is turned on, what about mail already sitting at Resend since Oct 31? | Only mail from that moment on |  |
+| 63 | Someone's personal address bounces (a typo on the profile). Who hears, and what happens to the message? | You in #alerts and the person on their Mac; the message waits in the Mail app's Staff tab with a Send again button |  |
+| 64 | Who gets a church inbox on the dashboard besides Kristina? | Kristina and both pastors | church inboxes on the dashboard: Kristina and both pastors |
+| 65 | What name goes on email Kristina sends from her inbox? | Kristina Robinson | Kristina's mail goes out as 'Kristina Robinson' |
+| 66 | Make the Inbox a real mail client: opening marks read, Archive, Spam and Trash buttons, a search box, attachments you can click? | Yes, all of it |  |
+| 67 | New mail in her inbox: a notification? | A Mac notification and the notification centre |  |
+| 68 | When a person with an inbox leaves, what happens to it? | Export it to the folder of whoever takes their files, then delete it in Resend |  |
+| 69 | Which address should the church newsletter come from? | news@arisecenla.com, reply-to the church Gmail |  |
+| 70 | Resend's free plan is 100 emails a day and 3,000 a month, and forwards, notices and newsletters all count. Stay free with a warning, or pay? | Free; warn in Discord at 80 a day and 2,400 a month |  |
+| 71 | The backup starts at 03:00 and Software Update at 03:30 Saturday; when the backup runs long the update is skipped for a week. Which? | Update waits for the backup, then runs, and tells you if it ran out of night |  |
+| 72 | The nightly backup stops every app, Nextcloud included, for the whole upload. Keep that, or stop them only long enough to copy to the SSD, then upload from the copy? | Stop, copy to the SSD, restart, then upload |  |
+| 73 | Today one good job (even just the song lyrics) counts as the backup ran. Watch every job on its own, and list every folder no job covers? | Yes: one row per job, red after 26 hours, and a not-backed-up list under it |  |
+| 74 | A failed backup job: Discord #alerts and your phone the same night, once per job? | Yes: #alerts and a push, once per job per night |  |
+| 75 | Rebuilding from Arise-Home needs root's SSH key, which dies with the server's disk. Where does a copy live? | On the private install disc, next to the Resend key |  |
+| 76 | Today the server can delete snapshots on the Synology and on Arise-Home. Make Arise-Home append-only, with the pruning done at home? | Yes, append-only at home; prune from Arise-Home's own timer |  |
+| 77 | The first full backup to Arise-Home over your home internet may take days. How do we get there? | Several nights, one job at a time, smallest first, until it catches up |  |
+| 78 | One Restore place: pick a share or home, pick a night, restore a file or the whole share beside the live one; and the install disc restores homes, shares and apps too, with the plan printed first? | Yes, both: the Restore wizard and the disc restoring every job |  |
+| 79 | The media job (Proclaim graphics on the Synology) fails red every night until the DS216 has drives. Show it grey as waiting for the Synology until it has mounted once? | Grey waiting for the Synology until it has mounted once |  |
+| 80 | What should the hourly upkeep add for the Synology, the UPS and the apps? | Free space at 80 %, a degraded mirror, a failed Hyper Backup, a UPS on battery, a crash-looping app: each to #alerts once |  |
+| 81 | After the UPS shuts the box down it comes back waiting for the passphrase and cannot say so. Should Arise-Home tell you when Pineville has been silent for 30 minutes? | Yes: Arise-Home posts to #alerts and pushes after 30 minutes of silence |  |
+| 82 | With the passphrase at boot the Saturday update never restarts the box by itself. Where is a restart is waiting shown until someone does it? | Needs You and #alerts once, then again every Saturday until done |  |
+| 83 | The Synology has no drives yet, so a leaver's forever-copy (round 7, 60) has nowhere to go. Until the drives come? | Copy to the server's own disk (/srv/arise/leavers) and move on; it goes to the Synology when it exists |  |
+| 84 | The older Mac set-up (enroll-mac.sh, the Desktop linked into the SMB mount, the 15-minute copy) still ships next to the helper's Nextcloud task. Retire it? | Retire it; keep the copy script only for the pastors' personal Macs (round 1, 34) |  |
+| 85 | When Convert has to wait because the person is signed in, should the Mac start their sync by itself once the conversion goes through? | Yes, by itself |  |
+| 86 | Hidden files (names starting with a dot) in Desktop, Documents and Downloads: sync them or leave them on the Mac? | Sync them | hidden files in Desktop, Documents and Downloads sync too |
+| 87 | Downloads syncs installers and disk images too; a 12 GB macOS installer would go to the server and the phone. A size limit in Downloads only? | No limit anywhere | no size limit on what syncs, Downloads included |
+| 88 | Tell you in #alerts when a Mac has not synced for 3 days, when Nextcloud is stopped, or when the watcher is down? | Yes, once each, like a missed backup, and a sync row in arisectl doctor |  |
+| 89 | After a Cut off, the Mac keeps the dead account in its Nextcloud client until someone removes it by hand. Should the helper clear it and set the Mac up again when the person is cleared? | Yes, the helper does it |  |
+| 90 | Earlier versions are kept only for changes made through Nextcloud; a save over SMB or in the dashboard keeps no version. Enough, with the nightly backup? | Enough: the backup covers the rest |  |
+| 91 | The older copy of a conflict in a shared folder is filed under a sync user in that folder's Trash. File it under the person who last changed the file instead? | Under the person who last changed it |  |
+| 92 | When you rename someone (round 7, 13), should the helper sign the Macs into Nextcloud again under the new name and rename the Mac home folder on its next check-in? | The helper does it on its next check-in |  |
+| 93 | Phones: one profile that trusts the church certificate and adds Contacts, from the Sync panel, with the Nextcloud device password as a QR code, and Contacts on a device password too so Cut off covers it? | Yes: one profile, a QR, and a device password for Contacts |  |
+| 94 | Shared with me on a Mac: today there are two doors, the shared SMB share and Nextcloud's sidebar. Keep which, and should it also be a folder inside Documents? | Nextcloud's sidebar only; the SMB share stays for Finder's Open on my Mac |  |
+| 95 | Should the helper report each Mac's sync state (up to date, 14 files pending, error: name too long) at every check-in? | Yes, on the Macs page and the Sync panel |  |
+| 96 | You delete an account. What they shared, the links they made, their profile details? | All of it goes with the account |  |
+| 97 | Department accounts (media, inedge, childrens.department) are shared logins with no personal email. The 90-day unused line and the new-device email: skip them? | Skip department accounts for both |  |
+| 98 | Staff hand in their photo for the login faces how? They don't use the dashboard. | They email it to it@arisecenla.com; it shows in the Inbox app and you add it with one click |  |
+| 99 | Any other profile fields worth keeping? Start date, emergency contact, shirt size, anniversary. | "Start date, emergency contact, shirt size, anniversary." | profile fields added: start date, emergency contact, shirt size, anniversary |
+| 100 | Someone joins a group after a folder was shared with that group. Do they get it too? | Yes, by themselves; and someone who leaves the group loses it |  |
+| 101 | Can staff share a file from a department folder (Media, Worship) with someone outside that department? | Yes, from any department folder they can write to |  |
+| 102 | A file deleted on a Mac goes into Nextcloud's own trash, not the share's .Trash that Finder's Put Back and the 30-day sweep know. One Trash or two? | One: Nextcloud's deletes land in the same .Trash/<user>, so Put Back covers both |  |
+| 103 | A share's Trash can swallow the disk (a 6 GB recording deleted twice). Besides the 30 days, sweep by size too? | Also sweep when a share's Trash passes 50 GB, oldest first, with a Discord line |  |
+| 104 | Earlier versions for a year (round 7, 46): the backup keeps every night for 30 days, one a week for 12 weeks, then one a month. Is that cadence the year, or every night for a year? | Nightly for 30 days, weekly for 12 weeks, monthly after, as the backup keeps |  |
+| 105 | A new department today means editing arise.toml twice, a share, a Nextcloud mount, a group and a checklist, in that order. One verb and one card in Directory that does all of it from a name, plan shown first? | Yes: arisectl department add, and a card in Directory |  |
+| 106 | A Storage tab with the 50 biggest files, exact duplicates across homes and shares, and a find-a-file box (name, date, which Mac it came from, whether it sits in a Trash)? | Yes, all three, with Move to Trash asking for the name |  |
+| 107 | When you export a song's lyrics from Proclaim, what do you actually get? | I copy and paste from Proclaim's editor; no export | lyrics arrive by copy and paste from Proclaim's editor (no export file) |
+| 108 | Who is the worship leader for the Lyrics inbox? The username, first.last. | "Kristina.Robinson" | the Lyrics inbox's worship leader is kristina.robinson |
+| 109 | The inbox gets a song that song_bank.json doesn't have. How should you hear about it? | A line in the morning note and Discord #daily, beside the 02:05 report's summary line |  |
+| 110 | Which reporting window does the church's CCLI licence use? | Quarterly is fine; add a since-last-report button |  |
+| 111 | Should the server keep its own set list per service (seeded from the live description's CCLI lines and the PC's setlist file, ticked by you, a reported flag per song) feeding the CCLI report? | Yes: a set list per service on the server, ticked, feeds the report; the PC's files seed it |  |
+| 112 | Send me the six playlist links from YouTube Studio: Apostle Bryant, Pastor Vanessa, Glory Nights, Conferences, Guest Ministers, Praise Team. | "I will add them another date." | the six playlist links come later |
+| 113 | Who gets to search the sermon transcripts from their own account? | Staff and Media, read-only under Sermons, printable, no sung words |  |
+| 114 | With the EliteDesk's 4th-gen i5 as the server, should Whisper still run overnight for services with no StreamYard caption file? | Yes: one service a night, only where no VTT exists, after the backup |  |
+| 115 | A Sunday pack: one button on a video's card gathers the clean description for StreamYard, the set list with numbers from the bank, the Shorts that link to it, the thumbnails made for that date and the chapters, Copy on each block? | Yes, build it |  |
+| 116 | How long do the two services really run, for the calendar and the feed? | Sunday 10:30 to 12:30, Glory Night 19:00 to 21:00 (as now) |  |
+| 117 | Which address should the Subscribe button hand phones and Macs for the calendar feed? | The full name with the church certificate, over https |  |
+| 118 | In runner.json on the PC, is this server's budget keyed exactly ariseOS? | Yes, ariseOS |  |
+| 119 | Claude's one weekly plan-only preview (round 7, 157): make it a timer, Wednesday 02:30, posted to #daily? And the Preview tonight tile in Control Center? | Timer on Wednesday 02:30 to #daily; the tile stays behind a confirm with the quota note, refused Sun/Mon |  |
+| 120 | The morning note to #daily: every day, or only when something needs you? | Every day at 7:00, one line when all is well |  |
+| 121 | Should the Monday report include the mail numbers? | Yes: forwards, failures, newsletters sent, Resend's monthly count |  |
+| 122 | Should the server push Church-server-OS- only on branches, never main, the way the automator repo is held back? | Branches only; main is pushed by you |  |
+| 123 | A repo with commits both here and on GitHub: how often should the server nag? | Once, then a line in the Monday report |  |
+| 124 | A Why? on every red item: a drawer with the doctor's sentence, the last log lines, the matching audit entries, and the one allowed fix button (restart, re-run, clear)? | Yes, build it |  |
+| 125 | A Notification Center that keeps every toast with its time and a Copy button, and dock badges: Overview's icon with the needs-you count, Inbox with unread, Updates with pending? | Yes, both |  |
+| 126 | A lobby board at /board for any TV: next service countdown, stream state, the week, the verse, one line of health, no login, refreshed every minute? | Yes, build it |  |
+| 127 | Spotlight actions: typing restart web, back up now, lock, empty trash lists the action with the confirm it needs? | Yes |  |
+| 128 | An app shell that opens offline: the phone app paints in under a second over Tailscale and shows the last known Needs-you list greyed until the server answers? | Yes |  |
+| 129 | Should arisectl doctor grow the sign-in and monitor checks: the secret file, Caddy proxying 4147, the certificate's expiry, clock drift (two-step breaks at 90 seconds), the kiosk socket, which Firefox profile is in, kiosk restarts in the last hour? | Yes, all of them |  |
+| 130 | A Walk away button in the monitor's menu bar: lock, put the Firefox profile away, close Claude Desktop, darken the panel now, with an audit row? | Yes |  |
+| 131 | Send to the closet screen: from a phone or Mac, Show on the monitor on a sermon, a checklist, a run sheet or a site? | Yes |  |
+| 132 | The published preview: keep what you do between visits, or start fresh every time? | Start fresh on every republish, keep changes within one visit |  |
+| 133 | Should the preview's dates move with the calendar, so last backup 03:00 is always last night, and the badge show the sample's age? | Yes: shift every date to today on load; the badge says sample from Nov 1 with a start over button |  |
+| 134 | Members in the preview see exactly what members see on the box, even where that means for the administrator? | Yes, identical refusals |  |
+| 135 | Keep the 000000 spare two-step code in the preview? | Keep it, labelled preview only on the lock screen |  |
+| 136 | Who should the preview be signed in as when it opens, and which mail domain should it show? | You (bradly), with a one-click switch to Kristina and a member; addresses at arisecenla.com |  |
+| 137 | How much of the docs should ride inside the preview? | Only the docs a member would read: Portal guide, Help, What's new |  |
+| 138 | Should the preview carry a few failures on purpose (a missed backup night, a Mac silent three days, disk at 92 %) so you can see the red states? | Yes, behind a show problems switch on the Preview badge |  |
+| 139 | Serve the demo scripts only in demo mode? | Yes: only with ARISE_DEMO=1 or on the artifact, and gzip the rest |  |
+| 140 | What should this PR carry? | One PR: the overhaul, a before-and-after screenshot set, the preview link, the Round 8 page, and the answers folded into ANSWERS.md |  |
+| 141 | Which artifacts should be republished? | All three at the same links, plus a one-page what changed for Kristina |  |
+| 142 | This overhaul ships as? | v0.9.0 Leviticus | this overhaul ships as v0.9.0 "Leviticus" |
+| 143 | Should the browser sweep run on the box itself after each Software Update, with the result in Discord #weekly and a rollback to the snapshot if the dashboard does not answer? | Yes, Saturday after the update, result to #weekly, rollback if /api/health is dead |  |
+| 144 | When the sweep finds a failure, who hears? | Discord #alerts, one line per failure with the screenshot |  |
+| 145 | Should python3 -m unittest refuse to pass when node is missing or app.js has a syntax error? | Yes: a syntax check of web/*.js is one of the tests |  |
+| 146 | A route added without a preview sample: fail the tests or just warn? | Fail until the sample is added |  |
+| 147 | A contract test between the mock and the server: every GET and the common POST flows on both, failing on a key one has and the other lacks? | Yes |  |
+| 148 | Should the API sweep run against the real box after install day, read-only, as part of arisectl doctor? | Yes, GETs only, as the administrator, once a day |  |
+| 149 | What should an error say when a form is missing a field? | A sentence naming the field: channel is required |  |
+| 150 | ARCHITECTURE.md carries a full copy of arise.toml and a timer list, and both have drifted. One source of truth? | Yes: ARCHITECTURE links to arise.toml.example and CLAUDE.md's timer table; a test fails if it ever lists a key or timer again |  |
+| 151 | About, What's new shows the top of CHANGELOG.md, which still says TPM-unlocked disk and every template preinstalled. How do we correct it? | Add a new dated section on top: core five installed, passphrase at boot on the HP, the rest unchanged |  |
+| 152 | The Help app renders every docs/*.md for admins, including the question rounds, IDEAS, PARITY, ROADMAP, the ChatGPT review and the automator letters. Move the planning files out of Help? | Move them to docs/history/ (kept in git, still searchable by Claude); Help shows only the living docs |  |
+| 153 | docs/CLI.md misses a dozen verbs, templates/README.md's port table is missing Immich, and ARCHITECTURE's route list is by hand. Generate the three tables from the code, with a test that fails when they differ? | Yes, all three generated; the prose stays hand-written |  |
+| 154 | NODES.md still plans the Dell OptiPlex as a full ariseOS node. H6 made it the spare. What is the OptiPlex now? | It becomes Arise-Home at your house: the replica, the off-site target, Claude Desktop |  |
+| 155 | SECURITY.md still carries the Postfix/Dovecot mail server design. The built thing is Resend forwarding plus the Inbox. Retire the design? | Retire it: a paragraph says forwarding and Inbox are what exists and why; the Postfix text goes to docs/history |  |
+| 156 | Round 7, 47 made outside links admin-only and 7 days, but FINDER.md, DASHBOARD.md and the members' Portal guide still say never expires and right-click any file. Docs follow round 7, and what are members told? | Yes; the Portal guide says ask Bradly or Kristina for an outside link; it ends after 7 days |  |
+| 157 | INSTALL.md used to have a What is running table (address, port, first login) and three docs still point at it. Where should it live now? | Generated from the templates: arisectl info --card prints it, and INSTALL.md's After the desktop appears carries the same |  |
+| 158 | tests/test_docs_truth.py pins verbs and timers. Add the cheap checks it is missing: template ports against the README table, config keys in docs against arise.toml.example, OptiPlex never in a sentence about arise-server, every route in ARCHITECTURE exists, and the phrases the H rows retired (TPM unlocks, four-bay, every template preinstalled, @ad.arisecenla.com) never in a living doc? | Yes, all of them |  |
+
 ## Still needed
 
 - Inventory the HP EliteDesk 800 G1 SFF primary server and Dell OptiPlex 3010 spare: exact CPU, installed RAM, disk models/health, firmware and TPM version. Record the DS216's DSM version, existing pool and drive health before changing storage; models and primary role are decided (H1–H6).
