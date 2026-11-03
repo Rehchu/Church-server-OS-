@@ -305,13 +305,35 @@ def write_text(root_id: str, rel: str, text: str, who=None, expect_mtime: str | 
     if os.path.lexists(tmp):
         os.unlink(tmp)   # a stale save, or a link left there: removed, never written through
     st = os.stat(got[1])
-    with os.fdopen(files.create_new(tmp, st.st_mode & 0o777), "w", encoding="utf-8") as f:
-        f.write(text)
+    data = text.encode("utf-8")
+    # First the whole text into a side file (a full disk fails here, with the original untouched) ...
+    with os.fdopen(files.create_new(tmp, 0o600), "wb") as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+    # ... then into the file itself, in place: a new inode would lose the named ACLs a share put
+    # on it, its Mac metadata and its Nextcloud id (scout I-114). Owner and mode stay as they were.
     try:
-        os.chown(tmp, st.st_uid, st.st_gid)   # the file keeps its owner (root saves it)
+        fd = os.open(got[1], os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            view = memoryview(data)
+            while view:
+                view = view[os.write(fd, view):]
+            os.ftruncate(fd, len(data))
+            os.fsync(fd)
+        finally:
+            os.close(fd)
     except OSError:
-        pass
-    os.replace(tmp, got[1])
+        # Half written: the side file has the whole new text, so it takes the file's place.
+        os.chmod(tmp, st.st_mode & 0o777)
+        try:
+            os.chown(tmp, st.st_uid, st.st_gid)
+        except OSError:
+            pass
+        os.replace(tmp, got[1])
+        return {"ok": True, "demo": False, "bytes": len(data), "note": "saved as a new copy; its sharing may need setting again",
+                "mtime": datetime.fromtimestamp(os.stat(got[1]).st_mtime).isoformat(timespec="seconds")}
+    os.unlink(tmp)
     return {"ok": True, "demo": False, "bytes": len(text.encode("utf-8")), "mtime": datetime.fromtimestamp(os.stat(got[1]).st_mtime).isoformat(timespec="seconds")}
 
 

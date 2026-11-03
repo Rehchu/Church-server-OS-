@@ -311,3 +311,36 @@ class InboxDoesItsJob(unittest.TestCase):
         js = (ROOT / "web" / "app.js").read_text()
         self.assertIn("data-ibmv", js); self.assertIn("data-ibatt", js); self.assertIn("'trash'].map(f =>", js)
         self.assertIn("FULL access", (ROOT / "cli" / "arisectl").read_text())
+
+
+class EditorAndMorningNote(unittest.TestCase):
+    """I-114: a save keeps the file's inode (so its share ACLs); I-090: the note goes to Discord #daily."""
+    def test_save_in_place(self):
+        import tempfile
+        from unittest import mock
+        from arise_server import finder
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "notes.txt"; f.write_text("old text that is longer")
+            ino = f.stat().st_ino
+            from arise_server import files
+            with mock.patch.object(finder, "_abs", return_value=("home", str(f))), \
+                 mock.patch.object(finder, "_rs", return_value={"home": {"id": "home"}}), \
+                 mock.patch.object(files, "_writable", return_value=True), \
+                 mock.patch.object(finder, "load", return_value=mock.Mock(demo=False)):
+                r = finder.write_text("home", "notes.txt", "new", who={"user": "kim.lee"})
+            self.assertTrue(r["ok"], r)
+            self.assertEqual(f.read_text(), "new")
+            self.assertEqual(f.stat().st_ino, ino)
+            self.assertFalse((Path(d) / "notes.txt.arise-save").exists())
+
+    def test_daily_goes_to_discord(self):
+        from unittest import mock
+        from arise_server import system, discord
+        posted = []
+        with mock.patch.object(system, "load", return_value=mock.Mock(demo=False, state_dir=Path("/nonexistent"))), \
+             mock.patch.object(system, "notify_config", return_value={"webhook_url": "", "only_when_attention": False, "hour": 7}), \
+             mock.patch.object(discord, "_hooks", return_value={"daily": "https://discord.com/api/webhooks/x"}), \
+             mock.patch.object(discord, "post", side_effect=lambda ch, t, **k: posted.append(ch) or {"ok": True}), \
+             mock.patch.object(system, "write_json"), mock.patch.object(system, "read_json", return_value={}):
+            r = system.daily_report([], {})
+        self.assertEqual(posted, ["daily"]); self.assertTrue(r["sent"]); self.assertEqual(r["channel"], "discord #daily")

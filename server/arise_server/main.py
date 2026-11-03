@@ -2266,6 +2266,9 @@ def api_notify_test(_=recent_admin):
     c = load()
     if c.demo:
         return {"ok": True, "demo": True}
+    from . import discord
+    if discord._hooks().get("daily"):   # where the morning note goes (scout I-090)
+        return discord.test("daily")
     return system.send_webhook("Arise Server: test note from the dashboard. If you can read this, the daily 07:00 note will arrive here.")
 
 
@@ -2274,7 +2277,10 @@ def api_notify(_=admin):
     from .util import read_json
     n = system.notify_config()
     st = read_json(load().state_dir / "state.json", default={}) or {}
-    return {"configured": bool(n["webhook_url"]), "hour": n["hour"], "only_when_attention": n["only_when_attention"], "last": st.get("last_notify")}
+    from . import discord
+    daily = bool(discord._hooks().get("daily"))
+    return {"configured": bool(n["webhook_url"]) or daily, "channel": "discord #daily" if daily else ("[notify] webhook_url" if n["webhook_url"] else ""),
+            "hour": n["hour"], "only_when_attention": n["only_when_attention"], "last": st.get("last_notify")}
 
 
 @app.websocket("/api/terminal")

@@ -178,7 +178,21 @@ def daily_report(attention: list[dict], summary: dict) -> dict:
     text = "\n".join(lines)
     result = {"when": now_iso(), "sent": False, "text": text}
     if attention or not n["only_when_attention"]:
-        r = send_webhook(text) if n["webhook_url"] and not cfg.demo else {"ok": False, "err": "no webhook / demo"}
+        r = {"ok": False, "err": "no webhook / demo"}
+        if not cfg.demo:
+            try:
+                from . import discord
+                has_daily = bool(discord._hooks().get("daily"))
+            except Exception:  # noqa: BLE001
+                has_daily = False
+            if has_daily:   # Discord #daily is the plan (CLAUDE.md timers; scout I-090)
+                r = discord.post("daily", text, key=f"daily:{datetime.now():%Y-%m-%d}")
+                result["channel"] = "discord #daily"
+            elif n["webhook_url"]:
+                r = send_webhook(text)
+                result["channel"] = "[notify] webhook_url"
+            else:
+                r = {"ok": False, "err": "no Discord #daily webhook and no [notify] webhook_url"}
         result.update({"sent": r.get("ok", False), "error": r.get("err")})
     if not cfg.demo:
         sp = cfg.state_dir / "state.json"
