@@ -198,8 +198,13 @@ async function leaderReset() {
 
 // The preview has no server behind it: the page answers itself (web/demo-mock.js).
 (async () => {
-  if (!MOCK) { try { const r = await fetch('/api/health', { credentials: 'same-origin' }); if (!r.ok || !(r.headers.get('content-type') || '').includes('json')) MOCK = true; } catch { MOCK = true; } }
-  if (MOCK && !window.AriseMock) { $('#cl').innerHTML = '<p class="cl__empty">The server is not answering. On church Wi-Fi, or with Tailscale on, reload.</p>'; return; }
+  // Only the preview uses sample data; a real page that can't reach the server says so and retries (scout I-001).
+  if (!MOCK) {
+    let up = false;
+    try { const r = await fetch('/api/health', { credentials: 'same-origin', cache: 'no-store' }); up = r.ok && (r.headers.get('content-type') || '').includes('json'); } catch {}
+    if (!up) { $('#cl').innerHTML = '<p class="cl__empty">The server is not answering. On church Wi-Fi, or with Tailscale on, it tries again by itself.</p>'; setTimeout(() => location.reload(), 15000); return; }
+  }
+  if (MOCK && !window.AriseMock) { $('#cl').innerHTML = '<p class="cl__empty">The preview could not load its sample data.</p>'; return; }
   load();
 })();
 })();

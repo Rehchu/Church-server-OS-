@@ -17,7 +17,9 @@ ExecStart=/usr/local/bin/arisectl backup run
 ExecStopPost=/opt/arise/venv/bin/python -c "from arise_server.backups import resume_apps; import sys; r=resume_apps(); print(r); sys.exit(0 if r['ok'] else 1)"
 Environment=PYTHONUTF8=1
 Environment=ARISE_CONFIG=/etc/arise/arise.toml
-TimeoutStartSec=6h
+# Above the night's sum (every job, prune, the off-site copy). Each restic call stops itself ten
+# minutes before the next service (maintenance.backup_budget); this only catches a hang (scout I-014).
+TimeoutStartSec=20h
 TimeoutStopSec=15min
 Nice=10
 IOSchedulingClass=idle

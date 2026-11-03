@@ -15,7 +15,7 @@ read the same facts.
 | The restic password | on the closet card, by hand (Oct 28), and Kristina knows it (round 7, 58) | `/etc/arise/secrets/restic-password` on the box | `sudo arisectl rescue card` rewrites the card; the restic line stays blank for the pen |
 | Encryption | LUKS; passphrase at boot on the expected TPM 1.2 hardware (H3/H6) | chosen in the Ubuntu installer; optional LAN SSH unlock; TPM 2.0 only if verified usable | `sudo arisectl encrypt status` |
 | System snapshots | before every update, five kept (r3 23) | Timeshift, rsync mode, `/timeshift` on the root disk | `sudo arisectl snapshot create "note"` |
-| Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | `sudo arisectl reinstall <repo>` |
+| Reinstall | from the Synology's backup (r3 24) | docs/REINSTALL.md | a dead box: the install USB, then `sudo bash /opt/arise-src/installer/install.sh --restore <repo>` (`arisectl` is gone with the disk) |
 | Lockout | none (r3 27) | no fail2ban; domain lockout threshold 0 | nothing: his decision |
 | Virus scan | weekly, quarantine, a report (r3 28) | ClamAV, `arise-clamscan.timer` Sunday 23:30 | `sudo arisectl scan status` |
 | The church certificate | padlock on every Mac (r3 29) | Caddy's internal CA; `/ca.crt` | `sudo systemctl start caddy` |

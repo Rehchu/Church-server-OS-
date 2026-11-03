@@ -2057,7 +2057,9 @@ TS
       echo
       echo "Backups (restic on the Synology)"
       echo "  password  NOT here. Bradly's rule: the restic password lives on the CLOSET card only (written by hand) and in /etc/arise/secrets/restic-password."
-      echo "  rebuild   sudo arisectl reinstall /mnt/synology/arise-backups/restic     (docs/REINSTALL.md)"
+      echo "  rebuild   arisectl dies with the disk: boot the Arise install USB, install Ubuntu as on day one, Ctrl+Alt+F2 at the setup screen,"
+      echo "            mount the Synology, then: sudo bash /opt/arise-src/installer/install.sh --restore /mnt/synology/arise-backups/restic --no-start --no-apps"
+      echo "            and the rest of docs/REINSTALL.md. Arise-Home's copy needs the old box's SSH key: Bradly's, at his house."
       echo
       echo "Disk encryption (LUKS)"
       echo "  passphrase  ________________________________   (write it here by hand; type it at every start unless a TPM 2.0 binding below is working)"

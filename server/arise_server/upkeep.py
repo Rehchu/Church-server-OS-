@@ -156,7 +156,7 @@ def _macs() -> list[dict]:
 
 # ----- the Needs You items and the hourly posts -----------------------------------------
 def attention(now: datetime | None = None, hist: list[dict] | None = None, macs: list[dict] | None = None,
-              health_v: list[dict] | None = None) -> list[dict]:
+              health_v: list[dict] | None = None, job_ids: list[str] | None = None) -> list[dict]:
     """Every upkeep item that is true right now. The overview adds these to Needs You."""
     from . import backups, audit
     now = now or datetime.now()
@@ -171,6 +171,18 @@ def attention(now: datetime | None = None, hist: list[dict] | None = None, macs:
         items.append({"level": "bad", "key": f"backup-missed:{miss.get('since') or 'never'}",
                       "text": "No backup ran last night" + (f" (the last good one was {miss['last_ok'].replace('T', ' ')})" if miss.get("last_ok") else "")
                               + ". Backups shows why.", "fix": "sudo arisectl backup run"})
+    else:
+        # The night ran, but did every job? (scout I-014: one good job used to hide the rest.)
+        try:
+            ids = job_ids if job_ids is not None else backups.nightly_job_ids()
+        except Exception:  # noqa: BLE001 - a bad backups.yaml is reported by Backups itself
+            ids = []
+        stale = backups.stale_jobs(rows, ids, now)
+        if stale:
+            names = ", ".join(s["job"] + (f" (last good {s['last_ok'].replace('T', ' ')})" if s["last_ok"] else " (never)") for s in stale[:6])
+            items.append({"level": "bad", "key": f"backup-stale:{','.join(s['job'] for s in stale)}:{now.date().isoformat()}",
+                          "text": f"Last night's backup didn't reach {len(stale)} job{'s' if len(stale) != 1 else ''}: {names}. Backups shows why.",
+                          "fix": "sudo arisectl backup run " + stale[0]["job"]})
     for m in silent_macs(macs if macs is not None else _macs(), now, int(cfg_upkeep()["mac_silent_days"])):
         items.append({"level": "warn", "key": f"mac-silent:{m['id']}:{m['last']}",
                       "text": f"{m['name']} hasn't checked in for {m['days']} days" if m["days"] is not None else f"{m['name']} has never checked in",
@@ -418,11 +430,11 @@ code{{font-family:Menlo,Consolas,monospace;font-size:13px;background:#F4F2F0;pad
 <tr><td>Dashboard</td><td><code>https://{e(f['fqdn'])}</code> &nbsp;and the desktop on this monitor</td></tr><tr><td>Over Tailscale</td><td>the same address from any signed-in admin laptop or phone</td></tr></table>
 <h2>Three commands (Alt+F2 for a text login)</h2><table><tr><td>What is wrong?</td><td><code>sudo arisectl doctor</code></td></tr><tr><td>Dashboard stuck</td><td><code>sudo systemctl restart arise-web</code> &nbsp;(logins and shares keep working meanwhile)</td></tr><tr><td>Everything stuck</td><td><code>sudo reboot</code> &nbsp;about a minute; Macs keep working on cached accounts</td></tr></table>
 <h2>Getting in when the domain is down</h2><table><tr><td>Break-glass login</td><td><code>arise-rescue</code> at this monitor only (Alt+F2), never SSH. Every use is logged and reaches Bradly.</td></tr><tr><td>Its password</td><td>{rescue}</td></tr></table>
-<h2>The backups</h2><table><tr><td>Tonight's copy</td><td><code>{e(f['repo'])}</code> at 03:00; restore: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
+<h2>The backups</h2><table><tr><td>Tonight's copy</td><td><code>{e(f['repo'])}</code> at 03:00; a file back, on this box while it runs: <code>sudo arisectl backup restore latest --target /srv/arise/restore</code></td></tr>
 <tr><td>Off-site copy</td><td>Arise-Home (Bradly's house){(' &nbsp;<code>' + e(f['home']) + '</code>') if f.get('home') else ''}, every snapshot but the raw recordings</td></tr>
 <tr><td>Backup password (restic)</td><td>Write it here by hand: ______________________________ &nbsp;Kristina has it too.</td></tr>
 <tr><td>Disk passphrase</td><td>HP TPM 1.2: asked at every start ("Please unlock disk"); type it on this keyboard. If early-boot SSH has been configured and tested, use <code>ssh -p 2222 root@&lt;boot-LAN-IP&gt;</code> from the trusted LAN. Tailscale is unavailable before unlock. A supported TPM 2.0 may unlock automatically after a supervised test. Bradly and Kristina keep the passphrase on the safe card; it is not written here.</td></tr>
-<tr><td>Rebuild</td><td><code>sudo arisectl reinstall</code> from the Synology or Arise-Home (docs/REINSTALL.md)</td></tr></table>
+<tr><td>Rebuild (a dead box)</td><td><code>arisectl</code> is gone with the disk. Boot the Arise install USB and install Ubuntu as on day one (installer/MAKE-USB.md). At the ariseOS setup screen press Ctrl+Alt+F2, sign in, mount the Synology, then: <code>sudo bash /opt/arise-src/installer/install.sh --restore {e(f['repo'])} --no-start --no-apps</code> and the rest of docs/REINSTALL.md. From the Synology: Arise-Home's copy opens only with the old box's own SSH key, so it is Bradly's (at his house).</td></tr></table>
 <h2>Who to call</h2><table>{who}</table>
 <h2>Staff with a Mac problem</h2><table><tr><td>The IT portal</td><td><code>{e(it_portal())}</code> &nbsp;a ticket reaches Bradly</td></tr></table>
 <p class="ft">Printed {now:%Y-%m-%d} by <code>sudo arisectl rescue card</code>. Nothing on this page changes a router. Arise Church · Pineville, LA.</p></body></html>

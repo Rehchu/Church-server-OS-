@@ -62,16 +62,19 @@ async function api(path, opts = {}) {
   try {
     r = await fetch('/api' + path, { method, headers: opts.body && !(opts.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}, body: opts.body ? (opts.body instanceof FormData ? opts.body : JSON.stringify(opts.body)) : undefined, credentials: 'same-origin' });
   } catch (e) {
-    const d = demoLookup(method, path);
-    if (d) { setDemoOnly(); return structuredClone(d); }
-    throw new Error('Could not reach the server');
+    // Only the preview falls back to sample data. A real dashboard that loses the server (a restart,
+    // a Tailscale blip) says so and keeps what it showed, greyed, until it answers (scout I-001).
+    if (window.ARISE_FORCE_DEMO) { const d = demoLookup(method, path); if (d) { setDemoOnly(); return structuredClone(d); } }
+    netDown();
+    throw Object.assign(new Error('Could not reach the server'), { offline: true });
   }
   const ct = r.headers.get('content-type') || '';
   if (!ct.includes('json')) {
-    const d = demoLookup(method, path);
-    if (d) { setDemoOnly(); return structuredClone(d); }
-    throw new Error('The server answered with something that is not the Arise API');
+    if (window.ARISE_FORCE_DEMO) { const d = demoLookup(method, path); if (d) { setDemoOnly(); return structuredClone(d); } }
+    if (r.status >= 500) netDown();   // Caddy's 502 while arise-web restarts
+    throw Object.assign(new Error('The server answered with something that is not the Arise API'), { offline: r.status >= 500 });
   }
+  netUp();
   if (r.status === 401) { const j = await r.json().catch(() => ({})); throw Object.assign(new Error(j.error?.message || 'Sign in'), { status: 401, setup: j.error?.setup }); }
   const j = await r.json();
   if (r.status === 403 && j.error?.reauth && !opts._reauthRetried && path !== '/auth/reauth') {
@@ -80,6 +83,37 @@ async function api(path, opts = {}) {
   }
   if (!r.ok) throw Object.assign(new Error(j.error?.message || j.err || `HTTP ${r.status}`), { status: r.status, reauth: !!j.error?.reauth });
   return j;
+}
+/* Server out of reach: a red bar, the desktop greyed, a quiet retry with backoff (scout I-001). */
+const NET = { down: false, t: null, wait: 3000 };
+function netDown() {
+  if (S.demoOnly) return;
+  if (!NET.down) {
+    NET.down = true; NET.wait = 3000;
+    let b = $('#netBar');
+    if (!b) { b = document.createElement('div'); b.id = 'netBar'; b.className = 'netbar'; b.setAttribute('role', 'alert'); document.body.appendChild(b); }
+    b.innerHTML = '<b>Server out of reach</b> <span>retrying… what you see is from before</span> <button type="button" class="btn btn--ghost btn--sm">Try now</button>';
+    b.querySelector('button').onclick = () => { clearTimeout(NET.t); netProbe(); };
+    b.hidden = false; document.body.classList.add('net-down');
+  }
+  if (!NET.t) NET.t = setTimeout(netProbe, NET.wait);
+}
+async function netProbe() {
+  NET.t = null;
+  try {
+    const r = await fetch('/api/health', { credentials: 'same-origin', cache: 'no-store' });
+    if (r.ok && (r.headers.get('content-type') || '').includes('json')) return netUp(true);
+  } catch {}
+  NET.wait = Math.min(NET.wait * 2, 30000);
+  NET.t = setTimeout(netProbe, NET.wait);
+}
+function netUp(probed) {
+  if (!NET.down) return;
+  NET.down = false; clearTimeout(NET.t); NET.t = null;
+  const b = $('#netBar'); if (b) b.hidden = true;
+  document.body.classList.remove('net-down');
+  toast('The server is back', 'ok');
+  if (probed && S.authed) { buildWidgets().catch(() => {}); if (S.sse && S.sse.readyState === 2) { S.sse = null; startStats(); } }
 }
 function setDemoOnly() {
   if (S.demoOnly) return;

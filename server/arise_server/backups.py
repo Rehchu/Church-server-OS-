@@ -496,6 +496,38 @@ def missed_night(rows: list[dict], now: datetime | None = None, grace_h: float =
             "since": last.date().isoformat() if last else None}
 
 
+def stale_jobs(rows: list[dict], job_ids: list[str], now: datetime | None = None, grace_h: float = 26.0) -> list[dict]:
+    """Pure: each nightly job whose newest good backup is over ~a day old (scout I-014). One good
+    job no longer hides the rest: a slow night that finishes automator and songs, then dies before
+    homes, names homes. A job with no row at all is named too ("never"), once the box has history.
+    Returns [{job, last_ok}], in the order of job_ids."""
+    now = now or datetime.now()
+    if not rows:
+        return []
+    newest: dict[str, datetime] = {}
+    for r in rows:
+        if not (r.get("ok") and not r.get("skipped") and r.get("started")):
+            continue
+        try:
+            t = datetime.fromisoformat(str(r["started"])[:19])
+        except ValueError:
+            continue
+        j = r.get("job")
+        if j not in newest or t > newest[j]:
+            newest[j] = t
+    out = []
+    for j in job_ids:
+        t = newest.get(j)
+        if t is None or (now - t).total_seconds() >= grace_h * 3600:
+            out.append({"job": j, "last_ok": t.isoformat(timespec="minutes") if t else None})
+    return out
+
+
+def nightly_job_ids() -> list[str]:
+    """The jobs the night is expected to finish: every job in backups.yaml but the optional ones."""
+    return [j["id"] for j in jobs().get("jobs", []) if j.get("id") and not j.get("optional")]
+
+
 SAMBA_BACKUP_DIR = "/var/lib/arise/samba-backup"
 
 
