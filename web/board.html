@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arise House Board</title>
+<meta name="description" content="The Arise Church house board for any TV: the clock, the next service, the stream, the verse.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A0A0C">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/board.css">
+</head>
+<body class="hb-page">
+<div class="hb-stage">
+  <div class="hb__wall" aria-hidden="true"></div>
+  <div class="hb-wrap">
+    <div class="hb" id="hb" aria-live="off"></div>
+    <div class="hb-off" id="hbOff" hidden>The server is not answering. This page tries again every minute.</div>
+    <div class="hb-foot"><span class="saver__flame"></span><span id="hbName">Arise Church</span></div>
+  </div>
+</div>
+<span class="hb-sample" id="hbSample" hidden>Preview · sample data</span>
+<script>
+/* The lobby board (round 8, Q126): any TV's browser opens http://arise-server:4147/board. No login;
+   it reads one public feed, GET /api/public/board (counts and yes/no, never a name), every minute,
+   and counts the clock and the service down itself, once a second. The same board the closet
+   monitor shows at rest (web/app.js, hbHTML). Nothing on it is clickable. Add ?lite for a TV
+   without the power for glass (a Pi): solid cards, no blur, like the closet monitor. */
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const p2 = n => String(n).padStart(2, '0');
+const dept = d => String(d || '').replace(/-/g, ' ').replace(/\bchildrens\b/i, "Children's");
+const q = new URLSearchParams(location.search);
+if (q.has('lite') || q.has('kiosk')) document.body.classList.add('kiosk');
+// Only the preview uses sample data. On the box this page is served by the dashboard itself, so
+// a server that stops answering later says so and keeps the last real board (scout I-001).
+let MOCK = !!window.ARISE_FORCE_DEMO, data = null;
+
+const hm = d => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M$/i, '');
+function until(at) {
+  const s = Math.floor((new Date(at) - Date.now()) / 1000); if (!(s > 0)) return 'starting now';
+  if (s < 86400) return `in ${Math.floor(s / 3600)}:${p2(Math.floor(s % 3600 / 60))}:${p2(s % 60)}`;
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600); return `in ${d} day${d > 1 ? 's' : ''}${h ? ` ${h} h` : ''}`;
+}
+const since = at => { const s = Math.max(0, Math.floor((Date.now() - new Date(at)) / 1000)); return `${Math.floor(s / 3600)}:${p2(Math.floor(s % 3600 / 60))}:${p2(s % 60)}`; };
+function ago(at) {
+  const d = new Date(at); if (isNaN(d)) return ''; const t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(); const n = Math.round((day(new Date()) - day(d)) / 86400000);
+  return n === 0 ? `today ${t}` : n === 1 ? (d.getHours() >= 18 ? `last night ${t}` : `yesterday ${t}`) : `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${t}`;
+}
+
+function html(d) {
+  const n = d.next, live = d.stream ? d.stream.live : null, home = (d.church?.city || 'Pineville').split(',')[0];
+  const cls = live === true ? 'on' : live === false ? 'off' : 'unk';
+  if (n && n.in_service) {
+    const cl = d.checklists || [];
+    return `<div class="hb__air"><span class="hb__onair"><i></i>ON AIR</span><span class="hb__svcname">${esc(n.name)}${n.site && n.site !== home ? ' · ' + esc(n.site) : ''}</span><span class="hb__up" data-up="${esc(n.at)}"></span><span class="hb__sp"></span><span class="hb__now" data-time></span></div>
+      <div class="hb__svc"><div class="hb__card hb__stream hb__stream--${cls}"><span class="hb__k">The stream</span><b class="hb__live">${live === true ? 'LIVE' : live === false ? 'NOT LIVE' : 'CAN’T TELL'}</b><span class="hb__s">${live === null ? 'the channel’s live page did not answer' : 'YouTube, checked every minute'}</span></div>
+      <div class="hb__depts">${cl.length ? cl.map(c => { const pct = c.total ? Math.round(100 * c.done / c.total) : 0;
+        return `<div class="hb__card hb__dept${c.total > 0 && c.done === c.total ? ' is-done' : ''}"><span class="hb__k">${esc(dept(c.dept))}</span>${c.total > 0 ? `<b class="hb__v"><span class="hb__num">${+c.done || 0}</span><small> of ${+c.total}</small></b><span class="hb__bar"><i style="width:${pct}%"></i></span>` : '<b class="hb__v hb__v--sm">No list for this service</b>'}</div>`; }).join('')
+        : '<div class="hb__card hb__dept"><span class="hb__k">Checklists</span><b class="hb__v hb__v--sm">None for this service</b></div>'}</div></div>`;
+  }
+  const b = d.backup || {}, ny = d.needs_you, v = d.verse || {};
+  const at = n ? new Date(n.at) : null, when = at && !isNaN(at) ? `${at.toLocaleDateString('en-US', { weekday: 'short' })} ${at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : '';
+  return `<div class="hb__clock"><div class="hb__date" data-date></div><div class="hb__time" data-time></div></div>
+    <div class="hb__cards">
+      <div class="hb__card hb__card--next"><span class="hb__k">Next service</span><b class="hb__v">${n ? esc(n.name) : 'None set'}</b><span class="hb__s">${esc(when)}${n && n.site && n.site !== home ? ' · ' + esc(n.site) : ''}</span>${n ? `<span class="hb__count" data-in="${esc(n.at)}"></span>` : ''}</div>
+      <div class="hb__card hb__card--${b.ok === true ? 'ok' : b.ok === false ? 'bad' : 'unk'}"><span class="hb__k">Backups</span><b class="hb__v"><i class="hb__dot"></i>${b.ok === true ? 'All good' : b.ok === false ? 'Failed' : 'None yet'}</b><span class="hb__s">${b.when ? 'last ran ' + esc(ago(b.when)) : 'no run recorded'}</span></div>
+      <div class="hb__card hb__card--${ny ? 'warn' : ny === 0 ? 'ok' : 'unk'}"><span class="hb__k">Needs you</span><b class="hb__v"><span class="hb__num">${ny == null ? '–' : +ny}</span></b><span class="hb__s">${ny == null ? 'could not tell' : ny === 0 ? 'all is well' : ny === 1 ? 'thing to look at' : 'things to look at'}</span></div>
+      <div class="hb__card hb__card--stream hb__stream--${cls}"><span class="hb__k">Stream</span><b class="hb__v"><i class="hb__dot"></i>${live === true ? 'Live' : live === false ? 'Not live' : 'Can’t tell'}</b><span class="hb__s">YouTube</span></div>
+    </div>
+    ${v.text ? `<blockquote class="hb__card hb__verse"><p>${esc(v.text)}</p><cite>${esc(v.ref)}</cite></blockquote>` : ''}`;
+}
+
+function tick() {
+  const now = new Date(), t = hm(now), dt = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const put = (e, s) => { if (e.textContent !== s) e.textContent = s; };
+  document.querySelectorAll('[data-time]').forEach(e => put(e, t)); document.querySelectorAll('[data-date]').forEach(e => put(e, dt));
+  document.querySelectorAll('[data-in]').forEach(e => put(e, until(e.dataset.in))); document.querySelectorAll('[data-up]').forEach(e => put(e, since(e.dataset.up)));
+}
+function paint() {
+  const el = $('#hb'); if (!data) { el.innerHTML = '<div class="hb__clock"><div class="hb__date" data-date></div><div class="hb__time" data-time></div></div>'; tick(); return; }
+  el.innerHTML = html(data); el.classList.toggle('hb--air', !!data.next?.in_service); document.body.classList.toggle('onair', !!data.next?.in_service);
+  $('#hbName').textContent = `${data.church?.name || 'Arise Church'}${data.church?.city ? ' · ' + data.church.city : ''}`;
+  $('#hbSample').hidden = !MOCK; tick();
+}
+// The sample (1 MB) is fetched only by the preview, never by a TV on the box.
+const need = src => new Promise(ok => { const s = document.createElement('script'); s.src = src; s.onload = s.onerror = () => ok(); document.head.appendChild(s); });
+async function mockUp() { if (!window.AriseMock) { await need('/assets/demo-data.js'); await need('/assets/demo-mock.js'); } return !!window.AriseMock; }
+async function load() {
+  if (MOCK && !window.AriseMock) await mockUp();
+  try {
+    let d;
+    if (MOCK && window.AriseMock) d = await window.AriseMock.handle('GET', '/public/board');
+    else { const r = await fetch('/api/public/board', { cache: 'no-store', credentials: 'same-origin' }); if (!r.ok || !(r.headers.get('content-type') || '').includes('json')) throw new Error('no answer'); d = await r.json(); }
+    if (d && !d.error) { data = d; $('#hbOff').hidden = true; }
+  } catch {
+    // The published preview has no server behind it: board.html opened from the preview's files reads the sample.
+    if (!data && !MOCK && /board\.html$/.test(location.pathname) && await mockUp()) { MOCK = true; return load(); }
+    $('#hbOff').hidden = false;
+  }
+  paint();
+}
+paint(); load(); setInterval(tick, 1000); setInterval(load, 60000);
+})();
+</script>
+</body>
+</html>
